@@ -1,0 +1,14 @@
+﻿<Styles
+  xmlns = "https://github.com/avaloniaui"
+  xmlns:x = "http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:OFPF ="clr-namespace:OpenFlow_PluginFramework.NodeSystem;assembly=OpenFlow_PluginFramework">
+
+  <Styles.Resources>
+    <DataTemplate DataType="OFPF:DisplayValue" x:Key="NumberEnterDisplay">
+      <StackPanel Orientation="Horizontal" Spacing="4">
+        <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+        <NumericUpDown Value="{Binding Value}" VerticalAlignment="Center"/>
+      </StackPanel>
+    </DataTemplate>
+  </Styles.Resources>
+</Styles>

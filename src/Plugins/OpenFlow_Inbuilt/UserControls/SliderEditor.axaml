@@ -1,0 +1,17 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="OpenFlow_Inbuilt.UserControls.SliderEditor"
+			 DataContext="{Binding DisplayedValue}">
+	<StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
+		<DockPanel HorizontalAlignment="Stretch">
+			<TextBlock HorizontalAlignment="Left" DockPanel.Dock="Left" Text="{Binding Name}"/>
+			<TextBlock HorizontalAlignment="Right" DockPanel.Dock="Right" Text="{Binding Value, StringFormat=\{0:00.0\}}}"/>
+		</DockPanel>
+		<Slider Value="{Binding Value}"		   
+					   Maximum="{Binding TypeDefinition.ConstraintValues[Max], FallbackValue=100}"
+					   Minimum="{Binding TypeDefinition.ConstraintValues[Min], FallbackValue=0}"/>
+	</StackPanel>
+</UserControl>

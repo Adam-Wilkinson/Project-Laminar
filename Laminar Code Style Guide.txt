@@ -1,0 +1,35 @@
+General:
+ - No public fields (always properties)
+ - Only one (ish) level of indentation. If you implement more complexity, make it it’s own method
+ - Avoid “else” (should be easier in conjunction with the last bullet point) (Sounds weird, ask me)
+ - Data validation up front, (if null => throw exception) instead of (if not null => do stuff)
+ - Do not use var; always explicitly write out the type. E.g. (string test = new();) instead of (var test = new string();)
+
+
+Class Ordering:
+  - Ordering Members
+    1. Fields
+    2. Constructors
+    3. Delegates/Events
+    4. Properties
+    5. Methods
+    6. Enums
+    7. Nested Classes
+
+   - Ordering modifiers
+    1. Const
+    2. Static
+    3. Readonly
+
+  - Ordering Accessibility
+    1. Public
+    2. Internal
+    3. Protected
+    4. Private
+
+
+Naming Conventions:
+  - Methods, classes, events and properties use PascalCase
+  - Method parameters use camelCase
+  - Fields use _underscoreCamelCase
+  - Anything static uses PascalCase

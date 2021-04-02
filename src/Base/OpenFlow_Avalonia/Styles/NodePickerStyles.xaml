@@ -1,0 +1,59 @@
+﻿<Styles
+  xmlns = "https://github.com/avaloniaui"
+  xmlns:x = "http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:coreNodes ="clr-namespace:OpenFlow_Core.Nodes;assembly=OpenFlow_Core"
+  xmlns:nds = "clr-namespace:OpenFlow_Avalonia.NodeDisplaySystem;assembly=OpenFlow_Avalonia">
+
+  <Design.PreviewWith>
+    <Border Padding="20">
+      <nds:NodePickerTabBar/>
+    </Border>
+  </Design.PreviewWith>
+	<Style Selector="nds|NodePickerTabBar">
+		<Setter Property="Template">
+			<ControlTemplate>
+				<Border BorderThickness="{DynamicResource ThemeBorderThickness}"
+						BorderBrush="{DynamicResource ThemeBorderMidBrush}">
+					<StackPanel Background="{DynamicResource ThemeBackgroundBrush}">
+
+						<Menu Items="{Binding Catagories, RelativeSource={RelativeSource TemplatedParent}}">
+							<Menu.Styles>
+								<Style Selector="MenuItem">
+									<Setter Property="Header" Value="{Binding Key}"/>
+									<Setter Property="Items" Value="{Binding Value.SubCatagories}"/>
+									<Setter Property="Command" Value="{Binding $parent[nds:NodePickerTabBar].SelectItem}"/>
+									<Setter Property="CommandParameter" Value="{Binding Value.Nodes}"/>
+								</Style>
+							</Menu.Styles>
+						</Menu>
+
+						<ItemsControl Items="{TemplateBinding CurrentDisplayNodes, Mode=OneWay}">
+							<ItemsControl.ItemsPanel>
+								<ItemsPanelTemplate>
+									<StackPanel Orientation="{Binding $parent[nds:NodePickerTabBar].Orientation}"
+												Spacing="30"
+												Margin="30"/>
+								</ItemsPanelTemplate>
+							</ItemsControl.ItemsPanel>
+							<ItemsControl.ItemTemplate>
+								<DataTemplate>
+									<Panel>
+										<nds:NodeDisplay Margin="4"
+															CoreNode="{Binding}"
+															VerticalAlignment="Top"/>
+										<Rectangle Fill="#00000000"
+													Stretch="Fill"
+													Cursor="Hand"
+													Tag="{Binding}"
+													ZIndex="5"/>
+									</Panel>
+								</DataTemplate>
+							</ItemsControl.ItemTemplate>
+						</ItemsControl>
+
+					</StackPanel>
+				</Border>
+			</ControlTemplate>
+		</Setter>
+	</Style>
+</Styles>

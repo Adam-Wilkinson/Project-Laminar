@@ -1,0 +1,157 @@
+﻿<Styles 
+  xmlns = "https://github.com/avaloniaui"
+  xmlns:x = "http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:av ="using:Avalonia.Controls.Templates"
+  xmlns:nds = "clr-namespace:OpenFlow_Avalonia.NodeDisplaySystem;assembly=OpenFlow_Avalonia"
+  xmlns:displays="clr-namespace:OpenFlow_Core.Nodes.VisualNodeComponentDisplays;assembly=OpenFlow_Core"
+  xmlns:conv = "clr-namespace:OpenFlow_Avalonia.Converters;assembly=OpenFlow_Avalonia">
+
+  <Style Selector="nds|NodeDisplay">
+    <Style.Resources>
+      <conv:IsNotNull x:Key="IsNotNull"/>
+      <conv:ConvertAlignment x:Key="AlignmentConverter"/>
+    </Style.Resources>
+    
+    <Setter Property="ClipToBounds" Value="False"/>
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Name="OuterBorder"
+                ZIndex="0"
+                CornerRadius="8"
+                BorderThickness="{DynamicResource ThemeBorderThickness}"
+                ClipToBounds="False">
+		<Border.Styles>
+			<Style Selector="Path.Connector">
+				<Setter Property="Tag" Value="{Binding}"/>
+				<Setter Property="IsVisible" Value="{Binding Converter={StaticResource IsNotNull}, FallbackValue=false}"/>
+				<Setter Property="Fill" Value="{Binding ColourHex}"/>
+				<Setter Property="Name" Value="{Binding Index}"/>
+			</Style>
+		</Border.Styles>
+		<Border.DataTemplates>
+
+			<DataTemplate DataType="displays:NodeFieldDisplay">
+				<Panel HorizontalAlignment="Stretch" Opacity="{Binding Opacity.Value}">
+					<Path Classes="Connector"
+						DataContext="{Binding InputConnector.Value}"
+						HorizontalAlignment="Left">
+						<Path.RenderTransform>
+							<TranslateTransform X="-17"/>
+						</Path.RenderTransform>
+					</Path>
+					<Path Classes="Connector"
+						DataContext="{Binding OutputConnector.Value}"
+						HorizontalAlignment="Right">
+						<Path.RenderTransform>
+							<TranslateTransform X="20"/>
+						</Path.RenderTransform>
+					</Path>
+					<Decorator
+						HorizontalAlignment="{Binding Alignment.Value, Converter={StaticResource AlignmentConverter}}"
+						Child="{Binding UIs[Avalonia.Controls.IControl].Observable}"
+						VerticalAlignment="Center"/>
+					<DockPanel>
+						<Button Command="{Binding RemoveSelf}"
+								Content="-"
+								IsVisible="{Binding RemoveSelf, Converter={StaticResource IsNotNull}}"
+								VerticalAlignment="Center"
+								DockPanel.Dock="Right"
+								HorizontalAlignment="Right"/>
+					</DockPanel>
+				</Panel>
+			</DataTemplate>
+
+			<DataTemplate DataType="displays:NodeLabelDisplay">
+				<Panel>
+					<Path Classes="Connector"
+						DataContext="{Binding InputConnector.Value}"
+						HorizontalAlignment="Left">
+						<Path.RenderTransform>
+							<TranslateTransform X="-17"/>
+						</Path.RenderTransform>
+					</Path>
+					<Path Classes="Connector"
+						DataContext="{Binding OutputConnector.Value}"
+						HorizontalAlignment="Right">
+						<Path.RenderTransform>
+							<TranslateTransform X="20"/>
+						</Path.RenderTransform>
+					</Path>
+					<TextBlock Text="{Binding LabelText.Value}"
+							   Opacity="{Binding Opacity.Value}"
+							   HorizontalAlignment="Center"/>
+				</Panel>
+			</DataTemplate>
+
+			<DataTemplate DataType="displays:MajorSeperator">
+				<Decorator Padding="10,0">
+					<Separator Width="{Binding $parent.Width}" Height="2" Background="{DynamicResource ThemeBorderLowBrush} " BorderBrush="White"/>
+				</Decorator>
+			</DataTemplate>
+
+		</Border.DataTemplates>
+			
+          <StackPanel ClipToBounds="False">
+            <TextBlock Text="{Binding CoreNode.Name, RelativeSource={RelativeSource TemplatedParent}}"
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Center"
+                       Margin="5"/>
+            <Border Name="Body"
+                    BorderThickness="8"
+                    Background="{DynamicResource ThemeBackgroundBrush}"
+                    MinHeight="50"
+                    MinWidth="150"
+                    ClipToBounds="False"
+                    CornerRadius="0,0,6,6">
+              <ItemsPresenter Name="PART_FieldContainer"
+				              Classes="NodeDisplay"
+                              Items="{Binding CoreNode.Fields, RelativeSource={RelativeSource TemplatedParent}}"/>
+            </Border>
+          </StackPanel>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+
+  <Style Selector="ItemsPresenter.NodeDisplay">
+    <Setter Property="ClipToBounds" Value="False"/>
+	<Setter Property="HorizontalAlignment" Value="Stretch"/>
+	<Setter Property="Margin" Value="5,0"/>
+    <Setter Property="ItemsPanel">
+      <ItemsPanelTemplate>
+        <StackPanel Spacing="6"/>
+      </ItemsPanelTemplate>
+    </Setter>
+  </Style>
+  
+  <Style Selector="Path.Connector">
+    <Setter Property="Width" Value="13"/>
+    <Setter Property="Height" Value="18"/>
+    <Setter Property="Stretch" Value="Fill"/>
+    <Setter Property="Stroke" Value="{DynamicResource ThemeBorderLowBrush}"/>
+    <Setter Property="StrokeThickness" Value="1.5"/>
+    <Setter Property="Data" Value="M 2,0 2,14 12,7 2,0 z"/>
+    <Setter Property="VerticalAlignment" Value="Center"/>
+  </Style>
+
+  <Style Selector="Path.Connector:pointerover">
+    <Setter Property="Stroke" Value="{DynamicResource ThemeBorderHighBrush}"/>
+  </Style>
+  
+  <Style Selector="nds|NodeDisplay:selected > Border#OuterBorder">
+    <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderMidBrush}"/>
+  </Style>
+
+  <Style Selector="nds|NodeDisplay:pointerover > Border#OuterBorder">
+    <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderHighBrush}"/>
+  </Style>
+
+  <Style Selector="nds|NodeDisplay > Border#OuterBorder">
+    <Setter Property="BorderBrush" Value="Black"/>
+    <Setter Property="Background" Value="Black"/>
+  </Style>
+    
+  <Style Selector="nds|NodeDisplay:error > Border#OuterBorder">
+    <Setter Property="Background" Value="DarkRed"/>
+  </Style>
+</Styles>

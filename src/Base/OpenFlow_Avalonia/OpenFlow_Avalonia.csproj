@@ -1,0 +1,55 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+    <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <NoWarn>NU1605</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Update="**\*.xaml.cs">
+      <DependentUpon>%(Filename)</DependentUpon>
+    </Compile>
+    <AvaloniaResource Include="**\*.xaml">
+      <SubType>Designer</SubType>
+    </AvaloniaResource>
+    <AvaloniaResource Include="Assets\**" />
+    <AvaloniaResource Include="Styles\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <AvaloniaResource Remove="Styles\NodeFields\**" />
+    <AvaloniaXaml Remove="Styles\NodeFields\**" />
+    <Compile Remove="Styles\NodeFields\**" />
+    <EmbeddedResource Remove="Styles\NodeFields\**" />
+    <None Remove="Styles\NodeFields\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Assets\Configs.xml" />
+    <Content Include="Assets\InbuiltNodePaths.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\.editorconfig" Link=".editorconfig" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="0.10.999-cibuild0010052-beta" />
+    <PackageReference Include="Avalonia.Desktop" Version="0.10.999-cibuild0010052-beta" />
+    <PackageReference Include="Avalonia.Markup.Xaml.Loader" Version="0.10.999-cibuild0010052-beta" />
+    <PackageReference Include="Avalonia.ReactiveUI" Version="0.10.999-cibuild0010052-beta" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Styles\NodePickerStyles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+    <None Update="Styles\NodeDisplayStyles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\OpenFlow_Core\OpenFlow_Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="OpenFlow_Core\" />
+  </ItemGroup>
+</Project>

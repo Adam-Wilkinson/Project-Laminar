@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Nodes>
+  <NodeTab TabName="Maths" Namespace="WindowsAutomator.NodeSystem.InbuiltNodes.Maths">
+    <NodeGroup GroupName="Arithmetic" Namespace="Arithmetic">
+      <Node>NodeAdd</Node>
+      <Node>NodeDifference</Node>
+      <Node>NodeMultiply</Node>
+      <Node>NodeDivide</Node>
+    </NodeGroup>
+    <NodeGroup GroupName="Functions" Namespace="Functions">
+      <Node>NodeSine</Node>
+    </NodeGroup>
+  </NodeTab>
+  <NodeTab TabName="Text Operations" Namespace="WindowsAutomator.NodeSystem.InbuiltNodes.StringOperations">
+    <Node>Node_Join_Strings</Node>
+  </NodeTab>
+</Nodes>

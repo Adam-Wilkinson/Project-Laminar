@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="NodePathSchema"
+    targetNamespace="http://tempuri.org/NodePathSchema.xsd"
+    elementFormDefault="qualified"
+    xmlns="http://tempuri.org/NodePathSchema.xsd"
+    xmlns:mstns="http://tempuri.org/NodePathSchema.xsd"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+>
+  <xs:element name="Nodes">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="NodeTab" minOccurs="1">
+          <xs:complexType>
+            <xs:choice>
+              <xs:sequence>
+                <xs:element name="NodeGroup" minOccurs="1">
+                  <xs:complexType>
+                    <xs:sequence>
+                      <xs:element name="Node" type="xs:string"/>
+                    </xs:sequence>
+                    <xs:attribute name="GroupName" type="xs:string"/>
+                    <xs:attribute name="Namespace" type="xs:string"/>
+                  </xs:complexType>
+                </xs:element>
+              </xs:sequence>
+              <xs:sequence>
+                <xs:element name="Node" type="xs:string"/>
+              </xs:sequence>
+            </xs:choice>
+            <xs:attribute name="TabName" type="xs:string"/>
+            <xs:attribute name="Namespace" type="xs:string"/>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+    
+</xs:schema>
