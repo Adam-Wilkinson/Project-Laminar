@@ -14,15 +14,15 @@
     using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Visuals;
     using OpenFlow_PluginFramework.Primitives;
 
-    public class NodeFieldDisplay : VisualNodeComponentDisplay<NodeField>, INotifyPropertyChanged
+    public class NodeFieldDisplay : VisualNodeComponentDisplay<INodeField>, INotifyPropertyChanged
     {
-        public NodeFieldDisplay(NodeField childField, NodeBase parentNode) : base(parentNode, childField)
+        public NodeFieldDisplay(INodeField childField, NodeBase parentNode) : base(parentNode, childField)
         {
             ChildComponent.ValueStoreChanged += BaseField_ValueStoreChanged;
 
             ChildComponent.PropertyChanged += (o, e) =>
             {
-                if (e.PropertyName == nameof(NodeField.DisplayedValue))
+                if (e.PropertyName == nameof(INodeField.DisplayedValue))
                 {
                     UpdateDisplayedValue();
                 }
@@ -47,7 +47,7 @@
                 return true;
             }
 
-            ILaminarValue relevantValue = connectionType == ConnectionType.Input ? ChildComponent.GetDisplayValue(INodeField.InputKey) : ChildComponent.GetDisplayValue(INodeField.OutputKey);
+            ILaminarValue relevantValue = connectionType == ConnectionType.Input ? ChildComponent.GetValue(INodeField.InputKey) : ChildComponent.GetValue(INodeField.OutputKey);
             if (relevantValue != null && connector is not ValueConnector)
             {
                 newConnector = new ValueConnector(relevantValue, ParentNode, connectionType);

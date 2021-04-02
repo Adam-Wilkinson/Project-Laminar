@@ -25,7 +25,7 @@
 
         public void Evaluate()
         {
-            outputField.Output = Math.Sin((double)inputField.Input);
+            outputField.SetOutput(Math.Sin(inputField.GetInput<double>()));
         }
     }
 }

@@ -26,7 +26,7 @@
 
         public void Evaluate()
         {
-            outputField.Output = (double)firstNumber.Input / (double)secondNumber.Input;
+            outputField.SetOutput(firstNumber.GetInput<double>() / secondNumber.GetInput<double>());
         }
     }
 }

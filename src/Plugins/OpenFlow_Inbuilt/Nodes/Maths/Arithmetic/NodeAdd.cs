@@ -29,10 +29,10 @@
 
             foreach (INodeField field in addFields)
             {
-                total += (double)field.Input;
+                total += field.GetInput<double>();
             }
 
-            totalField.Output = total;
+            totalField.SetOutput(total);
         }
     }
 }

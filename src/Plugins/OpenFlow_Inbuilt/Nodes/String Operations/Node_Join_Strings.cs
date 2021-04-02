@@ -28,10 +28,10 @@
             string output = string.Empty;
             foreach (INodeField field in combineStrings)
             {
-                output += (string)field.Input;
+                output += field.GetInput<string>();
             }
 
-            combinedString.Output = output;
+            combinedString.SetOutput(output);
         }
     }
 }

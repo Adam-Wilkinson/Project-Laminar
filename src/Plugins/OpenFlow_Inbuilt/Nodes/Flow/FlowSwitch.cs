@@ -31,7 +31,7 @@
 
         public FlowSwitch()
         {
-            valueInput.GetDisplayValue(INodeField.InputKey).PropertyChanged += FlowSwitch_OnTypeDefinitionChanged;
+            valueInput.GetValue(INodeField.InputKey).PropertyChanged += FlowSwitch_OnTypeDefinitionChanged;
         }
 
         public string NodeName => "Switch";
@@ -55,7 +55,7 @@
         {
             foreach (IVisualNodeComponent field in flowOutputs.VisualComponentList)
             {
-                if (field is INodeField valueField && valueField.DisplayedValue != null && valueField.DisplayedValue.Value.Equals(valueInput.Input))
+                if (field is INodeField valueField && valueField.DisplayedValue != null && valueField.DisplayedValue.Value.Equals(valueInput.GetInput()))
                 {
                     FlowOutField = valueField;
                     return;

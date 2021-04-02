@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OpenFlow_Core.Primitives.TypeDefinitionManagers
+namespace OpenFlow_Core.Primitives.LaminarValue.TypeDefinition
 {
-    public class ManualTypeDefinitionManager : IManualTypeDefinitionManager
+    public class ManualTypeDefinitionProvider : IManualTypeDefinitionProvider
     {
         private readonly List<ITypeDefinition> _typeDefinitions = new();
 

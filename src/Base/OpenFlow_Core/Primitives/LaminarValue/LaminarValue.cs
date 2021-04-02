@@ -1,4 +1,4 @@
-﻿namespace OpenFlow_Core.Primitives
+﻿namespace OpenFlow_Core.Primitives.LaminarValue
 {
     using OpenFlow_PluginFramework.Primitives;
     using OpenFlow_PluginFramework.Primitives.TypeDefinition;
@@ -11,15 +11,16 @@
     public class LaminarValue : INotifyPropertyChanged, ILaminarValue
     {
         private object _value;
-        private bool _isEditable;
+        private bool _isUserEditable;
         private ILaminarValue _driver;
         private ITypeDefinition _currentTypeDefinition;
         private string _name;
         private ITypeDefinitionProvider _typeDefinitionProvider;
 
-        public LaminarValue()
+        public LaminarValue(ITypeDefinitionProvider provider, bool isUserEditable)
         {
-            // _typeDefinitionProvider = new AutoTypeDefinitionProvider();
+            TypeDefinitionProvider = provider;
+            _isUserEditable = isUserEditable;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -64,7 +65,7 @@
             get => _driver == null ? _value : _driver.Value;
             set
             {
-                _currentTypeDefinition ??= TypeDefinitionManager.TryGetDefinitionFor(value, out ITypeDefinition typeDefinition) ? typeDefinition : null;
+                _currentTypeDefinition ??= TypeDefinitionProvider.TryGetDefinitionFor(value, out ITypeDefinition typeDefinition) ? typeDefinition : null;
 
                 if (_currentTypeDefinition != null && _currentTypeDefinition.TryConstrainValue(value, out object outputVal) && !outputVal.Equals(Value))
                 {
@@ -79,12 +80,12 @@
         /// </summary>
         public bool IsUserEditable
         {
-            get => _isEditable;
+            get => _isUserEditable;
             set
             {
-                if (_isEditable != value)
+                if (_isUserEditable != value)
                 {
-                    _isEditable = value;
+                    _isUserEditable = value;
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsUserEditable)));
                 }
             }
@@ -118,7 +119,7 @@
             }
         }
 
-        public ITypeDefinitionProvider TypeDefinitionManager
+        public ITypeDefinitionProvider TypeDefinitionProvider
         {
             get => _typeDefinitionProvider;
             set
@@ -140,7 +141,7 @@
                 return true;
             }
 
-            if (TypeDefinitionManager.TryGetDefinitionFor(value, out ITypeDefinition typeDefinition))
+            if (TypeDefinitionProvider.TryGetDefinitionFor(value, out ITypeDefinition typeDefinition))
             {
                 TypeDefinition = typeDefinition;
                 return true;
@@ -153,11 +154,9 @@
         /// Clones this OpenFlowValue
         /// </summary>
         /// <returns>A new OpenFlowValue with the same properties as this one</returns>
-        public ILaminarValue Clone() => new LaminarValue()
+        public ILaminarValue Clone() => new LaminarValue(TypeDefinitionProvider, IsUserEditable)
         {
-            TypeDefinitionManager = TypeDefinitionManager,
             Value = Value,
-            IsUserEditable = IsUserEditable,
             Name = Name,
         };
 

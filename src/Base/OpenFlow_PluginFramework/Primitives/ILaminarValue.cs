@@ -11,7 +11,7 @@ namespace OpenFlow_PluginFramework.Primitives
 
         bool IsUserEditable { get; set; }
 
-        ITypeDefinitionProvider TypeDefinitionManager { get; set; }
+        ITypeDefinitionProvider TypeDefinitionProvider { get; set; }
 
         ITypeDefinition TypeDefinition { get; }
 

@@ -7,5 +7,7 @@ namespace OpenFlow_PluginFramework.Primitives
         void AddOpacityFactor(IOpacity factor);
 
         bool RemoveOpacityFactor(IOpacity factor);
+
+        IOpacity Clone();
     }
 }

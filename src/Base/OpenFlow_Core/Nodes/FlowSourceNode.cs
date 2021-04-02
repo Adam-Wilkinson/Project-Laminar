@@ -6,13 +6,14 @@
     using OpenFlow_Core.Nodes.Connectors;
     using OpenFlow_Core.Nodes.VisualNodeComponentDisplays;
     using OpenFlow_PluginFramework;
+    using OpenFlow_PluginFramework.Primitives.TypeDefinition;
     using OpenFlow_PluginFramework.NodeSystem.NodeComponents;
     using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Visuals;
     using OpenFlow_PluginFramework.NodeSystem.Nodes;
 
     public class FlowSourceNode : IFlowNode
     {
-        private readonly INodeField _sourceField = Constructor.NodeField("Manual Trigger").WithValue<INodeField, Action>("Displayed", null, false).WithFlowOutput();
+        private readonly INodeField _sourceField = Constructor.NodeField("Manual Trigger").WithValue("Displayed", Constructor.ManualTypeDefinitionManager().WithAcceptedDefinition(Constructor.TypeDefinition<Action>(null)), false).WithFlowOutput();
         private NodeBase _parentNodeBase;
 
         public FlowSourceNode()

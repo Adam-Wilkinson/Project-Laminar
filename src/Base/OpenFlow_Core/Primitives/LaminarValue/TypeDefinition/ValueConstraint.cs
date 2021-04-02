@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OpenFlow_Core.Primitives.TypeDefinitionManagers
+namespace OpenFlow_Core.Primitives.LaminarValue.TypeDefinition
 {
     /// <summary>
     /// Defines a constraint which is part of a chain, with a name and a value

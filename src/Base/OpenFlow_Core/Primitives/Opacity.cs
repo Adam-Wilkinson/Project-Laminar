@@ -89,5 +89,12 @@ namespace OpenFlow_Core.Primitives
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Value)));
         }
+
+        public IOpacity Clone()
+        {
+            Opacity newOpacity = new();
+            newOpacity.Value = _myValue;
+            return newOpacity;
+        }
     }
 }

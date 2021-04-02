@@ -3,22 +3,36 @@
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
+    using OpenFlow_Core.Primitives;
+    using OpenFlow_Core.Primitives.LaminarValue;
     using OpenFlow_PluginFramework;
     using OpenFlow_PluginFramework.NodeSystem.NodeComponents;
     using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Visuals;
     using OpenFlow_PluginFramework.NodeSystem.Nodes;
     using OpenFlow_PluginFramework.Primitives;
-    using OpenFlow_PluginFramework.Primitives.TypeDefinition;
 
     public class NodeField : VisualNodeComponent, INodeField
     {
-        private readonly Dictionary<object, ILaminarValue> _valueStore = new();
+        private readonly ILaminarValueStore _valueStore;
+        private object _displayedValueKey;
 
-        public NodeField(IOpacity opacity) : base(opacity) { }
+        public NodeField(IOpacity opacity, ILaminarValueStore valueStore) : base(opacity) 
+        {
+            _valueStore = valueStore;
+            _valueStore.AnyValueChanged += ValueStore_AnyValueChanged;
+        }
 
-        public event EventHandler<object> ValueStoreChanged;
-
-        public event EventHandler<object> AnyValueChanged;
+        public event EventHandler<object> ValueStoreChanged
+        {
+            add
+            {
+                _valueStore.ChangedAtKey += value;
+            }
+            remove
+            {
+                _valueStore.ChangedAtKey -= value;
+            }
+        }
 
         public override string Name
         {
@@ -26,112 +40,41 @@
             set
             {
                 base.Name = value;
-                foreach (ILaminarValue storedValue in _valueStore.Values)
-                {
-                    storedValue.Name = base.Name;
-                }
+                _valueStore.SetValueName(value);
             }
         }
 
-        public object Input
-        {
-            get => GetDisplayValue(INodeField.InputKey)?.Value;
-            set => this[INodeField.InputKey] = value;
-        }
-
-        public object Output
-        {
-            get => GetDisplayValue(INodeField.OutputKey)?.Value;
-            set => this[INodeField.OutputKey] = value;
-        }
-
-        public object this[object key]
-        {
-            get => GetDisplayValue(key)?.Value;
-            set
-            {
-                if (key == null)
-                {
-                    throw new ArgumentNullException(nameof(key));
-                }
-
-                if (value == null)
-                {
-                    RemoveValue(key);
-                }
-                else if (_valueStore.TryGetValue(key, out ILaminarValue OFVal))
-                {
-                    if (OFVal.CanSetValue(value))
-                    {
-                        OFVal.Value = value;
-                    }
-                    else
-                    {
-                        RemoveValue(key);
-                        AddValue(key, Constructor.LaminarValue(Constructor.RigidTypeDefinitionManager(value), true));
-                    }
-                }
-                else
-                {
-                    AddValue(key, Constructor.LaminarValue(Constructor.RigidTypeDefinitionManager(value), true));
-                }
-            }
-        }
+        public object this[object key] { get => _valueStore[key]; set => _valueStore[key] = value; }
 
         public ILaminarValue DisplayedValue { get; private set; }
 
-        public void AddValue(object key, ILaminarValue newVal)
+        public object DisplayedValueKey
         {
-            _valueStore.Add(key, newVal);
-            newVal.PropertyChanged += ChildValue_PropertyChanged;
+            get => _displayedValueKey;
+            set
+            {
+                _displayedValueKey = value;
+                DisplayedValue = _valueStore.GetValue(value);
+            }
+        }
+
+        public void AddValue(object key, object value, bool isUserEditable)
+        {
+            _valueStore.AddValue(key, value, isUserEditable);
             if (_valueStore.Count == 1)
             {
-                SetDisplayedValue(key);
+                DisplayedValueKey = key;
             }
-            ValueStoreChanged?.Invoke(this, key);
         }
 
-        public ILaminarValue GetDisplayValue(object key) => key != null && _valueStore.TryGetValue(key, out ILaminarValue value) ? value : null;
+        public ILaminarValue GetValue(object key) => _valueStore.GetValue(key);
 
-        public override INodeComponent Clone() => CloneTo(Constructor.NodeField(Name));
+        public override INodeComponent Clone() => CloneTo(new NodeField(Opacity.Clone(), _valueStore.Clone()) { DisplayedValueKey = _displayedValueKey });
 
-        protected override INodeField CloneTo(INodeComponent nodeField)
+        private void ValueStore_AnyValueChanged(object sender, EventArgs e)
         {
-            base.CloneTo(nodeField);
-            foreach (KeyValuePair<object, ILaminarValue> kvp in _valueStore)
-            {
-                (nodeField as NodeField).AddValue(kvp.Key, kvp.Value.Clone());
-            }
-
-            return (nodeField as NodeField);
-        }
-
-        private void SetDisplayedValue(object displayValueKey)
-        {
-            DisplayedValue = GetDisplayValue(displayValueKey);
-            NotifyPropertyChanged(nameof(DisplayedValue));
-        }
-
-        private bool RemoveValue(object key)
-        {
-            if (_valueStore.TryGetValue(key, out ILaminarValue val))
-            {
-                val.PropertyChanged -= ChildValue_PropertyChanged;
-                _valueStore.Remove(key);
-                ValueStoreChanged?.Invoke(this, key);
-                return true;
-            }
-            return false;
-        }
-
-        private void ChildValue_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == nameof(ILaminarValue.Value))
-            {
-                ParentNode.TriggerEvaluate();
-                AnyValueChanged?.Invoke(this, (sender as ILaminarValue)?.Value);
-                NotifyPropertyChanged("Child Value");
-            }
+            ParentNode.TriggerEvaluate();
+            NotifyPropertyChanged("Child Value");
         }
     }
 }

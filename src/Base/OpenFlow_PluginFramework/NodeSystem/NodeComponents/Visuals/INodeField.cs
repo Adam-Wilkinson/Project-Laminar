@@ -9,19 +9,14 @@ namespace OpenFlow_PluginFramework.NodeSystem.NodeComponents.Visuals
         public const string InputKey = "Input";
         public const string OutputKey = "Output";
 
-        event EventHandler<object> AnyValueChanged;
         event EventHandler<object> ValueStoreChanged;
 
         object this[object key] { get; set; }
 
         ILaminarValue DisplayedValue { get; }
 
-        object Input { get; set; }
+        void AddValue(object key, object value, bool isUserEditable);
 
-        object Output { get; set; }
-
-        void AddValue(object key, ILaminarValue value);
-
-        ILaminarValue GetDisplayValue(object key);
+        ILaminarValue GetValue(object key);
     }
 }

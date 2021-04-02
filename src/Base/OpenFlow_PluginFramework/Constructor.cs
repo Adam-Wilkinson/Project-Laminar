@@ -13,10 +13,10 @@ namespace OpenFlow_PluginFramework
 {
     public class Constructor
     {
-        public static ILaminarValue LaminarValue(ITypeDefinitionProvider typeDefinitionManager, bool isUserEditable)
+        public static ILaminarValue LaminarValue(ITypeDefinitionProvider typeDefinitionProvider, bool isUserEditable)
         {
             ILaminarValue output = Laminar.New<ILaminarValue>();
-            output.TypeDefinitionManager = typeDefinitionManager;
+            output.TypeDefinitionProvider = typeDefinitionProvider;
             output.IsUserEditable = isUserEditable;
 
             return output;
@@ -91,7 +91,7 @@ namespace OpenFlow_PluginFramework
             return output;
         }
 
-        public static IManualTypeDefinitionManager ManualTypeDefinitionManager() => Laminar.New<IManualTypeDefinitionManager>();
+        public static IManualTypeDefinitionProvider ManualTypeDefinitionManager() => Laminar.New<IManualTypeDefinitionProvider>();
 
         public static ITypeDefinitionProvider TypeDefinitionManager() => Laminar.New<ITypeDefinitionProvider>();
 

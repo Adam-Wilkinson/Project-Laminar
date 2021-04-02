@@ -4,6 +4,6 @@
     {
         T GetImplementation<T>();
 
-        IObjectFactory RegisterImplementation<TInterface, TImplementation>() where TImplementation : class, TInterface;
+        // IObjectFactory RegisterImplementation<TInterface, TImplementation>() where TImplementation : class, TInterface;
     }
 }

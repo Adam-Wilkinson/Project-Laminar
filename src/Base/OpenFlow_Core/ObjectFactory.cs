@@ -1,7 +1,8 @@
 ﻿using OpenFlow_Core.Nodes.NodeComponents.Collections;
 using OpenFlow_Core.Nodes.NodeComponents.Visuals;
 using OpenFlow_Core.Primitives;
-using OpenFlow_Core.Primitives.TypeDefinitionManagers;
+using OpenFlow_Core.Primitives.LaminarValue;
+using OpenFlow_Core.Primitives.LaminarValue.TypeDefinition;
 using OpenFlow_PluginFramework.NodeSystem.NodeComponents;
 using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Collections;
 using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Visuals;
@@ -30,10 +31,11 @@ namespace OpenFlow_Core
             RegisterImplementation<INodeComponentAutoCloner, NodeComponentAutoCloner>();
             RegisterImplementation<INodeComponentDictionary, NodeComponentDictionary>();
             RegisterImplementation<INodeComponentCollection, NodeComponentCollection>();
-            RegisterImplementation<ITypeDefinitionProvider, TypeDefinitionManager>();
-            RegisterImplementation<IRigidTypeDefinitionManager, RigidTypeDefinitionManager>();
-            RegisterImplementation<IManualTypeDefinitionManager, ManualTypeDefinitionManager>();
-            RegisterImplementation<ILaminarValue, LaminarValue>();
+            RegisterImplementation<ITypeDefinitionProvider, TypeDefinitionProvider>();
+            RegisterImplementation<IRigidTypeDefinitionManager, RigidTypeDefinitionProvider>();
+            RegisterImplementation<IManualTypeDefinitionProvider, ManualTypeDefinitionProvider>();
+            RegisterImplementation<ILaminarValueStore, LaminarValueStore>();
+            RegisterImplementation<ILaminarValueFactory, LaminarValueFactory>();
             RegisterImplementationUnsafe(typeof(IObservableValue<>), typeof(ObservableValue<>));
             RegisterImplementationUnsafe(typeof(IValueConstraint<>), typeof(ValueConstraint<>));
             RegisterImplementationUnsafe(typeof(ITypeDefinitionConstructor<>), typeof(TypeDefinitionConstructor<>));

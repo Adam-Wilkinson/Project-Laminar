@@ -8,16 +8,16 @@ namespace OpenFlow_PluginFramework.Primitives.TypeDefinition
 {
     public static class TypeDefinitionExtensions
     {
-        public static IManualTypeDefinitionManager WithAcceptedDefinition(this IManualTypeDefinitionManager manualTypeDefinitionManager, ITypeDefinition typeDefinition)
+        public static IManualTypeDefinitionProvider WithAcceptedDefinition(this IManualTypeDefinitionProvider manualTypeDefinitionManager, ITypeDefinition typeDefinition)
         {
             manualTypeDefinitionManager.RegisterTypeDefinition(typeDefinition);
             return manualTypeDefinitionManager;
         }
 
-        public static IManualTypeDefinitionManager WithAcceptedDefinition<T>(this IManualTypeDefinitionManager manualTypeDefinitionManager, T defaultValue, string editorName = null, string displayName = null)
+        public static IManualTypeDefinitionProvider WithAcceptedDefinition<T>(this IManualTypeDefinitionProvider manualTypeDefinitionManager, T defaultValue, string editorName = null, string displayName = null)
             => manualTypeDefinitionManager.WithAcceptedDefinition(Constructor.TypeDefinition(defaultValue, editorName, displayName));
 
-        public static IManualTypeDefinitionManager WithAcceptedDefinition<TValue>(this IManualTypeDefinitionManager manualTypeDefinitionManager, ITypeDefinitionConstructor<TValue> typeDefinitionConstructor)
+        public static IManualTypeDefinitionProvider WithAcceptedDefinition<TValue>(this IManualTypeDefinitionProvider manualTypeDefinitionManager, ITypeDefinitionConstructor<TValue> typeDefinitionConstructor)
             => manualTypeDefinitionManager.WithAcceptedDefinition(typeDefinitionConstructor.Construct());
 
         public static ITypeDefinitionConstructor<T> WithProperty<T>(this ITypeDefinitionConstructor<T> typeDefinitionConstructor, string propertyName, object propertyValue)

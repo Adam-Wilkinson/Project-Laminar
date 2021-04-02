@@ -9,7 +9,7 @@
 
     public class NodeMultiply : INode
     {
-        private readonly INodeComponentAutoCloner multiplyFields = Constructor.NodeComponentAutoCloner(Constructor.NodeField("Number").WithInput(0.0), 1, index => $"Number {index + 1}");
+        private readonly INodeComponentAutoCloner multiplyFields = Constructor.NodeComponentAutoCloner(Constructor.NodeField("Number").WithInput(1.0), 1, index => $"Number {index + 1}");
         private readonly INodeField outputField = Constructor.NodeField("Product").WithOutput(0.0);
 
         public string NodeName => "Multiply";
@@ -29,10 +29,10 @@
 
             foreach (INodeField field in multiplyFields)
             {
-                output *= (double)field.Input;
+                output *= field.GetInput<double>();
             }
 
-            outputField.Output = output;
+            outputField.SetOutput(output);
         }
     }
 }

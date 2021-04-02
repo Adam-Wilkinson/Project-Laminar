@@ -27,7 +27,7 @@ namespace OpenFlow_Inbuilt.Nodes.Input.MouseInput
 
         public void Evaluate()
         {
-            mouseButtonOutput.Output = mouseButtonOutput["Display"];
+            mouseButtonOutput[INodeField.OutputKey] = mouseButtonOutput["Display"];
         }
     }
 }

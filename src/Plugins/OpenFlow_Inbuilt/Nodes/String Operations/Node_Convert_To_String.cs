@@ -25,7 +25,7 @@
 
         public void Evaluate()
         {
-            converterField.Output = converterField.Input == null ? string.Empty : converterField.Input.ToString();
+            converterField.SetOutput(converterField.GetInput() == null ? string.Empty : converterField.GetInput().ToString());
         }
     }
 }

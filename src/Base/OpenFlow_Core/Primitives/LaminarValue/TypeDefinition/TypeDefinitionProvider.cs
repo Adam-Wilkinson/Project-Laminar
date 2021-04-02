@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OpenFlow_Core.Primitives.TypeDefinitionManagers
+namespace OpenFlow_Core.Primitives.LaminarValue.TypeDefinition
 {
-    public class TypeDefinitionManager : ITypeDefinitionProvider
+    public class TypeDefinitionProvider : ITypeDefinitionProvider
     {
         public ITypeDefinition DefaultDefinition { get; protected set; }
 

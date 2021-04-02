@@ -20,14 +20,14 @@ namespace OpenFlow_Core.Nodes
 
         public IVisualNodeComponentDisplay MapType(IVisualNodeComponent toMap)
         {
-            if (typeof(NodeField).IsAssignableFrom(toMap.GetType()))
+            if (typeof(INodeField).IsAssignableFrom(toMap.GetType()))
             {
-                return new NodeFieldDisplay((NodeField)toMap, _parentNode);
+                return new NodeFieldDisplay((INodeField)toMap, _parentNode);
             }
 
-            if (typeof(NodeLabel).IsAssignableFrom(toMap.GetType()))
+            if (typeof(INodeLabel).IsAssignableFrom(toMap.GetType()))
             {
-                return new NodeLabelDisplay(_parentNode, (NodeLabel)toMap);
+                return new NodeLabelDisplay(_parentNode, (INodeLabel)toMap);
             }
 
             if (toMap is INodeDecorator decorator)

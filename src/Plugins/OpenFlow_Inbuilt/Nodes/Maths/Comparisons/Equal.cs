@@ -14,7 +14,7 @@ namespace OpenFlow_Inbuilt.Nodes.Maths.Comparisons
     {
         private readonly INodeField inputOne = Constructor.NodeField("First Input").WithInput(0.0);
         private readonly INodeField inputTwo = Constructor.NodeField("Second Input").WithInput(0.0);
-        private readonly INodeField outputField = Constructor.NodeField("Equal").WithInput(false);
+        private readonly INodeField outputField = Constructor.NodeField("Equal").WithOutput(false);
 
         public string NodeName => "Equal";
 
@@ -30,7 +30,7 @@ namespace OpenFlow_Inbuilt.Nodes.Maths.Comparisons
 
         public void Evaluate()
         {
-            outputField.Output = inputOne.Input.Equals(inputTwo.Input);
+            outputField.SetOutput(inputOne.GetInput().Equals(inputTwo.GetInput()));
         }
     }
 }

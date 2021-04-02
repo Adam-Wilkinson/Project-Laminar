@@ -21,32 +21,28 @@ namespace OpenFlow_PluginFramework.NodeSystem.NodeComponents.Visuals
             return component;
         }
 
-        public static TComponent WithValue<TComponent, TValue>(this TComponent nodeField, string valueKey, TValue defaultValue, bool isUserEditable = false) where TComponent : INodeField
+        public static TComponent WithValue<TComponent>(this TComponent nodeField, string valueKey, object defaultValue, bool isUserEditable = false) where TComponent : INodeField
         {
-            nodeField.AddValue(valueKey, Constructor.LaminarValue(FindValueManager(defaultValue), isUserEditable));
+            nodeField.AddValue(valueKey, defaultValue, isUserEditable);
             return nodeField;
         }
 
-        public static TComponent WithInput<TComponent, TValue>(this TComponent nodeField, TValue defaultValue) where TComponent : INodeField
+        public static TComponent WithInput<TComponent>(this TComponent nodeField, object defaultValue) where TComponent : INodeField
             => nodeField.WithValue(INodeField.InputKey, defaultValue, true);
 
-        public static TComponent WithOutput<TComponent, TValue>(this TComponent nodeField, TValue defaultValue) where TComponent : INodeField
+        public static TComponent WithOutput<TComponent>(this TComponent nodeField, object defaultValue) where TComponent : INodeField
             => nodeField.WithValue(INodeField.OutputKey, defaultValue, false);
 
+        public static object GetInput(this INodeField nodeField) => nodeField[INodeField.InputKey];
 
-        private static ITypeDefinitionProvider FindValueManager<TValue>(TValue defaultValue)
-        {
-            if (defaultValue is ITypeDefinitionProvider typeDefinitionProvider)
-            {
-                return typeDefinitionProvider;
-            }
+        public static T GetInput<T>(this INodeField nodeField) => (T)nodeField[INodeField.InputKey];
 
-            if (defaultValue is ITypeDefinition typeDefinition)
-            {
-                return Constructor.ManualTypeDefinitionManager().WithAcceptedDefinition(typeDefinition);
-            }
+        public static void SetInput(this INodeField nodeField, object value) => nodeField[INodeField.InputKey] = value;
 
-            return Constructor.ManualTypeDefinitionManager().WithAcceptedDefinition(defaultValue);
-        }
+        public static object GetOutput(this INodeField nodeField) => nodeField[INodeField.OutputKey];
+
+        public static T GetOutput<T>(this INodeField nodeField) => (T)nodeField[INodeField.OutputKey];
+
+        public static void SetOutput(this INodeField nodeField, object value) => nodeField[INodeField.OutputKey] = value;
     }
 }

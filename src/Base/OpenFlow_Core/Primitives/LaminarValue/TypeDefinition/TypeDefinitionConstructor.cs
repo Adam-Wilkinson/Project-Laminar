@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OpenFlow_Core.Primitives.TypeDefinitionManagers
+namespace OpenFlow_Core.Primitives.LaminarValue.TypeDefinition
 {
     public class TypeDefinitionConstructor<T> : ITypeDefinitionConstructor<T>
     {
