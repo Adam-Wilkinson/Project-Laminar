@@ -11,7 +11,7 @@
 
     public class ToolbarPanel : Panel
     {
-        public static readonly TimeSpan AnimationDuration = new TimeSpan(0, 0, 0, 0, 200);
+        public static readonly TimeSpan AnimationDuration = new(0, 0, 0, 0, 200);
         public static readonly AttachedProperty<DockDirection> DockDirectionProperty = AvaloniaProperty.RegisterAttached<ToolbarPanel, IControl, DockDirection>("DockDirection");
         public static readonly AttachedProperty<int> LevelProperty = AvaloniaProperty.RegisterAttached<ToolbarPanel, IControl, int>("Level");
         public static readonly StyledProperty<double> DefaultWidthProperty = AvaloniaProperty.Register<ToolbarPanel, double>(nameof(DefaultWidth), 150);
@@ -25,7 +25,7 @@
             new SidePanel(Orientation.Vertical, true),
         };
 
-        private readonly List<IControl> centerControl = new List<IControl>();
+        private readonly List<IControl> centerControl = new();
 
         private DockDirection dragDirection = DockDirection.None;
         private DragContext dragContext;
@@ -200,7 +200,7 @@
 
         protected override Size ArrangeOverride(Size arrangeSize)
         {
-            Rect remainingSpace = new Rect(arrangeSize);
+            Rect remainingSpace = new(arrangeSize);
             DrawingCanvas.Arrange(remainingSpace);
 
             foreach (SidePanel sp in sortedChildren)
@@ -225,7 +225,7 @@
                     centerControl.Remove(control);
                     if (dd != DockDirection.Center && dd != DockDirection.None && !ToolbarManager.GetGrip(control))
                     {
-                        ToolbarManager newAdorner = new ToolbarManager(control, this);
+                        ToolbarManager newAdorner = new(control, this);
                         ToolbarManager.SetGrip(control, true);
                         sortedChildren[(int)dd - 1].AddToolbar(newAdorner);
                     }

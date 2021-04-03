@@ -8,7 +8,7 @@
 
     public static class Cloner
     {
-        internal static readonly Dictionary<Type, IObjectCloner> Cloners = new Dictionary<Type, IObjectCloner>()
+        internal static readonly Dictionary<Type, IObjectCloner> Cloners = new()
         {
             { typeof(TextBox), new TextboxCloner() },
         };

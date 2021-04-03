@@ -23,7 +23,7 @@
         private readonly double minZoom = 0.4;
         private readonly double maxZoom = 10;
 
-        private readonly NodeDisplayCanvas nodeManager = new NodeDisplayCanvas();
+        private readonly NodeDisplayCanvas nodeManager = new();
         private Point pan;
         private Point previous;
         private Matrix matrix = Matrix.Identity;
@@ -83,7 +83,7 @@
 
         public void PanTo(double x, double y)
         {
-            Point delta = new Point(x - previous.X, y - previous.Y);
+            Point delta = new(x - previous.X, y - previous.Y);
             previous = new Point(x, y);
             pan = new Point(pan.X + delta.X, pan.Y + delta.Y);
             matrix = TranslatePrepend(matrix, pan.X, pan.Y);

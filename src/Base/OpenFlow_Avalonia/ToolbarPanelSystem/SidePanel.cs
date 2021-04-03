@@ -10,13 +10,13 @@
 
     internal class SidePanel
     {
-        private readonly List<SidePanelLayer> layers = new List<SidePanelLayer>();
+        private readonly List<SidePanelLayer> layers = new();
         private readonly bool reverse;
         private readonly double toolbarDragOverlap = 20;
 
         private double totalAvailableWidth;
         private Rect bounds;
-        private List<DragRecepticle> toolbarDragHitBoxes = new List<DragRecepticle>();
+        private List<DragRecepticle> toolbarDragHitBoxes = new();
 
         public SidePanel(Orientation orientation, bool reverse = false)
         {
