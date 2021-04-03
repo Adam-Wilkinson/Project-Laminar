@@ -10,5 +10,7 @@ namespace OpenFlow_PluginFramework.Primitives
         void AddDependency<TDep>(IObservableValue<TDep> dep);
 
         void OnChange(Action<T> changeAction);
+
+        IObservableValue<T> Clone();
     }
 }

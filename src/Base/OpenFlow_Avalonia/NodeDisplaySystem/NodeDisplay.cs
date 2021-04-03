@@ -6,6 +6,7 @@
     using Avalonia.Controls;
     using Avalonia.Controls.Primitives;
     using OpenFlow_Core.Nodes;
+    using OpenFlow_PluginFramework.Primitives;
 
     public class NodeDisplay : TemplatedControl
     {
@@ -17,9 +18,9 @@
               {
                   if (newNode != null)
                   {
-                      newNode.ErrorStateChanged += (o, e) =>
+                      newNode.ErrorState.PropertyChanged += (o, e) =>
                       {
-                          IsError = e;
+                          IsError = (o as IObservableValue<bool>).Value;
                       };
                       newNode.Tag = this;
                   }

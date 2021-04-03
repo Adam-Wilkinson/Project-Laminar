@@ -49,7 +49,7 @@
             RemoveSelf = () =>
             {
                 removeAction(this);
-                ParentNode.TriggerEvaluate();
+                INodeBase.NodeBases[ParentNode].TryEvaluate();
             };
         }
 

@@ -21,35 +21,20 @@
     {
         private readonly INode _baseNode;
         private readonly INodeComponentCollection _fieldSection;
-        private bool _errorState;
         private bool _evaluating;
 
-        public NodeBase(INode baseNode)
+        public NodeBase(INode baseNode, IObservableValue<bool> errorState)
         {
             INodeBase.NodeBases.Add(baseNode, this);
+            ErrorState = errorState;
             _baseNode = baseNode;
             _fieldSection = Constructor.NodeComponentList(baseNode.Fields);
             _fieldSection.ParentNode = baseNode;
 
-            baseNode.SubscribeToEvaluate(TryEvaluate);
-
             TryEvaluate();
         }
 
-        public event EventHandler<bool> ErrorStateChanged;
-
-        public bool ErrorState
-        {
-            get => _errorState;
-            private set
-            {
-                if (value != _errorState)
-                {
-                    _errorState = value;
-                    ErrorStateChanged?.Invoke(this, _errorState);
-                }
-            }
-        }
+        public IObservableValue<bool> ErrorState { get; }
 
         public double X { get; set; }
 
@@ -61,7 +46,7 @@
 
         public INotifyCollectionChanged Fields => _fieldSection.VisualNodeComponentsObservable;
 
-        public INodeBase DuplicateNode() => new NodeBase((INode)Activator.CreateInstance(_baseNode.GetType()));
+        public INodeBase DuplicateNode() => new NodeBase((INode)Activator.CreateInstance(_baseNode.GetType()), ErrorState.Clone());
 
         public FlowConnector GetFlowOutDisplayConnector()
         {
@@ -81,11 +66,11 @@
                 try
                 {
                     _baseNode.Evaluate();
-                    ErrorState = false;
+                    ErrorState.Value = false;
                 }
                 catch
                 {
-                    ErrorState = true;
+                    ErrorState.Value = true;
                 }
 
                 _evaluating = false;

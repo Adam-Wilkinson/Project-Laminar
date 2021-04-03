@@ -37,5 +37,7 @@ namespace OpenFlow_Core.Primitives
         {
             onChange += changeAction;
         }
+
+        public IObservableValue<T> Clone() => new ObservableValue<T>() { Value = Value };
     }
 }

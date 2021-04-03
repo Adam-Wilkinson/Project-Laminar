@@ -88,7 +88,10 @@
 
         private void ValueStore_AnyValueChanged(object sender, EventArgs e)
         {
-            ParentNode.TriggerEvaluate();
+            if (ParentNode != null)
+            {
+                INodeBase.NodeBases[ParentNode].TryEvaluate();
+            }
             NotifyPropertyChanged("Child Value");
         }
     }

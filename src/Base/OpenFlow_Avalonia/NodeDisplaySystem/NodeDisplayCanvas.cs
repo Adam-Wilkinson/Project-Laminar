@@ -66,8 +66,8 @@
                 {
                     int count = 0;
 
-                    // Point lastPoint = default;
-                    // Point lastLastPoint = default;
+                    Point lastPoint = default;
+                    Point lastLastPoint = default;
                     foreach (Point point in connectionLine.GetPoints())
                     {
                         if (count == 0)
@@ -76,8 +76,7 @@
                         }
                         else
                         {
-                            streamContext.LineTo(point);
-                            /*
+                            // streamContext.LineTo(point);
                             switch ((count - 1) % 3)
                             {
                                 case 0:
@@ -90,7 +89,6 @@
                                     streamContext.CubicBezierTo(lastLastPoint, lastPoint, point);
                                     break;
                             }
-                            */
                         }
 
                         count++;

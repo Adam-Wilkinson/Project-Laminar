@@ -18,12 +18,9 @@ namespace OpenFlow_Core.Nodes.NodeComponents.Visuals
         {
             LabelText = labelText;
             LabelText.Value = Name.Value;
-            PropertyChanged += (o, e) =>
+            Name.PropertyChanged += (o, e) =>
             {
-                if (e.PropertyName is nameof(INodeLabel.Name))
-                {
-                    LabelText.Value = Name.Value;
-                }
+                LabelText.Value = Name.Value;
             };
         }
 

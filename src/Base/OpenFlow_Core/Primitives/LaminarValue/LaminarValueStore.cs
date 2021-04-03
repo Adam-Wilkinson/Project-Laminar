@@ -32,6 +32,7 @@ namespace OpenFlow_Core.Primitives.LaminarValue
                 if (_coreDictionary.TryGetValue(key, out ILaminarValue laminarValue) && laminarValue.CanSetValue(value))
                 {
                     laminarValue.Value = value;
+                    AnyValueChanged?.Invoke(this, new EventArgs());
                 }
                 else
                 {
@@ -58,10 +59,7 @@ namespace OpenFlow_Core.Primitives.LaminarValue
         public void AddValue(object key, object value, bool isUserEditable)
         {
             ILaminarValue newValue = _valueFactory.Get(value, isUserEditable);
-            newValue.Name = _storeName;
-            _coreDictionary[key] = newValue;
-            newValue.PropertyChanged += AnyValue_PropertyChanged;
-            ChangedAtKey?.Invoke(this, key);
+            Add(key, newValue);
         }
 
         public ILaminarValue GetValue(object key) => _coreDictionary.TryGetValue(key, out ILaminarValue value) ? value : null;
@@ -79,7 +77,7 @@ namespace OpenFlow_Core.Primitives.LaminarValue
         {
             foreach (KeyValuePair<object, ILaminarValue> kvp in copyFrom)
             {
-                _coreDictionary.Add(kvp.Key, kvp.Value.Clone());
+                Add(kvp.Key, kvp.Value.Clone());
             }
         }
 
@@ -97,6 +95,14 @@ namespace OpenFlow_Core.Primitives.LaminarValue
             {
                 AnyValueChanged?.Invoke(this, new EventArgs());
             }
+        }
+
+        private void Add(object key, ILaminarValue value)
+        {
+            value.Name = _storeName;
+            _coreDictionary[key] = value;
+            value.PropertyChanged += AnyValue_PropertyChanged;
+            ChangedAtKey?.Invoke(this, key);
         }
 
         public IEnumerator<KeyValuePair<object, ILaminarValue>> GetEnumerator() => _coreDictionary.GetEnumerator();
