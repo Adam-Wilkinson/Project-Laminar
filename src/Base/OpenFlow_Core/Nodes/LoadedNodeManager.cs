@@ -13,21 +13,27 @@
 
     public class LoadedNodeManager
     {
+        private readonly INodeFactory _nodeFactory;
+
+        public LoadedNodeManager(INodeFactory nodeFactory)
+        {
+            _nodeFactory = nodeFactory;
+        }
         public NodeCatagories LoadedNodes { get; } = new();
 
         public void AddNodeToCatagory<TNode>(string catagoryName, string subCatagoryName = null)
             where TNode : INode, new()
         {
-            LoadedNodes.PlaceNode(new string[] { catagoryName, subCatagoryName }, new NodeBase(new TNode()));
+            LoadedNodes.PlaceNode(new string[] { catagoryName, subCatagoryName }, _nodeFactory.Get<TNode>());
         }
 
         public class NodeCatagories
         {
             public Dictionary<string, NodeCatagories> SubCatagories { get; } = new Dictionary<string, NodeCatagories>();
 
-            public List<NodeBase> Nodes { get; } = new List<NodeBase>();
+            public List<INodeBase> Nodes { get; } = new();
 
-            public List<NodeBase> FirstGroup()
+            public List<INodeBase> FirstGroup()
             {
                 if (Nodes.Count > 0)
                 {
@@ -39,7 +45,7 @@
                 }
             }
 
-            public void PlaceNode(IEnumerable<string> catagoryPath, NodeBase node)
+            public void PlaceNode(IEnumerable<string> catagoryPath, INodeBase node)
             {
                 if (!catagoryPath.Any() || catagoryPath.First() == null || catagoryPath.First() == "")
                 {

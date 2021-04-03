@@ -1,4 +1,5 @@
-﻿using OpenFlow_Core.Nodes.Connectors;
+﻿using OpenFlow_Core.Nodes;
+using OpenFlow_Core.Nodes.Connectors;
 using OpenFlow_Core.Nodes.NodeComponents.Collections;
 using OpenFlow_Core.Nodes.NodeComponents.Visuals;
 using OpenFlow_Core.Primitives;
@@ -41,6 +42,7 @@ namespace OpenFlow_Core
             RegisterImplementation<IUserInterfaceManager, UserInterfaceManager>();
             RegisterImplementation<ISeparator, Separator>();
             RegisterImplementation<IConnectionManager, ConnectionManager>();
+            RegisterImplementation<INodeFactory, NodeFactory>();
             RegisterImplementationUnsafe(typeof(IObservableValue<>), typeof(ObservableValue<>));
             RegisterImplementationUnsafe(typeof(IValueConstraint<>), typeof(ValueConstraint<>));
             RegisterImplementationUnsafe(typeof(ITypeDefinitionConstructor<>), typeof(TypeDefinitionConstructor<>));

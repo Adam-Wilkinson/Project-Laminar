@@ -14,7 +14,7 @@
     public class FlowSourceNode : IFlowNode
     {
         private readonly INodeField _sourceField = Constructor.NodeField("Manual Trigger").WithValue("Displayed", Constructor.ManualTypeDefinitionManager().WithAcceptedDefinition(Constructor.TypeDefinition<Action>(null)), false).WithFlowOutput();
-        private NodeBase _parentNodeBase;
+        private INodeBase _parentNodeBase;
 
         public IVisualNodeComponent FlowOutComponent => _sourceField;
 
@@ -32,7 +32,7 @@
         {
         }
 
-        public void SetParentNode(NodeBase parent)
+        public void SetParentNode(INodeBase parent)
         {
             _parentNodeBase = parent;
             _sourceField["Displayed"] = (Action)(() =>

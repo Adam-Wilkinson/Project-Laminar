@@ -10,7 +10,7 @@ namespace OpenFlow_Core.Nodes.Connectors
     {
         public string ColourHex { get; }
 
-        public NodeBase ParentNode { get; }
+        public INodeBase ParentNode { get; }
 
         public object Tag { get; set; }
 

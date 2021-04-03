@@ -17,17 +17,16 @@
     using OpenFlow_PluginFramework;
     using OpenFlow_Core.Nodes.NodeComponents.Visuals;
 
-    public class NodeBase
+    public class NodeBase : INodeBase
     {
         private readonly INode _baseNode;
         private readonly INodeComponentCollection _fieldSection;
         private bool _errorState;
         private bool _evaluating;
-        private static readonly Dictionary<INode, NodeBase> NodeBases = new();
 
         public NodeBase(INode baseNode)
         {
-            NodeBases.Add(baseNode, this);
+            INodeBase.NodeBases.Add(baseNode, this);
             _baseNode = baseNode;
             _fieldSection = Constructor.NodeComponentList(baseNode.Fields);
             _fieldSection.ParentNode = baseNode;
@@ -62,7 +61,7 @@
 
         public INotifyCollectionChanged Fields => _fieldSection.VisualNodeComponentsObservable;
 
-        public NodeBase DuplicateNode() => new((INode)Activator.CreateInstance(_baseNode.GetType()));
+        public INodeBase DuplicateNode() => new NodeBase((INode)Activator.CreateInstance(_baseNode.GetType()));
 
         public FlowConnector GetFlowOutDisplayConnector()
         {
@@ -105,7 +104,5 @@
 
             TryEvaluate();
         }
-
-        public static NodeBase GetNodeBase(INode node) => NodeBases[node];
     }
 }

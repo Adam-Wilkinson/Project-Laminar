@@ -33,5 +33,13 @@ namespace OpenFlow_Core.Nodes.NodeComponents.Collections
         public bool Remove(INodeComponent item) => ProtectedRemove(item);
 
         public void RemoveAt(int index) => ProtectedRemoveAt(index);
+
+        public void AddRange(IEnumerable<INodeComponent> elements)
+        {
+            foreach (INodeComponent component in elements)
+            {
+                Add(component);
+            }
+        }
     }
 }

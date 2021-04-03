@@ -8,7 +8,7 @@
 
     public class FlowConnector : Connector<FlowConnector>
     {
-        public FlowConnector(NodeBase parent,  ConnectionType connectionType)
+        public FlowConnector(INodeBase parent,  ConnectionType connectionType)
             : base(parent, connectionType)
         {
         }

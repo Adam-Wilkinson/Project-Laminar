@@ -9,7 +9,7 @@
 
     public class NodeDisplay : TemplatedControl
     {
-        public static readonly StyledProperty<NodeBase> CoreNodeProperty = AvaloniaProperty.Register<NodeDisplay, NodeBase>(nameof(CoreNode));
+        public static readonly StyledProperty<INodeBase> CoreNodeProperty = AvaloniaProperty.Register<NodeDisplay, INodeBase>(nameof(CoreNode));
 
         public NodeDisplay()
         {
@@ -26,7 +26,7 @@
               });
         }
 
-        public NodeBase CoreNode
+        public INodeBase CoreNode
         {
             get => GetValue(CoreNodeProperty);
             set => SetValue(CoreNodeProperty, value);

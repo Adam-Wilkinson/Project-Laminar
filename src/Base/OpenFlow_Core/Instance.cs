@@ -40,7 +40,7 @@
 
         public Dictionary<Type, TypeInfoRecord> TypeInfo { get; } = new ();
 
-        public LoadedNodeManager LoadedNodeManager { get; } = new();
+        public LoadedNodeManager LoadedNodeManager { get; } = new(Factory.GetImplementation<INodeFactory>());
 
         public IUserInterfaceRegister RegisteredEditors { get; } = Factory.GetImplementation<IUserInterfaceRegister>();
 

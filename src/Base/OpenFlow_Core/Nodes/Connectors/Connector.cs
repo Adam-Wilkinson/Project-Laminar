@@ -6,7 +6,7 @@
     public abstract class Connector<T> : IConnector 
         where T : Connector<T>
     {
-        protected Connector(NodeBase parent, ConnectionType connectionType)
+        protected Connector(INodeBase parent, ConnectionType connectionType)
         {
             ParentNode = parent;
             ConnectionType = connectionType;
@@ -14,7 +14,7 @@
 
         public bool ConnectionDirty { get; private set; }
 
-        public NodeBase ParentNode { get; set; }
+        public INodeBase ParentNode { get; set; }
 
         public object Tag { get; set; }
 

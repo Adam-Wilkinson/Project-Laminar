@@ -10,7 +10,7 @@ namespace OpenFlow_Core.Nodes.Connectors
     class ConnectionManager : IConnectionManager
     {
         private readonly List<Func<ConnectionType, IConnector, IConnector>> connectionChecks = new();
-        private NodeBase _parentNode;
+        private INodeBase _parentNode;
 
         public ConnectionManager(IObservableValue<IConnector> input, IObservableValue<IConnector> output)
         {
@@ -22,7 +22,7 @@ namespace OpenFlow_Core.Nodes.Connectors
 
         public IObservableValue<IConnector> OutputConnector { get; }
 
-        public NodeBase ParentNode
+        public INodeBase ParentNode
         {
             get => _parentNode;
             set

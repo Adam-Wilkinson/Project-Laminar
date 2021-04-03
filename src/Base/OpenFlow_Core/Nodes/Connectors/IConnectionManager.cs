@@ -13,7 +13,7 @@ namespace OpenFlow_Core.Nodes.Connectors
 
         IObservableValue<IConnector> OutputConnector { get; }
 
-        NodeBase ParentNode { get; set; }
+        INodeBase ParentNode { get; set; }
 
         void UpdateInput();
 

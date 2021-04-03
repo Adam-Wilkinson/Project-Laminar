@@ -39,7 +39,7 @@
                 base.ParentNode = value;
                 if (ParentNode != null)
                 {
-                    ConnectionManager.ParentNode = NodeBase.GetNodeBase(ParentNode);
+                    ConnectionManager.ParentNode = INodeBase.NodeBases[ParentNode];
                 }
             }
         }

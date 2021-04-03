@@ -11,12 +11,12 @@
     {
         private readonly Dictionary<IConnector, IConnector> _connections = new();
 
-        public ObservableCollection<NodeBase> Nodes { get; private set; } = new();
+        public ObservableCollection<INodeBase> Nodes { get; private set; } = new();
 
         public NodeTree()
         {
             FlowSourceNode flowSourceNode = new();
-            NodeBase flowSourceNodeBase = new(flowSourceNode);
+            INodeBase flowSourceNodeBase = Instance.Factory.GetImplementation<INodeFactory>().Get<FlowSourceNode>();
             flowSourceNode.SetParentNode(flowSourceNodeBase);
             AddNode(flowSourceNodeBase);
         }
@@ -69,9 +69,8 @@
             return interacted;
         }
 
-        public void AddNode(NodeBase newNode)
+        public void AddNode(INodeBase newNode)
         {
-            Debug.WriteLine("Node Added");
             Nodes.Add(newNode);
         }
 

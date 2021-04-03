@@ -26,7 +26,7 @@
 
         public NodeDisplayCanvas()
         {
-            foreach (NodeBase node in manager.Nodes)
+            foreach (INodeBase node in manager.Nodes)
             {
                 NodeAdded(node);
             }
@@ -209,7 +209,7 @@
 
         private void NodeAdded(object newItem)
         {
-            NodeBase newNode = newItem as NodeBase;
+            INodeBase newNode = newItem as INodeBase;
             NodeDisplay newDisplay = new() { CoreNode = newNode };
             SetLeft(newDisplay, newNode.X);
             SetTop(newDisplay, newNode.Y);
