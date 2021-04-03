@@ -66,9 +66,9 @@
 
         public FlowConnector GetFlowOutDisplayConnector()
         {
-            if (_baseNode is IFlowNode flowNode && _fieldSection.VisualComponentList.Contains(flowNode.FlowOutField))
+            if (_baseNode is IFlowNode flowNode && _fieldSection.VisualComponentList.Contains(flowNode.FlowOutComponent))
             {
-                return (flowNode.FlowOutField as IDisplayableNodeComponent).ConnectionManager.OutputConnector.Value as FlowConnector;
+                return (flowNode.FlowOutComponent as IDisplayableNodeComponent).ConnectionManager.OutputConnector.Value as FlowConnector;
             }
 
             return null;
@@ -95,9 +95,9 @@
 
         public void DeepUpdate()
         {
-            foreach (IDisplayableNodeComponent field in _fieldSection.VisualComponentList)
+            foreach (IDisplayableNodeComponent component in _fieldSection.VisualComponentList)
             {
-                if (field.ConnectionManager.InputConnector is ValueConnector valInput && valInput.ExclusiveConnection != null)
+                if (component.ConnectionManager.InputConnector is ValueConnector valInput && valInput.ExclusiveConnection != null)
                 {
                     valInput.ExclusiveConnection.ParentNode.DeepUpdate();
                 }

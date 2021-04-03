@@ -23,7 +23,7 @@
             }
         }
 
-        public IVisualNodeComponent FlowOutField => _flowField;
+        public IVisualNodeComponent FlowOutComponent => _flowField;
 
         protected abstract IEnumerable<INodeComponent> FlowNodeFields { get; }
 

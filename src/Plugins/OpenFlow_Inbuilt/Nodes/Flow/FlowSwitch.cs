@@ -49,7 +49,7 @@
             }
         }
 
-        public IVisualNodeComponent FlowOutField { get; private set; }
+        public IVisualNodeComponent FlowOutComponent { get; private set; }
 
         public void Evaluate()
         {
@@ -57,12 +57,12 @@
             {
                 if (field is INodeField valueField && valueField.DisplayedValue != null && valueField.DisplayedValue.Value.Equals(valueInput.GetInput()))
                 {
-                    FlowOutField = valueField;
+                    FlowOutComponent = valueField;
                     return;
                 }
             }
 
-            FlowOutField = defaultOutput;
+            FlowOutComponent = defaultOutput;
         }
 
         private void FlowSwitch_OnTypeDefinitionChanged(object sender, PropertyChangedEventArgs e)

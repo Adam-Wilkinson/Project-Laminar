@@ -16,7 +16,7 @@
         private readonly INodeField _sourceField = Constructor.NodeField("Manual Trigger").WithValue("Displayed", Constructor.ManualTypeDefinitionManager().WithAcceptedDefinition(Constructor.TypeDefinition<Action>(null)), false).WithFlowOutput();
         private NodeBase _parentNodeBase;
 
-        public IVisualNodeComponent FlowOutField => _sourceField;
+        public IVisualNodeComponent FlowOutComponent => _sourceField;
 
         public string NodeName => "Flow Source";
 
