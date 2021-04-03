@@ -14,7 +14,7 @@ namespace OpenFlow_Core.Primitives
             get => _value;
             set
             {
-                if (!value.Equals(_value))
+                if (value != null && !value.Equals(_value))
                 {
                     _value = value;
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Value)));

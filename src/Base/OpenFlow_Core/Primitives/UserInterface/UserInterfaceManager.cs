@@ -8,19 +8,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OpenFlow_Core.Management.UserInterface
+namespace OpenFlow_Core.Primitives.UserInterface
 {
-    public class UIManager
+    public class UserInterfaceManager : IUserInterfaceManager
     {
         private ILaminarValue _childValue;
         private string _userInterfaceType;
-        private readonly List<ObservableObject> _userInterfaces = new();
+        private readonly List<IObservableValue<object>> _userInterfaces = new();
 
         public object this[string key]
         {
             get
             {
-                CleanUserInterfaces();
                 if (_userInterfaceType == null)
                 {
                     _userInterfaceType = key;
@@ -28,10 +27,11 @@ namespace OpenFlow_Core.Management.UserInterface
 
                 if (_userInterfaceType != key)
                 {
-                    throw new Exception($"{nameof(UIManager)} cannot handle multiple types of interface at once!");
+                    throw new Exception($"{nameof(UserInterfaceManager)} cannot handle multiple types of user interface at once!");
                 }
 
-                ObservableObject newObject = new(GetUIOfType(key));
+                IObservableValue<object> newObject = Instance.Factory.GetImplementation<IObservableValue<object>>();
+                newObject.Value = GetUIOfType(key);
                 _userInterfaces.Add(newObject);
                 return newObject;
             }
@@ -60,29 +60,11 @@ namespace OpenFlow_Core.Management.UserInterface
         private void RefreshUserInterfaces()
         {
             object newUserInterface = GetUIOfType(_userInterfaceType);
-            foreach (ObservableObject userInterface in _userInterfaces)
+            foreach (IObservableValue<object> userInterface in _userInterfaces)
             {
-                userInterface.Observable = newUserInterface;
+                userInterface.Value = newUserInterface;
             }
         }
-
-        private void CleanUserInterfaces()
-        {
-            int i = 0;
-            while (i < _userInterfaces.Count)
-            {
-                if (_userInterfaces[i].HasNoListeners())
-                {
-                    Debug.WriteLine("Cleaning is working");
-                    _userInterfaces.RemoveAt(i);
-                }
-                else
-                {
-                    i++;
-                }
-            }
-        }
-
 
         private object GetUIOfType(string AQNOfType)
         {
@@ -122,5 +104,9 @@ namespace OpenFlow_Core.Management.UserInterface
             return null;
         }
 
+        public IUserInterfaceManager Clone()
+        {
+            return new UserInterfaceManager() { _childValue = _childValue };
+        }
     }
 }

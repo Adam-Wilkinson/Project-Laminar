@@ -3,7 +3,7 @@
   xmlns:x = "http://schemas.microsoft.com/winfx/2006/xaml"
   xmlns:av ="using:Avalonia.Controls.Templates"
   xmlns:nds = "clr-namespace:OpenFlow_Avalonia.NodeDisplaySystem;assembly=OpenFlow_Avalonia"
-  xmlns:displays="clr-namespace:OpenFlow_Core.Nodes.VisualNodeComponentDisplays;assembly=OpenFlow_Core"
+  xmlns:displays="clr-namespace:OpenFlow_Core.Nodes.NodeComponents.Visuals;assembly=OpenFlow_Core"
   xmlns:conv = "clr-namespace:OpenFlow_Avalonia.Converters;assembly=OpenFlow_Avalonia">
 
   <Style Selector="nds|NodeDisplay">
@@ -30,7 +30,7 @@
 		</Border.Styles>
 		<Border.DataTemplates>
 
-			<DataTemplate DataType="displays:NodeFieldDisplay">
+			<DataTemplate DataType="displays:NodeField">
 				<Panel HorizontalAlignment="Stretch" Opacity="{Binding Opacity.Value}">
 					<Path Classes="Connector"
 						DataContext="{Binding InputConnector.Value}"
@@ -48,7 +48,7 @@
 					</Path>
 					<Decorator
 						HorizontalAlignment="{Binding Alignment.Value, Converter={StaticResource AlignmentConverter}}"
-						Child="{Binding UIs[Avalonia.Controls.IControl].Observable}"
+						Child="{Binding UserInterfaces[Avalonia.Controls.IControl].Value}"
 						VerticalAlignment="Center"/>
 					<DockPanel>
 						<Button Command="{Binding RemoveSelf}"
@@ -61,7 +61,7 @@
 				</Panel>
 			</DataTemplate>
 
-			<DataTemplate DataType="displays:NodeLabelDisplay">
+			<DataTemplate DataType="displays:NodeLabel">
 				<Panel>
 					<Path Classes="Connector"
 						DataContext="{Binding InputConnector.Value}"

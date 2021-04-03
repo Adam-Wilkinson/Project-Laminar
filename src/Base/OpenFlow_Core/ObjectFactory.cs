@@ -3,6 +3,7 @@ using OpenFlow_Core.Nodes.NodeComponents.Visuals;
 using OpenFlow_Core.Primitives;
 using OpenFlow_Core.Primitives.LaminarValue;
 using OpenFlow_Core.Primitives.LaminarValue.TypeDefinition;
+using OpenFlow_Core.Primitives.UserInterface;
 using OpenFlow_PluginFramework.NodeSystem.NodeComponents;
 using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Collections;
 using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Visuals;
@@ -26,7 +27,6 @@ namespace OpenFlow_Core
             RegisterImplementation<IOpacity, Opacity>();
             RegisterImplementation<INodeField, NodeField>();
             RegisterImplementation<INodeLabel, NodeLabel>();
-            RegisterImplementation<INodeDecorator, NodeDecorator>();
             RegisterImplementation<INodeComponentList, NodeComponentList>();
             RegisterImplementation<INodeComponentAutoCloner, NodeComponentAutoCloner>();
             RegisterImplementation<INodeComponentDictionary, NodeComponentDictionary>();
@@ -36,6 +36,9 @@ namespace OpenFlow_Core
             RegisterImplementation<IManualTypeDefinitionProvider, ManualTypeDefinitionProvider>();
             RegisterImplementation<ILaminarValueStore, LaminarValueStore>();
             RegisterImplementation<ILaminarValueFactory, LaminarValueFactory>();
+            RegisterImplementation<IUserInterfaceRegister, UserInterfaceRegister>();
+            RegisterImplementation<IUserInterfaceManager, UserInterfaceManager>();
+            RegisterImplementation<INodeDecoratorFactory, NodeDecoratorFactory>();
             RegisterImplementationUnsafe(typeof(IObservableValue<>), typeof(ObservableValue<>));
             RegisterImplementationUnsafe(typeof(IValueConstraint<>), typeof(ValueConstraint<>));
             RegisterImplementationUnsafe(typeof(ITypeDefinitionConstructor<>), typeof(TypeDefinitionConstructor<>));

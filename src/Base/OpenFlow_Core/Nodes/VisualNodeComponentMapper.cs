@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Visuals;
+using OpenFlow_Core.Primitives.UserInterface;
 
 namespace OpenFlow_Core.Nodes
 {
@@ -22,7 +23,7 @@ namespace OpenFlow_Core.Nodes
         {
             if (typeof(INodeField).IsAssignableFrom(toMap.GetType()))
             {
-                return new NodeFieldDisplay((INodeField)toMap, _parentNode);
+                return new NodeFieldDisplay((INodeField)toMap, _parentNode, Instance.Factory.GetImplementation<IUserInterfaceManager>());
             }
 
             if (typeof(INodeLabel).IsAssignableFrom(toMap.GetType()))
@@ -35,9 +36,9 @@ namespace OpenFlow_Core.Nodes
                 switch (decorator.DecoratorType)
                 {
                     case NodeDecoratorType.MajorSeparator:
-                        return new MajorSeperator(_parentNode, decorator);
+                        return new VisualNodeComponentDisplays.MajorSeperator(_parentNode, decorator);
                     case NodeDecoratorType.MinorSeparator:
-                        return new MinorSeperator(_parentNode, decorator);
+                        return new VisualNodeComponentDisplays.MinorSeperator(_parentNode, decorator);
                 }
             }
 

@@ -16,6 +16,7 @@
     using OpenFlow_Core.Nodes.Connectors;
     using OpenFlow_Core.Nodes.NodeComponents.Collections;
     using OpenFlow_PluginFramework;
+    using OpenFlow_Core.Nodes.NodeComponents.Visuals;
 
     public class NodeBase
     {
@@ -29,8 +30,6 @@
             _baseNode = baseNode;
             _fieldSection = Constructor.NodeComponentList(baseNode.Fields);
             _fieldSection.ParentNode = baseNode;
-
-            Fields = ObservableCollectionMapper<IVisualNodeComponent, IVisualNodeComponentDisplay>.Create(_fieldSection.VisualNodeComponentsObservable, new VisualNodeComponentMapper(this));
 
             baseNode.SubscribeToEvaluate(TryEvaluate);
 
@@ -60,7 +59,7 @@
 
         public string Name => _baseNode.NodeName;
 
-        public ReadOnlyObservableCollection<IVisualNodeComponentDisplay> Fields { get; }
+        public INotifyCollectionChanged Fields => _fieldSection.VisualNodeComponentsObservable;
 
         public NodeBase DuplicateNode() => new((INode)Activator.CreateInstance(_baseNode.GetType()));
 
@@ -84,16 +83,11 @@
         {
             if (_baseNode is IFlowNode flowNode && _fieldSection.VisualComponentList.Contains(flowNode.FlowOutField))
             {
-                int index = _fieldSection.VisualComponentList.IndexOf(flowNode.FlowOutField);
-                return Fields[index].OutputConnector.Value as FlowConnector;
+                //int index = _fieldSection.VisualComponentList.IndexOf(flowNode.FlowOutField);
+                return (flowNode.FlowOutField as VisualNodeComponent).OutputConnector.Value as FlowConnector;
             }
 
             return null;
-        }
-
-        public VisualNodeComponentDisplay<T> GetDisplayForComponent<T>(T component) where T : IVisualNodeComponent
-        {
-            return Fields[_fieldSection.VisualComponentList.IndexOf(component)] as VisualNodeComponentDisplay<T>;
         }
 
         public void TryEvaluate()
@@ -117,7 +111,7 @@
 
         public void DeepUpdate()
         {
-            foreach (IVisualNodeComponentDisplay field in Fields)
+            foreach (VisualNodeComponent field in _fieldSection.VisualComponentList)
             {
                 if (field.InputConnector is ValueConnector valInput && valInput.ExclusiveConnection != null)
                 {

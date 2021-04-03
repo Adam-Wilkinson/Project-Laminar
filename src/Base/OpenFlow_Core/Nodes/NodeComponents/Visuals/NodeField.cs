@@ -3,8 +3,10 @@
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
+    using OpenFlow_Core.Nodes.Connectors;
     using OpenFlow_Core.Primitives;
     using OpenFlow_Core.Primitives.LaminarValue;
+    using OpenFlow_Core.Primitives.UserInterface;
     using OpenFlow_PluginFramework;
     using OpenFlow_PluginFramework.NodeSystem.NodeComponents;
     using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Visuals;
@@ -16,22 +18,15 @@
         private readonly ILaminarValueStore _valueStore;
         private object _displayedValueKey;
 
-        public NodeField(IOpacity opacity, ILaminarValueStore valueStore) : base(opacity) 
+        public NodeField(IOpacity opacity, ILaminarValueStore valueStore, IUserInterfaceManager userInterfaces) : base(opacity) 
         {
             _valueStore = valueStore;
+            UserInterfaces = userInterfaces;
             _valueStore.AnyValueChanged += ValueStore_AnyValueChanged;
-        }
+            _valueStore.ChangedAtKey += BaseField_ValueStoreChanged;
 
-        public event EventHandler<object> ValueStoreChanged
-        {
-            add
-            {
-                _valueStore.ChangedAtKey += value;
-            }
-            remove
-            {
-                _valueStore.ChangedAtKey -= value;
-            }
+            UpdateInput();
+            UpdateOutput();
         }
 
         public override string Name
@@ -55,6 +50,7 @@
             {
                 _displayedValueKey = value;
                 DisplayedValue = _valueStore.GetValue(value);
+                UpdateDisplayedValue();
             }
         }
 
@@ -67,9 +63,56 @@
             }
         }
 
-        public ILaminarValue GetValue(object key) => _valueStore.GetValue(key);
+        public ILaminarValue GetValue(object key) => _valueStore?.GetValue(key);
 
-        public override INodeComponent Clone() => CloneTo(new NodeField(Opacity.Clone(), _valueStore.Clone()) { DisplayedValueKey = _displayedValueKey });
+        public override INodeComponent Clone() => CloneTo(new NodeField(Opacity.Clone(), _valueStore.Clone(), UserInterfaces.Clone()) { DisplayedValueKey = DisplayedValueKey });
+
+        public IUserInterfaceManager UserInterfaces { get; }
+
+        protected override bool TryUpdateConnector(IConnector connector, ConnectionType connectionType, out IConnector newConnector)
+        {
+            if (base.TryUpdateConnector(connector, connectionType, out newConnector))
+            {
+                return true;
+            }
+
+            ILaminarValue relevantValue = connectionType == ConnectionType.Input ? GetValue(INodeField.InputKey) : GetValue(INodeField.OutputKey);
+            if (relevantValue != null && connector is not ValueConnector)
+            {
+                newConnector = new ValueConnector(relevantValue, ParentNodeBase, connectionType);
+                return true;
+            }
+
+            newConnector = default;
+            return false;
+        }
+
+        protected override HorizontalAlignment CalculateAlignment()
+        {
+            return
+                InputConnector.Value is null && OutputConnector.Value is not null ? HorizontalAlignment.Right : (
+                InputConnector.Value is not null && OutputConnector.Value is null ? HorizontalAlignment.Left :
+                HorizontalAlignment.Middle);
+        }
+
+        private void BaseField_ValueStoreChanged(object sender, object e)
+        {
+            if (e as string is INodeField.InputKey)
+            {
+                UpdateInput();
+            }
+            else if (e as string is INodeField.OutputKey)
+            {
+                UpdateOutput();
+            }
+        }
+
+        private void UpdateDisplayedValue()
+        {
+            UserInterfaces.SetChildValue(DisplayedValue);
+            DisplayedValue.Name = Name;
+            NotifyPropertyChanged(nameof(DisplayedValue));
+        }
 
         private void ValueStore_AnyValueChanged(object sender, EventArgs e)
         {

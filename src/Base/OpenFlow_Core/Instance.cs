@@ -6,9 +6,11 @@
     using System.IO;
     using System.Reflection;
     using OpenFlow_Core.Management;
-    using OpenFlow_Core.Management.UserInterface;
     using OpenFlow_Core.Nodes;
+    using OpenFlow_Core.Nodes.NodeComponents.Visuals;
+    using OpenFlow_Core.Primitives.UserInterface;
     using OpenFlow_PluginFramework;
+    using OpenFlow_PluginFramework.Primitives;
 
     public class Instance
     {
@@ -19,6 +21,7 @@
         {
             Current = this;
             Laminar.Init(Factory);
+            Constructor.NodeDecoratorFactory = Factory.GetImplementation<INodeDecoratorFactory>();
             //Factory = new();
             _pluginManager = new PluginManager();
             if (_configs.Valid && _configs.PluginPaths != null)
@@ -40,9 +43,9 @@
 
         public LoadedNodeManager LoadedNodeManager { get; } = new();
 
-        public UserInterfaceRegister RegisteredEditors { get; } = new();
+        public IUserInterfaceRegister RegisteredEditors { get; } = Factory.GetImplementation<IUserInterfaceRegister>();
 
-        public UserInterfaceRegister RegisteredDisplays { get; } = new();
+        public IUserInterfaceRegister RegisteredDisplays { get; } = Factory.GetImplementation<IUserInterfaceRegister>();
 
         public bool RegisterTypeInfo(Type type, TypeInfoRecord record) => TypeInfo.TryAdd(type, record);
 

@@ -5,10 +5,10 @@
     using System.ComponentModel;
     using System.Diagnostics;
     using System.Runtime.CompilerServices;
-    using OpenFlow_Core.Management.UserInterface;
     using OpenFlow_Core.Nodes.Connectors;
     using OpenFlow_Core.Nodes.NodeComponents.Visuals;
     using OpenFlow_Core.Primitives;
+    using OpenFlow_Core.Primitives.UserInterface;
     using OpenFlow_PluginFramework.NodeSystem;
     using OpenFlow_PluginFramework.NodeSystem.NodeComponents;
     using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Visuals;
@@ -16,7 +16,7 @@
 
     public class NodeFieldDisplay : VisualNodeComponentDisplay<INodeField>, INotifyPropertyChanged
     {
-        public NodeFieldDisplay(INodeField childField, NodeBase parentNode) : base(parentNode, childField)
+        public NodeFieldDisplay(INodeField childField, NodeBase parentNode, IUserInterfaceManager userInterfaces) : base(parentNode, childField)
         {
             ChildComponent.ValueStoreChanged += BaseField_ValueStoreChanged;
 
@@ -28,7 +28,8 @@
                 }
             };
 
-            UIs = new UIManager();
+            UserInterfaces = userInterfaces;
+
             UpdateDisplayedValue();
         }
 
@@ -38,7 +39,7 @@
 
         public ILaminarValue DisplayedValue => ChildComponent.DisplayedValue;
 
-        public UIManager UIs { get; }
+        public IUserInterfaceManager UserInterfaces { get; }
 
         protected override bool TryUpdateConnector(IConnector connector, ConnectionType connectionType, out IConnector newConnector)
         {
@@ -80,7 +81,7 @@
 
         private void UpdateDisplayedValue()
         {
-            UIs.SetChildValue(DisplayedValue);
+            UserInterfaces.SetChildValue(DisplayedValue);
             DisplayedValue.Name = ChildComponent.Name;
             NotifyPropertyChanged(nameof(DisplayedValue));
         }

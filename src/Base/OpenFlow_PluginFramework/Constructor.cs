@@ -13,6 +13,8 @@ namespace OpenFlow_PluginFramework
 {
     public class Constructor
     {
+        public static INodeDecoratorFactory NodeDecoratorFactory { get; set; }
+
         public static ILaminarValue LaminarValue(ITypeDefinitionProvider typeDefinitionProvider, bool isUserEditable)
         {
             ILaminarValue output = Laminar.New<ILaminarValue>();
@@ -73,7 +75,7 @@ namespace OpenFlow_PluginFramework
 
         public static INodeDecorator NodeDecorator(NodeDecoratorType DecoratorType)
         {
-            INodeDecorator output = Laminar.New<INodeDecorator>();
+            INodeDecorator output = NodeDecoratorFactory.GetDecorator(DecoratorType);
 
             output.DecoratorType = DecoratorType;
 

@@ -10,6 +10,7 @@
     using OpenFlow_PluginFramework.NodeSystem.NodeComponents;
     using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Visuals;
     using OpenFlow_PluginFramework.NodeSystem.Nodes;
+    using OpenFlow_Core.Nodes.NodeComponents.Visuals;
 
     public class FlowSourceNode : IFlowNode
     {
@@ -42,7 +43,7 @@
             _parentNodeBase = parent;
             _sourceField["Displayed"] = (Action)(() =>
             {
-                (_parentNodeBase.GetDisplayForComponent(_sourceField).OutputConnector.Value as FlowConnector)?.Activate();
+                (((VisualNodeComponent)_sourceField).OutputConnector.Value as FlowConnector)?.Activate();
             });
         }
     }
