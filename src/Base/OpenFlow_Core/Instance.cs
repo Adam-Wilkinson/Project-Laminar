@@ -21,7 +21,6 @@
         {
             Current = this;
             Laminar.Init(Factory);
-            Constructor.NodeDecoratorFactory = Factory.GetImplementation<INodeDecoratorFactory>();
             //Factory = new();
             _pluginManager = new PluginManager();
             if (_configs.Valid && _configs.PluginPaths != null)

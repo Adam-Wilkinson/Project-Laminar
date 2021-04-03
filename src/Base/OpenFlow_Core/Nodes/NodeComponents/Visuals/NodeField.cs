@@ -13,33 +13,27 @@
     using OpenFlow_PluginFramework.NodeSystem.Nodes;
     using OpenFlow_PluginFramework.Primitives;
 
-    public class NodeField : VisualNodeComponent, INodeField
+    public class NodeField : DisplayableNodeComponent, INodeField
     {
         private readonly ILaminarValueStore _valueStore;
         private object _displayedValueKey;
 
-        public NodeField(IOpacity opacity, ILaminarValueStore valueStore, IUserInterfaceManager userInterfaces) : base(opacity) 
+        public NodeField(IObservableValue<string> name, IOpacity opacity, IConnectionManager connectionManager, ILaminarValueStore valueStore, IUserInterfaceManager userInterfaces) 
+            : base(name, opacity, connectionManager) 
         {
             _valueStore = valueStore;
             UserInterfaces = userInterfaces;
             _valueStore.AnyValueChanged += ValueStore_AnyValueChanged;
             _valueStore.ChangedAtKey += BaseField_ValueStoreChanged;
 
-            UpdateInput();
-            UpdateOutput();
-        }
+            ConnectionManager.AddConnectionCheck((connectionType) => ValueConnector.CheckConnector(this, connectionType));
+            Name.OnChange(_valueStore.SetValueName);
 
-        public override string Name
-        {
-            get => base.Name;
-            set
-            {
-                base.Name = value;
-                _valueStore.SetValueName(value);
-            }
         }
 
         public object this[object key] { get => _valueStore[key]; set => _valueStore[key] = value; }
+
+        public IUserInterfaceManager UserInterfaces { get; }
 
         public ILaminarValue DisplayedValue { get; private set; }
 
@@ -50,7 +44,8 @@
             {
                 _displayedValueKey = value;
                 DisplayedValue = _valueStore.GetValue(value);
-                UpdateDisplayedValue();
+                UserInterfaces.SetChildValue(DisplayedValue);
+                NotifyPropertyChanged(nameof(DisplayedValue));
             }
         }
 
@@ -65,53 +60,30 @@
 
         public ILaminarValue GetValue(object key) => _valueStore?.GetValue(key);
 
-        public override INodeComponent Clone() => CloneTo(new NodeField(Opacity.Clone(), _valueStore.Clone(), UserInterfaces.Clone()) { DisplayedValueKey = DisplayedValueKey });
-
-        public IUserInterfaceManager UserInterfaces { get; }
-
-        protected override bool TryUpdateConnector(IConnector connector, ConnectionType connectionType, out IConnector newConnector)
+        public void SetValueStore(ILaminarValueStore copyFrom)
         {
-            if (base.TryUpdateConnector(connector, connectionType, out newConnector))
-            {
-                return true;
-            }
-
-            ILaminarValue relevantValue = connectionType == ConnectionType.Input ? GetValue(INodeField.InputKey) : GetValue(INodeField.OutputKey);
-            if (relevantValue != null && connector is not ValueConnector)
-            {
-                newConnector = new ValueConnector(relevantValue, ParentNodeBase, connectionType);
-                return true;
-            }
-
-            newConnector = default;
-            return false;
+            _valueStore.CopyFrom(copyFrom);
         }
 
-        protected override HorizontalAlignment CalculateAlignment()
+        public override INodeComponent Clone()
         {
-            return
-                InputConnector.Value is null && OutputConnector.Value is not null ? HorizontalAlignment.Right : (
-                InputConnector.Value is not null && OutputConnector.Value is null ? HorizontalAlignment.Left :
-                HorizontalAlignment.Middle);
+            NodeField output = Instance.Factory.GetImplementation<INodeField>() as NodeField;
+            CloneTo(output);
+            output.SetValueStore(_valueStore);
+            output.DisplayedValueKey = DisplayedValueKey;
+            return output;
         }
 
         private void BaseField_ValueStoreChanged(object sender, object e)
         {
             if (e as string is INodeField.InputKey)
             {
-                UpdateInput();
+                ConnectionManager.UpdateInput();
             }
             else if (e as string is INodeField.OutputKey)
             {
-                UpdateOutput();
+                ConnectionManager.UpdateOutput();
             }
-        }
-
-        private void UpdateDisplayedValue()
-        {
-            UserInterfaces.SetChildValue(DisplayedValue);
-            DisplayedValue.Name = Name;
-            NotifyPropertyChanged(nameof(DisplayedValue));
         }
 
         private void ValueStore_AnyValueChanged(object sender, EventArgs e)

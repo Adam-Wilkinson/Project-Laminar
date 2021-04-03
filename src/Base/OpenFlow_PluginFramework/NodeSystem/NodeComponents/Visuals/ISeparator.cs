@@ -6,9 +6,7 @@ using System.Threading.Tasks;
 
 namespace OpenFlow_PluginFramework.NodeSystem.NodeComponents.Visuals
 {
-    public enum NodeDecoratorType
+    public interface ISeparator : IVisualNodeComponent
     {
-        MajorSeparator,
-        MinorSeparator
     }
 }

@@ -5,7 +5,6 @@
     using System.Collections.ObjectModel;
     using System.Diagnostics;
     using OpenFlow_Core.Nodes.Connectors;
-    using OpenFlow_Core.Nodes.VisualNodeComponentDisplays;
     using OpenFlow_PluginFramework.NodeSystem.Nodes;
 
     public class NodeTree

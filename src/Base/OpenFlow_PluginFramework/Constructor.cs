@@ -13,8 +13,6 @@ namespace OpenFlow_PluginFramework
 {
     public class Constructor
     {
-        public static INodeDecoratorFactory NodeDecoratorFactory { get; set; }
-
         public static ILaminarValue LaminarValue(ITypeDefinitionProvider typeDefinitionProvider, bool isUserEditable)
         {
             ILaminarValue output = Laminar.New<ILaminarValue>();
@@ -28,7 +26,7 @@ namespace OpenFlow_PluginFramework
         {
             INodeField output = Laminar.New<INodeField>();
 
-            output.Name = fieldName;
+            output.Name.Value = fieldName;
 
             return output;
         }
@@ -37,10 +35,11 @@ namespace OpenFlow_PluginFramework
         {
             INodeLabel output = Laminar.New<INodeLabel>();
 
-            output.Name = labelText;
+            output.Name.Value = labelText;
 
             return output;
         }
+
         public static INodeComponentAutoCloner NodeComponentAutoCloner(INodeComponent originalClone, int minimumFieldCount, Func<int, string> nameRule)
         {
             INodeComponentAutoCloner output = Laminar.New<INodeComponentAutoCloner>();
@@ -73,14 +72,7 @@ namespace OpenFlow_PluginFramework
             return output;
         }
 
-        public static INodeDecorator NodeDecorator(NodeDecoratorType DecoratorType)
-        {
-            INodeDecorator output = NodeDecoratorFactory.GetDecorator(DecoratorType);
-
-            output.DecoratorType = DecoratorType;
-
-            return output;
-        }
+        public static ISeparator Separator() => Laminar.New<ISeparator>();
 
         public static ITypeDefinitionConstructor<T> TypeDefinition<T>(T defaultValue, string editorName = null, string displayName = null)
         {

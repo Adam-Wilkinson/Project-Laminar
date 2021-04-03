@@ -11,7 +11,6 @@
     using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Visuals;
     using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Collections;
     using OpenFlow_PluginFramework.NodeSystem.Nodes;
-    using OpenFlow_Core.Nodes.VisualNodeComponentDisplays;
     using OpenFlow_PluginFramework.Primitives;
     using OpenFlow_Core.Nodes.Connectors;
     using OpenFlow_Core.Nodes.NodeComponents.Collections;
@@ -24,9 +23,11 @@
         private readonly INodeComponentCollection _fieldSection;
         private bool _errorState;
         private bool _evaluating;
+        private static readonly Dictionary<INode, NodeBase> NodeBases = new();
 
         public NodeBase(INode baseNode)
         {
+            NodeBases.Add(baseNode, this);
             _baseNode = baseNode;
             _fieldSection = Constructor.NodeComponentList(baseNode.Fields);
             _fieldSection.ParentNode = baseNode;
@@ -63,28 +64,11 @@
 
         public NodeBase DuplicateNode() => new((INode)Activator.CreateInstance(_baseNode.GetType()));
 
-        /*
-        public bool TryGetSpecialField(SpecialFieldFlags flag, out NodeFieldDisplay field)
-        {
-            if (_baseNode.TryGetSpecialField(flag, out NodeField baseField) && _fieldSection.Contains(baseField))
-            {
-                field = Fields[_fieldSection.VisualComponentList.IndexOf(baseField)] as NodeFieldDisplay;
-                return true;
-            }
-            else
-            {
-                field = default;
-                return false;
-            }
-        }
-        */
-
         public FlowConnector GetFlowOutDisplayConnector()
         {
             if (_baseNode is IFlowNode flowNode && _fieldSection.VisualComponentList.Contains(flowNode.FlowOutField))
             {
-                //int index = _fieldSection.VisualComponentList.IndexOf(flowNode.FlowOutField);
-                return (flowNode.FlowOutField as VisualNodeComponent).OutputConnector.Value as FlowConnector;
+                return (flowNode.FlowOutField as IDisplayableNodeComponent).ConnectionManager.OutputConnector.Value as FlowConnector;
             }
 
             return null;
@@ -111,9 +95,9 @@
 
         public void DeepUpdate()
         {
-            foreach (VisualNodeComponent field in _fieldSection.VisualComponentList)
+            foreach (IDisplayableNodeComponent field in _fieldSection.VisualComponentList)
             {
-                if (field.InputConnector is ValueConnector valInput && valInput.ExclusiveConnection != null)
+                if (field.ConnectionManager.InputConnector is ValueConnector valInput && valInput.ExclusiveConnection != null)
                 {
                     valInput.ExclusiveConnection.ParentNode.DeepUpdate();
                 }
@@ -121,5 +105,7 @@
 
             TryEvaluate();
         }
+
+        public static NodeBase GetNodeBase(INode node) => NodeBases[node];
     }
 }

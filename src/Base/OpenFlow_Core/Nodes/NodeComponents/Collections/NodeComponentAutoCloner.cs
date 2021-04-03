@@ -82,7 +82,7 @@
                 int index = 0;
                 foreach (IVisualNodeComponent field in _originalClone.VisualComponentList)
                 {
-                    field.Name = _nameRule(VisualComponentList.Count + index);
+                    field.Name.Value = _nameRule(VisualComponentList.Count + index);
                     index++;
                 }
             }
@@ -102,7 +102,7 @@
             int index = 0;
             foreach (IVisualNodeComponent field in VisualComponentList)
             {
-                field.Name = _nameRule(index);
+                field.Name.Value = _nameRule(index);
                 index++;
             }
         }

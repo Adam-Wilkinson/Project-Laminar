@@ -8,7 +8,7 @@
 
     public class DragDropHandler
     {
-        private readonly Canvas drawingCanvas = new Canvas();
+        private readonly Canvas drawingCanvas = new();
 
         private DragDropHandler(PointerPressedEventArgs e, string dragTypeIdentifier, Control dragControl = null, object dragContext = null, Vector clickOffset = default)
         {
@@ -36,9 +36,7 @@
             this.ClickOffset = clickOffset;
         }
 
-#pragma warning disable CA1034 // Nested types should not be visible
         public interface IDragRecepticle
-#pragma warning restore CA1034 // Nested types should not be visible
         {
             public bool EndDrag(DragDropHandler dragDropInstance, PointerReleasedEventArgs e);
         }

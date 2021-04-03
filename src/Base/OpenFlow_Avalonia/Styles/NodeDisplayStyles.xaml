@@ -33,21 +33,20 @@
 			<DataTemplate DataType="displays:NodeField">
 				<Panel HorizontalAlignment="Stretch" Opacity="{Binding Opacity.Value}">
 					<Path Classes="Connector"
-						DataContext="{Binding InputConnector.Value}"
+						DataContext="{Binding ConnectionManager.InputConnector.Value}"
 						HorizontalAlignment="Left">
 						<Path.RenderTransform>
 							<TranslateTransform X="-17"/>
 						</Path.RenderTransform>
 					</Path>
 					<Path Classes="Connector"
-						DataContext="{Binding OutputConnector.Value}"
+						DataContext="{Binding ConnectionManager.OutputConnector.Value}"
 						HorizontalAlignment="Right">
 						<Path.RenderTransform>
 							<TranslateTransform X="20"/>
 						</Path.RenderTransform>
 					</Path>
 					<Decorator
-						HorizontalAlignment="{Binding Alignment.Value, Converter={StaticResource AlignmentConverter}}"
 						Child="{Binding UserInterfaces[Avalonia.Controls.IControl].Value}"
 						VerticalAlignment="Center"/>
 					<DockPanel>
@@ -64,14 +63,14 @@
 			<DataTemplate DataType="displays:NodeLabel">
 				<Panel>
 					<Path Classes="Connector"
-						DataContext="{Binding InputConnector.Value}"
+						DataContext="{Binding ConnectionManager.InputConnector.Value}"
 						HorizontalAlignment="Left">
 						<Path.RenderTransform>
 							<TranslateTransform X="-17"/>
 						</Path.RenderTransform>
 					</Path>
 					<Path Classes="Connector"
-						DataContext="{Binding OutputConnector.Value}"
+						DataContext="{Binding ConnectionManager.OutputConnector.Value}"
 						HorizontalAlignment="Right">
 						<Path.RenderTransform>
 							<TranslateTransform X="20"/>
@@ -83,7 +82,7 @@
 				</Panel>
 			</DataTemplate>
 
-			<DataTemplate DataType="displays:MajorSeperator">
+			<DataTemplate DataType="displays:Separator">
 				<Decorator Padding="10,0">
 					<Separator Width="{Binding $parent.Width}" Height="2" Background="{DynamicResource ThemeBorderLowBrush} " BorderBrush="White"/>
 				</Decorator>

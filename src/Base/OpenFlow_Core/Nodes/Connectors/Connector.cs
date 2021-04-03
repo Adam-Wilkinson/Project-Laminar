@@ -14,7 +14,7 @@
 
         public bool ConnectionDirty { get; private set; }
 
-        public NodeBase ParentNode { get; }
+        public NodeBase ParentNode { get; set; }
 
         public object Tag { get; set; }
 

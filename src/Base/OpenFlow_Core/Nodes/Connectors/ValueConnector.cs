@@ -2,6 +2,7 @@
 {
     using System.ComponentModel;
     using OpenFlow_PluginFramework.NodeSystem;
+    using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Visuals;
     using OpenFlow_PluginFramework.Primitives;
 
     public class ValueConnector : Connector<ValueConnector>, INotifyPropertyChanged
@@ -45,6 +46,17 @@
                 DisplayValue.Driver = null;
                 ParentNode?.TryEvaluate();
             }
+        }
+
+        public static ValueConnector CheckConnector(INodeField field, ConnectionType connectionType)
+        {
+            ILaminarValue relevantValue = connectionType == ConnectionType.Input ? field.GetValue(INodeField.InputKey) : field.GetValue(INodeField.OutputKey);
+            if (relevantValue != null)
+            {
+                return new ValueConnector(relevantValue, null, connectionType);
+            }
+
+            return null;
         }
     }
 }

@@ -3,8 +3,10 @@ using System.ComponentModel;
 
 namespace OpenFlow_PluginFramework.Primitives
 {
-    public interface ILaminarValue : IObservableValue<object>
+    public interface ILaminarValue : INotifyPropertyChanged
     {
+        object Value { get; set; }
+
         string Name { get; set; }
 
         ILaminarValue Driver { get; set; }

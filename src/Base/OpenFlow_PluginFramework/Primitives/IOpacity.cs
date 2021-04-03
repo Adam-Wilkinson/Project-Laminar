@@ -2,8 +2,10 @@
 
 namespace OpenFlow_PluginFramework.Primitives
 {
-    public interface IOpacity : IObservableValue<double>
+    public interface IOpacity : INotifyPropertyChanged
     {
+        double Value { get; set; }
+
         void AddOpacityFactor(IOpacity factor);
 
         bool RemoveOpacityFactor(IOpacity factor);

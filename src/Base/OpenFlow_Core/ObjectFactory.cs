@@ -1,4 +1,5 @@
-﻿using OpenFlow_Core.Nodes.NodeComponents.Collections;
+﻿using OpenFlow_Core.Nodes.Connectors;
+using OpenFlow_Core.Nodes.NodeComponents.Collections;
 using OpenFlow_Core.Nodes.NodeComponents.Visuals;
 using OpenFlow_Core.Primitives;
 using OpenFlow_Core.Primitives.LaminarValue;
@@ -38,7 +39,8 @@ namespace OpenFlow_Core
             RegisterImplementation<ILaminarValueFactory, LaminarValueFactory>();
             RegisterImplementation<IUserInterfaceRegister, UserInterfaceRegister>();
             RegisterImplementation<IUserInterfaceManager, UserInterfaceManager>();
-            RegisterImplementation<INodeDecoratorFactory, NodeDecoratorFactory>();
+            RegisterImplementation<ISeparator, Separator>();
+            RegisterImplementation<IConnectionManager, ConnectionManager>();
             RegisterImplementationUnsafe(typeof(IObservableValue<>), typeof(ObservableValue<>));
             RegisterImplementationUnsafe(typeof(IValueConstraint<>), typeof(ValueConstraint<>));
             RegisterImplementationUnsafe(typeof(ITypeDefinitionConstructor<>), typeof(TypeDefinitionConstructor<>));

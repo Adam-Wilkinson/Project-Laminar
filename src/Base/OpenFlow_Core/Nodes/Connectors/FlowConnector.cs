@@ -1,7 +1,8 @@
 ﻿namespace OpenFlow_Core.Nodes.Connectors
 {
     using OpenFlow_Core.Nodes;
-    using OpenFlow_Core.Nodes.VisualNodeComponentDisplays;
+    using OpenFlow_Core.Nodes.NodeComponents.Visuals;
+    using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Visuals;
     using OpenFlow_PluginFramework.NodeSystem.Nodes;
     using System.Diagnostics;
 
@@ -25,5 +26,22 @@
 
             NodeFlowOutput?.TypedExclusiveConnection?.Activate();
         }
+
+        public static FlowConnector ConnectorCheck(IVisualNodeComponent component, ConnectionType connectionType)
+        {
+            if (GetFlowFor(component, connectionType))
+            {
+                return new FlowConnector(null, connectionType);
+            }
+
+            return null;
+        }
+
+        private static bool GetFlowFor(IVisualNodeComponent component, ConnectionType connectionType) => (connectionType) switch
+        {
+            ConnectionType.Input => component.GetFlowInput().Value,
+            ConnectionType.Output => component.GetFlowOutput().Value,
+            _ => false,
+        };
     }
 }

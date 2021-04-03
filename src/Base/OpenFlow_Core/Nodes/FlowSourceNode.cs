@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using OpenFlow_Core.Nodes.Connectors;
-    using OpenFlow_Core.Nodes.VisualNodeComponentDisplays;
     using OpenFlow_PluginFramework;
     using OpenFlow_PluginFramework.Primitives.TypeDefinition;
     using OpenFlow_PluginFramework.NodeSystem.NodeComponents;
@@ -16,11 +15,6 @@
     {
         private readonly INodeField _sourceField = Constructor.NodeField("Manual Trigger").WithValue("Displayed", Constructor.ManualTypeDefinitionManager().WithAcceptedDefinition(Constructor.TypeDefinition<Action>(null)), false).WithFlowOutput();
         private NodeBase _parentNodeBase;
-
-        public FlowSourceNode()
-        {
-            // this.SetSpecialField(SpecialFieldFlags.FlowOutput, _sourceField);
-        }
 
         public IVisualNodeComponent FlowOutField => _sourceField;
 
@@ -43,7 +37,7 @@
             _parentNodeBase = parent;
             _sourceField["Displayed"] = (Action)(() =>
             {
-                (((VisualNodeComponent)_sourceField).OutputConnector.Value as FlowConnector)?.Activate();
+                _parentNodeBase.GetFlowOutDisplayConnector()?.Activate();
             });
         }
     }

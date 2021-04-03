@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace OpenFlow_Core.Primitives.LaminarValue
 {
-    public interface ILaminarValueStore
+    public interface ILaminarValueStore : IEnumerable<KeyValuePair<object, ILaminarValue>>
     {
         object this[object key] { get; set; }
 
@@ -22,6 +22,6 @@ namespace OpenFlow_Core.Primitives.LaminarValue
 
         ILaminarValue GetValue(object key);
 
-        ILaminarValueStore Clone();
+        void CopyFrom(ILaminarValueStore copyFrom);
     }
 }

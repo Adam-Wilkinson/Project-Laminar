@@ -1,5 +1,6 @@
 ﻿using OpenFlow_PluginFramework.Primitives;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -67,20 +68,19 @@ namespace OpenFlow_Core.Primitives.LaminarValue
 
         public void SetValueName(string name)
         {
+            _storeName = name;
             foreach (ILaminarValue value in _coreDictionary.Values)
             {
-                value.Name = name;
+                value.Name = _storeName;
             }
         }
 
-        public ILaminarValueStore Clone()
+        public void CopyFrom(ILaminarValueStore copyFrom)
         {
-            LaminarValueStore newStore = new(_valueFactory);
-            foreach (KeyValuePair<object, ILaminarValue> kvp in _coreDictionary)
+            foreach (KeyValuePair<object, ILaminarValue> kvp in copyFrom)
             {
-                newStore.AddValue(kvp.Key, kvp.Value.TypeDefinitionProvider, kvp.Value.IsUserEditable);
+                _coreDictionary.Add(kvp.Key, kvp.Value.Clone());
             }
-            return newStore;
         }
 
 
@@ -99,5 +99,8 @@ namespace OpenFlow_Core.Primitives.LaminarValue
             }
         }
 
+        public IEnumerator<KeyValuePair<object, ILaminarValue>> GetEnumerator() => _coreDictionary.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => _coreDictionary.GetEnumerator();
     }
 }
