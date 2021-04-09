@@ -109,13 +109,14 @@
                 if (_driver != null)
                 {
                     _driver.PropertyChanged += DriverPropertyChanged;
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Value)));
                     IsUserEditable = false;
                 }
                 else
                 {
                     IsUserEditable = true;
                 }
+
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Value)));
             }
         }
 

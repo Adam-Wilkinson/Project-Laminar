@@ -20,7 +20,7 @@ namespace OpenFlow_Core.Nodes.Connection
 
         public IConnectorManager ConnectionFormat { get; private set; }
 
-        public ConnectionType ConnectionType { get; set; }
+        public ConnectorType ConnectionType { get; set; }
 
         public bool IsExclusiveConnection => ConnectionFormat.ConnectorExclusiveCheck(ConnectionType);
 
@@ -44,12 +44,15 @@ namespace OpenFlow_Core.Nodes.Connection
                 ExclusiveConnection.Break();
             }
 
+            ConnectionFormat.ConnectionAddedAction((connection.Opposite(this) as Connector).ConnectionFormat, ConnectionType);
+
             _connections.Add(connection);
         }
 
         public void RemoveConnection(INodeConnection connection)
         {
             _connections.Remove(connection);
+            ConnectionFormat.ConnectionRemovedAction((connection.Opposite(this) as Connector).ConnectionFormat, ConnectionType);
         }
 
         public void HookupRefreshTriggers(IVisualNodeComponent component)

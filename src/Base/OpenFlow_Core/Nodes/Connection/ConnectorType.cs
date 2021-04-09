@@ -1,6 +1,6 @@
 ﻿namespace OpenFlow_Core.Nodes.Connection
 {
-    public enum ConnectionType
+    public enum ConnectorType
     {
         Input,
         Output,

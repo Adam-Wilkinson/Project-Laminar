@@ -14,8 +14,8 @@ namespace OpenFlow_Core.Nodes.NodeComponents.Visuals
             InputConnector = inputConnector;
             OutputConnector = outputConnector;
 
-            InputConnector.ConnectionType = ConnectionType.Input;
-            OutputConnector.ConnectionType = ConnectionType.Output;
+            InputConnector.ConnectionType = ConnectorType.Input;
+            OutputConnector.ConnectionType = ConnectorType.Output;
         }
 
         public IVisualNodeComponent Child

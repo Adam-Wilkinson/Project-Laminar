@@ -18,7 +18,7 @@ namespace OpenFlow_Core.Nodes.Connection.ConnectorManagers
 
         public event EventHandler ExistsChanged;
 
-        public bool CheckIfConnectorExists(IVisualNodeComponent parentComponent, ConnectionType connectionType)
+        public bool CheckIfConnectorExists(IVisualNodeComponent parentComponent, ConnectorType connectionType)
         {
             if (LaminarValue is not null)
             {
@@ -28,12 +28,12 @@ namespace OpenFlow_Core.Nodes.Connection.ConnectorManagers
 
             if (parentComponent is INodeField nodeField)
             {
-                if (connectionType is ConnectionType.Input)
+                if (connectionType is ConnectorType.Input)
                 {
                     LaminarValue = nodeField.GetValue(INodeField.InputKey);
                 }
 
-                if (connectionType is ConnectionType.Output)
+                if (connectionType is ConnectorType.Output)
                 {
                     LaminarValue = nodeField.GetValue(INodeField.OutputKey);
                 }
@@ -62,31 +62,39 @@ namespace OpenFlow_Core.Nodes.Connection.ConnectorManagers
             return toCheck is ValueConnectionManager valConnection && valConnection.LaminarValue.CanSetValue(LaminarValue.Value);
         }
 
-        public void ConnectionAddedAction(IConnector connection)
+        public void ConnectionAddedAction(IConnectorManager manager, ConnectorType myConnectorType)
         {
+            if (myConnectorType is ConnectorType.Output && manager is ValueConnectionManager valConnection)
+            {
+                valConnection.LaminarValue.Driver = LaminarValue;
+            }
         }
 
-        public void ConnectionRemovedAction(IConnector connection)
+        public void ConnectionRemovedAction(IConnectorManager manager, ConnectorType myConnectorType)
         {
+            if (myConnectorType is ConnectorType.Output && manager is ValueConnectionManager valConnection && valConnection.LaminarValue.Driver == LaminarValue)
+            {
+                valConnection.LaminarValue.Driver = null;
+            }
         }
 
-        public bool ConnectorExclusiveCheck(ConnectionType connectionType)
+        public bool ConnectorExclusiveCheck(ConnectorType connectionType)
         {
-            return connectionType is ConnectionType.Input;
+            return connectionType is ConnectorType.Input;
         }
 
-        public void HookupExistsCheck(IVisualNodeComponent component, ConnectionType connectionType)
+        public void HookupExistsCheck(IVisualNodeComponent component, ConnectorType connectionType)
         {
             if (component is INodeField field)
             {
                 field.AnyValueChanged += (o, e) =>
                 {
-                    if (e as string is INodeField.InputKey && connectionType is ConnectionType.Input)
+                    if (e as string is INodeField.InputKey && connectionType is ConnectorType.Input)
                     {
                         ExistsChanged?.Invoke(this, new EventArgs());
                     }
 
-                    if (e as string is INodeField.OutputKey && connectionType is ConnectionType.Output)
+                    if (e as string is INodeField.OutputKey && connectionType is ConnectorType.Output)
                     {
                         ExistsChanged?.Invoke(this, new EventArgs());
                     }

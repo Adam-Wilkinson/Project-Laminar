@@ -5,7 +5,7 @@ namespace OpenFlow_Core.Nodes.Connection
 {
     public interface IConnector
     {
-        ConnectionType ConnectionType { get; set; }
+        ConnectorType ConnectionType { get; set; }
 
         bool IsExclusiveConnection { get; }
 

@@ -306,11 +306,11 @@
         {
             if (dragType == DragType.CreatingCurve)
             {
-                if (selectedField.Tag is IConnector connector && connector.ConnectionType == ConnectionType.Input)
+                if (selectedField.Tag is IConnector connector && connector.ConnectionType == ConnectorType.Input)
                 {
                     yield return new Line(currentMousePos, originalClickPoint, (selectedField as Shape).Fill);
                 }
-                else if (selectedField.Tag is IConnector connector1 && connector1.ConnectionType == ConnectionType.Output)
+                else if (selectedField.Tag is IConnector connector1 && connector1.ConnectionType == ConnectorType.Output)
                 {
                     yield return new Line(originalClickPoint, currentMousePos, (selectedField as Shape).Fill);
                 }
