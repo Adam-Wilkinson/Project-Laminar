@@ -1,14 +1,13 @@
-﻿namespace OpenFlow_Core.Nodes
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using OpenFlow_PluginFramework;
-    using OpenFlow_PluginFramework.Primitives.TypeDefinition;
-    using OpenFlow_PluginFramework.NodeSystem.NodeComponents;
-    using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Visuals;
-    using OpenFlow_PluginFramework.NodeSystem.Nodes;
+﻿using System;
+using System.Collections.Generic;
+using OpenFlow_PluginFramework;
+using OpenFlow_PluginFramework.Primitives.TypeDefinition;
+using OpenFlow_PluginFramework.NodeSystem.NodeComponents;
+using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Visuals;
+using OpenFlow_PluginFramework.NodeSystem.Nodes;
 
+namespace OpenFlow_Core.Nodes
+{
     public class FlowSourceNode : IFlowNode
     {
         private readonly INodeField _sourceField = Constructor.NodeField("Manual Trigger").WithValue("Displayed", Constructor.ManualTypeDefinitionManager().WithAcceptedDefinition(Constructor.TypeDefinition<Action>(null)), false).WithFlowOutput();

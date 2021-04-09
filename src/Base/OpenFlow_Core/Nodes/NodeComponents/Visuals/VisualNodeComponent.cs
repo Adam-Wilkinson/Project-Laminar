@@ -2,7 +2,6 @@
 {
     using System.Collections;
     using System.Collections.Generic;
-    using OpenFlow_Core.Nodes.Connection;
     using OpenFlow_PluginFramework.NodeSystem.NodeComponents;
     using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Visuals;
     using OpenFlow_PluginFramework.Primitives;

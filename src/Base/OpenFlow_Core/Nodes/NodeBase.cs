@@ -1,15 +1,15 @@
-﻿namespace OpenFlow_Core.Nodes
-{
-    using System;
-    using System.Collections.Specialized;
-    using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Collections;
-    using OpenFlow_PluginFramework.NodeSystem.Nodes;
-    using OpenFlow_PluginFramework.Primitives;
-    using OpenFlow_PluginFramework;
-    using OpenFlow_Core.Nodes.NodeComponents.Visuals;
-    using OpenFlow_Core.Primitives.ObservableCollectionMapper;
-    using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Visuals;
+﻿using System;
+using System.Collections.Specialized;
+using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Collections;
+using OpenFlow_PluginFramework.NodeSystem.Nodes;
+using OpenFlow_PluginFramework.Primitives;
+using OpenFlow_PluginFramework;
+using OpenFlow_Core.Nodes.NodeComponents.Visuals;
+using OpenFlow_Core.Primitives.ObservableCollectionMapper;
+using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Visuals;
 
+namespace OpenFlow_Core.Nodes
+{
     public class NodeBase : INodeBase
     {
         private readonly INode _baseNode;

@@ -1,16 +1,9 @@
-﻿namespace OpenFlow_Core.Nodes
-{
-    using System.Collections.Generic;
-    using System.Linq;
-    using OpenFlow_Core.Nodes.NodeComponents.Collections;
-    using OpenFlow_Core.Nodes.NodeComponents.Visuals;
-    using OpenFlow_Core.Primitives;
-    using OpenFlow_PluginFramework.NodeSystem.NodeComponents;
-    using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Collections;
-    using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Visuals;
-    using OpenFlow_PluginFramework.NodeSystem.Nodes;
-    using OpenFlow_PluginFramework.Primitives;
+﻿using System.Collections.Generic;
+using System.Linq;
+using OpenFlow_PluginFramework.NodeSystem.Nodes;
 
+namespace OpenFlow_Core.Nodes
+{
     public class LoadedNodeManager
     {
         private readonly INodeFactory _nodeFactory;

@@ -1,18 +1,12 @@
-﻿namespace OpenFlow_Core.Nodes.NodeComponents.Visuals
-{
-    using System;
-    using System.Collections.Generic;
-    using System.ComponentModel;
-    using OpenFlow_Core.Nodes.Connection;
-    using OpenFlow_Core.Primitives;
-    using OpenFlow_Core.Primitives.LaminarValue;
-    using OpenFlow_Core.Primitives.UserInterface;
-    using OpenFlow_PluginFramework;
-    using OpenFlow_PluginFramework.NodeSystem.NodeComponents;
-    using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Visuals;
-    using OpenFlow_PluginFramework.NodeSystem.Nodes;
-    using OpenFlow_PluginFramework.Primitives;
+﻿using System;
+using OpenFlow_Core.Primitives.LaminarValue;
+using OpenFlow_Core.Primitives.UserInterface;
+using OpenFlow_PluginFramework.NodeSystem.NodeComponents;
+using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Visuals;
+using OpenFlow_PluginFramework.Primitives;
 
+namespace OpenFlow_Core.Nodes.NodeComponents.Visuals
+{
     public class NodeField : VisualNodeComponent, INodeField
     {
         private readonly ILaminarValueStore _valueStore;

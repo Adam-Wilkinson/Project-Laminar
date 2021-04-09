@@ -1,12 +1,10 @@
-﻿namespace OpenFlow_Core.Nodes.NodeTreeSystem
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Diagnostics;
-    using OpenFlow_Core.Nodes.Connection;
-    using OpenFlow_PluginFramework.NodeSystem.Nodes;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using OpenFlow_Core.Nodes.Connection;
 
+namespace OpenFlow_Core.Nodes.NodeTreeSystem
+{
     public class NodeTree
     {
         private readonly List<INodeConnection> _connections = new();
