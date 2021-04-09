@@ -60,5 +60,10 @@ namespace OpenFlow_Core.Primitives
             dep.PropertyChanged -= Dep_PropertyChanged<TDep>;
             dependencyFunctions.Remove(dep);
         }
+
+        public override string ToString()
+        {
+            return $"{Value} (Observable)";
+        }
     }
 }
