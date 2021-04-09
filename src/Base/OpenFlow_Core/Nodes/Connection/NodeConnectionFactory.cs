@@ -4,12 +4,12 @@
     {
         public bool TryConnect(IConnector connectorOne, IConnector connectorTwo, out INodeConnection connection)
         {
-            if (connectorOne.ConnectionType is ConnectorType.Output && connectorTwo.ConnectionType is ConnectorType.Input)
+            if (connectorOne.ConnectorType is ConnectorType.Output && connectorTwo.ConnectorType is ConnectorType.Input)
             {
                 return TryMakeConnector(connectorOne, connectorTwo, out connection);
             }
 
-            if (connectorTwo.ConnectionType is ConnectorType.Input && connectorTwo.ConnectionType is ConnectorType.Output)
+            if (connectorTwo.ConnectorType is ConnectorType.Input && connectorTwo.ConnectorType is ConnectorType.Output)
             {
                 return TryMakeConnector(connectorTwo, connectorOne, out connection);
             }

@@ -20,9 +20,9 @@ namespace OpenFlow_Core.Nodes.Connection
 
         public IConnectorManager ConnectionFormat { get; private set; }
 
-        public ConnectorType ConnectionType { get; set; }
+        public ConnectorType ConnectorType { get; set; }
 
-        public bool IsExclusiveConnection => ConnectionFormat.ConnectorExclusiveCheck(ConnectionType);
+        public bool IsExclusiveConnection => ConnectionFormat.ConnectorExclusiveCheck(ConnectorType);
 
         public INodeConnection ExclusiveConnection => IsExclusiveConnection && _connections.Count > 0 ? _connections[0] : null;
 
@@ -44,7 +44,7 @@ namespace OpenFlow_Core.Nodes.Connection
                 ExclusiveConnection.Break();
             }
 
-            ConnectionFormat.ConnectionAddedAction((connection.Opposite(this) as Connector).ConnectionFormat, ConnectionType);
+            ConnectionFormat.ConnectionAddedAction((connection.Opposite(this) as Connector).ConnectionFormat, ConnectorType);
 
             _connections.Add(connection);
         }
@@ -52,14 +52,14 @@ namespace OpenFlow_Core.Nodes.Connection
         public void RemoveConnection(INodeConnection connection)
         {
             _connections.Remove(connection);
-            ConnectionFormat.ConnectionRemovedAction((connection.Opposite(this) as Connector).ConnectionFormat, ConnectionType);
+            ConnectionFormat.ConnectionRemovedAction((connection.Opposite(this) as Connector).ConnectionFormat, ConnectorType);
         }
 
         public void HookupRefreshTriggers(IVisualNodeComponent component)
         {
             foreach (IConnectorManager manager in managers)
             {
-                manager.HookupExistsCheck(component, ConnectionType);
+                manager.HookupExistsCheck(component, ConnectorType);
                 manager.ExistsChanged += (o, e) => SetConnectionFormat(TryFindFormat(component));
             }
 
@@ -90,7 +90,7 @@ namespace OpenFlow_Core.Nodes.Connection
         {
             foreach (IConnectorManager manager in managers)
             {
-                if (manager.CheckIfConnectorExists(component, ConnectionType))
+                if (manager.CheckIfConnectorExists(component, ConnectorType))
                 {
                     return manager;
                 }
