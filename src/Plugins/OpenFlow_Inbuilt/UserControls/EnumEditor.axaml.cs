@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using OpenFlow_PluginFramework.Primitives;
+using System.Diagnostics;
 
 namespace OpenFlow_Inbuilt.UserControls
 {
@@ -21,7 +22,6 @@ namespace OpenFlow_Inbuilt.UserControls
         private void EnumEditor_DataContextChanged(object sender, System.EventArgs e)
         {
             this.FindControl<ComboBox>("CBox").Items = (DataContext as ILaminarValue)?.TypeDefinition.ValueType.GetEnumValues();
-            //this.FindControl<ComboBox>("CBox").SelectedItem = (DataContext as OpenFlowValue)?.Value;
         }
     }
 }

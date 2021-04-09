@@ -1,4 +1,4 @@
-﻿using OpenFlow_Core.Nodes.Connectors;
+﻿using OpenFlow_Core.Nodes.Connection;
 using OpenFlow_Core.Primitives;
 using OpenFlow_PluginFramework;
 using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Visuals;
@@ -11,10 +11,10 @@ using System.Threading.Tasks;
 
 namespace OpenFlow_Core.Nodes.NodeComponents.Visuals
 {
-    public class NodeLabel : DisplayableNodeComponent, INodeLabel
+    public class NodeLabel : VisualNodeComponent, INodeLabel
     {
-        public NodeLabel(IObservableValue<string> name, IOpacity opacity, IConnectionManager connectionManager, IObservableValue<string> labelText) 
-            : base(name, opacity, connectionManager) 
+        public NodeLabel(IObservableValue<string> name, IOpacity opacity, IObservableValue<string> labelText) 
+            : base(name, opacity)
         {
             LabelText = labelText;
             LabelText.Value = Name.Value;

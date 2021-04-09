@@ -7,7 +7,11 @@ namespace OpenFlow_PluginFramework.Primitives
     {
         T Value { get; set; }
 
-        void AddDependency<TDep>(IObservableValue<TDep> dep);
+        void AddDependency<TDep>(IObservableValue<TDep> dep, Func<TDep, T> conversion);
+
+        void AddDependency(IObservableValue<T> dep);
+
+        void RemoveDependency<TDep>(IObservableValue<TDep> dep);
 
         void OnChange(Action<T> changeAction);
 

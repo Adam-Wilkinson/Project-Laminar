@@ -1,21 +1,14 @@
 ﻿namespace OpenFlow_Core.Nodes
 {
     using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
     using System.Collections.Specialized;
-    using System.ComponentModel;
-    using System.Diagnostics;
-    using System.Linq;
-    using OpenFlow_PluginFramework.NodeSystem.NodeComponents;
-    using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Visuals;
     using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Collections;
     using OpenFlow_PluginFramework.NodeSystem.Nodes;
     using OpenFlow_PluginFramework.Primitives;
-    using OpenFlow_Core.Nodes.Connectors;
-    using OpenFlow_Core.Nodes.NodeComponents.Collections;
     using OpenFlow_PluginFramework;
     using OpenFlow_Core.Nodes.NodeComponents.Visuals;
+    using OpenFlow_Core.Primitives.ObservableCollectionMapper;
+    using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Visuals;
 
     public class NodeBase : INodeBase
     {
@@ -31,6 +24,8 @@
             _fieldSection = Constructor.NodeComponentList(baseNode.Fields);
             _fieldSection.ParentNode = baseNode;
 
+            Fields = ObservableCollectionMapper<IVisualNodeComponent, IVisualNodeComponentContainer>.Create(_fieldSection.VisualNodeComponentsObservable);
+
             TryEvaluate();
         }
 
@@ -44,19 +39,9 @@
 
         public string Name => _baseNode.NodeName;
 
-        public INotifyCollectionChanged Fields => _fieldSection.VisualNodeComponentsObservable;
+        public INotifyCollectionChanged Fields { get; }
 
         public INodeBase DuplicateNode() => new NodeBase((INode)Activator.CreateInstance(_baseNode.GetType()), ErrorState.Clone());
-
-        public FlowConnector GetFlowOutDisplayConnector()
-        {
-            if (_baseNode is IFlowNode flowNode && _fieldSection.VisualComponentList.Contains(flowNode.FlowOutComponent))
-            {
-                return (flowNode.FlowOutComponent as IDisplayableNodeComponent).ConnectionManager.OutputConnector.Value as FlowConnector;
-            }
-
-            return null;
-        }
 
         public void TryEvaluate()
         {
@@ -79,12 +64,12 @@
 
         public void DeepUpdate()
         {
-            foreach (IDisplayableNodeComponent component in _fieldSection.VisualComponentList)
+            foreach (IVisualNodeComponent component in _fieldSection.VisualComponentList)
             {
-                if (component.ConnectionManager.InputConnector is ValueConnector valInput && valInput.ExclusiveConnection != null)
-                {
-                    valInput.ExclusiveConnection.ParentNode.DeepUpdate();
-                }
+                // if (component.ConnectionManager.InputConnector is ValueConnector valInput && valInput.ExclusiveConnection != null)
+                // {
+                //    valInput.ExclusiveConnection.ParentNode.DeepUpdate();
+                // }
             }
 
             TryEvaluate();

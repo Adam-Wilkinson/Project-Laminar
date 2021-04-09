@@ -1,5 +1,4 @@
-﻿using OpenFlow_Core.Nodes.Connectors;
-using OpenFlow_PluginFramework.NodeSystem.Nodes;
+﻿using OpenFlow_PluginFramework.NodeSystem.Nodes;
 using OpenFlow_PluginFramework.Primitives;
 using System;
 using System.Collections.Generic;
@@ -26,8 +25,6 @@ namespace OpenFlow_Core.Nodes
         void DeepUpdate();
 
         INodeBase DuplicateNode();
-
-        FlowConnector GetFlowOutDisplayConnector();
 
         void TryEvaluate();
     }

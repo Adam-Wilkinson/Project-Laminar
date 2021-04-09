@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
-    using OpenFlow_Core.Nodes.Connectors;
+    using OpenFlow_Core.Nodes.Connection;
     using OpenFlow_Core.Primitives;
     using OpenFlow_Core.Primitives.LaminarValue;
     using OpenFlow_Core.Primitives.UserInterface;
@@ -13,23 +13,22 @@
     using OpenFlow_PluginFramework.NodeSystem.Nodes;
     using OpenFlow_PluginFramework.Primitives;
 
-    public class NodeField : DisplayableNodeComponent, INodeField
+    public class NodeField : VisualNodeComponent, INodeField
     {
         private readonly ILaminarValueStore _valueStore;
         private object _displayedValueKey;
 
-        public NodeField(IObservableValue<string> name, IOpacity opacity, IConnectionManager connectionManager, ILaminarValueStore valueStore, IUserInterfaceManager userInterfaces) 
-            : base(name, opacity, connectionManager) 
+        public NodeField(IObservableValue<string> name, IOpacity opacity, ILaminarValueStore valueStore, IUserInterfaceManager userInterfaces) 
+            : base(name, opacity)
         {
             _valueStore = valueStore;
             UserInterfaces = userInterfaces;
             _valueStore.AnyValueChanged += ValueStore_AnyValueChanged;
-            _valueStore.ChangedAtKey += BaseField_ValueStoreChanged;
-
-            ConnectionManager.AddConnectionCheck((connectionType) => ValueConnector.CheckConnector(this, connectionType));
+            _valueStore.ChangedAtKey += (o, e) => AnyValueChanged?.Invoke(this, e);
             Name.OnChange(_valueStore.SetValueName);
-
         }
+
+        public event EventHandler<object> AnyValueChanged;
 
         public object this[object key] { get => _valueStore[key]; set => _valueStore[key] = value; }
 
@@ -72,18 +71,6 @@
             output.SetValueStore(_valueStore);
             output.DisplayedValueKey = DisplayedValueKey;
             return output;
-        }
-
-        private void BaseField_ValueStoreChanged(object sender, object e)
-        {
-            if (e as string is INodeField.InputKey)
-            {
-                ConnectionManager.UpdateInput();
-            }
-            else if (e as string is INodeField.OutputKey)
-            {
-                ConnectionManager.UpdateOutput();
-            }
         }
 
         private void ValueStore_AnyValueChanged(object sender, EventArgs e)

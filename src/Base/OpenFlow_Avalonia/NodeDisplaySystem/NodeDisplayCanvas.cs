@@ -1,9 +1,11 @@
 ﻿namespace OpenFlow_Avalonia.NodeDisplaySystem
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.Collections.Specialized;
     using System.Diagnostics;
+    using System.Linq;
     using Avalonia;
     using Avalonia.Controls;
     using Avalonia.Controls.Shapes;
@@ -11,7 +13,8 @@
     using Avalonia.Media;
     using Avalonia.VisualTree;
     using OpenFlow_Core.Nodes;
-    using OpenFlow_Core.Nodes.Connectors;
+    using OpenFlow_Core.Nodes.Connection;
+    using OpenFlow_Core.Nodes.NodeComponents.Visuals;
     using OpenFlow_Core.Nodes.NodeTreeSystem;
 
     public class NodeDisplayCanvas : Canvas
@@ -31,7 +34,7 @@
                 NodeAdded(node);
             }
 
-            manager.Nodes.CollectionChanged += Nodes_CollectionChanged;
+            ((INotifyCollectionChanged)manager.Nodes).CollectionChanged += Nodes_CollectionChanged;
         }
 
         private enum DragType
@@ -280,7 +283,7 @@
             {
                 foreach (IVisual visual in this.GetVisualChildren())
                 {
-                    if (visual is NodeDisplay nodeDisplay && nodeDisplay.CoreNode == connector.ParentNode)
+                    if (visual is NodeDisplay nodeDisplay && (nodeDisplay.CoreNode.Fields as IList).Cast<IVisualNodeComponentContainer>().Any(x => x.InputConnector == connector || x.OutputConnector == connector))
                     {
                         foreach (IVisual nodeVisual in nodeDisplay.GetVisualDescendants())
                         {
@@ -313,11 +316,11 @@
                 }
             }
 
-            foreach (NodeConnection nodeConnection in manager.GetConnections())
+            foreach (INodeConnection nodeConnection in manager.GetConnections())
             {
-                if (GetConnectorLocation(nodeConnection.Output, out Point startPoint) && GetConnectorLocation(nodeConnection.Input, out Point endPoint))
+                if (GetConnectorLocation(nodeConnection.OutputConnector, out Point startPoint) && GetConnectorLocation(nodeConnection.InputConnector, out Point endPoint))
                 {
-                    yield return new Line(startPoint, endPoint, (nodeConnection.Output.Tag as Shape).Fill);
+                    yield return new Line(startPoint, endPoint, (nodeConnection.OutputConnector.Tag as Shape).Fill);
                 }
             }
         }

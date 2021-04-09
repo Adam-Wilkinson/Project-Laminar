@@ -4,66 +4,49 @@
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Diagnostics;
-    using OpenFlow_Core.Nodes.Connectors;
+    using OpenFlow_Core.Nodes.Connection;
     using OpenFlow_PluginFramework.NodeSystem.Nodes;
 
     public class NodeTree
     {
-        private readonly Dictionary<IConnector, IConnector> _connections = new();
-
-        public ObservableCollection<INodeBase> Nodes { get; private set; } = new();
+        private readonly List<INodeConnection> _connections = new();
+        private readonly INodeFactory _nodeFactory = Instance.Factory.GetImplementation<INodeFactory>();
+        private readonly INodeConnectionFactory _connectionFactory = Instance.Factory.GetImplementation<INodeConnectionFactory>();
+        private readonly ObservableCollection<INodeBase> _nodes = new();
 
         public NodeTree()
         {
-            FlowSourceNode flowSourceNode = new();
-            INodeBase flowSourceNodeBase = Instance.Factory.GetImplementation<INodeFactory>().Get<FlowSourceNode>();
-            flowSourceNode.SetParentNode(flowSourceNodeBase);
-            AddNode(flowSourceNodeBase);
+            AddNode(_nodeFactory.Get<FlowSourceNode>());
+            Nodes = new(_nodes);
         }
+
+        public ReadOnlyObservableCollection<INodeBase> Nodes { get; }
 
         public bool TryConnectFields(IConnector field1, IConnector field2)
         {
-            if (NodeConnection.Construct(field1, field2, out NodeConnection newConnection))
+            if (_connectionFactory.TryConnect(field1, field2, out INodeConnection newConnection))
             {
-                if (SimpleConnect(newConnection))
-                {
-                    return true;
-                }
-
-                /*
-                 * 
-                 * This code is for automatic type converting and is not currently implemented
-                if (TypeConverter.TryGetConverter(
-                    (newConnection.Output as ValueConnector)?.DisplayValue.TypeDefinition.ValueType,
-                    (newConnection.Input as ValueConnector)?.DisplayValue.TypeDefinition.ValueType,
-                    out Type converterType))
-                {
-                    NodeBase newNode = new((INode)Activator.CreateInstance(converterType));
-                    if (newNode.TryGetSpecialField(SpecialFieldFlags.ConvertInput, out NodeFieldDisplay convertInput) && newNode.TryGetSpecialField(SpecialFieldFlags.ConvertOutput, out NodeFieldDisplay convertOutput) &&
-                        NodeConnection.Construct(newConnection.Output, convertInput.InputConnector.Value, out NodeConnection firstConnection) && SimpleConnect(firstConnection) &&
-                        NodeConnection.Construct(convertOutput.OutputConnector.Value, newConnection.Input, out NodeConnection secondConnection) && SimpleConnect(secondConnection))
-                    {
-                        //newNode.X = (field1.Parent.X + field2.Parent.X) / 2;
-                        //newNode.Y = (field1.Parent.Y + field2.Parent.Y) / 2;
-
-                        AddNode(newNode);
-                    }
-
-                    return true;
-                }
-                */
+                _connections.Add(newConnection);
+                newConnection.OnBreak += Connection_OnBreak;
+                return true;
             }
 
             return false;
         }
 
+        private void Connection_OnBreak(object sender, EventArgs e)
+        {
+            _connections.Remove(sender as INodeConnection);
+        }
+
         public IConnector ConnectionChanged(IConnector interacted)
         {
-            if (_connections.TryGetValue(interacted, out IConnector value))
+            if (interacted.ExclusiveConnection is not null)
             {
-                _connections.Remove(interacted);
-                interacted.TryRemoveConnection(value);
-                return value;
+                _connections.Remove(interacted.ExclusiveConnection);
+                IConnector opposite = interacted.ExclusiveConnection.Opposite(interacted);
+                interacted.ExclusiveConnection.Break();
+                return opposite;
             }
 
             return interacted;
@@ -71,38 +54,9 @@
 
         public void AddNode(INodeBase newNode)
         {
-            Nodes.Add(newNode);
+            _nodes.Add(newNode);
         }
 
-        public IEnumerable<NodeConnection> GetConnections()
-        {
-            Dictionary<IConnector, IConnector>.Enumerator enumerator = _connections.GetEnumerator();
-            while (enumerator.MoveNext())
-            {
-                if (NodeConnection.Construct(enumerator.Current.Key, enumerator.Current.Value, out NodeConnection connection))
-                {
-                    yield return connection;
-                }
-            }
-        }
-
-        private bool SimpleConnect(NodeConnection connection)
-        {
-            if (connection.Input.TryAddConnection(connection.Output) || connection.Output.TryAddConnection(connection.Input))
-            {
-                if (connection.Input.IsExclusiveConnection)
-                {
-                    _connections[connection.Input] = connection.Output;
-                }
-                else if (connection.Output.IsExclusiveConnection)
-                {
-                    _connections[connection.Output] = connection.Input;
-                }
-
-                return true;
-            }
-
-            return false;
-        }
+        public IEnumerable<INodeConnection> GetConnections() => _connections;
     }
 }

@@ -1,7 +1,7 @@
-﻿namespace OpenFlow_Core.Nodes.NodeTreeSystem
+﻿namespace OpenFlow_Core.Nodes.NodeTreeSystem.Obselete
 {
-    using OpenFlow_Core.Nodes.Connectors;
 
+    /*
     public record NodeConnection(IConnector Output, IConnector Input)
     {
         public static bool Construct(IConnector connector1, IConnector connector2, out NodeConnection connection)
@@ -25,4 +25,5 @@
             }
         }
     }
+    */
 }

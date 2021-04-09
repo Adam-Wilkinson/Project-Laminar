@@ -1,10 +1,11 @@
 ﻿using OpenFlow_Core.Nodes;
-using OpenFlow_Core.Nodes.Connectors;
+using OpenFlow_Core.Nodes.Connection;
 using OpenFlow_Core.Nodes.NodeComponents.Collections;
 using OpenFlow_Core.Nodes.NodeComponents.Visuals;
 using OpenFlow_Core.Primitives;
 using OpenFlow_Core.Primitives.LaminarValue;
 using OpenFlow_Core.Primitives.LaminarValue.TypeDefinition;
+using OpenFlow_Core.Primitives.ObservableCollectionMapper;
 using OpenFlow_Core.Primitives.UserInterface;
 using OpenFlow_PluginFramework.NodeSystem.NodeComponents;
 using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Collections;
@@ -41,8 +42,11 @@ namespace OpenFlow_Core
             RegisterImplementation<IUserInterfaceRegister, UserInterfaceRegister>();
             RegisterImplementation<IUserInterfaceManager, UserInterfaceManager>();
             RegisterImplementation<ISeparator, Separator>();
-            RegisterImplementation<IConnectionManager, ConnectionManager>();
             RegisterImplementation<INodeFactory, NodeFactory>();
+            RegisterImplementation<IConnector, Connector>();
+            RegisterImplementation<INodeConnectionFactory, NodeConnectionFactory>();
+            RegisterImplementation<ITypeMapper<IVisualNodeComponent, IVisualNodeComponentContainer>, VisualNodeComponentContainerMapper>();
+            RegisterImplementation<IVisualNodeComponentContainer, VisualNodeComponentContainer>();
             RegisterImplementationUnsafe(typeof(IObservableValue<>), typeof(ObservableValue<>));
             RegisterImplementationUnsafe(typeof(IValueConstraint<>), typeof(ValueConstraint<>));
             RegisterImplementationUnsafe(typeof(ITypeDefinitionConstructor<>), typeof(TypeDefinitionConstructor<>));
@@ -53,37 +57,13 @@ namespace OpenFlow_Core
             return (T)GetLooseTypedImplementation(typeof(T));
         }
 
-        public IObjectFactory RegisterImplementation<TInterface, TImplementation>()
-            where TImplementation : class, TInterface
+        public T CreateInstance<T>()
         {
-            interfaceImplementations.Add(typeof(TInterface), typeof(TImplementation));
-            return this;
+            return (T)CreateInstance(typeof(T));
         }
 
-        public void RegisterImplementationUnsafe(Type interfaceType, Type implementationType)
+        public object CreateInstance(Type targetType)
         {
-            Type[] interfaces = implementationType.GetInterfaces();
-            if (!(implementationType.GetInterfaces().Any(x => x.IsGenericType && (x.GetGenericTypeDefinition() == interfaceType)) && implementationType.IsClass))
-            {
-                throw new ArgumentException($"Type {implementationType} is not a class that inherits from {interfaceType}");
-            }
-
-            interfaceImplementations.Add(interfaceType, implementationType);
-        }
-
-        private object GetLooseTypedImplementation(Type typeToGet)
-        {
-            Type targetType;
-            if (typeToGet.IsGenericType)
-            {
-                targetType = interfaceImplementations[typeToGet.GetGenericTypeDefinition()];
-                targetType = targetType.MakeGenericType(typeToGet.GetGenericArguments());
-            }
-            else
-            {
-                targetType = interfaceImplementations[typeToGet];
-            }
-
             if (targetType.GetConstructor(Type.EmptyTypes) != null)
             {
                 return Activator.CreateInstance(targetType);
@@ -100,6 +80,47 @@ namespace OpenFlow_Core
             }
 
             return Activator.CreateInstance(targetType, parameterObjects);
+        }
+
+        private IObjectFactory RegisterImplementation<TInterface, TImplementation>()
+            where TImplementation : class, TInterface
+        {
+            interfaceImplementations.Add(typeof(TInterface), typeof(TImplementation));
+            return this;
+        }
+
+        private void RegisterImplementationUnsafe(Type interfaceType, Type implementationType)
+        {
+            Type[] interfaces = implementationType.GetInterfaces();
+            if (!(implementationType.GetInterfaces().Any(x => x.IsGenericType && (x.GetGenericTypeDefinition() == interfaceType)) && implementationType.IsClass))
+            {
+                throw new ArgumentException($"Type {implementationType} is not a class that inherits from {interfaceType}");
+            }
+
+            interfaceImplementations.Add(interfaceType, implementationType);
+        }
+
+        private object GetLooseTypedImplementation(Type typeToGet)
+        {
+            Type targetType;
+            if (typeToGet.IsGenericType)
+            {
+                if (interfaceImplementations.TryGetValue(typeToGet, out Type implementation))
+                {
+                    targetType = implementation;
+                }
+                else
+                {
+                    targetType = interfaceImplementations[typeToGet.GetGenericTypeDefinition()];
+                    targetType = targetType.MakeGenericType(typeToGet.GetGenericArguments());
+                }
+            }
+            else
+            {
+                targetType = interfaceImplementations[typeToGet];
+            }
+
+            return CreateInstance(targetType);
         }
     }
 }
