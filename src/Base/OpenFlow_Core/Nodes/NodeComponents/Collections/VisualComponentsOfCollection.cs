@@ -10,11 +10,11 @@ using System.Diagnostics;
 
 namespace OpenFlow_Core.Nodes.NodeComponents.Collections
 {
-    public class NodeFieldList : INotifyCollectionChanged, IList, IList<IVisualNodeComponent>
+    public class VisualComponentsOfCollection : INotifyCollectionChanged, IList, IList<IVisualNodeComponent>
     {
         private readonly ObservableCollection<INodeComponent> _components;
 
-        public NodeFieldList(ObservableCollection<INodeComponent> nodeComponents)
+        public VisualComponentsOfCollection(ObservableCollection<INodeComponent> nodeComponents)
         {
             nodeComponents.CollectionChanged += Components_CollectionChanged;
             _components = nodeComponents;
@@ -77,7 +77,7 @@ namespace OpenFlow_Core.Nodes.NodeComponents.Collections
         {
             if (value is not IVisualNodeComponent)
             {
-                throw new InvalidCastException($"{nameof(NodeFieldList)} only stores valus of type {nameof(IVisualNodeComponent)}");
+                throw new InvalidCastException($"{nameof(VisualComponentsOfCollection)} only stores valus of type {nameof(IVisualNodeComponent)}");
             }
             return Contains(value as IVisualNodeComponent);
         }

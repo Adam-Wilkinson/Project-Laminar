@@ -22,7 +22,7 @@
 
         public NodeComponentCollection(IOpacity opacity) : base(opacity) 
         {
-            VisualComponentList = new NodeFieldList(_childComponents);
+            VisualComponentList = new VisualComponentsOfCollection(_childComponents);
         }
 
         public event NotifyCollectionChangedEventHandler CollectionChanged
@@ -38,7 +38,7 @@
             }
         }
 
-        public override NodeFieldList VisualComponentList { get; }
+        public override VisualComponentsOfCollection VisualComponentList { get; }
 
         public INotifyCollectionChanged VisualNodeComponentsObservable => VisualComponentList;
 
