@@ -14,15 +14,15 @@ namespace OpenFlow_Core.Nodes.Connection.ConnectorManagers
 
         IObservableValue<string> HexColour { get; }
 
-        bool CheckIfConnectorExists(IVisualNodeComponent parentComponent, ConnectorType connectionType);
+        void Initialize(IVisualNodeComponent component, ConnectorType connectionType);
 
-        void HookupExistsCheck(IVisualNodeComponent component, ConnectorType connectionType);
+        bool ConnectorExists();
 
-        bool ConnectorExclusiveCheck(ConnectorType connectorType);
+        bool ConnectorExclusiveCheck();
 
-        void ConnectionAddedAction(IConnectorManager manager, ConnectorType connectorType);
+        void ConnectionAddedAction(IConnectorManager manager);
 
-        void ConnectionRemovedAction(IConnectorManager manager, ConnectorType connectorType);
+        void ConnectionRemovedAction(IConnectorManager manager);
 
         bool CompatibilityCheck(IConnectorManager toCheck);
     }

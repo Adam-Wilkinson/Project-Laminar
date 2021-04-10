@@ -17,7 +17,7 @@ namespace OpenFlow_Core.Nodes.Connection
 
         IObservableValue<string> HexColour { get; }
 
-        void HookupRefreshTriggers(IVisualNodeComponent component);
+        void Initialize(IVisualNodeComponent component);
 
         void AddConnection(INodeConnection connection);
 

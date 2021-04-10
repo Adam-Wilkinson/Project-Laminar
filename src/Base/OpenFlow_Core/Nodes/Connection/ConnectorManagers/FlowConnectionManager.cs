@@ -7,6 +7,9 @@ namespace OpenFlow_Core.Nodes.Connection.ConnectorManagers
 {
     public class FlowConnectionManager : IConnectorManager
     {
+        private IVisualNodeComponent _parentComponent;
+        private ConnectorType _connectorType;
+
         public FlowConnectionManager(IObservableValue<string> hexColour)
         {
             HexColour = hexColour;
@@ -15,21 +18,33 @@ namespace OpenFlow_Core.Nodes.Connection.ConnectorManagers
 
         public IObservableValue<string> HexColour { get; }
 
-        public ConnectorType ConnectionType { get; private set; }
-
         public event EventHandler ExistsChanged;
 
-        public bool CheckIfConnectorExists(IVisualNodeComponent parentComponent, ConnectorType connectionType)
+        public void Initialize(IVisualNodeComponent component, ConnectorType connectionType)
         {
-            if (connectionType == ConnectorType.Input && parentComponent.GetFlowInput().Value)
+            _connectorType = connectionType;
+            _parentComponent = component;
+
+            if (connectionType is ConnectorType.Input)
             {
-                ConnectionType = connectionType;
+                component.GetFlowInput().PropertyChanged += FlowPropertyChanged;
+            }
+
+            if (connectionType is ConnectorType.Output)
+            {
+                component.GetFlowOutput().PropertyChanged += FlowPropertyChanged;
+            }
+        }
+
+        public bool ConnectorExists()
+        {
+            if (_connectorType == ConnectorType.Input && _parentComponent.GetFlowInput().Value)
+            {
                 return true;
             }
 
-            if (connectionType == ConnectorType.Output && parentComponent.GetFlowOutput().Value)
+            if (_connectorType == ConnectorType.Output && _parentComponent.GetFlowOutput().Value)
             {
-                ConnectionType = connectionType;
                 return true;
             }
 
@@ -41,30 +56,17 @@ namespace OpenFlow_Core.Nodes.Connection.ConnectorManagers
             return toCheck is FlowConnectionManager;
         }
 
-        public void ConnectionAddedAction(IConnectorManager manager, ConnectorType connectorType)
+        public void ConnectionAddedAction(IConnectorManager manager)
         {
         }
 
-        public void ConnectionRemovedAction(IConnectorManager manager, ConnectorType connectorType)
+        public void ConnectionRemovedAction(IConnectorManager manager)
         {
         }
 
-        public bool ConnectorExclusiveCheck(ConnectorType connectionType)
+        public bool ConnectorExclusiveCheck()
         {
-            return connectionType is ConnectorType.Output;
-        }
-
-        public void HookupExistsCheck(IVisualNodeComponent component, ConnectorType connectionType)
-        {
-            if (connectionType is ConnectorType.Input)
-            {
-                component.GetFlowInput().PropertyChanged += FlowPropertyChanged;
-            }
-
-            if (connectionType is ConnectorType.Output)
-            {
-                component.GetFlowOutput().PropertyChanged += FlowPropertyChanged;
-            }
+            return _connectorType is ConnectorType.Output;
         }
 
         private void FlowPropertyChanged(object sender, PropertyChangedEventArgs e)

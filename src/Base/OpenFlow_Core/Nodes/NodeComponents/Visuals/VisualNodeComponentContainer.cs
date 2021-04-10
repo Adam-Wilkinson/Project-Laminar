@@ -24,8 +24,8 @@ namespace OpenFlow_Core.Nodes.NodeComponents.Visuals
             set
             {
                 _child = value;
-                InputConnector.HookupRefreshTriggers(_child);
-                OutputConnector.HookupRefreshTriggers(_child);
+                InputConnector.Initialize(_child);
+                OutputConnector.Initialize(_child);
                 HasRemoveFunction = _child.RemoveSelf is not null;
                 RemoveAction = _child.RemoveSelf;
                 Opacity = _child.Opacity;

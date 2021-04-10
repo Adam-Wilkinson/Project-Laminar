@@ -9,7 +9,7 @@ namespace OpenFlow_Core.Nodes.Connection
     public class Connector : IConnector
     {
         private readonly List<INodeConnection> _connections = new();
-        private readonly IEnumerable<IConnectorManager> managers = IConnectorManager.AllImplementingTypes.Select(x => (IConnectorManager)Instance.Factory.CreateInstance(x));
+        private readonly List<IConnectorManager> managers = IConnectorManager.AllImplementingTypes.Select(x => (IConnectorManager)Instance.Factory.CreateInstance(x)).ToList();
 
         public Connector(IObservableValue<string> hexColour, IObservableValue<bool> exists)
         {
@@ -22,7 +22,7 @@ namespace OpenFlow_Core.Nodes.Connection
 
         public ConnectorType ConnectorType { get; set; }
 
-        public bool IsExclusiveConnection => ConnectionFormat.ConnectorExclusiveCheck(ConnectorType);
+        public bool IsExclusiveConnection => ConnectionFormat.ConnectorExclusiveCheck();
 
         public INodeConnection ExclusiveConnection => IsExclusiveConnection && _connections.Count > 0 ? _connections[0] : null;
 
@@ -44,7 +44,7 @@ namespace OpenFlow_Core.Nodes.Connection
                 ExclusiveConnection.Break();
             }
 
-            ConnectionFormat.ConnectionAddedAction((connection.Opposite(this) as Connector).ConnectionFormat, ConnectorType);
+            ConnectionFormat.ConnectionAddedAction((connection.Opposite(this) as Connector).ConnectionFormat);
 
             _connections.Add(connection);
         }
@@ -52,18 +52,18 @@ namespace OpenFlow_Core.Nodes.Connection
         public void RemoveConnection(INodeConnection connection)
         {
             _connections.Remove(connection);
-            ConnectionFormat.ConnectionRemovedAction((connection.Opposite(this) as Connector).ConnectionFormat, ConnectorType);
+            ConnectionFormat.ConnectionRemovedAction((connection.Opposite(this) as Connector).ConnectionFormat);
         }
 
-        public void HookupRefreshTriggers(IVisualNodeComponent component)
+        public void Initialize(IVisualNodeComponent component)
         {
             foreach (IConnectorManager manager in managers)
             {
-                manager.HookupExistsCheck(component, ConnectorType);
-                manager.ExistsChanged += (o, e) => SetConnectionFormat(TryFindFormat(component));
+                manager.Initialize(component, ConnectorType);
+                manager.ExistsChanged += (o, e) => SetConnectionFormat(TryFindFormat());
             }
 
-            SetConnectionFormat(TryFindFormat(component));
+            SetConnectionFormat(TryFindFormat());
         }
 
         private void SetConnectionFormat(IConnectorManager connectionFormat)
@@ -86,11 +86,11 @@ namespace OpenFlow_Core.Nodes.Connection
             }
         }
 
-        private IConnectorManager TryFindFormat(IVisualNodeComponent component)
+        private IConnectorManager TryFindFormat()
         {
             foreach (IConnectorManager manager in managers)
             {
-                if (manager.CheckIfConnectorExists(component, ConnectorType))
+                if (manager.ConnectorExists())
                 {
                     return manager;
                 }
