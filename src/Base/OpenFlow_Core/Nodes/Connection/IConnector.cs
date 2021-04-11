@@ -24,5 +24,7 @@ namespace OpenFlow_Core.Nodes.Connection
         void RemoveConnection(INodeConnection connection);
 
         bool CanConnectTo(IConnector toConnectTo);
+
+        void Activate();
     }
 }

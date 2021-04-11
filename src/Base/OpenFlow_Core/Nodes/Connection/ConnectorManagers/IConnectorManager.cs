@@ -25,5 +25,7 @@ namespace OpenFlow_Core.Nodes.Connection.ConnectorManagers
         void ConnectionRemovedAction(IConnectorManager manager);
 
         bool CompatibilityCheck(IConnectorManager toCheck);
+
+        void Activate();
     }
 }

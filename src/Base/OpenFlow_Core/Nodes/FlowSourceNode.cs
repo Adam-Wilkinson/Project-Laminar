@@ -17,6 +17,7 @@ namespace OpenFlow_Core.Nodes
         {
             _sourceField["Displayed"] = (Action)(() =>
             {
+                INodeBase.NodeBases[this].DeepUpdate();
             });
         }
 

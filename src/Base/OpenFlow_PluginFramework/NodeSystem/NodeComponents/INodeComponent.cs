@@ -11,13 +11,11 @@ namespace OpenFlow_PluginFramework.NodeSystem.NodeComponents
         bool IsVisible { get; set; }
         IOpacity Opacity { get; }
         INode ParentNode { get; set; }
-        Action RemoveSelf { get; }
+        Action<INodeComponent> RemoveAction { get; set; }
         IList VisualComponentList { get; }
 
         event PropertyChangedEventHandler PropertyChanged;
         event EventHandler<bool> VisibilityChanged;
-
-        public void SetRemoveAction(Action<INodeComponent> removeAction);
 
         INodeComponent Clone();
     }

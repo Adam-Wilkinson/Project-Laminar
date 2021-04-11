@@ -11,7 +11,6 @@
     public abstract class NodeComponent : INotifyPropertyChanged, INodeComponent
     {
         private bool _isVisible = true;
-        private Action<INodeComponent> _removeAction;
 
         public NodeComponent(IOpacity opacity)
         {
@@ -26,7 +25,7 @@
 
         public abstract IList VisualComponentList { get; }
 
-        public Action RemoveSelf { get; private set; }
+        public Action<INodeComponent> RemoveAction { get; set; }
 
         public IOpacity Opacity { get; }
 
@@ -43,22 +42,12 @@
             }
         }
 
-        public void SetRemoveAction(Action<INodeComponent> removeAction)
-        {
-            _removeAction = removeAction;
-            RemoveSelf = () =>
-            {
-                removeAction(this);
-                INodeBase.NodeBases[ParentNode].TryEvaluate();
-            };
-        }
-
         public abstract INodeComponent Clone();
 
         protected virtual INodeComponent CloneTo(INodeComponent component)
         {
             component.ParentNode = ParentNode;
-            component.SetRemoveAction(_removeAction);
+            component.RemoveAction = RemoveAction;
             component.Opacity.Value = Opacity.Value;
 
             return component;

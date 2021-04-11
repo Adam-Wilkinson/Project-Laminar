@@ -32,11 +32,7 @@
 
             _originalClone.ParentNode = ParentNode;
             _originalClone.Opacity.Value = 0.5;
-            _originalClone.SetRemoveAction((component) =>
-            {
-                ProtectedRemove(component);
-                //UpdateNames();
-            });
+            _originalClone.RemoveAction = (component) => ProtectedRemove(component);
 
             ProtectedReset();
         }

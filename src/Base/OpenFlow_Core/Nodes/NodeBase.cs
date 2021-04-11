@@ -7,6 +7,7 @@ using OpenFlow_PluginFramework;
 using OpenFlow_Core.Nodes.NodeComponents.Visuals;
 using OpenFlow_Core.Primitives.ObservableCollectionMapper;
 using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Visuals;
+using System.Collections;
 
 namespace OpenFlow_Core.Nodes
 {
@@ -64,15 +65,17 @@ namespace OpenFlow_Core.Nodes
 
         public void DeepUpdate()
         {
-            foreach (IVisualNodeComponent component in _fieldSection.VisualComponentList)
+            foreach (IVisualNodeComponentContainer component in (IList)Fields)
             {
-                // if (component.ConnectionManager.InputConnector is ValueConnector valInput && valInput.ExclusiveConnection != null)
-                // {
-                //    valInput.ExclusiveConnection.ParentNode.DeepUpdate();
-                // }
+                component.InputConnector.Activate();
             }
 
             TryEvaluate();
+
+            foreach (IVisualNodeComponentContainer component in (IList)Fields)
+            {
+                component.OutputConnector.Activate();
+            }
         }
     }
 }

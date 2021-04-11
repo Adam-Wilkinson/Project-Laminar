@@ -10,6 +10,7 @@ namespace OpenFlow_Core.Nodes.Connection
     {
         private readonly List<INodeConnection> _connections = new();
         private readonly List<IConnectorManager> managers = IConnectorManager.AllImplementingTypes.Select(x => (IConnectorManager)Instance.Factory.CreateInstance(x)).ToList();
+        private IConnectorManager _manager;
 
         public Connector(IObservableValue<string> hexColour, IObservableValue<bool> exists)
         {
@@ -18,11 +19,9 @@ namespace OpenFlow_Core.Nodes.Connection
             Exists.Value = false;
         }
 
-        public IConnectorManager ConnectionFormat { get; private set; }
-
         public ConnectorType ConnectorType { get; set; }
 
-        public bool IsExclusiveConnection => ConnectionFormat.ConnectorExclusiveCheck();
+        public bool IsExclusiveConnection => Manager.ConnectorExclusiveCheck();
 
         public INodeConnection ExclusiveConnection => IsExclusiveConnection && _connections.Count > 0 ? _connections[0] : null;
 
@@ -32,9 +31,33 @@ namespace OpenFlow_Core.Nodes.Connection
 
         public IObservableValue<string> HexColour { get; }
 
+        public IConnectorManager Manager
+        {
+            get => _manager;
+            private set
+            {
+                if (Manager is not null)
+                {
+                    HexColour.RemoveDependency(Manager.HexColour);
+                }
+
+                _manager = value;
+
+                if (Manager is not null)
+                {
+                    HexColour.AddDependency(Manager.HexColour);
+                    Exists.Value = true;
+                }
+                else
+                {
+                    Exists.Value = false;
+                }
+            }
+        }
+
         public bool CanConnectTo(IConnector toConnectTo)
         {
-            return toConnectTo is Connector connector && ConnectionFormat.CompatibilityCheck(connector.ConnectionFormat);
+            return toConnectTo is Connector connector && Manager.CompatibilityCheck(connector.Manager);
         }
 
         public void AddConnection(INodeConnection connection)
@@ -44,7 +67,7 @@ namespace OpenFlow_Core.Nodes.Connection
                 ExclusiveConnection.Break();
             }
 
-            ConnectionFormat.ConnectionAddedAction((connection.Opposite(this) as Connector).ConnectionFormat);
+            Manager.ConnectionAddedAction((connection.Opposite(this) as Connector).Manager);
 
             _connections.Add(connection);
         }
@@ -52,7 +75,7 @@ namespace OpenFlow_Core.Nodes.Connection
         public void RemoveConnection(INodeConnection connection)
         {
             _connections.Remove(connection);
-            ConnectionFormat.ConnectionRemovedAction((connection.Opposite(this) as Connector).ConnectionFormat);
+            Manager.ConnectionRemovedAction((connection.Opposite(this) as Connector).Manager);
         }
 
         public void Initialize(IVisualNodeComponent component)
@@ -60,31 +83,13 @@ namespace OpenFlow_Core.Nodes.Connection
             foreach (IConnectorManager manager in managers)
             {
                 manager.Initialize(component, ConnectorType);
-                manager.ExistsChanged += (o, e) => SetConnectionFormat(TryFindFormat());
+                manager.ExistsChanged += (o, e) => Manager = TryFindFormat();
             }
 
-            SetConnectionFormat(TryFindFormat());
+            Manager = TryFindFormat();
         }
 
-        private void SetConnectionFormat(IConnectorManager connectionFormat)
-        {
-            if (ConnectionFormat is not null)
-            {
-                HexColour.RemoveDependency(ConnectionFormat.HexColour);
-            }
-
-            ConnectionFormat = connectionFormat;
-
-            if (ConnectionFormat is not null)
-            {
-                HexColour.AddDependency(ConnectionFormat.HexColour);
-                Exists.Value = true;
-            }
-            else
-            {
-                Exists.Value = false;
-            }
-        }
+        public void Activate() => Manager?.Activate();
 
         private IConnectorManager TryFindFormat()
         {

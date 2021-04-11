@@ -26,8 +26,12 @@ namespace OpenFlow_Core.Nodes.NodeComponents.Visuals
                 _child = value;
                 InputConnector.Initialize(_child);
                 OutputConnector.Initialize(_child);
-                HasRemoveFunction = _child.RemoveSelf is not null;
-                RemoveAction = _child.RemoveSelf;
+                HasRemoveFunction = _child.RemoveAction is not null;
+                RemoveAction = () =>
+                {
+                    _child.RemoveAction(_child);
+                    INodeBase.NodeBases[_child.ParentNode].TryEvaluate();
+                };
                 Opacity = _child.Opacity;
             }
         }

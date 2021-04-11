@@ -2,6 +2,7 @@
 using OpenFlow_PluginFramework.Primitives;
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 
 namespace OpenFlow_Core.Nodes.Connection.ConnectorManagers
 {
@@ -20,7 +21,6 @@ namespace OpenFlow_Core.Nodes.Connection.ConnectorManagers
         public ILaminarValue LaminarValue { get; private set; }
 
         public event EventHandler ExistsChanged;
-
 
         public void Initialize(IVisualNodeComponent component, ConnectorType connectionType)
         {
@@ -107,6 +107,14 @@ namespace OpenFlow_Core.Nodes.Connection.ConnectorManagers
         public bool ConnectorExclusiveCheck()
         {
             return _connectorType is ConnectorType.Input;
+        }
+
+        public void Activate()
+        {
+            if (_connectorType is ConnectorType.Input)
+            {
+                Debug.WriteLine("Hey an input value needs to be updated");
+            }
         }
     }
 }

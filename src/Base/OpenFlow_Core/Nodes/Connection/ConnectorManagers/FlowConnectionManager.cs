@@ -2,6 +2,9 @@
 using OpenFlow_PluginFramework.Primitives;
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace OpenFlow_Core.Nodes.Connection.ConnectorManagers
 {
@@ -67,6 +70,20 @@ namespace OpenFlow_Core.Nodes.Connection.ConnectorManagers
         public bool ConnectorExclusiveCheck()
         {
             return _connectorType is ConnectorType.Output;
+        }
+
+        public void Activate()
+        {
+            //Debug.WriteLine("Flow Connection Activated");
+            if (_connectorType is ConnectorType.Output)
+            {
+                HexColour.Value = "#FFFFFF";
+                Task.Delay(new TimeSpan(0, 0, 1)).ContinueWith(t =>
+                {
+                    Debug.WriteLine("Huh");
+                    HexColour.Value = "#800080";
+                });
+            }
         }
 
         private void FlowPropertyChanged(object sender, PropertyChangedEventArgs e)

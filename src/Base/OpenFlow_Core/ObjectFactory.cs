@@ -75,7 +75,14 @@ namespace OpenFlow_Core
             int i = 0;
             foreach (ParameterInfo parameter in info.GetParameters())
             {
-                parameterObjects[i] = GetLooseTypedImplementation(parameter.ParameterType);
+                if (parameter.ParameterType.GetInterfaces().Contains(typeof(IDependencyAggregate)))
+                {
+                    parameterObjects[i] = CreateInstance(parameter.ParameterType);
+                }
+                else
+                {
+                    parameterObjects[i] = GetLooseTypedImplementation(parameter.ParameterType);
+                }
                 i++;
             }
 
@@ -122,5 +129,7 @@ namespace OpenFlow_Core
 
             return CreateInstance(targetType);
         }
+
+        public interface IDependencyAggregate { }
     }
 }
