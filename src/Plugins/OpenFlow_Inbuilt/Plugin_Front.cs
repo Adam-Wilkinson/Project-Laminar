@@ -5,7 +5,6 @@ using OpenFlow_Inbuilt.Nodes.Maths.Functions;
 using OpenFlow_Inbuilt.Nodes.StringOperations;
 using OpenFlow_PluginFramework.Registration;
 using OpenFlow_Inbuilt.Nodes.Maths.Comparisons;
-using OpenFlow_Inbuilt.Nodes.Input.MouseInput;
 using Avalonia.Controls;
 using OpenFlow_Inbuilt.UserControls;
 using OpenFlow_PluginFramework.Primitives;
@@ -26,7 +25,6 @@ namespace OpenFlow_Inbuilt
             host.RegisterType<string>("#0000FF", "Text", "", "StringEditor", "StringDisplay");
             host.RegisterType<bool>("#00FFFF", "Condition", false, "StringDisplay", "StringDisplay");
             host.RegisterType<Action>("00FF00", "Button", null, "DefaultDisplay", "ActionDisplay");
-            host.RegisterType<MouseButtonEnum>("#FFFF00", "Mouse Button", MouseButtonEnum.LeftButton, "EnumEditor", "StringDisplay");
 
             host.RegisterDisplay<IControl>("DefaultDisplay", typeof(DefaultDisplay));
             host.RegisterDisplay<IControl>("StringDisplay", typeof(StringDisplay));
@@ -42,7 +40,6 @@ namespace OpenFlow_Inbuilt
             host.AddNodeToMenu<Equal>("Number", "Comparisons");
             host.AddNodeToMenu<Node_Join_Strings>("Text");
             host.AddNodeToMenu<FlowSwitch>("Flow Control");
-            host.AddNodeToMenu<MouseButton>("Input", "Mouse");
         }
     }
 }

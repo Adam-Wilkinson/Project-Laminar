@@ -5,12 +5,8 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="0.10.0" />
-    <PackageReference Include="Avalonia.Markup.Xaml.Loader" Version="0.10.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Base\OpenFlow_PluginFramework\OpenFlow_PluginFramework.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Nodes\Input\KeyboardInput\" />
   </ItemGroup>
 </Project>

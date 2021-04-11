@@ -5,7 +5,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Avalonia" Version="0.10.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\Base\OpenFlow_PluginFramework\OpenFlow_PluginFramework.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Nodes\Input\KeyboardInput\" />
+    <Folder Include="UserControls\" />
   </ItemGroup>
 
 </Project>
