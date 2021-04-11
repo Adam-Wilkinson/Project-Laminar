@@ -5,7 +5,8 @@
     using Avalonia;
     using Avalonia.Controls;
     using Avalonia.Controls.Primitives;
-    using OpenFlow_Core.Nodes;
+    using OpenFlow_Core.NodeSystem;
+    using OpenFlow_Core.NodeSystem.Nodes;
     using OpenFlow_PluginFramework.Primitives;
 
     public class NodeDisplay : TemplatedControl

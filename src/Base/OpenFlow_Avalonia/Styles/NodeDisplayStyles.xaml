@@ -3,7 +3,7 @@
   xmlns:x = "http://schemas.microsoft.com/winfx/2006/xaml"
   xmlns:av ="using:Avalonia.Controls.Templates"
   xmlns:nds = "clr-namespace:OpenFlow_Avalonia.NodeDisplaySystem;assembly=OpenFlow_Avalonia"
-  xmlns:displays="clr-namespace:OpenFlow_Core.Nodes.NodeComponents.Visuals;assembly=OpenFlow_Core"
+  xmlns:displays="clr-namespace:OpenFlow_Core.NodeSystem.NodeComponents.Visuals;assembly=OpenFlow_Core"
   xmlns:conv = "clr-namespace:OpenFlow_Avalonia.Converters;assembly=OpenFlow_Avalonia">
 
   <Style Selector="nds|NodeDisplay">

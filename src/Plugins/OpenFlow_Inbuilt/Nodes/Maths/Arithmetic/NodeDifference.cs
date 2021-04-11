@@ -6,7 +6,7 @@
     using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Visuals;
     using OpenFlow_PluginFramework.NodeSystem.Nodes;
 
-    public class NodeDifference : INode
+    public class NodeDifference : IFunctionNode
     {
         private readonly INodeField firstNumber = Constructor.NodeField("Number 1").WithInput(0.0);
         private readonly INodeField secondNumber = Constructor.NodeField("Number 2").WithInput(0.0);

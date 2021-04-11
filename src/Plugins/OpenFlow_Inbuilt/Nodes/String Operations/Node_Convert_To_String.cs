@@ -7,7 +7,7 @@
     using OpenFlow_PluginFramework.NodeSystem.Nodes;
     using OpenFlow_PluginFramework.Primitives.TypeDefinition;
 
-    public class Node_Convert_To_String : INode
+    public class Node_Convert_To_String : IFunctionNode
     {
         private readonly INodeField converterField = Constructor.NodeField("Text")
             .WithInput(Constructor.TypeDefinitionManager())

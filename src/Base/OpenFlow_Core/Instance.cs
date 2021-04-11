@@ -7,8 +7,8 @@
     using System.Reflection;
     using System.Threading;
     using OpenFlow_Core.Management;
-    using OpenFlow_Core.Nodes;
-    using OpenFlow_Core.Nodes.NodeComponents.Visuals;
+    using OpenFlow_Core.NodeSystem;
+    using OpenFlow_Core.NodeSystem.NodeComponents.Visuals;
     using OpenFlow_Core.Primitives.UserInterface;
     using OpenFlow_PluginFramework;
     using OpenFlow_PluginFramework.Primitives;

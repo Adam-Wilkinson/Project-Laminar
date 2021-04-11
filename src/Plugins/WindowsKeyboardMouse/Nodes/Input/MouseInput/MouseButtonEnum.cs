@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OpenFlow_Inbuilt.Nodes.Input.MouseInput
+namespace WindowsKeyboardMouse.Nodes.Input.MouseInput
 {
     public enum MouseButtonEnum
     {

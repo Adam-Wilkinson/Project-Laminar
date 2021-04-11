@@ -7,7 +7,7 @@
     using OpenFlow_PluginFramework.NodeSystem.Nodes;
     using OpenFlow_PluginFramework;
 
-    public class NodeMultiply : INode
+    public class NodeMultiply : IFunctionNode
     {
         private readonly INodeComponentAutoCloner multiplyFields = Constructor.NodeComponentAutoCloner(Constructor.NodeField("Number").WithInput(1.0), 1, index => $"Number {index + 1}");
         private readonly INodeField outputField = Constructor.NodeField("Product").WithOutput(0.0);

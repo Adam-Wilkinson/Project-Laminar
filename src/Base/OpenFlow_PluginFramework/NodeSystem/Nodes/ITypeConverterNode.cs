@@ -2,7 +2,7 @@
 {
     using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Visuals;
 
-    public interface ITypeConverterNode : INode
+    public interface ITypeConverterNode : IFunctionNode
     {
         IVisualNodeComponent ConvertInput { get; }
 

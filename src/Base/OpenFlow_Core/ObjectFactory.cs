@@ -1,8 +1,8 @@
-﻿using OpenFlow_Core.Nodes;
-using OpenFlow_Core.Nodes.Connection;
-using OpenFlow_Core.Nodes.NodeComponents.Collections;
-using OpenFlow_Core.Nodes.NodeComponents.Visuals;
-using OpenFlow_Core.Nodes.NodeTreeSystem;
+﻿using OpenFlow_Core.NodeSystem;
+using OpenFlow_Core.NodeSystem.Connection;
+using OpenFlow_Core.NodeSystem.NodeComponents.Collections;
+using OpenFlow_Core.NodeSystem.NodeComponents.Visuals;
+using OpenFlow_Core.NodeSystem.NodeTreeSystem;
 using OpenFlow_Core.Primitives;
 using OpenFlow_Core.Primitives.LaminarValue;
 using OpenFlow_Core.Primitives.LaminarValue.TypeDefinition;

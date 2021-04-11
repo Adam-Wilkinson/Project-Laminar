@@ -13,10 +13,11 @@
     using Avalonia.Media;
     using Avalonia.VisualTree;
     using OpenFlow_Core;
-    using OpenFlow_Core.Nodes;
-    using OpenFlow_Core.Nodes.Connection;
-    using OpenFlow_Core.Nodes.NodeComponents.Visuals;
-    using OpenFlow_Core.Nodes.NodeTreeSystem;
+    using OpenFlow_Core.NodeSystem;
+    using OpenFlow_Core.NodeSystem.Connection;
+    using OpenFlow_Core.NodeSystem.NodeComponents.Visuals;
+    using OpenFlow_Core.NodeSystem.Nodes;
+    using OpenFlow_Core.NodeSystem.NodeTreeSystem;
 
     public class NodeDisplayCanvas : Canvas
     {

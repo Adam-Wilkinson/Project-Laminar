@@ -7,7 +7,7 @@
     using Avalonia.Data;
     using Avalonia.Input;
     using Avalonia.Media;
-    using OpenFlow_Core.Nodes;
+    using OpenFlow_Core.NodeSystem;
     using static System.Math;
     using static OpenFlow_Avalonia.Utils.MatrixHelper;
 

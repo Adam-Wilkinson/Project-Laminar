@@ -9,9 +9,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OpenFlow_Inbuilt.Nodes.Input.MouseInput
+namespace WindowsKeyboardMouse.Nodes.Input.MouseInput
 {
-    public class MouseButton : INode
+    public class MouseButton : IFunctionNode
     {
         private readonly INodeField mouseButtonOutput = Constructor.NodeField("Mouse Button ").WithValue("Display", MouseButtonEnum.LeftButton, true).WithOutput(MouseButtonEnum.LeftButton);
 

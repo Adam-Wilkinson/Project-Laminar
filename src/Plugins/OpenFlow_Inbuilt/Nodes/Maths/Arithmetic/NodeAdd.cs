@@ -7,7 +7,7 @@
     using OpenFlow_PluginFramework.NodeSystem.Nodes;
     using OpenFlow_PluginFramework;
 
-    public class NodeAdd : INode
+    public class NodeAdd : IFunctionNode
     {
         private readonly INodeComponentAutoCloner addFields = Constructor.NodeComponentAutoCloner(Constructor.NodeField("Input").WithInput(0.0), 1, index => $"Number {index + 1}");
         private readonly INodeField totalField = Constructor.NodeField("Output").WithOutput(0.0);

@@ -7,7 +7,8 @@
     using Avalonia.Controls.Shapes;
     using Avalonia.Input;
     using Avalonia.Layout;
-    using OpenFlow_Core.Nodes;
+    using OpenFlow_Core.NodeSystem;
+    using OpenFlow_Core.NodeSystem.Nodes;
     using ReactiveUI;
 
     public class NodePickerTabBar : TemplatedControl

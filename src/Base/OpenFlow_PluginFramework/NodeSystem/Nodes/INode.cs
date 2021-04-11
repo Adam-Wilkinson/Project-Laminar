@@ -1,15 +1,12 @@
-﻿namespace OpenFlow_PluginFramework.NodeSystem.Nodes
-{
-    using System.Collections.Generic;
-    using OpenFlow_PluginFramework.NodeSystem.NodeComponents;
-    using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Collections;
+﻿using OpenFlow_PluginFramework.NodeSystem.NodeComponents;
+using System.Collections.Generic;
 
+namespace OpenFlow_PluginFramework.NodeSystem.Nodes
+{
     public interface INode
     {
-        string NodeName { get; }
-
         IEnumerable<INodeComponent> Fields { get; }
 
-        void Evaluate();
+        string NodeName { get; }
     }
 }

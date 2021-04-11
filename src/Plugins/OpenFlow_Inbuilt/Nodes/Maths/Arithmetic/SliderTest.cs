@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace OpenFlow_Inbuilt.Nodes.Maths.Arithmetic
 {
-    public class SliderTest : INode
+    public class SliderTest : IFunctionNode
     {
         private readonly INodeField _sliderTest = Constructor.NodeField("Slider Test").WithValue("Display", Constructor.RigidTypeDefinitionManager(50.0, "SliderEditor", null), true);
 

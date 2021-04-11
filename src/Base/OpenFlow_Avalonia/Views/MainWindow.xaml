@@ -2,7 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="clr-namespace:OpenFlow_Avalonia.ViewModels;assembly=OpenFlow_Avalonia"
         xmlns:nodes="clr-namespace:OpenFlow_Avalonia.NodeDisplaySystem;assembly=OpenFlow_Avalonia"
-		xmlns:coreNodes="clr-namespace:OpenFlow_Core.Nodes;assembly=OpenFlow_Core"
+		xmlns:coreNodes="clr-namespace:OpenFlow_Core.NodeSystemystem;assembly=OpenFlow_Core"
         xmlns:additions ="clr-namespace:OpenFlow_Avalonia;assembly=OpenFlow_Avalonia"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"

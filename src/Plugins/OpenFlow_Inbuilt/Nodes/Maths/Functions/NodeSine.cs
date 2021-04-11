@@ -7,7 +7,7 @@
     using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Visuals;
     using OpenFlow_PluginFramework.NodeSystem.Nodes;
 
-    public class NodeSine : INode
+    public class NodeSine : IFunctionNode
     {
         private readonly INodeField inputField = Constructor.NodeField("x").WithInput(0.0);
         private readonly INodeField outputField = Constructor.NodeField("sin(x)").WithOutput(0.0);

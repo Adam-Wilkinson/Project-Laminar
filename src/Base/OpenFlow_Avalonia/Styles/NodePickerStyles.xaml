@@ -1,7 +1,7 @@
 ﻿<Styles
   xmlns = "https://github.com/avaloniaui"
   xmlns:x = "http://schemas.microsoft.com/winfx/2006/xaml"
-  xmlns:coreNodes ="clr-namespace:OpenFlow_Core.Nodes;assembly=OpenFlow_Core"
+  xmlns:coreNodes ="clr-namespace:OpenFlow_Core.NodeSystemystem;assembly=OpenFlow_Core"
   xmlns:nds = "clr-namespace:OpenFlow_Avalonia.NodeDisplaySystem;assembly=OpenFlow_Avalonia">
 
   <Design.PreviewWith>

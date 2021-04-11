@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace OpenFlow_Inbuilt.Nodes.Maths.Comparisons
 {
-    public class Equal : INode
+    public class Equal : IFunctionNode
     {
         private readonly INodeField inputOne = Constructor.NodeField("First Input").WithInput(0.0);
         private readonly INodeField inputTwo = Constructor.NodeField("Second Input").WithInput(0.0);
