@@ -12,6 +12,7 @@
     using Avalonia.Input;
     using Avalonia.Media;
     using Avalonia.VisualTree;
+    using OpenFlow_Core;
     using OpenFlow_Core.Nodes;
     using OpenFlow_Core.Nodes.Connection;
     using OpenFlow_Core.Nodes.NodeComponents.Visuals;
@@ -20,7 +21,7 @@
     public class NodeDisplayCanvas : Canvas
     {
         private readonly Pen pen = new(Brushes.LightGray);
-        private readonly NodeTree manager = new();
+        private readonly INodeTree manager = Instance.Factory.GetImplementation<INodeTree>();
         private List<NodeDisplay> selectedNodes = new();
         private Point originalClickPoint;
         private DragType dragType = DragType.None;
@@ -225,7 +226,7 @@
             {
                 if (e.Source is Control sourceControl && sourceControl.Tag is IConnector interactedField)
                 {
-                    IConnector dragField = manager.ConnectionChanged(interactedField);
+                    IConnector dragField = manager.GetActiveConnector(interactedField);
                     if (dragField.Tag == null)
                     {
                         dragField.Tag = e.Source;

@@ -5,15 +5,17 @@ using OpenFlow_Core.Nodes.Connection;
 
 namespace OpenFlow_Core.Nodes.NodeTreeSystem
 {
-    public class NodeTree
+    public class NodeTree : INodeTree
     {
         private readonly List<INodeConnection> _connections = new();
-        private readonly INodeFactory _nodeFactory = Instance.Factory.GetImplementation<INodeFactory>();
-        private readonly INodeConnectionFactory _connectionFactory = Instance.Factory.GetImplementation<INodeConnectionFactory>();
         private readonly ObservableCollection<INodeBase> _nodes = new();
+        private readonly INodeFactory _nodeFactory;
+        private readonly INodeConnectionFactory _connectionFactory;
 
-        public NodeTree()
+        public NodeTree(INodeFactory nodeFactory, INodeConnectionFactory connectionFactory)
         {
+            _nodeFactory = nodeFactory;
+            _connectionFactory = connectionFactory;
             AddNode(_nodeFactory.Get<FlowSourceNode>());
             Nodes = new(_nodes);
         }
@@ -32,12 +34,7 @@ namespace OpenFlow_Core.Nodes.NodeTreeSystem
             return false;
         }
 
-        private void Connection_OnBreak(object sender, EventArgs e)
-        {
-            _connections.Remove(sender as INodeConnection);
-        }
-
-        public IConnector ConnectionChanged(IConnector interacted)
+        public IConnector GetActiveConnector(IConnector interacted)
         {
             if (interacted.ExclusiveConnection is not null)
             {
@@ -56,5 +53,10 @@ namespace OpenFlow_Core.Nodes.NodeTreeSystem
         }
 
         public IEnumerable<INodeConnection> GetConnections() => _connections;
+
+        private void Connection_OnBreak(object sender, EventArgs e)
+        {
+            _connections.Remove(sender as INodeConnection);
+        }
     }
 }

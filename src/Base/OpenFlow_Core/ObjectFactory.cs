@@ -2,6 +2,7 @@
 using OpenFlow_Core.Nodes.Connection;
 using OpenFlow_Core.Nodes.NodeComponents.Collections;
 using OpenFlow_Core.Nodes.NodeComponents.Visuals;
+using OpenFlow_Core.Nodes.NodeTreeSystem;
 using OpenFlow_Core.Primitives;
 using OpenFlow_Core.Primitives.LaminarValue;
 using OpenFlow_Core.Primitives.LaminarValue.TypeDefinition;
@@ -43,6 +44,7 @@ namespace OpenFlow_Core
             RegisterImplementation<IConnector, Connector>();
             RegisterImplementation<INodeConnectionFactory, NodeConnectionFactory>();
             RegisterImplementation<ITypeMapper<IVisualNodeComponent, IVisualNodeComponentContainer>, VisualNodeComponentContainerMapper>();
+            RegisterImplementation<INodeTree, NodeTree>();
             RegisterImplementation<IVisualNodeComponentContainer, VisualNodeComponentContainer>();
             RegisterImplementationUnsafe(typeof(IObservableValue<>), typeof(ObservableValue<>));
             RegisterImplementationUnsafe(typeof(IValueConstraint<>), typeof(ValueConstraint<>));
