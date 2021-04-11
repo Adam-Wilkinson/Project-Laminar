@@ -29,6 +29,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenFlow_Inbuilt", "src\Plu
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenFlow_Core.UnitTests", "tests\Base\OpenFlow_PluginFramework.UnitTests\OpenFlow_Core.UnitTests.csproj", "{BB801A67-E81A-4CBA-8DB1-6B86886197F6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsKeyboardMouse", "src\Plugins\WindowsKeyboardMouse\WindowsKeyboardMouse.csproj", "{6F57FBC4-129B-4C78-9163-97E6473B21F7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -99,6 +101,18 @@ Global
 		{BB801A67-E81A-4CBA-8DB1-6B86886197F6}.Release|x64.Build.0 = Release|Any CPU
 		{BB801A67-E81A-4CBA-8DB1-6B86886197F6}.Release|x86.ActiveCfg = Release|Any CPU
 		{BB801A67-E81A-4CBA-8DB1-6B86886197F6}.Release|x86.Build.0 = Release|Any CPU
+		{6F57FBC4-129B-4C78-9163-97E6473B21F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6F57FBC4-129B-4C78-9163-97E6473B21F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6F57FBC4-129B-4C78-9163-97E6473B21F7}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{6F57FBC4-129B-4C78-9163-97E6473B21F7}.Debug|x64.Build.0 = Debug|Any CPU
+		{6F57FBC4-129B-4C78-9163-97E6473B21F7}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{6F57FBC4-129B-4C78-9163-97E6473B21F7}.Debug|x86.Build.0 = Debug|Any CPU
+		{6F57FBC4-129B-4C78-9163-97E6473B21F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6F57FBC4-129B-4C78-9163-97E6473B21F7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6F57FBC4-129B-4C78-9163-97E6473B21F7}.Release|x64.ActiveCfg = Release|Any CPU
+		{6F57FBC4-129B-4C78-9163-97E6473B21F7}.Release|x64.Build.0 = Release|Any CPU
+		{6F57FBC4-129B-4C78-9163-97E6473B21F7}.Release|x86.ActiveCfg = Release|Any CPU
+		{6F57FBC4-129B-4C78-9163-97E6473B21F7}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -113,6 +127,7 @@ Global
 		{1FF90085-7F7A-4035-A502-46241BC9A939} = {B6015095-D28C-4D9E-82FB-7166934E8AA5}
 		{BC361862-7189-4F7B-8DE5-102D674EBB95} = {DD409C11-D6B5-47ED-9FD2-FDECE50FC4FA}
 		{BB801A67-E81A-4CBA-8DB1-6B86886197F6} = {497F048D-2E1C-4018-8350-A5786F43E570}
+		{6F57FBC4-129B-4C78-9163-97E6473B21F7} = {DD409C11-D6B5-47ED-9FD2-FDECE50FC4FA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4A37BCC4-6E76-48E6-88C7-10E68EC6215F}

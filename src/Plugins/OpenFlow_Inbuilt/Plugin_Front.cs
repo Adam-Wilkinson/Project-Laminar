@@ -1,27 +1,25 @@
-﻿namespace OpenFlow_Inbuilt
-{
-    using System;
-    using System.Diagnostics;
-    using System.IO;
-    using System.Reflection;
-    using Avalonia.Controls.Templates;
-    using Avalonia.Markup.Xaml;
-    using Avalonia.Styling;
-    using OpenFlow_Inbuilt.Nodes.Flow;
-    using OpenFlow_Inbuilt.Nodes.Maths.Arithmetic;
-    using OpenFlow_Inbuilt.Nodes.Maths.Functions;
-    using OpenFlow_Inbuilt.Nodes.StringOperations;
-    using OpenFlow_PluginFramework.Registration;
-    using Avalonia.Markup.Xaml.XamlIl.Runtime;
-    using System.Collections.Generic;
-    using System.Linq;
-    using OpenFlow_Inbuilt.Nodes.Maths.Comparisons;
-    using OpenFlow_Inbuilt.Nodes.Input.MouseInput;
-    using Avalonia.Controls;
-    using OpenFlow_Inbuilt.UserControls;
+﻿using System;
+using OpenFlow_Inbuilt.Nodes.Flow;
+using OpenFlow_Inbuilt.Nodes.Maths.Arithmetic;
+using OpenFlow_Inbuilt.Nodes.Maths.Functions;
+using OpenFlow_Inbuilt.Nodes.StringOperations;
+using OpenFlow_PluginFramework.Registration;
+using OpenFlow_Inbuilt.Nodes.Maths.Comparisons;
+using OpenFlow_Inbuilt.Nodes.Input.MouseInput;
+using Avalonia.Controls;
+using OpenFlow_Inbuilt.UserControls;
+using OpenFlow_PluginFramework.Primitives;
 
+namespace OpenFlow_Inbuilt
+{
     public class Plugin_Front : IPlugin
     {
+        public Platforms Platforms { get; } = Platforms.Windows | Platforms.Mac | Platforms.Linux;
+
+        public string PluginName { get; } = "Base plugin functionality";
+
+        public string PluginDescription { get; } = "Implements all the base functionality for Laminar";
+
         public void Register(IPluginHost host)
         {
             host.RegisterType<double>("#FF0000", "Number", 0.0, "NumberEditor", "StringDisplay");
