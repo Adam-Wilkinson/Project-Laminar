@@ -81,25 +81,13 @@ namespace OpenFlow_Core.Nodes.Connection.ConnectorManagers
             if (_connectorType is ConnectorType.Input)
             {
                 INodeBase.NodeBases[_parentComponent.ParentNode].DeepUpdate();
-
-                HexColour.Value = "#F000F0";
-                Task.Delay(new TimeSpan(0, 0, 0, 0, 100)).ContinueWith(t =>
-                {
-                    Instance.Current.UIContext.Post(delegate { HexColour.Value = "#800080"; }, null);
-                });
+                FlashColourChange();
             }
             
 
             if (_connectorType is ConnectorType.Output && _parentComponent.ParentNode is IFlowNode parentFlowNode && parentFlowNode.FlowOutComponent == _parentComponent)
             {
-                INodeBase.NodeBases[_parentComponent.ParentNode].DeepUpdate();
-
-                HexColour.Value = "#F000F0";
-                Task.Delay(new TimeSpan(0, 0, 0, 0, 300)).ContinueWith(t =>
-                {
-                    Instance.Current.UIContext.Post(delegate { HexColour.Value = "#800080"; }, null);
-                });
-
+                FlashColourChange();
                 _pairedConnection?.Activate();
             }
         }
@@ -107,6 +95,15 @@ namespace OpenFlow_Core.Nodes.Connection.ConnectorManagers
         private void FlowPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             ExistsChanged?.Invoke(this, new EventArgs());
+        }
+
+        private void FlashColourChange()
+        {
+            HexColour.Value = "#F000F0";
+            Task.Delay(new TimeSpan(0, 0, 0, 0, 300)).ContinueWith(t =>
+            {
+                Instance.Current.UIContext.Post(delegate { HexColour.Value = "#800080"; }, null);
+            });
         }
     }
 }
