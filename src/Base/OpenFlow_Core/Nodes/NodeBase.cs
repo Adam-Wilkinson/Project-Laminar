@@ -16,6 +16,7 @@ namespace OpenFlow_Core.Nodes
         private readonly INode _baseNode;
         private readonly INodeComponentCollection _fieldSection;
         private bool _evaluating;
+        private bool _deepUpdating;
 
         public NodeBase(INode baseNode, IObservableValue<bool> errorState)
         {
@@ -65,6 +66,13 @@ namespace OpenFlow_Core.Nodes
 
         public void DeepUpdate()
         {
+            if (_deepUpdating)
+            {
+                return;
+            }
+
+            _deepUpdating = true;
+
             foreach (IVisualNodeComponentContainer component in (IList)Fields)
             {
                 component.InputConnector.Activate();
@@ -76,6 +84,8 @@ namespace OpenFlow_Core.Nodes
             {
                 component.OutputConnector.Activate();
             }
+
+            _deepUpdating = false;
         }
     }
 }

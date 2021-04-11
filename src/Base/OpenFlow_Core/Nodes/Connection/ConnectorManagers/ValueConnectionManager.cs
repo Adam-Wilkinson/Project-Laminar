@@ -10,6 +10,7 @@ namespace OpenFlow_Core.Nodes.Connection.ConnectorManagers
     {
         private IVisualNodeComponent _parentComponent;
         private ConnectorType _connectorType;
+        private ValueConnectionManager _pairedManager;
 
         public ValueConnectionManager(IObservableValue<string> hexColour)
         {
@@ -90,6 +91,7 @@ namespace OpenFlow_Core.Nodes.Connection.ConnectorManagers
 
         public void ConnectionAddedAction(IConnectorManager manager)
         {
+            _pairedManager = manager as ValueConnectionManager;
             if (_connectorType is ConnectorType.Output && manager is ValueConnectionManager valConnection)
             {
                 valConnection.LaminarValue.Driver = LaminarValue;
@@ -98,6 +100,7 @@ namespace OpenFlow_Core.Nodes.Connection.ConnectorManagers
 
         public void ConnectionRemovedAction(IConnectorManager manager)
         {
+            _pairedManager = null;
             if (_connectorType is ConnectorType.Output && manager is ValueConnectionManager valConnection && valConnection.LaminarValue.Driver == LaminarValue)
             {
                 valConnection.LaminarValue.Driver = null;
@@ -113,7 +116,8 @@ namespace OpenFlow_Core.Nodes.Connection.ConnectorManagers
         {
             if (_connectorType is ConnectorType.Input)
             {
-                Debug.WriteLine("Hey an input value needs to be updated");
+                INodeBase.NodeBases[_parentComponent.ParentNode].DeepUpdate();
+                _pairedManager?.Activate();
             }
         }
     }

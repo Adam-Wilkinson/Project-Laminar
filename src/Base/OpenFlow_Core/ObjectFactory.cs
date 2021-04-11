@@ -7,7 +7,6 @@ using OpenFlow_Core.Primitives.LaminarValue;
 using OpenFlow_Core.Primitives.LaminarValue.TypeDefinition;
 using OpenFlow_Core.Primitives.ObservableCollectionMapper;
 using OpenFlow_Core.Primitives.UserInterface;
-using OpenFlow_PluginFramework.NodeSystem.NodeComponents;
 using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Collections;
 using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Visuals;
 using OpenFlow_PluginFramework.Primitives;
@@ -16,8 +15,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OpenFlow_Core
 {

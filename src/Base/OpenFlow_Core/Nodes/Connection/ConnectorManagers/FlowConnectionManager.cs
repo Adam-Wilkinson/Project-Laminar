@@ -1,4 +1,5 @@
 ﻿using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Visuals;
+using OpenFlow_PluginFramework.NodeSystem.Nodes;
 using OpenFlow_PluginFramework.Primitives;
 using System;
 using System.ComponentModel;
@@ -12,6 +13,7 @@ namespace OpenFlow_Core.Nodes.Connection.ConnectorManagers
     {
         private IVisualNodeComponent _parentComponent;
         private ConnectorType _connectorType;
+        private FlowConnectionManager _pairedConnection;
 
         public FlowConnectionManager(IObservableValue<string> hexColour)
         {
@@ -61,10 +63,12 @@ namespace OpenFlow_Core.Nodes.Connection.ConnectorManagers
 
         public void ConnectionAddedAction(IConnectorManager manager)
         {
+            _pairedConnection = manager as FlowConnectionManager;
         }
 
         public void ConnectionRemovedAction(IConnectorManager manager)
         {
+            _pairedConnection = null;
         }
 
         public bool ConnectorExclusiveCheck()
@@ -74,15 +78,29 @@ namespace OpenFlow_Core.Nodes.Connection.ConnectorManagers
 
         public void Activate()
         {
-            //Debug.WriteLine("Flow Connection Activated");
-            if (_connectorType is ConnectorType.Output)
+            if (_connectorType is ConnectorType.Input)
             {
-                HexColour.Value = "#FFFFFF";
-                Task.Delay(new TimeSpan(0, 0, 1)).ContinueWith(t =>
+                INodeBase.NodeBases[_parentComponent.ParentNode].DeepUpdate();
+
+                HexColour.Value = "#F000F0";
+                Task.Delay(new TimeSpan(0, 0, 0, 0, 100)).ContinueWith(t =>
                 {
-                    Debug.WriteLine("Huh");
-                    HexColour.Value = "#800080";
+                    Instance.Current.UIContext.Post(delegate { HexColour.Value = "#800080"; }, null);
                 });
+            }
+            
+
+            if (_connectorType is ConnectorType.Output && _parentComponent.ParentNode is IFlowNode parentFlowNode && parentFlowNode.FlowOutComponent == _parentComponent)
+            {
+                INodeBase.NodeBases[_parentComponent.ParentNode].DeepUpdate();
+
+                HexColour.Value = "#F000F0";
+                Task.Delay(new TimeSpan(0, 0, 0, 0, 300)).ContinueWith(t =>
+                {
+                    Instance.Current.UIContext.Post(delegate { HexColour.Value = "#800080"; }, null);
+                });
+
+                _pairedConnection?.Activate();
             }
         }
 

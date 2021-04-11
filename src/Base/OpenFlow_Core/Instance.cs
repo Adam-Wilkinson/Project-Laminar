@@ -5,6 +5,7 @@
     using System.Diagnostics;
     using System.IO;
     using System.Reflection;
+    using System.Threading;
     using OpenFlow_Core.Management;
     using OpenFlow_Core.Nodes;
     using OpenFlow_Core.Nodes.NodeComponents.Visuals;
@@ -17,10 +18,11 @@
         private readonly PluginManager _pluginManager;
         private readonly Configs _configs = new(Path.Combine(Directory.GetCurrentDirectory(), @"Configs.xml"));
 
-        public Instance()
+        public Instance(SynchronizationContext uiContext)
         {
             Current = this;
             Laminar.Init(Factory);
+            UIContext = uiContext;
             //Factory = new();
             _pluginManager = new PluginManager();
             if (_configs.Valid && _configs.PluginPaths != null)
@@ -37,6 +39,8 @@
         public static ObjectFactory Factory { get; } = new();
 
         // public ObjectFactory Factory { get; }// = new();
+
+        public SynchronizationContext UIContext { get; }
 
         public Dictionary<Type, TypeInfoRecord> TypeInfo { get; } = new ();
 

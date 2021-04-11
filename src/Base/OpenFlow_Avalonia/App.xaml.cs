@@ -5,12 +5,13 @@
     using Avalonia.Markup.Xaml;
     using Avalonia.Threading;
     using OpenFlow_Avalonia.Views;
+    using System.Threading;
 
     public class App : Application
     {
         public static DragDropHandler DragDropHandler { get; private set; }
 
-        public static OpenFlow_Core.Instance Instance { get; } = new OpenFlow_Core.Instance();
+        public static OpenFlow_Core.Instance Instance { get; } = new OpenFlow_Core.Instance(SynchronizationContext.Current);
 
         public override void Initialize()
         {
