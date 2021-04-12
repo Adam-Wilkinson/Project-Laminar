@@ -22,5 +22,12 @@ namespace OpenFlow_Core.NodeSystem.Nodes
         public IObservableValue<bool> ErrorState { get; }
 
         public IObservableValue<string> Name { get; }
+
+        public void Deconstruct(out IPoint Location, out IObservableValue<bool> ErrorState, out IObservableValue<string> Name)
+        {
+            Location = this.Location;
+            ErrorState = this.ErrorState;
+            Name = this.Name;
+        }
     }
 }

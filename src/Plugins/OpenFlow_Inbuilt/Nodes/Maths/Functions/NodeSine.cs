@@ -6,7 +6,7 @@
     using OpenFlow_PluginFramework.NodeSystem.NodeComponents;
     using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Visuals;
     using OpenFlow_PluginFramework.NodeSystem.Nodes;
-
+    
     public class NodeSine : IFunctionNode
     {
         private readonly INodeField inputField = Constructor.NodeField("x").WithInput(0.0);

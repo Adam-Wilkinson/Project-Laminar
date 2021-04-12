@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace OpenFlow_PluginFramework.NodeSystem.Nodes
 {
-    interface IActionNode : IFunctionNode
+    public interface IActionNode : IFunctionNode
     {
     }
 }

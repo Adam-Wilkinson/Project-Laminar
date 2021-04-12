@@ -9,7 +9,25 @@ namespace OpenFlow_Core.NodeSystem
     {
         public INodeBase Get<T>() where T : INode
         {
-            return new NodeBase((T)Activator.CreateInstance(typeof(T)), Instance.Factory.CreateInstance<NodeDependencyAggregate>());
+            T node = (T)Activator.CreateInstance(typeof(T));
+            NodeDependencyAggregate dependencies = Instance.Factory.CreateInstance<NodeDependencyAggregate>();
+
+            if (node is IActionNode)
+            {
+                return new ActionNode<T>(node, dependencies);
+            }
+
+            if (node is IFunctionNode)
+            {
+                return new FunctionNode<T>(node, dependencies);
+            }
+
+            if (node is ITriggerNode)
+            {
+                return new TriggerNode<T>(node, dependencies);
+            }
+
+            return new NodeBase<T>(node, dependencies);
         }
     }
 }
