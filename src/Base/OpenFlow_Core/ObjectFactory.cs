@@ -46,6 +46,7 @@ namespace OpenFlow_Core
             RegisterImplementation<ITypeMapper<IVisualNodeComponent, IVisualNodeComponentContainer>, VisualNodeComponentContainerMapper>();
             RegisterImplementation<INodeTree, NodeTree>();
             RegisterImplementation<IVisualNodeComponentContainer, VisualNodeComponentContainer>();
+            RegisterImplementation<IPoint, Point>();
             RegisterImplementationUnsafe(typeof(IObservableValue<>), typeof(ObservableValue<>));
             RegisterImplementationUnsafe(typeof(IValueConstraint<>), typeof(ValueConstraint<>));
             RegisterImplementationUnsafe(typeof(ITypeDefinitionConstructor<>), typeof(TypeDefinitionConstructor<>));

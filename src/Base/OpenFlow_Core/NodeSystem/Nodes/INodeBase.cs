@@ -1,4 +1,5 @@
-﻿using OpenFlow_PluginFramework.NodeSystem.Nodes;
+﻿using OpenFlow_Core.Primitives;
+using OpenFlow_PluginFramework.NodeSystem.Nodes;
 using OpenFlow_PluginFramework.Primitives;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -11,15 +12,11 @@ namespace OpenFlow_Core.NodeSystem.Nodes
 
         IObservableValue<bool> ErrorState { get; }
 
+        IObservableValue<string> Name { get; }
+
         INotifyCollectionChanged Fields { get; }
 
-        string Name { get; }
-
-        object Tag { get; set; }
-
-        double X { get; set; }
-
-        double Y { get; set; }
+        IPoint Location { get; }
 
         void Update();
 

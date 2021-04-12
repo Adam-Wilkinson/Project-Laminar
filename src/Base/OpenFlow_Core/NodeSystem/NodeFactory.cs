@@ -9,7 +9,7 @@ namespace OpenFlow_Core.NodeSystem
     {
         public INodeBase Get<T>() where T : INode
         {
-            return new NodeBase((T)Activator.CreateInstance(typeof(T)), new ObservableValue<bool>());
+            return new NodeBase((T)Activator.CreateInstance(typeof(T)), Instance.Factory.CreateInstance<NodeDependencyAggregate>());
         }
     }
 }

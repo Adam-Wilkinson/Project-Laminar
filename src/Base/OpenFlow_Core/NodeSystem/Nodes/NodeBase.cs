@@ -8,6 +8,7 @@ using OpenFlow_Core.NodeSystem.NodeComponents.Visuals;
 using OpenFlow_Core.Primitives.ObservableCollectionMapper;
 using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Visuals;
 using System.Collections;
+using OpenFlow_Core.Primitives;
 
 namespace OpenFlow_Core.NodeSystem.Nodes
 {
@@ -17,13 +18,18 @@ namespace OpenFlow_Core.NodeSystem.Nodes
         private readonly INodeComponentCollection _fieldSection;
         private bool _updating;
 
-        public NodeBase(INode baseNode, IObservableValue<bool> errorState)
+        public NodeBase(INode baseNode, NodeDependencyAggregate dependencies)
         {
             INodeBase.NodeBases.Add(baseNode, this);
-            ErrorState = errorState;
+
+            ErrorState = dependencies.ErrorState;
+            Location = dependencies.Location;
+            Name = dependencies.Name;
+
             _baseNode = baseNode;
             _fieldSection = Constructor.NodeComponentList(baseNode.Fields);
             _fieldSection.ParentNode = baseNode;
+            Name.Value = _baseNode.NodeName;
 
             Fields = ObservableCollectionMapper<IVisualNodeComponent, IVisualNodeComponentContainer>.Create(_fieldSection.VisualNodeComponentsObservable);
 
@@ -32,17 +38,13 @@ namespace OpenFlow_Core.NodeSystem.Nodes
 
         public IObservableValue<bool> ErrorState { get; }
 
-        public double X { get; set; }
+        public IPoint Location { get; }
 
-        public double Y { get; set; }
-
-        public object Tag { get; set; }
-
-        public string Name => _baseNode.NodeName;
+        public IObservableValue<string> Name { get; }
 
         public INotifyCollectionChanged Fields { get; }
 
-        public INodeBase DuplicateNode() => new NodeBase((INode)Activator.CreateInstance(_baseNode.GetType()), ErrorState.Clone());
+        public INodeBase DuplicateNode() => new NodeBase((INode)Activator.CreateInstance(_baseNode.GetType()), Instance.Factory.CreateInstance<NodeDependencyAggregate>());
 
         public void Update()
         {

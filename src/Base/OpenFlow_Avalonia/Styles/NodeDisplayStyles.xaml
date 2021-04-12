@@ -53,7 +53,7 @@
 		</Border.DataTemplates>
 			
           <StackPanel ClipToBounds="False">
-            <TextBlock Text="{Binding CoreNode.Name, RelativeSource={RelativeSource TemplatedParent}}"
+            <TextBlock Text="{Binding CoreNode.Name.Value, RelativeSource={RelativeSource TemplatedParent}}"
                        VerticalAlignment="Center"
                        HorizontalAlignment="Center"
                        Margin="5"/>

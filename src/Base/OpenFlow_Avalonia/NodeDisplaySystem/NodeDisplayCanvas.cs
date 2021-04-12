@@ -130,8 +130,8 @@
                 case DragType.MovingNodes:
                     foreach (NodeDisplay node in selectedNodes)
                     {
-                        node.CoreNode.X = node.Bounds.Left;
-                        node.CoreNode.Y = node.Bounds.Top;
+                        node.CoreNode.Location.X = node.Bounds.Left;
+                        node.CoreNode.Location.Y = node.Bounds.Top;
                     }
 
                     break;
@@ -171,8 +171,8 @@
                     Vector delta = e.GetPosition(this) - originalClickPoint;
                     foreach (NodeDisplay node in selectedNodes)
                     {
-                        SetTop(node, node.CoreNode.Y + delta.Y);
-                        SetLeft(node, node.CoreNode.X + delta.X);
+                        SetTop(node, node.CoreNode.Location.Y + delta.Y);
+                        SetLeft(node, node.CoreNode.Location.X + delta.X);
                     }
 
                     InvalidateVisual();
@@ -191,8 +191,8 @@
 
         internal void AddNode(NodeDisplay newNode, Point location = default)
         {
-            newNode.CoreNode.X = location.X;
-            newNode.CoreNode.Y = location.Y;
+            newNode.CoreNode.Location.X = location.X;
+            newNode.CoreNode.Location.Y = location.Y;
             manager.AddNode(newNode.CoreNode);
         }
 
@@ -214,8 +214,8 @@
         {
             INodeBase newNode = newItem as INodeBase;
             NodeDisplay newDisplay = new() { CoreNode = newNode };
-            SetLeft(newDisplay, newNode.X);
-            SetTop(newDisplay, newNode.Y);
+            SetLeft(newDisplay, newNode.Location.X);
+            SetTop(newDisplay, newNode.Location.Y);
             newDisplay.PointerPressed += Node_PointerPressed;
             Children.Add(newDisplay);
         }

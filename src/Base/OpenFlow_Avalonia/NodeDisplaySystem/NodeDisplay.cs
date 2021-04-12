@@ -23,7 +23,6 @@
                       {
                           IsError = (o as IObservableValue<bool>).Value;
                       };
-                      newNode.Tag = this;
                   }
               });
         }
