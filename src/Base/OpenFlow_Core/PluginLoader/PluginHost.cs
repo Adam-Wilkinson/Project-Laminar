@@ -1,37 +1,31 @@
-﻿namespace OpenFlow_Core.Management
+﻿using System;
+using OpenFlow_PluginFramework.NodeSystem.Nodes;
+using OpenFlow_PluginFramework.Registration;
+
+namespace OpenFlow_Core.PluginManagement
 {
-    using System;
-    using System.Collections.Generic;
-    using OpenFlow_PluginFramework.NodeSystem.Nodes;
-    using OpenFlow_PluginFramework.Registration;
-
-    public class PluginManager : IPluginHost
+    public class PluginHost : IPluginHost
     {
-        public void LoadFromFolders(IEnumerable<string> folders)
-        {
-            if (folders == null)
-            {
-                throw new ArgumentNullException(nameof(folders));
-            }
-
-            foreach (string pluginFolder in folders)
-            {
-                if (PluginLoader.TryLoadFromFolder(pluginFolder, out IPlugin plugin))
-                {
-                    plugin.Register(this);
-                }
-            }
-
-            foreach (IPlugin plugin in InbuiltPluginsLoader.GetInbuiltPlugins())
-            {
-                plugin.Register(this);
-            }
-        }
-
         public void AddNodeToMenu<TNode>(string menuItemName, string subItemName = null) where TNode : INode, new()
-        {
-            Instance.Current.LoadedNodeManager.AddNodeToCatagory<TNode>(menuItemName, subItemName);
-        }
+            => Instance.Current.LoadedNodeManager.AddNodeToCatagory<TNode>(menuItemName, subItemName);
+
+        public bool RegisterType<T>(string hexColour, string userFriendlyName, T defaultValue = default, string defaultEditorName = null, string defaultDisplayName = null)
+            => Instance.Current.RegisterTypeInfo(typeof(T), new Instance.TypeInfoRecord(defaultValue, hexColour, defaultDisplayName, defaultEditorName, userFriendlyName));
+
+        public bool TryAddTypeConverter<TInput, TOutput, TConverter>() where TConverter : INode
+            => throw new NotImplementedException();
+
+        public bool RegisterEditor<T>(string name, T editor)
+            => Instance.Current.RegisteredEditors.RegisterUserInterface(name, editor);
+
+        public bool RegisterDisplay<T>(string name, T display)
+            => Instance.Current.RegisteredDisplays.RegisterUserInterface(name, display);
+
+        public bool RegisterEditor<T>(string name, Type editorType)
+            => Instance.Current.RegisteredEditors.RegisterUserInterface<T>(name, editorType);
+
+        public bool RegisterDisplay<T>(string name, Type displayType)
+            => Instance.Current.RegisteredDisplays.RegisterUserInterface<T>(name, displayType);
 
         public void AddNodeToMenu<TNode1, TNode2>(string menuItemName, string subItemName = null)
             where TNode1 : INode, new()
@@ -130,20 +124,5 @@
             AddNodeToMenu<TNode7>(menuItemName, subItemName);
             AddNodeToMenu<TNode8>(menuItemName, subItemName);
         }
-
-        public bool RegisterType<T>(string hexColour, string userFriendlyName, T defaultValue = default, string defaultEditorName = null, string defaultDisplayName = null) => Instance.Current.RegisterTypeInfo(typeof(T), new Instance.TypeInfoRecord(defaultValue, hexColour, defaultDisplayName, defaultEditorName, userFriendlyName));
-
-        public bool TryAddTypeConverter<TInput, TOutput, TConverter>() where TConverter : INode
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool RegisterEditor<T>(string name, T editor) => Instance.Current.RegisteredEditors.RegisterUserInterface(name, editor);
-
-        public bool RegisterDisplay<T>(string name, T display) => Instance.Current.RegisteredDisplays.RegisterUserInterface(name, display);
-
-        public bool RegisterEditor<T>(string name, Type editorType) => Instance.Current.RegisteredEditors.RegisterUserInterface<T>(name, editorType);
-
-        public bool RegisterDisplay<T>(string name, Type displayType) => Instance.Current.RegisteredDisplays.RegisterUserInterface<T>(name, displayType);
     }
 }

@@ -12,10 +12,10 @@
         {
             foreach (string pluginFile in Directory.EnumerateFiles(path, "*.dll"))
             {
-                Assembly pluginAssembly = Assembly.LoadFile(pluginFile);
+                Assembly pluginAssembly = Assembly.LoadFrom(pluginFile);
                 foreach (Type type in pluginAssembly.GetExportedTypes())
                 {
-                    if (typeof(IPlugin).IsAssignableFrom(type))
+                    if (typeof(IPlugin).IsAssignableFrom(type) && !type.IsInterface)
                     {
                         plugin = (IPlugin)Activator.CreateInstance(type);
                         return true;

@@ -19,6 +19,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenFlow_Avalonia", "src\Ba
 	ProjectSection(ProjectDependencies) = postProject
 		{BC361862-7189-4F7B-8DE5-102D674EBB95} = {BC361862-7189-4F7B-8DE5-102D674EBB95}
 		{1FF90085-7F7A-4035-A502-46241BC9A939} = {1FF90085-7F7A-4035-A502-46241BC9A939}
+		{6F57FBC4-129B-4C78-9163-97E6473B21F7} = {6F57FBC4-129B-4C78-9163-97E6473B21F7}
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenFlow_Core", "src\Base\OpenFlow_Core\OpenFlow_Core.csproj", "{D7AB1EAC-56CB-4C13-B10C-BCEE1CD241CA}"
@@ -29,7 +30,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenFlow_Inbuilt", "src\Plu
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenFlow_Core.UnitTests", "tests\Base\OpenFlow_PluginFramework.UnitTests\OpenFlow_Core.UnitTests.csproj", "{BB801A67-E81A-4CBA-8DB1-6B86886197F6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsKeyboardMouse", "src\Plugins\WindowsKeyboardMouse\WindowsKeyboardMouse.csproj", "{6F57FBC4-129B-4C78-9163-97E6473B21F7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WindowsKeyboardMouse", "src\Plugins\WindowsKeyboardMouse\WindowsKeyboardMouse.csproj", "{6F57FBC4-129B-4C78-9163-97E6473B21F7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

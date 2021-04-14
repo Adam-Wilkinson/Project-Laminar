@@ -24,7 +24,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\Base\OpenFlow_Core\OpenFlow_Core.csproj" />
-    <ProjectReference Include="..\..\..\src\Base\OpenFlow_PluginFramework\OpenFlow_PluginFramework.csproj" />
   </ItemGroup>
 
 </Project>

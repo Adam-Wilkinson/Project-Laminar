@@ -6,24 +6,27 @@
     using System.IO;
     using System.Reflection;
     using System.Threading;
-    using OpenFlow_Core.Management;
+    // using OpenFlow_Core.Management;
     using OpenFlow_Core.NodeSystem;
     using OpenFlow_Core.NodeSystem.NodeComponents.Visuals;
     using OpenFlow_Core.Primitives.UserInterface;
     using OpenFlow_PluginFramework;
+    using OpenFlow_Core.PluginManagement;
     using OpenFlow_PluginFramework.Primitives;
 
     public class Instance
     {
-        private readonly PluginManager _pluginManager;
-        private readonly Configs _configs = new(Path.Combine(Directory.GetCurrentDirectory(), @"Configs.xml"));
+        // private readonly PluginManager _pluginManager;
+        // private readonly Configs _configs = new(Path.Combine(Directory.GetCurrentDirectory(), @"Configs.xml"));
 
         public Instance(SynchronizationContext uiContext)
         {
             Current = this;
             Laminar.Init(Factory);
             UIContext = uiContext;
+            PluginLoader pluginLoader = new();
             //Factory = new();
+            /*
             _pluginManager = new PluginManager();
             if (_configs.Valid && _configs.PluginPaths != null)
             {
@@ -32,6 +35,7 @@
             }
 
             _pluginManager.LoadFromFolders(_configs.PluginPaths);
+            */
         }
 
         public static Instance Current { get; private set; }

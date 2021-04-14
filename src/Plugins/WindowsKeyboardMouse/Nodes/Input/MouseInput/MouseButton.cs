@@ -27,7 +27,8 @@ namespace WindowsKeyboardMouse.Nodes.Input.MouseInput
 
         public void Evaluate()
         {
-            mouseButtonOutput[INodeField.OutputKey] = mouseButtonOutput["Display"];
+            MouseButtonEnum MouseButton = (MouseButtonEnum)mouseButtonOutput["Display"];
+            mouseButtonOutput[INodeField.OutputKey] = MouseButton;
         }
     }
 }

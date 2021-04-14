@@ -1,28 +1,29 @@
-﻿using OpenFlow_PluginFramework.Registration;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace OpenFlow_Core.Management
+namespace OpenFlow_Core.PluginManagement
 {
-    public static class InbuiltPluginsLoader
+    static class InbuiltPluginFinder
     {
-        public static IEnumerable<IPlugin> GetInbuiltPlugins()
+        private const string RelativePluginsPath = @"src\Plugins";
+
+        public static IEnumerable<string> GetInbuiltPlugins()
         {
+            string InbuiltPluginsFolder = Path.Combine(GetSolutionFileFolder().FullName, RelativePluginsPath);
             foreach (string projectPath in Directory.EnumerateDirectories(InbuiltPluginsFolder))
             {
-                if (PluginLoader.TryLoadFromFolder(GetBinFromProjectFolder(projectPath), out IPlugin plugin))
+                foreach (string dllPath in Directory.EnumerateFiles(GetOutputFromProjectFolder(projectPath), "*.dll"))
                 {
-                    yield return plugin;
+                    if (Path.GetFileNameWithoutExtension(dllPath) != "WindowsKeyboardMouse")
+                    {
+                        yield return dllPath;
+                    }
                 }
             }
         }
 
-        private static string GetBinFromProjectFolder(string projectFolder)
+        private static string GetOutputFromProjectFolder(string projectFolder)
         {
             string debugs = Path.Combine(projectFolder, @"bin\Debug");
             foreach (string path in Directory.EnumerateDirectories(debugs))
@@ -32,8 +33,6 @@ namespace OpenFlow_Core.Management
 
             return null;
         }
-
-        private static string InbuiltPluginsFolder => Path.Combine(GetSolutionFileFolder().FullName, @"src\Plugins");
 
         private static DirectoryInfo GetSolutionFileFolder()
         {
