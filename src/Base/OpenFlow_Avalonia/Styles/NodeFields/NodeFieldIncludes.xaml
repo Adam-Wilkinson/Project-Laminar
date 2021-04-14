@@ -1,9 +1,0 @@
-﻿<Styles
-  xmlns = "https://github.com/avaloniaui">
-
-  <StyleInclude Source="/Styles/NodeFields/DefaultDisplay.xaml"/>
-  <StyleInclude Source="/Styles/NodeFields/StringDisplay.xaml"/>
-  <StyleInclude Source="/Styles/NodeFields/NumberEnterDisplay.xaml"/>
-  <StyleInclude Source="/Styles/NodeFields/StringEditor.xaml"/>
-  <StyleInclude Source="/Styles/NodeFields/ActionDisplay.xaml"/>
-</Styles>

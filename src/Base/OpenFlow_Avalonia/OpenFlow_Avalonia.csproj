@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFrameworks>net5.0;net5.0-windows</TargetFrameworks>
     <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -17,13 +17,6 @@
     </AvaloniaResource>
     <AvaloniaResource Include="Assets\**" />
     <AvaloniaResource Include="Styles\**" />
-  </ItemGroup>
-  <ItemGroup>
-    <AvaloniaResource Remove="Styles\NodeFields\**" />
-    <AvaloniaXaml Remove="Styles\NodeFields\**" />
-    <Compile Remove="Styles\NodeFields\**" />
-    <EmbeddedResource Remove="Styles\NodeFields\**" />
-    <None Remove="Styles\NodeFields\**" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\Configs.xml" />
