@@ -62,6 +62,12 @@ namespace OpenFlow_Core.Primitives.LaminarValue
             Add(key, newValue);
         }
 
+        public void AddValue<T>(object key, bool isUserEditable)
+        {
+            ILaminarValue newValue = _valueFactory.Get<T>(isUserEditable);
+            Add(key, newValue);
+        }
+
         public ILaminarValue GetValue(object key) => _coreDictionary.TryGetValue(key, out ILaminarValue value) ? value : null;
 
         public void SetValueName(string name)

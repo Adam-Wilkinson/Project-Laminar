@@ -11,13 +11,11 @@ namespace OpenFlow_Core.NodeSystem.Nodes
 {
     public class FunctionNode<T> : NodeBase<T> where T : INode
     {
-        readonly T _baseNode;
         bool _updating;
 
-        public FunctionNode(T baseNode, NodeDependencyAggregate dependencies) 
-            : base(baseNode, dependencies)
+        public FunctionNode(NodeDependencyAggregate dependencies) 
+            : base(dependencies)
         {
-            _baseNode = baseNode;
         }
 
         // public override INodeBase DuplicateNode() => new FunctionNode((IFunctionNode)Activator.CreateInstance(_baseNode.GetType()), Instance.Factory.CreateInstance<NodeDependencyAggregate>());
@@ -38,7 +36,7 @@ namespace OpenFlow_Core.NodeSystem.Nodes
 
             try
             {
-                (_baseNode as IFunctionNode).Evaluate();
+                (BaseNode as IFunctionNode).Evaluate();
                 ErrorState.Value = false;
             }
             catch

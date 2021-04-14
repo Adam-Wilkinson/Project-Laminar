@@ -52,6 +52,15 @@ namespace OpenFlow_Core.NodeSystem.NodeComponents.Visuals
             }
         }
 
+        public void AddValue<T>(object key, bool isUserEditable)
+        {
+            _valueStore.AddValue<T>(key, isUserEditable);
+            if (_valueStore.Count == 1)
+            {
+                DisplayedValueKey = key;
+            }
+        }
+
         public ILaminarValue GetValue(object key) => _valueStore?.GetValue(key);
 
         public void SetValueStore(ILaminarValueStore copyFrom)

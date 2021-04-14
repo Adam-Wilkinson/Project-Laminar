@@ -13,20 +13,20 @@ namespace OpenFlow_Core.NodeSystem.Nodes
 {
     public class NodeBase<T> : INodeBase where T : INode
     {
-        private readonly T _baseNode;
-
-        public NodeBase(T baseNode, NodeDependencyAggregate dependencies)
+        public NodeBase(NodeDependencyAggregate dependencies)
         {
-            _baseNode = baseNode;
+            BaseNode = (T)Activator.CreateInstance(typeof(T));
             (Location, ErrorState, Name) = dependencies;
-            Name.Value = _baseNode.NodeName;
+            Name.Value = BaseNode.NodeName;
 
-            INodeBase.NodeBases.Add(baseNode, this);
+            INodeBase.NodeBases.Add(BaseNode, this);
 
-            FieldList = Constructor.NodeComponentList(baseNode.Fields);
-            FieldList.ParentNode = baseNode;
+            FieldList = Constructor.NodeComponentList(BaseNode.Fields);
+            FieldList.ParentNode = BaseNode;
             Fields = ObservableCollectionMapper<IVisualNodeComponent, IVisualNodeComponentContainer>.Create(FieldList.VisualNodeComponentsObservable);
         }
+
+        protected T BaseNode { get; }
 
         protected INodeComponentList FieldList { get; }
 

@@ -21,7 +21,7 @@ namespace OpenFlow_PluginFramework.NodeSystem.NodeComponents.Visuals
             return component;
         }
 
-        public static TComponent WithValue<TComponent>(this TComponent nodeField, string valueKey, object defaultValue, bool isUserEditable = false) where TComponent : INodeField
+        public static TComponent WithValue<TComponent>(this TComponent nodeField, object valueKey, object defaultValue, bool isUserEditable = false) where TComponent : INodeField
         {
             nodeField.AddValue(valueKey, defaultValue, isUserEditable);
             return nodeField;
@@ -32,6 +32,24 @@ namespace OpenFlow_PluginFramework.NodeSystem.NodeComponents.Visuals
 
         public static TComponent WithOutput<TComponent>(this TComponent nodeField, object defaultValue) where TComponent : INodeField
             => nodeField.WithValue(INodeField.OutputKey, defaultValue, false);
+
+        public static INodeField WithValue<T>(this INodeField nodeField, object valueKey, bool isUserEditable)
+        {
+            nodeField.AddValue<T>(valueKey, isUserEditable);
+            return nodeField;
+        }
+
+        public static INodeField WithInput<T>(this INodeField nodeField)
+        {
+            nodeField.AddValue<T>(INodeField.InputKey, true);
+            return nodeField;
+        }
+
+        public static INodeField WithOutput<T>(this INodeField nodeField)
+        {
+            nodeField.AddValue<T>(INodeField.OutputKey, false);
+            return nodeField;
+        }
 
         public static object GetInput(this INodeField nodeField) => nodeField[INodeField.InputKey];
 

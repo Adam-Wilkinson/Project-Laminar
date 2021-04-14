@@ -16,6 +16,9 @@ namespace OpenFlow_Core.Primitives.LaminarValue
             return new LaminarValue(GetProvider(value), isUserEditable);
         }
 
+        public ILaminarValue Get<T>(bool isUserEditable)
+            => Get(Instance.Current.GetTypeInfo(typeof(T)).DefaultValue, isUserEditable);
+
         private static ITypeDefinitionProvider GetProvider(object value)
         {
             if (value is ITypeDefinitionProvider typeDefinitionProvider)

@@ -11,8 +11,8 @@ namespace OpenFlow_Core.NodeSystem.Nodes
 {
     public class ActionNode<T> : FunctionNode<T> where T : INode
     {
-        public ActionNode(T baseNode, NodeDependencyAggregate dependencies) 
-            : base(baseNode, dependencies)
+        public ActionNode(NodeDependencyAggregate dependencies) 
+            : base(dependencies)
         {
             FieldList.Insert(0, Constructor.NodeLabel("Flow").WithFlowInput().WithFlowOutput());
             FieldList.Insert(1, Constructor.Separator());

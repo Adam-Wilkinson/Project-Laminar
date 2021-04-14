@@ -17,6 +17,8 @@ namespace OpenFlow_PluginFramework.NodeSystem.NodeComponents.Visuals
 
         void AddValue(object key, object value, bool isUserEditable);
 
+        void AddValue<T>(object key, bool isUserEditable);
+
         ILaminarValue GetValue(object key);
     }
 }
