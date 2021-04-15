@@ -9,12 +9,13 @@ using System.ComponentModel;
 using WindowsHook;
 using WindowsKeyboardMouse.Primitives;
 
-namespace WindowsKeyboardMouse.Nodes.Input.KeyboardInput
+namespace WindowsKeyboardMouse.Nodes.Keyboard.Triggers
 {
     public class KeyboardButtonTrigger : ITriggerNode
     {
         private readonly INodeField KeyField = Constructor.NodeField("Trigger Key").WithInput<KeyboardButtonEnum>();
         private readonly INodeField SuppressKey = Constructor.NodeField("Suppress Key").WithInput<bool>();
+
         private Keys _triggerKey;
 
         public IEnumerable<INodeComponent> Fields

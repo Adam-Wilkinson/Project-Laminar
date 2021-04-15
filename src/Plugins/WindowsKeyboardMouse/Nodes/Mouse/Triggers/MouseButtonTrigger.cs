@@ -9,7 +9,7 @@ using System.ComponentModel;
 using WindowsHook;
 using WindowsKeyboardMouse.Primitives;
 
-namespace WindowsKeyboardMouse.Nodes.Input.MouseInput
+namespace WindowsKeyboardMouse.Nodes.Mouse.Triggers
 {
     public class MouseButtonTrigger : ITriggerNode
     {

@@ -10,7 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using WindowsKeyboardMouse.Primitives;
 
-namespace WindowsKeyboardMouse.Nodes.Input.MouseInput
+namespace WindowsKeyboardMouse.Nodes.Mouse.Triggers
 {
     public class MouseButton : IFunctionNode
     {
