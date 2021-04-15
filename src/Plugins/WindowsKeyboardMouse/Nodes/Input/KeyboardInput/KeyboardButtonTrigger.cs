@@ -14,6 +14,7 @@ namespace WindowsKeyboardMouse.Nodes.Input.KeyboardInput
     public class KeyboardButtonTrigger : ITriggerNode
     {
         private readonly INodeField KeyField = Constructor.NodeField("Trigger Key").WithInput<KeyboardButtonEnum>();
+        private readonly INodeField SuppressKey = Constructor.NodeField("Suppress Key").WithInput<bool>();
         private Keys _triggerKey;
 
         public IEnumerable<INodeComponent> Fields
@@ -21,6 +22,7 @@ namespace WindowsKeyboardMouse.Nodes.Input.KeyboardInput
             get
             {
                 yield return KeyField;
+                yield return SuppressKey;
             }
         }
 
@@ -40,6 +42,7 @@ namespace WindowsKeyboardMouse.Nodes.Input.KeyboardInput
         {
             if (e.KeyData == _triggerKey)
             {
+                e.SuppressKeyPress = SuppressKey.GetInput<bool>();
                 Trigger?.Invoke(this, new EventArgs());
             }
         }

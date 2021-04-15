@@ -23,7 +23,7 @@ namespace OpenFlow_Inbuilt
         {
             host.RegisterType<double>("#FF0000", "Number", 0.0, "NumberEditor", "StringDisplay");
             host.RegisterType<string>("#0000FF", "Text", "", "StringEditor", "StringDisplay");
-            host.RegisterType<bool>("#00FFFF", "Condition", false, "StringDisplay", "StringDisplay");
+            host.RegisterType<bool>("#00FFFF", "Condition", false, "BoolEditor", "StringDisplay");
             host.RegisterType<Action>("00FF00", "Button", null, "DefaultDisplay", "ActionDisplay");
 
             host.RegisterDisplay<IControl>("DefaultDisplay", typeof(DefaultDisplay));
@@ -33,6 +33,7 @@ namespace OpenFlow_Inbuilt
             host.RegisterEditor<IControl>("StringEditor", typeof(StringEditor));
             host.RegisterEditor<IControl>("EnumEditor", typeof(EnumEditor));
             host.RegisterEditor<IControl>("SliderEditor", typeof(SliderEditor));
+            host.RegisterEditor<IControl>("BoolEditor", typeof(BoolEditor));
 
 
             host.AddNodeToMenu<NodeAdd, NodeDifference, NodeMultiply, NodeDivide, SliderTest>("Number", "Arithmetic");
