@@ -12,6 +12,7 @@ namespace WindowsKeyboardMouse.Nodes.Input.MouseInput
         MiddleButton,
         RightButton,
         ScrollDown,
-        ScrollUp
+        ScrollUp,
+        None,
     }
 }

@@ -8,16 +8,17 @@ using OpenFlow_PluginFramework.NodeSystem.Nodes;
 
 namespace OpenFlow_Core.NodeSystem.Nodes
 {
-    public class FlowSourceNode : IFlowNode
+    public class FlowSourceNode : ITriggerNode
     {
-        private readonly INodeField _sourceField = Constructor.NodeField("Manual Trigger").WithValue("Displayed", Constructor.ManualTypeDefinitionManager().WithAcceptedDefinition(Constructor.TypeDefinition<Action>(null)), false).WithFlowOutput();
+        private readonly INodeField _sourceField = Constructor.NodeField("Manual Trigger").WithValue("Displayed", Constructor.ManualTypeDefinitionManager().WithAcceptedDefinition(Constructor.TypeDefinition<Action>(null)), false);
         // private INodeBase _parentNodeBase;
 
         public FlowSourceNode()
         {
             _sourceField["Displayed"] = (Action)(() =>
             {
-                INodeBase.NodeBases[this].Update();
+                Trigger?.Invoke(this, new EventArgs());
+                // INodeBase.NodeBases[this].Update();
             });
         }
 
@@ -32,6 +33,8 @@ namespace OpenFlow_Core.NodeSystem.Nodes
                 yield return _sourceField;
             }
         }
+
+        public event EventHandler Trigger;
 
         public void Evaluate()
         {

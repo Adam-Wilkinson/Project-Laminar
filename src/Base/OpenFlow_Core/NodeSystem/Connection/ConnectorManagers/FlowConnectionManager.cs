@@ -86,7 +86,7 @@ namespace OpenFlow_Core.NodeSystem.Connection.ConnectorManagers
             }
             
 
-            if (_connectorType is ConnectorType.Output && _parentComponent.ParentNode is IFlowNode parentFlowNode && parentFlowNode.FlowOutComponent == _parentComponent)
+            if (_connectorType is ConnectorType.Output && (_parentComponent.ParentNode is IFlowNode parentFlowNode && parentFlowNode.FlowOutComponent == _parentComponent) || _parentComponent.ParentNode is ITriggerNode)
             {
                 FlashColourChange();
                 _pairedConnection?.Activate();
@@ -100,7 +100,7 @@ namespace OpenFlow_Core.NodeSystem.Connection.ConnectorManagers
 
         private void FlashColourChange()
         {
-            HexColour.Value = "#F000F0";
+            Instance.Current.UIContext.Post(delegate { HexColour.Value = "#F000F0"; }, null);
             Task.Delay(new TimeSpan(0, 0, 0, 0, 300)).ContinueWith(t =>
             {
                 Instance.Current.UIContext.Post(delegate { HexColour.Value = "#800080"; }, null);

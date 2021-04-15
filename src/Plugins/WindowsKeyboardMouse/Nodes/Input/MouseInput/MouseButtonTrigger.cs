@@ -17,15 +17,12 @@ namespace WindowsKeyboardMouse.Nodes.Input.MouseInput
 
         public MouseButtonTrigger()
         {
-            
-            Debug.WriteLine("Adding hook");
             Hook.GlobalEvents().MouseDown += MouseButtonTrigger_MouseDown;
         }
 
         private void MouseButtonTrigger_MouseDown(object sender, MouseEventArgs e)
         {
-            Debug.WriteLine("Mouse Button Pressed");
-            if (e.Button == MouseButtons.Left)
+            if (ConvertMouseButton.Convert(e.Button) == MouseButton.GetInput<MouseButtonEnum>())
             {
                 Trigger?.Invoke(this, new EventArgs());
             }
