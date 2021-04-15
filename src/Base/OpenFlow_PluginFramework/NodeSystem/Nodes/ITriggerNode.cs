@@ -9,5 +9,7 @@ namespace OpenFlow_PluginFramework.NodeSystem.Nodes
     public interface ITriggerNode : INode
     {
         event EventHandler Trigger;
+
+        void HookupTriggers();
     }
 }

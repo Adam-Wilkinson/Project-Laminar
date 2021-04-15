@@ -43,5 +43,9 @@ namespace OpenFlow_Core.NodeSystem.Nodes
         public virtual void Update()
         {
         }
+
+        public virtual void MakeLive()
+        {
+        }
     }
 }

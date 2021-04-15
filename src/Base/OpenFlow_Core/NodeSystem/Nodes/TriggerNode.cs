@@ -19,10 +19,14 @@ namespace OpenFlow_Core.NodeSystem.Nodes
             FieldList.Insert(0, FlowOut);
         }
 
+        public override void MakeLive()
+        {
+            (BaseNode as ITriggerNode).HookupTriggers();
+        }
+
         private void TriggerNode_Trigger(object sender, EventArgs e)
         {
-            Debug.WriteLine("Outputing");
-            ((IList<IVisualNodeComponentContainer>)Fields)[FieldList.IndexOf(FlowOut)].OutputConnector?.Activate();
+             ((IList<IVisualNodeComponentContainer>)Fields)[FieldList.IndexOf(FlowOut)].OutputConnector?.Activate();
         }
     }
 }

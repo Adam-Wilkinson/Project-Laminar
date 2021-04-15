@@ -15,7 +15,17 @@ namespace WindowsKeyboardMouse.Nodes.Input.MouseInput
 
         public event EventHandler Trigger;
 
-        public MouseButtonTrigger()
+        public string NodeName { get; } = "Mouse Button Trigger";
+
+        public IEnumerable<INodeComponent> Fields
+        {
+            get
+            {
+                yield return MouseButton;
+            }
+        }
+
+        public void HookupTriggers()
         {
             Hook.GlobalEvents().MouseDown += MouseButtonTrigger_MouseDown;
         }
@@ -28,14 +38,5 @@ namespace WindowsKeyboardMouse.Nodes.Input.MouseInput
             }
         }
 
-        public string NodeName { get; } = "Mouse Button Trigger";
-
-        public IEnumerable<INodeComponent> Fields
-        {
-            get
-            {
-                yield return MouseButton;
-            }
-        }
     }
 }

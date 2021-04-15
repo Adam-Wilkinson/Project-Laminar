@@ -11,16 +11,6 @@ namespace OpenFlow_Core.NodeSystem.Nodes
     public class FlowSourceNode : ITriggerNode
     {
         private readonly INodeField _sourceField = Constructor.NodeField("Manual Trigger").WithValue("Displayed", Constructor.ManualTypeDefinitionManager().WithAcceptedDefinition(Constructor.TypeDefinition<Action>(null)), false);
-        // private INodeBase _parentNodeBase;
-
-        public FlowSourceNode()
-        {
-            _sourceField["Displayed"] = (Action)(() =>
-            {
-                Trigger?.Invoke(this, new EventArgs());
-                // INodeBase.NodeBases[this].Update();
-            });
-        }
 
         public IVisualNodeComponent FlowOutComponent => _sourceField;
 
@@ -36,8 +26,12 @@ namespace OpenFlow_Core.NodeSystem.Nodes
 
         public event EventHandler Trigger;
 
-        public void Evaluate()
+        public void HookupTriggers()
         {
+            _sourceField["Displayed"] = (Action)(() =>
+            {
+                Trigger?.Invoke(this, new EventArgs());
+            });
         }
     }
 }

@@ -11,23 +11,26 @@ namespace OpenFlow_Core.NodeSystem.Nodes
 {
     public class FunctionNode<T> : NodeBase<T> where T : INode
     {
-        bool _updating;
+        bool IsLive = false;
 
         public FunctionNode(NodeDependencyAggregate dependencies) 
             : base(dependencies)
         {
         }
 
-        // public override INodeBase DuplicateNode() => new FunctionNode((IFunctionNode)Activator.CreateInstance(_baseNode.GetType()), Instance.Factory.CreateInstance<NodeDependencyAggregate>());
+        public override void MakeLive()
+        {
+            IsLive = true;
+        }
 
         public override void Update()
         {
-            if (_updating)
+            if (!IsLive)
             {
                 return;
             }
 
-            _updating = true;
+            IsLive = false;
 
             foreach (IVisualNodeComponentContainer component in (IList)Fields)
             {
@@ -49,7 +52,7 @@ namespace OpenFlow_Core.NodeSystem.Nodes
                 component.OutputConnector.Activate();
             }
 
-            _updating = false;
+            IsLive = true;
         }
     }
 }

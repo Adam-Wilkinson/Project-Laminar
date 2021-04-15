@@ -17,8 +17,11 @@ namespace OpenFlow_Core.NodeSystem.NodeTreeSystem
         {
             _nodeFactory = nodeFactory;
             _connectionFactory = connectionFactory;
-            AddNode(_nodeFactory.Get<FlowSourceNode>());
             Nodes = new(_nodes);
+
+            INodeBase flowSourceNode = _nodeFactory.Get<FlowSourceNode>();
+            flowSourceNode.MakeLive();
+            AddNode(flowSourceNode);
         }
 
         public ReadOnlyObservableCollection<INodeBase> Nodes { get; }

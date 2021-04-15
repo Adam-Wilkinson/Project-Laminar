@@ -8,6 +8,7 @@
     using Avalonia.Input;
     using Avalonia.Media;
     using OpenFlow_Core.NodeSystem;
+    using OpenFlow_Core.NodeSystem.Nodes;
     using static System.Math;
     using static OpenFlow_Avalonia.Utils.MatrixHelper;
 
@@ -109,9 +110,11 @@
                 throw new ArgumentNullException(dragDropInstance == null ? nameof(dragDropInstance) : nameof(e));
             }
 
-            if (dragDropInstance.DragTypeIdentifier == "NodeDisplay" && dragDropInstance.DragControl is NodeDisplay newNode)
+            if (dragDropInstance.DragTypeIdentifier == "NodeDisplay" && dragDropInstance.DragControl is NodeDisplay nodeToCopy)
             {
-                nodeManager.AddNode(new NodeDisplay() { CoreNode = newNode.CoreNode.DuplicateNode() }, e.GetPosition(nodeManager) - dragDropInstance.ClickOffset);
+                INodeBase newNode = nodeToCopy.CoreNode.DuplicateNode();
+                newNode.MakeLive();
+                nodeManager.AddNode(new NodeDisplay() { CoreNode = newNode }, e.GetPosition(nodeManager) - dragDropInstance.ClickOffset);
                 return true;
             }
 

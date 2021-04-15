@@ -18,6 +18,8 @@ namespace OpenFlow_Core.NodeSystem.Nodes
 
         IPoint Location { get; }
 
+        void MakeLive();
+
         void Update();
 
         INodeBase DuplicateNode();
