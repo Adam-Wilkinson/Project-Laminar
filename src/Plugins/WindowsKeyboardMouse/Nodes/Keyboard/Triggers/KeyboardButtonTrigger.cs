@@ -36,7 +36,7 @@ namespace WindowsKeyboardMouse.Nodes.Keyboard.Triggers
             KeyField.GetValue(INodeField.InputKey).PropertyChanged += KeyboardButtonTrigger_PropertyChanged;
             KeyboardButtonTrigger_PropertyChanged(null, new PropertyChangedEventArgs(nameof(ILaminarValue.Value)));
 
-            Hook.GlobalEvents().KeyDown += KeyboardButtonTrigger_KeyDown;
+            Hook.GlobalEvents().KeyUp += KeyboardButtonTrigger_KeyDown;
         }
 
         private void KeyboardButtonTrigger_KeyDown(object sender, KeyEventArgs e)

@@ -24,7 +24,7 @@
             Current = this;
             Laminar.Init(Factory);
             UIContext = uiContext;
-            PluginLoader pluginLoader = new();
+            _ = new PluginLoader();
             //Factory = new();
             /*
             _pluginManager = new PluginManager();

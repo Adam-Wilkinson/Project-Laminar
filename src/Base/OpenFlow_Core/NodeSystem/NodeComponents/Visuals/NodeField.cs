@@ -4,6 +4,7 @@ using OpenFlow_Core.Primitives.LaminarValue;
 using OpenFlow_Core.Primitives.UserInterface;
 using OpenFlow_PluginFramework.NodeSystem.NodeComponents;
 using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Visuals;
+using OpenFlow_PluginFramework.NodeSystem.Nodes;
 using OpenFlow_PluginFramework.Primitives;
 
 namespace OpenFlow_Core.NodeSystem.NodeComponents.Visuals
@@ -79,7 +80,7 @@ namespace OpenFlow_Core.NodeSystem.NodeComponents.Visuals
 
         private void ValueStore_AnyValueChanged(object sender, EventArgs e)
         {
-            if (ParentNode != null)
+            if (ParentNode is not IActionNode)
             {
                 INodeBase.NodeBases[ParentNode].Update();
             }

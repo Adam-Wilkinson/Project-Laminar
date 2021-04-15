@@ -86,7 +86,10 @@ namespace OpenFlow_Core.NodeSystem.Connection.ConnectorManagers
             }
             
 
-            if (_connectorType is ConnectorType.Output && (_parentComponent.ParentNode is IFlowNode parentFlowNode && parentFlowNode.FlowOutComponent == _parentComponent) || _parentComponent.ParentNode is ITriggerNode)
+            if (_connectorType is ConnectorType.Output && 
+                ((_parentComponent.ParentNode is IFlowNode parentFlowNode && parentFlowNode.FlowOutComponent == _parentComponent) || 
+                _parentComponent.ParentNode is ITriggerNode ||
+                _parentComponent.ParentNode is IActionNode))
             {
                 FlashColourChange();
                 _pairedConnection?.Activate();

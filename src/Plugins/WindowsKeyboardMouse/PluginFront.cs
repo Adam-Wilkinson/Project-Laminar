@@ -3,6 +3,7 @@ using OpenFlow_PluginFramework.Registration;
 using WindowsKeyboardMouse.Nodes.Mouse.Triggers;
 using WindowsKeyboardMouse.Nodes.Keyboard.Triggers;
 using WindowsKeyboardMouse.Primitives;
+using WindowsKeyboardMouse.Nodes.Keyboard.Output;
 
 namespace WindowsKeyboardMouse
 {
@@ -22,6 +23,8 @@ namespace WindowsKeyboardMouse
             host.AddNodeToMenu<MouseButtonTrigger>("Mouse", "Triggers");
 
             host.AddNodeToMenu<KeyboardButtonTrigger, KeyCombinationTrigger>("Keyboard", "Triggers");
+
+            host.AddNodeToMenu<KeyPresser, TextTyper>("Keyboard", "Output");
         }
     }
 }

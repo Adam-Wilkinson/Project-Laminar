@@ -118,7 +118,7 @@ namespace WindowsKeyboardMouse.Primitives
         /// <summary>
         /// The CAPS LOCK key.
         /// </summary>
-        CapsLock = 0x14,
+        CapsLock = Capital,
 
         /// <summary>
         /// The IME Kana mode key.
@@ -128,12 +128,12 @@ namespace WindowsKeyboardMouse.Primitives
         /// <summary>
         /// The IME Hanguel mode key.
         /// </summary>
-        HanguelMode = 0x15,
+        HanguelMode = KanaMode,
 
         /// <summary>
         /// The IME Hangul mode key.
         /// </summary>
-        HangulMode = 0x15,
+        HangulMode = HanguelMode,
 
         /// <summary>
         /// The IME Junja mode key.
@@ -153,7 +153,7 @@ namespace WindowsKeyboardMouse.Primitives
         /// <summary>
         /// The IME Kanji mode key.
         /// </summary>
-        KanjiMode = 0x19,
+        KanjiMode = HanjaMode,
 
         /// <summary>
         /// The ESC key.

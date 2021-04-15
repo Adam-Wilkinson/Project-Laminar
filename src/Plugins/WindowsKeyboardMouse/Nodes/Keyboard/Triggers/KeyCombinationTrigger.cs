@@ -71,8 +71,19 @@ namespace WindowsKeyboardMouse.Nodes.Keyboard.Triggers
 
                 _globalHook?.Dispose();
                 _globalHook = Hook.GlobalEvents();
-                _globalHook.OnSequence(new KeyValuePair<Sequence, Action>[] { new KeyValuePair<Sequence, Action>(sequence, ActivateTrigger) });
+                _globalHook.OnSequence(new KeyValuePair<Sequence, Action>[] { new KeyValuePair<Sequence, Action>(sequence, ActivateTriggerOnKeyUp) });
             }
+        }
+
+        private void ActivateTriggerOnKeyUp()
+        {
+            _globalHook.KeyUp += GlobalHook_KeyUp;
+        }
+
+        private void GlobalHook_KeyUp(object sender, KeyEventArgs e)
+        {
+            ActivateTrigger();
+            _globalHook.KeyUp -= GlobalHook_KeyUp;
         }
 
         private void NumberOfLetters_PropertyChanged(object sender, PropertyChangedEventArgs e)
