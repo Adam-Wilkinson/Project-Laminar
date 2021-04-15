@@ -67,7 +67,7 @@
             {
                 _currentTypeDefinition ??= TypeDefinitionProvider.TryGetDefinitionFor(value, out ITypeDefinition typeDefinition) ? typeDefinition : null;
 
-                if (_currentTypeDefinition.TryConstrainValue(value, out object outputVal) && !outputVal.Equals(Value))
+                if (_currentTypeDefinition.TryConstrainValue(value, out object outputVal) && (outputVal is null || !outputVal.Equals(Value)))
                 {
                     _value = outputVal;
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Value)));

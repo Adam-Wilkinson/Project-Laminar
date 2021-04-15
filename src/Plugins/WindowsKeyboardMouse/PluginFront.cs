@@ -1,6 +1,8 @@
 ﻿using OpenFlow_PluginFramework.Primitives;
 using OpenFlow_PluginFramework.Registration;
+using WindowsKeyboardMouse.Nodes.Input.KeyboardInput;
 using WindowsKeyboardMouse.Nodes.Input.MouseInput;
+using WindowsKeyboardMouse.Primitives;
 
 namespace WindowsKeyboardMouse
 {
@@ -15,8 +17,11 @@ namespace WindowsKeyboardMouse
         public void Register(IPluginHost host)
         {
             host.RegisterType<MouseButtonEnum>("#FFFF00", "Mouse Button", MouseButtonEnum.LeftButton, "EnumEditor", "StringDisplay");
+            host.RegisterType<KeyboardButtonEnum>("#00FF00", "Keyboard Button", KeyboardButtonEnum.A, "EnumEditor", "StringDisplay");
 
             host.AddNodeToMenu<MouseButton, MouseButtonTrigger>("Input", "Mouse");
+
+            host.AddNodeToMenu<KeyboardButtonTrigger>("Input", "Keyboard");
         }
     }
 }

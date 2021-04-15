@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WindowsKeyboardMouse.Nodes.Input.MouseInput
+namespace WindowsKeyboardMouse.Primitives
 {
     public enum MouseButtonEnum
     {

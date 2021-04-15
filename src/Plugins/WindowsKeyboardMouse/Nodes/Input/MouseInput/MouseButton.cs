@@ -8,12 +8,13 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WindowsKeyboardMouse.Primitives;
 
 namespace WindowsKeyboardMouse.Nodes.Input.MouseInput
 {
     public class MouseButton : IFunctionNode
     {
-        private readonly INodeField mouseButtonOutput = Constructor.NodeField("Mouse Button ").WithValue("Display", MouseButtonEnum.LeftButton, true).WithOutput(MouseButtonEnum.LeftButton);
+        private readonly INodeField mouseButtonOutput = Constructor.NodeField("Mouse Button ").WithValue<MouseButtonEnum>("Display", true).WithOutput<MouseButtonEnum>();
 
         public string NodeName => "Mouse Button";
 
@@ -27,8 +28,7 @@ namespace WindowsKeyboardMouse.Nodes.Input.MouseInput
 
         public void Evaluate()
         {
-            MouseButtonEnum MouseButton = (MouseButtonEnum)mouseButtonOutput["Display"];
-            mouseButtonOutput[INodeField.OutputKey] = MouseButton;
+            mouseButtonOutput[INodeField.OutputKey] = mouseButtonOutput["Display"];
         }
     }
 }
