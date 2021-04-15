@@ -15,10 +15,7 @@ namespace OpenFlow_Core.PluginManagement
             {
                 foreach (string dllPath in Directory.EnumerateFiles(GetOutputFromProjectFolder(projectPath), "*.dll"))
                 {
-                    if (Path.GetFileNameWithoutExtension(dllPath) != "WindowsKeyboardMouse")
-                    {
-                        yield return dllPath;
-                    }
+                    yield return dllPath;
                 }
             }
         }

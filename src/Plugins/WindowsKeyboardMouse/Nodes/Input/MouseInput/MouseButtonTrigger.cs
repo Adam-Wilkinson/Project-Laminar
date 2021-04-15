@@ -1,12 +1,11 @@
-﻿using Gma.System.MouseKeyHook;
-using OpenFlow_PluginFramework;
+﻿using OpenFlow_PluginFramework;
 using OpenFlow_PluginFramework.NodeSystem.NodeComponents;
 using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Visuals;
 using OpenFlow_PluginFramework.NodeSystem.Nodes;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Windows.Forms;
+using WindowsHook;
 
 namespace WindowsKeyboardMouse.Nodes.Input.MouseInput
 {
@@ -18,6 +17,7 @@ namespace WindowsKeyboardMouse.Nodes.Input.MouseInput
 
         public MouseButtonTrigger()
         {
+            
             Debug.WriteLine("Adding hook");
             Hook.GlobalEvents().MouseDown += MouseButtonTrigger_MouseDown;
         }
