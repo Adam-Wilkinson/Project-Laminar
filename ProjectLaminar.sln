@@ -22,11 +22,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Laminar_Avalonia", "src\Bas
 		{6F57FBC4-129B-4C78-9163-97E6473B21F7} = {6F57FBC4-129B-4C78-9163-97E6473B21F7}
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Laminar_Core", "src\Base\OpenFlow_Core\Laminar_Core.csproj", "{D7AB1EAC-56CB-4C13-B10C-BCEE1CD241CA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Laminar_Core", "src\Base\Laminar_Core\Laminar_Core.csproj", "{D7AB1EAC-56CB-4C13-B10C-BCEE1CD241CA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Laminar_PluginFramework", "src\Base\OpenFlow_PluginFramework\Laminar_PluginFramework.csproj", "{1FF90085-7F7A-4035-A502-46241BC9A939}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Laminar_PluginFramework", "src\Base\Laminar_PluginFramework\Laminar_PluginFramework.csproj", "{1FF90085-7F7A-4035-A502-46241BC9A939}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Laminar_Inbuilt", "src\Plugins\OpenFlow_Inbuilt\Laminar_Inbuilt.csproj", "{BC361862-7189-4F7B-8DE5-102D674EBB95}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BasicFunctionality", "src\Plugins\OpenFlow_Inbuilt\BasicFunctionality.csproj", "{BC361862-7189-4F7B-8DE5-102D674EBB95}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenFlow_Core.UnitTests", "tests\Base\OpenFlow_PluginFramework.UnitTests\OpenFlow_Core.UnitTests.csproj", "{BB801A67-E81A-4CBA-8DB1-6B86886197F6}"
 EndProject

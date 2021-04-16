@@ -40,6 +40,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\OpenFlow_Core\Laminar_Core.csproj" />
+    <ProjectReference Include="..\Laminar_Core\Laminar_Core.csproj" />
   </ItemGroup>
 </Project>

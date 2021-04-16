@@ -9,7 +9,7 @@
 	  </PackageReference>
   </ItemGroup>
   <ItemGroup>
-	  <ProjectReference Include="..\..\Base\OpenFlow_PluginFramework\Laminar_PluginFramework.csproj">
+	  <ProjectReference Include="..\..\Base\Laminar_PluginFramework\Laminar_PluginFramework.csproj">
 		  <Private>false</Private>
 		  <ExcludeAssets>runtime</ExcludeAssets>
 	  </ProjectReference>
