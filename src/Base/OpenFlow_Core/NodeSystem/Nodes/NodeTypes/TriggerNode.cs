@@ -1,13 +1,13 @@
-﻿using OpenFlow_Core.NodeSystem.NodeComponents.Visuals;
-using OpenFlow_PluginFramework;
-using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Visuals;
-using OpenFlow_PluginFramework.NodeSystem.Nodes;
+﻿using Laminar_Core.NodeSystem.NodeComponents.Visuals;
+using Laminar_PluginFramework;
+using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
+using Laminar_PluginFramework.NodeSystem.Nodes;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace OpenFlow_Core.NodeSystem.Nodes.NodeTypes
+namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
 {
     public class TriggerNode<T> : NodeBase<T> where T : INode
     {

@@ -1,5 +1,5 @@
-﻿using OpenFlow_Core.NodeSystem.NodeComponents.Visuals;
-using OpenFlow_PluginFramework.NodeSystem.Nodes;
+﻿using Laminar_Core.NodeSystem.NodeComponents.Visuals;
+using Laminar_PluginFramework.NodeSystem.Nodes;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OpenFlow_Core.NodeSystem.Nodes.NodeTypes
+namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
 {
     public class FunctionNode<T> : NodeBase<T> where T : INode
     {

@@ -1,14 +1,14 @@
-﻿using OpenFlow_Core.NodeSystem.NodeComponents.Visuals;
-using OpenFlow_PluginFramework;
-using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Visuals;
-using OpenFlow_PluginFramework.NodeSystem.Nodes;
+﻿using Laminar_Core.NodeSystem.NodeComponents.Visuals;
+using Laminar_PluginFramework;
+using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
+using Laminar_PluginFramework.NodeSystem.Nodes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OpenFlow_Core.NodeSystem.Nodes.NodeTypes
+namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
 {
     public class ActionNode<T> : FunctionNode<T> where T : INode
     {

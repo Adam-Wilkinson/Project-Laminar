@@ -1,11 +1,11 @@
-﻿namespace OpenFlow_Inbuilt.Nodes.Maths.Functions
+﻿namespace Laminar_Inbuilt.Nodes.Maths.Functions
 {
     using System;
     using System.Collections.Generic;
-    using OpenFlow_PluginFramework;
-    using OpenFlow_PluginFramework.NodeSystem.NodeComponents;
-    using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Visuals;
-    using OpenFlow_PluginFramework.NodeSystem.Nodes;
+    using Laminar_PluginFramework;
+    using Laminar_PluginFramework.NodeSystem.NodeComponents;
+    using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
+    using Laminar_PluginFramework.NodeSystem.Nodes;
     
     public class NodeSine : IFunctionNode
     {

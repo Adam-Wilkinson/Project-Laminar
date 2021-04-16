@@ -2,7 +2,7 @@
 using System.Reflection;
 using System.Runtime.Loader;
 
-namespace OpenFlow_Core.PluginManagement
+namespace Laminar_Core.PluginManagement
 {
     class PluginLoadContext : AssemblyLoadContext
     {

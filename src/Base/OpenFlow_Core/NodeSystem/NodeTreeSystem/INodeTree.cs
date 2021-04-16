@@ -1,9 +1,9 @@
-﻿using OpenFlow_Core.NodeSystem.Connection;
-using OpenFlow_Core.NodeSystem.Nodes;
+﻿using Laminar_Core.NodeSystem.Connection;
+using Laminar_Core.NodeSystem.Nodes;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
-namespace OpenFlow_Core.NodeSystem.NodeTreeSystem
+namespace Laminar_Core.NodeSystem.NodeTreeSystem
 {
     public interface INodeTree
     {

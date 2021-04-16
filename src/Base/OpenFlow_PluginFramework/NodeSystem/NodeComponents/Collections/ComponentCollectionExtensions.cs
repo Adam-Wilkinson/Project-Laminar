@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OpenFlow_PluginFramework.NodeSystem.NodeComponents.Collections
+namespace Laminar_PluginFramework.NodeSystem.NodeComponents.Collections
 {
     public static class ComponentCollectionExtensions
     {

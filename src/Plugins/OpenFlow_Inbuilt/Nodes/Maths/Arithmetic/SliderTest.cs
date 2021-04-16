@@ -1,15 +1,15 @@
-﻿using OpenFlow_PluginFramework;
-using OpenFlow_PluginFramework.NodeSystem.NodeComponents;
-using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Visuals;
-using OpenFlow_PluginFramework.NodeSystem.Nodes;
-using OpenFlow_PluginFramework.Primitives.TypeDefinition;
+﻿using Laminar_PluginFramework;
+using Laminar_PluginFramework.NodeSystem.NodeComponents;
+using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
+using Laminar_PluginFramework.NodeSystem.Nodes;
+using Laminar_PluginFramework.Primitives.TypeDefinition;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OpenFlow_Inbuilt.Nodes.Maths.Arithmetic
+namespace Laminar_Inbuilt.Nodes.Maths.Arithmetic
 {
     public class SliderTest : IFunctionNode
     {

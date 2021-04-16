@@ -1,10 +1,10 @@
-﻿using OpenFlow_PluginFramework.NodeSystem.Nodes;
-using OpenFlow_PluginFramework.Primitives;
+﻿using Laminar_PluginFramework.NodeSystem.Nodes;
+using Laminar_PluginFramework.Primitives;
 using System;
 using System.Collections;
 using System.ComponentModel;
 
-namespace OpenFlow_PluginFramework.NodeSystem.NodeComponents
+namespace Laminar_PluginFramework.NodeSystem.NodeComponents
 {
     public interface INodeComponent
     {

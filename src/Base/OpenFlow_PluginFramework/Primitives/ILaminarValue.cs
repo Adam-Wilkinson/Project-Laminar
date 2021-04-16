@@ -1,7 +1,7 @@
-﻿using OpenFlow_PluginFramework.Primitives.TypeDefinition;
+﻿using Laminar_PluginFramework.Primitives.TypeDefinition;
 using System.ComponentModel;
 
-namespace OpenFlow_PluginFramework.Primitives
+namespace Laminar_PluginFramework.Primitives
 {
     public interface ILaminarValue : INotifyPropertyChanged
     {

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OpenFlow_Core.Primitives
+namespace Laminar_Core.Primitives
 {
     public interface IPoint : INotifyPropertyChanged
     {

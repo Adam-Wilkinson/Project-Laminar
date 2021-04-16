@@ -1,10 +1,10 @@
-﻿using OpenFlow_Core.NodeSystem.Nodes;
-using OpenFlow_Core.NodeSystem.Nodes.NodeTypes;
-using OpenFlow_Core.Primitives;
-using OpenFlow_PluginFramework.NodeSystem.Nodes;
+﻿using Laminar_Core.NodeSystem.Nodes;
+using Laminar_Core.NodeSystem.Nodes.NodeTypes;
+using Laminar_Core.Primitives;
+using Laminar_PluginFramework.NodeSystem.Nodes;
 using System;
 
-namespace OpenFlow_Core.NodeSystem.Nodes
+namespace Laminar_Core.NodeSystem.Nodes
 {
     public class NodeFactory : INodeFactory
     {

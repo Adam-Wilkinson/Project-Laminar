@@ -1,9 +1,9 @@
-﻿using OpenFlow_PluginFramework.Registration;
+﻿using Laminar_PluginFramework.Registration;
 using System;
 using System.IO;
 using System.Reflection;
 
-namespace OpenFlow_Core.PluginManagement
+namespace Laminar_Core.PluginManagement
 {
     public class PluginLoader
     {

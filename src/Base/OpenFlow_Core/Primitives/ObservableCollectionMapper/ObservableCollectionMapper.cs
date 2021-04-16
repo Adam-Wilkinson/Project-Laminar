@@ -8,7 +8,7 @@ using System.Diagnostics;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OpenFlow_Core.Primitives.ObservableCollectionMapper
+namespace Laminar_Core.Primitives.ObservableCollectionMapper
 {
     public class ObservableCollectionMapper<TIn, TOut>
     {

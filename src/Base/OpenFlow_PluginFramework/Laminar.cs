@@ -1,11 +1,11 @@
-﻿using OpenFlow_PluginFramework.Primitives;
+﻿using Laminar_PluginFramework.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OpenFlow_PluginFramework
+namespace Laminar_PluginFramework
 {
     public static class Laminar
     {

@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Base\OpenFlow_Core\OpenFlow_Core.csproj" />
+    <ProjectReference Include="..\..\..\src\Base\OpenFlow_Core\Laminar_Core.csproj" />
   </ItemGroup>
 
 </Project>

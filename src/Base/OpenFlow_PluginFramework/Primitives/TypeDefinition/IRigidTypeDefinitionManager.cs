@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OpenFlow_PluginFramework.Primitives.TypeDefinition
+namespace Laminar_PluginFramework.Primitives.TypeDefinition
 {
     public interface IRigidTypeDefinitionManager : ITypeDefinitionProvider
     {

@@ -1,7 +1,7 @@
-﻿using OpenFlow_Core.NodeSystem.Nodes;
-using OpenFlow_PluginFramework.NodeSystem.Nodes;
+﻿using Laminar_Core.NodeSystem.Nodes;
+using Laminar_PluginFramework.NodeSystem.Nodes;
 
-namespace OpenFlow_Core.NodeSystem.Nodes
+namespace Laminar_Core.NodeSystem.Nodes
 {
     public interface INodeFactory
     {

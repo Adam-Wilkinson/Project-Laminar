@@ -1,11 +1,11 @@
-﻿using OpenFlow_PluginFramework.Primitives.TypeDefinition;
+﻿using Laminar_PluginFramework.Primitives.TypeDefinition;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OpenFlow_Core.Primitives.LaminarValue.TypeDefinition
+namespace Laminar_Core.Primitives.LaminarValue.TypeDefinition
 {
     public class ManualTypeDefinitionProvider : IManualTypeDefinitionProvider
     {

@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
-using OpenFlow_Core.NodeSystem;
-using OpenFlow_Core.Primitives.UserInterface;
-using OpenFlow_PluginFramework;
-using OpenFlow_Core.PluginManagement;
-using OpenFlow_Core.NodeSystem.Nodes;
+using Laminar_Core.NodeSystem;
+using Laminar_Core.Primitives.UserInterface;
+using Laminar_PluginFramework;
+using Laminar_Core.PluginManagement;
+using Laminar_Core.NodeSystem.Nodes;
 
-namespace OpenFlow_Core
+namespace Laminar_Core
 {
     public class Instance
     {

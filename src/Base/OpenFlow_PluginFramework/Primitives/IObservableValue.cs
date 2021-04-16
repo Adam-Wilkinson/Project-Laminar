@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 
-namespace OpenFlow_PluginFramework.Primitives
+namespace Laminar_PluginFramework.Primitives
 {
     public interface IObservableValue<T> : INotifyPropertyChanged
     {

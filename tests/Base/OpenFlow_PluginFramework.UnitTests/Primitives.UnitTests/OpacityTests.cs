@@ -1,8 +1,8 @@
 ﻿using FluentAssertions;
-using OpenFlow_Core.Primitives;
+using Laminar_Core.Primitives;
 using Xunit;
 
-namespace OpenFlow_Core.UnitTests.Primitives.UnitTests
+namespace Laminar_Core.UnitTests.Primitives.UnitTests
 {
     public class OpacityTests
     {

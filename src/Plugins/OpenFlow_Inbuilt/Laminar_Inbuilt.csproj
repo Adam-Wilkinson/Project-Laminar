@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <StyleCopTreatErrorsAsWarnings>True</StyleCopTreatErrorsAsWarnings>
+  </PropertyGroup>
+  <ItemGroup>
+	  <PackageReference Include="Avalonia" Version="0.10.0">
+		  <ExcludeAssets>runtime</ExcludeAssets>
+	  </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+	  <ProjectReference Include="..\..\Base\OpenFlow_PluginFramework\Laminar_PluginFramework.csproj">
+		  <Private>false</Private>
+		  <ExcludeAssets>runtime</ExcludeAssets>
+	  </ProjectReference>
+  </ItemGroup>
+</Project>

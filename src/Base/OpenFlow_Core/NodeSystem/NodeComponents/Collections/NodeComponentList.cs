@@ -1,10 +1,10 @@
-﻿using OpenFlow_PluginFramework.NodeSystem.NodeComponents;
-using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Collections;
-using OpenFlow_PluginFramework.Primitives;
+﻿using Laminar_PluginFramework.NodeSystem.NodeComponents;
+using Laminar_PluginFramework.NodeSystem.NodeComponents.Collections;
+using Laminar_PluginFramework.Primitives;
 using System;
 using System.Collections.Generic;
 
-namespace OpenFlow_Core.NodeSystem.NodeComponents.Collections
+namespace Laminar_Core.NodeSystem.NodeComponents.Collections
 {
     public class NodeComponentList : NodeComponentCollection, INodeComponentList
     {

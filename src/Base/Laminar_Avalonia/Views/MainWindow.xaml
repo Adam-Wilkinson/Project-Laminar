@@ -1,0 +1,19 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:Laminar_Avalonia.ViewModels;assembly=Laminar_Avalonia"
+        xmlns:nodes="clr-namespace:Laminar_Avalonia.NodeDisplaySystem;assembly=Laminar_Avalonia"
+		xmlns:coreNodes="clr-namespace:Laminar_Core.NodeSystemystem;assembly=Laminar_Core"
+        xmlns:additions ="clr-namespace:Laminar_Avalonia;assembly=Laminar_Avalonia"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        UseLayoutRounding="True"
+        mc:Ignorable="d" Width="1920" Height="1080"
+        x:Class="Laminar_Avalonia.Views.MainWindow"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="Project: Laminar"
+        DataContext="MainWindowViewModel">
+  <additions:ToolbarPanel DefaultWidth="250">
+    <nodes:NodePickerTabBar additions:ToolbarPanel.DockDirection="Top"/>
+    <nodes:ZoomBorder/>
+  </additions:ToolbarPanel>
+</Window>

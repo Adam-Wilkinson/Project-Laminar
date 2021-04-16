@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OpenFlow_PluginFramework.NodeSystem.Nodes
+namespace Laminar_PluginFramework.NodeSystem.Nodes
 {
     public interface ITriggerNode : INode
     {

@@ -1,10 +1,10 @@
-﻿using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Visuals;
-using OpenFlow_PluginFramework.Primitives;
+﻿using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
+using Laminar_PluginFramework.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace OpenFlow_Core.NodeSystem.Connection.ConnectorManagers
+namespace Laminar_Core.NodeSystem.Connection.ConnectorManagers
 {
     public interface IConnectorManager
     {

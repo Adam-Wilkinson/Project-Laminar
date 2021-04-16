@@ -1,8 +1,8 @@
 ﻿using System;
-using OpenFlow_PluginFramework.NodeSystem.Nodes;
-using OpenFlow_PluginFramework.Registration;
+using Laminar_PluginFramework.NodeSystem.Nodes;
+using Laminar_PluginFramework.Registration;
 
-namespace OpenFlow_Core.PluginManagement
+namespace Laminar_Core.PluginManagement
 {
     public class PluginHost : IPluginHost
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace OpenFlow_Core.NodeSystem.Connection
+namespace Laminar_Core.NodeSystem.Connection
 {
     public class NodeConnection : INodeConnection
     {

@@ -1,7 +1,7 @@
-﻿using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Visuals;
-using OpenFlow_PluginFramework.Primitives;
+﻿using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
+using Laminar_PluginFramework.Primitives;
 
-namespace OpenFlow_Core.NodeSystem.Connection
+namespace Laminar_Core.NodeSystem.Connection
 {
     public interface IConnector
     {

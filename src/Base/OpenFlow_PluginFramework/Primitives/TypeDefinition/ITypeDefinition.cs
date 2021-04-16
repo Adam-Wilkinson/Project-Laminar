@@ -1,4 +1,4 @@
-﻿namespace OpenFlow_PluginFramework.Primitives.TypeDefinition
+﻿namespace Laminar_PluginFramework.Primitives.TypeDefinition
 {
     using System;
 

@@ -1,4 +1,4 @@
-﻿namespace OpenFlow_Core.Primitives.UserInterface
+﻿namespace Laminar_Core.Primitives.UserInterface
 {
     using System;
     using System.Collections.Generic;

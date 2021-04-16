@@ -1,15 +1,15 @@
-﻿using OpenFlow_PluginFramework.NodeSystem.NodeComponents;
-using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Collections;
-using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Visuals;
-using OpenFlow_PluginFramework.Primitives;
-using OpenFlow_PluginFramework.Primitives.TypeDefinition;
+﻿using Laminar_PluginFramework.NodeSystem.NodeComponents;
+using Laminar_PluginFramework.NodeSystem.NodeComponents.Collections;
+using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
+using Laminar_PluginFramework.Primitives;
+using Laminar_PluginFramework.Primitives.TypeDefinition;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OpenFlow_PluginFramework
+namespace Laminar_PluginFramework
 {
     public class Constructor
     {

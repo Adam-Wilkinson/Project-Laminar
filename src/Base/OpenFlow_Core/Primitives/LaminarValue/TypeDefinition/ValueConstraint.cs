@@ -1,11 +1,11 @@
-﻿using OpenFlow_PluginFramework.Primitives;
+﻿using Laminar_PluginFramework.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OpenFlow_Core.Primitives.LaminarValue.TypeDefinition
+namespace Laminar_Core.Primitives.LaminarValue.TypeDefinition
 {
     /// <summary>
     /// Defines a constraint which is part of a chain, with a name and a value

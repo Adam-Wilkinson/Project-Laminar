@@ -1,4 +1,4 @@
-﻿using OpenFlow_PluginFramework.Primitives;
+﻿using Laminar_PluginFramework.Primitives;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OpenFlow_Core.Primitives
+namespace Laminar_Core.Primitives
 {
     /// <summary>
     /// Defines the opacity of a displayed object

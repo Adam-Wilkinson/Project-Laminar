@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace OpenFlow_Core.Primitives.UserInterface
+namespace Laminar_Core.Primitives.UserInterface
 {
     public interface IUserInterfaceRegister
     {

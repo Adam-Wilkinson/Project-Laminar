@@ -1,0 +1,72 @@
+﻿<Styles 
+  xmlns = "https://github.com/avaloniaui"
+  xmlns:x = "http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:tp = "clr-namespace:Laminar_Avalonia;assembly=Laminar_Avalonia"
+  xmlns:tpUtils = "clr-namespace:Laminar_Avalonia.ToolbarPanelSystem;assembly=Laminar_Avalonia">
+
+  <Design.PreviewWith>
+    <StackPanel Spacing="20" Margin="20">
+      <tpUtils:Grip Height="100"/>
+      <Line Classes="ResizingLine" StartPoint="0,0" EndPoint="20,0"/>
+    </StackPanel>
+  </Design.PreviewWith>
+
+  <Style Selector="tp|ToolbarPanel">
+    <Setter Property="Background" Value="#222222"/>
+  </Style>
+  
+  <Style Selector="tpUtils|Grip">
+    <Setter Property="Opacity" Value="1"/>
+    <Setter Property="Cursor" Value="SizeAll"/>
+    <Setter Property="Width" Value="12"/>
+    <Setter Property="Background" Value="{DynamicResource ThemeBackgroundBrush}"/>
+    <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundBrush}"/>
+    <Setter Property="BorderThickness" Value="{DynamicResource ThemeBorderThickness}"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderLowBrush}"/>
+    
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Background="{TemplateBinding Background}" 
+                Cursor="{TemplateBinding Cursor}"
+                BorderThickness="{TemplateBinding BorderThickness}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                CornerRadius="6,0,0,6">
+          <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top" Spacing="3">
+          </StackPanel>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+    
+    <Setter Property="Transitions">
+      <Transitions>
+        <DoubleTransition Property="Opacity" Duration="0:0:0.1"/>
+        <DoubleTransition Property="Width" Duration="0:0:0.1"/>
+      </Transitions>
+    </Setter>
+  </Style>
+  
+  <Style Selector="tpUtils|Grip:pointerover">
+    <Setter Property="Opacity" Value="1"/>
+    <Setter Property="Width" Value="15"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderHighBrush}"/>
+  </Style>
+
+  <Style Selector="Line.ResizingLine">
+    <Setter Property="Opacity" Value="1"/>
+    <Setter Property="tp:ToolbarPanel.DockDirection" Value="None"/>
+    <Setter Property="Stroke" Value="{DynamicResource ThemeBorderLowBrush}"/>
+    <Setter Property="StrokeThickness" Value="6"/>
+    <Setter Property="Transitions">
+      <Transitions>
+        <DoubleTransition Property="Opacity" Duration="0:0:0.1"/>
+        <DoubleTransition Property="StrokeThickness" Duration="0:0:0.1"/>
+      </Transitions>
+    </Setter>
+  </Style>
+
+  <Style Selector="Line.ResizingLine:pointerover">
+    <Setter Property="Opacity" Value="1"/>
+    <Setter Property="StrokeThickness" Value="8"/>
+    <Setter Property="Stroke" Value="{DynamicResource ThemeBorderMidBrush}"/>
+  </Style>
+</Styles>

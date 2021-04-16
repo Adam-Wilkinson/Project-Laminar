@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace OpenFlow_Core.Primitives
+namespace Laminar_Core.Primitives
 {
     public class Point : IPoint
     {

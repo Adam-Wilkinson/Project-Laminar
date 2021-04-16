@@ -1,12 +1,12 @@
-﻿namespace OpenFlow_Core.NodeSystem.NodeComponents
+﻿namespace Laminar_Core.NodeSystem.NodeComponents
 {
     using System;
     using System.Collections;
     using System.ComponentModel;
     using System.Runtime.CompilerServices;
-    using OpenFlow_PluginFramework.NodeSystem.NodeComponents;
-    using OpenFlow_PluginFramework.NodeSystem.Nodes;
-    using OpenFlow_PluginFramework.Primitives;
+    using Laminar_PluginFramework.NodeSystem.NodeComponents;
+    using Laminar_PluginFramework.NodeSystem.Nodes;
+    using Laminar_PluginFramework.Primitives;
 
     public abstract class NodeComponent : INotifyPropertyChanged, INodeComponent
     {

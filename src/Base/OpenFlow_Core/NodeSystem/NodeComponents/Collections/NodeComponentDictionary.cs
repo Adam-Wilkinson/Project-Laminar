@@ -1,12 +1,12 @@
-﻿using OpenFlow_PluginFramework.NodeSystem.NodeComponents;
-using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Collections;
-using OpenFlow_PluginFramework.Primitives;
+﻿using Laminar_PluginFramework.NodeSystem.NodeComponents;
+using Laminar_PluginFramework.NodeSystem.NodeComponents.Collections;
+using Laminar_PluginFramework.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
-namespace OpenFlow_Core.NodeSystem.NodeComponents.Collections
+namespace Laminar_Core.NodeSystem.NodeComponents.Collections
 {
     public class NodeComponentDictionary : NodeComponentCollection, IDictionary<object, INodeComponent>, INodeComponentDictionary
     {

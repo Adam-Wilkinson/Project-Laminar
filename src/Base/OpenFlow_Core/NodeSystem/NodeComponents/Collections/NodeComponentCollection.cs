@@ -1,4 +1,4 @@
-﻿namespace OpenFlow_Core.NodeSystem.NodeComponents.Collections
+﻿namespace Laminar_Core.NodeSystem.NodeComponents.Collections
 {
     using System;
     using System.Collections;
@@ -6,11 +6,11 @@
     using System.Collections.ObjectModel;
     using System.Collections.Specialized;
     using System.Linq;
-    using OpenFlow_PluginFramework;
-    using OpenFlow_PluginFramework.NodeSystem.NodeComponents;
-    using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Collections;
-    using OpenFlow_PluginFramework.NodeSystem.Nodes;
-    using OpenFlow_PluginFramework.Primitives;
+    using Laminar_PluginFramework;
+    using Laminar_PluginFramework.NodeSystem.NodeComponents;
+    using Laminar_PluginFramework.NodeSystem.NodeComponents.Collections;
+    using Laminar_PluginFramework.NodeSystem.Nodes;
+    using Laminar_PluginFramework.Primitives;
 
     /// <summary>
     /// Defines a read only collection of NodeComponents, with protected list methods for children to make public

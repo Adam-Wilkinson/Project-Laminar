@@ -1,9 +1,9 @@
-﻿using OpenFlow_PluginFramework.Primitives;
+﻿using Laminar_PluginFramework.Primitives;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 
-namespace OpenFlow_Core.Primitives
+namespace Laminar_Core.Primitives
 {
     public class ObservableValue<T> : IObservableValue<T>
     {

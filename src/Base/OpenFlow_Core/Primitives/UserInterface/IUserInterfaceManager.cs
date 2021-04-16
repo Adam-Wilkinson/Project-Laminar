@@ -1,6 +1,6 @@
-﻿using OpenFlow_PluginFramework.Primitives;
+﻿using Laminar_PluginFramework.Primitives;
 
-namespace OpenFlow_Core.Primitives.UserInterface
+namespace Laminar_Core.Primitives.UserInterface
 {
     public interface IUserInterfaceManager
     {

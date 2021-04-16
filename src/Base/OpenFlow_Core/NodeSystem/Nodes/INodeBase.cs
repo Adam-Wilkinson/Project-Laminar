@@ -1,11 +1,11 @@
-﻿using OpenFlow_Core.NodeSystem.NodeComponents.Visuals;
-using OpenFlow_Core.Primitives;
-using OpenFlow_PluginFramework.NodeSystem.Nodes;
-using OpenFlow_PluginFramework.Primitives;
+﻿using Laminar_Core.NodeSystem.NodeComponents.Visuals;
+using Laminar_Core.Primitives;
+using Laminar_PluginFramework.NodeSystem.Nodes;
+using Laminar_PluginFramework.Primitives;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 
-namespace OpenFlow_Core.NodeSystem.Nodes
+namespace Laminar_Core.NodeSystem.Nodes
 {
     public interface INodeBase
     {

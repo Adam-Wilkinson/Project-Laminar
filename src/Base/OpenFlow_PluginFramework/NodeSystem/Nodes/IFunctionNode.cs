@@ -1,4 +1,4 @@
-﻿namespace OpenFlow_PluginFramework.NodeSystem.Nodes
+﻿namespace Laminar_PluginFramework.NodeSystem.Nodes
 {
     public interface IFunctionNode : INode
     {

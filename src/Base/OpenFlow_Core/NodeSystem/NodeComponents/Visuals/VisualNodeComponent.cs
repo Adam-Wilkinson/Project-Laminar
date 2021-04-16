@@ -1,10 +1,10 @@
-﻿namespace OpenFlow_Core.NodeSystem.NodeComponents.Visuals
+﻿namespace Laminar_Core.NodeSystem.NodeComponents.Visuals
 {
     using System.Collections;
     using System.Collections.Generic;
-    using OpenFlow_PluginFramework.NodeSystem.NodeComponents;
-    using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Visuals;
-    using OpenFlow_PluginFramework.Primitives;
+    using Laminar_PluginFramework.NodeSystem.NodeComponents;
+    using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
+    using Laminar_PluginFramework.Primitives;
 
     public abstract class VisualNodeComponent : NodeComponent, IVisualNodeComponent
     {

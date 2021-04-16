@@ -1,7 +1,7 @@
-﻿using OpenFlow_PluginFramework.NodeSystem.Nodes;
+﻿using Laminar_PluginFramework.NodeSystem.Nodes;
 using System;
 
-namespace OpenFlow_PluginFramework.NodeSystem.NodeComponents.Collections
+namespace Laminar_PluginFramework.NodeSystem.NodeComponents.Collections
 {
     public interface INodeComponentAutoCloner : INodeComponentCollection
     {

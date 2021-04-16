@@ -1,7 +1,7 @@
-﻿using OpenFlow_PluginFramework.NodeSystem.NodeComponents;
+﻿using Laminar_PluginFramework.NodeSystem.NodeComponents;
 using System.Collections.Generic;
 
-namespace OpenFlow_PluginFramework.NodeSystem.Nodes
+namespace Laminar_PluginFramework.NodeSystem.Nodes
 {
     public interface INode
     {

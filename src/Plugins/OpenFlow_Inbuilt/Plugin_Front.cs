@@ -1,15 +1,15 @@
 ﻿using System;
-using OpenFlow_Inbuilt.Nodes.Flow;
-using OpenFlow_Inbuilt.Nodes.Maths.Arithmetic;
-using OpenFlow_Inbuilt.Nodes.Maths.Functions;
-using OpenFlow_Inbuilt.Nodes.StringOperations;
-using OpenFlow_PluginFramework.Registration;
-using OpenFlow_Inbuilt.Nodes.Maths.Comparisons;
+using Laminar_Inbuilt.Nodes.Flow;
+using Laminar_Inbuilt.Nodes.Maths.Arithmetic;
+using Laminar_Inbuilt.Nodes.Maths.Functions;
+using Laminar_Inbuilt.Nodes.StringOperations;
+using Laminar_PluginFramework.Registration;
+using Laminar_Inbuilt.Nodes.Maths.Comparisons;
 using Avalonia.Controls;
-using OpenFlow_Inbuilt.UserControls;
-using OpenFlow_PluginFramework.Primitives;
+using Laminar_Inbuilt.UserControls;
+using Laminar_PluginFramework.Primitives;
 
-namespace OpenFlow_Inbuilt
+namespace Laminar_Inbuilt
 {
     public class Plugin_Front : IPlugin
     {

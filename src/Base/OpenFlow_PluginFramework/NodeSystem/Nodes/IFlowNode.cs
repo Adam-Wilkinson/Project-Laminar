@@ -1,6 +1,6 @@
-﻿namespace OpenFlow_PluginFramework.NodeSystem.Nodes
+﻿namespace Laminar_PluginFramework.NodeSystem.Nodes
 {
-    using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Visuals;
+    using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
 
     public interface IFlowNode : IFunctionNode
     {

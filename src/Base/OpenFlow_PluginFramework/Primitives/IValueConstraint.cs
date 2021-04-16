@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace OpenFlow_PluginFramework.Primitives
+namespace Laminar_PluginFramework.Primitives
 {
     public interface IValueConstraint<T>
     {

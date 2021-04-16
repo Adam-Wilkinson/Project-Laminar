@@ -1,6 +1,6 @@
-﻿using OpenFlow_PluginFramework.NodeSystem.NodeComponents;
-using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Collections;
-using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Visuals;
+﻿using Laminar_PluginFramework.NodeSystem.NodeComponents;
+using Laminar_PluginFramework.NodeSystem.NodeComponents.Collections;
+using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,7 +8,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Diagnostics;
 
-namespace OpenFlow_Core.NodeSystem.NodeComponents.Collections
+namespace Laminar_Core.NodeSystem.NodeComponents.Collections
 {
     public class VisualComponentsOfCollection : INotifyCollectionChanged, IList, IList<IVisualNodeComponent>
     {

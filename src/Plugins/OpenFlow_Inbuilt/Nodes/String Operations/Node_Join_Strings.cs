@@ -1,11 +1,11 @@
-﻿namespace OpenFlow_Inbuilt.Nodes.StringOperations
+﻿namespace Laminar_Inbuilt.Nodes.StringOperations
 {
     using System.Collections.Generic;
-    using OpenFlow_PluginFramework.NodeSystem.NodeComponents;
-    using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Visuals;
-    using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Collections;
-    using OpenFlow_PluginFramework.NodeSystem.Nodes;
-    using OpenFlow_PluginFramework;
+    using Laminar_PluginFramework.NodeSystem.NodeComponents;
+    using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
+    using Laminar_PluginFramework.NodeSystem.NodeComponents.Collections;
+    using Laminar_PluginFramework.NodeSystem.Nodes;
+    using Laminar_PluginFramework;
 
     public class Node_Join_Strings : IFunctionNode
     {

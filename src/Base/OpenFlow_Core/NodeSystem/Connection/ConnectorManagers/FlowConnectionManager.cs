@@ -1,14 +1,14 @@
-﻿using OpenFlow_Core.NodeSystem.Nodes;
-using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Visuals;
-using OpenFlow_PluginFramework.NodeSystem.Nodes;
-using OpenFlow_PluginFramework.Primitives;
+﻿using Laminar_Core.NodeSystem.Nodes;
+using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
+using Laminar_PluginFramework.NodeSystem.Nodes;
+using Laminar_PluginFramework.Primitives;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace OpenFlow_Core.NodeSystem.Connection.ConnectorManagers
+namespace Laminar_Core.NodeSystem.Connection.ConnectorManagers
 {
     public class FlowConnectionManager : IConnectorManager
     {

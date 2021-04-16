@@ -1,7 +1,7 @@
-﻿namespace OpenFlow_Core.Primitives.LaminarValue
+﻿namespace Laminar_Core.Primitives.LaminarValue
 {
-    using OpenFlow_PluginFramework.Primitives;
-    using OpenFlow_PluginFramework.Primitives.TypeDefinition;
+    using Laminar_PluginFramework.Primitives;
+    using Laminar_PluginFramework.Primitives.TypeDefinition;
     using System.ComponentModel;
     using System.Diagnostics;
 

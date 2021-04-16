@@ -1,10 +1,10 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
-using OpenFlow_PluginFramework.Primitives;
+using Laminar_PluginFramework.Primitives;
 using System.Diagnostics;
 
-namespace OpenFlow_Inbuilt.UserControls
+namespace Laminar_Inbuilt.UserControls
 {
     public class EnumEditor : UserControl
     {

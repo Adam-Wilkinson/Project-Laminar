@@ -1,12 +1,12 @@
-﻿using OpenFlow_Core.Primitives;
-using OpenFlow_PluginFramework.Primitives;
+﻿using Laminar_Core.Primitives;
+using Laminar_PluginFramework.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OpenFlow_Core.NodeSystem.Nodes
+namespace Laminar_Core.NodeSystem.Nodes
 {
     public class NodeDependencyAggregate : ObjectFactory.IDependencyAggregate
     {

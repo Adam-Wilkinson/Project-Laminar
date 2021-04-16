@@ -2,7 +2,7 @@
 using System.IO;
 using System.Linq;
 
-namespace OpenFlow_Core.PluginManagement
+namespace Laminar_Core.PluginManagement
 {
     static class InbuiltPluginFinder
     {

@@ -2,7 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 
-namespace OpenFlow_Inbuilt.UserControls
+namespace Laminar_Inbuilt.UserControls
 {
     public class SliderEditor : UserControl
     {

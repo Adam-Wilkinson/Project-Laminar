@@ -1,5 +1,4 @@
-﻿using OpenFlow_Core.Management;
-using OpenFlow_PluginFramework.Primitives;
+﻿using Laminar_PluginFramework.Primitives;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -8,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OpenFlow_Core.Primitives.UserInterface
+namespace Laminar_Core.Primitives.UserInterface
 {
     public class UserInterfaceManager : IUserInterfaceManager
     {

@@ -1,8 +1,8 @@
-﻿using OpenFlow_PluginFramework.Primitives;
-using OpenFlow_PluginFramework.Primitives.TypeDefinition;
+﻿using Laminar_PluginFramework.Primitives;
+using Laminar_PluginFramework.Primitives.TypeDefinition;
 using System;
 
-namespace OpenFlow_PluginFramework.NodeSystem.NodeComponents.Visuals
+namespace Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals
 {
     public interface INodeField : IVisualNodeComponent
     {

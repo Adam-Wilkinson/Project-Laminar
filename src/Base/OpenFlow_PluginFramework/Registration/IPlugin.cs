@@ -1,6 +1,6 @@
-﻿using OpenFlow_PluginFramework.Primitives;
+﻿using Laminar_PluginFramework.Primitives;
 
-namespace OpenFlow_PluginFramework.Registration
+namespace Laminar_PluginFramework.Registration
 {
     /// <summary>
     /// Defines the class whcih registers a plugin with the <see cref="IPluginHost"/>

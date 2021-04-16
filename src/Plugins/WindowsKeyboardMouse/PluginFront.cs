@@ -1,5 +1,5 @@
-﻿using OpenFlow_PluginFramework.Primitives;
-using OpenFlow_PluginFramework.Registration;
+﻿using Laminar_PluginFramework.Primitives;
+using Laminar_PluginFramework.Registration;
 using WindowsKeyboardMouse.Nodes.Mouse.Triggers;
 using WindowsKeyboardMouse.Nodes.Keyboard.Triggers;
 using WindowsKeyboardMouse.Nodes.Keyboard.Output;

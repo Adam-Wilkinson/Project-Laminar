@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OpenFlow_Core.Primitives.ObservableCollectionMapper
+namespace Laminar_Core.Primitives.ObservableCollectionMapper
 {
     public interface ITypeMapper<TIn, TOut>
     {

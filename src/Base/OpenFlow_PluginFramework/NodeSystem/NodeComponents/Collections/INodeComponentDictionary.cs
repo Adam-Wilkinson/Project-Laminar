@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
-namespace OpenFlow_PluginFramework.NodeSystem.NodeComponents.Collections
+namespace Laminar_PluginFramework.NodeSystem.NodeComponents.Collections
 {
     public interface INodeComponentDictionary : INodeComponentCollection, IDictionary<object, INodeComponent>
     {

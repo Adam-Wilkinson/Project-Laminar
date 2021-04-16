@@ -1,6 +1,6 @@
-﻿namespace OpenFlow_PluginFramework.Registration
+﻿namespace Laminar_PluginFramework.Registration
 {
-    using OpenFlow_PluginFramework.NodeSystem.Nodes;
+    using Laminar_PluginFramework.NodeSystem.Nodes;
     using System;
 
     /// <summary>
