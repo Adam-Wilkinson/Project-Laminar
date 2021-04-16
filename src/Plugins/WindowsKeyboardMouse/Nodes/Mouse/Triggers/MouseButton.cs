@@ -8,13 +8,13 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using WindowsKeyboardMouse.Primitives;
+using WindowsHook;
 
 namespace WindowsKeyboardMouse.Nodes.Mouse.Triggers
 {
     public class MouseButton : IFunctionNode
     {
-        private readonly INodeField mouseButtonOutput = Constructor.NodeField("Mouse Button ").WithValue<MouseButtonEnum>("Display", true).WithOutput<MouseButtonEnum>();
+        private readonly INodeField mouseButtonOutput = Constructor.NodeField("Mouse Button ").WithValue<MouseButtons>("Display", true).WithOutput<MouseButtons>();
 
         public string NodeName => "Mouse Button";
 

@@ -7,13 +7,12 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using WindowsHook;
-using WindowsKeyboardMouse.Primitives;
 
 namespace WindowsKeyboardMouse.Nodes.Keyboard.Triggers
 {
     public class KeyboardButtonTrigger : ITriggerNode
     {
-        private readonly INodeField KeyField = Constructor.NodeField("Trigger Key").WithInput<KeyboardButtonEnum>();
+        private readonly INodeField KeyField = Constructor.NodeField("Trigger Key").WithInput<Keys>();
         private readonly INodeField SuppressKey = Constructor.NodeField("Suppress Key").WithInput<bool>();
 
         private Keys _triggerKey;
@@ -52,7 +51,7 @@ namespace WindowsKeyboardMouse.Nodes.Keyboard.Triggers
         {
             if (e.PropertyName is nameof(ILaminarValue.Value))
             {
-                _triggerKey = EnumConverters.KeyboardButton(KeyField.GetInput<KeyboardButtonEnum>());
+                _triggerKey = KeyField.GetInput<Keys>();
             }
         }
     }

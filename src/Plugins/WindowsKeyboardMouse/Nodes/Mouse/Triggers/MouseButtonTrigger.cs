@@ -7,13 +7,12 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using WindowsHook;
-using WindowsKeyboardMouse.Primitives;
 
 namespace WindowsKeyboardMouse.Nodes.Mouse.Triggers
 {
     public class MouseButtonTrigger : ITriggerNode
     {
-        private readonly INodeField MouseButton = Constructor.NodeField("Mouse Button").WithInput<MouseButtonEnum>();
+        private readonly INodeField MouseButton = Constructor.NodeField("Mouse Button").WithInput<MouseButtons>();
         private MouseButtons _buttonToListenFor;
 
         public event EventHandler Trigger;
@@ -40,7 +39,7 @@ namespace WindowsKeyboardMouse.Nodes.Mouse.Triggers
         {
             if (e.PropertyName is nameof(ILaminarValue.Value))
             {
-                _buttonToListenFor = EnumConverters.MouseButton(MouseButton.GetInput<MouseButtonEnum>());
+                _buttonToListenFor = MouseButton.GetInput<MouseButtons>();
             }
         }
 

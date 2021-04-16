@@ -5,7 +5,7 @@ using OpenFlow_PluginFramework.NodeSystem.Nodes;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading;
-using WindowsKeyboardMouse.Primitives;
+using WindowsHook;
 
 namespace WindowsKeyboardMouse.Nodes.Keyboard.Output
 {
@@ -13,7 +13,7 @@ namespace WindowsKeyboardMouse.Nodes.Keyboard.Output
     {
         const uint KEYEVENTF_EXTENDEDKEY = 0x0001;
 
-        private readonly INodeField keyField = Constructor.NodeField("Key To Press").WithInput<KeyboardButtonEnum>();
+        private readonly INodeField keyField = Constructor.NodeField("Key To Press").WithInput<Keys>();
         private readonly INodeField numberOfPresses = Constructor.NodeField("Number of Presses").WithInput<double>();
         private readonly INodeField delay = Constructor.NodeField("Press Delay").WithInput(10.0);
 
@@ -41,7 +41,7 @@ namespace WindowsKeyboardMouse.Nodes.Keyboard.Output
         {
             for (int i = 0; i < numberOfPresses.GetInput<double>(); i++)
             {
-                PressVirtualKey((byte)keyField.GetInput<KeyboardButtonEnum>());
+                PressVirtualKey((byte)keyField.GetInput<Keys>());
                 Thread.Sleep((int)delay.GetInput<double>());
             }
         }
