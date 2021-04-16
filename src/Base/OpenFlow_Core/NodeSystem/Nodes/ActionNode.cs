@@ -1,4 +1,5 @@
-﻿using OpenFlow_PluginFramework;
+﻿using OpenFlow_Core.NodeSystem.NodeComponents.Visuals;
+using OpenFlow_PluginFramework;
 using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Visuals;
 using OpenFlow_PluginFramework.NodeSystem.Nodes;
 using System;
@@ -14,8 +15,10 @@ namespace OpenFlow_Core.NodeSystem.Nodes
         public ActionNode(NodeDependencyAggregate dependencies) 
             : base(dependencies)
         {
-            FieldList.Insert(0, Constructor.NodeLabel("Flow").WithFlowInput().WithFlowOutput());
+            INodeLabel FlowOut = Constructor.NodeLabel("Flow").WithFlowInput().WithFlowOutput();
+            FieldList.Insert(0, FlowOut);
             FieldList.Insert(1, Constructor.Separator());
+            FlowOutContainer = GetContainer(FlowOut);
         }
     }
 }

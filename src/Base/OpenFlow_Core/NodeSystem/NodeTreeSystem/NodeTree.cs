@@ -19,7 +19,7 @@ namespace OpenFlow_Core.NodeSystem.NodeTreeSystem
             _connectionFactory = connectionFactory;
             Nodes = new(_nodes);
 
-            INodeBase flowSourceNode = _nodeFactory.Get<FlowSourceNode>();
+            INodeBase flowSourceNode = _nodeFactory.Get<ManualTriggerNode>();
             flowSourceNode.MakeLive();
             AddNode(flowSourceNode);
         }

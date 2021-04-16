@@ -30,11 +30,11 @@ namespace WindowsKeyboardMouse.Nodes.Keyboard.Output
         public string NodeName { get; } = "Key Presser";
 
         [DllImport("user32.dll")]
-        private static extern void KEYBD_EVENT(byte bVk, byte bScan, uint dwFlags, uint dwExtraInfo);
+        private static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, uint dwExtraInfo);
 
         public static void PressVirtualKey(byte bVk)
         {
-            KEYBD_EVENT(bVk, 0, KEYEVENTF_EXTENDEDKEY | 0, 0);
+            keybd_event(bVk, 0, KEYEVENTF_EXTENDEDKEY | 0, 0);
         }
 
         public void Evaluate()

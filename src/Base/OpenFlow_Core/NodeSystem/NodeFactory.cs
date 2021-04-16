@@ -11,6 +11,11 @@ namespace OpenFlow_Core.NodeSystem
         {
             NodeDependencyAggregate dependencies = Instance.Factory.CreateInstance<NodeDependencyAggregate>();
 
+            if (typeof(IFlowNode).IsAssignableFrom(typeof(T)))
+            {
+                return new FlowNode<T>(dependencies);
+            }
+
             if (typeof(IActionNode).IsAssignableFrom(typeof(T)))
             {
                 return new ActionNode<T>(dependencies);

@@ -8,7 +8,7 @@ using OpenFlow_PluginFramework.NodeSystem.Nodes;
 
 namespace OpenFlow_Core.NodeSystem.Nodes
 {
-    public class FlowSourceNode : ITriggerNode
+    public class ManualTriggerNode : ITriggerNode
     {
         private readonly INodeField _sourceField = Constructor.NodeField("Manual Trigger").WithValue("Displayed", Constructor.ManualTypeDefinitionManager().WithAcceptedDefinition(Constructor.TypeDefinition<Action>(null)), false);
 

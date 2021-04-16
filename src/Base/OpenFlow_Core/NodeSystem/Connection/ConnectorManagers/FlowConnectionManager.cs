@@ -79,17 +79,16 @@ namespace OpenFlow_Core.NodeSystem.Connection.ConnectorManagers
 
         public void Activate()
         {
+            INodeBase parentNodeBase = INodeBase.NodeBases[_parentComponent.ParentNode];
+
             if (_connectorType is ConnectorType.Input)
             {
-                INodeBase.NodeBases[_parentComponent.ParentNode].Update();
+                parentNodeBase.Update();
                 FlashColourChange();
             }
             
 
-            if (_connectorType is ConnectorType.Output && 
-                ((_parentComponent.ParentNode is IFlowNode parentFlowNode && parentFlowNode.FlowOutComponent == _parentComponent) || 
-                _parentComponent.ParentNode is ITriggerNode ||
-                _parentComponent.ParentNode is IActionNode))
+            if (_connectorType is ConnectorType.Output && parentNodeBase.FlowOutContainer?.Child == _parentComponent)
             {
                 FlashColourChange();
                 _pairedConnection?.Activate();

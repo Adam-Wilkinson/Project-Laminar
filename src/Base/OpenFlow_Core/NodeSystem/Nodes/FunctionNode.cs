@@ -11,7 +11,7 @@ namespace OpenFlow_Core.NodeSystem.Nodes
 {
     public class FunctionNode<T> : NodeBase<T> where T : INode
     {
-        bool IsLive = false;
+        bool _isLive = false;
 
         public FunctionNode(NodeDependencyAggregate dependencies) 
             : base(dependencies)
@@ -20,17 +20,17 @@ namespace OpenFlow_Core.NodeSystem.Nodes
 
         public override void MakeLive()
         {
-            IsLive = true;
+            _isLive = true;
         }
 
         public override void Update()
         {
-            if (!IsLive)
+            if (!_isLive)
             {
                 return;
             }
 
-            IsLive = false;
+            _isLive = false;
 
             foreach (IVisualNodeComponentContainer component in (IList)Fields)
             {
@@ -39,7 +39,7 @@ namespace OpenFlow_Core.NodeSystem.Nodes
 
             try
             {
-                (BaseNode as IFunctionNode).Evaluate();
+                TriggerEvaluate();
                 ErrorState.Value = false;
             }
             catch
@@ -52,7 +52,12 @@ namespace OpenFlow_Core.NodeSystem.Nodes
                 component.OutputConnector.Activate();
             }
 
-            IsLive = true;
+            _isLive = true;
+        }
+
+        protected virtual void TriggerEvaluate()
+        {
+            (BaseNode as IFunctionNode).Evaluate();
         }
     }
 }

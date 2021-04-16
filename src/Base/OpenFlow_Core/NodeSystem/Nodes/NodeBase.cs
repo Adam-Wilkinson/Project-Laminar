@@ -8,6 +8,7 @@ using OpenFlow_Core.NodeSystem.NodeComponents.Visuals;
 using OpenFlow_Core.Primitives.ObservableCollectionMapper;
 using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Visuals;
 using OpenFlow_Core.Primitives;
+using System.Collections.Generic;
 
 namespace OpenFlow_Core.NodeSystem.Nodes
 {
@@ -38,6 +39,8 @@ namespace OpenFlow_Core.NodeSystem.Nodes
 
         public INotifyCollectionChanged Fields { get; }
 
+        public IVisualNodeComponentContainer FlowOutContainer { get; protected set; }
+
         public virtual INodeBase DuplicateNode() => new NodeFactory().Get<T>();// new NodeBase((INode)Activator.CreateInstance(_baseNode.GetType()), Instance.Factory.CreateInstance<NodeDependencyAggregate>());
 
         public virtual void Update()
@@ -46,6 +49,11 @@ namespace OpenFlow_Core.NodeSystem.Nodes
 
         public virtual void MakeLive()
         {
+        }
+
+        protected IVisualNodeComponentContainer GetContainer(IVisualNodeComponent component)
+        {
+            return ((IList<IVisualNodeComponentContainer>)Fields)[FieldList.VisualComponentList.IndexOf(component)];
         }
     }
 }

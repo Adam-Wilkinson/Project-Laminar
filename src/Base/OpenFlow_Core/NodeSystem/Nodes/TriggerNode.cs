@@ -17,6 +17,7 @@ namespace OpenFlow_Core.NodeSystem.Nodes
         {
             (BaseNode as ITriggerNode).Trigger += TriggerNode_Trigger;
             FieldList.Insert(0, FlowOut);
+            FlowOutContainer = GetContainer(FlowOut);
         }
 
         public override void MakeLive()
@@ -26,7 +27,7 @@ namespace OpenFlow_Core.NodeSystem.Nodes
 
         private void TriggerNode_Trigger(object sender, EventArgs e)
         {
-             ((IList<IVisualNodeComponentContainer>)Fields)[FieldList.IndexOf(FlowOut)].OutputConnector?.Activate();
+             FlowOutContainer.OutputConnector?.Activate();
         }
     }
 }

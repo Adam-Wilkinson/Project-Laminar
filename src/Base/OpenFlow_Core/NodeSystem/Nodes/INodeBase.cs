@@ -1,4 +1,5 @@
-﻿using OpenFlow_Core.Primitives;
+﻿using OpenFlow_Core.NodeSystem.NodeComponents.Visuals;
+using OpenFlow_Core.Primitives;
 using OpenFlow_PluginFramework.NodeSystem.Nodes;
 using OpenFlow_PluginFramework.Primitives;
 using System.Collections.Generic;
@@ -21,6 +22,8 @@ namespace OpenFlow_Core.NodeSystem.Nodes
         void MakeLive();
 
         void Update();
+
+        IVisualNodeComponentContainer FlowOutContainer { get; }
 
         INodeBase DuplicateNode();
     }
