@@ -10,7 +10,7 @@ using OpenFlow_PluginFramework.NodeSystem.NodeComponents.Visuals;
 using OpenFlow_Core.Primitives;
 using System.Collections.Generic;
 
-namespace OpenFlow_Core.NodeSystem.Nodes
+namespace OpenFlow_Core.NodeSystem.Nodes.NodeTypes
 {
     public class NodeBase<T> : INodeBase where T : INode
     {

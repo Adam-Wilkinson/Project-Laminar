@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OpenFlow_Core.NodeSystem.Nodes
+namespace OpenFlow_Core.NodeSystem.Nodes.NodeTypes
 {
     public class FlowNode<T> : FunctionNode<T> where T : INode
     {

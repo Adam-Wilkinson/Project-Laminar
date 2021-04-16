@@ -1,9 +1,10 @@
 ﻿using OpenFlow_Core.NodeSystem.Nodes;
+using OpenFlow_Core.NodeSystem.Nodes.NodeTypes;
 using OpenFlow_Core.Primitives;
 using OpenFlow_PluginFramework.NodeSystem.Nodes;
 using System;
 
-namespace OpenFlow_Core.NodeSystem
+namespace OpenFlow_Core.NodeSystem.Nodes
 {
     public class NodeFactory : INodeFactory
     {
