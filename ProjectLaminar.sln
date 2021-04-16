@@ -28,7 +28,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Laminar_PluginFramework", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BasicFunctionality", "src\Plugins\BasicFunctionality\BasicFunctionality.csproj", "{BC361862-7189-4F7B-8DE5-102D674EBB95}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenFlow_Core.UnitTests", "tests\Base\OpenFlow_PluginFramework.UnitTests\OpenFlow_Core.UnitTests.csproj", "{BB801A67-E81A-4CBA-8DB1-6B86886197F6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Laminar_Core.UnitTests", "tests\Base\Laminar_PluginFramework.UnitTests\Laminar_Core.UnitTests.csproj", "{BB801A67-E81A-4CBA-8DB1-6B86886197F6}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WindowsKeyboardMouse", "src\Plugins\WindowsKeyboardMouse\WindowsKeyboardMouse.csproj", "{6F57FBC4-129B-4C78-9163-97E6473B21F7}"
 EndProject
