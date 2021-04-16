@@ -26,7 +26,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Laminar_Core", "src\Base\La
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Laminar_PluginFramework", "src\Base\Laminar_PluginFramework\Laminar_PluginFramework.csproj", "{1FF90085-7F7A-4035-A502-46241BC9A939}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BasicFunctionality", "src\Plugins\OpenFlow_Inbuilt\BasicFunctionality.csproj", "{BC361862-7189-4F7B-8DE5-102D674EBB95}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BasicFunctionality", "src\Plugins\BasicFunctionality\BasicFunctionality.csproj", "{BC361862-7189-4F7B-8DE5-102D674EBB95}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenFlow_Core.UnitTests", "tests\Base\OpenFlow_PluginFramework.UnitTests\OpenFlow_Core.UnitTests.csproj", "{BB801A67-E81A-4CBA-8DB1-6B86886197F6}"
 EndProject
