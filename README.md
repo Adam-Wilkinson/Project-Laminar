@@ -5,3 +5,6 @@ Project: Laminar is an open-source, cross-platform, plugin based automation fram
 This is the source code of Project: Laminar. We are currently under development and the documentation isn't complete, but if you want to make a plugin there are plenty of examples under src/Plugins to browse and learn from.
 
 If you want to help or have any questions, don't hesitate to contact us under projectlaminar@gmail.com.
+
+Or ask a quick question via our gitter:
+https://gitter.im/Project-Laminar/community
