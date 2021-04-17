@@ -11,7 +11,8 @@ namespace WindowsKeyboardMouse.Nodes.Keyboard.Output
 {
     public class KeyPresser : IActionNode
     {
-        const uint KEYEVENTF_EXTENDEDKEY = 0x0001;
+        public const uint KEYEVENTF_EXTENDEDKEY = 0x0001;
+        public const uint KEYEVENTF_KEYUP = 0x0002;
 
         private readonly INodeField keyField = Constructor.NodeField("Key To Press").WithInput<Keys>();
         private readonly INodeField numberOfPresses = Constructor.NodeField("Number of Presses").WithInput<double>();
@@ -32,16 +33,16 @@ namespace WindowsKeyboardMouse.Nodes.Keyboard.Output
         [DllImport("user32.dll")]
         private static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, uint dwExtraInfo);
 
-        public static void PressVirtualKey(byte bVk)
+        public static void PressVirtualKey(byte bVk, uint keyEvent)
         {
-            keybd_event(bVk, 0, KEYEVENTF_EXTENDEDKEY | 0, 0);
+            keybd_event(bVk, 0, keyEvent | 0, 0);
         }
 
         public void Evaluate()
         {
             for (int i = 0; i < numberOfPresses.GetInput<double>(); i++)
             {
-                PressVirtualKey((byte)keyField.GetInput<Keys>());
+                PressVirtualKey((byte)keyField.GetInput<Keys>(), KEYEVENTF_EXTENDEDKEY);
                 Thread.Sleep((int)delay.GetInput<double>());
             }
         }

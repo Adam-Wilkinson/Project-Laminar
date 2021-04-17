@@ -31,7 +31,7 @@
 
         public FlowSwitch()
         {
-            valueInput.GetValue(INodeField.InputKey).PropertyChanged += FlowSwitch_OnTypeDefinitionChanged;
+            valueInput.GetValue(INodeField.InputKey).TypeDefinitionChanged += FlowSwitch_TypeDefinitionChanged;
         }
 
         public string NodeName => "Switch";
@@ -65,15 +65,7 @@
             FlowOutComponent = defaultOutput;
         }
 
-        private void FlowSwitch_OnTypeDefinitionChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == nameof(ILaminarValue.TypeDefinition))
-            {
-                ChangeSwitchTypeTo((sender as ILaminarValue).TypeDefinition);
-            }
-        }
-
-        private void ChangeSwitchTypeTo(ITypeDefinition typeDef)
+        private void FlowSwitch_TypeDefinitionChanged(object sender, ITypeDefinition typeDef)
         {
             flowOutputs.HideAllComponents();
             if (!flowOutputs.ContainsKey(typeDef.ValueType))

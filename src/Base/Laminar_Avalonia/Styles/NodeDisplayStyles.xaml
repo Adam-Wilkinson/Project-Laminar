@@ -42,10 +42,10 @@
 			</DataTemplate>
 
 			<DataTemplate DataType="displays:Separator">
-				<Decorator Padding="10,0">
+				<Decorator Padding="0,0">
 					<Separator Width="{Binding $parent.Width}" 
-							   Height="2" 
-							   Background="{DynamicResource ThemeBorderLowBrush}" 
+							   Height="4" 
+							   Background="Black" 
 							   BorderBrush="White"/>
 				</Decorator>
 			</DataTemplate>
@@ -107,10 +107,10 @@
   <Style Selector="ItemsPresenter.NodeDisplay">
     <Setter Property="ClipToBounds" Value="False"/>
 	<Setter Property="HorizontalAlignment" Value="Stretch"/>
-	<Setter Property="Margin" Value="5,0"/>
+	<Setter Property="Margin" Value="0,0"/>
     <Setter Property="ItemsPanel">
       <ItemsPanelTemplate>
-        <StackPanel Spacing="6"/>
+        <StackPanel Spacing="12"/>
       </ItemsPanelTemplate>
     </Setter>
   </Style>

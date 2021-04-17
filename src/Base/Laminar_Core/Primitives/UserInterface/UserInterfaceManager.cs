@@ -1,11 +1,8 @@
 ﻿using Laminar_PluginFramework.Primitives;
+using Laminar_PluginFramework.Primitives.TypeDefinition;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Laminar_Core.Primitives.UserInterface
 {
@@ -40,20 +37,24 @@ namespace Laminar_Core.Primitives.UserInterface
         {
             if (_childValue != null)
             {
-                _childValue.PropertyChanged -= ChildValue_PropertyChanged;
+                _childValue.TypeDefinitionChanged -= ChildValue_TypeDefinitionChanged;
+                _childValue.IsUserEditable.PropertyChanged -= IsUserEditable_PropertyChanged;
             }
 
             _childValue = childValue;
-            _childValue.PropertyChanged += ChildValue_PropertyChanged;
+            _childValue.TypeDefinitionChanged += ChildValue_TypeDefinitionChanged;
+            _childValue.IsUserEditable.PropertyChanged += IsUserEditable_PropertyChanged;
             RefreshUserInterfaces();
         }
 
-        private void ChildValue_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void IsUserEditable_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName is nameof(ILaminarValue.IsUserEditable) or nameof(ILaminarValue.TypeDefinition))
-            {
-                RefreshUserInterfaces();
-            }
+            RefreshUserInterfaces();
+        }
+
+        private void ChildValue_TypeDefinitionChanged(object sender, ITypeDefinition e)
+        {
+            RefreshUserInterfaces();
         }
 
         private void RefreshUserInterfaces()
@@ -69,7 +70,7 @@ namespace Laminar_Core.Primitives.UserInterface
         {
             if (_childValue.TypeDefinition is not null)
             {
-                if (_childValue.IsUserEditable)
+                if (_childValue.IsUserEditable.Value)
                 {
                     if (Instance.Current.RegisteredEditors.TryGetUserInterface(AQNOfType, _childValue.TypeDefinition.EditorName, out object userInterface))
                     {

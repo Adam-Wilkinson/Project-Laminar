@@ -25,6 +25,7 @@
         private readonly INodeTree manager = Instance.Factory.GetImplementation<INodeTree>();
         private List<NodeDisplay> selectedNodes = new();
         private Point originalClickPoint;
+        private bool hasClickPoint = false;
         private DragType dragType = DragType.None;
         private Control selectedField;
         private Point currentMousePos;
@@ -112,6 +113,7 @@
         {
             if (dragType == DragType.None)
             {
+                hasClickPoint = true;
                 originalClickPoint = e.GetPosition(this);
                 if (e.KeyModifiers != KeyModifiers.Shift)
                 {
@@ -147,11 +149,18 @@
             }
 
             InvalidateVisual();
+            hasClickPoint = false;
             dragType = DragType.None;
         }
 
         public void SelectMouseMove(PointerEventArgs e)
         {
+            if (hasClickPoint == false)
+            {
+                originalClickPoint = e.GetPosition(this);
+                hasClickPoint = true;
+            }
+
             switch (dragType)
             {
                 case DragType.SelectionBox:
@@ -234,6 +243,7 @@
                     }
 
                     selectedField = dragField.Tag as Control;
+                    hasClickPoint = true;
                     originalClickPoint = GetCenterInLocal(selectedField);
                     dragType = DragType.CreatingCurve;
                 }
@@ -249,10 +259,23 @@
                         SelectNode(clickedNode);
                     }
 
+                    hasClickPoint = true;
                     originalClickPoint = e.GetPosition(this);
                     dragType = DragType.MovingNodes;
                 }
             }
+        }
+
+        internal void DuplicateSelectedNodes()
+        {
+            foreach (NodeDisplay node in selectedNodes)
+            {
+                INodeBase newNode = node.CoreNode.DuplicateNode();
+                newNode.MakeLive();
+                AddNode(new NodeDisplay() { CoreNode = newNode }, node.Bounds.TopLeft);
+            }
+            hasClickPoint = false;
+            dragType = DragType.MovingNodes;
         }
 
         private void SelectNode(NodeDisplay node)

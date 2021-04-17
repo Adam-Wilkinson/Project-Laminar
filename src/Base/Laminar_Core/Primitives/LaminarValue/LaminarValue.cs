@@ -2,6 +2,7 @@
 {
     using Laminar_PluginFramework.Primitives;
     using Laminar_PluginFramework.Primitives.TypeDefinition;
+    using System;
     using System.ComponentModel;
     using System.Diagnostics;
 
@@ -11,22 +12,22 @@
     public class LaminarValue : INotifyPropertyChanged, ILaminarValue
     {
         private object _value;
-        private bool _isUserEditable;
         private ILaminarValue _driver;
         private ITypeDefinition _currentTypeDefinition;
         private string _name;
         private ITypeDefinitionProvider _typeDefinitionProvider;
 
-        public LaminarValue(ITypeDefinitionProvider provider, bool isUserEditable)
+        public LaminarValue(ITypeDefinitionProvider provider, IObservableValue<bool> isUserEditable)
         {
             TypeDefinitionProvider = provider;
-            _isUserEditable = isUserEditable;
+            IsUserEditable = isUserEditable;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
+        public event EventHandler<ITypeDefinition> TypeDefinitionChanged;
 
         /// <summary>
-        /// The <see cref="ITypeDefinition"/> which currently governs the OpenFlowValue
+        /// The <see cref="ITypeDefinition"/> which currently controls the LaminarValue
         /// </summary>
         public ITypeDefinition TypeDefinition
         {
@@ -37,7 +38,7 @@
                 {
                     _currentTypeDefinition = value;
                     _value = _currentTypeDefinition.DefaultValue;
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsUserEditable)));
+                    TypeDefinitionChanged?.Invoke(this, _currentTypeDefinition);
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TypeDefinition)));
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Value)));
                 }
@@ -78,18 +79,7 @@
         /// <summary>
         /// Whether the OpenFlowValue should be edited by the user
         /// </summary>
-        public bool IsUserEditable
-        {
-            get => _isUserEditable;
-            set
-            {
-                if (_isUserEditable != value)
-                {
-                    _isUserEditable = value;
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsUserEditable)));
-                }
-            }
-        }
+        public IObservableValue<bool> IsUserEditable { get; }
 
         /// <summary>
         /// If not null, the <see cref="Value"/> of the Driver will determine the value of this OpenFlowValue
@@ -109,11 +99,11 @@
                 if (_driver != null)
                 {
                     _driver.PropertyChanged += DriverPropertyChanged;
-                    IsUserEditable = false;
+                    IsUserEditable.Value = false;
                 }
                 else
                 {
-                    IsUserEditable = true;
+                    IsUserEditable.Value = true;
                 }
 
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Value)));
@@ -155,11 +145,16 @@
         /// Clones this OpenFlowValue
         /// </summary>
         /// <returns>A new OpenFlowValue with the same properties as this one</returns>
-        public ILaminarValue Clone() => new LaminarValue(TypeDefinitionProvider, IsUserEditable)
+        public ILaminarValue Clone()
         {
-            Value = Value,
-            Name = Name,
-        };
+            ILaminarValue output = new LaminarValue(TypeDefinitionProvider, Instance.Factory.GetImplementation<IObservableValue<bool>>())
+            {
+                Value = Value,
+                Name = Name,
+            };
+            output.IsUserEditable.Value = IsUserEditable.Value;
+            return output;
+        }
 
         /// <summary>
         /// An event which is called when a property changes on the <see cref="Driver"/>, and relays this change forward

@@ -9,11 +9,11 @@
         UseLayoutRounding="True"
         mc:Ignorable="d" Width="1920" Height="1080"
         x:Class="Laminar_Avalonia.Views.MainWindow"
-        Icon="/Assets/avalonia-logo.ico"
+        Icon="/Assets/ProjectLaminarLogo.png"
         Title="Project: Laminar"
         DataContext="MainWindowViewModel">
-  <additions:ToolbarPanel DefaultWidth="250">
+  <additions:ToolbarPanel DefaultWidth="250"> 
     <nodes:NodePickerTabBar additions:ToolbarPanel.DockDirection="Top"/>
-    <nodes:ZoomBorder/>
+    <nodes:ZoomBorder Background="#1B1B1B"/>
   </additions:ToolbarPanel>
 </Window>

@@ -215,6 +215,16 @@
             }
         }
 
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            base.OnKeyDown(e);
+            if (e.Key is Key.D && e.KeyModifiers is KeyModifiers.Shift)
+            {
+                nodeManager.DuplicateSelectedNodes();
+                isSelectDragging = true;
+            }
+        }
+
         private static bool IsButtonPressed(PointerPointProperties properties, MouseButton button)
         {
             return (properties.IsLeftButtonPressed && button == MouseButton.Left) || (properties.IsMiddleButtonPressed && button == MouseButton.Middle) || (properties.IsRightButtonPressed && button == MouseButton.Right);

@@ -17,7 +17,7 @@ namespace Laminar_PluginFramework
         {
             ILaminarValue output = Laminar.New<ILaminarValue>();
             output.TypeDefinitionProvider = typeDefinitionProvider;
-            output.IsUserEditable = isUserEditable;
+            output.IsUserEditable.Value = isUserEditable;
 
             return output;
         }

@@ -12,6 +12,15 @@ namespace Laminar_Core.NodeSystem.Nodes
         {
             NodeDependencyAggregate dependencies = Instance.Factory.CreateInstance<NodeDependencyAggregate>();
 
+            INodeBase output = PrivateGet<T>(dependencies);
+
+            output.Update();
+
+            return output;
+        }
+
+        private static INodeBase PrivateGet<T>(NodeDependencyAggregate dependencies) where T : INode
+        {
             if (typeof(IFlowNode).IsAssignableFrom(typeof(T)))
             {
                 return new FlowNode<T>(dependencies);
