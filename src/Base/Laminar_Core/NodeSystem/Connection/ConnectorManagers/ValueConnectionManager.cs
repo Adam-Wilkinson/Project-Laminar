@@ -1,6 +1,7 @@
 ﻿using Laminar_Core.NodeSystem.Nodes;
 using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
 using Laminar_PluginFramework.Primitives;
+using Laminar_PluginFramework.Primitives.TypeDefinition;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -52,7 +53,7 @@ namespace Laminar_Core.NodeSystem.Connection.ConnectorManagers
         {
             if (LaminarValue is not null)
             {
-                LaminarValue.PropertyChanged -= LaminarValue_PropertyChanged;
+                LaminarValue.TypeDefinitionChanged -= LaminarValue_TypeDefinitionChanged;
                 LaminarValue = null;
             }
 
@@ -71,7 +72,7 @@ namespace Laminar_Core.NodeSystem.Connection.ConnectorManagers
                 if (LaminarValue is not null)
                 {
                     HexColour.Value = LaminarValue.TypeDefinition is not null ? _instance.GetTypeInfo(LaminarValue.TypeDefinition.ValueType).HexColour : "#FFFFFF";
-                    LaminarValue.PropertyChanged += LaminarValue_PropertyChanged;
+                    LaminarValue.TypeDefinitionChanged += LaminarValue_TypeDefinitionChanged;
                     return true;
                 }
             }
@@ -79,12 +80,9 @@ namespace Laminar_Core.NodeSystem.Connection.ConnectorManagers
             return false;
         }
 
-        private void LaminarValue_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void LaminarValue_TypeDefinitionChanged(object sender, ITypeDefinition e)
         {
-            if (e.PropertyName is nameof(ILaminarValue.TypeDefinition))
-            {
-                HexColour.Value = LaminarValue.TypeDefinition is not null ?_instance.GetTypeInfo(LaminarValue.TypeDefinition.ValueType).HexColour : "#FFFFFF";
-            }
+            HexColour.Value = e is not null ? _instance.GetTypeInfo(e.ValueType).HexColour : "#FFFFFF";
         }
 
         public bool CompatibilityCheck(IConnectorManager toCheck)
