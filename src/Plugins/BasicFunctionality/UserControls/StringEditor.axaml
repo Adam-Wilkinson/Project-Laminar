@@ -7,6 +7,6 @@
 			 DataContext="{Binding DisplayedValue}">
 	<StackPanel Orientation="Horizontal" Spacing="4">
 		<TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
-		<TextBox Text="{Binding Value}" VerticalAlignment="Center"/>
+		<TextBox Text="{Binding TrueValue}" VerticalAlignment="Center"/>
 	</StackPanel>
 </UserControl>

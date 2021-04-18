@@ -95,16 +95,16 @@ namespace Laminar_Core.NodeSystem.Connection.ConnectorManagers
             _pairedManager = manager as ValueConnectionManager;
             if (_connectorType is ConnectorType.Output && manager is ValueConnectionManager valConnection)
             {
-                valConnection.LaminarValue.Driver = LaminarValue;
+                valConnection.LaminarValue.SetDependency(LaminarValue);
             }
         }
 
         public void ConnectionRemovedAction(IConnectorManager manager)
         {
             _pairedManager = null;
-            if (_connectorType is ConnectorType.Output && manager is ValueConnectionManager valConnection && valConnection.LaminarValue.Driver == LaminarValue)
+            if (_connectorType is ConnectorType.Output && manager is ValueConnectionManager valConnection)
             {
-                valConnection.LaminarValue.Driver = null;
+                valConnection.LaminarValue.RemoveDependency<object>();
             }
         }
 

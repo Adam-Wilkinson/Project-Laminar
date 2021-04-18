@@ -83,7 +83,7 @@ namespace Laminar_Core.Primitives.LaminarValue
         {
             foreach (KeyValuePair<object, ILaminarValue> kvp in copyFrom)
             {
-                Add(kvp.Key, kvp.Value.Clone());
+                Add(kvp.Key, (ILaminarValue)kvp.Value.Clone());
             }
         }
 

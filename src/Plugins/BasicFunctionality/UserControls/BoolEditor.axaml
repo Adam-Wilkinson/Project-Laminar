@@ -5,5 +5,5 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Laminar_Inbuilt.UserControls.BoolEditor"
 			 DataContext="{Binding DisplayedValue}">
-	<CheckBox IsChecked="{Binding Value}" Content="{Binding Name}"/>
+	<CheckBox IsChecked="{Binding TrueValue}" Content="{Binding Name}"/>
 </UserControl>

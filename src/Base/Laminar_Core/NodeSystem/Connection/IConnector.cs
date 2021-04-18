@@ -15,7 +15,7 @@ namespace Laminar_Core.NodeSystem.Connection
 
         object Tag { get; set; }
 
-        IObservableValue<string> HexColour { get; }
+        IDependentValue<string> HexColour { get; }
 
         void Initialize(IVisualNodeComponent component);
 

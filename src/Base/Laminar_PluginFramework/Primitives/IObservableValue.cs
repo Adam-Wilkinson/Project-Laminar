@@ -7,13 +7,7 @@ namespace Laminar_PluginFramework.Primitives
     {
         T Value { get; set; }
 
-        void AddDependency<TDep>(IObservableValue<TDep> dep, Func<TDep, T> conversion);
-
-        void AddDependency(IObservableValue<T> dep);
-
-        void RemoveDependency<TDep>(IObservableValue<TDep> dep);
-
-        void OnChange(Action<T> changeAction);
+        public Action<T> OnChange { get; set; }
 
         IObservableValue<T> Clone();
     }

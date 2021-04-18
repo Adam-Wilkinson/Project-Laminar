@@ -21,7 +21,7 @@ namespace Laminar_Core.NodeSystem.NodeComponents.Visuals
             UserInterfaces = userInterfaces;
             _valueStore.AnyValueChanged += ValueStore_AnyValueChanged;
             _valueStore.ChangedAtKey += (o, e) => AnyValueChanged?.Invoke(this, e);
-            Name.OnChange(_valueStore.SetValueName);
+            Name.OnChange += _valueStore.SetValueName;
         }
 
         public event EventHandler<object> AnyValueChanged;

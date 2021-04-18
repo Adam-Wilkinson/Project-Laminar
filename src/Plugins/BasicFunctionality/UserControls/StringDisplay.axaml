@@ -8,6 +8,6 @@
 	<StackPanel Orientation="Horizontal">
 		<TextBlock Text="{Binding Name}"/>
 		<TextBlock Text=": "/>
-		<TextBlock Text="{Binding Value}"/>
+		<TextBlock Text="{Binding TrueValue}"/>
 	</StackPanel>
 </UserControl>

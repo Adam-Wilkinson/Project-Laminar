@@ -5,5 +5,5 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Laminar_Inbuilt.UserControls.ActionDisplay"
 			 DataContext="{Binding DisplayedValue}">
-	<Button Content="{Binding Name}" Command="{Binding Value}" />
+	<Button Content="{Binding Name}" Command="{Binding TrueValue}" />
 </UserControl>

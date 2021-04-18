@@ -12,7 +12,7 @@ namespace Laminar_Core.NodeSystem.Connection
         private readonly List<IConnectorManager> managers = IConnectorManager.AllImplementingTypes.Select(x => (IConnectorManager)Instance.Factory.CreateInstance(x)).ToList();
         private IConnectorManager _manager;
 
-        public Connector(IObservableValue<string> hexColour, IObservableValue<bool> exists)
+        public Connector(IDependentValue<string> hexColour, IObservableValue<bool> exists)
         {
             HexColour = hexColour;
             Exists = exists;
@@ -29,7 +29,7 @@ namespace Laminar_Core.NodeSystem.Connection
 
         public IObservableValue<bool> Exists { get; }
 
-        public IObservableValue<string> HexColour { get; }
+        public IDependentValue<string> HexColour { get; }
 
         public IConnectorManager Manager
         {
@@ -38,14 +38,14 @@ namespace Laminar_Core.NodeSystem.Connection
             {
                 if (Manager is not null)
                 {
-                    HexColour.RemoveDependency(Manager.HexColour);
+                    HexColour.RemoveDependency<string>();
                 }
 
                 _manager = value;
 
                 if (Manager is not null)
                 {
-                    HexColour.AddDependency(Manager.HexColour);
+                    HexColour.SetDependency(Manager.HexColour);
                     Exists.Value = true;
                 }
                 else

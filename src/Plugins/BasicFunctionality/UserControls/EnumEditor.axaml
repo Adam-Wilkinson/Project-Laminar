@@ -7,6 +7,6 @@
 			 DataContext="{Binding DisplayedValue}">
 	<StackPanel Orientation="Vertical">
 		<TextBlock Text="{Binding Name}"/>
-		<ComboBox Name="CBox" SelectedItem="{Binding Value}"/>
+		<ComboBox Name="CBox" SelectedItem="{Binding TrueValue}"/>
 	</StackPanel>
 </UserControl>

@@ -13,15 +13,6 @@ namespace Laminar_PluginFramework
 {
     public class Constructor
     {
-        public static ILaminarValue LaminarValue(ITypeDefinitionProvider typeDefinitionProvider, bool isUserEditable)
-        {
-            ILaminarValue output = Laminar.New<ILaminarValue>();
-            output.TypeDefinitionProvider = typeDefinitionProvider;
-            output.IsUserEditable.Value = isUserEditable;
-
-            return output;
-        }
-
         public static INodeField NodeField(string fieldName)
         {
             INodeField output = Laminar.New<INodeField>();
