@@ -7,7 +7,5 @@ namespace Laminar_Core.Primitives.UserInterface
         object this[string key] { get; }
 
         void SetChildValue(ILaminarValue childValue);
-
-        IUserInterfaceManager Clone();
     }
 }

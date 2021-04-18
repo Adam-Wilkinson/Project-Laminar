@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Laminar_PluginFramework.Primitives;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -15,10 +16,10 @@ namespace Laminar_Core.Primitives.ObservableCollectionMapper
         protected readonly ITypeMapper<TIn, TOut> _mapper;
         private readonly ObservableCollection<TOut> _mapTo;
 
-        public static ReadOnlyObservableCollection<TOut> Create(INotifyCollectionChanged collection)
+        public static ReadOnlyObservableCollection<TOut> Create(INotifyCollectionChanged collection, IObjectFactory factory)
         {
             ObservableCollection<TOut> output = new();
-            _ = new ObservableCollectionMapper<TIn, TOut>(output, collection, Instance.Factory.GetImplementation<ITypeMapper<TIn, TOut>>());
+            _ = new ObservableCollectionMapper<TIn, TOut>(output, collection, factory.GetImplementation<ITypeMapper<TIn, TOut>>());
             return new ReadOnlyObservableCollection<TOut>(output);
         }
 

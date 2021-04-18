@@ -11,7 +11,7 @@
     {
         public static DragDropHandler DragDropHandler { get; private set; }
 
-        public static Laminar_Core.Instance Instance { get; } = new Laminar_Core.Instance(SynchronizationContext.Current);
+        public static Laminar_Core.Instance LaminarInstance { get; } = new Laminar_Core.Instance(SynchronizationContext.Current);
 
         public override void Initialize()
         {

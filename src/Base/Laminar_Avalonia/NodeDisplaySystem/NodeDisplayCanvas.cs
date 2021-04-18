@@ -22,7 +22,7 @@
     public class NodeDisplayCanvas : Canvas
     {
         private readonly Pen pen = new(Brushes.LightGray);
-        private readonly INodeTree manager = Instance.Factory.GetImplementation<INodeTree>();
+        private readonly INodeTree manager = App.LaminarInstance.Factory.GetImplementation<INodeTree>();
         private List<NodeDisplay> selectedNodes = new();
         private Point originalClickPoint;
         private bool hasClickPoint = false;

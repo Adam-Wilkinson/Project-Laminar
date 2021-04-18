@@ -13,25 +13,28 @@ namespace Laminar_Core
     {
         public Instance(SynchronizationContext uiContext)
         {
+            RegisteredEditors = Factory.GetImplementation<IUserInterfaceRegister>();
+            RegisteredDisplays = Factory.GetImplementation<IUserInterfaceRegister>();
+            LoadedNodeManager = Factory.CreateInstance<LoadedNodeManager>();
             Current = this;
             Laminar.Init(Factory);
             UIContext = uiContext;
             _ = new PluginLoader();
         }
 
-        public static Instance Current { get; private set; }
+        public ObjectFactory Factory { get; } = new();
 
-        public static ObjectFactory Factory { get; } = new();
+        public static Instance Current { get; private set; }
 
         public SynchronizationContext UIContext { get; }
 
         public Dictionary<Type, TypeInfoRecord> TypeInfo { get; } = new ();
 
-        public LoadedNodeManager LoadedNodeManager { get; } = new(Factory.GetImplementation<INodeFactory>());
+        public LoadedNodeManager LoadedNodeManager { get; }
 
-        public IUserInterfaceRegister RegisteredEditors { get; } = Factory.GetImplementation<IUserInterfaceRegister>();
+        public IUserInterfaceRegister RegisteredEditors { get; }
 
-        public IUserInterfaceRegister RegisteredDisplays { get; } = Factory.GetImplementation<IUserInterfaceRegister>();
+        public IUserInterfaceRegister RegisteredDisplays { get; }
 
         public bool RegisterTypeInfo(Type type, TypeInfoRecord record) => TypeInfo.TryAdd(type, record);
 

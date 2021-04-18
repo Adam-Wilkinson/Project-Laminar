@@ -81,6 +81,10 @@ namespace Laminar_Core
                 {
                     parameterObjects[i] = CreateInstance(parameter.ParameterType);
                 }
+                else if (parameter.ParameterType == typeof(IObjectFactory))
+                {
+                    parameterObjects[i] = this;
+                }
                 else
                 {
                     parameterObjects[i] = GetLooseTypedImplementation(parameter.ParameterType);

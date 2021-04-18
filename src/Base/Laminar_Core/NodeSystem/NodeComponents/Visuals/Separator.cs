@@ -6,9 +6,14 @@ namespace Laminar_Core.NodeSystem.NodeComponents.Visuals
 {
     public class Separator : VisualNodeComponent, ISeparator
     {
-        public Separator(IObservableValue<string> name, IOpacity opacity)
-            : base(name, opacity) { }
+        private readonly IObjectFactory _factory;
 
-        public override INodeComponent Clone() => Instance.Factory.GetImplementation<ISeparator>();
+        public Separator(IObservableValue<string> name, IOpacity opacity, IObjectFactory factory)
+            : base(name, opacity) 
+        {
+            _factory = factory;
+        }
+
+        public override INodeComponent Clone() => _factory.CreateInstance<Separator>();
     }
 }

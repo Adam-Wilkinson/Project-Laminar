@@ -18,14 +18,14 @@
 
         public NodePickerTabBar()
         {
-            CurrentDisplayNodes = App.Instance.LoadedNodeManager.LoadedNodes.FirstGroup();
+            CurrentDisplayNodes = App.LaminarInstance.LoadedNodeManager.LoadedNodes.FirstGroup();
             SelectItem = ReactiveCommand.Create<List<INodeBase>>(nodes =>
             {
                 CurrentDisplayNodes = nodes;
             });
         }
 
-        public Dictionary<string, LoadedNodeManager.NodeCatagories> Catagories => App.Instance.LoadedNodeManager.LoadedNodes.SubCatagories;
+        public Dictionary<string, LoadedNodeManager.NodeCatagories> Catagories => App.LaminarInstance.LoadedNodeManager.LoadedNodes.SubCatagories;
 
         public List<INodeBase> CurrentDisplayNodes
         {

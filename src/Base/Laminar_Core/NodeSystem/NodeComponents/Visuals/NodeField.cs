@@ -12,9 +12,10 @@ namespace Laminar_Core.NodeSystem.NodeComponents.Visuals
     public class NodeField : VisualNodeComponent, INodeField
     {
         private readonly ILaminarValueStore _valueStore;
+        private readonly IObjectFactory _factory;
         private object _displayedValueKey;
 
-        public NodeField(IObservableValue<string> name, IOpacity opacity, ILaminarValueStore valueStore, IUserInterfaceManager userInterfaces) 
+        public NodeField(IObservableValue<string> name, IOpacity opacity, ILaminarValueStore valueStore, IUserInterfaceManager userInterfaces, IObjectFactory factory) 
             : base(name, opacity)
         {
             _valueStore = valueStore;
@@ -22,6 +23,7 @@ namespace Laminar_Core.NodeSystem.NodeComponents.Visuals
             _valueStore.AnyValueChanged += ValueStore_AnyValueChanged;
             _valueStore.ChangedAtKey += (o, e) => AnyValueChanged?.Invoke(this, e);
             Name.OnChange += _valueStore.SetValueName;
+            _factory = factory;
         }
 
         public event EventHandler<object> AnyValueChanged;
@@ -71,7 +73,7 @@ namespace Laminar_Core.NodeSystem.NodeComponents.Visuals
 
         public override INodeComponent Clone()
         {
-            NodeField output = Instance.Factory.GetImplementation<INodeField>() as NodeField;
+            NodeField output = _factory.CreateInstance<NodeField>();
             CloneTo(output);
             output.SetValueStore(_valueStore);
             output.DisplayedValueKey = DisplayedValueKey;

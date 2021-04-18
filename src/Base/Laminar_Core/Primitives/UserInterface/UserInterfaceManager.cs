@@ -10,7 +10,13 @@ namespace Laminar_Core.Primitives.UserInterface
     {
         private ILaminarValue _childValue;
         private string _userInterfaceType;
+        private readonly IObjectFactory _factory;
         private readonly List<IObservableValue<object>> _userInterfaces = new();
+
+        public UserInterfaceManager(IObjectFactory factory)
+        {
+            _factory = factory;
+        }
 
         public object this[string key]
         {
@@ -26,7 +32,7 @@ namespace Laminar_Core.Primitives.UserInterface
                     throw new Exception($"{nameof(UserInterfaceManager)} cannot handle multiple types of user interface at once!");
                 }
 
-                IObservableValue<object> newObject = Instance.Factory.GetImplementation<IObservableValue<object>>();
+                IObservableValue<object> newObject = _factory.GetImplementation<IObservableValue<object>>();
                 newObject.Value = GetUIOfType(key);
                 _userInterfaces.Add(newObject);
                 return newObject;
@@ -102,11 +108,6 @@ namespace Laminar_Core.Primitives.UserInterface
             }
 
             return null;
-        }
-
-        public IUserInterfaceManager Clone()
-        {
-            return new UserInterfaceManager() { _childValue = _childValue };
         }
     }
 }

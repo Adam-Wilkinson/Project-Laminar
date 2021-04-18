@@ -7,14 +7,16 @@
     public class LaminarValue : DependentValue<object>, ILaminarValue
     {
         private readonly ITypeDefinitionProvider _typeDefinitionProvider;
+        private readonly IObjectFactory _factory;
         private ITypeDefinition _currentTypeDefinition;
         private string _name;
 
-        public LaminarValue(ITypeDefinitionProvider provider, IObservableValue<bool> isUserEditable, IObservableValue<bool> hasDependency) : base(hasDependency)
+        public LaminarValue(ITypeDefinitionProvider provider, IObservableValue<bool> isUserEditable, IObservableValue<bool> hasDependency, IObjectFactory factory) : base(hasDependency)
         {
             _typeDefinitionProvider = provider;
             TypeDefinition = _typeDefinitionProvider.DefaultDefinition;
             IsUserEditable = isUserEditable;
+            _factory = factory;
             hasDependency.OnChange += (b) =>
             {
                 IsUserEditable.Value = !b;
@@ -83,7 +85,7 @@
 
         public override ILaminarValue Clone()
         {
-            ILaminarValue output = new LaminarValue(_typeDefinitionProvider, Instance.Factory.GetImplementation<IObservableValue<bool>>(), Instance.Factory.GetImplementation<IObservableValue<bool>>())
+            ILaminarValue output = new LaminarValue(_typeDefinitionProvider, _factory.GetImplementation<IObservableValue<bool>>(), _factory.GetImplementation<IObservableValue<bool>>(), _factory)
             {
                 Value = Value,
                 Name = Name,

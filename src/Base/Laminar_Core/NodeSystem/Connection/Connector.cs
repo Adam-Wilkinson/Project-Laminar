@@ -9,14 +9,15 @@ namespace Laminar_Core.NodeSystem.Connection
     public class Connector : IConnector
     {
         private readonly List<INodeConnection> _connections = new();
-        private readonly List<IConnectorManager> managers = IConnectorManager.AllImplementingTypes.Select(x => (IConnectorManager)Instance.Factory.CreateInstance(x)).ToList();
+        private readonly List<IConnectorManager> _managers;
         private IConnectorManager _manager;
 
-        public Connector(IDependentValue<string> hexColour, IObservableValue<bool> exists)
+        public Connector(IDependentValue<string> hexColour, IObservableValue<bool> exists, IObjectFactory factory)
         {
             HexColour = hexColour;
             Exists = exists;
             Exists.Value = false;
+            _managers = IConnectorManager.AllImplementingTypes.Select(x => (IConnectorManager)factory.CreateInstance(x)).ToList();
         }
 
         public ConnectorType ConnectorType { get; set; }
@@ -80,7 +81,7 @@ namespace Laminar_Core.NodeSystem.Connection
 
         public void Initialize(IVisualNodeComponent component)
         {
-            foreach (IConnectorManager manager in managers)
+            foreach (IConnectorManager manager in _managers)
             {
                 manager.Initialize(component, ConnectorType);
                 manager.ExistsChanged += (o, e) => Manager = TryFindFormat();
@@ -93,7 +94,7 @@ namespace Laminar_Core.NodeSystem.Connection
 
         private IConnectorManager TryFindFormat()
         {
-            foreach (IConnectorManager manager in managers)
+            foreach (IConnectorManager manager in _managers)
             {
                 if (manager.ConnectorExists())
                 {
