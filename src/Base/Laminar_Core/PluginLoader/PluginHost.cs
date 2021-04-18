@@ -6,26 +6,33 @@ namespace Laminar_Core.PluginManagement
 {
     public class PluginHost : IPluginHost
     {
+        private readonly Instance _instance;
+
+        public PluginHost(Instance instance)
+        {
+            _instance = instance;
+        }
+
         public void AddNodeToMenu<TNode>(string menuItemName, string subItemName = null) where TNode : INode, new()
-            => Instance.Current.LoadedNodeManager.AddNodeToCatagory<TNode>(menuItemName, subItemName);
+            => _instance.LoadedNodeManager.AddNodeToCatagory<TNode>(menuItemName, subItemName);
 
         public bool RegisterType<T>(string hexColour, string userFriendlyName, T defaultValue = default, string defaultEditorName = null, string defaultDisplayName = null)
-            => Instance.Current.RegisterTypeInfo(typeof(T), new Instance.TypeInfoRecord(defaultValue, hexColour, defaultDisplayName, defaultEditorName, userFriendlyName));
+            => _instance.RegisterTypeInfo(typeof(T), new Instance.TypeInfoRecord(defaultValue, hexColour, defaultDisplayName, defaultEditorName, userFriendlyName));
 
         public bool TryAddTypeConverter<TInput, TOutput, TConverter>() where TConverter : INode
             => throw new NotImplementedException();
 
         public bool RegisterEditor<T>(string name, T editor)
-            => Instance.Current.RegisteredEditors.RegisterUserInterface(name, editor);
+            => _instance.RegisteredEditors.RegisterUserInterface(name, editor);
 
         public bool RegisterDisplay<T>(string name, T display)
-            => Instance.Current.RegisteredDisplays.RegisterUserInterface(name, display);
+            => _instance.RegisteredDisplays.RegisterUserInterface(name, display);
 
         public bool RegisterEditor<T>(string name, Type editorType)
-            => Instance.Current.RegisteredEditors.RegisterUserInterface<T>(name, editorType);
+            => _instance.RegisteredEditors.RegisterUserInterface<T>(name, editorType);
 
         public bool RegisterDisplay<T>(string name, Type displayType)
-            => Instance.Current.RegisteredDisplays.RegisterUserInterface<T>(name, displayType);
+            => _instance.RegisteredDisplays.RegisterUserInterface<T>(name, displayType);
 
         public void AddNodeToMenu<TNode1, TNode2>(string menuItemName, string subItemName = null)
             where TNode1 : INode, new()

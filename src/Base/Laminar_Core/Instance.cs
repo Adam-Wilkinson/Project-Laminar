@@ -19,7 +19,7 @@ namespace Laminar_Core
             Current = this;
             Laminar.Init(Factory);
             UIContext = uiContext;
-            _ = new PluginLoader();
+            _ = new PluginLoader(new PluginHost(this));
         }
 
         public ObjectFactory Factory { get; } = new();

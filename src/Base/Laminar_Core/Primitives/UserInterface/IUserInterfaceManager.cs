@@ -7,5 +7,9 @@ namespace Laminar_Core.Primitives.UserInterface
         object this[string key] { get; }
 
         void SetChildValue(ILaminarValue childValue);
+
+        public IUserInterfaceRegister Displays { get; set; }
+
+        public IUserInterfaceRegister Editors { get; set; }
     }
 }

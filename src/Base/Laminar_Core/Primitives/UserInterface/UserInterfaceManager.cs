@@ -39,6 +39,10 @@ namespace Laminar_Core.Primitives.UserInterface
             }
         }
 
+        public IUserInterfaceRegister Displays { get; set; }
+
+        public IUserInterfaceRegister Editors { get; set; }
+
         public void SetChildValue(ILaminarValue childValue)
         {
             if (_childValue != null)
@@ -78,31 +82,31 @@ namespace Laminar_Core.Primitives.UserInterface
             {
                 if (_childValue.IsUserEditable.Value)
                 {
-                    if (Instance.Current.RegisteredEditors.TryGetUserInterface(AQNOfType, _childValue.TypeDefinition.EditorName, out object userInterface))
+                    if (Editors.TryGetUserInterface(AQNOfType, _childValue.TypeDefinition.EditorName, out object userInterface))
                     {
                         return userInterface;
                     }
 
-                    if (Instance.Current.RegisteredEditors.TryGetUserInterface(AQNOfType, Instance.Current.GetTypeInfo(_childValue.TypeDefinition.ValueType).DefaultEditor, out object defaultTypeUserInterface))
+                    if (Editors.TryGetUserInterface(AQNOfType, Instance.Current.GetTypeInfo(_childValue.TypeDefinition.ValueType).DefaultEditor, out object defaultTypeUserInterface))
                     {
                         return defaultTypeUserInterface;
                     }
                 }
                 else
                 {
-                    if (Instance.Current.RegisteredDisplays.TryGetUserInterface(AQNOfType, _childValue.TypeDefinition.DisplayName, out object userInterface))
+                    if (Displays.TryGetUserInterface(AQNOfType, _childValue.TypeDefinition.DisplayName, out object userInterface))
                     {
                         return userInterface;
                     }
 
-                    if (Instance.Current.RegisteredDisplays.TryGetUserInterface(AQNOfType, Instance.Current.GetTypeInfo(_childValue.TypeDefinition.ValueType).DefaultDisplay, out object defaultTypeUserInterface))
+                    if (Displays.TryGetUserInterface(AQNOfType, Instance.Current.GetTypeInfo(_childValue.TypeDefinition.ValueType).DefaultDisplay, out object defaultTypeUserInterface))
                     {
                         return defaultTypeUserInterface;
                     }
                 }
             }
 
-            if (Instance.Current.RegisteredDisplays.TryGetUserInterface(AQNOfType, "DefaultDisplay", out object defaultDisplay))
+            if (Displays.TryGetUserInterface(AQNOfType, "DefaultDisplay", out object defaultDisplay))
             {
                 return defaultDisplay;
             }

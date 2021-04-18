@@ -20,6 +20,8 @@ namespace Laminar_Core.NodeSystem.NodeComponents.Visuals
         {
             _valueStore = valueStore;
             UserInterfaces = userInterfaces;
+            UserInterfaces.Displays = Instance.Current.RegisteredDisplays;
+            UserInterfaces.Editors = Instance.Current.RegisteredEditors;
             _valueStore.AnyValueChanged += ValueStore_AnyValueChanged;
             _valueStore.ChangedAtKey += (o, e) => AnyValueChanged?.Invoke(this, e);
             Name.OnChange += _valueStore.SetValueName;

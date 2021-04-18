@@ -7,9 +7,7 @@ namespace Laminar_Core.PluginManagement
 {
     public class PluginLoader
     {
-        private readonly IPluginHost pluginHost = new PluginHost();
-
-        public PluginLoader()
+        public PluginLoader(IPluginHost pluginHost)
         {
             foreach (string pluginPath in InbuiltPluginFinder.GetInbuiltPlugins())
             {
