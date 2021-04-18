@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Laminar_Core.NodeSystem.Nodes
 {
-    public class NodeDependencyAggregate : ObjectFactory.IDependencyAggregate
+    public class NodeDependencyAggregate
     {
         public NodeDependencyAggregate(IPoint location, IObservableValue<bool> errorState, IObservableValue<string> name, IObjectFactory factory)
         {

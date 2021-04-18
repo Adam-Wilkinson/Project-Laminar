@@ -22,7 +22,7 @@ namespace Laminar_Core
 {
     public class ObjectFactory : IObjectFactory
     {
-        private readonly Dictionary<Type, Type> interfaceImplementations = new();
+        private readonly Dictionary<Type, Type> _interfaceImplementations = new();
         private readonly Instance _instance;
 
         public ObjectFactory(Instance instance)
@@ -59,7 +59,7 @@ namespace Laminar_Core
 
         public T GetImplementation<T>()
         {
-            return (T)GetLooseTypedImplementation(typeof(T));
+            return (T)CreateInstance(GetLooseTypedImplementation(typeof(T)));
         }
 
         public T CreateInstance<T>()
@@ -67,45 +67,74 @@ namespace Laminar_Core
             return (T)CreateInstance(typeof(T));
         }
 
-        public object CreateInstance(Type targetType)
+        public object CreateInstance(Type type)
         {
-            if (targetType.GetConstructor(Type.EmptyTypes) != null)
+            if (type == typeof(IObjectFactory))
             {
-                return Activator.CreateInstance(targetType);
+                return this;
+            }
+            
+            if (type == typeof(Instance))
+            {
+                return _instance;
             }
 
-            ConstructorInfo info = targetType.GetConstructors()[0];
+            if (TryGetImplementation(type, out Type implementationType))
+            {
+                return CreateInstance(implementationType);
+            }
+
+            if (type.GetConstructor(Type.EmptyTypes) is not null)
+            {
+                return Activator.CreateInstance(type);
+            }
+
+            ConstructorInfo info = type.GetConstructors()[0];
             ParameterInfo[] parameters = info.GetParameters();
             object[] parameterObjects = new object[parameters.Length];
             int i = 0;
             foreach (ParameterInfo parameter in info.GetParameters())
             {
-                if (parameter.ParameterType.GetInterfaces().Contains(typeof(IDependencyAggregate)))
-                {
-                    parameterObjects[i] = CreateInstance(parameter.ParameterType);
-                }
-                else if (parameter.ParameterType == typeof(IObjectFactory))
-                {
-                    parameterObjects[i] = this;
-                }
-                else if (parameter.ParameterType == typeof(Instance))
-                {
-                    parameterObjects[i] = _instance;
-                }
-                else
-                {
-                    parameterObjects[i] = GetLooseTypedImplementation(parameter.ParameterType);
-                }
+                parameterObjects[i] = CreateInstance(parameter.ParameterType);
                 i++;
             }
 
-            return Activator.CreateInstance(targetType, parameterObjects);
+            return Activator.CreateInstance(type, parameterObjects);
+        }
+
+
+        private Type GetLooseTypedImplementation(Type typeToGet)
+        {
+            if (TryGetImplementation(typeToGet, out Type typeToMake))
+            {
+                return typeToMake;
+            }
+
+            throw new NotSupportedException($"No implementation found for {typeToMake}");
+        }
+
+        private bool TryGetImplementation(Type inputType, out Type outputType)
+        {
+            if (_interfaceImplementations.TryGetValue(inputType, out Type implementation))
+            {
+                outputType = implementation;
+                return true;
+            }
+
+            if (inputType.IsGenericType && _interfaceImplementations.TryGetValue(inputType.GetGenericTypeDefinition(), out Type implementationType))
+            {
+                outputType = implementationType.MakeGenericType(inputType.GetGenericArguments());
+                return true;
+            }
+
+            outputType = default;
+            return false;
         }
 
         private IObjectFactory RegisterImplementation<TInterface, TImplementation>()
             where TImplementation : class, TInterface
         {
-            interfaceImplementations.Add(typeof(TInterface), typeof(TImplementation));
+            _interfaceImplementations.Add(typeof(TInterface), typeof(TImplementation));
             return this;
         }
 
@@ -117,32 +146,7 @@ namespace Laminar_Core
                 throw new ArgumentException($"Type {implementationType} is not a class that inherits from {interfaceType}");
             }
 
-            interfaceImplementations.Add(interfaceType, implementationType);
+            _interfaceImplementations.Add(interfaceType, implementationType);
         }
-
-        private object GetLooseTypedImplementation(Type typeToGet)
-        {
-            Type targetType;
-            if (typeToGet.IsGenericType)
-            {
-                if (interfaceImplementations.TryGetValue(typeToGet, out Type implementation))
-                {
-                    targetType = implementation;
-                }
-                else
-                {
-                    targetType = interfaceImplementations[typeToGet.GetGenericTypeDefinition()];
-                    targetType = targetType.MakeGenericType(typeToGet.GetGenericArguments());
-                }
-            }
-            else
-            {
-                targetType = interfaceImplementations[typeToGet];
-            }
-
-            return CreateInstance(targetType);
-        }
-
-        public interface IDependencyAggregate { }
     }
 }
