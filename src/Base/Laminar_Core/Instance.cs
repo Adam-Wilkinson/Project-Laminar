@@ -6,29 +6,28 @@ using Laminar_Core.Primitives.UserInterface;
 using Laminar_PluginFramework;
 using Laminar_Core.PluginManagement;
 using Laminar_Core.NodeSystem.Nodes;
+using Laminar_PluginFramework.Primitives;
 
 namespace Laminar_Core
 {
     public class Instance
     {
+        private readonly Dictionary<Type, TypeInfoRecord> TypeInfo = new();
+
         public Instance(SynchronizationContext uiContext)
         {
+            Factory = new ObjectFactory(this);
             RegisteredEditors = Factory.GetImplementation<IUserInterfaceRegister>();
             RegisteredDisplays = Factory.GetImplementation<IUserInterfaceRegister>();
             LoadedNodeManager = Factory.CreateInstance<LoadedNodeManager>();
-            Current = this;
             Laminar.Init(Factory);
             UIContext = uiContext;
             _ = new PluginLoader(new PluginHost(this));
         }
 
-        public ObjectFactory Factory { get; } = new();
-
-        public static Instance Current { get; private set; }
+        public IObjectFactory Factory { get; }
 
         public SynchronizationContext UIContext { get; }
-
-        public Dictionary<Type, TypeInfoRecord> TypeInfo { get; } = new ();
 
         public LoadedNodeManager LoadedNodeManager { get; }
 
@@ -45,7 +44,7 @@ namespace Laminar_Core
                 return info;
             }
 
-            throw new NotSupportedException($"The type {type} is not registered, and cannot be displayed");
+            throw new NotSupportedException($"The type {type} is not registered");
         }
 
         public record TypeInfoRecord(object DefaultValue, string HexColour, string DefaultDisplay, string DefaultEditor, string UserFriendlyName);

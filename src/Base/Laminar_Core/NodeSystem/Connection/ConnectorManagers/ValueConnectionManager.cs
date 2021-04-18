@@ -12,9 +12,11 @@ namespace Laminar_Core.NodeSystem.Connection.ConnectorManagers
         private IVisualNodeComponent _parentComponent;
         private ConnectorType _connectorType;
         private ValueConnectionManager _pairedManager;
+        private readonly Instance _instance;
 
-        public ValueConnectionManager(IObservableValue<string> hexColour)
+        public ValueConnectionManager(Instance instance, IObservableValue<string> hexColour)
         {
+            _instance = instance;
             HexColour = hexColour;
         }
 
@@ -68,7 +70,7 @@ namespace Laminar_Core.NodeSystem.Connection.ConnectorManagers
 
                 if (LaminarValue is not null)
                 {
-                    HexColour.Value = LaminarValue.TypeDefinition is not null ? Instance.Current.GetTypeInfo(LaminarValue.TypeDefinition.ValueType).HexColour : "#FFFFFF";
+                    HexColour.Value = LaminarValue.TypeDefinition is not null ? _instance.GetTypeInfo(LaminarValue.TypeDefinition.ValueType).HexColour : "#FFFFFF";
                     LaminarValue.PropertyChanged += LaminarValue_PropertyChanged;
                     return true;
                 }
@@ -81,7 +83,7 @@ namespace Laminar_Core.NodeSystem.Connection.ConnectorManagers
         {
             if (e.PropertyName is nameof(ILaminarValue.TypeDefinition))
             {
-                HexColour.Value = LaminarValue.TypeDefinition is not null ? Instance.Current.GetTypeInfo(LaminarValue.TypeDefinition.ValueType).HexColour : "#FFFFFF";
+                HexColour.Value = LaminarValue.TypeDefinition is not null ?_instance.GetTypeInfo(LaminarValue.TypeDefinition.ValueType).HexColour : "#FFFFFF";
             }
         }
 

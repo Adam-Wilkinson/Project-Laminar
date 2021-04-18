@@ -15,17 +15,19 @@ namespace Laminar_Core.NodeSystem.NodeComponents.Visuals
         private readonly IObjectFactory _factory;
         private object _displayedValueKey;
 
-        public NodeField(IObservableValue<string> name, IOpacity opacity, ILaminarValueStore valueStore, IUserInterfaceManager userInterfaces, IObjectFactory factory) 
+        public NodeField(Instance instance, IObservableValue<string> name, IOpacity opacity, ILaminarValueStore valueStore, IUserInterfaceManager userInterfaces) 
             : base(name, opacity)
         {
             _valueStore = valueStore;
             UserInterfaces = userInterfaces;
-            UserInterfaces.Displays = Instance.Current.RegisteredDisplays;
-            UserInterfaces.Editors = Instance.Current.RegisteredEditors;
+
+            UserInterfaces.Displays = instance.RegisteredDisplays;
+            UserInterfaces.Editors = instance.RegisteredEditors;
+            _factory = instance.Factory;
+
             _valueStore.AnyValueChanged += ValueStore_AnyValueChanged;
             _valueStore.ChangedAtKey += (o, e) => AnyValueChanged?.Invoke(this, e);
             Name.OnChange += _valueStore.SetValueName;
-            _factory = factory;
         }
 
         public event EventHandler<object> AnyValueChanged;

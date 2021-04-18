@@ -12,10 +12,12 @@ namespace Laminar_Core.Primitives.LaminarValue
     public class LaminarValueFactory : ILaminarValueFactory
     {
         private readonly IObjectFactory _factory;
+        private readonly Instance _instance;
 
-        public LaminarValueFactory(IObjectFactory factory)
+        public LaminarValueFactory(Instance instance)
         {
-            _factory = factory;
+            _factory = instance.Factory;
+            _instance = instance;
         }
 
         public ILaminarValue Get(object value, bool isUserEditable)
@@ -26,7 +28,7 @@ namespace Laminar_Core.Primitives.LaminarValue
         }
 
         public ILaminarValue Get<T>(bool isUserEditable)
-            => Get(Instance.Current.GetTypeInfo(typeof(T)).DefaultValue, isUserEditable);
+            => Get(_instance.GetTypeInfo(typeof(T)).DefaultValue, isUserEditable);
 
         private ITypeDefinitionProvider GetProvider(object value)
         {

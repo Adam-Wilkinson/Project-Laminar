@@ -12,12 +12,14 @@ namespace Laminar_Core.NodeSystem.Connection.ConnectorManagers
 {
     public class FlowConnectionManager : IConnectorManager
     {
+        private readonly Instance _instance;
         private IVisualNodeComponent _parentComponent;
         private ConnectorType _connectorType;
         private FlowConnectionManager _pairedConnection;
 
-        public FlowConnectionManager(IObservableValue<string> hexColour)
+        public FlowConnectionManager(Instance instance, IObservableValue<string> hexColour)
         {
+            _instance = instance;
             HexColour = hexColour;
             HexColour.Value = "#800080";
         }
@@ -102,10 +104,10 @@ namespace Laminar_Core.NodeSystem.Connection.ConnectorManagers
 
         private void FlashColourChange()
         {
-            Instance.Current.UIContext.Post(delegate { HexColour.Value = "#F000F0"; }, null);
+            _instance.UIContext.Post(delegate { HexColour.Value = "#F000F0"; }, null);
             Task.Delay(new TimeSpan(0, 0, 0, 0, 300)).ContinueWith(t =>
             {
-                Instance.Current.UIContext.Post(delegate { HexColour.Value = "#800080"; }, null);
+                _instance.UIContext.Post(delegate { HexColour.Value = "#800080"; }, null);
             });
         }
     }

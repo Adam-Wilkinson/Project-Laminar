@@ -23,9 +23,12 @@ namespace Laminar_Core
     public class ObjectFactory : IObjectFactory
     {
         private readonly Dictionary<Type, Type> interfaceImplementations = new();
+        private readonly Instance _instance;
 
-        public ObjectFactory()
+        public ObjectFactory(Instance instance)
         {
+            _instance = instance;
+
             RegisterImplementation<IOpacity, Opacity>();
             RegisterImplementation<INodeField, NodeField>();
             RegisterImplementation<INodeLabel, NodeLabel>();
@@ -84,6 +87,10 @@ namespace Laminar_Core
                 else if (parameter.ParameterType == typeof(IObjectFactory))
                 {
                     parameterObjects[i] = this;
+                }
+                else if (parameter.ParameterType == typeof(Instance))
+                {
+                    parameterObjects[i] = _instance;
                 }
                 else
                 {

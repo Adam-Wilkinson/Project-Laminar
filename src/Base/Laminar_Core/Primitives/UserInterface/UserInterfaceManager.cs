@@ -11,11 +11,13 @@ namespace Laminar_Core.Primitives.UserInterface
         private ILaminarValue _childValue;
         private string _userInterfaceType;
         private readonly IObjectFactory _factory;
+        private readonly Instance _instance;
         private readonly List<IObservableValue<object>> _userInterfaces = new();
 
-        public UserInterfaceManager(IObjectFactory factory)
+        public UserInterfaceManager(Instance instance)
         {
-            _factory = factory;
+            _factory = instance.Factory;
+            _instance = instance;
         }
 
         public object this[string key]
@@ -87,7 +89,7 @@ namespace Laminar_Core.Primitives.UserInterface
                         return userInterface;
                     }
 
-                    if (Editors.TryGetUserInterface(AQNOfType, Instance.Current.GetTypeInfo(_childValue.TypeDefinition.ValueType).DefaultEditor, out object defaultTypeUserInterface))
+                    if (Editors.TryGetUserInterface(AQNOfType, _instance.GetTypeInfo(_childValue.TypeDefinition.ValueType).DefaultEditor, out object defaultTypeUserInterface))
                     {
                         return defaultTypeUserInterface;
                     }
@@ -99,7 +101,7 @@ namespace Laminar_Core.Primitives.UserInterface
                         return userInterface;
                     }
 
-                    if (Displays.TryGetUserInterface(AQNOfType, Instance.Current.GetTypeInfo(_childValue.TypeDefinition.ValueType).DefaultDisplay, out object defaultTypeUserInterface))
+                    if (Displays.TryGetUserInterface(AQNOfType, _instance.GetTypeInfo(_childValue.TypeDefinition.ValueType).DefaultDisplay, out object defaultTypeUserInterface))
                     {
                         return defaultTypeUserInterface;
                     }
