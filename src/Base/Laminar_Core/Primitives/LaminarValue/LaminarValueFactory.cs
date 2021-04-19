@@ -44,6 +44,13 @@ namespace Laminar_Core.Primitives.LaminarValue
                 return manager;
             }
 
+            if (value is Type type)
+            {
+                IRigidTypeDefinitionManager manager = _factory.GetImplementation<IRigidTypeDefinitionManager>();
+                manager.RegisterTypeDefinition(_instance.GetTypeInfo(type).DefaultValue, null, null);
+                return manager;
+            }
+
             IRigidTypeDefinitionManager rigidTypeDefinitionManager = _factory.GetImplementation<IRigidTypeDefinitionManager>();
             rigidTypeDefinitionManager.RegisterTypeDefinition(value, null, null);
             return rigidTypeDefinitionManager;

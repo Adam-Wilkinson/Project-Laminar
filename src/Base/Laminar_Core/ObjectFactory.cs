@@ -51,6 +51,7 @@ namespace Laminar_Core
             RegisterImplementation<INodeTree, NodeTree>();
             RegisterImplementation<IVisualNodeComponentContainer, VisualNodeComponentContainer>();
             RegisterImplementation<IPoint, Point>();
+            RegisterImplementation<INodeTreeInputs, NodeTreeInputs>();
             RegisterImplementationUnsafe(typeof(IObservableValue<>), typeof(ObservableValue<>));
             RegisterImplementationUnsafe(typeof(IDependentValue<>), typeof(DependentValue<>));
             RegisterImplementationUnsafe(typeof(IValueConstraint<>), typeof(ValueConstraint<>));

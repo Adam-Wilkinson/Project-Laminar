@@ -1,14 +1,14 @@
 ﻿<Styles
   xmlns = "https://github.com/avaloniaui"
   xmlns:x = "http://schemas.microsoft.com/winfx/2006/xaml"
-  xmlns:coreNodes ="clr-namespace:Laminar_Core.NodeSystemystem;assembly=Laminar_Core"
   xmlns:nds = "clr-namespace:Laminar_Avalonia.NodeDisplaySystem;assembly=Laminar_Avalonia">
 
   <Design.PreviewWith>
     <Border Padding="20">
-      <nds:NodePickerTabBar/>
+		<TextBlock>Test</TextBlock>
     </Border>
   </Design.PreviewWith>
+	
 	<Style Selector="nds|NodePickerTabBar">
 		<Setter Property="Template">
 			<ControlTemplate>

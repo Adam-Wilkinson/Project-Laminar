@@ -27,11 +27,11 @@ namespace Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals
             return nodeField;
         }
 
-        public static TComponent WithInput<TComponent>(this TComponent nodeField, object defaultValue) where TComponent : INodeField
-            => nodeField.WithValue(INodeField.InputKey, defaultValue, true);
+        public static TComponent WithInput<TComponent>(this TComponent nodeField, object defaultValue, bool isUserEditable = true) where TComponent : INodeField
+            => nodeField.WithValue(INodeField.InputKey, defaultValue, isUserEditable);
 
-        public static TComponent WithOutput<TComponent>(this TComponent nodeField, object defaultValue) where TComponent : INodeField
-            => nodeField.WithValue(INodeField.OutputKey, defaultValue, false);
+        public static TComponent WithOutput<TComponent>(this TComponent nodeField, object defaultValue, bool isUserEditable = false) where TComponent : INodeField
+            => nodeField.WithValue(INodeField.OutputKey, defaultValue, isUserEditable);
 
         public static INodeField WithValue<T>(this INodeField nodeField, object valueKey, bool isUserEditable)
         {
@@ -39,15 +39,15 @@ namespace Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals
             return nodeField;
         }
 
-        public static INodeField WithInput<T>(this INodeField nodeField)
+        public static INodeField WithInput<T>(this INodeField nodeField, bool isUserEditable = true)
         {
-            nodeField.AddValue<T>(INodeField.InputKey, true);
+            nodeField.AddValue<T>(INodeField.InputKey, isUserEditable);
             return nodeField;
         }
 
-        public static INodeField WithOutput<T>(this INodeField nodeField)
+        public static INodeField WithOutput<T>(this INodeField nodeField, bool isUserEditable = false)
         {
-            nodeField.AddValue<T>(INodeField.OutputKey, false);
+            nodeField.AddValue<T>(INodeField.OutputKey, isUserEditable);
             return nodeField;
         }
 

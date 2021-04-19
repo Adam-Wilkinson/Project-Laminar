@@ -43,7 +43,7 @@ namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
 
         public IVisualNodeComponentContainer FlowOutContainer { get; protected set; }
 
-        public virtual INodeBase DuplicateNode() => new NodeFactory(_factory).Get<T>();// new NodeBase((INode)Activator.CreateInstance(_baseNode.GetType()), Instance.Factory.CreateInstance<NodeDependencyAggregate>());
+        public virtual INodeBase DuplicateNode() => new NodeFactory(_factory).Get<T>();
 
         public virtual void Update()
         {

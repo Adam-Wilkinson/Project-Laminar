@@ -88,9 +88,9 @@
 
         protected virtual void ProtectedInsert(int index, INodeComponent newComponent)
         {
-            _childComponents.Insert(index, newComponent);
             newComponent.Opacity.AddOpacityFactor(Opacity);
             newComponent.ParentNode = ParentNode;
+            _childComponents.Insert(index, newComponent);
         }
 
         protected virtual void ProtectedRemoveAt(int index)

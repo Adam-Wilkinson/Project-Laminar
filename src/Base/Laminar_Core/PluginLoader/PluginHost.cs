@@ -16,8 +16,8 @@ namespace Laminar_Core.PluginManagement
         public void AddNodeToMenu<TNode>(string menuItemName, string subItemName = null) where TNode : INode, new()
             => _instance.LoadedNodeManager.AddNodeToCatagory<TNode>(menuItemName, subItemName);
 
-        public bool RegisterType<T>(string hexColour, string userFriendlyName, T defaultValue = default, string defaultEditorName = null, string defaultDisplayName = null)
-            => _instance.RegisterTypeInfo(typeof(T), new Instance.TypeInfoRecord(defaultValue, hexColour, defaultDisplayName, defaultEditorName, userFriendlyName));
+        public bool RegisterType<T>(string hexColour, string userFriendlyName, T defaultValue = default, string defaultEditorName = null, string defaultDisplayName = null, bool isTreeInput = true)
+            => _instance.RegisterTypeInfo(typeof(T), new TypeInfoRecord(typeof(T), defaultValue, hexColour, defaultDisplayName, defaultEditorName, userFriendlyName, isTreeInput));
 
         public bool TryAddTypeConverter<TInput, TOutput, TConverter>() where TConverter : INode
             => throw new NotImplementedException();

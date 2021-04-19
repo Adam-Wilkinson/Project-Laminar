@@ -1,28 +1,25 @@
-﻿namespace Laminar_Avalonia.NodeDisplaySystem
-{
-    using System;
-    using System.Collections;
-    using System.Collections.Generic;
-    using System.Collections.Specialized;
-    using System.Diagnostics;
-    using System.Linq;
-    using Avalonia;
-    using Avalonia.Controls;
-    using Avalonia.Controls.Shapes;
-    using Avalonia.Input;
-    using Avalonia.Media;
-    using Avalonia.VisualTree;
-    using Laminar_Core;
-    using Laminar_Core.NodeSystem;
-    using Laminar_Core.NodeSystem.Connection;
-    using Laminar_Core.NodeSystem.NodeComponents.Visuals;
-    using Laminar_Core.NodeSystem.Nodes;
-    using Laminar_Core.NodeSystem.NodeTreeSystem;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Linq;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Shapes;
+using Avalonia.Input;
+using Avalonia.Media;
+using Avalonia.VisualTree;
+using Laminar_Core.NodeSystem.Connection;
+using Laminar_Core.NodeSystem.NodeComponents.Visuals;
+using Laminar_Core.NodeSystem.Nodes;
+using Laminar_Core.NodeSystem.NodeTreeSystem;
 
+namespace Laminar_Avalonia.NodeDisplaySystem
+{
     public class NodeDisplayCanvas : Canvas
     {
         private readonly Pen pen = new(Brushes.LightGray);
-        private readonly INodeTree manager = App.LaminarInstance.Factory.GetImplementation<INodeTree>();
+        private readonly INodeTree manager = App.LaminarInstance.ActiveNodeTree.Value;
         private List<NodeDisplay> selectedNodes = new();
         private Point originalClickPoint;
         private bool hasClickPoint = false;

@@ -13,6 +13,7 @@
         Title="Project: Laminar"
         DataContext="MainWindowViewModel">
   <additions:ToolbarPanel DefaultWidth="250"> 
+	<nodes:NodeTreeInputDisplay additions:ToolbarPanel.DockDirection="Left"/>
     <nodes:NodePickerTabBar additions:ToolbarPanel.DockDirection="Top"/>
     <nodes:ZoomBorder Background="#1B1B1B"/>
   </additions:ToolbarPanel>

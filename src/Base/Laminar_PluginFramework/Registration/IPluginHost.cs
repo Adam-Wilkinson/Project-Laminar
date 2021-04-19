@@ -156,7 +156,7 @@
         /// <param name="defaultEditorName">The name of the editor that will be used by default</param>
         /// <param name="defaultDisplayName">The name of the display that will be used by default</param>
         /// <returns>Returns true if the type was registered, false if the value could not be registered</returns>
-        bool RegisterType<T>(string hexColour, string userFriendlyName, T defaultValue, string defaultEditorName, string defaultDisplayName);
+        bool RegisterType<T>(string hexColour, string userFriendlyName, T defaultValue, string defaultEditorName, string defaultDisplayName, bool isTreeInput);
 
         /// <summary>
         /// Registers an editor with a specific name in a specific UI implementation

@@ -1,5 +1,6 @@
 ﻿using Laminar_Core.NodeSystem.Nodes;
 using Laminar_Core.NodeSystem.Nodes.NodeTypes;
+using Laminar_Core.NodeSystem.NodeTreeSystem;
 using Laminar_Core.Primitives;
 using Laminar_PluginFramework.NodeSystem.Nodes;
 using Laminar_PluginFramework.Primitives;
@@ -45,6 +46,11 @@ namespace Laminar_Core.NodeSystem.Nodes
             if (typeof(ITriggerNode).IsAssignableFrom(typeof(T)))
             {
                 return _factory.CreateInstance<TriggerNode<T>>();
+            }
+
+            if (typeof(T) == typeof(InputNode))
+            {
+                return _factory.CreateInstance<InputNodeBase>();
             }
 
             return _factory.CreateInstance<NodeBase<T>>();

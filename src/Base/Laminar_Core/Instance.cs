@@ -7,23 +7,33 @@ using Laminar_PluginFramework;
 using Laminar_Core.PluginManagement;
 using Laminar_Core.NodeSystem.Nodes;
 using Laminar_PluginFramework.Primitives;
+using Laminar_Core.NodeSystem.NodeTreeSystem;
+using System.Linq;
 
 namespace Laminar_Core
 {
     public class Instance
     {
-        private readonly Dictionary<Type, TypeInfoRecord> TypeInfo = new();
+        private readonly Dictionary<Type, TypeInfoRecord> _typeInfo = new();
 
         public Instance(SynchronizationContext uiContext)
         {
             Factory = new ObjectFactory(this);
+            Laminar.Init(Factory);
+
             RegisteredEditors = Factory.GetImplementation<IUserInterfaceRegister>();
             RegisteredDisplays = Factory.GetImplementation<IUserInterfaceRegister>();
             LoadedNodeManager = Factory.CreateInstance<LoadedNodeManager>();
-            Laminar.Init(Factory);
-            UIContext = uiContext;
+
             _ = new PluginLoader(new PluginHost(this));
+
+            ActiveNodeTree = Factory.GetImplementation<IObservableValue<INodeTree>>();
+            ActiveNodeTree.Value = Factory.GetImplementation<INodeTree>();
+            UIContext = uiContext;
+            AllRegisteredTypes = _typeInfo.Values.Where(x => x.CanBeInput);
         }
+
+        public IObservableValue<INodeTree> ActiveNodeTree { get; }
 
         public IObjectFactory Factory { get; }
 
@@ -35,18 +45,20 @@ namespace Laminar_Core
 
         public IUserInterfaceRegister RegisteredDisplays { get; }
 
-        public bool RegisterTypeInfo(Type type, TypeInfoRecord record) => TypeInfo.TryAdd(type, record);
+        public IEnumerable<TypeInfoRecord> AllRegisteredTypes { get; }
+
+        public bool RegisterTypeInfo(Type type, TypeInfoRecord record) => _typeInfo.TryAdd(type, record);
 
         public TypeInfoRecord GetTypeInfo(Type type)
         {
-            if (TypeInfo.TryGetValue(type, out TypeInfoRecord info))
+            if (_typeInfo.TryGetValue(type, out TypeInfoRecord info))
             {
                 return info;
             }
 
             throw new NotSupportedException($"The type {type} is not registered");
         }
-
-        public record TypeInfoRecord(object DefaultValue, string HexColour, string DefaultDisplay, string DefaultEditor, string UserFriendlyName);
     }
+
+    public record TypeInfoRecord(Type Type, object DefaultValue, string HexColour, string DefaultDisplay, string DefaultEditor, string UserFriendlyName, bool CanBeInput);
 }

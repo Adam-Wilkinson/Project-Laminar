@@ -1,0 +1,59 @@
+﻿<Styles
+  xmlns = "https://github.com/avaloniaui"
+  xmlns:x = "http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:nds = "clr-namespace:Laminar_Avalonia.NodeDisplaySystem;assembly=Laminar_Avalonia">
+
+  <Design.PreviewWith>
+    <Border Padding="20">
+      <nds:NodeTreeInputDisplay/>
+    </Border>
+  </Design.PreviewWith>
+	
+	<Style Selector="nds|NodeTreeInputDisplay">
+		<Setter Property="Template">
+			<ControlTemplate>
+				<Border BorderThickness="{DynamicResource ThemeBorderThickness}"
+						BorderBrush="{DynamicResource ThemeBorderMidBrush}">
+					<StackPanel Background="{DynamicResource ThemeBackgroundBrush}">
+
+						<Border Background="#050505" Margin="0,0,0,10">
+							<TextBlock HorizontalAlignment="Center" FontSize="20" Padding="10" Text="Inputs"/>
+						</Border>
+						
+						<ItemsControl Name="PART_InputNodes" Items="{TemplateBinding InputNodes, Mode=OneWay}">
+							<ItemsControl.ItemsPanel>
+								<ItemsPanelTemplate>
+									<StackPanel Spacing="10" Orientation="{Binding $parent[nds:NodeTreeInputDisplay].Orientation}"/>
+								</ItemsPanelTemplate>
+							</ItemsControl.ItemsPanel>
+						</ItemsControl>
+
+						<ToggleButton Content="+" Command="{Binding $parent[nds:NodeTreeInputDisplay].ToggleMenuOpen}"/>
+						<Popup IsOpen="{TemplateBinding PickerMenuIsOpen}"
+							   PlacementMode="Pointer"
+							   PlacementAnchor="Top">
+							<ItemsPresenter Items="{TemplateBinding AllTypeInfo}">
+								<ItemsPresenter.ItemsPanel>
+									<ItemsPanelTemplate>
+										<StackPanel HorizontalAlignment="Center"/>
+									</ItemsPanelTemplate>
+								</ItemsPresenter.ItemsPanel>
+								<ItemsPresenter.ItemTemplate>
+									<DataTemplate>
+										<Button Command="{Binding $parent[nds:NodeTreeInputDisplay].AddInputOfType}" CommandParameter="{Binding Type}" HorizontalContentAlignment="Left">
+											<StackPanel HorizontalAlignment="Left" Margin="10,0" Spacing="5" Orientation="Horizontal">
+												<Ellipse HorizontalAlignment="Left" Fill="{Binding HexColour}" Width="15" Height="15"/>
+												<TextBlock Margin="5" FontSize="20" Text="{Binding UserFriendlyName}"/>
+											</StackPanel>
+										</Button>
+									</DataTemplate>
+								</ItemsPresenter.ItemTemplate>
+							</ItemsPresenter>
+						</Popup>
+
+					</StackPanel>
+				</Border>
+			</ControlTemplate>
+		</Setter>
+	</Style>
+</Styles>
