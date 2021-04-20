@@ -19,8 +19,9 @@ namespace Laminar_Avalonia.NodeDisplaySystem
     public class NodeTreeInputDisplay : TemplatedControl
     {
         public static readonly StyledProperty<ObservableCollection<NodeDisplay>> InputNodesProperty = AvaloniaProperty.Register<NodeTreeInputDisplay, ObservableCollection<NodeDisplay>>(nameof(InputNodes));
-        public static readonly StyledProperty<bool> PickerMenuIsOpenProperty = AvaloniaProperty.Register<NodeTreeInputDisplay, bool>(nameof(PickerMenuIsOpen));
         public static readonly StyledProperty<IEnumerable<TypeInfoRecord>> AllTypeInfoProperty = AvaloniaProperty.Register<NodeTreeInputDisplay, IEnumerable<TypeInfoRecord>>(nameof(AllTypeInfo));
+
+        private ToggleButton _toggleAddMenuButton;
 
         public NodeTreeInputDisplay()
         {
@@ -72,33 +73,22 @@ namespace Laminar_Avalonia.NodeDisplaySystem
             set => SetValue(AllTypeInfoProperty, value);
         }
 
-        public bool PickerMenuIsOpen
-        {
-            get => GetValue(PickerMenuIsOpenProperty);
-            set => SetValue(PickerMenuIsOpenProperty, value);
-        }
-
         public ObservableCollection<NodeDisplay> InputNodes
         {
             get => GetValue(InputNodesProperty);
             set => SetValue(InputNodesProperty, value);
         }
 
-        public void ToggleMenuOpen()
-        {
-            PickerMenuIsOpen = !PickerMenuIsOpen;
-        }
-
         public void AddInputOfType(Type type)
         {
             App.LaminarInstance.ActiveNodeTree.Value.Inputs.Add(type);
-            ToggleMenuOpen();
+            _toggleAddMenuButton.IsChecked = false;
         }
 
         protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
             base.OnApplyTemplate(e);
-            // e.NameScope.Find<ToggleButton>("PART_AddNodeButton").LostFocus += delegate { PickerMenuIsOpen = false; };
+            _toggleAddMenuButton = e.NameScope.Find<ToggleButton>("PART_AddNodeButton");
         }
 
         public record DisplayType(string HexColour, string TypeName);

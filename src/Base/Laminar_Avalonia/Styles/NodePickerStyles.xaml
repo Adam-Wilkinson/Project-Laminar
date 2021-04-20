@@ -22,7 +22,10 @@
 							<Menu.Styles>
 								<Style Selector="MenuItem">
 									<Setter Property="DockPanel.Dock" Value="Left"/>
+									<Setter Property="FontSize" Value="20"/>
+									<Setter Property="HorizontalAlignment" Value="Center"/>
 									<Setter Property="Grid.Column" Value="{Binding Value.Index}"/>
+									<Setter Property="Padding" Value="10"/>
 									<Setter Property="Header" Value="{Binding Key}"/>
 									<Setter Property="Items" Value="{Binding Value.SubCatagories}"/>
 									<Setter Property="Command" Value="{Binding $parent[nds:NodePickerTabBar].SelectItem}"/>
@@ -80,11 +83,16 @@
 		</Setter>
 	</Style>
 
-	<Style Selector="Menu.BigMenu > MenuItem /template/ MenuItem /template/ ContentPresenter#PART_HeaderPresenter">
-		<Setter Property="ContentTemplate">
-			<DataTemplate>
-				<TextBlock HorizontalAlignment="Center" FontSize="20" Text="{Binding}"/>
-			</DataTemplate>
-		</Setter>
+	<Style Selector="Menu.BigMenu > MenuItem /template/ Popup">
+		<Setter Property="HorizontalAlignment" Value="Stretch"/>
+		<Setter Property="Width" Value="{Binding $parent[nds:NodePickerTabBar].Width}"/>
+		<Setter Property="PlacementAnchor" Value="Bottom"/>
+		<Setter Property="PlacementGravity" Value="Bottom"/>
+		<Setter Property="PlacementMode" Value="AnchorAndGravity"/>
+	</Style>
+
+	<Style Selector="Menu.BigMenu > MenuItem /template/ Popup > ScrollViewer">
+		<Setter Property="HorizontalAlignment" Value="Stretch"/>
+		<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
 	</Style>
 </Styles>

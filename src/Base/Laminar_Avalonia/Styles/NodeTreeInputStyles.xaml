@@ -28,34 +28,37 @@
 							</ItemsControl.ItemsPanel>
 						</ItemsControl>
 
-						<ToggleButton Name="PART_AddNodeButton"
-									  Classes="AddNodeButton" 
-									  Content="+" 
-									  Command="{Binding $parent[nds:NodeTreeInputDisplay].ToggleMenuOpen}"
-									  IsChecked="{TemplateBinding PickerMenuIsOpen}"
-									  Margin="15"
-									  Height="30"/>
-						<Popup IsOpen="{TemplateBinding PickerMenuIsOpen}"
-							   PlacementMode="Pointer"
-							   PlacementAnchor="Top">
-							<ItemsPresenter Items="{TemplateBinding AllTypeInfo}">
-								<ItemsPresenter.ItemsPanel>
-									<ItemsPanelTemplate>
-										<StackPanel HorizontalAlignment="Center"/>
-									</ItemsPanelTemplate>
-								</ItemsPresenter.ItemsPanel>
-								<ItemsPresenter.ItemTemplate>
-									<DataTemplate>
-										<Button Command="{Binding $parent[nds:NodeTreeInputDisplay].AddInputOfType}" CommandParameter="{Binding Type}" HorizontalContentAlignment="Left">
-											<StackPanel HorizontalAlignment="Left" Margin="10,0" Spacing="5" Orientation="Horizontal">
-												<Ellipse HorizontalAlignment="Left" Fill="{Binding HexColour}" Width="15" Height="15"/>
-												<TextBlock Margin="5" FontSize="20" Text="{Binding UserFriendlyName}"/>
-											</StackPanel>
-										</Button>
-									</DataTemplate>
-								</ItemsPresenter.ItemTemplate>
-							</ItemsPresenter>
-						</Popup>
+						<Panel Margin="15">
+							<ToggleButton Name="PART_AddNodeButton"
+										  Classes="AddNodeButton"
+										  Content="+"
+										  Height="30"/>
+							<Popup IsOpen="{Binding #PART_AddNodeButton.IsChecked, Mode=TwoWay}"
+								   WindowManagerAddShadowHint="True"
+								   PlacementAnchor="Top"
+								   PlacementGravity="Bottom"
+								   PlacementMode="AnchorAndGravity"
+								   IsLightDismissEnabled="True">
+								<ItemsPresenter Items="{TemplateBinding AllTypeInfo}">
+									<ItemsPresenter.ItemsPanel>
+										<ItemsPanelTemplate>
+											<StackPanel HorizontalAlignment="Center"/>
+										</ItemsPanelTemplate>
+									</ItemsPresenter.ItemsPanel>
+									<ItemsPresenter.ItemTemplate>
+										<DataTemplate>
+											<Button Command="{Binding $parent[nds:NodeTreeInputDisplay].AddInputOfType}" CommandParameter="{Binding Type}" HorizontalContentAlignment="Left">
+												<StackPanel HorizontalAlignment="Left" Margin="10,0" Spacing="5" Orientation="Horizontal">
+													<Ellipse HorizontalAlignment="Left" Fill="{Binding HexColour}" Width="15" Height="15"/>
+													<TextBlock Margin="5" FontSize="20" Text="{Binding UserFriendlyName}"/>
+												</StackPanel>
+											</Button>
+										</DataTemplate>
+									</ItemsPresenter.ItemTemplate>
+								</ItemsPresenter>
+							</Popup>
+						</Panel>
+
 
 					</StackPanel>
 				</Border>
