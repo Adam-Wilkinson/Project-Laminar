@@ -15,10 +15,8 @@ namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
         public ActionNode(NodeDependencyAggregate dependencies) 
             : base(dependencies)
         {
-            INodeLabel FlowOut = Constructor.NodeLabel("Flow").WithFlowInput().WithFlowOutput();
-            FieldList.Insert(0, FlowOut);
-            FieldList.Insert(1, Constructor.Separator());
-            FlowOutContainer = GetContainer(FlowOut);
+            NameLabel.WithFlowInput().WithFlowOutput();
+            FlowOutContainer = GetContainer(NameLabel);
         }
     }
 }

@@ -32,6 +32,7 @@ namespace Laminar_Core
             RegisterImplementation<IOpacity, Opacity>();
             RegisterImplementation<INodeField, NodeField>();
             RegisterImplementation<INodeLabel, NodeLabel>();
+            RegisterImplementation<IEditableNodeLabel, EditableNodeLabel>();
             RegisterImplementation<INodeComponentList, NodeComponentList>();
             RegisterImplementation<INodeComponentAutoCloner, NodeComponentAutoCloner>();
             RegisterImplementation<INodeComponentDictionary, NodeComponentDictionary>();

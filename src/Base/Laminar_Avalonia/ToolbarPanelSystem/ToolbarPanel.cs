@@ -210,7 +210,10 @@
 
             foreach (IControl control in centerControl)
             {
-                control.Arrange(remainingSpace);
+                if (remainingSpace.Height > 0)
+                {
+                    control.Arrange(remainingSpace);
+                }
             }
 
             return arrangeSize;

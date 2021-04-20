@@ -1,4 +1,4 @@
-﻿<Window xmlns="https://github.com/avaloniaui"
+<Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="clr-namespace:Laminar_Avalonia.ViewModels;assembly=Laminar_Avalonia"
         xmlns:nodes="clr-namespace:Laminar_Avalonia.NodeDisplaySystem;assembly=Laminar_Avalonia"
@@ -12,9 +12,12 @@
         Icon="/Assets/ProjectLaminarLogo.png"
         Title="Project: Laminar"
         DataContext="MainWindowViewModel">
-  <additions:ToolbarPanel DefaultWidth="250"> 
-	<nodes:NodeTreeInputDisplay additions:ToolbarPanel.DockDirection="Left"/>
-    <nodes:NodePickerTabBar additions:ToolbarPanel.DockDirection="Top"/>
-    <nodes:ZoomBorder Background="#1B1B1B"/>
-  </additions:ToolbarPanel>
+	<DockPanel>
+		<StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Center">
+			<Button Command="{Binding ShowAllScripts}">Script Viewer</Button>
+			<Button Command="{Binding ShowScriptEditor}">Script Editor</Button>
+		</StackPanel>
+		<ContentControl Content="{Binding MainControl}"/>
+    </DockPanel>
+	
 </Window>

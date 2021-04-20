@@ -1,5 +1,6 @@
 ﻿using Laminar_Core.NodeSystem.NodeComponents.Visuals;
 using Laminar_Core.Primitives;
+using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
 using Laminar_PluginFramework.NodeSystem.Nodes;
 using Laminar_PluginFramework.Primitives;
 using System;
@@ -14,7 +15,9 @@ namespace Laminar_Core.NodeSystem.Nodes
 
         IObservableValue<bool> ErrorState { get; }
 
-        IObservableValue<string> Name { get; }
+        IVisualNodeComponentContainer Name { get; }
+
+        IEditableNodeLabel NameLabel { get; }
 
         INotifyCollectionChanged Fields { get; }
 

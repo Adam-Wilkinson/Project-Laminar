@@ -1,5 +1,6 @@
 ﻿using Laminar_Core.NodeSystem.Connection;
 using Laminar_Core.NodeSystem.Nodes;
+using Laminar_PluginFramework.Primitives;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
@@ -8,6 +9,8 @@ namespace Laminar_Core.NodeSystem.NodeTreeSystem
     public interface INodeTree
     {
         ReadOnlyObservableCollection<INodeBase> Nodes { get; }
+
+        IObservableValue<string> Name { get; }
 
         INodeTreeInputs Inputs { get; }
 

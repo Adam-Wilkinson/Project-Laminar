@@ -19,8 +19,11 @@ namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
         public NodeBase(NodeDependencyAggregate dependencies)
         {
             BaseNode = (T)Activator.CreateInstance(typeof(T));
-            (Location, ErrorState, Name, _factory) = dependencies;
-            Name.Value = BaseNode.NodeName;
+            (Location, ErrorState, NameLabel, _factory) = dependencies;
+            NameLabel.LabelText.Value = BaseNode.NodeName;
+            NameLabel.ParentNode = BaseNode;
+            Name = _factory.GetImplementation<IVisualNodeComponentContainer>();
+            Name.Child = NameLabel;
 
             INodeBase.NodeBases.Add(BaseNode, this);
 
@@ -33,15 +36,17 @@ namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
 
         protected INodeComponentList FieldList { get; }
 
+        public IVisualNodeComponentContainer Name { get; }
+
         public IObservableValue<bool> ErrorState { get; }
 
         public IPoint Location { get; }
 
-        public IObservableValue<string> Name { get; }
-
         public INotifyCollectionChanged Fields { get; }
 
         public IVisualNodeComponentContainer FlowOutContainer { get; protected set; }
+
+        public IEditableNodeLabel NameLabel { get; }
 
         public virtual INodeBase DuplicateNode() => new NodeFactory(_factory).Get<T>();
 
@@ -55,6 +60,11 @@ namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
 
         protected IVisualNodeComponentContainer GetContainer(IVisualNodeComponent component)
         {
+            if (component == NameLabel)
+            {
+                return Name;
+            }
+
             return ((IList<IVisualNodeComponentContainer>)Fields)[FieldList.VisualComponentList.IndexOf(component)];
         }
     }

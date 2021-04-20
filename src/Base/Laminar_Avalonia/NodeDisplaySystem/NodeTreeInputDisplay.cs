@@ -1,18 +1,13 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
-using Avalonia.Controls.Shapes;
-using Avalonia.Input;
 using Laminar_Core;
 using Laminar_Core.NodeSystem.Nodes;
-using ReactiveUI;
+using Laminar_Core.NodeSystem.NodeTreeSystem;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.Diagnostics;
-using System.Reactive;
 
 namespace Laminar_Avalonia.NodeDisplaySystem
 {
@@ -26,8 +21,17 @@ namespace Laminar_Avalonia.NodeDisplaySystem
         public NodeTreeInputDisplay()
         {
             InputNodes = new();
-            ((INotifyCollectionChanged)App.LaminarInstance.ActiveNodeTree.Value.Inputs.InputNodes).CollectionChanged += NodeTreeInputDisplay_CollectionChanged;
+            DataContextChanged += NodeTreeInputDisplay_DataContextChanged;
+
             AllTypeInfo = App.LaminarInstance.AllRegisteredTypes;
+        }
+
+        private void NodeTreeInputDisplay_DataContextChanged(object sender, EventArgs e)
+        {
+            if (DataContext is INodeTree nodeTree)
+            {
+                ((INotifyCollectionChanged)nodeTree.Inputs.InputNodes).CollectionChanged += NodeTreeInputDisplay_CollectionChanged;
+            }
         }
 
         private void NodeTreeInputDisplay_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -64,7 +68,7 @@ namespace Laminar_Avalonia.NodeDisplaySystem
             {
                 DragDropHandler.StartDrop(e, "NodeDisplay", new NodeDisplay() { CoreNode = item as INodeBase }, null, e.GetPosition(newNode));
             };
-            newNode.StartEditingName();
+            newNode.CoreNode.NameLabel.IsBeingEdited.Value = true;
         }
 
         public IEnumerable<TypeInfoRecord> AllTypeInfo
@@ -81,7 +85,7 @@ namespace Laminar_Avalonia.NodeDisplaySystem
 
         public void AddInputOfType(Type type)
         {
-            App.LaminarInstance.ActiveNodeTree.Value.Inputs.Add(type);
+            (DataContext as INodeTree).Inputs.Add(type);
             _toggleAddMenuButton.IsChecked = false;
         }
 

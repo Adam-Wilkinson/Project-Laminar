@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals
 {
-    public interface INodeLabel : IVisualNodeComponent
+    public interface IEditableNodeLabel : INodeLabel
     {
-        public IObservableValue<string> LabelText { get; }
+        public IObservableValue<bool> IsBeingEdited { get; }
     }
 }

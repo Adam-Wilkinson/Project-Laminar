@@ -1,0 +1,35 @@
+﻿<Styles 
+  xmlns = "https://github.com/avaloniaui"
+  xmlns:x = "http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:av ="using:Avalonia.Controls.Templates"
+  xmlns:nds = "clr-namespace:Laminar_Avalonia.NodeDisplaySystem;assembly=Laminar_Avalonia"
+  xmlns:displays="clr-namespace:Laminar_Core.NodeSystem.NodeComponents.Visuals;assembly=Laminar_Core"
+  xmlns:c ="clr-namespace:Laminar_Avalonia.Controls;assembly=Laminar_Avalonia"
+  xmlns:conv = "clr-namespace:Laminar_Avalonia.Converters;assembly=Laminar_Avalonia">
+
+	<Style Selector="c|EditableLabel">
+		<Style.Resources>
+			<conv:IsNotNull x:Key="IsNotNull"/>
+			<conv:ConvertAlignment x:Key="AlignmentConverter"/>
+			<conv:BooleanNot x:Key="BooleanNot"/>
+		</Style.Resources>
+		<Setter Property="Template">
+			<ControlTemplate>
+				<Panel>
+					<TextBlock Name="PART_Display"
+							   Text="{TemplateBinding Text, Mode=TwoWay}"
+							   VerticalAlignment="Center"
+							   HorizontalAlignment="Center"
+							   IsVisible="{Binding !IsEditing, RelativeSource={RelativeSource TemplatedParent}}"
+							   Margin="10"/>
+					<TextBox Name="PART_Editor"
+							 Text="{TemplateBinding Text, Mode=TwoWay}"
+							 VerticalAlignment="Center"
+							 HorizontalAlignment="Center"
+							 IsVisible="{TemplateBinding IsEditing}"
+							 Margin="5"/>
+				</Panel>
+			</ControlTemplate>
+		</Setter>
+	</Style>
+</Styles>

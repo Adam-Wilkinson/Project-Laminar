@@ -1,23 +1,16 @@
-﻿using Laminar_Core.NodeSystem.NodeComponents.Visuals;
-using Laminar_PluginFramework;
-using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
+﻿using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
 using Laminar_PluginFramework.NodeSystem.Nodes;
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
 {
     public class TriggerNode<T> : NodeBase<T> where T : INode
     {
-        private readonly INodeLabel FlowOut = Constructor.NodeLabel("Trigger Flow Out").WithFlowOutput();
-
         public TriggerNode(NodeDependencyAggregate dependencies) : base(dependencies)
         {
             (BaseNode as ITriggerNode).Trigger += TriggerNode_Trigger;
-            FieldList.Insert(0, FlowOut);
-            FlowOutContainer = GetContainer(FlowOut);
+            NameLabel.SetFlowOutput(true);
+            FlowOutContainer = Name;
         }
 
         public override void MakeLive()

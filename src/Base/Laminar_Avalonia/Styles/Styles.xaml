@@ -5,4 +5,5 @@
   <StyleInclude Source="/Styles/NodePickerStyles.xaml"/>
   <StyleInclude Source="/Styles/NodeDisplayStyles.xaml"/>
   <StyleInclude Source="/Styles/NodeTreeInputStyles.xaml"/>
+  <StyleInclude Source="/Styles/EditableLabelStyles.xaml"/>
 </Styles>

@@ -19,7 +19,7 @@ namespace Laminar_Avalonia.NodeDisplaySystem
     public class NodeDisplayCanvas : Canvas
     {
         private readonly Pen pen = new(Brushes.LightGray);
-        private readonly INodeTree manager = App.LaminarInstance.ActiveNodeTree.Value;
+        private INodeTree manager;
         private List<NodeDisplay> selectedNodes = new();
         private Point originalClickPoint;
         private bool hasClickPoint = false;
@@ -29,12 +29,21 @@ namespace Laminar_Avalonia.NodeDisplaySystem
 
         public NodeDisplayCanvas()
         {
-            foreach (INodeBase node in manager.Nodes)
-            {
-                NodeAdded(node);
-            }
+            DataContextChanged += NodeDisplayCanvas_DataContextChanged;
+        }
 
-            ((INotifyCollectionChanged)manager.Nodes).CollectionChanged += Nodes_CollectionChanged;
+        private void NodeDisplayCanvas_DataContextChanged(object sender, EventArgs e)
+        {
+            if (DataContext is INodeTree nodeTree)
+            {
+                manager = nodeTree;
+                foreach (INodeBase node in manager.Nodes)
+                {
+                    NodeAdded(node);
+                }
+
+                ((INotifyCollectionChanged)manager.Nodes).CollectionChanged += Nodes_CollectionChanged;
+            }
         }
 
         private enum DragType

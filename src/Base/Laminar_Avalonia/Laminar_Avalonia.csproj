@@ -19,6 +19,7 @@
     <AvaloniaResource Include="Styles\**" />
   </ItemGroup>
   <ItemGroup>
+    <None Remove="Styles\EditableLabelStyles.xaml" />
     <None Remove="Styles\NodeTreeInputStyles.xaml" />
   </ItemGroup>
   <ItemGroup>
@@ -46,8 +47,16 @@
     <ProjectReference Include="..\Laminar_Core\Laminar_Core.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <AvaloniaResource Update="Styles\EditableLabelStyles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </AvaloniaResource>
     <AvaloniaResource Update="Styles\NodeTreeInputStyles.xaml">
       <Generator>MSBuild:Compile</Generator>
     </AvaloniaResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Views\MainWindow.axaml.cs">
+      <DependentUpon>MainWindow.axaml</DependentUpon>
+    </Compile>
   </ItemGroup>
 </Project>

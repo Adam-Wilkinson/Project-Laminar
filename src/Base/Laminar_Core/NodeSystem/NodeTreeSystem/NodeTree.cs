@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using Laminar_Core.NodeSystem.Connection;
 using Laminar_Core.NodeSystem.Nodes;
+using Laminar_PluginFramework.Primitives;
 
 namespace Laminar_Core.NodeSystem.NodeTreeSystem
 {
@@ -13,12 +15,15 @@ namespace Laminar_Core.NodeSystem.NodeTreeSystem
         private readonly INodeFactory _nodeFactory;
         private readonly INodeConnectionFactory _connectionFactory;
 
-        public NodeTree(INodeFactory nodeFactory, INodeConnectionFactory connectionFactory, INodeTreeInputs inputs)
+        public NodeTree(IObservableValue<string> treeName, INodeFactory nodeFactory, INodeConnectionFactory connectionFactory, INodeTreeInputs inputs)
         {
             _nodeFactory = nodeFactory;
             _connectionFactory = connectionFactory;
             Inputs = inputs;
             Nodes = new(_nodes);
+
+            Name = treeName;
+            Name.Value = "Advanced Script";
 
             Inputs.ParentTree = this;
             INodeBase flowSourceNode = _nodeFactory.Get<ManualTriggerNode>();
@@ -29,6 +34,7 @@ namespace Laminar_Core.NodeSystem.NodeTreeSystem
         public INodeTreeInputs Inputs { get; }
 
         public ReadOnlyObservableCollection<INodeBase> Nodes { get; }
+        public IObservableValue<string> Name { get; }
 
         public bool TryConnectFields(IConnector field1, IConnector field2)
         {
