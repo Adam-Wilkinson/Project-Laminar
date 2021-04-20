@@ -9,6 +9,6 @@ namespace Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals
 {
     public interface IEditableNodeLabel : INodeLabel
     {
-        public IObservableValue<bool> IsBeingEdited { get; }
+        public bool NeedsEditing { get; set; }
     }
 }

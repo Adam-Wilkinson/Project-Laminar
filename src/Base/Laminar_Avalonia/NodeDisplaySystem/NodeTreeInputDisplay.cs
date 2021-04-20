@@ -1,6 +1,7 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
+using Avalonia.Input;
 using Laminar_Core;
 using Laminar_Core.NodeSystem.Nodes;
 using Laminar_Core.NodeSystem.NodeTreeSystem;
@@ -17,6 +18,8 @@ namespace Laminar_Avalonia.NodeDisplaySystem
         public static readonly StyledProperty<IEnumerable<TypeInfoRecord>> AllTypeInfoProperty = AvaloniaProperty.Register<NodeTreeInputDisplay, IEnumerable<TypeInfoRecord>>(nameof(AllTypeInfo));
 
         private ToggleButton _toggleAddMenuButton;
+        private NodeDisplay _lastClickedDisplay;
+        private Vector _dragOffset;
 
         public NodeTreeInputDisplay()
         {
@@ -66,9 +69,16 @@ namespace Laminar_Avalonia.NodeDisplaySystem
             InputNodes.Add(newNode);
             newNode.PointerPressed += (o, e) =>
             {
-                DragDropHandler.StartDrop(e, "NodeDisplay", new NodeDisplay() { CoreNode = item as INodeBase }, null, e.GetPosition(newNode));
+                _lastClickedDisplay = new NodeDisplay() { CoreNode = item as INodeBase };
+                _dragOffset = e.GetPosition(newNode);
             };
-            newNode.CoreNode.NameLabel.IsBeingEdited.Value = true;
+
+            newNode.PointerReleased += (o, e) =>
+            {
+                _lastClickedDisplay = null;
+            };
+
+            newNode.CoreNode.NameLabel.NeedsEditing = true;
         }
 
         public IEnumerable<TypeInfoRecord> AllTypeInfo
@@ -93,6 +103,15 @@ namespace Laminar_Avalonia.NodeDisplaySystem
         {
             base.OnApplyTemplate(e);
             _toggleAddMenuButton = e.NameScope.Find<ToggleButton>("PART_AddNodeButton");
+        }
+
+        protected override void OnPointerMoved(PointerEventArgs e)
+        {
+            if (_lastClickedDisplay is not null)
+            {
+                DragDropHandler.StartDrop(e, "NodeDisplay", _lastClickedDisplay, null, _dragOffset);
+                _lastClickedDisplay = null;
+            }
         }
 
         public record DisplayType(string HexColour, string TypeName);

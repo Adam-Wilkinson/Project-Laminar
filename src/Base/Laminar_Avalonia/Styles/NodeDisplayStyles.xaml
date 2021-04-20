@@ -61,7 +61,8 @@
 			</DataTemplate>
 
 			<DataTemplate DataType="displays:EditableNodeLabel">
-				<c:EditableLabel Text="{Binding LabelText.Value, Mode=TwoWay}"/>
+				<c:EditableLabel Text="{Binding LabelText.Value, Mode=TwoWay}"
+								 NeedsEditing ="{Binding NeedsEditing}"/>
 			</DataTemplate>
 
 			<DataTemplate DataType="displays:NodeLabel">

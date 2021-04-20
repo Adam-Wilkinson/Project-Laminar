@@ -9,6 +9,7 @@ using Laminar_Core.NodeSystem.Nodes;
 using Laminar_PluginFramework.Primitives;
 using Laminar_Core.NodeSystem.NodeTreeSystem;
 using System.Linq;
+using System.Collections.ObjectModel;
 
 namespace Laminar_Core
 {
@@ -27,11 +28,15 @@ namespace Laminar_Core
 
             _ = new PluginLoader(new PluginHost(this));
 
+            AllScripts = new();
+
             ActiveNodeTree = Factory.GetImplementation<IObservableValue<INodeTree>>();
             ActiveNodeTree.Value = Factory.GetImplementation<INodeTree>();
             UIContext = uiContext;
             AllRegisteredTypes = _typeInfo.Values.Where(x => x.CanBeInput);
         }
+
+        public ObservableCollection<INodeTree> AllScripts { get; }
 
         public IObservableValue<INodeTree> ActiveNodeTree { get; }
 

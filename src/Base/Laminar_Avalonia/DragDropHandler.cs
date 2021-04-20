@@ -10,7 +10,7 @@
     {
         private readonly Canvas drawingCanvas = new();
 
-        private DragDropHandler(PointerPressedEventArgs e, string dragTypeIdentifier, Control dragControl = null, object dragContext = null, Vector clickOffset = default)
+        private DragDropHandler(PointerEventArgs e, string dragTypeIdentifier, Control dragControl = null, object dragContext = null, Vector clickOffset = default)
         {
             if (!(e.Source is IControl))
             {
@@ -51,7 +51,7 @@
 
         public Vector ClickOffset { get; }
 
-        public static void StartDrop(PointerPressedEventArgs e, string dragTypeIdentifier, Control dragControl = null, object dragContext = null, Vector clickOffset = default)
+        public static void StartDrop(PointerEventArgs e, string dragTypeIdentifier, Control dragControl = null, object dragContext = null, Vector clickOffset = default)
         {
             if (e != null)
             {
