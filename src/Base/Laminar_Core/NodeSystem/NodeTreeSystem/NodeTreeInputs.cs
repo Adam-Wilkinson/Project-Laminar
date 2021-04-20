@@ -17,8 +17,6 @@ namespace Laminar_Core.NodeSystem.NodeTreeSystem
             InputNodes = new(_inputNodes);
         }
 
-        public INodeTree ParentTree { get; set; }
-
         public ReadOnlyObservableCollection<INodeBase> InputNodes { get; }
 
         public void Add(Type valueType)

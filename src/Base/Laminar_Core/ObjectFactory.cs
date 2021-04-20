@@ -9,6 +9,7 @@ using Laminar_Core.Primitives.LaminarValue;
 using Laminar_Core.Primitives.LaminarValue.TypeDefinition;
 using Laminar_Core.Primitives.ObservableCollectionMapper;
 using Laminar_Core.Primitives.UserInterface;
+using Laminar_Core.Scripts;
 using Laminar_PluginFramework.NodeSystem.NodeComponents.Collections;
 using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
 using Laminar_PluginFramework.Primitives;
@@ -53,6 +54,7 @@ namespace Laminar_Core
             RegisterImplementation<IVisualNodeComponentContainer, VisualNodeComponentContainer>();
             RegisterImplementation<IPoint, Point>();
             RegisterImplementation<INodeTreeInputs, NodeTreeInputs>();
+            RegisterImplementation<IScriptCollection, ScriptCollection>();
             RegisterImplementationUnsafe(typeof(IObservableValue<>), typeof(ObservableValue<>));
             RegisterImplementationUnsafe(typeof(IDependentValue<>), typeof(DependentValue<>));
             RegisterImplementationUnsafe(typeof(IValueConstraint<>), typeof(ValueConstraint<>));

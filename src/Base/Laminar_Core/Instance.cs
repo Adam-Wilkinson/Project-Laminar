@@ -5,11 +5,9 @@ using Laminar_Core.NodeSystem;
 using Laminar_Core.Primitives.UserInterface;
 using Laminar_PluginFramework;
 using Laminar_Core.PluginManagement;
-using Laminar_Core.NodeSystem.Nodes;
 using Laminar_PluginFramework.Primitives;
-using Laminar_Core.NodeSystem.NodeTreeSystem;
 using System.Linq;
-using System.Collections.ObjectModel;
+using Laminar_Core.Scripts;
 
 namespace Laminar_Core
 {
@@ -19,26 +17,20 @@ namespace Laminar_Core
 
         public Instance(SynchronizationContext uiContext)
         {
+            UIContext = uiContext;
             Factory = new ObjectFactory(this);
             Laminar.Init(Factory);
 
             RegisteredEditors = Factory.GetImplementation<IUserInterfaceRegister>();
             RegisteredDisplays = Factory.GetImplementation<IUserInterfaceRegister>();
             LoadedNodeManager = Factory.CreateInstance<LoadedNodeManager>();
+            AllScripts = Factory.GetImplementation<IScriptCollection>();
 
             _ = new PluginLoader(new PluginHost(this));
-
-            AllScripts = new();
-
-            ActiveNodeTree = Factory.GetImplementation<IObservableValue<INodeTree>>();
-            ActiveNodeTree.Value = Factory.GetImplementation<INodeTree>();
-            UIContext = uiContext;
             AllRegisteredTypes = _typeInfo.Values.Where(x => x.CanBeInput);
         }
 
-        public ObservableCollection<INodeTree> AllScripts { get; }
-
-        public IObservableValue<INodeTree> ActiveNodeTree { get; }
+        public IScriptCollection AllScripts { get; }
 
         public IObjectFactory Factory { get; }
 

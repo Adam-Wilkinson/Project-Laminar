@@ -1,36 +1,35 @@
 ﻿using Avalonia.Controls;
 using Laminar_Avalonia.Views;
-using System;
-using System.Collections.Generic;
+using Laminar_Core.NodeSystem.NodeTreeSystem;
 using System.ComponentModel;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Laminar_Avalonia.Models
 {
     public class MainWindowViewModel : INotifyPropertyChanged
     {
+        public MainWindowViewModel()
+        {
+            ShowAllScripts();
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         public IControl MainControl { get; private set; }
 
-        public void ShowScriptEditor()
+        public void ShowScriptEditor(INodeTree script)
         {
-            Debug.WriteLine(App.LaminarInstance.ActiveNodeTree.Value.Name.Value);
             MainControl = new ScriptEditor
             {
-                DataContext = App.LaminarInstance.ActiveNodeTree.Value
+                DataContext = script,
             };
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(MainControl)));
         }
-
+        
         public void ShowAllScripts()
         {
             MainControl = new AllScriptsViewer
             {
-                DataContext = App.LaminarInstance.ActiveNodeTree
+                DataContext = App.LaminarInstance.AllScripts
             };
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(MainControl)));
         }

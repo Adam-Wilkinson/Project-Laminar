@@ -2,9 +2,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-		     xmlns:vm="clr-namespace:Laminar_Avalonia.ViewModels;assembly=Laminar_Avalonia"
+			 xmlns:w="clr-namespace:Laminar_Avalonia.Views;assembly=Laminar_Avalonia"
 			 xmlns:nodes="clr-namespace:Laminar_Avalonia.NodeDisplaySystem;assembly=Laminar_Avalonia"
-			 xmlns:coreNodes="clr-namespace:Laminar_Core.NodeSystemystem;assembly=Laminar_Core"
 			 xmlns:additions ="clr-namespace:Laminar_Avalonia;assembly=Laminar_Avalonia"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Laminar_Avalonia.Views.ScriptEditor">
@@ -12,6 +11,7 @@
 		<StackPanel HorizontalAlignment="Center" DockPanel.Dock="Top" Orientation="Horizontal">
 			<TextBlock Padding="5" Text="Script Name" VerticalAlignment="Center"/>
 			<TextBox Padding="5" Text="{Binding Name.Value}"/>
+			<Button Command="{Binding $parent[w:MainWindow].ShowAllScripts}">X</Button>
 		</StackPanel>
 		<additions:ToolbarPanel DefaultWidth="250">
 			<nodes:NodeTreeInputDisplay additions:ToolbarPanel.DockDirection="Left"/>

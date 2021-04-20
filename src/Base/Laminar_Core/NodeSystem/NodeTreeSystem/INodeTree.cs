@@ -1,16 +1,15 @@
 ﻿using Laminar_Core.NodeSystem.Connection;
 using Laminar_Core.NodeSystem.Nodes;
+using Laminar_Core.Scripts;
 using Laminar_PluginFramework.Primitives;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 namespace Laminar_Core.NodeSystem.NodeTreeSystem
 {
-    public interface INodeTree
+    public interface INodeTree : IScript
     {
         ReadOnlyObservableCollection<INodeBase> Nodes { get; }
-
-        IObservableValue<string> Name { get; }
 
         INodeTreeInputs Inputs { get; }
 

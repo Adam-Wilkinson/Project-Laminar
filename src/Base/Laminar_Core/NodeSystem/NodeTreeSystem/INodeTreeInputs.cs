@@ -7,8 +7,6 @@ namespace Laminar_Core.NodeSystem.NodeTreeSystem
 {
     public interface INodeTreeInputs
     {
-        INodeTree ParentTree { get; set; }
-
         ReadOnlyObservableCollection<INodeBase> InputNodes { get; }
 
         void Add(Type valueType);

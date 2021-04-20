@@ -12,12 +12,6 @@
         Icon="/Assets/ProjectLaminarLogo.png"
         Title="Project: Laminar"
         DataContext="MainWindowViewModel">
-	<DockPanel>
-		<StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Center">
-			<Button Command="{Binding ShowAllScripts}">Script Viewer</Button>
-			<Button Command="{Binding ShowScriptEditor}">Script Editor</Button>
-		</StackPanel>
-		<ContentControl Content="{Binding MainControl}"/>
-    </DockPanel>
-	
+	<ContentControl Content="{Binding MainControl}"/>
+
 </Window>
