@@ -28,7 +28,13 @@
 							</ItemsControl.ItemsPanel>
 						</ItemsControl>
 
-						<ToggleButton Content="+" Command="{Binding $parent[nds:NodeTreeInputDisplay].ToggleMenuOpen}"/>
+						<ToggleButton Name="PART_AddNodeButton"
+									  Classes="AddNodeButton" 
+									  Content="+" 
+									  Command="{Binding $parent[nds:NodeTreeInputDisplay].ToggleMenuOpen}"
+									  IsChecked="{TemplateBinding PickerMenuIsOpen}"
+									  Margin="15"
+									  Height="30"/>
 						<Popup IsOpen="{TemplateBinding PickerMenuIsOpen}"
 							   PlacementMode="Pointer"
 							   PlacementAnchor="Top">
@@ -55,5 +61,9 @@
 				</Border>
 			</ControlTemplate>
 		</Setter>
+	</Style>
+
+	<Style Selector="ToggleButton.AddNodeButton /template/ ContentPresenter">
+		<Setter Property="CornerRadius" Value="20"/>
 	</Style>
 </Styles>

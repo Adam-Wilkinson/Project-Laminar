@@ -15,17 +15,23 @@
     {
         public static readonly StyledProperty<List<INodeBase>> CurrentDisplayNodesProperty = AvaloniaProperty.Register<NodePickerTabBar, List<INodeBase>>(nameof(CurrentDisplayNodes));
         public static readonly StyledProperty<Orientation> OrientationProperty = AvaloniaProperty.Register<NodePickerTabBar, Orientation>("Orientation", Orientation.Horizontal);
+        public static readonly StyledProperty<Dictionary<string, LoadedNodeManager.NodeCatagories>> CatagoriesProperty = AvaloniaProperty.Register<NodePickerTabBar, Dictionary<string, LoadedNodeManager.NodeCatagories>>(nameof(Catagories));
 
         public NodePickerTabBar()
         {
             CurrentDisplayNodes = App.LaminarInstance.LoadedNodeManager.LoadedNodes.FirstGroup();
+            Catagories = App.LaminarInstance.LoadedNodeManager.LoadedNodes.SubCatagories;
             SelectItem = ReactiveCommand.Create<List<INodeBase>>(nodes =>
             {
                 CurrentDisplayNodes = nodes;
             });
         }
 
-        public Dictionary<string, LoadedNodeManager.NodeCatagories> Catagories => App.LaminarInstance.LoadedNodeManager.LoadedNodes.SubCatagories;
+        public Dictionary<string, LoadedNodeManager.NodeCatagories> Catagories
+        {
+            get => GetValue(CatagoriesProperty);
+            set => SetValue(CatagoriesProperty, value);
+        }
 
         public List<INodeBase> CurrentDisplayNodes
         {

@@ -16,31 +16,40 @@
 						BorderBrush="{DynamicResource ThemeBorderMidBrush}">
 					<StackPanel Background="{DynamicResource ThemeBackgroundBrush}">
 
-						<Menu Items="{Binding Catagories, RelativeSource={RelativeSource TemplatedParent}}">
+						<Menu HorizontalAlignment="Stretch"
+							  Classes="BigMenu" 
+							  Items="{TemplateBinding Catagories}">
 							<Menu.Styles>
 								<Style Selector="MenuItem">
+									<Setter Property="DockPanel.Dock" Value="Left"/>
+									<Setter Property="Grid.Column" Value="{Binding Value.Index}"/>
 									<Setter Property="Header" Value="{Binding Key}"/>
 									<Setter Property="Items" Value="{Binding Value.SubCatagories}"/>
 									<Setter Property="Command" Value="{Binding $parent[nds:NodePickerTabBar].SelectItem}"/>
 									<Setter Property="CommandParameter" Value="{Binding Value.Nodes}"/>
 								</Style>
 							</Menu.Styles>
+							<Menu.ItemsPanel>
+								<ItemsPanelTemplate>
+									<UniformGrid Rows="1" HorizontalAlignment="Stretch"/>
+								</ItemsPanelTemplate>
+							</Menu.ItemsPanel>
 						</Menu>
 
-						<ItemsControl Items="{TemplateBinding CurrentDisplayNodes, Mode=OneWay}">
+						<ItemsControl Items="{TemplateBinding CurrentDisplayNodes}">
 							<ItemsControl.ItemsPanel>
 								<ItemsPanelTemplate>
 									<StackPanel Orientation="{Binding $parent[nds:NodePickerTabBar].Orientation}"
 												Spacing="30"
-												Margin="30"/>
+												Margin="10"/>
 								</ItemsPanelTemplate>
 							</ItemsControl.ItemsPanel>
 							<ItemsControl.ItemTemplate>
 								<DataTemplate>
 									<Panel>
 										<nds:NodeDisplay Margin="4"
-															CoreNode="{Binding}"
-															VerticalAlignment="Top"/>
+														 CoreNode="{Binding}"
+														 VerticalAlignment="Top"/>
 										<Rectangle Fill="#00000000"
 													Stretch="Fill"
 													Cursor="Hand"
@@ -54,6 +63,28 @@
 					</StackPanel>
 				</Border>
 			</ControlTemplate>
+		</Setter>
+	</Style>
+
+	<Style Selector="Menu.BigMenu > MenuItem">
+		<Setter Property="HorizontalAlignment" Value="Stretch"/>
+		<Setter Property="Background" Value="#050505"/>
+		<Setter Property="Padding" Value="20 10"/>
+	</Style>
+
+	<Style Selector="Menu.BigMenu > MenuItem /template/ ContentPresenter#PART_HeaderPresenter">
+		<Setter Property="ContentTemplate">
+			<DataTemplate>
+				<TextBlock HorizontalAlignment="Center" FontSize="20" Text="{Binding}"/>
+			</DataTemplate>
+		</Setter>
+	</Style>
+
+	<Style Selector="Menu.BigMenu > MenuItem /template/ MenuItem /template/ ContentPresenter#PART_HeaderPresenter">
+		<Setter Property="ContentTemplate">
+			<DataTemplate>
+				<TextBlock HorizontalAlignment="Center" FontSize="20" Text="{Binding}"/>
+			</DataTemplate>
 		</Setter>
 	</Style>
 </Styles>

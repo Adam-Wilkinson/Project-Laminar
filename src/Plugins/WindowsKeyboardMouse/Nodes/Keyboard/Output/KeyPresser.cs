@@ -15,7 +15,7 @@ namespace WindowsKeyboardMouse.Nodes.Keyboard.Output
         public const uint KEYEVENTF_KEYUP = 0x0002;
 
         private readonly INodeField keyField = Constructor.NodeField("Key To Press").WithInput<Keys>();
-        private readonly INodeField numberOfPresses = Constructor.NodeField("Number of Presses").WithInput<double>();
+        private readonly INodeField numberOfPresses = Constructor.NodeField("Number of Presses").WithInput(1.0);
         private readonly INodeField delay = Constructor.NodeField("Press Delay").WithInput(10.0);
 
         public IEnumerable<INodeComponent> Fields
@@ -31,6 +31,7 @@ namespace WindowsKeyboardMouse.Nodes.Keyboard.Output
         public string NodeName { get; } = "Key Presser";
 
         [DllImport("user32.dll")]
+#pragma warning disable IDE1006 // Supress warning about lower-case name
         private static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, uint dwExtraInfo);
 
         public static void PressVirtualKey(byte bVk, uint keyEvent)

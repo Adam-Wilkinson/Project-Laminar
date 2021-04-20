@@ -98,6 +98,7 @@ namespace Laminar_Avalonia.NodeDisplaySystem
         protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
             base.OnApplyTemplate(e);
+            // e.NameScope.Find<ToggleButton>("PART_AddNodeButton").LostFocus += delegate { PickerMenuIsOpen = false; };
         }
 
         public record DisplayType(string HexColour, string TypeName);

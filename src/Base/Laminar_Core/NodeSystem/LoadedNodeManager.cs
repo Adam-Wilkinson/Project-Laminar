@@ -13,7 +13,7 @@ namespace Laminar_Core.NodeSystem
         {
             _nodeFactory = nodeFactory;
         }
-        public NodeCatagories LoadedNodes { get; } = new();
+        public NodeCatagories LoadedNodes { get; } = new(0);
 
         public void AddNodeToCatagory<TNode>(string catagoryName, string subCatagoryName = null)
             where TNode : INode, new()
@@ -23,7 +23,14 @@ namespace Laminar_Core.NodeSystem
 
         public class NodeCatagories
         {
+            public NodeCatagories(int index)
+            {
+                Index = index;
+            }
+
             public Dictionary<string, NodeCatagories> SubCatagories { get; } = new Dictionary<string, NodeCatagories>();
+
+            public int Index { get; }
 
             public List<INodeBase> Nodes { get; } = new();
 
@@ -49,7 +56,7 @@ namespace Laminar_Core.NodeSystem
                 {
                     if (!SubCatagories.ContainsKey(catagoryPath.First()))
                     {
-                        SubCatagories.Add(catagoryPath.First(), new NodeCatagories());
+                        SubCatagories.Add(catagoryPath.First(), new NodeCatagories(SubCatagories.Count));
                     }
 
                     SubCatagories[catagoryPath.First()].PlaceNode(catagoryPath.Skip(1), node);
