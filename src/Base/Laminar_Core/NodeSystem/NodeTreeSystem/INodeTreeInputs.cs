@@ -9,6 +9,8 @@ namespace Laminar_Core.NodeSystem.NodeTreeSystem
     {
         ReadOnlyObservableCollection<INodeBase> InputNodes { get; }
 
+        bool Exists { get; }
+
         void Add(Type valueType);
 
         void Add<T>();

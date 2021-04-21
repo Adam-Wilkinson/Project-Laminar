@@ -17,6 +17,8 @@ namespace Laminar_Core.NodeSystem.NodeTreeSystem
             InputNodes = new(_inputNodes);
         }
 
+        public bool Exists => InputNodes.Count > 0;
+
         public ReadOnlyObservableCollection<INodeBase> InputNodes { get; }
 
         public void Add(Type valueType)

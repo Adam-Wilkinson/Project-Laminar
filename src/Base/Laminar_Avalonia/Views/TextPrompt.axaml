@@ -1,0 +1,24 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        x:Class="Laminar_Avalonia.Views.TextPrompt"
+        Title="TextPrompt"
+		Width="300"
+		SizeToContent="Height"
+		CanResize="False" 
+		WindowStartupLocation="CenterOwner"
+		Icon="/Assets/ProjectLaminarLogo.png">
+
+	<Window.Styles>
+		<Style Selector="Button /template/ ContentPresenter">
+			<Setter Property="CornerRadius" Value="10"/>
+		</Style>
+	</Window.Styles>
+	<StackPanel Margin="10" Spacing="4">
+		<TextBlock Text="Text Prompt" HorizontalAlignment="Center" Name="InfoText"/>
+		<TextBox Name="EnterText"/>
+		<Button Name="OkButton">Ok</Button>
+	</StackPanel>
+</Window>

@@ -9,17 +9,67 @@
 
 	<UserControl.DataTemplates>
 		<DataTemplate DataType="{x:Type n:NodeTree}">
-			<StackPanel Orientation="Horizontal">
-				<TextBlock Text="{Binding Name.Value}"/>
-				<CheckBox IsChecked="{Binding IsActive.Value}"/>
-				<Button Command="{Binding $parent[w:MainWindow].OpenScriptEditor}" 
-						CommandParameter="{Binding}">Edit Script</Button>
-			</StackPanel>
+			<Border Background="Black" 
+					CornerRadius="8"
+					Margin="2,10">
+				<StackPanel>
+					<Panel>
+						<Border CornerRadius="5"
+								Margin="10"
+								Padding="7,3"
+								VerticalAlignment="Center"
+								Background="{DynamicResource ThemeBackgroundBrush}"
+								HorizontalAlignment="Left">
+							<StackPanel Spacing="7" Orientation="Horizontal">
+								<CheckBox IsChecked="{Binding IsActive.Value}" VerticalAlignment="Center"/>
+								<TextBlock Text="Is Active"
+										   FontSize="11"
+										   VerticalAlignment="Center"/>
+							</StackPanel>
+						</Border>
+						<TextBlock HorizontalAlignment="Center"
+								   VerticalAlignment="Center"
+								   Padding="8"
+								   Text="{Binding Name.Value}"
+								   FontSize="15"/>
+						<StackPanel HorizontalAlignment="Right"
+									Orientation="Horizontal"
+									Margin="10,0">
+							<StackPanel.Styles>
+								<Style Selector="Button">
+									<Setter Property="VerticalAlignment" Value="Center"/>
+									<Setter Property="Margin" Value="3"/>
+								</Style>
+							</StackPanel.Styles>
+							<Button Command="{Binding $parent[w:MainWindow].OpenScriptEditor}"
+									CommandParameter="{Binding}">Edit</Button>
+							<Button Command="{Binding $parent[w:MainWindow].DeleteScript}"
+									CommandParameter="{Binding}">Delete</Button>
+						</StackPanel>
+					</Panel>
+					<Border Background="{DynamicResource ThemeBackgroundBrush}"
+							IsVisible="{Binding Inputs.Exists}"
+							Margin="5"
+							CornerRadius="0,0,6,6">
+					</Border>
+				</StackPanel>
+			</Border>
 		</DataTemplate>
 	</UserControl.DataTemplates>
 
+	<UserControl.Styles>
+		<Style Selector="Button.AddScriptButton">
+			<Setter Property="Margin" Value="150,10"/>
+			<Setter Property="Padding" Value="10"/>
+		</Style>
+		
+		<Style Selector="Button.AddScriptButton /template/ ContentPresenter">
+			<Setter Property="CornerRadius" Value="30"/>
+		</Style>
+	</UserControl.Styles>
+
 	<StackPanel>
 		<ItemsPresenter Items="{Binding Scripts}"/>
-		<Button Command="{Binding AddScript}">Add Script</Button>
+		<Button Classes="AddScriptButton" Command="{Binding $parent[w:MainWindow].AddScript}">Add Script</Button>
 	</StackPanel>
 </UserControl>
