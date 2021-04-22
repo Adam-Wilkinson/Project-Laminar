@@ -6,5 +6,6 @@ namespace Laminar_PluginFramework.NodeSystem.NodeComponents.Collections
     {
         public void AddRange(IEnumerable<INodeComponent> elements);
 
+        public void RemoveAll();
     }
 }

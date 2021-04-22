@@ -51,7 +51,9 @@
         {
             if (e != null && e.Source is Rectangle sourceRect && sourceRect.Tag is INodeBase selectedNode)
             {
-                DragDropHandler.StartDrop(e, "NodeDisplay", new NodeDisplay() { CoreNode = selectedNode }, null, e.GetPosition(sourceRect));
+                INodeBase newNode = selectedNode.DuplicateNode();
+                newNode.MakeLive();
+                DragDropHandler.StartDrop(e, "NodeDisplay", new NodeDisplay() { CoreNode = newNode }, null, e.GetPosition(sourceRect));
             }
         }
     }

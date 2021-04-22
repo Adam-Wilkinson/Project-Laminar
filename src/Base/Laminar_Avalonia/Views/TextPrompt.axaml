@@ -7,7 +7,7 @@
         Title="TextPrompt"
 		Width="300"
 		SizeToContent="Height"
-		CanResize="False" 
+		CanResize="False"
 		WindowStartupLocation="CenterOwner"
 		Icon="/Assets/ProjectLaminarLogo.png">
 
@@ -16,9 +16,10 @@
 			<Setter Property="CornerRadius" Value="10"/>
 		</Style>
 	</Window.Styles>
-	<StackPanel Margin="10" Spacing="4">
-		<TextBlock Text="Text Prompt" HorizontalAlignment="Center" Name="InfoText"/>
-		<TextBox Name="EnterText"/>
-		<Button Name="OkButton">Ok</Button>
-	</StackPanel>
+	<Grid Margin="10" ColumnDefinitions="*,*" RowDefinitions="*,*,*">
+		<TextBlock Margin="5" Grid.Row="0" Grid.ColumnSpan="2" Text="Text Prompt" HorizontalAlignment="Center" Name="InfoText"/>
+		<TextBox Margin="5" Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding EntryBoxText, Mode=TwoWay}" Name="EnterText"/>
+		<Button Margin="5" Grid.Row="2" Grid.Column="0" Command="{Binding Cancel}" Name="CancelButton">Cancel</Button>
+		<Button Margin="5" Grid.Row="2" Grid.Column="1" Command="{Binding Ok}" Name="OkButton">Ok</Button>
+	</Grid>
 </Window>

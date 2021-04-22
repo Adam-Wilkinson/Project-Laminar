@@ -1,10 +1,9 @@
-﻿using Laminar_Core.NodeSystem.Nodes;
-using Laminar_Core.NodeSystem.Nodes.NodeTypes;
+﻿using Laminar_Core.NodeSystem.Nodes.NodeTypes;
 using Laminar_Core.NodeSystem.NodeTreeSystem;
-using Laminar_Core.Primitives;
 using Laminar_PluginFramework.NodeSystem.Nodes;
 using Laminar_PluginFramework.Primitives;
 using System;
+using System.Collections.Generic;
 
 namespace Laminar_Core.NodeSystem.Nodes
 {
@@ -17,43 +16,50 @@ namespace Laminar_Core.NodeSystem.Nodes
             _factory = factory;
         }
 
-        public INodeBase Get<T>() where T : INode
+        public INodeBase Get<T>(T node) where T : INode
         {
-            INodeBase output = PrivateGet<T>();
+            INodeBase output = PrivateGet<T>(node);
 
             output.Update();
 
             return output;
         }
 
-        private INodeBase PrivateGet<T>() where T : INode
+        public INodeBase Get<T>() where T : INode
+            => Get(_factory.CreateInstance<T>());
+
+        private INodeBase PrivateGet<T>(T node) where T : INode
         {
             if (typeof(IFlowNode).IsAssignableFrom(typeof(T)))
             {
-                return _factory.CreateInstance<FlowNode<T>>();
+                return Make<FlowNode<T>, T>(node);
             }
 
             if (typeof(IActionNode).IsAssignableFrom(typeof(T)))
             {
-                return _factory.CreateInstance<ActionNode<T>>();
+                return Make<ActionNode<T>, T>(node);
             }
 
             if (typeof(IFunctionNode).IsAssignableFrom(typeof(T)))
             {
-                return _factory.CreateInstance<FunctionNode<T>>();
+                return Make<FunctionNode<T>, T>(node);
             }
 
             if (typeof(ITriggerNode).IsAssignableFrom(typeof(T)))
             {
-                return _factory.CreateInstance<TriggerNode<T>>();
+                return Make<TriggerNode<T>, T>(node);
             }
 
-            if (typeof(T) == typeof(InputNode))
-            {
-                return _factory.CreateInstance<InputNodeBase>();
-            }
+            return Make<NodeContainer<T>, T>(node);
+        }
 
-            return _factory.CreateInstance<NodeBase<T>>();
+        private INodeBase Make<TContainer, TNode>(TNode node) where TNode : INode where TContainer : NodeContainer<TNode>
+        {
+            TContainer output = _factory.CreateInstance<TContainer>();
+
+            output.BaseNode = node;
+
+            return output;
         }
     }
 }

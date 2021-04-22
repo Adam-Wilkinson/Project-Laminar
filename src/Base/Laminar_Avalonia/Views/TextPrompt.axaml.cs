@@ -6,17 +6,44 @@ namespace Laminar_Avalonia.Views
 {
     public class TextPrompt : Window
     {
+        private bool _shouldReturnText = false;
+
         public TextPrompt()
         {
             InitializeComponent();
-#if DEBUG
-            // this.AttachDevTools();
-#endif
+            DataContext = this;
+            this.FindControl<TextBox>("EnterText").KeyDown += (_, e) =>
+            {
+                if (e.Key is Avalonia.Input.Key.Enter)
+                {
+                    _shouldReturnText = true;
+                }
+
+                if (e.Key is Avalonia.Input.Key.Enter or Avalonia.Input.Key.Escape)
+                {
+                    Close();
+                }
+            };
         }
+
+        public string EntryBoxText { get; set; }
+
+        public string OutputText => _shouldReturnText ? EntryBoxText : null;
 
         private void InitializeComponent()
         {
             AvaloniaXamlLoader.Load(this);
+        }
+
+        public void Ok()
+        {
+            _shouldReturnText = true;
+            Close();
+        }
+
+        public void Cancel()
+        {
+            Close();
         }
 
         public static Task<string> Show(Window parent, string title, string text)
@@ -25,34 +52,19 @@ namespace Laminar_Avalonia.Views
             {
                 Title = title
             };
-            textPrompt.FindControl<TextBlock>("InfoText").Text = text;
 
-            TextBox entrybox = textPrompt.FindControl<TextBox>("EnterText");
+            textPrompt.FindControl<TextBlock>("InfoText").Text = text;
 
             var tcs = new TaskCompletionSource<string>();
 
-            entrybox.KeyDown += (_, e) =>
-            {
-                if (e.Key is Avalonia.Input.Key.Enter or Avalonia.Input.Key.Escape)
-                {
-                    textPrompt.Close();
-                }
+            textPrompt.Closed += delegate 
+            { 
+                tcs.TrySetResult(textPrompt.OutputText); 
             };
 
-            textPrompt.FindControl<Button>("OkButton").PointerPressed += delegate { textPrompt.Close(); };
+            textPrompt.ShowDialog(parent);
 
-            textPrompt.Closed += delegate { tcs.TrySetResult(entrybox.Text); };
-
-            if (parent is not null)
-            {
-                textPrompt.ShowDialog(parent);
-            }
-            else
-            {
-                textPrompt.Show();
-            }
-
-            entrybox.Focus();
+            textPrompt.FindControl<TextBox>("EnterText").Focus();
 
             return tcs.Task;
         }

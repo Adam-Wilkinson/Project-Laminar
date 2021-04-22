@@ -7,9 +7,9 @@ namespace Laminar_Core.PluginManagement
 {
     public class PluginLoader
     {
-        public PluginLoader(IPluginHost pluginHost)
+        public PluginLoader(IPluginHost pluginHost, string path)
         {
-            foreach (string pluginPath in InbuiltPluginFinder.GetInbuiltPlugins())
+            foreach (string pluginPath in InbuiltPluginFinder.GetInbuiltPlugins(path))
             {
                 PluginLoadContext pluginContext = new(pluginPath);
                 Assembly pluginAssembly = pluginContext.LoadFromAssemblyName(new AssemblyName(Path.GetFileNameWithoutExtension(pluginPath)));

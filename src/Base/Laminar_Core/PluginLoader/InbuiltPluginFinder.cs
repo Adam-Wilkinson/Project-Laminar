@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
@@ -8,9 +9,9 @@ namespace Laminar_Core.PluginManagement
     {
         private const string RelativePluginsPath = @"src\Plugins";
 
-        public static IEnumerable<string> GetInbuiltPlugins()
+        public static IEnumerable<string> GetInbuiltPlugins(string path)
         {
-            string InbuiltPluginsFolder = Path.Combine(GetSolutionFileFolder().FullName, RelativePluginsPath);
+            string InbuiltPluginsFolder = Path.Combine(GetSolutionFileFolder(path).FullName, RelativePluginsPath);
             foreach (string projectPath in Directory.EnumerateDirectories(InbuiltPluginsFolder))
             {
                 foreach (string dllPath in Directory.EnumerateFiles(GetOutputFromProjectFolder(projectPath), "*.dll"))
@@ -31,9 +32,9 @@ namespace Laminar_Core.PluginManagement
             return null;
         }
 
-        private static DirectoryInfo GetSolutionFileFolder()
+        private static DirectoryInfo GetSolutionFileFolder(string rootPath)
         {
-            DirectoryInfo directory = new(Directory.GetCurrentDirectory());
+            DirectoryInfo directory = new FileInfo(rootPath).Directory;
             while (directory != null && !directory.GetFiles("*.sln").Any())
             {
                 directory = directory.Parent;

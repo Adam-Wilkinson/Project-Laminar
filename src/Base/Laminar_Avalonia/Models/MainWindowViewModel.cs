@@ -29,7 +29,7 @@ namespace Laminar_Avalonia.Models
         {
             MainControl = new AllScriptsViewer
             {
-                DataContext = App.LaminarInstance.AllScripts
+                DataContext = App.LaminarInstance
             };
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(MainControl)));
         }

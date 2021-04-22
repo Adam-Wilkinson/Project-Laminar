@@ -3,12 +3,12 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 			 xmlns:w="clr-namespace:Laminar_Avalonia.Views;assembly=Laminar_Avalonia"
-			 xmlns:n="clr-namespace:Laminar_Core.NodeSystem.NodeTreeSystem;assembly=Laminar_Core"
+			 xmlns:s="clr-namespace:Laminar_Core.Scripts;assembly=Laminar_Core"
 			 mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
 			 x:Class="Laminar_Avalonia.Views.AllScriptsViewer">
 
 	<UserControl.DataTemplates>
-		<DataTemplate DataType="{x:Type n:NodeTree}">
+		<DataTemplate DataType="{x:Type s:AdvancedScriptInstance}">
 			<Border Background="Black" 
 					CornerRadius="8"
 					Margin="2,10">
@@ -42,13 +42,13 @@
 								</Style>
 							</StackPanel.Styles>
 							<Button Command="{Binding $parent[w:MainWindow].OpenScriptEditor}"
-									CommandParameter="{Binding}">Edit</Button>
+									CommandParameter="{Binding Script}">Edit</Button>
 							<Button Command="{Binding $parent[w:MainWindow].DeleteScript}"
 									CommandParameter="{Binding}">Delete</Button>
 						</StackPanel>
 					</Panel>
 					<Border Background="{DynamicResource ThemeBackgroundBrush}"
-							IsVisible="{Binding Inputs.Exists}"
+							IsVisible="{Binding Script.Inputs.Exists, FallbackValue=false}"
 							Margin="5"
 							CornerRadius="0,0,6,6">
 					</Border>
@@ -58,7 +58,7 @@
 	</UserControl.DataTemplates>
 
 	<UserControl.Styles>
-		<Style Selector="Button.AddScriptButton">
+		<Style Selector="ToggleButton.AddScriptButton">
 			<Setter Property="Margin" Value="150,10"/>
 			<Setter Property="Padding" Value="10"/>
 		</Style>
@@ -69,7 +69,35 @@
 	</UserControl.Styles>
 
 	<StackPanel>
-		<ItemsPresenter Items="{Binding Scripts}"/>
-		<Button Classes="AddScriptButton" Command="{Binding $parent[w:MainWindow].AddScript}">Add Script</Button>
+		<ItemsPresenter Items="{Binding AllScripts.Scripts}"/>
+		<Panel Margin="15">
+			<ToggleButton Name="PART_AddScriptButton"
+						  Classes="AddScriptButton"
+						  Content="Add Script"/>
+			<Popup IsOpen="{Binding #PART_AddScriptButton.IsChecked, Mode=TwoWay}"
+				   WindowManagerAddShadowHint="True"
+				   PlacementAnchor="Bottom"
+				   PlacementGravity="Bottom"
+				   PlacementMode="AnchorAndGravity"
+				   IsLightDismissEnabled="True">
+				<StackPanel>
+					<ItemsPresenter Items="{Binding AllAdvancedScripts}">
+						<ItemsPresenter.ItemTemplate>
+							<DataTemplate>
+								<Button Content="{Binding Name.Value}"
+										Command="{Binding $parent[w:MainWindow].AddScriptInstance}"
+										CommandParameter="{Binding}"/>
+							</DataTemplate>
+						</ItemsPresenter.ItemTemplate>
+						<ItemsPresenter.ItemsPanel>
+							<ItemsPanelTemplate>
+								<StackPanel/>
+							</ItemsPanelTemplate>
+						</ItemsPresenter.ItemsPanel>
+					</ItemsPresenter>
+					<Button Command="{Binding $parent[w:MainWindow].AddScript}">New Script</Button>
+				</StackPanel>
+			</Popup>
+		</Panel>
 	</StackPanel>
 </UserControl>

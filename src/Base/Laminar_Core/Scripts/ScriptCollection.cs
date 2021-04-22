@@ -13,11 +13,6 @@ namespace Laminar_Core.Scripts
             _factory = factory;
         }
 
-        public ObservableCollection<IScript> Scripts { get; } = new();
-
-        public void AddScript()
-        {
-            Scripts.Add(_factory.GetImplementation<INodeTree>());
-        }
+        public ObservableCollection<IScriptInstance> Scripts { get; } = new();
     }
 }

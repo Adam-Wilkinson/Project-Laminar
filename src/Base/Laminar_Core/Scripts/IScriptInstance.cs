@@ -2,7 +2,7 @@
 
 namespace Laminar_Core.Scripts
 {
-    public interface IScript
+    public interface IScriptInstance
     {
         IObservableValue<string> Name { get; }
 

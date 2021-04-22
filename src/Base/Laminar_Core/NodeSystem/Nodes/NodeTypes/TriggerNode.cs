@@ -4,13 +4,21 @@ using System;
 
 namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
 {
-    public class TriggerNode<T> : NodeBase<T> where T : INode
+    public class TriggerNode<T> : NodeContainer<T> where T : INode
     {
         public TriggerNode(NodeDependencyAggregate dependencies) : base(dependencies)
         {
-            (BaseNode as ITriggerNode).Trigger += TriggerNode_Trigger;
             NameLabel.SetFlowOutput(true);
             FlowOutContainer = Name;
+        }
+
+        public override T BaseNode
+        {
+            set
+            {
+                base.BaseNode = value;
+                (BaseNode as ITriggerNode).Trigger += TriggerNode_Trigger;
+            }
         }
 
         public override void MakeLive()

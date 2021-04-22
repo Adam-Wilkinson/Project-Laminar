@@ -5,7 +5,7 @@
 			 xmlns:w="clr-namespace:Laminar_Avalonia.Views;assembly=Laminar_Avalonia"
 			 xmlns:nodes="clr-namespace:Laminar_Avalonia.NodeDisplaySystem;assembly=Laminar_Avalonia"
 			 xmlns:additions ="clr-namespace:Laminar_Avalonia;assembly=Laminar_Avalonia"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             mc:Ignorable="d" d:DesignWidth="1920" d:DesignHeight="1080"
              x:Class="Laminar_Avalonia.Views.ScriptEditor">
 	<DockPanel>
 		<StackPanel HorizontalAlignment="Center" DockPanel.Dock="Top" Orientation="Horizontal">

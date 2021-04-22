@@ -55,6 +55,7 @@ namespace Laminar_Core
             RegisterImplementation<IPoint, Point>();
             RegisterImplementation<INodeTreeInputs, NodeTreeInputs>();
             RegisterImplementation<IScriptCollection, ScriptCollection>();
+            RegisterImplementation<IAdvancedScriptInstance, AdvancedScriptInstance>();
             RegisterImplementationUnsafe(typeof(IObservableValue<>), typeof(ObservableValue<>));
             RegisterImplementationUnsafe(typeof(IDependentValue<>), typeof(DependentValue<>));
             RegisterImplementationUnsafe(typeof(IValueConstraint<>), typeof(ValueConstraint<>));

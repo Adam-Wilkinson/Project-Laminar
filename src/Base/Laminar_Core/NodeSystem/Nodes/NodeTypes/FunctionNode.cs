@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
 {
-    public class FunctionNode<T> : NodeBase<T> where T : INode
+    public class FunctionNode<T> : NodeContainer<T> where T : INode
     {
         bool _isLive = false;
 

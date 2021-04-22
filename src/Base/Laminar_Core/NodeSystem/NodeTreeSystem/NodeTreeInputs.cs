@@ -23,10 +23,11 @@ namespace Laminar_Core.NodeSystem.NodeTreeSystem
 
         public void Add(Type valueType)
         {
-            InputNodeBase newNode = _nodeFactory.Get<InputNode>() as InputNodeBase;
-            newNode.NameLabel.LabelText.Value = $"Input {_inputNodes.Count + 1}";
+            InputNode newNode = new();
             newNode.SetType(valueType);
-            _inputNodes.Add(newNode);
+            INodeBase newContainer = _nodeFactory.Get(newNode);
+            newContainer.NameLabel.LabelText.Value = $"Input {_inputNodes.Count + 1}";
+            _inputNodes.Add(newContainer);
         }
 
         public void Add<T>()

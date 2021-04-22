@@ -8,6 +8,10 @@ using Laminar_Core.PluginManagement;
 using Laminar_PluginFramework.Primitives;
 using System.Linq;
 using Laminar_Core.Scripts;
+using System.Collections.ObjectModel;
+using Laminar_Core.NodeSystem.NodeTreeSystem;
+using System.IO;
+using System.Runtime.CompilerServices;
 
 namespace Laminar_Core
 {
@@ -15,7 +19,7 @@ namespace Laminar_Core
     {
         private readonly Dictionary<Type, TypeInfoRecord> _typeInfo = new();
 
-        public Instance(SynchronizationContext uiContext)
+        public Instance(SynchronizationContext uiContext, [CallerFilePath] string path = "")
         {
             UIContext = uiContext;
             Factory = new ObjectFactory(this);
@@ -26,9 +30,11 @@ namespace Laminar_Core
             LoadedNodeManager = Factory.CreateInstance<LoadedNodeManager>();
             AllScripts = Factory.GetImplementation<IScriptCollection>();
 
-            _ = new PluginLoader(new PluginHost(this));
+            _ = new PluginLoader(new PluginHost(this), path);
             AllRegisteredTypes = _typeInfo.Values.Where(x => x.CanBeInput);
         }
+
+        public ObservableCollection<INodeTree> AllAdvancedScripts { get; } = new();
 
         public IScriptCollection AllScripts { get; }
 

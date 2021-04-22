@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
+using Laminar_Core;
 using Laminar_Core.Scripts;
 
 namespace Laminar_Avalonia.Views
@@ -10,9 +11,7 @@ namespace Laminar_Avalonia.Views
         public AllScriptsViewer()
         {
             InitializeComponent();
-            IScriptCollection dc = App.LaminarInstance.Factory.GetImplementation<IScriptCollection>();
-            dc.AddScript();
-            dc.AddScript();
+            Instance dc = App.LaminarInstance;
             DataContext = dc;
         }
 

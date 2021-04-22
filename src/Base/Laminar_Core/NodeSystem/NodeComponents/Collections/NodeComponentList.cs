@@ -31,6 +31,14 @@ namespace Laminar_Core.NodeSystem.NodeComponents.Collections
 
         public void RemoveAt(int index) => ProtectedRemoveAt(index);
 
+        public void RemoveAll()
+        {
+            for (int i = ComponentCount; i >= 0; i--)
+            {
+                RemoveAt(i);
+            }
+        }
+
         public void AddRange(IEnumerable<INodeComponent> elements)
         {
             foreach (INodeComponent component in elements)

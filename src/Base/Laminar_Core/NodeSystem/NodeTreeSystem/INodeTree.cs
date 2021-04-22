@@ -7,9 +7,11 @@ using System.Collections.ObjectModel;
 
 namespace Laminar_Core.NodeSystem.NodeTreeSystem
 {
-    public interface INodeTree : IScript
+    public interface INodeTree
     {
         ReadOnlyObservableCollection<INodeBase> Nodes { get; }
+
+        public IObservableValue<string> Name { get; }
 
         INodeTreeInputs Inputs { get; }
 

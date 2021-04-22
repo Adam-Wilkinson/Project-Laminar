@@ -30,9 +30,17 @@ namespace Laminar_Avalonia.Views
             (DataContext as MainWindowViewModel).ShowAllScripts();
         }
 
-        public void DeleteScript(IScript script)
+        public void DeleteScript(IScriptInstance script)
         {
             App.LaminarInstance.AllScripts.Scripts.Remove(script);
+        }
+
+        public void AddScriptInstance(INodeTree script)
+        {
+            IAdvancedScriptInstance newScript = App.LaminarInstance.Factory.GetImplementation<IAdvancedScriptInstance>();
+            newScript.Script = script;
+            newScript.Name.Value = script.Name.Value;
+            App.LaminarInstance.AllScripts.Scripts.Add(newScript);
         }
 
         public async Task AddScript()
@@ -44,14 +52,12 @@ namespace Laminar_Avalonia.Views
                 return;
             }
 
-            IScript newScript = App.LaminarInstance.Factory.GetImplementation<INodeTree>();
-            newScript.Name.Value = text;
-            App.LaminarInstance.AllScripts.Scripts.Add(newScript);
+            INodeTree newTree = App.LaminarInstance.Factory.GetImplementation<INodeTree>();
+            newTree.Name.Value = text;
+            App.LaminarInstance.AllAdvancedScripts.Add(newTree);
+            AddScriptInstance(newTree);
 
-            if (newScript is INodeTree nodeTree)
-            {
-                OpenScriptEditor(nodeTree);
-            }
+            OpenScriptEditor(newTree);
         }
 
         private void InitializeComponent()

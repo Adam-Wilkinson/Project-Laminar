@@ -1,4 +1,5 @@
 ﻿using Laminar_Core.Primitives;
+using Laminar_PluginFramework.NodeSystem.NodeComponents.Collections;
 using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
 using Laminar_PluginFramework.Primitives;
 using System;
@@ -11,12 +12,13 @@ namespace Laminar_Core.NodeSystem.Nodes
 {
     public class NodeDependencyAggregate
     {
-        public NodeDependencyAggregate(IPoint location, IObservableValue<bool> errorState, IEditableNodeLabel name, IObjectFactory factory)
+        public NodeDependencyAggregate(IPoint location, IObservableValue<bool> errorState, IEditableNodeLabel name, INodeComponentList fieldList, IObjectFactory factory)
         {
             Location = location;
             ErrorState = errorState;
             Name = name;
             Factory = factory;
+            FieldList = fieldList;
         }
 
         public IPoint Location { get; }
@@ -27,12 +29,15 @@ namespace Laminar_Core.NodeSystem.Nodes
 
         public IObjectFactory Factory { get; }
 
-        public void Deconstruct(out IPoint Location, out IObservableValue<bool> ErrorState, out IEditableNodeLabel Name, out IObjectFactory Factory)
+        public INodeComponentList FieldList { get; }
+
+        public void Deconstruct(out IPoint Location, out IObservableValue<bool> ErrorState, out IEditableNodeLabel Name, out INodeComponentList FieldList, out IObjectFactory Factory)
         {
             Location = this.Location;
             ErrorState = this.ErrorState;
             Name = this.Name;
             Factory = this.Factory;
+            FieldList = this.FieldList;
         }
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Laminar_Core.Scripts
 {
-    public class Script : IScript
+    public class Script : IScriptInstance
     {
         public Script(ScriptDependencyAggregate deps)
         {

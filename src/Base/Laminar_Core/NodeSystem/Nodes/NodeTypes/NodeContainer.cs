@@ -12,27 +12,42 @@ using System.Collections.Generic;
 
 namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
 {
-    public class NodeBase<T> : INodeBase where T : INode
+    public class NodeContainer<T> 
+        : INodeBase where T : INode
     {
+        private T _baseNode;
         private readonly IObjectFactory _factory;
 
-        public NodeBase(NodeDependencyAggregate dependencies)
+        public NodeContainer(NodeDependencyAggregate dependencies)
         {
-            BaseNode = (T)Activator.CreateInstance(typeof(T));
-            (Location, ErrorState, NameLabel, _factory) = dependencies;
-            NameLabel.LabelText.Value = BaseNode.NodeName;
-            NameLabel.ParentNode = BaseNode;
+            (Location, ErrorState, NameLabel, FieldList, _factory) = dependencies;
             Name = _factory.GetImplementation<IVisualNodeComponentContainer>();
-            Name.Child = NameLabel;
-
-            INodeBase.NodeBases.Add(BaseNode, this);
-
-            FieldList = Constructor.NodeComponentList(BaseNode.Fields);
-            FieldList.ParentNode = BaseNode;
             Fields = ObservableCollectionMapper<IVisualNodeComponent, IVisualNodeComponentContainer>.Create(FieldList.VisualNodeComponentsObservable, _factory);
         }
 
-        protected T BaseNode { get; }
+        public virtual T BaseNode
+        {
+            get
+            {
+                _baseNode ??= _factory.CreateInstance<T>();
+
+                return _baseNode;
+            }
+            set
+            {
+                _baseNode = value;
+                NameLabel.LabelText.Value = _baseNode.NodeName;
+                NameLabel.ParentNode = _baseNode;
+                Name.Child = NameLabel;
+
+                INodeBase.NodeBases.Remove(_baseNode);
+                INodeBase.NodeBases.Add(_baseNode, this);
+
+                FieldList.ParentNode = _baseNode;
+                FieldList.RemoveAll();
+                FieldList.AddRange(BaseNode.Fields);
+            }
+        }
 
         protected INodeComponentList FieldList { get; }
 
