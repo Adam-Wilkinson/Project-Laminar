@@ -7,7 +7,7 @@ namespace Laminar_Core.NodeSystem.NodeTreeSystem
 {
     public interface INodeTreeInputs
     {
-        ReadOnlyObservableCollection<INodeBase> InputNodes { get; }
+        ReadOnlyObservableCollection<INodeContainer> InputNodes { get; }
 
         bool Exists { get; }
 

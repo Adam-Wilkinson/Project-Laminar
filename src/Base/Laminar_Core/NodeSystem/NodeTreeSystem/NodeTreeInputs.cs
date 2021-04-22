@@ -8,7 +8,7 @@ namespace Laminar_Core.NodeSystem.NodeTreeSystem
 {
     class NodeTreeInputs : INodeTreeInputs
     {
-        private readonly ObservableCollection<INodeBase> _inputNodes = new();
+        private readonly ObservableCollection<INodeContainer> _inputNodes = new();
         private readonly INodeFactory _nodeFactory;
 
         public NodeTreeInputs(INodeFactory nodeFactory)
@@ -19,13 +19,13 @@ namespace Laminar_Core.NodeSystem.NodeTreeSystem
 
         public bool Exists => InputNodes.Count > 0;
 
-        public ReadOnlyObservableCollection<INodeBase> InputNodes { get; }
+        public ReadOnlyObservableCollection<INodeContainer> InputNodes { get; }
 
         public void Add(Type valueType)
         {
             InputNode newNode = new();
             newNode.SetType(valueType);
-            INodeBase newContainer = _nodeFactory.Get(newNode);
+            INodeContainer newContainer = _nodeFactory.Get(newNode);
             newContainer.NameLabel.LabelText.Value = $"Input {_inputNodes.Count + 1}";
             _inputNodes.Add(newContainer);
         }

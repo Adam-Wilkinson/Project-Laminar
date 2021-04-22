@@ -63,13 +63,13 @@ namespace Laminar_Avalonia.NodeDisplaySystem
 
         private void AddNode(object item)
         {
-            NodeDisplay newNode = new() { CoreNode = item as INodeBase };
+            NodeDisplay newNode = new() { CoreNode = item as INodeContainer };
             newNode.ShowConnectors = false;
             newNode.HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center;
             InputNodes.Add(newNode);
             newNode.PointerPressed += (o, e) =>
             {
-                _lastClickedDisplay = new NodeDisplay() { CoreNode = item as INodeBase };
+                _lastClickedDisplay = new NodeDisplay() { CoreNode = item as INodeContainer };
                 _dragOffset = e.GetPosition(newNode);
             };
 

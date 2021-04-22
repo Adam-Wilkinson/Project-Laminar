@@ -1,4 +1,5 @@
-﻿using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
+﻿using Laminar_Core.Scripts;
+using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
 using Laminar_PluginFramework.Primitives;
 
 namespace Laminar_Core.NodeSystem.Connection
@@ -25,6 +26,6 @@ namespace Laminar_Core.NodeSystem.Connection
 
         bool CanConnectTo(IConnector toConnectTo);
 
-        void Activate();
+        void Activate(IAdvancedScriptInstance instance, PropagationDirection direction);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Laminar_Core.NodeSystem.Connection.ConnectorManagers;
 using Laminar_Core.NodeSystem.Nodes;
+using Laminar_Core.Scripts;
 using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
 using Laminar_PluginFramework.Primitives;
 using System;
@@ -93,7 +94,7 @@ namespace Laminar_Core.NodeSystem.Connection
             Manager = TryFindFormat();
         }
 
-        public void Activate() => Manager?.Activate();
+        public void Activate(IAdvancedScriptInstance instance, PropagationDirection direction) => Manager?.Activate(instance, direction);
 
         private IConnectorManager TryFindFormat()
         {

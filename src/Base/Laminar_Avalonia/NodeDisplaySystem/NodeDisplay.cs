@@ -9,7 +9,7 @@ namespace Laminar_Avalonia.NodeDisplaySystem
 {
     public class NodeDisplay : TemplatedControl
     {
-        public static readonly StyledProperty<INodeBase> CoreNodeProperty = AvaloniaProperty.Register<NodeDisplay, INodeBase>(nameof(CoreNode));
+        public static readonly StyledProperty<INodeContainer> CoreNodeProperty = AvaloniaProperty.Register<NodeDisplay, INodeContainer>(nameof(CoreNode));
         public static readonly StyledProperty<bool> ShowConnectorsProperty = AvaloniaProperty.Register<NodeDisplay, bool>(nameof(ShowConnectors), true);
 
         public NodeDisplay()
@@ -32,7 +32,7 @@ namespace Laminar_Avalonia.NodeDisplaySystem
             set => SetValue(ShowConnectorsProperty, value);
         }
 
-        public INodeBase CoreNode
+        public INodeContainer CoreNode
         {
             get => GetValue(CoreNodeProperty);
             set => SetValue(CoreNodeProperty, value);

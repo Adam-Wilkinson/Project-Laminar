@@ -28,7 +28,7 @@ namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
 
         private void TriggerNode_Trigger(object sender, EventArgs e)
         {
-             FlowOutContainer.OutputConnector?.Activate();
+             FlowOutContainer.OutputConnector?.Activate(null, Connection.PropagationDirection.Forwards);
         }
     }
 }

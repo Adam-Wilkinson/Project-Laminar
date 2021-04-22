@@ -12,7 +12,7 @@ namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
 {
     public class ActionNode<T> : FunctionNode<T> where T : INode
     {
-        public ActionNode(NodeDependencyAggregate dependencies) 
+        public ActionNode(NodeDependencyAggregate dependencies)
             : base(dependencies)
         {
             NameLabel.WithFlowInput().WithFlowOutput();

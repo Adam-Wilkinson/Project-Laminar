@@ -31,7 +31,7 @@ namespace Laminar_Core.NodeSystem.NodeComponents.Visuals
                 RemoveAction = () =>
                 {
                     _child.RemoveAction(_child);
-                    INodeBase.NodeBases[_child.ParentNode].Update();
+                    INodeContainer.NodeBases[_child.ParentNode].Update(null);
                 };
                 Opacity = _child.Opacity;
             }

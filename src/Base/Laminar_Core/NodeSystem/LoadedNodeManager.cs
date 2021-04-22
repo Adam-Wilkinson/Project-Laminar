@@ -32,9 +32,9 @@ namespace Laminar_Core.NodeSystem
 
             public int Index { get; }
 
-            public List<INodeBase> Nodes { get; } = new();
+            public List<INodeContainer> Nodes { get; } = new();
 
-            public List<INodeBase> FirstGroup()
+            public List<INodeContainer> FirstGroup()
             {
                 if (Nodes.Count > 0)
                 {
@@ -46,7 +46,7 @@ namespace Laminar_Core.NodeSystem
                 }
             }
 
-            public void PlaceNode(IEnumerable<string> catagoryPath, INodeBase node)
+            public void PlaceNode(IEnumerable<string> catagoryPath, INodeContainer node)
             {
                 if (!catagoryPath.Any() || catagoryPath.First() == null || catagoryPath.First() == "")
                 {

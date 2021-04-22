@@ -9,11 +9,12 @@ using Laminar_Core.Primitives.ObservableCollectionMapper;
 using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
 using Laminar_Core.Primitives;
 using System.Collections.Generic;
+using Laminar_Core.Scripts;
 
 namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
 {
     public class NodeContainer<T> 
-        : INodeBase where T : INode
+        : INodeContainer where T : INode
     {
         private T _baseNode;
         private readonly IObjectFactory _factory;
@@ -40,8 +41,8 @@ namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
                 NameLabel.ParentNode = _baseNode;
                 Name.Child = NameLabel;
 
-                INodeBase.NodeBases.Remove(_baseNode);
-                INodeBase.NodeBases.Add(_baseNode, this);
+                INodeContainer.NodeBases.Remove(_baseNode);
+                INodeContainer.NodeBases.Add(_baseNode, this);
 
                 FieldList.ParentNode = _baseNode;
                 FieldList.RemoveAll();
@@ -63,9 +64,9 @@ namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
 
         public IEditableNodeLabel NameLabel { get; }
 
-        public virtual INodeBase DuplicateNode() => new NodeFactory(_factory).Get<T>();
+        public virtual INodeContainer DuplicateNode() => new NodeFactory(_factory).Get<T>();
 
-        public virtual void Update()
+        public virtual void Update(IAdvancedScriptInstance instance)
         {
         }
 

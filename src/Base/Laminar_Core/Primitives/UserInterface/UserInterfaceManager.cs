@@ -71,10 +71,9 @@ namespace Laminar_Core.Primitives.UserInterface
 
         private void RefreshUserInterfaces()
         {
-            object newUserInterface = GetUIOfType(_userInterfaceType);
             foreach (IObservableValue<object> userInterface in _userInterfaces)
             {
-                userInterface.Value = newUserInterface;
+                userInterface.Value = GetUIOfType(_userInterfaceType);
             }
         }
 

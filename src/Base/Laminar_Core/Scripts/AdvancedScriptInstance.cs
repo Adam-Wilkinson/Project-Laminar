@@ -17,7 +17,7 @@ namespace Laminar_Core.Scripts
         {
         }
 
-        public INodeBase Inputs { get; private set; }
+        public INodeContainer Inputs { get; private set; }
 
         public INodeTree Script
         {

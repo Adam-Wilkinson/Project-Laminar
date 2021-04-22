@@ -1,4 +1,5 @@
 ﻿using Laminar_Core.NodeSystem.NodeComponents.Visuals;
+using Laminar_Core.Scripts;
 using Laminar_PluginFramework.NodeSystem.Nodes;
 using System;
 using System.Collections;
@@ -23,7 +24,7 @@ namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
             _isLive = true;
         }
 
-        public override void Update()
+        public override void Update(IAdvancedScriptInstance instance)
         {
             if (!_isLive)
             {
@@ -34,7 +35,7 @@ namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
 
             foreach (IVisualNodeComponentContainer component in (IList)Fields)
             {
-                component.InputConnector.Activate();
+                component.InputConnector.Activate(instance, Connection.PropagationDirection.Backwards);
             }
 
             try
@@ -49,7 +50,7 @@ namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
 
             foreach (IVisualNodeComponentContainer component in (IList)Fields)
             {
-                component.OutputConnector.Activate();
+                component.OutputConnector.Activate(instance, Connection.PropagationDirection.Forwards);
             }
 
             _isLive = true;

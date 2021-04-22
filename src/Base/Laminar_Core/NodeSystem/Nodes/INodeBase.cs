@@ -1,5 +1,6 @@
 ﻿using Laminar_Core.NodeSystem.NodeComponents.Visuals;
 using Laminar_Core.Primitives;
+using Laminar_Core.Scripts;
 using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
 using Laminar_PluginFramework.NodeSystem.Nodes;
 using Laminar_PluginFramework.Primitives;
@@ -9,9 +10,9 @@ using System.Collections.Specialized;
 
 namespace Laminar_Core.NodeSystem.Nodes
 {
-    public interface INodeBase
+    public interface INodeContainer
     {
-        public static Dictionary<INode, INodeBase> NodeBases { get; } = new();
+        public static Dictionary<INode, INodeContainer> NodeBases { get; } = new();
 
         IObservableValue<bool> ErrorState { get; }
 
@@ -25,10 +26,10 @@ namespace Laminar_Core.NodeSystem.Nodes
 
         void MakeLive();
 
-        void Update();
+        void Update(IAdvancedScriptInstance instance);
 
         IVisualNodeComponentContainer FlowOutContainer { get; }
 
-        INodeBase DuplicateNode();
+        INodeContainer DuplicateNode();
     }
 }

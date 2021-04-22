@@ -25,7 +25,7 @@ namespace Laminar_Core.NodeSystem.NodeComponents.Visuals
             UserInterfaces.Editors = instance.RegisteredEditors;
             _factory = instance.Factory;
 
-            _valueStore.AnyValueChanged += ValueStore_AnyValueChanged;
+            _valueStore.ChildValueChanged += ValueStore_ChildValueChanged;
             _valueStore.ChangedAtKey += (o, e) => AnyValueChanged?.Invoke(this, e);
             Name.OnChange += _valueStore.SetValueName;
         }
@@ -84,11 +84,11 @@ namespace Laminar_Core.NodeSystem.NodeComponents.Visuals
             return output;
         }
 
-        private void ValueStore_AnyValueChanged(object sender, EventArgs e)
+        private void ValueStore_ChildValueChanged(object sender, ILaminarValue laminarValue)
         {
-            if (ParentNode is not IActionNode)
+            if (ParentNode is not IActionNode && laminarValue.IsUserEditable.Value)
             {
-                INodeBase.NodeBases[ParentNode].Update();
+                INodeContainer.NodeBases[ParentNode].Update(null);
             }
             NotifyPropertyChanged("Child Value");
         }

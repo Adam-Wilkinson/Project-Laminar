@@ -37,7 +37,7 @@ namespace Laminar_Avalonia.NodeDisplaySystem
             if (DataContext is INodeTree nodeTree)
             {
                 manager = nodeTree;
-                foreach (INodeBase node in manager.Nodes)
+                foreach (INodeContainer node in manager.Nodes)
                 {
                     NodeAdded(node);
                 }
@@ -227,7 +227,7 @@ namespace Laminar_Avalonia.NodeDisplaySystem
 
         private void NodeAdded(object newItem)
         {
-            INodeBase newNode = newItem as INodeBase;
+            INodeContainer newNode = newItem as INodeContainer;
             NodeDisplay newDisplay = new() { CoreNode = newNode };
             SetLeft(newDisplay, newNode.Location.X);
             SetTop(newDisplay, newNode.Location.Y);
@@ -276,7 +276,7 @@ namespace Laminar_Avalonia.NodeDisplaySystem
         {
             foreach (NodeDisplay node in selectedNodes)
             {
-                INodeBase newNode = node.CoreNode.DuplicateNode();
+                INodeContainer newNode = node.CoreNode.DuplicateNode();
                 newNode.MakeLive();
                 AddNode(new NodeDisplay() { CoreNode = newNode }, node.Bounds.TopLeft);
             }

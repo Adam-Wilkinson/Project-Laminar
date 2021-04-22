@@ -29,10 +29,9 @@ namespace Laminar_Core.Primitives.LaminarValue
                 {
                     RemoveValue(key);
                 }
-                if (_coreDictionary.TryGetValue(key, out ILaminarValue laminarValue) && laminarValue.CanSetValue(value))
+                else if (_coreDictionary.TryGetValue(key, out ILaminarValue laminarValue) && laminarValue.CanSetValue(value))
                 {
                     laminarValue.Value = value;
-                    AnyValueChanged?.Invoke(this, new EventArgs());
                 }
                 else
                 {
@@ -54,7 +53,7 @@ namespace Laminar_Core.Primitives.LaminarValue
         }
 
         public event EventHandler<object> ChangedAtKey;
-        public event EventHandler AnyValueChanged;
+        public event EventHandler<ILaminarValue> ChildValueChanged;
 
         public void AddValue(object key, object value, bool isUserEditable)
         {
@@ -99,7 +98,7 @@ namespace Laminar_Core.Primitives.LaminarValue
         {
             if (e.PropertyName is nameof(ILaminarValue.Value))
             {
-                AnyValueChanged?.Invoke(this, new EventArgs());
+                ChildValueChanged?.Invoke(this, (ILaminarValue)sender);
             }
         }
 

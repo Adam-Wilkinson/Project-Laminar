@@ -1,4 +1,5 @@
 ﻿using Laminar_Core.NodeSystem.Nodes;
+using Laminar_Core.Scripts;
 using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
 using Laminar_PluginFramework.NodeSystem.Nodes;
 using Laminar_PluginFramework.Primitives;
@@ -79,21 +80,26 @@ namespace Laminar_Core.NodeSystem.Connection.ConnectorManagers
             return _connectorType is ConnectorType.Output;
         }
 
-        public void Activate()
+        public void Activate(IAdvancedScriptInstance instance, PropagationDirection direction)
         {
-            INodeBase parentNodeBase = INodeBase.NodeBases[_parentComponent.ParentNode];
+            if (direction is PropagationDirection.Backwards)
+            {
+                return;
+            }
+
+            INodeContainer parentNodeBase = INodeContainer.NodeBases[_parentComponent.ParentNode];
 
             if (_connectorType is ConnectorType.Input)
             {
-                parentNodeBase.Update();
                 FlashColourChange();
+                parentNodeBase.Update(instance);
             }
             
 
             if (_connectorType is ConnectorType.Output && parentNodeBase.FlowOutContainer?.Child == _parentComponent)
             {
                 FlashColourChange();
-                _pairedConnection?.Activate();
+                _pairedConnection?.Activate(instance, direction);
             }
         }
 

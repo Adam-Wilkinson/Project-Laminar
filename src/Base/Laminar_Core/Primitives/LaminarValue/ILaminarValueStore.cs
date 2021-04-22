@@ -14,7 +14,7 @@ namespace Laminar_Core.Primitives.LaminarValue
         int Count { get; }
 
         event EventHandler<object> ChangedAtKey;
-        event EventHandler AnyValueChanged;
+        event EventHandler<ILaminarValue> ChildValueChanged;
 
         void AddValue(object key, object value, bool isUserEditable);
 

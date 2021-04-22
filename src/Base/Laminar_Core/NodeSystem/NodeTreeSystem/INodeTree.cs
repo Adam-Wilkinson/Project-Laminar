@@ -9,13 +9,13 @@ namespace Laminar_Core.NodeSystem.NodeTreeSystem
 {
     public interface INodeTree
     {
-        ReadOnlyObservableCollection<INodeBase> Nodes { get; }
+        ReadOnlyObservableCollection<INodeContainer> Nodes { get; }
 
         public IObservableValue<string> Name { get; }
 
         INodeTreeInputs Inputs { get; }
 
-        void AddNode(INodeBase newNode);
+        void AddNode(INodeContainer newNode);
 
         IConnector GetActiveConnector(IConnector interacted);
 

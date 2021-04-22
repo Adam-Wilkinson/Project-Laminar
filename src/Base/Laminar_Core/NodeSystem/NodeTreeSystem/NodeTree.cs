@@ -12,7 +12,7 @@ namespace Laminar_Core.NodeSystem.NodeTreeSystem
     public class NodeTree : Script, INodeTree
     {
         private readonly List<INodeConnection> _connections = new();
-        private readonly ObservableCollection<INodeBase> _nodes = new();
+        private readonly ObservableCollection<INodeContainer> _nodes = new();
         private readonly INodeFactory _nodeFactory;
         private readonly INodeConnectionFactory _connectionFactory;
 
@@ -26,14 +26,14 @@ namespace Laminar_Core.NodeSystem.NodeTreeSystem
 
             Name.Value = "Advanced Script";
 
-            INodeBase flowSourceNode = _nodeFactory.Get<ManualTriggerNode>();
+            INodeContainer flowSourceNode = _nodeFactory.Get<ManualTriggerNode>();
             flowSourceNode.MakeLive();
             AddNode(flowSourceNode);
         }
 
         public INodeTreeInputs Inputs { get; }
 
-        public ReadOnlyObservableCollection<INodeBase> Nodes { get; }
+        public ReadOnlyObservableCollection<INodeContainer> Nodes { get; }
 
         public bool TryConnectFields(IConnector field1, IConnector field2)
         {
@@ -60,7 +60,7 @@ namespace Laminar_Core.NodeSystem.NodeTreeSystem
             return interacted;
         }
 
-        public void AddNode(INodeBase newNode)
+        public void AddNode(INodeContainer newNode)
         {
             _nodes.Add(newNode);
         }

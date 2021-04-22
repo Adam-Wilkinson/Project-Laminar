@@ -1,4 +1,5 @@
 ﻿using Laminar_Core.NodeSystem.Nodes;
+using Laminar_Core.Scripts;
 using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
 using Laminar_PluginFramework.Primitives;
 using Laminar_PluginFramework.Primitives.TypeDefinition;
@@ -14,6 +15,9 @@ namespace Laminar_Core.NodeSystem.Connection.ConnectorManagers
         private ConnectorType _connectorType;
         private ValueConnectionManager _pairedManager;
         private readonly Instance _instance;
+        private bool _isActivating;
+        private object _inputConnectorOldValue;
+        private ILaminarValue _inputLaminarValue;
 
         public ValueConnectionManager(Instance instance, IObservableValue<string> hexColour)
         {
@@ -95,7 +99,10 @@ namespace Laminar_Core.NodeSystem.Connection.ConnectorManagers
             _pairedManager = manager as ValueConnectionManager;
             if (_connectorType is ConnectorType.Output && manager is ValueConnectionManager valConnection)
             {
-                valConnection.LaminarValue.SetDependency(LaminarValue);
+                _inputLaminarValue = valConnection.LaminarValue;
+                _inputConnectorOldValue = _inputLaminarValue.Value;
+                _inputLaminarValue.Value = LaminarValue.Value;
+                _inputLaminarValue.IsUserEditable.Value = false;
             }
         }
 
@@ -104,7 +111,8 @@ namespace Laminar_Core.NodeSystem.Connection.ConnectorManagers
             _pairedManager = null;
             if (_connectorType is ConnectorType.Output && manager is ValueConnectionManager valConnection)
             {
-                valConnection.LaminarValue.RemoveDependency<object>();
+                valConnection.LaminarValue.IsUserEditable.Value = true;
+                valConnection.LaminarValue.Value = _inputConnectorOldValue;
             }
         }
 
@@ -113,13 +121,44 @@ namespace Laminar_Core.NodeSystem.Connection.ConnectorManagers
             return _connectorType is ConnectorType.Input;
         }
 
-        public void Activate()
+        public void Activate(IAdvancedScriptInstance instance, PropagationDirection direction)
         {
+            if (_isActivating || _pairedManager is null)
+            {
+                return;
+            }
+
+            _isActivating = true;
+
+            INodeContainer parentNode = INodeContainer.NodeBases[_parentComponent.ParentNode];
+
             if (_connectorType is ConnectorType.Input)
             {
-                INodeBase.NodeBases[_parentComponent.ParentNode].Update();
-                _pairedManager?.Activate();
+                if (direction is PropagationDirection.Forwards)
+                {
+                    parentNode.Update(instance);
+                }
+
+                if (direction is PropagationDirection.Backwards)
+                {
+                    _pairedManager?.Activate(instance, direction);
+                }
             }
+
+            if (_connectorType is ConnectorType.Output)
+            {
+                if (direction is PropagationDirection.Forwards)
+                {
+                    _inputLaminarValue.Value = LaminarValue.Value;
+                    _pairedManager?.Activate(instance, direction);
+                }
+                if (direction is PropagationDirection.Backwards)
+                {
+                    parentNode.Update(instance);
+                }
+            }
+
+            _isActivating = false;
         }
     }
 }

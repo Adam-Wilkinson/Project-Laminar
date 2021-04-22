@@ -5,8 +5,8 @@ namespace Laminar_Core.NodeSystem.Nodes
 {
     public interface INodeFactory
     {
-        INodeBase Get<T>() where T : INode;
+        INodeContainer Get<T>() where T : INode;
 
-        INodeBase Get<T>(T node) where T : INode;
+        INodeContainer Get<T>(T node) where T : INode;
     }
 }

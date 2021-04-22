@@ -16,19 +16,19 @@ namespace Laminar_Core.NodeSystem.Nodes
             _factory = factory;
         }
 
-        public INodeBase Get<T>(T node) where T : INode
+        public INodeContainer Get<T>(T node) where T : INode
         {
-            INodeBase output = PrivateGet<T>(node);
+            INodeContainer output = PrivateGet(node);
 
-            output.Update();
+            output.Update(null);
 
             return output;
         }
 
-        public INodeBase Get<T>() where T : INode
+        public INodeContainer Get<T>() where T : INode
             => Get(_factory.CreateInstance<T>());
 
-        private INodeBase PrivateGet<T>(T node) where T : INode
+        private INodeContainer PrivateGet<T>(T node) where T : INode
         {
             if (typeof(IFlowNode).IsAssignableFrom(typeof(T)))
             {
@@ -53,7 +53,7 @@ namespace Laminar_Core.NodeSystem.Nodes
             return Make<NodeContainer<T>, T>(node);
         }
 
-        private INodeBase Make<TContainer, TNode>(TNode node) where TNode : INode where TContainer : NodeContainer<TNode>
+        private INodeContainer Make<TContainer, TNode>(TNode node) where TNode : INode where TContainer : NodeContainer<TNode>
         {
             TContainer output = _factory.CreateInstance<TContainer>();
 

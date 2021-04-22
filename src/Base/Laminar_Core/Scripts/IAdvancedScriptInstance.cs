@@ -10,7 +10,7 @@ namespace Laminar_Core.Scripts
 {
     public interface IAdvancedScriptInstance : IScriptInstance
     {
-        public INodeBase Inputs { get; }
+        public INodeContainer Inputs { get; }
 
         public INodeTree Script { get; set; }
     }
