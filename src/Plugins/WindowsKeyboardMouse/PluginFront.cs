@@ -22,7 +22,7 @@ namespace WindowsKeyboardMouse
 
             host.AddNodeToMenu<MouseButtonTrigger>("Mouse", "Triggers");
 
-            host.AddNodeToMenu<KeyboardButtonTrigger, KeyCombinationTrigger>("Keyboard", "Triggers");
+            host.AddNodeToMenu<KeyboardButtonTrigger>("Keyboard", "Triggers");
 
             host.AddNodeToMenu<KeyPresser, TextTyper>("Keyboard", "Output");
         }

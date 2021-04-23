@@ -142,6 +142,7 @@ namespace Laminar_Core.NodeSystem.Connection.ConnectorManagers
                 if (direction is PropagationDirection.Backwards)
                 {
                     _pairedManager?.Activate(instance, direction);
+                    // parentNode.SetFieldValue(instance, _pairedManager._parentComponent as INodeField, _inputLaminarValue, INodeContainer.NodeBases[_pairedManager._parentComponent.ParentNode].GetFieldValue(instance, _pairedManager._parentComponent as INodeField, LaminarValue));
                 }
             }
 
@@ -149,12 +150,13 @@ namespace Laminar_Core.NodeSystem.Connection.ConnectorManagers
             {
                 if (direction is PropagationDirection.Forwards)
                 {
-                    _inputLaminarValue.Value = LaminarValue.Value;
-                    _pairedManager?.Activate(instance, direction);
+                    INodeContainer.NodeBases[_pairedManager._parentComponent.ParentNode].SetFieldValue(instance, _pairedManager._parentComponent as INodeField, _inputLaminarValue, parentNode.GetFieldValue(instance, _parentComponent as INodeField, LaminarValue));
+                    _pairedManager.Activate(instance, direction);
                 }
                 if (direction is PropagationDirection.Backwards)
                 {
                     parentNode.Update(instance);
+                    INodeContainer.NodeBases[_pairedManager._parentComponent.ParentNode].SetFieldValue(instance, _pairedManager._parentComponent as INodeField, _inputLaminarValue, parentNode.GetFieldValue(instance, _parentComponent as INodeField, LaminarValue));
                 }
             }
 

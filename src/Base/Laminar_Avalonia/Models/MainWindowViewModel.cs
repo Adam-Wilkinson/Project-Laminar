@@ -1,7 +1,9 @@
 ﻿using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Laminar_Avalonia.Views;
 using Laminar_Core.NodeSystem.NodeTreeSystem;
 using System.ComponentModel;
+using System.Diagnostics;
 
 namespace Laminar_Avalonia.Models
 {
@@ -32,6 +34,11 @@ namespace Laminar_Avalonia.Models
                 DataContext = App.LaminarInstance
             };
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(MainControl)));
+        }
+
+        public void CloseAddScriptsButton()
+        {
+            MainControl.FindControl<ToggleButton>("PART_AddScriptButton").IsChecked = false;
         }
     }
 }

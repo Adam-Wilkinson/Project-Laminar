@@ -23,7 +23,7 @@ namespace Laminar_Core.NodeSystem.NodeTreeSystem
 
         public void SetType(Type inputType)
         {
-            _valueField.WithOutput(inputType, true);
+            _valueField.AddValue(INodeField.OutputKey, inputType, true);
         }
     }
 }

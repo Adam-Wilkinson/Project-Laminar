@@ -10,13 +10,15 @@ using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
 using Laminar_Core.Primitives;
 using System.Collections.Generic;
 using Laminar_Core.Scripts;
+using System.Collections;
 
 namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
 {
     public class NodeContainer<T> 
-        : INodeContainer where T : INode
+        : INodeContainer where T : INode, new()
     {
         private T _baseNode;
+        private bool _isLive = false;
         private readonly IObjectFactory _factory;
 
         public NodeContainer(NodeDependencyAggregate dependencies)
@@ -64,14 +66,52 @@ namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
 
         public IEditableNodeLabel NameLabel { get; }
 
+        public bool HasFields => FieldList.Count > 0;
+
         public virtual INodeContainer DuplicateNode() => new NodeFactory(_factory).Get<T>();
 
-        public virtual void Update(IAdvancedScriptInstance instance)
+        public void Update(IAdvancedScriptInstance instance)
         {
+            if (!_isLive)
+            {
+                return;
+            }
+
+            _isLive = false;
+
+            foreach (IVisualNodeComponentContainer component in (IList)Fields)
+            {
+                component.InputConnector.Activate(instance, Connection.PropagationDirection.Backwards);
+            }
+
+            SafeUpdate(instance);
+
+            foreach (IVisualNodeComponentContainer component in (IList)Fields)
+            {
+                component.OutputConnector.Activate(instance, Connection.PropagationDirection.Forwards);
+            }
+
+            _isLive = true;
         }
 
         public virtual void MakeLive()
         {
+            _isLive = true;
+        }
+
+        public virtual void SetFieldValue(IAdvancedScriptInstance instance, INodeField containingField, ILaminarValue laminarValue, object value)
+        {
+            laminarValue.Value = value;
+        }
+
+        public virtual object GetFieldValue(IAdvancedScriptInstance instance, INodeField containingField, ILaminarValue laminarValue)
+        {
+            return laminarValue.Value;
+        }
+
+        protected virtual void SafeUpdate(IAdvancedScriptInstance instance)
+        {
+
         }
 
         protected IVisualNodeComponentContainer GetContainer(IVisualNodeComponent component)

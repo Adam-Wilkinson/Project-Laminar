@@ -12,10 +12,23 @@ namespace WindowsKeyboardMouse.Nodes.Keyboard.Triggers
 {
     public class KeyboardButtonTrigger : ITriggerNode
     {
+        private static readonly Dictionary<Keys, EventHandler> AllTriggers = new();
+
+        static KeyboardButtonTrigger()
+        {
+            Hook.GlobalEvents().KeyUp += KeyboardButtonTrigger_KeyUp;
+        }
+
+        private static void KeyboardButtonTrigger_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (AllTriggers.TryGetValue(e.KeyData, out EventHandler trigger))
+            {
+                trigger?.Invoke(null, new EventArgs());
+            }
+        }
+
         private readonly INodeField KeyField = Constructor.NodeField("Trigger Key").WithInput<Keys>();
         private readonly INodeField SuppressKey = Constructor.NodeField("Suppress Key").WithInput<bool>();
-
-        private Keys _triggerKey;
 
         public IEnumerable<INodeComponent> Fields
         {
@@ -32,27 +45,14 @@ namespace WindowsKeyboardMouse.Nodes.Keyboard.Triggers
 
         public void HookupTriggers()
         {
-            KeyField.GetValue(INodeField.InputKey).PropertyChanged += KeyboardButtonTrigger_PropertyChanged;
-            KeyboardButtonTrigger_PropertyChanged(null, new PropertyChangedEventArgs(nameof(ILaminarValue.Value)));
+            AllTriggers[KeyField.GetInput<Keys>()] = Trigger;
 
-            Hook.GlobalEvents().KeyUp += KeyboardButtonTrigger_KeyDown;
+            KeyField.GetValue(INodeField.InputKey).OnChange += TriggerKeyChanged;
         }
 
-        private void KeyboardButtonTrigger_KeyDown(object sender, KeyEventArgs e)
+        private void TriggerKeyChanged(object key)
         {
-            if (e.KeyData == _triggerKey)
-            {
-                e.SuppressKeyPress = SuppressKey.GetInput<bool>();
-                Trigger?.Invoke(this, new EventArgs());
-            }
-        }
-
-        private void KeyboardButtonTrigger_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName is nameof(ILaminarValue.Value))
-            {
-                _triggerKey = KeyField.GetInput<Keys>();
-            }
+            AllTriggers[(Keys)key] = Trigger;
         }
     }
 }

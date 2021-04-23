@@ -90,6 +90,7 @@
                     MinHeight="50"
                     MinWidth="150"
                     ClipToBounds="False"
+					IsVisible="{Binding CoreNode.HasFields, RelativeSource={RelativeSource TemplatedParent}}"
                     CornerRadius="0,0,6,6">
 				<ItemsPresenter Name="PART_FieldContainer"
 								Classes="NodeDisplay"

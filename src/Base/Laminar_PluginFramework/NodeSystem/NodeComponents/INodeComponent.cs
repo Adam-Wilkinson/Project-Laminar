@@ -18,5 +18,7 @@ namespace Laminar_PluginFramework.NodeSystem.NodeComponents
         event EventHandler<bool> VisibilityChanged;
 
         INodeComponent Clone();
+
+        // void CloneTo(INodeComponent component);
     }
 }

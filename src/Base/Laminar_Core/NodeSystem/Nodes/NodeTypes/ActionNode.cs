@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
 {
-    public class ActionNode<T> : FunctionNode<T> where T : INode
+    public class ActionNode<T> : FunctionNode<T> where T : INode, new()
     {
         public ActionNode(NodeDependencyAggregate dependencies)
             : base(dependencies)

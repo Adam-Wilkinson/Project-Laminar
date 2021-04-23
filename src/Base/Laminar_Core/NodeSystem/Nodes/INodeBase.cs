@@ -20,6 +20,8 @@ namespace Laminar_Core.NodeSystem.Nodes
 
         IEditableNodeLabel NameLabel { get; }
 
+        bool HasFields { get; }
+
         INotifyCollectionChanged Fields { get; }
 
         IPoint Location { get; }
@@ -27,6 +29,10 @@ namespace Laminar_Core.NodeSystem.Nodes
         void MakeLive();
 
         void Update(IAdvancedScriptInstance instance);
+
+        void SetFieldValue(IAdvancedScriptInstance instance, INodeField containingField, ILaminarValue laminarValue, object value);
+
+        object GetFieldValue(IAdvancedScriptInstance instance, INodeField containingField, ILaminarValue laminarValue);
 
         IVisualNodeComponentContainer FlowOutContainer { get; }
 

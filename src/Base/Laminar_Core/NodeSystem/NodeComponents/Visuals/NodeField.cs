@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Laminar_Core.NodeSystem.Nodes;
 using Laminar_Core.Primitives.LaminarValue;
 using Laminar_Core.Primitives.UserInterface;
@@ -49,6 +50,8 @@ namespace Laminar_Core.NodeSystem.NodeComponents.Visuals
                 NotifyPropertyChanged(nameof(DisplayedValue));
             }
         }
+
+        public IEnumerable<KeyValuePair<object, ILaminarValue>> AllValues => _valueStore.AllValues;
 
         public void AddValue(object key, object value, bool isUserEditable)
         {

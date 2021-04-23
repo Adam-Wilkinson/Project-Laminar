@@ -37,6 +37,7 @@ namespace Laminar_Avalonia.Views
 
         public void AddScriptInstance(INodeTree script)
         {
+            (DataContext as MainWindowViewModel).CloseAddScriptsButton();
             IAdvancedScriptInstance newScript = App.LaminarInstance.Factory.GetImplementation<IAdvancedScriptInstance>();
             newScript.Script = script;
             newScript.Name.Value = script.Name.Value;

@@ -52,6 +52,17 @@ namespace Laminar_Core.Primitives.LaminarValue
             }
         }
 
+        public IEnumerable<KeyValuePair<object, ILaminarValue>> AllValues
+        {
+            get
+            {
+                foreach (var kvp in _coreDictionary)
+                {
+                    yield return kvp;
+                }
+            }
+        }
+
         public event EventHandler<object> ChangedAtKey;
         public event EventHandler<ILaminarValue> ChildValueChanged;
 

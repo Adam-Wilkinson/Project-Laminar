@@ -3,67 +3,75 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 			 xmlns:w="clr-namespace:Laminar_Avalonia.Views;assembly=Laminar_Avalonia"
+			 xmlns:nds="clr-namespace:Laminar_Avalonia.NodeDisplaySystem;assembly=Laminar_Avalonia"
 			 xmlns:s="clr-namespace:Laminar_Core.Scripts;assembly=Laminar_Core"
 			 mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
 			 x:Class="Laminar_Avalonia.Views.AllScriptsViewer">
 
 	<UserControl.DataTemplates>
 		<DataTemplate DataType="{x:Type s:AdvancedScriptInstance}">
-			<Border Background="Black" 
-					CornerRadius="8"
-					Margin="2,10">
-				<StackPanel>
-					<Panel>
-						<Border CornerRadius="5"
-								Margin="10"
-								Padding="7,3"
-								VerticalAlignment="Center"
-								Background="{DynamicResource ThemeBackgroundBrush}"
-								HorizontalAlignment="Left">
-							<StackPanel Spacing="7" Orientation="Horizontal">
-								<CheckBox IsChecked="{Binding IsActive.Value}" VerticalAlignment="Center"/>
-								<TextBlock Text="Is Active"
-										   FontSize="11"
-										   VerticalAlignment="Center"/>
-							</StackPanel>
-						</Border>
-						<TextBlock HorizontalAlignment="Center"
-								   VerticalAlignment="Center"
-								   Padding="8"
-								   Text="{Binding Name.Value}"
-								   FontSize="15"/>
-						<StackPanel HorizontalAlignment="Right"
-									Orientation="Horizontal"
-									Margin="10,0">
-							<StackPanel.Styles>
-								<Style Selector="Button">
-									<Setter Property="VerticalAlignment" Value="Center"/>
-									<Setter Property="Margin" Value="3"/>
-								</Style>
-							</StackPanel.Styles>
-							<Button Command="{Binding $parent[w:MainWindow].OpenScriptEditor}"
-									CommandParameter="{Binding Script}">Edit</Button>
-							<Button Command="{Binding $parent[w:MainWindow].DeleteScript}"
-									CommandParameter="{Binding}">Delete</Button>
-						</StackPanel>
-					</Panel>
-					<Border Background="{DynamicResource ThemeBackgroundBrush}"
-							IsVisible="{Binding Script.Inputs.Exists, FallbackValue=false}"
-							Margin="5"
-							CornerRadius="0,0,6,6">
-					</Border>
+			<Panel>
+				<Border CornerRadius="5"
+						Margin="10,14"
+						Padding="5,3"
+						Background="{DynamicResource ThemeBackgroundBrush}"
+						HorizontalAlignment="Left"
+						VerticalAlignment="Top"
+						ZIndex="10">
+					<StackPanel Spacing="7" Orientation="Horizontal">
+						<CheckBox IsChecked="{Binding IsActive.Value}" VerticalAlignment="Center"/>
+						<TextBlock Text="Is Active"
+								   FontSize="11"
+								   VerticalAlignment="Center"/>
+					</StackPanel>
+				</Border>
+				<nds:NodeDisplay CoreNode="{Binding Inputs}"
+								 ShowConnectors="False"
+								 ZIndex="0">
+					<nds:NodeDisplay.Styles>
+						<Style Selector="ItemsPresenter.NodeDisplay">
+							<Setter Property="ItemsPanel">
+								<ItemsPanelTemplate>
+									<StackPanel Orientation="Horizontal"/>
+								</ItemsPanelTemplate>
+							</Setter>
+						</Style>
+						<Style Selector="ContentPresenter#PART_NameContainer TextBlock">
+							<Setter Property="FontSize" Value="20"/>
+						</Style>
+						<Style Selector="ContentPresenter#PART_NameContainer TextBox">
+							<Setter Property="FontSize" Value="20"/>
+						</Style>
+					</nds:NodeDisplay.Styles>
+				</nds:NodeDisplay>
+				<StackPanel HorizontalAlignment="Right"
+							VerticalAlignment="Top"
+							Orientation="Horizontal"
+							ZIndex="10"
+							Margin="10,10">
+					<StackPanel.Styles>
+						<Style Selector="Button">
+							<Setter Property="VerticalAlignment" Value="Center"/>
+							<Setter Property="Margin" Value="3"/>
+						</Style>
+					</StackPanel.Styles>
+					<Button Command="{Binding $parent[w:MainWindow].OpenScriptEditor}"
+							CommandParameter="{Binding Script}">Edit</Button>
+					<Button Command="{Binding $parent[w:MainWindow].DeleteScript}"
+							CommandParameter="{Binding}">Delete</Button>
 				</StackPanel>
-			</Border>
+			</Panel>
 		</DataTemplate>
 	</UserControl.DataTemplates>
 
 	<UserControl.Styles>
 		<Style Selector="ToggleButton.AddScriptButton">
-			<Setter Property="Margin" Value="150,10"/>
+			<Setter Property="Margin" Value="150,0"/>
 			<Setter Property="Padding" Value="10"/>
+			<Setter Property="FontSize" Value="20"/>
 		</Style>
 		
-		<Style Selector="Button.AddScriptButton /template/ ContentPresenter">
+		<Style Selector="ToggleButton.AddScriptButton /template/ ContentPresenter">
 			<Setter Property="CornerRadius" Value="30"/>
 		</Style>
 	</UserControl.Styles>
@@ -85,17 +93,20 @@
 						<ItemsPresenter.ItemTemplate>
 							<DataTemplate>
 								<Button Content="{Binding Name.Value}"
+										FontSize="20"
 										Command="{Binding $parent[w:MainWindow].AddScriptInstance}"
 										CommandParameter="{Binding}"/>
 							</DataTemplate>
 						</ItemsPresenter.ItemTemplate>
 						<ItemsPresenter.ItemsPanel>
 							<ItemsPanelTemplate>
-								<StackPanel/>
+								<StackPanel Spacing="5"/>
 							</ItemsPanelTemplate>
 						</ItemsPresenter.ItemsPanel>
 					</ItemsPresenter>
-					<Button Command="{Binding $parent[w:MainWindow].AddScript}">New Script</Button>
+					<Button Command="{Binding $parent[w:MainWindow].AddScript}"
+							FontSize="20"
+							Padding="10">New Script</Button>
 				</StackPanel>
 			</Popup>
 		</Panel>

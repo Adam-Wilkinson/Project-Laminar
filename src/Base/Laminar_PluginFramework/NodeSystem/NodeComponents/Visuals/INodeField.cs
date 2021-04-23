@@ -1,6 +1,7 @@
 ﻿using Laminar_PluginFramework.Primitives;
 using Laminar_PluginFramework.Primitives.TypeDefinition;
 using System;
+using System.Collections.Generic;
 
 namespace Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals
 {
@@ -14,6 +15,8 @@ namespace Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals
         object this[object key] { get; set; }
 
         ILaminarValue DisplayedValue { get; }
+
+        IEnumerable<KeyValuePair<object, ILaminarValue>> AllValues { get; }
 
         void AddValue(object key, object value, bool isUserEditable);
 

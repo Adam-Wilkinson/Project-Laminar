@@ -10,55 +10,24 @@ using System.Threading.Tasks;
 
 namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
 {
-    public class FunctionNode<T> : NodeContainer<T> where T : INode
+    public class FunctionNode<T> : NodeContainer<T> where T : INode, new()
     {
-        bool _isLive = false;
-
         public FunctionNode(NodeDependencyAggregate dependencies) 
             : base(dependencies)
         {
         }
 
-        public override void MakeLive()
+        protected override void SafeUpdate(IAdvancedScriptInstance instance)
         {
-            _isLive = true;
-        }
-
-        public override void Update(IAdvancedScriptInstance instance)
-        {
-            if (!_isLive)
-            {
-                return;
-            }
-
-            _isLive = false;
-
-            foreach (IVisualNodeComponentContainer component in (IList)Fields)
-            {
-                component.InputConnector.Activate(instance, Connection.PropagationDirection.Backwards);
-            }
-
             try
             {
-                TriggerEvaluate();
+                (BaseNode as IFunctionNode).Evaluate();
                 ErrorState.Value = false;
             }
             catch
             {
                 ErrorState.Value = true;
             }
-
-            foreach (IVisualNodeComponentContainer component in (IList)Fields)
-            {
-                component.OutputConnector.Activate(instance, Connection.PropagationDirection.Forwards);
-            }
-
-            _isLive = true;
-        }
-
-        protected virtual void TriggerEvaluate()
-        {
-            (BaseNode as IFunctionNode).Evaluate();
         }
     }
 }

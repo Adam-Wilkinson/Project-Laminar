@@ -16,7 +16,7 @@ namespace Laminar_Core.Primitives
             get => _value;
             set
             {
-                if (value is null || !value.Equals(_value))
+                if (value is not null && !value.Equals(_value))
                 {
                     _value = value;
                     ValueChanged();

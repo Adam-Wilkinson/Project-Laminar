@@ -78,6 +78,7 @@ namespace Laminar_Avalonia.NodeDisplaySystem
                 _lastClickedDisplay = null;
             };
 
+            newNode.CoreNode.MakeLive();
             newNode.CoreNode.NameLabel.NeedsEditing = true;
         }
 

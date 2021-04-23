@@ -16,7 +16,7 @@ namespace Laminar_Core.NodeSystem.Nodes
             _factory = factory;
         }
 
-        public INodeContainer Get<T>(T node) where T : INode
+        public INodeContainer Get<T>(T node) where T : INode, new()
         {
             INodeContainer output = PrivateGet(node);
 
@@ -25,10 +25,10 @@ namespace Laminar_Core.NodeSystem.Nodes
             return output;
         }
 
-        public INodeContainer Get<T>() where T : INode
+        public INodeContainer Get<T>() where T : INode, new()
             => Get(_factory.CreateInstance<T>());
 
-        private INodeContainer PrivateGet<T>(T node) where T : INode
+        private INodeContainer PrivateGet<T>(T node) where T : INode, new()
         {
             if (typeof(IFlowNode).IsAssignableFrom(typeof(T)))
             {
@@ -50,10 +50,15 @@ namespace Laminar_Core.NodeSystem.Nodes
                 return Make<TriggerNode<T>, T>(node);
             }
 
+            if (typeof(T) == typeof(InputNode))
+            {
+                return Make<InputNodeContainer<T>, T>(node);
+            }
+
             return Make<NodeContainer<T>, T>(node);
         }
 
-        private INodeContainer Make<TContainer, TNode>(TNode node) where TNode : INode where TContainer : NodeContainer<TNode>
+        private INodeContainer Make<TContainer, TNode>(TNode node) where TNode : INode, new() where TContainer : NodeContainer<TNode>
         {
             TContainer output = _factory.CreateInstance<TContainer>();
 
