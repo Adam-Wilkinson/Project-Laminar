@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Laminar_PluginFramework.NodeSystem.Nodes
 {
-    public interface ITriggerNode : INode
+    public interface ITriggerNode : INode, IDisposable
     {
         event EventHandler Trigger;
 

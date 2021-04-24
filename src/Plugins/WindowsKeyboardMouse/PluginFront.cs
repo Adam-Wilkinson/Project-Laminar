@@ -20,11 +20,11 @@ namespace WindowsKeyboardMouse
             host.RegisterType<MouseButtons>("#FFFF00", "Mouse Button", MouseButtons.Left, "EnumEditor", "StringDisplay", true);
             host.RegisterType<Keys>("#FFA500", "Keyboard Button", Keys.A, "EnumEditor", "StringDisplay", true);
 
+            host.AddNodeToMenu<MouseButtonTrigger, KeyboardButtonTrigger>("Triggers");
+
             host.AddNodeToMenu<MouseButtonTrigger>("Mouse", "Triggers");
 
-            host.AddNodeToMenu<KeyboardButtonTrigger>("Keyboard", "Triggers");
-
-            host.AddNodeToMenu<KeyPresser, TextTyper>("Keyboard", "Output");
+            host.AddNodeToMenu<KeyPresser, TextTyper>("Keyboard");
         }
     }
 }

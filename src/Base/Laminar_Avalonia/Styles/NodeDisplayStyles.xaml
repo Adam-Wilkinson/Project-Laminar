@@ -5,6 +5,12 @@
   xmlns:displays="clr-namespace:Laminar_Core.NodeSystem.NodeComponents.Visuals;assembly=Laminar_Core"
   xmlns:c="clr-namespace:Laminar_Avalonia.Controls;assembly=Laminar_Avalonia">
 
+	<Design.PreviewWith>
+		<Border Padding="20">
+			<nds:NodeDisplay/>
+		</Border>
+	</Design.PreviewWith>
+	
 	<Style Selector="nds|NodeDisplay">
 
 		<Setter Property="ClipToBounds" Value="False"/>
@@ -12,37 +18,38 @@
 			<ControlTemplate>
 				<Border Name="OuterBorder"
 						ZIndex="0"
-						CornerRadius="8"
-						BorderThickness="{DynamicResource ThemeBorderThickness}"
 						ClipToBounds="False">
 					<Border.DataTemplates>
 
 						<DataTemplate DataType="displays:VisualNodeComponentContainer">
-							<Panel HorizontalAlignment="Stretch" Opacity="{Binding Opacity.Value}">
+							<Panel HorizontalAlignment="Stretch"
+								   Classes="NodeComponentPanel"
+								   Opacity="{Binding Opacity.Value}">
 								<Panel IsVisible="{Binding $parent[nds:NodeDisplay].ShowConnectors}">
 									<Path Classes="Connector"
 										  DataContext="{Binding InputConnector}"
 										  HorizontalAlignment="Left">
 										<Path.RenderTransform>
-											<TranslateTransform X="-17"/>
+											<TranslateTransform X="-15"/>
 										</Path.RenderTransform>
 									</Path>
 									<Path Classes="Connector"
 										  DataContext="{Binding OutputConnector}"
 										  HorizontalAlignment="Right">
 										<Path.RenderTransform>
-											<TranslateTransform X="20"/>
+											<TranslateTransform X="17"/>
 										</Path.RenderTransform>
 									</Path>
 								</Panel>
-								<ContentControl Content="{Binding Child}"/>
 								<DockPanel>
 									<Button Command="{Binding RemoveAction}"
 											Content="-"
 											IsVisible="{Binding HasRemoveFunction}"
+											Margin="7,0,0,0"
 											VerticalAlignment="Center"
 											DockPanel.Dock="Right"
 											HorizontalAlignment="Right"/>
+									<ContentControl Content="{Binding Child}"/>
 								</DockPanel>
 							</Panel>
 						</DataTemplate>
@@ -78,13 +85,12 @@
 										  Padding="6,0"
 										  Content="{Binding CoreNode.Name, RelativeSource={RelativeSource TemplatedParent}}"/>
 						<Border Name="Body"
-								BorderThickness="8"
-								Background="{DynamicResource ThemeBackgroundBrush}"
-								MinHeight="50"
+								Background="#2F2F2F"
 								MinWidth="150"
 								ClipToBounds="False"
-								IsVisible="{Binding CoreNode.HasFields, RelativeSource={RelativeSource TemplatedParent}}"
-								CornerRadius="0,0,6,6">
+								Padding="10"
+								Margin="0,3"
+								IsVisible="{Binding CoreNode.HasFields, RelativeSource={RelativeSource TemplatedParent}}">
 							<ItemsPresenter Name="PART_FieldContainer"
 											Classes="NodeDisplay"
 											Items="{Binding CoreNode.Fields, RelativeSource={RelativeSource TemplatedParent}}">
@@ -124,20 +130,20 @@
 		<Setter Property="Stroke" Value="{DynamicResource ThemeBorderHighBrush}"/>
 	</Style>
 
-	<Style Selector="nds|NodeDisplay:selected > Border#OuterBorder">
-		<Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderMidBrush}"/>
-	</Style>
-
 	<Style Selector="nds|NodeDisplay:pointerover > Border#OuterBorder">
-		<Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderHighBrush}"/>
+		<Setter Property="Background" Value="#151520"/>
 	</Style>
 
 	<Style Selector="nds|NodeDisplay > Border#OuterBorder">
-		<Setter Property="BorderBrush" Value="Black"/>
-		<Setter Property="Background" Value="Black"/>
+		<Setter Property="BorderBrush" Value="#19191F"/>
+		<Setter Property="Background" Value="#19191F"/>
 	</Style>
 
 	<Style Selector="nds|NodeDisplay:error > Border#OuterBorder">
 		<Setter Property="Background" Value="DarkRed"/>
+	</Style>
+
+	<Style Selector="nds|NodeDisplay:selected > Border#OuterBorder">
+		<Setter Property="Background" Value="#1A1A2A"/>
 	</Style>
 </Styles>

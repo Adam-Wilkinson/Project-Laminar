@@ -50,7 +50,6 @@ namespace WindowsKeyboardMouse.Nodes.Keyboard.Triggers
         {
             if (live)
             {
-                Debug.WriteLine("Activating Trigger");
                 Trigger?.Invoke(this, new EventArgs());
             }
         }
@@ -111,6 +110,11 @@ namespace WindowsKeyboardMouse.Nodes.Keyboard.Triggers
             }
 
             AnyKey_PropertyChanged(null, new PropertyChangedEventArgs(nameof(ILaminarValue.Value)));
+        }
+
+        public void Dispose()
+        {
+            _globalHook?.Dispose();
         }
     }
 }

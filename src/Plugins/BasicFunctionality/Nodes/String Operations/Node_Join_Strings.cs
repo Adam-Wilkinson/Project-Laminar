@@ -9,7 +9,7 @@
 
     public class Node_Join_Strings : IFunctionNode
     {
-        private readonly INodeComponentAutoCloner combineStrings = Constructor.NodeComponentAutoCloner(Constructor.NodeField("Text").WithInput(""), 2, (x) => $"Text {x}");
+        private readonly INodeComponentAutoCloner combineStrings = Constructor.NodeComponentAutoCloner(Constructor.NodeField("Text").WithInput(""), 2, (x) => $"Text {x + 1}");
         private readonly INodeField combinedString = Constructor.NodeField("Combined").WithOutput("");
 
         public string NodeName => "Join Strings";

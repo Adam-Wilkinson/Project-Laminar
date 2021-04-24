@@ -121,7 +121,13 @@ namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
                 return Name;
             }
 
-            return ((IList<IVisualNodeComponentContainer>)Fields)[FieldList.VisualComponentList.IndexOf(component)];
+            int index = FieldList.VisualComponentList.IndexOf(component);
+            if (index is -1)
+            {
+                return null;
+            }
+
+            return ((IList<IVisualNodeComponentContainer>)Fields)[index];
         }
     }
 }

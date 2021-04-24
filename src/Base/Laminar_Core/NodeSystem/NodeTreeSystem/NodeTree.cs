@@ -13,22 +13,16 @@ namespace Laminar_Core.NodeSystem.NodeTreeSystem
     {
         private readonly List<INodeConnection> _connections = new();
         private readonly ObservableCollection<INodeContainer> _nodes = new();
-        private readonly INodeFactory _nodeFactory;
         private readonly INodeConnectionFactory _connectionFactory;
 
-        public NodeTree(ScriptDependencyAggregate deps, INodeFactory nodeFactory, INodeConnectionFactory connectionFactory, INodeTreeInputs inputs)
+        public NodeTree(ScriptDependencyAggregate deps, INodeConnectionFactory connectionFactory, INodeTreeInputs inputs)
             : base(deps)
         {
-            _nodeFactory = nodeFactory;
             _connectionFactory = connectionFactory;
             Inputs = inputs;
             Nodes = new(_nodes);
 
             Name.Value = "Advanced Script";
-
-            INodeContainer flowSourceNode = _nodeFactory.Get<ManualTriggerNode>();
-            flowSourceNode.MakeLive();
-            AddNode(flowSourceNode);
         }
 
         public INodeTreeInputs Inputs { get; }

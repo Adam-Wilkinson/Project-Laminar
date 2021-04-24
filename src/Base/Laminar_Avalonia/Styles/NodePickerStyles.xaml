@@ -21,10 +21,9 @@
 							  Items="{TemplateBinding Catagories}">
 							<Menu.Styles>
 								<Style Selector="MenuItem">
-									<Setter Property="DockPanel.Dock" Value="Left"/>
+									<Setter Property="FontWeight" Value="Medium"/>
 									<Setter Property="FontSize" Value="20"/>
 									<Setter Property="HorizontalAlignment" Value="Center"/>
-									<Setter Property="Grid.Column" Value="{Binding Value.Index}"/>
 									<Setter Property="Padding" Value="10"/>
 									<Setter Property="Header" Value="{Binding Key}"/>
 									<Setter Property="Items" Value="{Binding Value.SubCatagories}"/>
@@ -49,15 +48,18 @@
 							</ItemsControl.ItemsPanel>
 							<ItemsControl.ItemTemplate>
 								<DataTemplate>
-									<Panel>
-										<nds:NodeDisplay Margin="4"
+									<Panel Classes="DisplayedNode">
+										<nds:NodeDisplay Name="PART_NodeDisplay"
+														 Margin="4"
 														 CoreNode="{Binding}"
-														 VerticalAlignment="Top"/>
-										<Rectangle Fill="#00000000"
-													Stretch="Fill"
-													Cursor="Hand"
-													Tag="{Binding}"
-													ZIndex="5"/>
+														 VerticalAlignment="Top"
+														 IsHitTestVisible="False"/>
+										<Rectangle Name="PART_Rect"
+												   Fill="#00000000"
+												   Stretch="Fill"
+												   Cursor="Hand"
+												   Tag="{Binding}">
+										</Rectangle>
 									</Panel>
 								</DataTemplate>
 							</ItemsControl.ItemTemplate>
@@ -67,6 +69,19 @@
 				</Border>
 			</ControlTemplate>
 		</Setter>
+	</Style>
+
+	<Style Selector="Panel.DisplayedNode">
+		<Setter Property="Opacity" Value="0.75"/>
+		<Setter Property="Transitions">
+			<Transitions>
+				<DoubleTransition Property="Opacity" Duration="0:0:0.1"/>
+			</Transitions>
+		</Setter>
+	</Style>
+
+	<Style Selector="Panel.DisplayedNode:pointerover">
+		<Setter Property="Opacity" Value="1"/>
 	</Style>
 
 	<Style Selector="Menu.BigMenu > MenuItem">

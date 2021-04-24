@@ -20,6 +20,15 @@ namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
             FlowOutContainer = Name;
         }
 
+        ~TriggerNode()
+        {
+            (BaseNode as ITriggerNode).Dispose();
+            foreach (var kvp in _instanceManagers)
+            {
+                kvp.Value.Dispose();
+            }
+        }
+
         public override T BaseNode
         {
             set
@@ -43,7 +52,7 @@ namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
             }
             else
             {
-                if (!_instanceManagers.ContainsKey(instance))
+                if (!_instanceManagers.TryGetValue(instance, out _))
                 {
                     _instanceManagers.Add(instance, new InstanceManager(this, instance));
                 }
@@ -67,7 +76,7 @@ namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
              FlowOutContainer.OutputConnector?.Activate(null, Connection.PropagationDirection.Forwards);
         }
 
-        private class InstanceManager
+        private class InstanceManager : IDisposable
         {
             private readonly T _node;
             private readonly Dictionary<ILaminarValue, ILaminarValue> _instanceValues = new();
@@ -124,6 +133,11 @@ namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
             private void Trigger(object sender, EventArgs e)
             {
                 _parentContainer.FlowOutContainer?.OutputConnector.Activate(_instance, Connection.PropagationDirection.Forwards);
+            }
+
+            public void Dispose()
+            {
+                (_node as ITriggerNode).Dispose();
             }
         }
     }

@@ -5,7 +5,7 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Laminar_Inbuilt.UserControls.StringDisplay"
 			 DataContext="{Binding DisplayedValue}">
-	<StackPanel Orientation="Horizontal">
+	<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
 		<TextBlock Text="{Binding Name}"/>
 		<TextBlock Text=": "/>
 		<TextBlock Text="{Binding TrueValue}"/>

@@ -5,8 +5,15 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Laminar_Inbuilt.UserControls.NumberEditor"
 			 DataContext="{Binding DisplayedValue}">
-	<StackPanel Orientation="Horizontal" Spacing="4">
-		<TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
-		<NumericUpDown Value="{Binding TrueValue}" VerticalAlignment="Center"/>
-	</StackPanel>
+	<Grid HorizontalAlignment="Stretch">
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="Auto"/>
+			<ColumnDefinition Width="*"/>
+		</Grid.ColumnDefinitions>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+		</Grid.RowDefinitions>
+		<TextBlock Text="{Binding Name}" VerticalAlignment="Center" Grid.Column="0" Grid.Row="0"/>
+		<NumericUpDown Value="{Binding TrueValue}" Margin="5,0" VerticalAlignment="Center" Grid.Column="1" Grid.Row="0"/>
+	</Grid>
 </UserControl>

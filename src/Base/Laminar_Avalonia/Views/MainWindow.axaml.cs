@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Shapes;
 using Avalonia.Markup.Xaml;
+using Avalonia.Media;
 using Laminar_Avalonia.Models;
 using Laminar_Core.NodeSystem.NodeTreeSystem;
 using Laminar_Core.Scripts;
@@ -16,6 +17,7 @@ namespace Laminar_Avalonia.Views
     {
         public MainWindow()
         {
+            FontFamily = new FontFamily("Lucida Sans");
             InitializeComponent();
             DataContext = new MainWindowViewModel();
 #if DEBUG

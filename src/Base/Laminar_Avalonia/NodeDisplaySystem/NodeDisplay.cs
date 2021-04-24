@@ -14,6 +14,7 @@ namespace Laminar_Avalonia.NodeDisplaySystem
 
         public NodeDisplay()
         {
+            CoreNode = App.LaminarInstance.LoadedNodeManager.LoadedNodes.FirstGroup()[0];
             this.GetObservable(CoreNodeProperty).Subscribe(newNode =>
             {
                 if (newNode is not null)

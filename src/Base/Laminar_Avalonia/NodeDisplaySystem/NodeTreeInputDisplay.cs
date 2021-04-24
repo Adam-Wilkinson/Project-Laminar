@@ -34,6 +34,10 @@ namespace Laminar_Avalonia.NodeDisplaySystem
             if (DataContext is INodeTree nodeTree)
             {
                 ((INotifyCollectionChanged)nodeTree.Inputs.InputNodes).CollectionChanged += NodeTreeInputDisplay_CollectionChanged;
+                foreach (INodeContainer container in nodeTree.Inputs.InputNodes)
+                {
+                    AddNode(container);
+                }
             }
         }
 

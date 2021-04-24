@@ -21,7 +21,7 @@
 			   VerticalAlignment="Stretch">
 		<titlebars:WindowsTitleBar IsSeamless="True"/>
 		<titlebars:MacosTitleBar IsSeamless="False"/>
-		<ContentControl Background="#162d50FF" Content="{Binding MainControl}"/>
+		<ContentControl Content="{Binding MainControl}"/>
 	</DockPanel>
 
 </Window>

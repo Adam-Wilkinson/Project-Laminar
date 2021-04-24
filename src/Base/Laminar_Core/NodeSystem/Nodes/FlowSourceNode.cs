@@ -26,6 +26,10 @@ namespace Laminar_Core.NodeSystem.Nodes
 
         public event EventHandler Trigger;
 
+        public void Dispose()
+        {
+        }
+
         public void HookupTriggers()
         {
             _sourceField["Displayed"] = (Action)(() =>

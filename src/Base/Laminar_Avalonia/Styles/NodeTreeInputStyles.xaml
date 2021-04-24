@@ -32,6 +32,7 @@
 							<ToggleButton Name="PART_AddNodeButton"
 										  Classes="AddNodeButton"
 										  Content="+"
+										  Cursor="Hand"
 										  Height="30"/>
 							<Popup IsOpen="{Binding #PART_AddNodeButton.IsChecked, Mode=TwoWay}"
 								   WindowManagerAddShadowHint="True"
