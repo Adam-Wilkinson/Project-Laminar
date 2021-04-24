@@ -10,7 +10,7 @@
 
 	<UserControl.DataTemplates>
 		<DataTemplate DataType="{x:Type s:AdvancedScriptInstance}">
-			<Panel>
+			<Panel Margin="7">
 				<Border CornerRadius="5"
 						Margin="10,14"
 						Padding="5,3"

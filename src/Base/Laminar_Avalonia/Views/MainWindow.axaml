@@ -4,6 +4,7 @@
         xmlns:nodes="clr-namespace:Laminar_Avalonia.NodeDisplaySystem;assembly=Laminar_Avalonia"
 		xmlns:coreNodes="clr-namespace:Laminar_Core.NodeSystemystem;assembly=Laminar_Core"
         xmlns:additions ="clr-namespace:Laminar_Avalonia;assembly=Laminar_Avalonia"
+		xmlns:titlebars="clr-namespace:Laminar_Avalonia.Views.CustomTitleBars;assembly=Laminar_Avalonia"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         UseLayoutRounding="True"
@@ -11,7 +12,16 @@
         x:Class="Laminar_Avalonia.Views.MainWindow"
         Icon="/Assets/ProjectLaminarLogo.png"
         Title="Project: Laminar"
+		ExtendClientAreaToDecorationsHint="True"
+		ExtendClientAreaChromeHints="NoChrome"
+		ExtendClientAreaTitleBarHeightHint="50"
         DataContext="MainWindowViewModel">
-	<ContentControl Content="{Binding MainControl}"/>
+	<DockPanel Name="ContentWrapper"
+		       HorizontalAlignment="Stretch"
+			   VerticalAlignment="Stretch">
+		<titlebars:WindowsTitleBar IsSeamless="True"/>
+		<titlebars:MacosTitleBar IsSeamless="False"/>
+		<ContentControl Background="#162d50FF" Content="{Binding MainControl}"/>
+	</DockPanel>
 
 </Window>

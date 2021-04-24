@@ -1,10 +1,13 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Shapes;
 using Avalonia.Markup.Xaml;
 using Laminar_Avalonia.Models;
 using Laminar_Core.NodeSystem.NodeTreeSystem;
 using Laminar_Core.Scripts;
+using System;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 namespace Laminar_Avalonia.Views
@@ -18,6 +21,10 @@ namespace Laminar_Avalonia.Views
 #if DEBUG
             // this.AttachDevTools();
 #endif
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) == true)
+            {
+                UseNativeTitleBar();
+            }
         }
 
         public void OpenScriptEditor(INodeTree script)
@@ -64,6 +71,13 @@ namespace Laminar_Avalonia.Views
         private void InitializeComponent()
         {
             AvaloniaXamlLoader.Load(this);
+        }
+
+        private void UseNativeTitleBar()
+        {
+            ExtendClientAreaChromeHints = Avalonia.Platform.ExtendClientAreaChromeHints.SystemChrome;
+            ExtendClientAreaTitleBarHeightHint = -1;
+            ExtendClientAreaToDecorationsHint = false;
         }
     }
 }

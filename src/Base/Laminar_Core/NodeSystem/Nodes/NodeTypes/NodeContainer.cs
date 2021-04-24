@@ -66,7 +66,7 @@ namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
 
         public IEditableNodeLabel NameLabel { get; }
 
-        public bool HasFields => FieldList.Count > 0;
+        public bool HasFields => FieldList.VisualComponentList.Count > 0;
 
         public virtual INodeContainer DuplicateNode() => new NodeFactory(_factory).Get<T>();
 
