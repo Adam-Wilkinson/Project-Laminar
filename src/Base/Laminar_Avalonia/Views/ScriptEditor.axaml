@@ -8,15 +8,15 @@
              mc:Ignorable="d" d:DesignWidth="1920" d:DesignHeight="1080"
              x:Class="Laminar_Avalonia.Views.ScriptEditor">
 	<DockPanel>
-		<StackPanel HorizontalAlignment="Center" DockPanel.Dock="Top" Orientation="Horizontal">
-			<TextBlock Padding="5" Text="Script Name" VerticalAlignment="Center"/>
-			<TextBox Padding="5" Text="{Binding Name.Value}"/>
-			<Button Command="{Binding $parent[w:MainWindow].ShowAllScripts}">X</Button>
-		</StackPanel>
+		<DockPanel Background="#151515" HorizontalAlignment="Stretch" DockPanel.Dock="Top" LastChildFill="False">
+			<TextBlock DockPanel.Dock="Left" FontSize="15" FontWeight="Medium" Padding="5" Text="Currently Editing:" VerticalAlignment="Center"/>
+			<TextBox VerticalContentAlignment="Center" FontSize="15" DockPanel.Dock="Left" Margin="6" Padding="10,5" Text="{Binding Name.Value}"/>
+			<Button DockPanel.Dock="Right" Margin="10,5" Padding="6" MinWidth="60" Command="{Binding $parent[w:MainWindow].CloseScriptEditor}">Exit</Button>
+		</DockPanel>
 		<additions:ToolbarPanel DefaultWidth="250">
 			<nodes:NodeTreeInputDisplay additions:ToolbarPanel.DockDirection="Left"/>
 			<nodes:NodePickerTabBar additions:ToolbarPanel.DockDirection="Top"/>
-			<nodes:ZoomBorder Background="#1B1B1B"/>
+			<nodes:ZoomBorder Background="{Binding $parent.Background}"/>
 		</additions:ToolbarPanel>
 	</DockPanel>
 

@@ -7,7 +7,7 @@
              DockPanel.Dock="Top">
   <StackPanel>
     <Grid Height="50">
-      <DockPanel Background="#090910"
+      <DockPanel Background="#131323"
                  IsHitTestVisible="False"
                  Name="TitleBarBackground"></DockPanel>
       <DockPanel Name="TitleBar">

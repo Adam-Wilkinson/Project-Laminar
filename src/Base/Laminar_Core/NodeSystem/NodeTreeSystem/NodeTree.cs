@@ -9,21 +9,50 @@ using Laminar_PluginFramework.Primitives;
 
 namespace Laminar_Core.NodeSystem.NodeTreeSystem
 {
-    public class NodeTree : Script, INodeTree
+    public class NodeTree : INodeTree
     {
         private readonly List<INodeConnection> _connections = new();
         private readonly ObservableCollection<INodeContainer> _nodes = new();
         private readonly INodeConnectionFactory _connectionFactory;
+        private bool _editorIsLive;
 
-        public NodeTree(ScriptDependencyAggregate deps, INodeConnectionFactory connectionFactory, INodeTreeInputs inputs)
-            : base(deps)
+        public NodeTree(IObservableValue<string> name, INodeConnectionFactory connectionFactory, INodeTreeInputs inputs)
         {
             _connectionFactory = connectionFactory;
             Inputs = inputs;
             Nodes = new(_nodes);
 
+            Name = name;
             Name.Value = "Advanced Script";
         }
+
+        public bool EditorIsLive
+        {
+            get => _editorIsLive;
+            set
+            {
+                if (_editorIsLive != value)
+                {
+                    _editorIsLive = value;
+                    if (_editorIsLive)
+                    {
+                        foreach (INodeContainer node in _nodes)
+                        {
+                            node.IsLive = true;
+                        }
+                    }
+                    else
+                    {
+                        foreach (INodeContainer node in _nodes)
+                        {
+                            node.IsLive = false;
+                        }
+                    }
+                }
+            }
+        }
+
+        public IObservableValue<string> Name { get; }
 
         public INodeTreeInputs Inputs { get; }
 
@@ -64,6 +93,11 @@ namespace Laminar_Core.NodeSystem.NodeTreeSystem
         private void Connection_OnBreak(object sender, EventArgs e)
         {
             _connections.Remove(sender as INodeConnection);
+        }
+
+        public void DeleteNode(INodeContainer node)
+        {
+            _nodes.Remove(node);
         }
     }
 }

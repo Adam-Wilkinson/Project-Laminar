@@ -25,7 +25,7 @@ namespace WindowsKeyboardMouse.Nodes.Keyboard.Triggers
         }
 
         public readonly INodeField KeyField = Constructor.NodeField("Trigger Key").WithInput<Keys>();
-        public readonly INodeField SuppressKey = Constructor.NodeField("Suppress Key").WithInput<bool>();
+        public readonly INodeField SuppressKey = Constructor.NodeField("Suppress Key").WithInput(Constructor.RigidTypeDefinitionManager(false, "ToggleSwitch", null));
 
         public IEnumerable<INodeComponent> Fields
         {
@@ -40,14 +40,17 @@ namespace WindowsKeyboardMouse.Nodes.Keyboard.Triggers
 
         public event EventHandler Trigger;
 
-        public void Dispose()
+        public void RemoveTriggers()
         {
             RemoveSelfFromAllTriggers();
 
             if (Subscribed && AllTriggers.Count == 0)
             {
                 Hook.GlobalEvents().KeyDown -= KeyboardButtonTrigger_KeyDown;
+                Subscribed = false;
             }
+
+            KeyField.GetValue(INodeField.InputKey).OnChange -= TriggerKeyChanged;
         }
 
         public void HookupTriggers()

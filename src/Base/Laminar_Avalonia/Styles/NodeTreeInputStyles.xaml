@@ -16,14 +16,14 @@
 						BorderBrush="{DynamicResource ThemeBorderMidBrush}">
 					<StackPanel Background="{DynamicResource ThemeBackgroundBrush}">
 
-						<Border Background="#050505" Margin="0,0,0,10">
-							<TextBlock HorizontalAlignment="Center" FontSize="20" Padding="10" Text="Script Inputs"/>
+						<Border Background="#131323" Margin="0,0,0,10">
+							<TextBlock FontWeight="Medium" HorizontalAlignment="Center" FontSize="20" Padding="10" Text="Script Inputs"/>
 						</Border>
 						
-						<ItemsControl Name="PART_InputNodes" Items="{TemplateBinding InputNodes, Mode=OneWay}">
+						<ItemsControl Margin="0,10" Name="PART_InputNodes" Items="{TemplateBinding InputNodes, Mode=OneWay}">
 							<ItemsControl.ItemsPanel>
 								<ItemsPanelTemplate>
-									<StackPanel Spacing="10" Orientation="{Binding $parent[nds:NodeTreeInputDisplay].Orientation}"/>
+									<StackPanel Spacing="15" Orientation="{Binding $parent[nds:NodeTreeInputDisplay].Orientation}"/>
 								</ItemsPanelTemplate>
 							</ItemsControl.ItemsPanel>
 						</ItemsControl>

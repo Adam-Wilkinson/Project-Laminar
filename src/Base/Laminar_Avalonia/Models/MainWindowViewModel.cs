@@ -24,6 +24,7 @@ namespace Laminar_Avalonia.Models
             {
                 DataContext = script,
             };
+            script.EditorIsLive = true;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(MainControl)));
         }
         
@@ -38,7 +39,10 @@ namespace Laminar_Avalonia.Models
 
         public void CloseAddScriptsButton()
         {
-            MainControl.FindControl<ToggleButton>("PART_AddScriptButton").IsChecked = false;
+            if (MainControl is AllScriptsViewer)
+            {
+                MainControl.FindControl<ToggleButton>("PART_AddScriptButton").IsChecked = false;
+            }
         }
     }
 }

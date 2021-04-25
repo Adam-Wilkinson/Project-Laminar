@@ -11,6 +11,8 @@ namespace Laminar_Core.NodeSystem.NodeTreeSystem
     {
         ReadOnlyObservableCollection<INodeContainer> Nodes { get; }
 
+        public bool EditorIsLive { get; set; }
+
         public IObservableValue<string> Name { get; }
 
         INodeTreeInputs Inputs { get; }
@@ -22,5 +24,7 @@ namespace Laminar_Core.NodeSystem.NodeTreeSystem
         IEnumerable<INodeConnection> GetConnections();
 
         bool TryConnectFields(IConnector field1, IConnector field2);
+
+        void DeleteNode(INodeContainer coreNode);
     }
 }

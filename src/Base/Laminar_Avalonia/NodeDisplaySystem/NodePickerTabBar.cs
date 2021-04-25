@@ -50,10 +50,10 @@ namespace Laminar_Avalonia.NodeDisplaySystem
 
         protected override void OnPointerPressed(PointerPressedEventArgs e)
         {
-            if (e != null && e.Source is Rectangle sourceRect && sourceRect.Tag is INodeContainer selectedNode)
+            if (e != null && e.Source is Panel sourceRect && sourceRect.Tag is INodeContainer selectedNode)
             {
                 INodeContainer newNode = selectedNode.DuplicateNode();
-                newNode.MakeLive();
+                newNode.IsLive = true;
                 DragDropHandler.StartDrop(e, "NodeDisplay", new NodeDisplay() { CoreNode = newNode }, null, e.GetPosition(sourceRect));
             }
         }

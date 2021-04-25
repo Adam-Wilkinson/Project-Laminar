@@ -50,6 +50,10 @@ namespace Laminar_Core.Scripts
         private void RegisterContainer(INodeContainer container, int index)
         {
             INodeField newField = Constructor.NodeField(container.NameLabel.LabelText.Value).WithValue("display", ((InputNodeContainer<InputNode>)container).GetValue(null), true);
+            container.NameLabel.LabelText.OnChange += s =>
+            {
+                newField.Name.Value = s;
+            };
             newField.GetValue("display").OnChange += (o) =>
             {
                 ((InputNodeContainer<InputNode>)container).SetValue(_scriptInstance, o);

@@ -18,7 +18,7 @@ namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
         : INodeContainer where T : INode, new()
     {
         private T _baseNode;
-        private bool _isLive = false;
+        private bool _isUpdating = false;
         private readonly IObjectFactory _factory;
 
         public NodeContainer(NodeDependencyAggregate dependencies)
@@ -52,6 +52,8 @@ namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
             }
         }
 
+        public virtual bool IsLive { get; set; }
+
         protected INodeComponentList FieldList { get; }
 
         public IVisualNodeComponentContainer Name { get; }
@@ -72,12 +74,12 @@ namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
 
         public void Update(IAdvancedScriptInstance instance)
         {
-            if (!_isLive)
+            if (_isUpdating)
             {
                 return;
             }
 
-            _isLive = false;
+            _isUpdating = true;
 
             foreach (IVisualNodeComponentContainer component in (IList)Fields)
             {
@@ -91,12 +93,9 @@ namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
                 component.OutputConnector.Activate(instance, Connection.PropagationDirection.Forwards);
             }
 
-            _isLive = true;
-        }
+            FlowOutContainer?.OutputConnector.Activate(instance, Connection.PropagationDirection.Forwards);
 
-        public virtual void MakeLive()
-        {
-            _isLive = true;
+            _isUpdating = false;
         }
 
         public virtual void SetFieldValue(IAdvancedScriptInstance instance, INodeField containingField, ILaminarValue laminarValue, object value)

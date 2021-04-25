@@ -18,6 +18,7 @@
 			<ControlTemplate>
 				<Border Name="OuterBorder"
 						ZIndex="0"
+						BorderThickness="1"
 						ClipToBounds="False">
 					<Border.DataTemplates>
 
@@ -85,7 +86,7 @@
 										  Padding="6,0"
 										  Content="{Binding CoreNode.Name, RelativeSource={RelativeSource TemplatedParent}}"/>
 						<Border Name="Body"
-								Background="#2F2F2F"
+								Background="#3e3e3e"
 								MinWidth="150"
 								ClipToBounds="False"
 								Padding="10"
@@ -131,12 +132,12 @@
 	</Style>
 
 	<Style Selector="nds|NodeDisplay:pointerover > Border#OuterBorder">
-		<Setter Property="Background" Value="#151520"/>
+		<Setter Property="Background" Value="#2C2C35"/>
 	</Style>
 
 	<Style Selector="nds|NodeDisplay > Border#OuterBorder">
-		<Setter Property="BorderBrush" Value="#19191F"/>
-		<Setter Property="Background" Value="#19191F"/>
+		<Setter Property="BorderBrush" Value="#00000000"/>
+		<Setter Property="Background" Value="#131323"/>
 	</Style>
 
 	<Style Selector="nds|NodeDisplay:error > Border#OuterBorder">
@@ -144,6 +145,6 @@
 	</Style>
 
 	<Style Selector="nds|NodeDisplay:selected > Border#OuterBorder">
-		<Setter Property="Background" Value="#1A1A2A"/>
+		<Setter Property="BorderBrush" Value="#EEEEEEFF"/>
 	</Style>
 </Styles>

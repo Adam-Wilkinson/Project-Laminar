@@ -37,6 +37,11 @@ namespace Laminar_Core.Primitives.LaminarValue
                 return typeDefinitionProvider;
             }
 
+            if (value.GetType().IsGenericType && value.GetType().GetGenericTypeDefinition().GetInterfaces().Contains(typeof(ITypeDefinitionConstructor<>)))
+            {
+                value = ((dynamic)value).Construct();
+            }
+
             if (value is ITypeDefinition typeDefinition)
             {
                 IManualTypeDefinitionProvider manager = _factory.GetImplementation<IManualTypeDefinitionProvider>();

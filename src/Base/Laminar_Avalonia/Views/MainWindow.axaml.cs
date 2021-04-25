@@ -15,6 +15,8 @@ namespace Laminar_Avalonia.Views
 {
     public class MainWindow : Window
     {
+        private bool _needsScriptInstance = false;
+
         public MainWindow()
         {
             FontFamily = new FontFamily("Lucida Sans");
@@ -34,9 +36,18 @@ namespace Laminar_Avalonia.Views
             (DataContext as MainWindowViewModel).ShowScriptEditor(script);
         }
 
-        public void ShowAllScripts()
+        public void CloseScriptEditor()
         {
-            (DataContext as MainWindowViewModel).ShowAllScripts();
+            if (DataContext is MainWindowViewModel mwvm && mwvm.MainControl is ScriptEditor scriptEditor && scriptEditor.DataContext is INodeTree openNodeTree)
+            {
+                openNodeTree.EditorIsLive = false;
+                if (_needsScriptInstance)
+                {
+                    AddScriptInstance(openNodeTree);
+                    _needsScriptInstance = false;
+                }
+                mwvm.ShowAllScripts();
+            }
         }
 
         public void DeleteScript(IScriptInstance script)
@@ -50,6 +61,7 @@ namespace Laminar_Avalonia.Views
             IAdvancedScriptInstance newScript = App.LaminarInstance.Factory.GetImplementation<IAdvancedScriptInstance>();
             newScript.Script = script;
             newScript.Name.Value = script.Name.Value;
+            newScript.IsActive.Value = true;
             App.LaminarInstance.AllScripts.Scripts.Add(newScript);
         }
 
@@ -65,8 +77,8 @@ namespace Laminar_Avalonia.Views
             INodeTree newTree = App.LaminarInstance.Factory.GetImplementation<INodeTree>();
             newTree.Name.Value = text;
             App.LaminarInstance.AllAdvancedScripts.Add(newTree);
-            AddScriptInstance(newTree);
 
+            _needsScriptInstance = true;
             OpenScriptEditor(newTree);
         }
 

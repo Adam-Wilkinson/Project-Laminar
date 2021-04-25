@@ -36,9 +36,9 @@ namespace WindowsKeyboardMouse.Nodes.Keyboard.Output
 
         public static void PressVirtualKey(byte bVk, uint keyEvent)
         {
-            keybd_event(bVk, 0, keyEvent | 0, 0);
+            keybd_event(bVk, 0, keyEvent, 0);
         }
-
+        
         public void Evaluate()
         {
             for (int i = 0; i < numberOfPresses.GetInput<double>(); i++)

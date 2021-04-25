@@ -27,6 +27,11 @@ namespace WindowsKeyboardMouse.Nodes.Keyboard.Output
         [DllImport("user32.dll")]
         static extern short VkKeyScan(char ch);
 
+        public static Keys ConvertCharToKey(char ch)
+        {
+            return (Keys)VkKeyScan(ch);
+        }
+
         public void Evaluate()
         {
             foreach (char character in textField.GetInput<string>())

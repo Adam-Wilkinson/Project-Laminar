@@ -34,12 +34,13 @@ namespace Laminar_Inbuilt
             host.RegisterEditor<IControl>("EnumEditor", typeof(EnumEditor));
             host.RegisterEditor<IControl>("SliderEditor", typeof(SliderEditor));
             host.RegisterEditor<IControl>("BoolEditor", typeof(BoolEditor));
+            host.RegisterEditor<IControl>("ToggleSwitch", typeof(UserControls.ToggleSwitch));
 
 
             host.AddNodeToMenu<NodeAdd, NodeDifference, NodeMultiply, NodeDivide, SliderTest>("Number", "Arithmetic");
             host.AddNodeToMenu<NodeSine>("Number", "Functions");
             host.AddNodeToMenu<Equal>("Number", "Comparisons");
-            host.AddNodeToMenu<Node_Join_Strings>("Text");
+            host.AddNodeToMenu<Node_Join_Strings, CharacterCounter>("Text");
             host.AddNodeToMenu<FlowSwitch>("Flow Control");
         }
     }

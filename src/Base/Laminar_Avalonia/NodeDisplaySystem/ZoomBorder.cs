@@ -38,7 +38,6 @@
 
             ClipToBounds = true;
             Child = nodeManager;
-            Background = new SolidColorBrush(new Color(255, 11, 11, 11));
         }
 
         public MouseButton PanButton
@@ -220,6 +219,11 @@
             {
                 nodeManager.DuplicateSelectedNodes();
                 isSelectDragging = true;
+            }
+
+            else if (e.Key is Key.Delete)
+            {
+                nodeManager.DeleteSelectedNodes();
             }
         }
 

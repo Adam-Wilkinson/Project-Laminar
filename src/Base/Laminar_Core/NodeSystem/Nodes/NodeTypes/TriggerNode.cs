@@ -22,7 +22,7 @@ namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
 
         ~TriggerNode()
         {
-            (BaseNode as ITriggerNode).Dispose();
+            (BaseNode as ITriggerNode).RemoveTriggers();
             foreach (var kvp in _instanceManagers)
             {
                 kvp.Value.Dispose();
@@ -38,10 +38,20 @@ namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
             }
         }
 
-        public override void MakeLive()
+        public override bool IsLive 
         {
-            base.MakeLive();
-            (BaseNode as ITriggerNode).HookupTriggers();
+            set
+            {
+                base.IsLive = value;
+                if (IsLive)
+                {
+                    (BaseNode as ITriggerNode).HookupTriggers();
+                }
+                else
+                {
+                    (BaseNode as ITriggerNode).RemoveTriggers();
+                }
+            }
         }
 
         public override void SetFieldValue(IAdvancedScriptInstance instance, INodeField containingField, ILaminarValue laminarValue, object value)
@@ -83,6 +93,7 @@ namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
             private readonly INodeComponentList _nodeComponents;
             private readonly TriggerNode<T> _parentContainer;
             private readonly IAdvancedScriptInstance _instance;
+            private bool _isLive;
 
             public InstanceManager(TriggerNode<T> parentContainer, IAdvancedScriptInstance instance)
             {
@@ -91,9 +102,25 @@ namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
                 _node = new();
                 _nodeComponents = Constructor.NodeComponentList(_node.Fields);
                 _nodeComponents.ParentNode = _parentContainer.BaseNode;
-                (_node as ITriggerNode).HookupTriggers();
                 (_node as ITriggerNode).Trigger += Trigger;
+                _isLive = false;
+                SetActive(_instance.IsActive.Value);
+                _instance.IsActive.OnChange += SetActive;
                 parentContainer.Update(instance);
+            }
+
+            private void SetActive(bool shouldBeActive)
+            {
+                if (shouldBeActive && !_isLive)
+                {
+                    (_node as ITriggerNode).HookupTriggers();
+                    _isLive = true;
+                }
+                else if (!shouldBeActive && _isLive)
+                {
+                    (_node as ITriggerNode).RemoveTriggers();
+                    _isLive = false;
+                }
             }
 
             public void SetValue(INodeField containingField, ILaminarValue laminarValue, object value)
@@ -137,7 +164,10 @@ namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
 
             public void Dispose()
             {
-                (_node as ITriggerNode).Dispose();
+                if (_instance.IsActive.Value)
+                {
+                    (_node as ITriggerNode).RemoveTriggers();
+                }
             }
         }
     }

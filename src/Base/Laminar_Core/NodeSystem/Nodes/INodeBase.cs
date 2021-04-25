@@ -26,7 +26,7 @@ namespace Laminar_Core.NodeSystem.Nodes
 
         IPoint Location { get; }
 
-        void MakeLive();
+        bool IsLive { get; set; }
 
         void Update(IAdvancedScriptInstance instance);
 

@@ -112,7 +112,7 @@ namespace WindowsKeyboardMouse.Nodes.Keyboard.Triggers
             AnyKey_PropertyChanged(null, new PropertyChangedEventArgs(nameof(ILaminarValue.Value)));
         }
 
-        public void Dispose()
+        public void RemoveTriggers()
         {
             _globalHook?.Dispose();
         }

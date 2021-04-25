@@ -235,6 +235,15 @@ namespace Laminar_Avalonia.NodeDisplaySystem
             Children.Add(newDisplay);
         }
 
+        internal void DeleteSelectedNodes()
+        {
+            foreach (NodeDisplay display in selectedNodes)
+            {
+                manager.DeleteNode(display.CoreNode);
+                Children.Remove(display);
+            }
+        }
+
         private void Node_PointerPressed(object sender, PointerPressedEventArgs e)
         {
             PointerPoint click = e.GetCurrentPoint(this);
@@ -277,7 +286,7 @@ namespace Laminar_Avalonia.NodeDisplaySystem
             foreach (NodeDisplay node in selectedNodes)
             {
                 INodeContainer newNode = node.CoreNode.DuplicateNode();
-                newNode.MakeLive();
+                newNode.IsLive = true;
                 AddNode(new NodeDisplay() { CoreNode = newNode }, node.Bounds.TopLeft);
             }
             hasClickPoint = false;

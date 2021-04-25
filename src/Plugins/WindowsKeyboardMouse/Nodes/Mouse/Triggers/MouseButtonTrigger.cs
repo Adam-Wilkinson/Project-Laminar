@@ -51,7 +51,7 @@ namespace WindowsKeyboardMouse.Nodes.Mouse.Triggers
             }
         }
 
-        public void Dispose()
+        public void RemoveTriggers()
         {
             Hook.GlobalEvents().MouseDown -= MouseButtonTrigger_MouseDown;
         }

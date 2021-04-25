@@ -41,25 +41,29 @@
 						<ItemsControl Items="{TemplateBinding CurrentDisplayNodes}">
 							<ItemsControl.ItemsPanel>
 								<ItemsPanelTemplate>
-									<StackPanel Orientation="{Binding $parent[nds:NodePickerTabBar].Orientation}"
+									<StackPanel Orientation="{Binding $parent[nds:NodePickerTabBar].Orientation, FallbackValue=Horizontal}"
 												Spacing="30"
 												Margin="10"/>
 								</ItemsPanelTemplate>
 							</ItemsControl.ItemsPanel>
 							<ItemsControl.ItemTemplate>
 								<DataTemplate>
-									<Panel Classes="DisplayedNode">
+									<Panel Classes="DisplayedNode"
+										   IsHitTestVisible="True"
+										   Background="#00000000"
+										   VerticalAlignment="Top"
+										   Cursor="Hand"
+										   Tag="{Binding}">
 										<nds:NodeDisplay Name="PART_NodeDisplay"
 														 Margin="4"
 														 CoreNode="{Binding}"
 														 VerticalAlignment="Top"
 														 IsHitTestVisible="False"/>
-										<Rectangle Name="PART_Rect"
-												   Fill="#00000000"
-												   Stretch="Fill"
-												   Cursor="Hand"
-												   Tag="{Binding}">
-										</Rectangle>
+										<Rectangle Classes="Highlighter"
+												   HorizontalAlignment="Stretch"
+												   VerticalAlignment="Stretch"
+												   IsHitTestVisible="False"
+												   Fill="#FFFFFF"/>
 									</Panel>
 								</DataTemplate>
 							</ItemsControl.ItemTemplate>
@@ -71,22 +75,22 @@
 		</Setter>
 	</Style>
 
-	<Style Selector="Panel.DisplayedNode">
-		<Setter Property="Opacity" Value="0.75"/>
+	<Style Selector="Panel.DisplayedNode > Rectangle.Highlighter">
+		<Setter Property="Opacity" Value="0"/>
 		<Setter Property="Transitions">
 			<Transitions>
-				<DoubleTransition Property="Opacity" Duration="0:0:0.1"/>
+				<DoubleTransition Property="Opacity" Duration="0:0:0.08"/>
 			</Transitions>
 		</Setter>
 	</Style>
 
-	<Style Selector="Panel.DisplayedNode:pointerover">
-		<Setter Property="Opacity" Value="1"/>
+	<Style Selector="Panel.DisplayedNode:pointerover > Rectangle.Highlighter">
+		<Setter Property="Opacity" Value="0.1"/>
 	</Style>
-
+	
 	<Style Selector="Menu.BigMenu > MenuItem">
 		<Setter Property="HorizontalAlignment" Value="Stretch"/>
-		<Setter Property="Background" Value="#050505"/>
+		<Setter Property="Background" Value="#131323"/>
 		<Setter Property="Padding" Value="20 10"/>
 	</Style>
 
