@@ -9,7 +9,7 @@
              x:Class="Laminar_Avalonia.Views.ScriptEditor">
 	<DockPanel>
 		<DockPanel Background="#151515" HorizontalAlignment="Stretch" DockPanel.Dock="Top" LastChildFill="False">
-			<TextBlock DockPanel.Dock="Left" FontSize="15" FontWeight="Medium" Padding="5" Text="Currently Editing:" VerticalAlignment="Center"/>
+			<TextBlock DockPanel.Dock="Left" FontSize="15" FontWeight="Medium" Padding="25,5,15,5" Text="Currently Editing:" VerticalAlignment="Center"/>
 			<TextBox VerticalContentAlignment="Center" FontSize="15" DockPanel.Dock="Left" Margin="6" Padding="10,5" Text="{Binding Name.Value}"/>
 			<Button DockPanel.Dock="Right" Margin="10,5" Padding="6" MinWidth="60" Command="{Binding $parent[w:MainWindow].CloseScriptEditor}">Exit</Button>
 		</DockPanel>

@@ -61,6 +61,14 @@ namespace Laminar_Core.Scripts
             AllInputs.Insert(index, newField);
         }
 
+        public void ManualTriggerAll()
+        {
+            foreach (INodeField field in AllInputs)
+            {
+                field.GetValue("display").OnChange(field["display"]);
+            }
+        }
+
         public IEnumerable<INodeComponent> Fields
         {
             get

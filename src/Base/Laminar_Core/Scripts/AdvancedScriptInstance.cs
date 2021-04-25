@@ -16,6 +16,7 @@ namespace Laminar_Core.Scripts
 
         public AdvancedScriptInstance(ScriptDependencyAggregate deps, INodeFactory nodeFactory) : base(deps)
         {
+            IsActive.Value = false;
             _nodeFactory = nodeFactory;
         }
 
@@ -30,7 +31,10 @@ namespace Laminar_Core.Scripts
                 AdvancedScriptInputsNode inputs = new();
                 inputs.SetInstance(this);
                 inputs.BindToInputs(_script.Inputs);
+                inputs.ManualTriggerAll();
                 Inputs = _nodeFactory.Get(inputs);
+
+                IsActive.OnChange += (b) => inputs.ManualTriggerAll();
             }
         }
     }

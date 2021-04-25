@@ -61,7 +61,7 @@ namespace Laminar_Avalonia.Views
             IAdvancedScriptInstance newScript = App.LaminarInstance.Factory.GetImplementation<IAdvancedScriptInstance>();
             newScript.Script = script;
             newScript.Name.Value = script.Name.Value;
-            newScript.IsActive.Value = true;
+            // aAanewScript.IsActive.Value = true;
             App.LaminarInstance.AllScripts.Scripts.Add(newScript);
         }
 
