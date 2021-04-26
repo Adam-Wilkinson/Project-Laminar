@@ -17,7 +17,7 @@ namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
         protected override void SafeUpdate(IAdvancedScriptInstance instance)
         {
             base.SafeUpdate(instance);
-            FlowOutContainer = GetContainer((BaseNode as IFlowNode).FlowOutComponent);
+            (BaseNode as IFlowNode).FlowOutComponent.FlowOutput.Activate();
         }
     }
 }

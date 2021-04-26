@@ -137,7 +137,7 @@
 
 	<Style Selector="nds|NodeDisplay > Border#OuterBorder">
 		<Setter Property="BorderBrush" Value="#00000000"/>
-		<Setter Property="Background" Value="#131323"/>
+		<Setter Property="Background" Value="{DynamicResource HeaderColour}"/>
 	</Style>
 
 	<Style Selector="nds|NodeDisplay:error > Border#OuterBorder">

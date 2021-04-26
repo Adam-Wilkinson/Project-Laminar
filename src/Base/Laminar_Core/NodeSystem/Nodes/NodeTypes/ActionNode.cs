@@ -16,7 +16,6 @@ namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
             : base(dependencies)
         {
             NameLabel.WithFlowInput().WithFlowOutput();
-            FlowOutContainer = GetContainer(NameLabel);
         }
     }
 }

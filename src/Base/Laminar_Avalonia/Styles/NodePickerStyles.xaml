@@ -90,7 +90,7 @@
 	
 	<Style Selector="Menu.BigMenu > MenuItem">
 		<Setter Property="HorizontalAlignment" Value="Stretch"/>
-		<Setter Property="Background" Value="#131323"/>
+		<Setter Property="Background" Value="{DynamicResource HeaderColour}"/>
 		<Setter Property="Padding" Value="20 10"/>
 	</Style>
 

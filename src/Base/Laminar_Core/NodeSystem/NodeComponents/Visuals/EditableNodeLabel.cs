@@ -7,8 +7,8 @@ namespace Laminar_Core.NodeSystem.NodeComponents.Visuals
     {
         private bool _needsEditing = false;
 
-        public EditableNodeLabel(IObservableValue<string> name, IOpacity opacity, IObservableValue<string> labelText) 
-            : base(name, opacity, labelText)
+        public EditableNodeLabel(IObservableValue<string> name, IFlow flowInput, IFlow flowOutput, IOpacity opacity, IObservableValue<string> labelText) 
+            : base(name, flowInput, flowOutput, opacity, labelText)
         {
         }
 

@@ -8,9 +8,13 @@
 
     public abstract class VisualNodeComponent : NodeComponent, IVisualNodeComponent
     {
-        public VisualNodeComponent(IObservableValue<string> name, IOpacity opacity) : base(opacity)
+        public VisualNodeComponent(IObservableValue<string> name, IFlow flowInput, IFlow flowOutput, IOpacity opacity) : base(opacity)
         {
             Name = name;
+            FlowInput = flowInput;
+            FlowOutput = flowOutput;
+            FlowInput.ParentComponent = this;
+            FlowOutput.ParentComponent = this;
 
             VisualComponentList = new List<IVisualNodeComponent>() { this };
         }
@@ -19,12 +23,16 @@
 
         public override IList VisualComponentList { get; }
 
+        public IFlow FlowInput { get; }
+
+        public IFlow FlowOutput { get; }
+
         protected override IVisualNodeComponent CloneTo(INodeComponent nodeField)
         {
             base.CloneTo(nodeField);
             (nodeField as IVisualNodeComponent).Name.Value = Name.Value;
-            (nodeField as IVisualNodeComponent).SetFlowOutput(this.GetFlowOutput().Value);
-            (nodeField as IVisualNodeComponent).SetFlowInput(this.GetFlowInput().Value);
+            (nodeField as IVisualNodeComponent).FlowOutput.Exists = FlowOutput.Exists;
+            (nodeField as IVisualNodeComponent).FlowInput.Exists = FlowInput.Exists;
             return nodeField as IVisualNodeComponent;
         }
     }

@@ -14,6 +14,8 @@ namespace Laminar_Core.NodeSystem.Nodes
     {
         public static Dictionary<INode, INodeContainer> NodeBases { get; } = new();
 
+        public static IAdvancedScriptInstance GetNodeInstance(INode node) => null;
+
         IObservableValue<bool> ErrorState { get; }
 
         IVisualNodeComponentContainer Name { get; }
@@ -33,8 +35,6 @@ namespace Laminar_Core.NodeSystem.Nodes
         void SetFieldValue(IAdvancedScriptInstance instance, INodeField containingField, ILaminarValue laminarValue, object value);
 
         object GetFieldValue(IAdvancedScriptInstance instance, INodeField containingField, ILaminarValue laminarValue);
-
-        IVisualNodeComponentContainer FlowOutContainer { get; }
 
         INodeContainer DuplicateNode();
     }

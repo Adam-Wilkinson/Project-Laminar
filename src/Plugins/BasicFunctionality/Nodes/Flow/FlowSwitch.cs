@@ -91,9 +91,8 @@
 
         private static INodeField ValueDisplay(ITypeDefinition typeDef, object x)
         {
-            INodeField output = Constructor.NodeField(x.ToString()).WithValue("Displayed", Constructor.RigidTypeDefinitionManager(typeDef.DefaultValue, null, "DefaultDisplay"), false);
+            INodeField output = Constructor.NodeField(x.ToString()).WithValue("Displayed", Constructor.RigidTypeDefinitionManager(typeDef.DefaultValue, null, "DefaultDisplay"), false).WithFlowOutput();
             output.DisplayedValue.Value = x;
-            output.SetFlowOutput();
             return output;
         }
     }

@@ -16,8 +16,8 @@ namespace Laminar_Core.NodeSystem.NodeComponents.Visuals
         private readonly IObjectFactory _factory;
         private object _displayedValueKey;
 
-        public NodeField(Instance instance, IObservableValue<string> name, IOpacity opacity, ILaminarValueStore valueStore, IUserInterfaceManager userInterfaces) 
-            : base(name, opacity)
+        public NodeField(Instance instance, IObservableValue<string> name, IFlow flowInput, IFlow flowOutput, IOpacity opacity, ILaminarValueStore valueStore, IUserInterfaceManager userInterfaces) 
+            : base(name, flowInput, flowOutput, opacity)
         {
             _valueStore = valueStore;
             UserInterfaces = userInterfaces;

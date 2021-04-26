@@ -64,8 +64,6 @@ namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
 
         public INotifyCollectionChanged Fields { get; }
 
-        public IVisualNodeComponentContainer FlowOutContainer { get; protected set; }
-
         public IEditableNodeLabel NameLabel { get; }
 
         public bool HasFields => FieldList.VisualComponentList.Count > 0;
@@ -93,7 +91,7 @@ namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
                 component.OutputConnector.Activate(instance, Connection.PropagationDirection.Forwards);
             }
 
-            FlowOutContainer?.OutputConnector.Activate(instance, Connection.PropagationDirection.Forwards);
+            NameLabel.FlowOutput.Activate();
 
             _isUpdating = false;
         }

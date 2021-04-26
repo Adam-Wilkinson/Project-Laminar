@@ -6,8 +6,8 @@ namespace Laminar_Core.NodeSystem.NodeComponents.Visuals
 {
     public class NodeLabel : VisualNodeComponent, INodeLabel
     {
-        public NodeLabel(IObservableValue<string> name, IOpacity opacity, IObservableValue<string> labelText) 
-            : base(name, opacity)
+        public NodeLabel(IObservableValue<string> name, IFlow flowInput, IFlow flowOutput, IOpacity opacity, IObservableValue<string> labelText) 
+            : base(name, flowInput, flowOutput, opacity)
         {
             LabelText = labelText;
             LabelText.Value = Name.Value;

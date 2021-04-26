@@ -53,6 +53,7 @@ namespace Laminar_Core
             RegisterImplementation<INodeTree, NodeTree>();
             RegisterImplementation<IVisualNodeComponentContainer, VisualNodeComponentContainer>();
             RegisterImplementation<IPoint, Point>();
+            RegisterImplementation<IFlow, Flow>();
             RegisterImplementation<INodeTreeInputs, NodeTreeInputs>();
             RegisterImplementation<IScriptCollection, ScriptCollection>();
             RegisterImplementation<IAdvancedScriptInstance, AdvancedScriptInstance>();

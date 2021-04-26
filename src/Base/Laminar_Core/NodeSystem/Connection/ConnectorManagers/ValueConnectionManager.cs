@@ -4,6 +4,7 @@ using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
 using Laminar_PluginFramework.Primitives;
 using Laminar_PluginFramework.Primitives.TypeDefinition;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 
@@ -13,7 +14,7 @@ namespace Laminar_Core.NodeSystem.Connection.ConnectorManagers
     {
         private IVisualNodeComponent _parentComponent;
         private ConnectorType _connectorType;
-        private ValueConnectionManager _pairedManager;
+        private List<ValueConnectionManager> _pairedManagers;
         private readonly Instance _instance;
         private bool _isActivating;
         private object _inputConnectorOldValue;
@@ -96,7 +97,7 @@ namespace Laminar_Core.NodeSystem.Connection.ConnectorManagers
 
         public void ConnectionAddedAction(IConnectorManager manager)
         {
-            _pairedManager = manager as ValueConnectionManager;
+            _pairedManagers.Add(manager as ValueConnectionManager);
             if (_connectorType is ConnectorType.Output && manager is ValueConnectionManager valConnection)
             {
                 _inputLaminarValue = valConnection.LaminarValue;
@@ -108,7 +109,7 @@ namespace Laminar_Core.NodeSystem.Connection.ConnectorManagers
 
         public void ConnectionRemovedAction(IConnectorManager manager)
         {
-            _pairedManager = null;
+            _pairedManagers.Remove(manager as ValueConnectionManager);
             if (_connectorType is ConnectorType.Output && manager is ValueConnectionManager valConnection)
             {
                 valConnection.LaminarValue.IsUserEditable.Value = true;
@@ -123,7 +124,7 @@ namespace Laminar_Core.NodeSystem.Connection.ConnectorManagers
 
         public void Activate(IAdvancedScriptInstance instance, PropagationDirection direction)
         {
-            if (_isActivating || _pairedManager is null)
+            if (_isActivating || _pairedManagers.Count is 0)
             {
                 return;
             }
@@ -141,8 +142,10 @@ namespace Laminar_Core.NodeSystem.Connection.ConnectorManagers
 
                 if (direction is PropagationDirection.Backwards)
                 {
-                    _pairedManager?.Activate(instance, direction);
-                    // parentNode.SetFieldValue(instance, _pairedManager._parentComponent as INodeField, _inputLaminarValue, INodeContainer.NodeBases[_pairedManager._parentComponent.ParentNode].GetFieldValue(instance, _pairedManager._parentComponent as INodeField, LaminarValue));
+                    foreach (ValueConnectionManager manager in _pairedManagers)
+                    {
+                        manager.Activate(instance, direction);
+                    }
                 }
             }
 
@@ -150,13 +153,19 @@ namespace Laminar_Core.NodeSystem.Connection.ConnectorManagers
             {
                 if (direction is PropagationDirection.Forwards)
                 {
-                    INodeContainer.NodeBases[_pairedManager._parentComponent.ParentNode].SetFieldValue(instance, _pairedManager._parentComponent as INodeField, _inputLaminarValue, parentNode.GetFieldValue(instance, _parentComponent as INodeField, LaminarValue));
-                    _pairedManager.Activate(instance, direction);
+                    foreach (ValueConnectionManager manager in _pairedManagers)
+                    {
+                        INodeContainer.NodeBases[manager._parentComponent.ParentNode].SetFieldValue(instance, manager._parentComponent as INodeField, _inputLaminarValue, parentNode.GetFieldValue(instance, _parentComponent as INodeField, LaminarValue));
+                        manager.Activate(instance, direction);
+                    }
                 }
                 if (direction is PropagationDirection.Backwards)
                 {
-                    parentNode.Update(instance);
-                    INodeContainer.NodeBases[_pairedManager._parentComponent.ParentNode].SetFieldValue(instance, _pairedManager._parentComponent as INodeField, _inputLaminarValue, parentNode.GetFieldValue(instance, _parentComponent as INodeField, LaminarValue));
+                    foreach (ValueConnectionManager manager in _pairedManagers)
+                    {
+                        parentNode.Update(instance);
+                        INodeContainer.NodeBases[manager._parentComponent.ParentNode].SetFieldValue(instance, manager._parentComponent as INodeField, _inputLaminarValue, parentNode.GetFieldValue(instance, _parentComponent as INodeField, LaminarValue));
+                    }
                 }
             }
 

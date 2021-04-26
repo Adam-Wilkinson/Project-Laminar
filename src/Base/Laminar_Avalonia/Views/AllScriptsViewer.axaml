@@ -86,7 +86,7 @@
 		
 		<Style Selector="ToggleButton.AddScriptButton /template/ ContentPresenter">
 			<Setter Property="CornerRadius" Value="30"/>
-			<Setter Property="Background" Value="#131323"/>
+			<Setter Property="Background" Value="{DynamicResource HeaderColour}"/>
 		</Style>
 		<Style Selector="ToggleButton.AddScriptButton:pressed /template/ ContentPresenter">
 			<Setter Property="Background" Value="#23232B"/>

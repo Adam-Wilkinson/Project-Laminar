@@ -29,6 +29,8 @@ namespace Laminar_Avalonia.Views
             {
                 UseNativeTitleBar();
             }
+
+            Resources["HeaderColour"] = new SolidColorBrush(new Color(255, 19, 19, 35));
         }
 
         public void OpenScriptEditor(INodeTree script)

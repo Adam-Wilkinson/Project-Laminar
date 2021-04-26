@@ -11,13 +11,13 @@ namespace Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals
     {
         public static T WithFlowInput<T>(this T component, bool HasFlowInput = true) where T : IVisualNodeComponent
         {
-            component.SetFlowInput(HasFlowInput);
+            component.FlowInput.Exists = HasFlowInput;
             return component;
         }
 
         public static T WithFlowOutput<T>(this T component, bool HasFlowOutput = true) where T : IVisualNodeComponent
         {
-            component.SetFlowOutput(HasFlowOutput);
+            component.FlowOutput.Exists = HasFlowOutput;
             return component;
         }
 

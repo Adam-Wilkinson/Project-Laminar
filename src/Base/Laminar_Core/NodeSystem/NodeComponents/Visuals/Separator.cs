@@ -8,8 +8,8 @@ namespace Laminar_Core.NodeSystem.NodeComponents.Visuals
     {
         private readonly IObjectFactory _factory;
 
-        public Separator(IObservableValue<string> name, IOpacity opacity, IObjectFactory factory)
-            : base(name, opacity) 
+        public Separator(IObservableValue<string> name, IFlow flowInput, IFlow flowOutput, IOpacity opacity, IObjectFactory factory)
+            : base(name, flowInput, flowOutput, opacity) 
         {
             _factory = factory;
         }

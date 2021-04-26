@@ -1,12 +1,9 @@
 ﻿using Laminar_Core.NodeSystem.Nodes;
 using Laminar_Core.Scripts;
 using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
-using Laminar_PluginFramework.NodeSystem.Nodes;
 using Laminar_PluginFramework.Primitives;
 using System;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Threading;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Laminar_Core.NodeSystem.Connection.ConnectorManagers
@@ -16,7 +13,7 @@ namespace Laminar_Core.NodeSystem.Connection.ConnectorManagers
         private readonly Instance _instance;
         private IVisualNodeComponent _parentComponent;
         private ConnectorType _connectorType;
-        private FlowConnectionManager _pairedConnection;
+        private List<FlowConnectionManager> _pairedConnections;
 
         public FlowConnectionManager(Instance instance, IObservableValue<string> hexColour)
         {
@@ -36,23 +33,51 @@ namespace Laminar_Core.NodeSystem.Connection.ConnectorManagers
 
             if (connectionType is ConnectorType.Input)
             {
-                component.GetFlowInput().PropertyChanged += FlowPropertyChanged;
+                component.FlowInput.ExistsChanged += FlowChanged;
+                component.FlowInput.Activated += FlowActivated;
             }
 
             if (connectionType is ConnectorType.Output)
             {
-                component.GetFlowOutput().PropertyChanged += FlowPropertyChanged;
+                component.FlowOutput.ExistsChanged += FlowChanged;
+                component.FlowOutput.Activated += FlowActivated;
+            }
+        }
+
+        private void FlowActivated(object sender, EventArgs e)
+        {
+            ActivateFlow(INodeContainer.GetNodeInstance((sender as IFlow).ParentComponent.ParentNode));
+        }
+
+        public void ActivateFlow(IAdvancedScriptInstance activatedInstance)
+        {
+            INodeContainer parentNodeBase = INodeContainer.NodeBases[_parentComponent.ParentNode];
+
+            if (_connectorType is ConnectorType.Input)
+            {
+                FlashColourChange();
+                parentNodeBase.Update(activatedInstance);
+            }
+
+            if (_connectorType is ConnectorType.Output)
+            {
+                FlashColourChange();
+                foreach (FlowConnectionManager manager in _pairedConnections)
+                {
+                    manager.ActivateFlow(activatedInstance);
+                }
+
             }
         }
 
         public bool ConnectorExists()
         {
-            if (_connectorType == ConnectorType.Input && _parentComponent.GetFlowInput().Value)
+            if (_connectorType == ConnectorType.Input && _parentComponent.FlowInput.Exists)
             {
                 return true;
             }
 
-            if (_connectorType == ConnectorType.Output && _parentComponent.GetFlowOutput().Value)
+            if (_connectorType == ConnectorType.Output && _parentComponent.FlowOutput.Exists)
             {
                 return true;
             }
@@ -67,12 +92,12 @@ namespace Laminar_Core.NodeSystem.Connection.ConnectorManagers
 
         public void ConnectionAddedAction(IConnectorManager manager)
         {
-            _pairedConnection = manager as FlowConnectionManager;
+            _pairedConnections.Add(manager as FlowConnectionManager);
         }
 
         public void ConnectionRemovedAction(IConnectorManager manager)
         {
-            _pairedConnection = null;
+            _pairedConnections.Remove(manager as FlowConnectionManager);
         }
 
         public bool ConnectorExclusiveCheck()
@@ -82,28 +107,9 @@ namespace Laminar_Core.NodeSystem.Connection.ConnectorManagers
 
         public void Activate(IAdvancedScriptInstance instance, PropagationDirection direction)
         {
-            if (direction is PropagationDirection.Backwards)
-            {
-                return;
-            }
-
-            INodeContainer parentNodeBase = INodeContainer.NodeBases[_parentComponent.ParentNode];
-
-            if (_connectorType is ConnectorType.Input)
-            {
-                FlashColourChange();
-                parentNodeBase.Update(instance);
-            }
-            
-
-            if (_connectorType is ConnectorType.Output && parentNodeBase.FlowOutContainer?.Child == _parentComponent)
-            {
-                FlashColourChange();
-                _pairedConnection?.Activate(instance, direction);
-            }
         }
 
-        private void FlowPropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void FlowChanged(object sender, bool exists)
         {
             ExistsChanged?.Invoke(this, new EventArgs());
         }

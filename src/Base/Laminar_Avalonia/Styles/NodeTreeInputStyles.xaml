@@ -16,7 +16,7 @@
 						BorderBrush="{DynamicResource ThemeBorderMidBrush}">
 					<StackPanel Background="{DynamicResource ThemeBackgroundBrush}">
 
-						<Border Background="#131323" Margin="0,0,0,10">
+						<Border Background="{DynamicResource HeaderColour}" Margin="0,0,0,10">
 							<TextBlock FontWeight="Medium" HorizontalAlignment="Center" FontSize="20" Padding="10" Text="Script Inputs"/>
 						</Border>
 						

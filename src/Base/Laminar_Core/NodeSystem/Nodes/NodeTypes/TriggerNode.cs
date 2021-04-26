@@ -16,8 +16,7 @@ namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
 
         public TriggerNode(NodeDependencyAggregate dependencies) : base(dependencies)
         {
-            NameLabel.SetFlowOutput(true);
-            FlowOutContainer = Name;
+            NameLabel.WithFlowOutput();
         }
 
         ~TriggerNode()
@@ -83,7 +82,7 @@ namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
 
         private void TriggerNode_Trigger(object sender, EventArgs e)
         {
-             FlowOutContainer.OutputConnector?.Activate(null, Connection.PropagationDirection.Forwards);
+            NameLabel.FlowOutput.Activate();
         }
 
         private class InstanceManager : IDisposable
@@ -159,7 +158,7 @@ namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
 
             private void Trigger(object sender, EventArgs e)
             {
-                _parentContainer.FlowOutContainer?.OutputConnector.Activate(_instance, Connection.PropagationDirection.Forwards);
+                // _parentContainer.FlowOutContainer?.OutputConnector.Activate(_instance, Connection.PropagationDirection.Forwards);
             }
 
             public void Dispose()
