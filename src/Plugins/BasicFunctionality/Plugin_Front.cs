@@ -19,6 +19,10 @@ namespace Laminar_Inbuilt
 
         public string PluginDescription { get; } = "Implements all the base functionality for Laminar";
 
+        public void Dispose()
+        {
+        }
+
         public void Register(IPluginHost host)
         {
             host.RegisterType<double>("#FF0000", "Number", 0.0, "NumberEditor", "StringDisplay", true);

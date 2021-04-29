@@ -5,7 +5,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Interop.UIAutomationClient" Version="10.19041.0" />
+    <PackageReference Include="System.Management" Version="6.0.0-preview.3.21201.4" />
+    <PackageReference Include="System.Security.Permissions" Version="5.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\Base\Laminar_PluginFramework\Laminar_PluginFramework.csproj">
+		<Private>false</Private>
+		<ExcludeAssets>runtime</ExcludeAssets>
+	</ProjectReference>
+  </ItemGroup>
 </Project>

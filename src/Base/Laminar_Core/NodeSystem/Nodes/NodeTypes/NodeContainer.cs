@@ -18,7 +18,7 @@ namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
         : INodeContainer where T : INode, new()
     {
         private T _baseNode;
-        private bool _isUpdating = false;
+        private bool _isUpdating = true;
         private readonly IObjectFactory _factory;
 
         public NodeContainer(NodeDependencyAggregate dependencies)

@@ -15,9 +15,10 @@ using System.Runtime.CompilerServices;
 
 namespace Laminar_Core
 {
-    public class Instance
+    public class Instance : IDisposable
     {
         private readonly Dictionary<Type, TypeInfoRecord> _typeInfo = new();
+        private readonly PluginLoader _pluginLoader;
 
         public Instance(SynchronizationContext uiContext, [CallerFilePath] string path = "")
         {
@@ -30,7 +31,7 @@ namespace Laminar_Core
             LoadedNodeManager = Factory.CreateInstance<LoadedNodeManager>();
             AllScripts = Factory.GetImplementation<IScriptCollection>();
 
-            _ = new PluginLoader(new PluginHost(this), path);
+            _pluginLoader = new PluginLoader(new PluginHost(this), path);
             AllRegisteredTypes = _typeInfo.Values.Where(x => x.CanBeInput);
         }
 
@@ -60,6 +61,11 @@ namespace Laminar_Core
             }
 
             throw new NotSupportedException($"The type {type} is not registered");
+        }
+
+        public void Dispose()
+        {
+            _pluginLoader.Dispose();
         }
     }
 

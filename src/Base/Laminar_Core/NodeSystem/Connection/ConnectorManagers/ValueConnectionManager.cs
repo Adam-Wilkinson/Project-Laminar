@@ -12,10 +12,10 @@ namespace Laminar_Core.NodeSystem.Connection.ConnectorManagers
 {
     public class ValueConnectionManager : IConnectorManager
     {
+        private readonly List<ValueConnectionManager> _pairedManagers = new();
+        private readonly Instance _instance;
         private IVisualNodeComponent _parentComponent;
         private ConnectorType _connectorType;
-        private List<ValueConnectionManager> _pairedManagers;
-        private readonly Instance _instance;
         private bool _isActivating;
         private object _inputConnectorOldValue;
         private ILaminarValue _inputLaminarValue;

@@ -1,11 +1,12 @@
 ﻿using Laminar_PluginFramework.Primitives;
+using System;
 
 namespace Laminar_PluginFramework.Registration
 {
     /// <summary>
     /// Defines the class whcih registers a plugin with the <see cref="IPluginHost"/>
     /// </summary>
-    public interface IPlugin
+    public interface IPlugin : IDisposable
     {
         /// <summary>
         /// Registers the plugin with the host

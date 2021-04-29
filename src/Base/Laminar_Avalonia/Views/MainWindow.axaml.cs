@@ -84,6 +84,11 @@ namespace Laminar_Avalonia.Views
             OpenScriptEditor(newTree);
         }
 
+        protected override void OnClosed(EventArgs e)
+        {
+            App.LaminarInstance.Dispose();
+        }
+
         private void InitializeComponent()
         {
             AvaloniaXamlLoader.Load(this);

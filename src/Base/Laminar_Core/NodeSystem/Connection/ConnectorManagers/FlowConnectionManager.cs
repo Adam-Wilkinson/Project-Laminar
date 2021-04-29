@@ -11,9 +11,9 @@ namespace Laminar_Core.NodeSystem.Connection.ConnectorManagers
     public class FlowConnectionManager : IConnectorManager
     {
         private readonly Instance _instance;
+        private readonly List<FlowConnectionManager> _pairedConnections = new();
         private IVisualNodeComponent _parentComponent;
         private ConnectorType _connectorType;
-        private List<FlowConnectionManager> _pairedConnections;
 
         public FlowConnectionManager(Instance instance, IObservableValue<string> hexColour)
         {
