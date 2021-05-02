@@ -4,6 +4,10 @@ using WindowsKeyboardMouse.Nodes.Mouse.Triggers;
 using WindowsKeyboardMouse.Nodes.Keyboard.Triggers;
 using WindowsKeyboardMouse.Nodes.Keyboard.Output;
 using WindowsHook;
+using Avalonia.Controls;
+using WindowsKeyboardMouse.UserControls;
+using WindowsKeyboardMouse.Primitives;
+using Avalonia.Input;
 
 namespace WindowsKeyboardMouse
 {
@@ -22,7 +26,9 @@ namespace WindowsKeyboardMouse
         public void Register(IPluginHost host)
         {
             host.RegisterType<MouseButtons>("#FFFF00", "Mouse Button", MouseButtons.Left, "EnumEditor", "StringDisplay", true);
-            host.RegisterType<Keys>("#FFA500", "Keyboard Button", Keys.A, "EnumEditor", "StringDisplay", true);
+            host.RegisterType<KeyboardKey>("#FFA500", "Keyboard Button", new KeyboardKey((int)Keys.A), "KeyboardKeyEditor", "StringDisplay", true);
+
+            host.RegisterEditor<IControl>("KeyboardKeyEditor", typeof(KeyboardKeyEditor));
 
             host.AddNodeToMenu<MouseButtonTrigger, KeyboardButtonTrigger, KeyCombinationTrigger, TextTypedTrigger>("Triggers");
 

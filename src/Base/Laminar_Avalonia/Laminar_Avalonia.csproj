@@ -16,7 +16,7 @@
       <SubType>Designer</SubType>
     </AvaloniaResource>
     <AvaloniaResource Include="Assets\**" />
-	<AvaloniaResource Include="Assets\Fonts\**"/>
+	<AvaloniaResource Include="Assets\Fonts\**" />
     <AvaloniaResource Include="Styles\**" />
   </ItemGroup>
   <ItemGroup>
@@ -31,10 +31,10 @@
     <None Include="..\.editorconfig" Link=".editorconfig" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Avalonia" Version="0.10.999-cibuild0010052-beta" />
-    <PackageReference Include="Avalonia.Desktop" Version="0.10.999-cibuild0010052-beta" />
-    <PackageReference Include="Avalonia.Markup.Xaml.Loader" Version="0.10.999-cibuild0010052-beta" />
-    <PackageReference Include="Avalonia.ReactiveUI" Version="0.10.999-cibuild0010052-beta" />
+    <PackageReference Include="Avalonia" Version="0.10.3" />
+    <PackageReference Include="Avalonia.Desktop" Version="0.10.3" />
+    <PackageReference Include="Avalonia.Markup.Xaml.Loader" Version="0.10.3" />
+    <PackageReference Include="Avalonia.ReactiveUI" Version="0.10.3" />
   </ItemGroup>
   <ItemGroup>
     <None Update="Styles\NodePickerStyles.xaml">

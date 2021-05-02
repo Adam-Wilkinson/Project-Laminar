@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading;
 using WindowsHook;
+using WindowsKeyboardMouse.Primitives;
 
 namespace WindowsKeyboardMouse.Nodes.Keyboard.Output
 {
@@ -14,7 +15,7 @@ namespace WindowsKeyboardMouse.Nodes.Keyboard.Output
         public const uint KEYEVENTF_EXTENDEDKEY = 0x0001;
         public const uint KEYEVENTF_KEYUP = 0x0002;
 
-        private readonly INodeField keyField = Constructor.NodeField("Key To Press").WithInput<Keys>();
+        private readonly INodeField keyField = Constructor.NodeField("Key To Press").WithInput<KeyboardKey>();
         private readonly INodeField numberOfPresses = Constructor.NodeField("Number of Presses").WithInput(1.0);
         private readonly INodeField delay = Constructor.NodeField("Press Delay").WithInput(10.0);
 
@@ -43,7 +44,7 @@ namespace WindowsKeyboardMouse.Nodes.Keyboard.Output
         {
             for (int i = 0; i < numberOfPresses.GetInput<double>(); i++)
             {
-                PressVirtualKey((byte)keyField.GetInput<Keys>(), KEYEVENTF_EXTENDEDKEY);
+                PressVirtualKey((byte)keyField.GetInput<KeyboardKey>().HookKey, KEYEVENTF_EXTENDEDKEY);
                 Thread.Sleep((int)delay.GetInput<double>());
             }
         }

@@ -12,12 +12,7 @@ namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
     {
         public FlowNode(NodeDependencyAggregate dep) : base(dep)
         {
-        }
-
-        protected override void SafeUpdate(IAdvancedScriptInstance instance)
-        {
-            base.SafeUpdate(instance);
-            (BaseNode as IFlowNode).FlowOutComponent.FlowOutput.Activate();
+            NameLabel.FlowInput.Exists = true;
         }
     }
 }

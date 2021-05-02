@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using WindowsHook;
+using WindowsKeyboardMouse.Primitives;
 
 namespace WindowsKeyboardMouse.Nodes.Keyboard.Triggers
 {
@@ -62,7 +63,7 @@ namespace WindowsKeyboardMouse.Nodes.Keyboard.Triggers
                 int i = 0;
                 foreach (INodeField field in Keys.VisualComponentList)
                 {
-                    combinations[i] = Combination.TriggeredBy(field.GetInput<Keys>());
+                    combinations[i] = Combination.TriggeredBy(field.GetInput<KeyboardKey>().HookKey);
                     i++;
                 }
                 sequence = Sequence.Of(combinations);
@@ -96,7 +97,7 @@ namespace WindowsKeyboardMouse.Nodes.Keyboard.Triggers
             {
                 for (int i = Keys.Count; i < NewNumberOfKeys; i++)
                 {
-                    INodeField newField = Constructor.NodeField($"Letter {i+1}").WithInput<Keys>();
+                    INodeField newField = Constructor.NodeField($"Letter {i+1}").WithInput<KeyboardKey>();
                     newField.GetValue(INodeField.InputKey).PropertyChanged += AnyKey_PropertyChanged;
                     Keys.Add(newField);
                 }

@@ -1,0 +1,94 @@
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Input;
+using Avalonia.Markup.Xaml;
+using Laminar_PluginFramework.Primitives;
+using System;
+using System.Diagnostics;
+using System.Linq;
+using WindowsKeyboardMouse.Primitives;
+
+namespace WindowsKeyboardMouse.UserControls
+{
+    public class KeyboardKeyEditor : UserControl
+    {
+        private static readonly Key[] ModifierKeys = new[] { Key.LeftAlt, Key.LeftCtrl, Key.LeftShift, Key.RightAlt, Key.RightCtrl, Key.RightShift };
+
+        private readonly TextBlock _mainTextBlock;
+        private KeyboardKey _keyValue;
+        private ILaminarValue _laminarValue;
+        private State _state;
+
+        public KeyboardKeyEditor()
+        {
+            InitializeComponent();
+            _mainTextBlock = this.FindControl<TextBlock>("MainTextBlock");
+        }
+
+        protected override void OnDataContextChanged(EventArgs e)
+        {
+            _laminarValue = DataContext as ILaminarValue;
+            UpdateTextBlock();
+            base.OnDataContextChanged(e);
+        }
+
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            if (_state is State.ChangingKey or State.FindingModifierKey)
+            {
+                _keyValue = new KeyboardKey(AvaloniaKeyTools.GetVirtualKey(e.Key), (Primitives.KeyModifiers)(int)e.KeyModifiers);
+                _mainTextBlock.Text = $"{_laminarValue.Name}: {_keyValue}";
+                if (ModifierKeys.Contains(e.Key))
+                {
+                    _state = State.FindingModifierKey;
+                }
+                else
+                {
+                    FinishFindingKey();
+                }
+            }
+            base.OnKeyDown(e);
+        }
+
+        protected override void OnKeyUp(KeyEventArgs e)
+        {
+            if (_state is State.FindingModifierKey && ModifierKeys.Contains(e.Key))
+            {
+                FinishFindingKey();
+            }
+            base.OnKeyUp(e);
+        }
+
+        protected override void OnPointerPressed(PointerPressedEventArgs e)
+        {
+            _state = State.ChangingKey;
+            _mainTextBlock.Text = $">> Press a key <<";
+            Focus();
+            base.OnPointerPressed(e);
+        }
+
+        private void InitializeComponent()
+        {
+            AvaloniaXamlLoader.Load(this);
+        }
+
+        private void UpdateTextBlock()
+        {
+            _mainTextBlock.Text = $"{_laminarValue.Name}: {_laminarValue.Value}";
+        }
+
+
+        private void FinishFindingKey()
+        {
+            _state = State.None;
+            _laminarValue.Value = _keyValue;
+        }
+
+        private enum State
+        {
+            None,
+            ChangingKey,
+            FindingModifierKey,
+        }
+    }
+}

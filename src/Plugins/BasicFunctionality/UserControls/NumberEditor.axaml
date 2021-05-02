@@ -9,11 +9,13 @@
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition Width="Auto"/>
 			<ColumnDefinition Width="*"/>
+			<ColumnDefinition Width="Auto"/>
 		</Grid.ColumnDefinitions>
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto"/>
 		</Grid.RowDefinitions>
 		<TextBlock Text="{Binding Name}" VerticalAlignment="Center" Grid.Column="0" Grid.Row="0"/>
-		<NumericUpDown Value="{Binding TrueValue}" Margin="5,0" VerticalAlignment="Center" Grid.Column="1" Grid.Row="0"/>
+		<NumericUpDown Value="{Binding TrueValue}" Margin="8,0,2,0" VerticalAlignment="Center" Grid.Column="1" Grid.Row="0"/>
+		<TextBlock Text="{Binding TypeDefinition[Units]}" Grid.Column="2" VerticalAlignment="Center"/>
 	</Grid>
 </UserControl>

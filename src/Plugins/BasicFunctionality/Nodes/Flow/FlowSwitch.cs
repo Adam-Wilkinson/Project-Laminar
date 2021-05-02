@@ -49,20 +49,18 @@
             }
         }
 
-        public IVisualNodeComponent FlowOutComponent { get; private set; }
-
         public void Evaluate()
         {
             foreach (IVisualNodeComponent field in flowOutputs.VisualComponentList)
             {
                 if (field is INodeField valueField && valueField.DisplayedValue != null && valueField.DisplayedValue.Value.Equals(valueInput.GetInput()))
                 {
-                    FlowOutComponent = valueField;
+                    field.FlowOutput.Activate();
                     return;
                 }
             }
 
-            FlowOutComponent = defaultOutput;
+            defaultOutput.FlowOutput.Activate();
         }
 
         private void FlowSwitch_TypeDefinitionChanged(object sender, ITypeDefinition typeDef)

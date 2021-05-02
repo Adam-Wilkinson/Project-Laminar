@@ -18,6 +18,7 @@ namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
         : INodeContainer where T : INode, new()
     {
         private T _baseNode;
+        private bool _isLive = false;
         private bool _isUpdating = true;
         private readonly IObjectFactory _factory;
 
@@ -52,7 +53,15 @@ namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
             }
         }
 
-        public virtual bool IsLive { get; set; }
+        public virtual bool IsLive
+        {
+            get => _isLive;
+            set
+            {
+                _isLive = value;
+                _isUpdating = !value;
+            }
+        }
 
         protected INodeComponentList FieldList { get; }
 

@@ -4,6 +4,5 @@
 
     public interface IFlowNode : IFunctionNode
     {
-        public IVisualNodeComponent FlowOutComponent { get; }
     }
 }

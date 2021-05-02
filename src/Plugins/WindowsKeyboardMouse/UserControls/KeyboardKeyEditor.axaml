@@ -1,0 +1,27 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="WindowsKeyboardMouse.UserControls.KeyboardKeyEditor"
+			 DataContext="{Binding DisplayedValue}">
+
+	<UserControl.Styles>
+			<Style Selector="Border#HoverBorder">
+				<Setter Property="BorderBrush" Value="#666666"/>
+			</Style>
+			<Style Selector="Border#HoverBorder:pointerover">
+				<Setter Property="BorderBrush" Value="#999999"/>
+			</Style>
+	</UserControl.Styles>
+	
+	<Border Name="HoverBorder"
+			BorderThickness="1"
+			Background="#00000000"
+			ToolTip.Tip="Click to set key">
+		<TextBlock Name="MainTextBlock"
+				   HorizontalAlignment="Center"
+				   VerticalAlignment="Center"
+				   Margin="5"/>
+	</Border>
+</UserControl>

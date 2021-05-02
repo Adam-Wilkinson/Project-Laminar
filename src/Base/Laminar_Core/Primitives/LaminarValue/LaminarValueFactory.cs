@@ -3,6 +3,7 @@ using Laminar_PluginFramework.Primitives;
 using Laminar_PluginFramework.Primitives.TypeDefinition;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -37,7 +38,7 @@ namespace Laminar_Core.Primitives.LaminarValue
                 return typeDefinitionProvider;
             }
 
-            if (value.GetType().IsGenericType && value.GetType().GetGenericTypeDefinition().GetInterfaces().Contains(typeof(ITypeDefinitionConstructor<>)))
+            if (value.GetType().IsGenericType && value.GetType().GetInterfaces().Where(x => x.IsGenericType).Select(x => x.GetGenericTypeDefinition()).Contains(typeof(ITypeDefinitionConstructor<>)))
             {
                 value = ((dynamic)value).Construct();
             }

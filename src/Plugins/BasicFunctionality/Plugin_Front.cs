@@ -8,6 +8,7 @@ using Laminar_Inbuilt.Nodes.Maths.Comparisons;
 using Avalonia.Controls;
 using Laminar_Inbuilt.UserControls;
 using Laminar_PluginFramework.Primitives;
+using BasicFunctionality.Nodes.Flow;
 
 namespace Laminar_Inbuilt
 {
@@ -39,13 +40,14 @@ namespace Laminar_Inbuilt
             host.RegisterEditor<IControl>("SliderEditor", typeof(SliderEditor));
             host.RegisterEditor<IControl>("BoolEditor", typeof(BoolEditor));
             host.RegisterEditor<IControl>("ToggleSwitch", typeof(UserControls.ToggleSwitch));
+            host.RegisterEditor<IControl>("CheckBox", typeof(UserControls.CheckBox));
 
 
             host.AddNodeToMenu<NodeAdd, NodeDifference, NodeMultiply, NodeDivide, SliderTest>("Number", "Arithmetic");
             host.AddNodeToMenu<NodeSine>("Number", "Functions");
             host.AddNodeToMenu<Equal>("Number", "Comparisons");
             host.AddNodeToMenu<Node_Join_Strings, CharacterCounter>("Text");
-            host.AddNodeToMenu<FlowSwitch>("Flow Control");
+            host.AddNodeToMenu<FlowSwitch, WaitForTrigger>("Flow Control");
         }
     }
 }

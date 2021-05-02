@@ -5,10 +5,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="UserControls\" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="0.10.3">
+		<ExcludeAssets>runtime</ExcludeAssets>
+	</PackageReference>
     <PackageReference Include="WindowsHook" Version="1.0.1" />
   </ItemGroup>
 

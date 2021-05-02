@@ -56,7 +56,10 @@ namespace Laminar_Core.NodeSystem.Connection.ConnectorManagers
             if (_connectorType is ConnectorType.Input)
             {
                 FlashColourChange();
-                parentNodeBase.Update(activatedInstance);
+                if (_parentComponent == parentNodeBase.NameLabel)
+                {
+                    parentNodeBase.Update(activatedInstance);
+                }
             }
 
             if (_connectorType is ConnectorType.Output)
@@ -64,7 +67,7 @@ namespace Laminar_Core.NodeSystem.Connection.ConnectorManagers
                 FlashColourChange();
                 foreach (FlowConnectionManager manager in _pairedConnections)
                 {
-                    manager.ActivateFlow(activatedInstance);
+                    manager._parentComponent.FlowInput.Activate();
                 }
 
             }

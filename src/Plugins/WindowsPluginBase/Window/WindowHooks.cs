@@ -10,6 +10,8 @@ namespace WindowsPluginBase.Window
 {
     class WindowHooks
     {
+        public static Action WindowArrangementManuallyChanged { get; set; }
+
         public delegate void WinEventDelegate(
             IntPtr hWinEventHook,
             NativeMethods.SWEH_Events eventType,
@@ -56,26 +58,36 @@ namespace WindowsPluginBase.Window
             return NativeMethods.GetWindowThreadProcessId(hWnd, IntPtr.Zero);
         }
 
-        public static NativeMethods.RECT GetWindowRect(IntPtr hWnd)
+        public static RECT GetWindowRect(IntPtr hWnd)
         {
-            NativeMethods.DwmGetWindowAttribute(hWnd,
-                NativeMethods.DWMWINDOWATTRIBUTE.DWMWA_EXTENDED_FRAME_BOUNDS,
-                out NativeMethods.RECT rect, Marshal.SizeOf<NativeMethods.RECT>());
+            NativeMethods.GetWindowRect(hWnd, out RECT rect);
+            // NativeMethods.DwmGetWindowAttribute(hWnd,
+            //    NativeMethods.DWMWINDOWATTRIBUTE.DWMWA_EXTENDED_FRAME_BOUNDS,
+            //    out RECT rect, Marshal.SizeOf<RECT>());
             return rect;
+        }
+
+        public static IntPtr GetNextWindow(IntPtr hOriginalWindow)
+        {
+            return NativeMethods.GetWindow(hOriginalWindow, NativeMethods.GW_Command.GW_HWNDNEXT);
+        }
+
+        public static bool SetWindowRect(IntPtr hWnd, RECT rect, IntPtr priorWindow)
+        {
+            return NativeMethods.SetWindowPos(hWnd, priorWindow, rect.Left, rect.Top, rect.Right - rect.Left, rect.Bottom - rect.Top, NativeMethods.SWP_Flags.SWP_ASYNCWINDOWPOS | NativeMethods.SWP_Flags.SWP_NOACTIVE);
+        }
+
+        public static string GetWindowTitle(IntPtr hWnd)
+        {
+            int titleLength = NativeMethods.GetWindowTextLength(hWnd);
+            StringBuilder builder = new(titleLength);
+            NativeMethods.GetWindowText(hWnd, builder, titleLength + 1);
+            return builder.ToString();
         }
     }
 
     public static class NativeMethods
     {
-        [StructLayout(LayoutKind.Sequential)]
-        public struct RECT
-        {
-            public int Left;
-            public int Top;
-            public int Right;
-            public int Bottom;
-        }
-
         public static long SWEH_CHILDID_SELF = 0;
 
         //SetWinEventHook() flags
@@ -178,6 +190,37 @@ namespace WindowsPluginBase.Window
             OBJID_NATIVEOM = 0xFFFFFFF0
         }
 
+        //SetWindowPos() Flags
+        public enum SWP_Flags : uint
+        {
+            SWP_ASYNCWINDOWPOS = 0x4000,
+            SWP_DEFERERASE = 0x2000,
+            SWP_DRAWFRAME = 0x0020,
+            SWP_FRAMECHANGED = 0x0020,
+            SWP_HIDEWINDOW = 0x0080,
+            SWP_NOACTIVE = 0x0010,
+            SWP_NOCOPYBITS = 0x0100,
+            SWP_NOMOVE = 0x0002,
+            SWP_NOOWNERZORDER = 0x0200,
+            SWP_NOREDRAW = 0x0008,
+            SWP_NOREPOSITION = 0x0200,
+            SWP_NOSENDCHANGING = 0x0400,
+            SWP_NOSIZE = 0x0001,
+            SWP_NOZORDER = 0x0004,
+            SWP_SHOWWINDOW = 0x0040
+        }
+
+        //GetWindow() commands
+        public enum GW_Command : uint
+        {
+            GW_HWNDFIRST = 0,
+            GW_HWNDLAST = 1,
+            GW_HWNDNEXT = 2,
+            GW_HWNDPREV = 3,
+            GW_OWNER = 4,
+            GW_CHILD = 5
+        }
+
         public enum DWMWINDOWATTRIBUTE : uint
         {
             DWMWA_NCRENDERING_ENABLED = 1,      // [get] Is non-client rendering enabled/disabled
@@ -206,16 +249,16 @@ namespace WindowsPluginBase.Window
             SWEH_dwFlags.WINEVENT_SKIPOWNPROCESS |
             SWEH_dwFlags.WINEVENT_SKIPOWNTHREAD;
 
-        [DllImport("dwmapi.dll", SetLastError = true)]
+        [DllImport("dwmapi.dll")]
         internal static extern int DwmGetWindowAttribute(IntPtr hwnd, DWMWINDOWATTRIBUTE dwAttribute, out RECT pvAttribute, int cbAttribute);
 
-        [DllImport("user32.dll", SetLastError = true)]
+        [DllImport("user32.dll")]
         internal static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
 
         [DllImport("user32.dll")]
         internal static extern uint GetWindowThreadProcessId(IntPtr hWnd, IntPtr voidProcessId);
 
-        [DllImport("user32.dll", SetLastError = false)]
+        [DllImport("user32.dll")]
         internal static extern IntPtr SetWinEventHook(
             SWEH_Events eventMin,
             SWEH_Events eventMax,
@@ -224,7 +267,22 @@ namespace WindowsPluginBase.Window
             uint idProcess, uint idThread,
             SWEH_dwFlags dwFlags);
 
-        [DllImport("user32.dll", SetLastError = false)]
+        [DllImport("user32.dll")]
         internal static extern bool UnhookWinEvent(IntPtr hWinEventHook);
+
+        [DllImport("user32.dll")]
+        internal static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int x, int Y, int cx, int cy, SWP_Flags wFlags);
+
+        [DllImport("user32.dll")]
+        internal static extern IntPtr GetWindow(IntPtr hWnd, GW_Command uCmd);
+
+        [DllImport("USER32.DLL")]
+        internal static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
+
+        [DllImport("USER32.DLL")]
+        internal static extern int GetWindowTextLength(IntPtr hWnd);
+
+        [DllImport("USER32.DLL")]
+        internal static extern int GetWindowRect(IntPtr hWnd, out RECT rect);
     }
 }

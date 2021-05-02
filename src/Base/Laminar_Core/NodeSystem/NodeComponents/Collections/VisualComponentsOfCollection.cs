@@ -176,8 +176,11 @@ namespace Laminar_Core.NodeSystem.NodeComponents.Collections
                     componentCollection.VisualNodeComponentsObservable.CollectionChanged += Child_NodeFieldsList_Changed;
                 }
 
-                CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, component.VisualComponentList, GetLinearIndexFromNested(index)));
-                Count += component.VisualComponentList.Count;
+                if (component.IsVisible)
+                {
+                    CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, component.VisualComponentList, GetLinearIndexFromNested(index)));
+                    Count += component.VisualComponentList.Count;
+                }
                 component.VisibilityChanged += NodePart_VisibilityChanged;
             }
         }

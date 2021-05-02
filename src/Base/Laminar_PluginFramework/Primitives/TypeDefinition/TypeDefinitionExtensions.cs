@@ -38,5 +38,7 @@ namespace Laminar_PluginFramework.Primitives.TypeDefinition
 
         public static ITypeDefinitionConstructor<T> WithConstraint<T>(this ITypeDefinitionConstructor<T> typeDefinitionConstructor, string constraintName, object constraintValue, Func<T, T> constraint)
             => typeDefinitionConstructor.WithProperty(constraintName, constraintValue).WithConstraint(constraint);
+
+        public static ITypeDefinitionConstructor<double> WithUnits(this ITypeDefinitionConstructor<double> cons, string units) => cons.WithProperty("Units", units);
     }
 }

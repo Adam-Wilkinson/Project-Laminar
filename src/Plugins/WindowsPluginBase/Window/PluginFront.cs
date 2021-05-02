@@ -3,16 +3,13 @@ using Laminar_PluginFramework.Registration;
 using System;
 using System.Diagnostics;
 using System.Linq;
-using System.Management;
 using System.Runtime.InteropServices;
+using WindowsPluginBase.Nodes;
 
 namespace WindowsPluginBase.Window
 {
     public class PluginFront : IPlugin
     {
-        private IntPtr hook;
-        static GCHandle GCSafetyHandle;
-
         public Platforms Platforms { get; } = Platforms.Windows;
 
         public string PluginName { get; } = "Windows Base";
@@ -21,37 +18,20 @@ namespace WindowsPluginBase.Window
 
         public void Register(IPluginHost host)
         {
-            Debug.WriteLine("Test");
+            host.RegisterType<AllWindowsLayout>("#00FF00", "Window Layout", new AllWindowsLayout(), null, null, false);
+            host.RegisterType<WindowStub>("#7D3E11", "Window", null, null, null, false);
+            host.RegisterType<WindowLayout>("#00b9bc", "Window Position", null, null, null, false);
 
-            WindowHooks.WinEventDelegate onMoveFunction = new(OnMoveFunction);
-            GCSafetyHandle = GCHandle.Alloc(onMoveFunction);
 
-            var np = Process.GetProcessesByName("notepad").FirstOrDefault(p => p != null);
-
-            uint targetThreadId = WindowHooks.GetWindowThread(np.MainWindowHandle);
-
-            hook = WindowHooks.WinEventHookOne(NativeMethods.SWEH_Events.EVENT_SYSTEM_MOVESIZESTART, onMoveFunction, 0, 0);
-        }
-
-        private void OnMoveFunction(
-            IntPtr hWinEventHook,
-            NativeMethods.SWEH_Events eventType,
-            IntPtr hWnd,
-            NativeMethods.SWEH_ObjectId idObject,
-            long idChild, uint dwEventThread, uint dwmsEventTime)
-        {
-            Debug.WriteLine("Window Moved!");
+            host.AddNodeToMenu<WindowLayoutChanged>("Triggers");
+            host.AddNodeToMenu<SetWindowLayout, SetWindowPos, GetWindowPos>("Window Management");
+            // host.AddNodeToMenu<NotifyUser>("Interactivity");
         }
 
         public void Dispose()
         {
-            if (GCSafetyHandle.IsAllocated)
-            {
-                GCSafetyHandle.Free();
-            }
-            WindowHooks.WinEventUnhook(hook);
         }
     }
 
-
+    public class WindowStub { }
 }
