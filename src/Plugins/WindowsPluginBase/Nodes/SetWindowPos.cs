@@ -14,8 +14,8 @@ namespace WindowsPluginBase.Nodes
 {
     public class SetWindowPos : IActionNode
     {
-        private readonly INodeField _windowField = Constructor.NodeField("Window").WithInput(Constructor.ManualTypeDefinitionManager().WithAcceptedDefinition(Constructor.TypeDefinition<WindowStub>(null)), false);
-        private readonly INodeField _position = Constructor.NodeField("Position").WithInput(Constructor.ManualTypeDefinitionManager().WithAcceptedDefinition(Constructor.TypeDefinition<WindowLayout>(null)), false);
+        private readonly INodeField _windowField = Constructor.NodeField("Window").WithInput<WindowStub>();
+        private readonly INodeField _position = Constructor.NodeField("Position").WithInput<WindowLayout>();
 
         public IEnumerable<INodeComponent> Fields
         {

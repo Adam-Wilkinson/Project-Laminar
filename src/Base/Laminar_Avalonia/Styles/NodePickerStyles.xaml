@@ -41,7 +41,7 @@
 						<ItemsControl Items="{TemplateBinding CurrentDisplayNodes}">
 							<ItemsControl.ItemsPanel>
 								<ItemsPanelTemplate>
-									<StackPanel Orientation="{Binding $parent[nds:NodePickerTabBar].Orientation, FallbackValue=Horizontal}"
+									<StackPanel Orientation="{TemplateBinding Orientation}"
 												Spacing="30"
 												Margin="10"/>
 								</ItemsPanelTemplate>

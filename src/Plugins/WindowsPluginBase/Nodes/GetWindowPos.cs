@@ -14,9 +14,7 @@ namespace WindowsPluginBase.Nodes
 {
     public class GetWindowPos : IFunctionNode
     {
-        private readonly INodeField _mainField = Constructor.NodeField("Window")
-            .WithInput(Constructor.ManualTypeDefinitionManager().WithAcceptedDefinition(Constructor.TypeDefinition<WindowStub>(null)), false)
-            .WithOutput(Constructor.ManualTypeDefinitionManager().WithAcceptedDefinition(Constructor.TypeDefinition<WindowLayout>(null)), false);
+        private readonly INodeField _mainField = Constructor.NodeField("Window").WithInput<WindowStub>().WithOutput<WindowLayout>();
 
         public IEnumerable<INodeComponent> Fields
         {

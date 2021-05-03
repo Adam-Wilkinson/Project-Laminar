@@ -20,6 +20,12 @@ namespace Laminar_Core.Primitives.LaminarValue.TypeDefinition
 
         protected class TypeDefinition : ITypeDefinition
         {
+            public TypeDefinition(Type type, object defaultValue)
+            {
+                ValueType = type;
+                DefaultValue = defaultValue;
+            }
+
             public TypeDefinition(object defaultValue)
             {
                 ValueType = defaultValue.GetType();

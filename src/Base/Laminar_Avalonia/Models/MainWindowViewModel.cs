@@ -16,7 +16,7 @@ namespace Laminar_Avalonia.Models
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public IControl MainControl { get; private set; }
+        public IControl MainControl { get; set; }
 
         public void ShowScriptEditor(INodeTree script)
         {

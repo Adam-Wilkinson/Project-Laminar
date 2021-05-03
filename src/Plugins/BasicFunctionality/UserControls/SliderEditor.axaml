@@ -11,7 +11,7 @@
 			<TextBlock HorizontalAlignment="Right" DockPanel.Dock="Right" Text="{Binding TrueValue, StringFormat=\{0:00.0\}}}"/>
 		</DockPanel>
 		<Slider Value="{Binding TrueValue}"		   
-					   Maximum="{Binding TypeDefinition.ConstraintValues[Max], FallbackValue=100}"
-					   Minimum="{Binding TypeDefinition.ConstraintValues[Min], FallbackValue=0}"/>
+					   Maximum="{Binding TypeDefinition[Max], FallbackValue=100}"
+					   Minimum="{Binding TypeDefinition[Min], FallbackValue=0}"/>
 	</StackPanel>
 </UserControl>

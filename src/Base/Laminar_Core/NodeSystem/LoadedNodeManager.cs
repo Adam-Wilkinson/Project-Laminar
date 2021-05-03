@@ -12,7 +12,6 @@ namespace Laminar_Core.NodeSystem
         public LoadedNodeManager(INodeFactory nodeFactory)
         {
             _nodeFactory = nodeFactory;
-            AddNodeToCatagory<ManualTriggerNode>("Triggers");
         }
         public NodeCatagories LoadedNodes { get; } = new(0);
 

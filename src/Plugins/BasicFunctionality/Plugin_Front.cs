@@ -31,16 +31,16 @@ namespace Laminar_Inbuilt
             host.RegisterType<bool>("#00FFFF", "Condition", false, "BoolEditor", "StringDisplay", true);
             host.RegisterType<Action>("00FF00", "Button", null, "DefaultDisplay", "ActionDisplay", false);
 
-            host.RegisterDisplay<IControl>("DefaultDisplay", typeof(DefaultDisplay));
-            host.RegisterDisplay<IControl>("StringDisplay", typeof(StringDisplay));
-            host.RegisterDisplay<IControl>("ActionDisplay", typeof(ActionDisplay));
-            host.RegisterEditor<IControl>("NumberEditor", typeof(NumberEditor));
-            host.RegisterEditor<IControl>("StringEditor", typeof(StringEditor));
-            host.RegisterEditor<IControl>("EnumEditor", typeof(EnumEditor));
-            host.RegisterEditor<IControl>("SliderEditor", typeof(SliderEditor));
-            host.RegisterEditor<IControl>("BoolEditor", typeof(BoolEditor));
-            host.RegisterEditor<IControl>("ToggleSwitch", typeof(UserControls.ToggleSwitch));
-            host.RegisterEditor<IControl>("CheckBox", typeof(UserControls.CheckBox));
+            host.RegisterDisplay<IControl, DefaultDisplay>("DefaultDisplay");
+            host.RegisterDisplay<IControl, StringDisplay>("StringDisplay");
+            host.RegisterDisplay<IControl, ActionDisplay>("ActionDisplay");
+            host.RegisterEditor<IControl, NumberEditor>("NumberEditor");
+            host.RegisterEditor<IControl, StringEditor>("StringEditor");
+            host.RegisterEditor<IControl, EnumEditor>("EnumEditor");
+            host.RegisterEditor<IControl, SliderEditor>("SliderEditor");
+            host.RegisterEditor<IControl, BoolEditor>("BoolEditor");
+            host.RegisterEditor<IControl, UserControls.ToggleSwitch>("ToggleSwitch");
+            host.RegisterEditor<IControl, UserControls.CheckBox>("CheckBox");
 
 
             host.AddNodeToMenu<NodeAdd, NodeDifference, NodeMultiply, NodeDivide, SliderTest>("Number", "Arithmetic");

@@ -28,11 +28,11 @@ namespace Laminar_Core.PluginManagement
         public bool RegisterDisplay<T>(string name, T display)
             => _instance.RegisteredDisplays.RegisterUserInterface(name, display);
 
-        public bool RegisterEditor<T>(string name, Type editorType)
-            => _instance.RegisteredEditors.RegisterUserInterface<T>(name, editorType);
+        public bool RegisterEditor<TBase, TEditor>(string name) where TEditor : TBase
+            => _instance.RegisteredEditors.RegisterUserInterface<TBase>(name, typeof(TEditor));
 
-        public bool RegisterDisplay<T>(string name, Type displayType)
-            => _instance.RegisteredDisplays.RegisterUserInterface<T>(name, displayType);
+        public bool RegisterDisplay<TBase, TDisplay>(string name) where TDisplay : TBase
+            => _instance.RegisteredDisplays.RegisterUserInterface<TBase>(name, typeof(TDisplay));
 
         public void AddNodeToMenu<TNode1, TNode2>(string menuItemName, string subItemName = null)
             where TNode1 : INode, new()

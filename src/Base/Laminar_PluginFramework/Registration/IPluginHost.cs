@@ -166,7 +166,7 @@
         /// <param name="editor">The editor</param>
         /// <returns>True if the editor could be registered</returns>
         bool RegisterEditor<T>(string name, T editor);
-        bool RegisterEditor<T>(string name, Type editor);
+        bool RegisterEditor<TBase, TEditor>(string name) where TEditor : TBase;
 
         /// <summary>
         /// Registers a display with a specific name in a specific UI implementation
@@ -176,6 +176,6 @@
         /// <param name="editor">The display</param>
         /// <returns>True if the display could be registered</returns>
         bool RegisterDisplay<T>(string name, T display);
-        bool RegisterDisplay<T>(string name, Type displayType);
+        bool RegisterDisplay<TBase, TDisplay>(string name) where TDisplay : TBase;
     }
 }

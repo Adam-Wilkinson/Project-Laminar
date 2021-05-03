@@ -23,7 +23,7 @@
 						<ItemsControl Margin="0,10" Name="PART_InputNodes" Items="{TemplateBinding InputNodes, Mode=OneWay}">
 							<ItemsControl.ItemsPanel>
 								<ItemsPanelTemplate>
-									<StackPanel Spacing="15" Orientation="{Binding $parent[nds:NodeTreeInputDisplay].Orientation}"/>
+									<StackPanel Spacing="15" Orientation="{TemplateBinding Orientation}"/>
 								</ItemsPanelTemplate>
 							</ItemsControl.ItemsPanel>
 						</ItemsControl>

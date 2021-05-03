@@ -10,7 +10,7 @@ namespace Laminar_Core.NodeSystem.Nodes
 {
     public class ManualTriggerNode : ITriggerNode
     {
-        private readonly INodeField _sourceField = Constructor.NodeField("Manual Trigger").WithValue("Displayed", Constructor.ManualTypeDefinitionManager().WithAcceptedDefinition(Constructor.TypeDefinition<Action>(null)), false);
+        private readonly INodeField _sourceField = Constructor.NodeField("Manual Trigger").WithValue<Action>("Displayed", false);
 
         public IVisualNodeComponent FlowOutComponent => _sourceField;
 

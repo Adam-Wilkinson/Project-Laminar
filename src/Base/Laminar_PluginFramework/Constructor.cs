@@ -58,7 +58,7 @@ namespace Laminar_PluginFramework
         {
             IRigidTypeDefinitionManager output = Laminar.New<IRigidTypeDefinitionManager>();
 
-            output.RegisterTypeDefinition(value, editorName, displayName);
+            output.SetTypeDefinition(value, editorName, displayName);
 
             return output;
         }

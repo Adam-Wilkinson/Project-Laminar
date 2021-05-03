@@ -28,7 +28,7 @@ namespace WindowsKeyboardMouse
             host.RegisterType<MouseButtons>("#FFFF00", "Mouse Button", MouseButtons.Left, "EnumEditor", "StringDisplay", true);
             host.RegisterType<KeyboardKey>("#FFA500", "Keyboard Button", new KeyboardKey((int)Keys.A), "KeyboardKeyEditor", "StringDisplay", true);
 
-            host.RegisterEditor<IControl>("KeyboardKeyEditor", typeof(KeyboardKeyEditor));
+            host.RegisterEditor<IControl, KeyboardKeyEditor>("KeyboardKeyEditor");
 
             host.AddNodeToMenu<MouseButtonTrigger, KeyboardButtonTrigger, KeyCombinationTrigger, TextTypedTrigger>("Triggers");
 

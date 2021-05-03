@@ -13,12 +13,10 @@ namespace Laminar_Core.Primitives.LaminarValue
     public class LaminarValueFactory : ILaminarValueFactory
     {
         private readonly IObjectFactory _factory;
-        private readonly Instance _instance;
 
-        public LaminarValueFactory(Instance instance)
+        public LaminarValueFactory(IObjectFactory factory)
         {
-            _factory = instance.Factory;
-            _instance = instance;
+            _factory = factory;
         }
 
         public ILaminarValue Get(object value, bool isUserEditable)
@@ -29,7 +27,7 @@ namespace Laminar_Core.Primitives.LaminarValue
         }
 
         public ILaminarValue Get<T>(bool isUserEditable)
-            => Get(_instance.GetTypeInfo(typeof(T)).DefaultValue, isUserEditable);
+            => Get(typeof(T), isUserEditable);
 
         private ITypeDefinitionProvider GetProvider(object value)
         {
@@ -53,12 +51,12 @@ namespace Laminar_Core.Primitives.LaminarValue
             if (value is Type type)
             {
                 IRigidTypeDefinitionManager manager = _factory.GetImplementation<IRigidTypeDefinitionManager>();
-                manager.RegisterTypeDefinition(_instance.GetTypeInfo(type).DefaultValue, null, null);
+                manager.SetType(type);
                 return manager;
             }
 
             IRigidTypeDefinitionManager rigidTypeDefinitionManager = _factory.GetImplementation<IRigidTypeDefinitionManager>();
-            rigidTypeDefinitionManager.RegisterTypeDefinition(value, null, null);
+            rigidTypeDefinitionManager.SetTypeDefinition(value, null, null);
             return rigidTypeDefinitionManager;
         }
     }

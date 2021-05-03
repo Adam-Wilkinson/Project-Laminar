@@ -9,7 +9,19 @@ namespace Laminar_Core.Primitives.LaminarValue.TypeDefinition
 {
     public class RigidTypeDefinitionProvider : TypeDefinitionProvider, IRigidTypeDefinitionManager
     {
-        public void RegisterTypeDefinition(object defaultValue, string editorName, string displayName)
+        private Instance _instance;
+
+        public RigidTypeDefinitionProvider(Instance instance)
+        {
+            _instance = instance;
+        }
+
+        public void SetType(Type type)
+        {
+            DefaultDefinition = new TypeDefinition(type, _instance.GetTypeInfo(type).DefaultValue);
+        }
+
+        public void SetTypeDefinition(object defaultValue, string editorName, string displayName)
         {
             DefaultDefinition = new TypeDefinition(defaultValue) { EditorName = editorName, DisplayName = displayName, };
         }

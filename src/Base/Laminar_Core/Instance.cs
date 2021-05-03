@@ -12,6 +12,7 @@ using System.Collections.ObjectModel;
 using Laminar_Core.NodeSystem.NodeTreeSystem;
 using System.IO;
 using System.Runtime.CompilerServices;
+using Laminar_Core.NodeSystem.Nodes;
 
 namespace Laminar_Core
 {
@@ -32,6 +33,7 @@ namespace Laminar_Core
             AllScripts = Factory.GetImplementation<IScriptCollection>();
 
             _pluginLoader = new PluginLoader(new PluginHost(this), path);
+            LoadedNodeManager.AddNodeToCatagory<ManualTriggerNode>("Triggers");
             AllRegisteredTypes = _typeInfo.Values.Where(x => x.CanBeInput);
         }
 
