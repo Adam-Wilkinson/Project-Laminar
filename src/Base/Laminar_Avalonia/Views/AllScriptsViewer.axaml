@@ -12,23 +12,14 @@
 	<UserControl.DataTemplates>
 		<DataTemplate DataType="{x:Type s:AdvancedScriptInstance}">
 			<Panel Margin="7">
-				<Border CornerRadius="5"
-						Margin="10,11"
-						Padding="5,3"
-						Background="{DynamicResource ThemeBackgroundBrush}"
-						HorizontalAlignment="Left"
-						VerticalAlignment="Top"
-						ZIndex="10">
-					<StackPanel Spacing="7" Orientation="Horizontal">
-						<CheckBox IsChecked="{Binding IsActive.Value, Mode=TwoWay}" VerticalAlignment="Center"/>
-						<TextBlock Text="Is Active"
-								   FontSize="11"
-								   VerticalAlignment="Center"/>
-					</StackPanel>
-				</Border>
+				<ToggleSwitch IsChecked="{Binding IsActive.Value, Mode=TwoWay}" 
+							  HorizontalAlignment="Left" 
+							  OnContent="Active"
+							  Margin="15,6,10,6"
+							  OffContent="Inactive"/>
 				<nds:NodeDisplay CoreNode="{Binding Inputs}"
 								 ShowConnectors="False"
-								 ZIndex="0">
+								 ZIndex="-4">
 					<nds:NodeDisplay.Styles>
 						<Style Selector="Panel#NodeComponentPanel">
 							<Setter Property="Margin" Value="20"/>
