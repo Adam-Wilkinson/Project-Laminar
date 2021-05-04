@@ -20,7 +20,7 @@ namespace Laminar_Avalonia.NodeDisplaySystem
     public class NodeDisplayCanvas : Canvas
     {
         private readonly Pen pen = new(Brushes.LightGray);
-        private IAdvancedScript manager;
+        private IAdvancedScriptEditor _editor;
         private List<NodeDisplay> selectedNodes = new();
         private Point originalClickPoint;
         private bool hasClickPoint = false;
@@ -35,15 +35,15 @@ namespace Laminar_Avalonia.NodeDisplaySystem
 
         private void NodeDisplayCanvas_DataContextChanged(object sender, EventArgs e)
         {
-            if (DataContext is IAdvancedScript nodeTree)
+            if (DataContext is IAdvancedScriptEditor editor)
             {
-                manager = nodeTree;
-                foreach (INodeContainer node in manager.Nodes)
+                _editor = editor;
+                foreach (INodeContainer node in _editor.Nodes)
                 {
                     NodeAdded(node);
                 }
 
-                ((INotifyCollectionChanged)manager.Nodes).CollectionChanged += Nodes_CollectionChanged;
+                ((INotifyCollectionChanged)_editor.Nodes).CollectionChanged += Nodes_CollectionChanged;
             }
         }
 
@@ -149,7 +149,7 @@ namespace Laminar_Avalonia.NodeDisplaySystem
                     if (visualUnderPointer is Control controlUnderPointer && controlUnderPointer.Tag is IConnector endConnector)
                     {
                         endConnector.Tag = controlUnderPointer;
-                        manager.TryConnectFields(selectedField.Tag as IConnector, endConnector);
+                        _editor.TryConnectFields(selectedField.Tag as IConnector, endConnector);
                     }
 
                     break;
@@ -209,7 +209,7 @@ namespace Laminar_Avalonia.NodeDisplaySystem
         {
             newNode.CoreNode.Location.X = location.X;
             newNode.CoreNode.Location.Y = location.Y;
-            manager.AddNode(newNode.CoreNode);
+            _editor.AddNode(newNode.CoreNode);
         }
 
         private void Nodes_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -240,7 +240,7 @@ namespace Laminar_Avalonia.NodeDisplaySystem
         {
             foreach (NodeDisplay display in selectedNodes)
             {
-                manager.DeleteNode(display.CoreNode);
+                _editor.DeleteNode(display.CoreNode);
                 Children.Remove(display);
             }
         }
@@ -252,7 +252,7 @@ namespace Laminar_Avalonia.NodeDisplaySystem
             {
                 if (e.Source is Control sourceControl && sourceControl.Tag is IConnector interactedField)
                 {
-                    IConnector dragField = manager.GetActiveConnector(interactedField);
+                    IConnector dragField = _editor.GetActiveConnector(interactedField);
                     if (dragField.Tag == null)
                     {
                         dragField.Tag = e.Source;
@@ -357,7 +357,7 @@ namespace Laminar_Avalonia.NodeDisplaySystem
                 }
             }
 
-            foreach (INodeConnection nodeConnection in manager.GetConnections())
+            foreach (INodeConnection nodeConnection in _editor.Connections)
             {
                 if (GetConnectorLocation(nodeConnection.OutputConnector, out Point startPoint) && GetConnectorLocation(nodeConnection.InputConnector, out Point endPoint))
                 {

@@ -3,6 +3,7 @@ using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 using Laminar_Avalonia.Models;
 using Laminar_Core.Scripting;
+using Laminar_Core.Scripting.Advanced;
 using Laminar_Core.Scripting.Advanced.Editing;
 using Laminar_Core.Scripting.Advanced.Instancing;
 using System;
@@ -40,7 +41,7 @@ namespace Laminar_Avalonia.Views
         {
             if (DataContext is MainWindowViewModel mwvm && mwvm.MainControl is ScriptEditor scriptEditor && scriptEditor.DataContext is IAdvancedScript openNodeTree)
             {
-                openNodeTree.EditorIsLive = false;
+                openNodeTree.Editor.IsLive = false;
                 if (_needsScriptInstance)
                 {
                     AddScriptInstance(openNodeTree);

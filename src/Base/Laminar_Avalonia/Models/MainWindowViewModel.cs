@@ -1,7 +1,7 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Laminar_Avalonia.Views;
-using Laminar_Core.NodeSystem.NodeTreeSystem;
+using Laminar_Core.Scripting.Advanced;
 using Laminar_Core.Scripting.Advanced.Editing;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -25,7 +25,7 @@ namespace Laminar_Avalonia.Models
             {
                 DataContext = script,
             };
-            script.EditorIsLive = true;
+            script.Editor.IsLive = true;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(MainControl)));
         }
         

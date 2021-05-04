@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using Laminar_Core.NodeSystem.NodeTreeSystem;
+using Laminar_Core.Scripting.Advanced;
 using Laminar_Core.Scripting.Advanced.Editing;
 
 namespace Laminar_Avalonia.Views

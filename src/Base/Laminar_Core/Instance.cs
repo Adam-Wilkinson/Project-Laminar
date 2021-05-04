@@ -11,7 +11,7 @@ using Laminar_Core.Scripting;
 using System.Collections.ObjectModel;
 using System.Runtime.CompilerServices;
 using Laminar_Core.NodeSystem.Nodes;
-using Laminar_Core.Scripting.Advanced.Editing;
+using Laminar_Core.Scripting.Advanced;
 
 namespace Laminar_Core
 {

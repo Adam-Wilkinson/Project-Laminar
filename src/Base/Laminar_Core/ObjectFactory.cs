@@ -9,6 +9,7 @@ using Laminar_Core.Primitives.LaminarValue.TypeDefinition;
 using Laminar_Core.Primitives.ObservableCollectionMapper;
 using Laminar_Core.Primitives.UserInterface;
 using Laminar_Core.Scripting;
+using Laminar_Core.Scripting.Advanced;
 using Laminar_Core.Scripting.Advanced.Editing;
 using Laminar_Core.Scripting.Advanced.Editing.Connection;
 using Laminar_Core.Scripting.Advanced.Instancing;
@@ -53,6 +54,7 @@ namespace Laminar_Core
             RegisterImplementation<INodeConnectionFactory, NodeConnectionFactory>();
             RegisterImplementation<ITypeMapper<IVisualNodeComponent, IVisualNodeComponentContainer>, VisualNodeComponentContainerMapper>();
             RegisterImplementation<IAdvancedScript, AdvancedScript>();
+            RegisterImplementation<IAdvancedScriptEditor, AdvancedScriptEditor>();
             RegisterImplementation<IVisualNodeComponentContainer, VisualNodeComponentContainer>();
             RegisterImplementation<IPoint, Point>();
             RegisterImplementation<IFlow, Flow>();

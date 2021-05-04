@@ -6,6 +6,7 @@ using Avalonia.Layout;
 using Laminar_Core;
 using Laminar_Core.NodeSystem.Nodes;
 using Laminar_Core.NodeSystem.NodeTreeSystem;
+using Laminar_Core.Scripting.Advanced;
 using Laminar_Core.Scripting.Advanced.Editing;
 using System;
 using System.Collections.Generic;

@@ -5,7 +5,7 @@
 
   <Design.PreviewWith>
     <Border Padding="20">
-      <nds:NodeTreeInputDisplay/>
+      <nds:AdvancedScriptInputsDisplay/>
     </Border>
   </Design.PreviewWith>
 	
@@ -48,7 +48,7 @@
 									</ItemsPresenter.ItemsPanel>
 									<ItemsPresenter.ItemTemplate>
 										<DataTemplate>
-											<Button Command="{Binding $parent[nds:NodeTreeInputDisplay].AddInputOfType}" CommandParameter="{Binding Type}" HorizontalContentAlignment="Left">
+											<Button Command="{Binding $parent[nds:AdvancedScriptInputsDisplay].AddInputOfType}" CommandParameter="{Binding Type}" HorizontalContentAlignment="Left">
 												<StackPanel HorizontalAlignment="Left" Margin="10,0" Spacing="5" Orientation="Horizontal">
 													<Ellipse HorizontalAlignment="Left" Fill="{Binding HexColour}" Width="15" Height="15"/>
 													<TextBlock Margin="5" FontSize="20" Text="{Binding UserFriendlyName}"/>
