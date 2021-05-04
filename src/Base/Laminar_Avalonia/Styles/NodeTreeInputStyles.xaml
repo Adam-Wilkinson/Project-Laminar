@@ -9,7 +9,7 @@
     </Border>
   </Design.PreviewWith>
 	
-	<Style Selector="nds|NodeTreeInputDisplay">
+	<Style Selector="nds|AdvancedScriptInputsDisplay">
 		<Setter Property="Template">
 			<ControlTemplate>
 				<Border BorderThickness="{DynamicResource ThemeBorderThickness}"

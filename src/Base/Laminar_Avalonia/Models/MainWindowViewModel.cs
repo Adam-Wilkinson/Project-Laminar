@@ -2,6 +2,7 @@
 using Avalonia.Controls.Primitives;
 using Laminar_Avalonia.Views;
 using Laminar_Core.NodeSystem.NodeTreeSystem;
+using Laminar_Core.Scripting.Advanced.Editing;
 using System.ComponentModel;
 using System.Diagnostics;
 
@@ -18,7 +19,7 @@ namespace Laminar_Avalonia.Models
 
         public IControl MainControl { get; set; }
 
-        public void ShowScriptEditor(INodeTree script)
+        public void ShowScriptEditor(IAdvancedScript script)
         {
             MainControl = new ScriptEditor
             {

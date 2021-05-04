@@ -1,6 +1,7 @@
 ﻿using Laminar_Core.NodeSystem.NodeComponents.Visuals;
 using Laminar_Core.Primitives;
-using Laminar_Core.Scripts;
+using Laminar_Core.Scripting;
+using Laminar_Core.Scripting.Advanced.Instancing;
 using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
 using Laminar_PluginFramework.NodeSystem.Nodes;
 using Laminar_PluginFramework.Primitives;

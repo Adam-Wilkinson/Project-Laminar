@@ -1,4 +1,4 @@
-﻿using Laminar_Core.NodeSystem.Connection;
+﻿using Laminar_Core.Scripting.Advanced.Editing.Connection;
 using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
 using Laminar_PluginFramework.Primitives;
 using System;

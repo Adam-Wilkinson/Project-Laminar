@@ -6,6 +6,7 @@ using Avalonia.Layout;
 using Laminar_Core;
 using Laminar_Core.NodeSystem.Nodes;
 using Laminar_Core.NodeSystem.NodeTreeSystem;
+using Laminar_Core.Scripting.Advanced.Editing;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -13,17 +14,18 @@ using System.Collections.Specialized;
 
 namespace Laminar_Avalonia.NodeDisplaySystem
 {
-    public class NodeTreeInputDisplay : TemplatedControl
+    public class AdvancedScriptInputsDisplay
+        : TemplatedControl
     {
-        public static readonly StyledProperty<ObservableCollection<NodeDisplay>> InputNodesProperty = AvaloniaProperty.Register<NodeTreeInputDisplay, ObservableCollection<NodeDisplay>>(nameof(InputNodes));
-        public static readonly StyledProperty<Orientation> OrientationProperty = AvaloniaProperty.Register<NodeTreeInputDisplay, Orientation>(nameof(Orientation));
-        public static readonly StyledProperty<IEnumerable<TypeInfoRecord>> AllTypeInfoProperty = AvaloniaProperty.Register<NodeTreeInputDisplay, IEnumerable<TypeInfoRecord>>(nameof(AllTypeInfo));
+        public static readonly StyledProperty<ObservableCollection<NodeDisplay>> InputNodesProperty = AvaloniaProperty.Register<AdvancedScriptInputsDisplay, ObservableCollection<NodeDisplay>>(nameof(InputNodes));
+        public static readonly StyledProperty<Orientation> OrientationProperty = AvaloniaProperty.Register<AdvancedScriptInputsDisplay, Orientation>(nameof(Orientation));
+        public static readonly StyledProperty<IEnumerable<TypeInfoRecord>> AllTypeInfoProperty = AvaloniaProperty.Register<AdvancedScriptInputsDisplay, IEnumerable<TypeInfoRecord>>(nameof(AllTypeInfo));
 
         private ToggleButton _toggleAddMenuButton;
         private NodeDisplay _lastClickedDisplay;
         private Vector _dragOffset;
 
-        public NodeTreeInputDisplay()
+        public AdvancedScriptInputsDisplay()
         {
             InputNodes = new();
             DataContextChanged += NodeTreeInputDisplay_DataContextChanged;
@@ -51,7 +53,7 @@ namespace Laminar_Avalonia.NodeDisplaySystem
 
         public void AddInputOfType(Type type)
         {
-            (DataContext as INodeTree).Inputs.Add(type);
+            (DataContext as IAdvancedScript).Inputs.Add(type);
             _toggleAddMenuButton.IsChecked = false;
         }
 
@@ -98,7 +100,7 @@ namespace Laminar_Avalonia.NodeDisplaySystem
 
         private void NodeTreeInputDisplay_DataContextChanged(object sender, EventArgs e)
         {
-            if (DataContext is INodeTree nodeTree)
+            if (DataContext is IAdvancedScript nodeTree)
             {
                 ((INotifyCollectionChanged)nodeTree.Inputs.InputNodes).CollectionChanged += NodeTreeInputDisplay_CollectionChanged;
                 foreach (INodeContainer container in nodeTree.Inputs.InputNodes)

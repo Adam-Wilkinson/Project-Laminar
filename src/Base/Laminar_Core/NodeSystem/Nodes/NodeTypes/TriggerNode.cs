@@ -1,4 +1,5 @@
-﻿using Laminar_Core.Scripts;
+﻿using Laminar_Core.Scripting;
+using Laminar_Core.Scripting.Advanced.Instancing;
 using Laminar_PluginFramework;
 using Laminar_PluginFramework.NodeSystem.NodeComponents;
 using Laminar_PluginFramework.NodeSystem.NodeComponents.Collections;

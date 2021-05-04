@@ -1,5 +1,6 @@
 ﻿using Laminar_Core.NodeSystem.Nodes.NodeTypes;
 using Laminar_Core.NodeSystem.NodeTreeSystem;
+using Laminar_Core.Scripting.Advanced.Editing;
 using Laminar_PluginFramework.NodeSystem.Nodes;
 using Laminar_PluginFramework.Primitives;
 using System;

@@ -9,17 +9,18 @@ using Avalonia.Controls.Shapes;
 using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.VisualTree;
-using Laminar_Core.NodeSystem.Connection;
 using Laminar_Core.NodeSystem.NodeComponents.Visuals;
 using Laminar_Core.NodeSystem.Nodes;
 using Laminar_Core.NodeSystem.NodeTreeSystem;
+using Laminar_Core.Scripting.Advanced.Editing;
+using Laminar_Core.Scripting.Advanced.Editing.Connection;
 
 namespace Laminar_Avalonia.NodeDisplaySystem
 {
     public class NodeDisplayCanvas : Canvas
     {
         private readonly Pen pen = new(Brushes.LightGray);
-        private INodeTree manager;
+        private IAdvancedScript manager;
         private List<NodeDisplay> selectedNodes = new();
         private Point originalClickPoint;
         private bool hasClickPoint = false;
@@ -34,7 +35,7 @@ namespace Laminar_Avalonia.NodeDisplaySystem
 
         private void NodeDisplayCanvas_DataContextChanged(object sender, EventArgs e)
         {
-            if (DataContext is INodeTree nodeTree)
+            if (DataContext is IAdvancedScript nodeTree)
             {
                 manager = nodeTree;
                 foreach (INodeContainer node in manager.Nodes)

@@ -1,4 +1,4 @@
-﻿using Laminar_Core.Scripts;
+﻿using Laminar_Core.Scripting;
 using Laminar_PluginFramework.NodeSystem.Nodes;
 using System;
 using System.Collections.Generic;

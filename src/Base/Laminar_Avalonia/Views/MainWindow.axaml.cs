@@ -1,13 +1,11 @@
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.Shapes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 using Laminar_Avalonia.Models;
-using Laminar_Core.NodeSystem.NodeTreeSystem;
-using Laminar_Core.Scripts;
+using Laminar_Core.Scripting;
+using Laminar_Core.Scripting.Advanced.Editing;
+using Laminar_Core.Scripting.Advanced.Instancing;
 using System;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
@@ -33,14 +31,14 @@ namespace Laminar_Avalonia.Views
             Resources["HeaderColour"] = new SolidColorBrush(new Color(255, 19, 19, 35));
         }
 
-        public void OpenScriptEditor(INodeTree script)
+        public void OpenScriptEditor(IAdvancedScript script)
         {
             (DataContext as MainWindowViewModel).ShowScriptEditor(script);
         }
 
         public void CloseScriptEditor()
         {
-            if (DataContext is MainWindowViewModel mwvm && mwvm.MainControl is ScriptEditor scriptEditor && scriptEditor.DataContext is INodeTree openNodeTree)
+            if (DataContext is MainWindowViewModel mwvm && mwvm.MainControl is ScriptEditor scriptEditor && scriptEditor.DataContext is IAdvancedScript openNodeTree)
             {
                 openNodeTree.EditorIsLive = false;
                 if (_needsScriptInstance)
@@ -57,7 +55,7 @@ namespace Laminar_Avalonia.Views
             App.LaminarInstance.AllScripts.Scripts.Remove(script);
         }
 
-        public void AddScriptInstance(INodeTree script)
+        public void AddScriptInstance(IAdvancedScript script)
         {
             (DataContext as MainWindowViewModel).CloseAddScriptsButton();
             IAdvancedScriptInstance newScript = App.LaminarInstance.Factory.GetImplementation<IAdvancedScriptInstance>();
@@ -76,7 +74,7 @@ namespace Laminar_Avalonia.Views
                 return;
             }
 
-            INodeTree newTree = App.LaminarInstance.Factory.GetImplementation<INodeTree>();
+            IAdvancedScript newTree = App.LaminarInstance.Factory.GetImplementation<IAdvancedScript>();
             newTree.Name.Value = text;
             App.LaminarInstance.AllAdvancedScripts.Add(newTree);
 

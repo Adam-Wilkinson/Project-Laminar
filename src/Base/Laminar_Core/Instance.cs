@@ -7,12 +7,11 @@ using Laminar_PluginFramework;
 using Laminar_Core.PluginManagement;
 using Laminar_PluginFramework.Primitives;
 using System.Linq;
-using Laminar_Core.Scripts;
+using Laminar_Core.Scripting;
 using System.Collections.ObjectModel;
-using Laminar_Core.NodeSystem.NodeTreeSystem;
-using System.IO;
 using System.Runtime.CompilerServices;
 using Laminar_Core.NodeSystem.Nodes;
+using Laminar_Core.Scripting.Advanced.Editing;
 
 namespace Laminar_Core
 {
@@ -37,7 +36,7 @@ namespace Laminar_Core
             AllRegisteredTypes = _typeInfo.Values.Where(x => x.CanBeInput);
         }
 
-        public ObservableCollection<INodeTree> AllAdvancedScripts { get; } = new();
+        public ObservableCollection<IAdvancedScript> AllAdvancedScripts { get; } = new();
 
         public IScriptCollection AllScripts { get; }
 

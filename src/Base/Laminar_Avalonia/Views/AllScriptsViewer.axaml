@@ -5,7 +5,7 @@
 			 xmlns:w="clr-namespace:Laminar_Avalonia.Views;assembly=Laminar_Avalonia"
 			 xmlns:nds="clr-namespace:Laminar_Avalonia.NodeDisplaySystem;assembly=Laminar_Avalonia"
 			 xmlns:cnd="clr-namespace:Laminar_Core.NodeSystem.NodeComponents.Visuals;assembly=Laminar_Core"
-			 xmlns:s="clr-namespace:Laminar_Core.Scripts;assembly=Laminar_Core"
+			 xmlns:s="clr-namespace:Laminar_Core.Scripting.Advanced.Instancing;assembly=Laminar_Core"
 			 mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
 			 x:Class="Laminar_Avalonia.Views.AllScriptsViewer">
 

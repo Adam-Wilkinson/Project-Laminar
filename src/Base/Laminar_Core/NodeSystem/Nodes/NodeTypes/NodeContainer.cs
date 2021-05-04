@@ -4,13 +4,15 @@ using Laminar_PluginFramework.NodeSystem.NodeComponents.Collections;
 using Laminar_PluginFramework.NodeSystem.Nodes;
 using Laminar_PluginFramework.Primitives;
 using Laminar_PluginFramework;
+using Laminar_Core.Scripting.Advanced.Editing.Connection;
 using Laminar_Core.NodeSystem.NodeComponents.Visuals;
 using Laminar_Core.Primitives.ObservableCollectionMapper;
 using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
 using Laminar_Core.Primitives;
 using System.Collections.Generic;
-using Laminar_Core.Scripts;
+using Laminar_Core.Scripting;
 using System.Collections;
+using Laminar_Core.Scripting.Advanced.Instancing;
 
 namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
 {
@@ -90,14 +92,14 @@ namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
 
             foreach (IVisualNodeComponentContainer component in (IList)Fields)
             {
-                component.InputConnector.Activate(instance, Connection.PropagationDirection.Backwards);
+                component.InputConnector.Activate(instance, PropagationDirection.Backwards);
             }
 
             SafeUpdate(instance);
 
             foreach (IVisualNodeComponentContainer component in (IList)Fields)
             {
-                component.OutputConnector.Activate(instance, Connection.PropagationDirection.Forwards);
+                component.OutputConnector.Activate(instance, PropagationDirection.Forwards);
             }
 
             NameLabel.FlowOutput.Activate();
