@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
-using Laminar_Core.NodeSystem.Nodes;
-using Laminar_Core.Scripting;
-using Laminar_Core.Scripting.Advanced.Compilation;
+﻿using Laminar_Core.Scripting.Advanced.Compilation;
 using Laminar_Core.Scripting.Advanced.Editing;
-using Laminar_Core.Scripting.Advanced.Editing.Connection;
 using Laminar_Core.Scripting.Advanced.Instancing;
 using Laminar_PluginFramework.Primitives;
 
@@ -14,11 +7,12 @@ namespace Laminar_Core.Scripting.Advanced
 {
     public class AdvancedScript : IAdvancedScript
     {
-        private readonly IAdvancedScriptCompiler _compiler;
+        private readonly ICompiledScriptManager _compiler;
+        private bool _isBeingEdited;
 
-        public AdvancedScript(IObservableValue<string> name, IAdvancedScriptCompiler compiler, IAdvancedScriptEditor editor, IAdvancedScriptInputs inputs)
+        public AdvancedScript(IObservableValue<string> name, ICompiledScriptManager compilationManager, IAdvancedScriptEditor editor, IAdvancedScriptInputs inputs)
         {
-            _compiler = compiler;
+            _compiler = compilationManager;
             _compiler.SetScript(this);
 
             Editor = editor;
@@ -32,6 +26,33 @@ namespace Laminar_Core.Scripting.Advanced
         public IAdvancedScriptInputs Inputs { get; }
 
         public IAdvancedScriptEditor Editor { get; }
+
+        public bool IsBeingEdited
+        {
+            get => _isBeingEdited;
+            set
+            {
+                if (_isBeingEdited == value)
+                {
+                    return;
+                }
+
+                _isBeingEdited = value;
+                if (_isBeingEdited)
+                {
+                    _compiler.DisableAllScripts();
+                    Editor.IsLive = true;
+                }
+
+                if (_isBeingEdited)
+                {
+                    _compiler.Refresh();
+                    _compiler.EnableAllScripts();
+                }
+
+                Editor.IsLive = _isBeingEdited;
+            }
+        }
 
         public IAdvancedScriptInstance CreateInstance()
         {

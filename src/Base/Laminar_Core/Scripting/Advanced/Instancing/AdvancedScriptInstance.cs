@@ -1,4 +1,5 @@
 ﻿using Laminar_Core.NodeSystem.Nodes;
+using Laminar_Core.Scripting.Advanced.Compilation;
 using Laminar_Core.Scripting.Advanced.Editing;
 
 namespace Laminar_Core.Scripting.Advanced.Instancing
@@ -30,6 +31,10 @@ namespace Laminar_Core.Scripting.Advanced.Instancing
 
                 IsActive.OnChange += (b) => inputs.ManualTriggerAll();
             }
+        }
+
+        public void UpdateScript(ICompiledScript newScript)
+        {
         }
     }
 }

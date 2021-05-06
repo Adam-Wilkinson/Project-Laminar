@@ -5,8 +5,6 @@ namespace Laminar_Core.Scripting.Advanced.Compilation
 {
     public interface IAdvancedScriptCompiler
     {
-        IAdvancedScriptInstance CreateInstance();
-
-        void SetScript(IAdvancedScript advancedScript);
+        public ICompiledScript Compile(IAdvancedScript script);
     }
 }

@@ -13,6 +13,8 @@ namespace Laminar_Core.Scripting.Advanced
     {
         public IAdvancedScriptEditor Editor { get; }
 
+        public bool IsBeingEdited { get; set; }
+
         public IObservableValue<string> Name { get; }
 
         IAdvancedScriptInputs Inputs { get; }
