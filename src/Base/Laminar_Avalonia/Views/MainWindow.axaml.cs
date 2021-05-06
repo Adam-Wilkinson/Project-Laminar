@@ -59,11 +59,7 @@ namespace Laminar_Avalonia.Views
         public void AddScriptInstance(IAdvancedScript script)
         {
             (DataContext as MainWindowViewModel).CloseAddScriptsButton();
-            IAdvancedScriptInstance newScript = App.LaminarInstance.Factory.GetImplementation<IAdvancedScriptInstance>();
-            newScript.Script = script;
-            newScript.Name.Value = script.Name.Value;
-            // aAanewScript.IsActive.Value = true;
-            App.LaminarInstance.AllScripts.Scripts.Add(newScript);
+            App.LaminarInstance.AllScripts.Scripts.Add(script.CreateInstance());
         }
 
         public async Task AddScript()

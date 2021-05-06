@@ -13,6 +13,6 @@ namespace Laminar_Core.Scripting.Advanced.Instancing
     {
         public INodeContainer Inputs { get; }
 
-        public IAdvancedScript Script { get; set; }
+        public IAdvancedScript Script { get; }
     }
 }

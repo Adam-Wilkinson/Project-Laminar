@@ -10,6 +10,7 @@ using Laminar_Core.Primitives.ObservableCollectionMapper;
 using Laminar_Core.Primitives.UserInterface;
 using Laminar_Core.Scripting;
 using Laminar_Core.Scripting.Advanced;
+using Laminar_Core.Scripting.Advanced.Compilation;
 using Laminar_Core.Scripting.Advanced.Editing;
 using Laminar_Core.Scripting.Advanced.Editing.Connection;
 using Laminar_Core.Scripting.Advanced.Instancing;
@@ -58,6 +59,7 @@ namespace Laminar_Core
             RegisterImplementation<IVisualNodeComponentContainer, VisualNodeComponentContainer>();
             RegisterImplementation<IPoint, Point>();
             RegisterImplementation<IFlow, Flow>();
+            RegisterImplementation<IAdvancedScriptCompiler, AdvancedScriptCompiler>();
             RegisterImplementation<IAdvancedScriptInputs, AdvancedScriptInputs>();
             RegisterImplementation<IScriptCollection, ScriptCollection>();
             RegisterImplementation<IAdvancedScriptInstance, AdvancedScriptInstance>();
