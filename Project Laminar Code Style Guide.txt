@@ -29,7 +29,14 @@ Class Ordering:
 
 
 Naming Conventions:
-  - Methods, classes, events and properties use PascalCase
-  - Method parameters use camelCase
-  - Fields use _underscoreCamelCase
-  - Anything static uses PascalCase
+  - Names
+    - Methods, classes, events and properties use PascalCase
+    - Method parameters use camelCase
+    - Fields use _underscoreCamelCase
+    - Anything static uses PascalCase
+    
+  - Prefixes
+    - .Is[name] => Boolean Property
+    - .Can[name] => Boolean Method
+    - .With[name] => Fluent method
+    - .On[name] => Event
