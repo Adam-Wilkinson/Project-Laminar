@@ -1,3 +1,5 @@
+ --- Project: Laminar Code Style Guide ---
+
 General:
  - No public fields (always properties)
  - Only one (ish) level of indentation. If you implement more complexity, make it it’s own method
@@ -40,3 +42,5 @@ Naming Conventions:
     - .Can[name] => Boolean Method
     - .With[name] => Fluent method
     - .On[name] => Event
+
+
