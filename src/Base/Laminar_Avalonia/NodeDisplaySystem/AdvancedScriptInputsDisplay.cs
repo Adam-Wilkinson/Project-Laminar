@@ -22,12 +22,15 @@ namespace Laminar_Avalonia.NodeDisplaySystem
         public static readonly StyledProperty<Orientation> OrientationProperty = AvaloniaProperty.Register<AdvancedScriptInputsDisplay, Orientation>(nameof(Orientation), Orientation.Vertical);
         public static readonly StyledProperty<IEnumerable<TypeInfoRecord>> AllTypeInfoProperty = AvaloniaProperty.Register<AdvancedScriptInputsDisplay, IEnumerable<TypeInfoRecord>>(nameof(AllTypeInfo));
 
+        private readonly INodeFactory _nodeFactory;
+
         private ToggleButton _toggleAddMenuButton;
         private NodeDisplay _lastClickedDisplay;
         private Vector _dragOffset;
 
         public AdvancedScriptInputsDisplay()
         {
+            _nodeFactory = App.LaminarInstance.Factory.GetImplementation<INodeFactory>();
             InputNodes = new();
             DataContextChanged += NodeTreeInputDisplay_DataContextChanged;
 
@@ -80,23 +83,25 @@ namespace Laminar_Avalonia.NodeDisplaySystem
 
         private void AddNode(object item)
         {
-            NodeDisplay newNode = new() { CoreNode = item as INodeContainer };
-            newNode.ShowConnectors = false;
-            newNode.HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center;
-            InputNodes.Add(newNode);
-            newNode.PointerPressed += (o, e) =>
+            if (item is InputNode inputNode)
             {
-                _lastClickedDisplay = new NodeDisplay() { CoreNode = item as INodeContainer };
-                _dragOffset = e.GetPosition(newNode);
-            };
+                INodeContainer nodeContainer = _nodeFactory.Get(inputNode);
+                NodeDisplay newNode = new() { CoreNode = nodeContainer };
+                InputNodes.Add(newNode);
+                newNode.PointerPressed += (o, e) =>
+                {
+                    _lastClickedDisplay = new NodeDisplay() { CoreNode = nodeContainer };
+                    _dragOffset = e.GetPosition(newNode);
+                };
 
-            newNode.PointerReleased += (o, e) =>
-            {
-                _lastClickedDisplay = null;
-            };
+                newNode.PointerReleased += (o, e) =>
+                {
+                    _lastClickedDisplay = null;
+                };
 
-            newNode.CoreNode.IsLive = true;
-            newNode.CoreNode.CoreNode.GetNameLabel().NeedsEditing = true;
+                newNode.CoreNode.IsLive = true;
+                newNode.CoreNode.CoreNode.GetNameLabel().NeedsEditing = true;
+            }
         }
 
         private void NodeTreeInputDisplay_DataContextChanged(object sender, EventArgs e)
@@ -104,9 +109,9 @@ namespace Laminar_Avalonia.NodeDisplaySystem
             if (DataContext is IAdvancedScript nodeTree)
             {
                 ((INotifyCollectionChanged)nodeTree.Inputs.InputNodes).CollectionChanged += NodeTreeInputDisplay_CollectionChanged;
-                foreach (INodeContainer container in nodeTree.Inputs.InputNodes)
+                foreach (InputNode inputNode in nodeTree.Inputs.InputNodes)
                 {
-                    AddNode(container);
+                    AddNode(inputNode);
                 }
             }
         }
@@ -129,7 +134,5 @@ namespace Laminar_Avalonia.NodeDisplaySystem
                     break;
             }
         }
-
-        public record DisplayType(string HexColour, string TypeName);
     }
 }

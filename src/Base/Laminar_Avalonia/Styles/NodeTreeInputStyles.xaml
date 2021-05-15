@@ -21,6 +21,12 @@
 						</Border>
 						
 						<ItemsControl Margin="0,10" Name="PART_InputNodes" Items="{TemplateBinding InputNodes, Mode=OneWay}">
+							<ItemsControl.Styles>
+								<Style Selector="nds|NodeDisplay">
+									<Setter Property="HorizontalAlignment" Value="Center"/>
+									<Setter Property="ShowConnectors" Value="False"/>
+								</Style>
+							</ItemsControl.Styles>
 							<ItemsControl.ItemsPanel>
 								<ItemsPanelTemplate>
 									<StackPanel Spacing="15" Orientation="{TemplateBinding Orientation}"/>

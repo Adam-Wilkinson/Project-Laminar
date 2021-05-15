@@ -1,6 +1,7 @@
 ﻿using Laminar_Core.NodeSystem;
 using Laminar_Core.NodeSystem.NodeComponents.Visuals;
 using Laminar_Core.NodeSystem.Nodes;
+using Laminar_Core.Scripting.Advanced.Editing;
 using Laminar_Core.Scripting.Advanced.Editing.Connection;
 using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
 using Laminar_PluginFramework.NodeSystem.Nodes;
@@ -51,7 +52,7 @@ namespace Laminar_Core.Scripting.Advanced.Compilation
 
         private ILaminarValue SetupDependencies(INodeContainer rootNode, INode myNodeClone, int indexOfRequestedOutput = -1)
         {
-            if (_compilerInstance.Inputs.TryGetValue(rootNode, out ILaminarValue value))
+            if (rootNode.CoreNode is InputNode inputNode && _compilerInstance.Inputs.TryGetValue(inputNode, out ILaminarValue value))
             {
                 return value;
             }

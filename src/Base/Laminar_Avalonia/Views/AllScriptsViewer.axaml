@@ -22,8 +22,8 @@
 								 ShowConnectors="False"
 								 ZIndex="-4">
 					<nds:NodeDisplay.Styles>
-						<Style Selector="Panel#NodeComponentPanel">
-							<Setter Property="Margin" Value="20"/>
+						<Style Selector="Panel.NodeComponentPanel">
+							<Setter Property="Margin" Value="10,0"/>
 						</Style>
 						<Style Selector="ItemsPresenter.NodeDisplay">
 							<Setter Property="ItemsPanel">

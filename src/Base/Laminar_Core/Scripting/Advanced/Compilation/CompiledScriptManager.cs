@@ -1,4 +1,5 @@
-﻿using Laminar_Core.Scripting.Advanced.Instancing;
+﻿using Laminar_Core.Scripting.Advanced.Editing;
+using Laminar_Core.Scripting.Advanced.Instancing;
 using Laminar_PluginFramework.Primitives;
 using System;
 using System.Collections.Generic;
@@ -13,6 +14,7 @@ namespace Laminar_Core.Scripting.Advanced.Compilation
         private readonly IAdvancedScriptCompiler _compiler;
         private readonly List<IAdvancedScriptInstance> _allInstances = new();
         private readonly IObjectFactory _factory;
+        private Guid[] _inputsOrder;
         private IAdvancedScript _script;
 
         public CompiledScriptManager(IObjectFactory factory, IAdvancedScriptCompiler compiler)
@@ -30,6 +32,44 @@ namespace Laminar_Core.Scripting.Advanced.Compilation
             return newInstance;
         }
 
+        public void Refresh(IAdvancedScript script)
+        {
+            var inputLocationChanges = new List<(int indexInNew, int indexInOld)>();
+            Guid[] newInputsOrder = new Guid[script.Inputs.InputNodes.Count];
+            _script = script;
+
+            int indexInNew = 0;
+            int indexInOld = 0;
+            foreach (InputNode inputNode in script.Inputs.InputNodes)
+            {
+                if (_inputsOrder is not null)
+                {
+                    foreach (Guid guid in _inputsOrder)
+                    {
+                        if (inputNode.InputID == guid)
+                        {
+                            inputLocationChanges.Add((indexInNew, indexInOld));
+                        }
+                        indexInOld++;
+                    }
+                }
+                newInputsOrder[indexInNew] = inputNode.InputID;
+                indexInNew++;
+                indexInOld = 0;
+            }
+            _inputsOrder = newInputsOrder;
+
+            foreach (IAdvancedScriptInstance instance in _allInstances)
+            {
+                List<ILaminarValue> oldInputs = instance.CompiledScript.Inputs;
+                instance.CompiledScript = _compiler.Compile(script);
+                foreach (var locationChange in inputLocationChanges)
+                {
+                    instance.CompiledScript.Inputs[locationChange.indexInNew].Value = oldInputs[locationChange.indexInOld].Value;
+                }
+            }
+        }
+
         public void DisableAllScripts()
         {
             foreach (IAdvancedScriptInstance instance in _allInstances)
@@ -43,20 +83,6 @@ namespace Laminar_Core.Scripting.Advanced.Compilation
             foreach (IAdvancedScriptInstance instance in _allInstances)
             {
                 instance.IsActive.Value = true;
-            }
-        }
-
-        public void SetScript(IAdvancedScript advancedScript)
-        {
-            _script = advancedScript;
-            Refresh();
-        }
-
-        public void Refresh()
-        {
-            foreach (IAdvancedScriptInstance instance in _allInstances)
-            {
-                instance.CompiledScript = _compiler.Compile(_script);
             }
         }
     }

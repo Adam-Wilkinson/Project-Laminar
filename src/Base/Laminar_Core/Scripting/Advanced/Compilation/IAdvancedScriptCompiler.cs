@@ -10,6 +10,6 @@ namespace Laminar_Core.Scripting.Advanced.Compilation
     {
         public ICompiledScript Compile(IAdvancedScript script);
 
-        public Dictionary<INodeContainer, ILaminarValue> Inputs { get; }
+        public Dictionary<InputNode, ILaminarValue> Inputs { get; }
     }
 }

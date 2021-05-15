@@ -24,7 +24,7 @@ namespace Laminar_Core.Scripting.Advanced.Compilation
             _factory = factory;
         }
 
-        public Dictionary<INodeContainer, ILaminarValue> Inputs { get; private set; }
+        public Dictionary<InputNode, ILaminarValue> Inputs { get; private set; }
 
         public ICompiledScript Compile(IAdvancedScript script)
         {
@@ -32,10 +32,10 @@ namespace Laminar_Core.Scripting.Advanced.Compilation
             compiledScript.OriginalScript = script;
             Inputs = new();
 
-            foreach (INodeContainer scriptInput in script.Inputs.InputNodes)
+            foreach (InputNode scriptInput in script.Inputs.InputNodes)
             {
-                ILaminarValue myInputValue = _valueFactory.Get(((InputNodeContainer<InputNode>)scriptInput).GetValue(null), true);
-                myInputValue.Name = scriptInput.CoreNode.GetNameLabel().LabelText.Value;
+                ILaminarValue myInputValue = _valueFactory.Get(scriptInput.Value, true);
+                myInputValue.Name = scriptInput.GetNameLabel().LabelText.Value;
                 compiledScript.Inputs.Add(myInputValue);
                 Inputs.Add(scriptInput, myInputValue);
             }

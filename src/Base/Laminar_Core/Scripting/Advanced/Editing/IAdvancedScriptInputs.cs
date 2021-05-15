@@ -8,7 +8,7 @@ namespace Laminar_Core.Scripting.Advanced.Editing
     public interface IAdvancedScriptInputs
 
     {
-        ReadOnlyObservableCollection<INodeContainer> InputNodes { get; }
+        ReadOnlyObservableCollection<InputNode> InputNodes { get; }
 
         bool Exists { get; }
 

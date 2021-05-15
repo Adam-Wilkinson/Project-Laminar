@@ -9,10 +9,12 @@ namespace Laminar_Core.Scripting.Advanced.Compilation
 {
     public interface ICompiledScriptManager
     {
+        void Refresh(IAdvancedScript script);
+
         IAdvancedScriptInstance CreateInstance();
-        void SetScript(IAdvancedScript advancedScript);
+
         void DisableAllScripts();
-        void Refresh();
+
         void EnableAllScripts();
     }
 }

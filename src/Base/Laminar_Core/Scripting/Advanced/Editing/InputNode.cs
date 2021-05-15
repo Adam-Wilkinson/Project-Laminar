@@ -21,6 +21,14 @@ namespace Laminar_Core.Scripting.Advanced.Editing
 
         public string NodeName { get; } = "Input";
 
+        public Guid InputID { get; } = Guid.NewGuid();
+
+        public object Value
+        {
+            get => _valueField.GetValue(INodeField.OutputKey).Value;
+            set => _valueField.GetValue(INodeField.OutputKey).Value = value;
+        }
+
         public void SetType(Type inputType)
         {
             _valueField.AddValue(INodeField.OutputKey, inputType, true);

@@ -13,7 +13,6 @@ namespace Laminar_Core.Scripting.Advanced
         public AdvancedScript(IObservableValue<string> name, ICompiledScriptManager compilationManager, IAdvancedScriptEditor editor, IAdvancedScriptInputs inputs)
         {
             _compilerManager = compilationManager;
-            _compilerManager.SetScript(this);
 
             Editor = editor;
             Inputs = inputs;
@@ -44,7 +43,7 @@ namespace Laminar_Core.Scripting.Advanced
                 } 
                 else  
                 {
-                    _compilerManager.Refresh();
+                    _compilerManager.Refresh(this);
                     _compilerManager.EnableAllScripts();
                 }
 

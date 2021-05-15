@@ -10,26 +10,23 @@ namespace Laminar_Core.Scripting.Advanced.Editing
 {
     class AdvancedScriptInputs: IAdvancedScriptInputs
     {
-        private readonly ObservableCollection<INodeContainer> _inputNodes = new();
-        private readonly INodeFactory _nodeFactory;
+        private readonly ObservableCollection<InputNode> _inputNodes = new();
 
-        public AdvancedScriptInputs(INodeFactory nodeFactory)
+        public AdvancedScriptInputs()
         {
-            _nodeFactory = nodeFactory;
             InputNodes = new(_inputNodes);
         }
 
         public bool Exists => InputNodes.Count > 0;
 
-        public ReadOnlyObservableCollection<INodeContainer> InputNodes { get; }
+        public ReadOnlyObservableCollection<InputNode> InputNodes { get; }
 
         public void Add(Type valueType)
         {
             InputNode newNode = new();
             newNode.SetType(valueType);
-            INodeContainer newContainer = _nodeFactory.Get(newNode);
             newNode.GetNameLabel().LabelText.Value = $"Input {_inputNodes.Count + 1}";
-            _inputNodes.Add(newContainer);
+            _inputNodes.Add(newNode);
         }
 
         public void Add<T>()
