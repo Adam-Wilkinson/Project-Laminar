@@ -25,8 +25,8 @@ namespace Laminar_Core.NodeSystem.NodeComponents.Visuals
             set
             {
                 _child = value;
-                InputConnector.Initialize(_child);
-                OutputConnector.Initialize(_child);
+                InputConnector.Initialize(this);
+                OutputConnector.Initialize(this);
                 HasRemoveFunction = _child.RemoveAction is not null;
                 RemoveAction = () =>
                 {

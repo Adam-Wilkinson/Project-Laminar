@@ -27,8 +27,11 @@ namespace WindowsKeyboardMouse.UserControls
 
         protected override void OnDataContextChanged(EventArgs e)
         {
-            _laminarValue = DataContext as ILaminarValue;
-            UpdateTextBlock();
+            if (DataContext is ILaminarValue laminarValue)
+            {
+                _laminarValue = laminarValue;
+                UpdateTextBlock(_laminarValue.Value);
+            }
             base.OnDataContextChanged(e);
         }
 
@@ -37,7 +40,7 @@ namespace WindowsKeyboardMouse.UserControls
             if (_state is State.ChangingKey or State.FindingModifierKey)
             {
                 _keyValue = new KeyboardKey(AvaloniaKeyTools.GetVirtualKey(e.Key), (Primitives.KeyModifiers)(int)e.KeyModifiers);
-                _mainTextBlock.Text = $"{_laminarValue.Name}: {_keyValue}";
+                UpdateTextBlock(_keyValue);
                 if (ModifierKeys.Contains(e.Key))
                 {
                     _state = State.FindingModifierKey;
@@ -72,9 +75,16 @@ namespace WindowsKeyboardMouse.UserControls
             AvaloniaXamlLoader.Load(this);
         }
 
-        private void UpdateTextBlock()
+        private void UpdateTextBlock(object value)
         {
-            _mainTextBlock.Text = $"{_laminarValue.Name}: {_laminarValue.Value}";
+            if (_laminarValue.Name is not "" or null)
+            {
+                _mainTextBlock.Text = $"{_laminarValue.Name}: {value}";
+            }
+            else
+            {
+                _mainTextBlock.Text = value.ToString();
+            }
         }
 
 

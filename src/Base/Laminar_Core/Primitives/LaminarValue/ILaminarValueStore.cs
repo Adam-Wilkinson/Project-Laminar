@@ -22,10 +22,12 @@ namespace Laminar_Core.Primitives.LaminarValue
 
         void AddValue<T>(object value, bool isUserEditable);
 
+        void AddValue(object key, ILaminarValue value);
+
+        void Reset();
+
         void SetValueName(string name);
 
         ILaminarValue GetValue(object key);
-
-        void CopyFrom(ILaminarValueStore copyFrom);
     }
 }

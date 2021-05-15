@@ -1,5 +1,6 @@
 ﻿namespace Laminar_Core.NodeSystem.NodeComponents.Visuals
 {
+    using System;
     using System.Collections;
     using System.Collections.Generic;
     using Laminar_PluginFramework.NodeSystem.NodeComponents;
@@ -27,13 +28,19 @@
 
         public IFlow FlowOutput { get; }
 
-        protected override IVisualNodeComponent CloneTo(INodeComponent nodeField)
+        public int IndexInParent { get; set; }
+
+        public override void CloneTo(INodeComponent nodeComponent)
         {
-            base.CloneTo(nodeField);
-            (nodeField as IVisualNodeComponent).Name.Value = Name.Value;
-            (nodeField as IVisualNodeComponent).FlowOutput.Exists = FlowOutput.Exists;
-            (nodeField as IVisualNodeComponent).FlowInput.Exists = FlowInput.Exists;
-            return nodeField as IVisualNodeComponent;
+            if (nodeComponent is not VisualNodeComponent visualNodeComponent)
+            {
+                throw new ArgumentException("VisualNodeComponent can only clone to another VisualNodeComponent");
+            }
+
+            base.CloneTo(nodeComponent);
+            visualNodeComponent.Name.Value = Name.Value;
+            visualNodeComponent.FlowOutput.Exists = FlowOutput.Exists;
+            visualNodeComponent.FlowInput.Exists = FlowInput.Exists;
         }
     }
 }

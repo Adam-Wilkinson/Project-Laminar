@@ -71,20 +71,37 @@ namespace Laminar_Core.NodeSystem.NodeComponents.Visuals
             }
         }
 
-        public ILaminarValue GetValue(object key) => _valueStore?.GetValue(key);
-
-        public void SetValueStore(ILaminarValueStore copyFrom)
+        public void AddValue(object key, ILaminarValue value)
         {
-            _valueStore.CopyFrom(copyFrom);
+            _valueStore.AddValue(key, value);
+            if (_valueStore.Count == 1)
+            {
+                DisplayedValueKey = key;
+            }
         }
+
+        public ILaminarValue GetValue(object key) => _valueStore?.GetValue(key);
 
         public override INodeComponent Clone()
         {
             NodeField output = _factory.CreateInstance<NodeField>();
             CloneTo(output);
-            output.SetValueStore(_valueStore);
-            output.DisplayedValueKey = DisplayedValueKey;
             return output;
+        }
+
+        public override void CloneTo(INodeComponent component)
+        {
+            if (component is not INodeField nodeField)
+            {
+                throw new ArgumentException("NodeField can only clone to other NodeFields");
+            }
+
+            base.CloneTo(component);
+            foreach (var kvp in _valueStore.AllValues)
+            {
+                nodeField.AddValue(kvp.Key, (ILaminarValue)kvp.Value.Clone());
+            }
+            nodeField.DisplayedValueKey = DisplayedValueKey;
         }
 
         private void ValueStore_ChildValueChanged(object sender, ILaminarValue laminarValue)

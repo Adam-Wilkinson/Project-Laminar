@@ -1,4 +1,5 @@
-﻿using Laminar_Core.NodeSystem.Nodes;
+﻿using Laminar_Core.NodeSystem.NodeComponents.Visuals;
+using Laminar_Core.NodeSystem.Nodes;
 using Laminar_Core.Scripting;
 using Laminar_Core.Scripting.Advanced.Editing.Connection.ConnectorManagers;
 using Laminar_Core.Scripting.Advanced.Instancing;
@@ -61,6 +62,10 @@ namespace Laminar_Core.Scripting.Advanced.Editing.Connection
             }
         }
 
+        public IVisualNodeComponentContainer ParentComponentContainer { get; private set; }
+
+        public INodeContainer ConnectorNode { get; private set; }
+
         public bool CanConnectTo(IConnector toConnectTo)
         {
             return toConnectTo is Connector connector && Manager.CompatibilityCheck(connector.Manager);
@@ -84,11 +89,14 @@ namespace Laminar_Core.Scripting.Advanced.Editing.Connection
             Manager.ConnectionRemovedAction((connection.Opposite(this) as Connector).Manager);
         }
 
-        public void Initialize(IVisualNodeComponent component)
+        public void Initialize(IVisualNodeComponentContainer component)
         {
+            ParentComponentContainer = component;
+            ConnectorNode = INodeContainer.NodeBases[component.Child.ParentNode];
+
             foreach (IConnectorManager manager in _managers)
             {
-                manager.Initialize(component, ConnectorType);
+                manager.Initialize(component.Child, ConnectorType);
                 manager.ExistsChanged += (o, e) => Manager = TryFindFormat();
             }
 

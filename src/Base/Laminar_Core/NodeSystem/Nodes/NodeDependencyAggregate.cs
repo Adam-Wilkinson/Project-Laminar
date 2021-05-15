@@ -12,11 +12,10 @@ namespace Laminar_Core.NodeSystem.Nodes
 {
     public class NodeDependencyAggregate
     {
-        public NodeDependencyAggregate(IPoint location, IObservableValue<bool> errorState, IEditableNodeLabel name, INodeComponentList fieldList, IObjectFactory factory)
+        public NodeDependencyAggregate(IPoint location, IObservableValue<bool> errorState, INodeComponentList fieldList, IObjectFactory factory)
         {
             Location = location;
             ErrorState = errorState;
-            Name = name;
             Factory = factory;
             FieldList = fieldList;
         }
@@ -25,17 +24,14 @@ namespace Laminar_Core.NodeSystem.Nodes
 
         public IObservableValue<bool> ErrorState { get; }
 
-        public IEditableNodeLabel Name { get; }
-
         public IObjectFactory Factory { get; }
 
         public INodeComponentList FieldList { get; }
 
-        public void Deconstruct(out IPoint Location, out IObservableValue<bool> ErrorState, out IEditableNodeLabel Name, out INodeComponentList FieldList, out IObjectFactory Factory)
+        public void Deconstruct(out IPoint Location, out IObservableValue<bool> ErrorState, out INodeComponentList FieldList, out IObjectFactory Factory)
         {
             Location = this.Location;
             ErrorState = this.ErrorState;
-            Name = this.Name;
             Factory = this.Factory;
             FieldList = this.FieldList;
         }

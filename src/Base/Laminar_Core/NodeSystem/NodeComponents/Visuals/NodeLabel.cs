@@ -17,7 +17,12 @@ namespace Laminar_Core.NodeSystem.NodeComponents.Visuals
             };
         }
 
-        public override IVisualNodeComponent Clone() => CloneTo(Constructor.NodeLabel(Name.Value));
+        public override IVisualNodeComponent Clone()
+        {
+            INodeLabel output = Constructor.NodeLabel(Name.Value);
+            CloneTo(output);
+            return output;
+        }
 
         public IObservableValue<string> LabelText { get; }
     }

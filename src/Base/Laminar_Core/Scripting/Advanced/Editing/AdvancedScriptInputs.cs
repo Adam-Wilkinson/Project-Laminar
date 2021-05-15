@@ -1,5 +1,7 @@
-﻿using Laminar_Core.NodeSystem.Nodes;
+﻿using Laminar_Core.NodeSystem;
+using Laminar_Core.NodeSystem.Nodes;
 using Laminar_Core.NodeSystem.Nodes.NodeTypes;
+using Laminar_PluginFramework.NodeSystem.Nodes;
 using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -26,7 +28,7 @@ namespace Laminar_Core.Scripting.Advanced.Editing
             InputNode newNode = new();
             newNode.SetType(valueType);
             INodeContainer newContainer = _nodeFactory.Get(newNode);
-            newContainer.NameLabel.LabelText.Value = $"Input {_inputNodes.Count + 1}";
+            newNode.GetNameLabel().LabelText.Value = $"Input {_inputNodes.Count + 1}";
             _inputNodes.Add(newContainer);
         }
 

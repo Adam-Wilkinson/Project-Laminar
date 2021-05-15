@@ -19,6 +19,6 @@ namespace Laminar_PluginFramework.NodeSystem.NodeComponents
 
         INodeComponent Clone();
 
-        // void CloneTo(INodeComponent component);
+        void CloneTo(INodeComponent component);
     }
 }

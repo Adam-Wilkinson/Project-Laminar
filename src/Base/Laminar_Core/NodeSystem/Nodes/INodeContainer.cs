@@ -21,11 +21,15 @@ namespace Laminar_Core.NodeSystem.Nodes
 
         IVisualNodeComponentContainer Name { get; }
 
-        IEditableNodeLabel NameLabel { get; }
+        INode CoreNode { get; }
+
+        INode GetCoreNodeInstance();
 
         bool HasFields { get; }
 
         INotifyCollectionChanged Fields { get; }
+
+        public bool CanGetCoreNodeOfType<T>(out T coreNode);
 
         IPoint Location { get; }
 

@@ -79,7 +79,32 @@
 
         public bool Contains(INodeComponent component) => _childComponents.Contains(component);
 
-        public override INodeComponent Clone() => CloneTo(Constructor.NodeComponentList(_childComponents.Select(x => x.Clone())));
+        public override INodeComponentCollection Clone() 
+        {
+            NodeComponentCollection newCollection = new(Opacity.Clone());
+            CloneTo(newCollection);
+            return newCollection;
+        }
+
+        public override void CloneTo(INodeComponent component)
+        {
+            if (component is not INodeComponentCollection componentCollection)
+            {
+                throw new ArgumentException("NodeComponentCollection can only clone to other NodeComponentCollection");
+            }
+
+            base.CloneTo(component);
+            componentCollection.CopyComponentsFrom(this);
+        }
+
+        public void CopyComponentsFrom(INodeComponentCollection componentCollection)
+        {
+            ProtectedReset();
+            foreach (INodeComponent component in componentCollection)
+            {
+                ProtectedAdd(component.Clone());
+            }
+        }
 
         protected virtual void ProtectedAdd(INodeComponent newComponent)
         {

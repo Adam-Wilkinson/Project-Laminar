@@ -22,6 +22,15 @@ namespace Laminar_PluginFramework
             return output;
         }
 
+        public static IEditableNodeLabel EditableNodeLabel(string labelText)
+        {
+            IEditableNodeLabel output = Laminar.New<IEditableNodeLabel>();
+
+            output.Name.Value = labelText;
+
+            return output;
+        }
+
         public static INodeLabel NodeLabel(string labelText)
         {
             INodeLabel output = Laminar.New<INodeLabel>();

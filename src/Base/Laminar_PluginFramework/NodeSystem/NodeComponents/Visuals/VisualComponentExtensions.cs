@@ -1,4 +1,5 @@
-﻿using Laminar_PluginFramework.Primitives.TypeDefinition;
+﻿using Laminar_PluginFramework.Primitives;
+using Laminar_PluginFramework.Primitives.TypeDefinition;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,6 +25,11 @@ namespace Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals
         public static TComponent WithValue<TComponent>(this TComponent nodeField, object valueKey, object defaultValue, bool isUserEditable = false) where TComponent : INodeField
         {
             nodeField.AddValue(valueKey, defaultValue, isUserEditable);
+            return nodeField;
+        }
+        public static TComponent WithValue<TComponent>(this TComponent nodeField, object valueKey, ILaminarValue value) where TComponent : INodeField
+        {
+            nodeField.AddValue(valueKey, value);
             return nodeField;
         }
 

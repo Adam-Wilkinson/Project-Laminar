@@ -11,10 +11,9 @@ namespace Laminar_Core.Scripting.Advanced.Compilation
     public class CompiledScriptManager : ICompiledScriptManager
     {
         private readonly IAdvancedScriptCompiler _compiler;
-        private readonly List<AdvancedScriptInstance> _allInstances = new();
+        private readonly List<IAdvancedScriptInstance> _allInstances = new();
         private readonly IObjectFactory _factory;
         private IAdvancedScript _script;
-        private ICompiledScript _compiledScript;
 
         public CompiledScriptManager(IObjectFactory factory, IAdvancedScriptCompiler compiler)
         {
@@ -24,14 +23,16 @@ namespace Laminar_Core.Scripting.Advanced.Compilation
 
         public IAdvancedScriptInstance CreateInstance()
         {
-            AdvancedScriptInstance newInstance = _factory.CreateInstance<AdvancedScriptInstance>();
+            IAdvancedScriptInstance newInstance = _factory.CreateInstance<IAdvancedScriptInstance>();
             _allInstances.Add(newInstance);
+            newInstance.Name.Value = _script.Name.Value;
+            newInstance.CompiledScript = _compiler.Compile(_script);
             return newInstance;
         }
 
         public void DisableAllScripts()
         {
-            foreach (AdvancedScriptInstance instance in _allInstances)
+            foreach (IAdvancedScriptInstance instance in _allInstances)
             {
                 instance.IsActive.Value = false;
             }
@@ -39,7 +40,7 @@ namespace Laminar_Core.Scripting.Advanced.Compilation
 
         public void EnableAllScripts()
         {
-            foreach (AdvancedScriptInstance instance in _allInstances)
+            foreach (IAdvancedScriptInstance instance in _allInstances)
             {
                 instance.IsActive.Value = true;
             }
@@ -53,10 +54,9 @@ namespace Laminar_Core.Scripting.Advanced.Compilation
 
         public void Refresh()
         {
-            _compiledScript = _compiler.Compile(_script);
-            foreach (AdvancedScriptInstance instance in _allInstances)
+            foreach (IAdvancedScriptInstance instance in _allInstances)
             {
-                instance.UpdateScript(_compiledScript);
+                instance.CompiledScript = _compiler.Compile(_script);
             }
         }
     }

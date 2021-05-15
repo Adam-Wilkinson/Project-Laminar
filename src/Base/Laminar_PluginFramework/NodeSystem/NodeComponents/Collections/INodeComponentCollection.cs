@@ -8,6 +8,8 @@ namespace Laminar_PluginFramework.NodeSystem.NodeComponents.Collections
     {
         public INotifyCollectionChanged VisualNodeComponentsObservable { get; }
 
+        void CopyComponentsFrom(INodeComponentCollection copyFrom);
+
         bool Contains(INodeComponent component);
 
         int IndexOf(INodeComponent component);

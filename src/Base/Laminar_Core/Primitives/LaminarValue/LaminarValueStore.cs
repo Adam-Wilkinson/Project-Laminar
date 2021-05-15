@@ -69,13 +69,13 @@ namespace Laminar_Core.Primitives.LaminarValue
         public void AddValue(object key, object value, bool isUserEditable)
         {
             ILaminarValue newValue = _valueFactory.Get(value, isUserEditable);
-            Add(key, newValue);
+            AddValue(key, newValue);
         }
 
         public void AddValue<T>(object key, bool isUserEditable)
         {
             ILaminarValue newValue = _valueFactory.Get<T>(isUserEditable);
-            Add(key, newValue);
+            AddValue(key, newValue);
         }
 
         public ILaminarValue GetValue(object key) => _coreDictionary.TryGetValue(key, out ILaminarValue value) ? value : null;
@@ -88,15 +88,6 @@ namespace Laminar_Core.Primitives.LaminarValue
                 value.Name = _storeName;
             }
         }
-
-        public void CopyFrom(ILaminarValueStore copyFrom)
-        {
-            foreach (KeyValuePair<object, ILaminarValue> kvp in copyFrom)
-            {
-                Add(kvp.Key, (ILaminarValue)kvp.Value.Clone());
-            }
-        }
-
 
         private void RemoveValue(object key)
         {
@@ -113,7 +104,7 @@ namespace Laminar_Core.Primitives.LaminarValue
             }
         }
 
-        private void Add(object key, ILaminarValue value)
+        public void AddValue(object key, ILaminarValue value)
         {
             value.Name = _storeName;
             _coreDictionary[key] = value;
@@ -124,5 +115,13 @@ namespace Laminar_Core.Primitives.LaminarValue
         public IEnumerator<KeyValuePair<object, ILaminarValue>> GetEnumerator() => _coreDictionary.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => _coreDictionary.GetEnumerator();
+
+        public void Reset()
+        {
+            foreach (object key in _coreDictionary.Keys)
+            {
+                RemoveValue(key);
+            }
+        }
     }
 }

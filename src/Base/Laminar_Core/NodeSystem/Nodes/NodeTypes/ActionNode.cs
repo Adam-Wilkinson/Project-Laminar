@@ -15,7 +15,16 @@ namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
         public ActionNode(NodeDependencyAggregate dependencies)
             : base(dependencies)
         {
-            NameLabel.WithFlowInput().WithFlowOutput();
+        }
+
+        public override T BaseNode 
+        {
+            set
+            {
+                base.BaseNode = value;
+                Name.Child.FlowInput.Exists = true;
+                Name.Child.FlowOutput.Exists = true;
+            }
         }
     }
 }

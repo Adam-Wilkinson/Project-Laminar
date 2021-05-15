@@ -7,13 +7,13 @@ namespace Laminar_Core.Scripting.Advanced
 {
     public class AdvancedScript : IAdvancedScript
     {
-        private readonly ICompiledScriptManager _compiler;
+        private readonly ICompiledScriptManager _compilerManager;
         private bool _isBeingEdited;
 
         public AdvancedScript(IObservableValue<string> name, ICompiledScriptManager compilationManager, IAdvancedScriptEditor editor, IAdvancedScriptInputs inputs)
         {
-            _compiler = compilationManager;
-            _compiler.SetScript(this);
+            _compilerManager = compilationManager;
+            _compilerManager.SetScript(this);
 
             Editor = editor;
             Inputs = inputs;
@@ -40,14 +40,12 @@ namespace Laminar_Core.Scripting.Advanced
                 _isBeingEdited = value;
                 if (_isBeingEdited)
                 {
-                    _compiler.DisableAllScripts();
-                    Editor.IsLive = true;
-                }
-
-                if (_isBeingEdited)
+                    _compilerManager.DisableAllScripts();
+                } 
+                else  
                 {
-                    _compiler.Refresh();
-                    _compiler.EnableAllScripts();
+                    _compilerManager.Refresh();
+                    _compilerManager.EnableAllScripts();
                 }
 
                 Editor.IsLive = _isBeingEdited;
@@ -56,8 +54,7 @@ namespace Laminar_Core.Scripting.Advanced
 
         public IAdvancedScriptInstance CreateInstance()
         {
-            IAdvancedScriptInstance newInstance = _compiler.CreateInstance();
-            newInstance.Name.Value = Name.Value;
+            IAdvancedScriptInstance newInstance = _compilerManager.CreateInstance();
             return newInstance;
         }
     }

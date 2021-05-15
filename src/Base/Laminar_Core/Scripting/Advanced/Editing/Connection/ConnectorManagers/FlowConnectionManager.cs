@@ -1,4 +1,5 @@
-﻿using Laminar_Core.NodeSystem.Nodes;
+﻿using Laminar_Core.NodeSystem;
+using Laminar_Core.NodeSystem.Nodes;
 using Laminar_Core.Scripting;
 using Laminar_Core.Scripting.Advanced.Instancing;
 using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
@@ -57,7 +58,7 @@ namespace Laminar_Core.Scripting.Advanced.Editing.Connection.ConnectorManagers
             if (_connectorType is ConnectorType.Input)
             {
                 FlashColourChange();
-                if (_parentComponent == parentNodeBase.NameLabel)
+                if (_parentComponent == _parentComponent.ParentNode.GetNameLabel())
                 {
                     parentNodeBase.Update(activatedInstance);
                 }

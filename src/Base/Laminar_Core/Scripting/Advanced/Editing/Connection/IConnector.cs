@@ -1,4 +1,6 @@
-﻿using Laminar_Core.Scripting;
+﻿using Laminar_Core.NodeSystem.NodeComponents.Visuals;
+using Laminar_Core.NodeSystem.Nodes;
+using Laminar_Core.Scripting;
 using Laminar_Core.Scripting.Advanced.Instancing;
 using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
 using Laminar_PluginFramework.Primitives;
@@ -7,6 +9,10 @@ namespace Laminar_Core.Scripting.Advanced.Editing.Connection
 {
     public interface IConnector
     {
+        IVisualNodeComponentContainer ParentComponentContainer { get; }
+
+        INodeContainer ConnectorNode { get; }
+
         ConnectorType ConnectorType { get; set; }
 
         bool IsExclusiveConnection { get; }
@@ -19,7 +25,7 @@ namespace Laminar_Core.Scripting.Advanced.Editing.Connection
 
         IDependentValue<string> HexColour { get; }
 
-        void Initialize(IVisualNodeComponent component);
+        void Initialize(IVisualNodeComponentContainer component);
 
         void AddConnection(INodeConnection connection);
 

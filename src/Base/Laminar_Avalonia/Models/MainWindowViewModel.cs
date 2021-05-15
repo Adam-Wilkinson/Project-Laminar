@@ -25,7 +25,7 @@ namespace Laminar_Avalonia.Models
             {
                 DataContext = script,
             };
-            script.Editor.IsLive = true;
+            script.IsBeingEdited = true;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(MainControl)));
         }
         

@@ -26,9 +26,11 @@ namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
 
         public NodeContainer(NodeDependencyAggregate dependencies)
         {
-            (Location, ErrorState, NameLabel, FieldList, _factory) = dependencies;
+            (Location, ErrorState, FieldList, _factory) = dependencies;
             Name = _factory.GetImplementation<IVisualNodeComponentContainer>();
             Fields = ObservableCollectionMapper<IVisualNodeComponent, IVisualNodeComponentContainer>.Create(FieldList.VisualNodeComponentsObservable, _factory);
+
+            Fields.CollectionChanged += Fields_CollectionChanged;
         }
 
         public virtual T BaseNode
@@ -41,13 +43,13 @@ namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
             }
             set
             {
-                _baseNode = value;
-                NameLabel.LabelText.Value = _baseNode.NodeName;
-                NameLabel.ParentNode = _baseNode;
-                Name.Child = NameLabel;
+                INodeContainer.NodeBases.Remove(value);
+                INodeContainer.NodeBases.Add(value, this);
 
-                INodeContainer.NodeBases.Remove(_baseNode);
-                INodeContainer.NodeBases.Add(_baseNode, this);
+                _baseNode = value;
+                _baseNode.GetNameLabel().ParentNode = _baseNode;
+                Name.Child = _baseNode.GetNameLabel();
+
 
                 FieldList.ParentNode = _baseNode;
                 FieldList.RemoveAll();
@@ -75,11 +77,11 @@ namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
 
         public INotifyCollectionChanged Fields { get; }
 
-        public IEditableNodeLabel NameLabel { get; }
-
         public bool HasFields => FieldList.VisualComponentList.Count > 0;
 
-        public virtual INodeContainer DuplicateNode() => new NodeFactory(_factory).Get<T>();
+        public INode CoreNode => BaseNode;
+
+        public virtual INodeContainer DuplicateNode() => new NodeFactory(_factory).Get(BaseNode.Clone());
 
         public void Update(IAdvancedScriptInstance instance)
         {
@@ -102,7 +104,7 @@ namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
                 component.OutputConnector.Activate(instance, PropagationDirection.Forwards);
             }
 
-            NameLabel.FlowOutput.Activate();
+            BaseNode.GetNameLabel().FlowOutput.Activate();
 
             _isUpdating = false;
         }
@@ -124,7 +126,7 @@ namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
 
         protected IVisualNodeComponentContainer GetContainer(IVisualNodeComponent component)
         {
-            if (component == NameLabel)
+            if (component == BaseNode.GetNameLabel())
             {
                 return Name;
             }
@@ -137,5 +139,28 @@ namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
 
             return ((IList<IVisualNodeComponentContainer>)Fields)[index];
         }
+
+        public bool CanGetCoreNodeOfType<TRequest>(out TRequest coreNode)
+        {
+            if (BaseNode is TRequest typedBaseNode)
+            {
+                coreNode = typedBaseNode;
+                return true;
+            }
+
+            coreNode = default;
+            return false;
+        }
+
+        private void Fields_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            int index = 0;
+            foreach (IVisualNodeComponentContainer container in (IList)Fields)
+            {
+                container.Child.IndexInParent = index;
+            }
+        }
+
+        public INode GetCoreNodeInstance() => BaseNode.Clone();
     }
 }

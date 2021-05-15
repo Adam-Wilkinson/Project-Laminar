@@ -44,13 +44,11 @@
 
         public abstract INodeComponent Clone();
 
-        protected virtual INodeComponent CloneTo(INodeComponent component)
+        public virtual void CloneTo(INodeComponent component)
         {
             component.ParentNode = ParentNode;
             component.RemoveAction = RemoveAction;
             component.Opacity.Value = Opacity.Value;
-
-            return component;
         }
 
         protected void NotifyPropertyChanged([CallerMemberName] string propertyName = "")

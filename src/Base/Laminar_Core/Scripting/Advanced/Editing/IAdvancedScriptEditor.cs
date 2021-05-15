@@ -1,5 +1,6 @@
 ﻿using Laminar_Core.NodeSystem.Nodes;
 using Laminar_Core.Scripting.Advanced.Editing.Connection;
+using Laminar_PluginFramework.NodeSystem.Nodes;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
@@ -10,6 +11,8 @@ namespace Laminar_Core.Scripting.Advanced.Editing
         public bool IsLive { get; set; }
 
         ReadOnlyObservableCollection<INodeContainer> Nodes { get; }
+
+        IEnumerable<INodeContainer> TriggerNodes { get; }
 
         void AddNode(INodeContainer newNode);
 

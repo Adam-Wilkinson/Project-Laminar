@@ -12,7 +12,15 @@ namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
     {
         public FlowNode(NodeDependencyAggregate dep) : base(dep)
         {
-            NameLabel.FlowInput.Exists = true;
+        }
+
+        public override T BaseNode
+        {
+            set
+            {
+                base.BaseNode = value;
+                Name.Child.FlowInput.Exists = true;
+            }
         }
     }
 }

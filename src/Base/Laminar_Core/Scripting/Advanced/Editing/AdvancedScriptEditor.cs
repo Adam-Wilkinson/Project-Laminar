@@ -1,5 +1,6 @@
 ﻿using Laminar_Core.NodeSystem.Nodes;
 using Laminar_Core.Scripting.Advanced.Editing.Connection;
+using Laminar_PluginFramework.NodeSystem.Nodes;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -11,10 +12,11 @@ namespace Laminar_Core.Scripting.Advanced.Editing
 {
     public class AdvancedScriptEditor : IAdvancedScriptEditor
     {
-        private bool _isLive;
-        private ObservableCollection<INodeContainer> _nodes = new();
-        private INodeConnectionFactory _connectionFactory;
+        private readonly List<INodeContainer> _triggerNodes = new();
+        private readonly ObservableCollection<INodeContainer> _nodes = new();
+        private readonly INodeConnectionFactory _connectionFactory;
         private readonly List<INodeConnection> _connections = new();
+        private bool _isLive;
 
         public AdvancedScriptEditor(INodeConnectionFactory connectionFactory)
         {
@@ -48,15 +50,26 @@ namespace Laminar_Core.Scripting.Advanced.Editing
             }
         }
 
+        public IEnumerable<INodeContainer> TriggerNodes => _triggerNodes;
+
         public ReadOnlyObservableCollection<INodeContainer> Nodes { get; }
 
         public void AddNode(INodeContainer newNode)
         {
+            if (newNode.CanGetCoreNodeOfType(out ITriggerNode _))
+            {
+                _triggerNodes.Add(newNode);
+            }
             _nodes.Add(newNode);
         }
 
         public void DeleteNode(INodeContainer node)
         {
+            if (node.CanGetCoreNodeOfType(out ITriggerNode _))
+            {
+                _triggerNodes.Remove(node);
+            }
+
             _nodes.Remove(node);
         }
 

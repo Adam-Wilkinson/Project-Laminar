@@ -1,5 +1,6 @@
 ﻿using Laminar_Core.NodeSystem.Nodes;
 using Laminar_Core.NodeSystem.NodeTreeSystem;
+using Laminar_Core.Scripting.Advanced.Compilation;
 using Laminar_Core.Scripting.Advanced.Editing;
 using System;
 using System.Collections.Generic;
@@ -13,6 +14,6 @@ namespace Laminar_Core.Scripting.Advanced.Instancing
     {
         public INodeContainer Inputs { get; }
 
-        public IAdvancedScript Script { get; }
+        public ICompiledScript CompiledScript { get; set; }
     }
 }

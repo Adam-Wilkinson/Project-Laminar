@@ -5,6 +5,7 @@ using Avalonia.Input;
 using Avalonia.Layout;
 using Laminar_Core;
 using Laminar_Core.NodeSystem.Nodes;
+using Laminar_Core.NodeSystem;
 using Laminar_Core.NodeSystem.NodeTreeSystem;
 using Laminar_Core.Scripting.Advanced;
 using Laminar_Core.Scripting.Advanced.Editing;
@@ -15,11 +16,10 @@ using System.Collections.Specialized;
 
 namespace Laminar_Avalonia.NodeDisplaySystem
 {
-    public class AdvancedScriptInputsDisplay
-        : TemplatedControl
+    public class AdvancedScriptInputsDisplay : TemplatedControl
     {
         public static readonly StyledProperty<ObservableCollection<NodeDisplay>> InputNodesProperty = AvaloniaProperty.Register<AdvancedScriptInputsDisplay, ObservableCollection<NodeDisplay>>(nameof(InputNodes));
-        public static readonly StyledProperty<Orientation> OrientationProperty = AvaloniaProperty.Register<AdvancedScriptInputsDisplay, Orientation>(nameof(Orientation));
+        public static readonly StyledProperty<Orientation> OrientationProperty = AvaloniaProperty.Register<AdvancedScriptInputsDisplay, Orientation>(nameof(Orientation), Orientation.Vertical);
         public static readonly StyledProperty<IEnumerable<TypeInfoRecord>> AllTypeInfoProperty = AvaloniaProperty.Register<AdvancedScriptInputsDisplay, IEnumerable<TypeInfoRecord>>(nameof(AllTypeInfo));
 
         private ToggleButton _toggleAddMenuButton;
@@ -96,7 +96,7 @@ namespace Laminar_Avalonia.NodeDisplaySystem
             };
 
             newNode.CoreNode.IsLive = true;
-            newNode.CoreNode.NameLabel.NeedsEditing = true;
+            newNode.CoreNode.CoreNode.GetNameLabel().NeedsEditing = true;
         }
 
         private void NodeTreeInputDisplay_DataContextChanged(object sender, EventArgs e)

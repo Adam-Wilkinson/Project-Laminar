@@ -60,7 +60,10 @@ namespace Laminar_Core
             RegisterImplementation<IPoint, Point>();
             RegisterImplementation<IFlow, Flow>();
             RegisterImplementation<IAdvancedScriptCompiler, AdvancedScriptCompiler>();
+            RegisterImplementation<IAdvancedScriptInstance, AdvancedScriptInstance>();
             RegisterImplementation<IAdvancedScriptInputs, AdvancedScriptInputs>();
+            RegisterImplementation<ICompiledScript, CompiledScript>();
+            RegisterImplementation<ICompiledScriptManager, CompiledScriptManager>();
             RegisterImplementation<IScriptCollection, ScriptCollection>();
             // RegisterImplementation<IAdvancedScriptInstance, AdvancedScriptInstance>();
             RegisterImplementationUnsafe(typeof(IObservableValue<>), typeof(ObservableValue<>));

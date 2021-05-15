@@ -14,6 +14,8 @@ namespace Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals
 
         object this[object key] { get; set; }
 
+        object DisplayedValueKey { get; set; }
+
         ILaminarValue DisplayedValue { get; }
 
         IEnumerable<KeyValuePair<object, ILaminarValue>> AllValues { get; }
@@ -21,6 +23,8 @@ namespace Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals
         void AddValue(object key, object value, bool isUserEditable);
 
         void AddValue<T>(object key, bool isUserEditable);
+
+        void AddValue(object key, ILaminarValue value);
 
         ILaminarValue GetValue(object key);
     }

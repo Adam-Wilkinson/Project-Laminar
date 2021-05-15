@@ -13,7 +13,8 @@
 		<DataTemplate DataType="{x:Type s:AdvancedScriptInstance}">
 			<Panel Margin="7">
 				<ToggleSwitch IsChecked="{Binding IsActive.Value, Mode=TwoWay}" 
-							  HorizontalAlignment="Left" 
+							  HorizontalAlignment="Left"
+							  VerticalAlignment="Top"
 							  OnContent="Active"
 							  Margin="15,6,10,6"
 							  OffContent="Inactive"/>
@@ -56,8 +57,8 @@
 							<Setter Property="Margin" Value="3"/>
 						</Style>
 					</StackPanel.Styles>
-					<Button Command="{Binding $parent[w:MainWindow].OpenScriptEditor}"
-							CommandParameter="{Binding Script}">Edit</Button>
+					<Button Command="{Binding $parent[w:MainWindow].OpenEditorOfInstance}"
+							CommandParameter="{Binding}">Edit</Button>
 					<Button Command="{Binding $parent[w:MainWindow].DeleteScript}"
 							CommandParameter="{Binding}">Delete</Button>
 				</StackPanel>

@@ -32,6 +32,11 @@ namespace Laminar_Avalonia.Views
             Resources["HeaderColour"] = new SolidColorBrush(new Color(255, 19, 19, 35));
         }
 
+        public void OpenEditorOfInstance(IAdvancedScriptInstance scriptInstance)
+        {
+            OpenScriptEditor(scriptInstance.CompiledScript.OriginalScript);
+        }
+
         public void OpenScriptEditor(IAdvancedScript script)
         {
             (DataContext as MainWindowViewModel).ShowScriptEditor(script);
@@ -41,7 +46,7 @@ namespace Laminar_Avalonia.Views
         {
             if (DataContext is MainWindowViewModel mwvm && mwvm.MainControl is ScriptEditor scriptEditor && scriptEditor.DataContext is IAdvancedScript openNodeTree)
             {
-                openNodeTree.Editor.IsLive = false;
+                openNodeTree.IsBeingEdited = false;
                 if (_needsScriptInstance)
                 {
                     AddScriptInstance(openNodeTree);
