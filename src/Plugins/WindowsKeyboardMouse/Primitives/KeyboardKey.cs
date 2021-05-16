@@ -66,18 +66,9 @@ namespace WindowsKeyboardMouse.Primitives
 
         public bool IsPressed()
         {
-            Debug.WriteLine("Printing key states");
-            Debug.WriteLine(KeyIsDown(VirtualKey));
-            Debug.WriteLine(HookKey.HasFlag(Keys.Shift));
-            Debug.WriteLine(KeyIsDown((int)Keys.LShiftKey) | KeyIsDown((int)Keys.RShiftKey));
-            Debug.WriteLine(HookKey.HasFlag(Keys.Control));
-            Debug.WriteLine(KeyIsDown((int)Keys.LControlKey) | KeyIsDown((int)Keys.RControlKey));
-            Debug.WriteLine(HookKey.HasFlag(Keys.Alt));
-            Debug.WriteLine(KeyIsDown((int)Keys.LMenu) | KeyIsDown((int)Keys.RMenu));
-            Debug.WriteLine("");
             return KeyIsDown(VirtualKey) &&
                 (HookKey.HasFlag(Keys.Shift) == (KeyIsDown((int)Keys.LShiftKey) | KeyIsDown((int)Keys.RShiftKey))) &&
-                (HookKey.HasFlag(Keys.Control) == (KeyIsDown((int)Keys.LControlKey) | KeyIsDown((int)Keys.RControlKey))) && 
+                (HookKey.HasFlag(Keys.Control) == (KeyIsDown((int)Keys.LControlKey) | KeyIsDown((int)Keys.RControlKey))) &&
                 (HookKey.HasFlag(Keys.Alt) == (KeyIsDown((int)Keys.LMenu) | KeyIsDown((int)Keys.RMenu)));
         }
 
