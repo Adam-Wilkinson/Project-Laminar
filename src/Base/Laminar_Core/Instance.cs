@@ -61,6 +61,11 @@ namespace Laminar_Core
                 return info;
             }
 
+            if (type.IsEnum)
+            {
+                return new TypeInfoRecord(type, default, "#000000", "StringDisplay", "EnumDisplay", null, false);
+            }
+
             throw new NotSupportedException($"The type {type} is not registered");
         }
 

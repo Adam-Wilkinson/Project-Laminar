@@ -18,7 +18,13 @@ namespace Laminar_Core.NodeSystem
         public void AddNodeToCatagory<TNode>(string catagoryName, string subCatagoryName = null)
             where TNode : INode, new()
         {
-            LoadedNodes.PlaceNode(new string[] { catagoryName, subCatagoryName }, _nodeFactory.Get<TNode>());
+            TNode newNode = new();
+            if (newNode is IFunctionNode functionNode)
+            {
+                // functionNode.Evaluate();
+            }
+            INodeContainer container = _nodeFactory.Get(newNode);
+            LoadedNodes.PlaceNode(new string[] { catagoryName, subCatagoryName }, container);
         }
 
         public class NodeCatagories

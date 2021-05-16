@@ -22,7 +22,7 @@ namespace Laminar_Core.Scripting.Advanced.Compilation
 
             while (root.OutputConnector.ExclusiveConnection?.InputConnector is IConnector nextNodeFlowInput)
             {
-                nodesInChain.Add(new(nextNodeFlowInput.ConnectorNode, compilerInstance));
+                nodesInChain.Add(CompiledNodeWrapper.Get(nextNodeFlowInput.ConnectorNode, compilerInstance));
                 root = nextNodeFlowInput.ConnectorNode.Name;
             }
         }

@@ -14,8 +14,8 @@ namespace WindowsPluginBase.Nodes
 {
     public class SetWindowPos : IActionNode
     {
-        private readonly INodeField _windowField = Constructor.NodeField("Window").WithInput<WindowStub>();
-        private readonly INodeField _position = Constructor.NodeField("Position").WithInput<WindowLayout>();
+        private readonly INodeField _windowField = Constructor.NodeField("Window").WithInput<Window.Window>();
+        private readonly INodeField _position = Constructor.NodeField("Position").WithInput<Rectangle>();
 
         public IEnumerable<INodeComponent> Fields
         {
@@ -30,6 +30,7 @@ namespace WindowsPluginBase.Nodes
 
         public void Evaluate()
         {
+            _windowField.GetInput<Window.Window>().Location = _position.GetInput<Rectangle>().Rect;
         }
     }
 }

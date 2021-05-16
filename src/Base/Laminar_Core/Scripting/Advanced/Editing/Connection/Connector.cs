@@ -28,7 +28,7 @@ namespace Laminar_Core.Scripting.Advanced.Editing.Connection
 
         public ConnectorType ConnectorType { get; set; }
 
-        public bool IsExclusiveConnection => Manager.ConnectorExclusiveCheck();
+        public bool IsExclusiveConnection => Manager is not null && Manager.ConnectorExclusiveCheck();
 
         public INodeConnection ExclusiveConnection => IsExclusiveConnection && _connections.Count > 0 ? _connections[0] : null;
 

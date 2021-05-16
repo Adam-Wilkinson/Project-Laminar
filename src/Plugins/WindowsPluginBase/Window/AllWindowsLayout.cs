@@ -31,18 +31,18 @@ namespace WindowsPluginBase.Window
         {
             foreach (var kvp in newLayout.WindowPositions)
             {
-                WindowHooks.SetWindowRect(kvp.Key, kvp.Value.Position, kvp.Value.WindowToPrecede);
+                WindowHooks.SetWindowLayout(kvp.Key, kvp.Value.Position, kvp.Value.WindowToPrecede);
             }
             WindowHooks.WindowArrangementManuallyChanged();
         }
+
+        [DllImport("USER32.DLL")]
+        private static extern bool IsWindowVisible(IntPtr hWnd);
 
         private delegate bool EnumWindowsProc(IntPtr hWnd, int lParam);
 
         [DllImport("USER32.DLL")]
         private static extern bool EnumWindows(EnumWindowsProc enumFunc, int lParam);
-
-        [DllImport("USER32.DLL")]
-        private static extern bool IsWindowVisible(IntPtr hWnd);
 
         public Dictionary<IntPtr, WindowLayout> WindowPositions { get; } = new();
     }

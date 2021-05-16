@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Permissions;
@@ -72,9 +73,13 @@ namespace WindowsPluginBase.Window
             return NativeMethods.GetWindow(hOriginalWindow, NativeMethods.GW_Command.GW_HWNDNEXT);
         }
 
-        public static bool SetWindowRect(IntPtr hWnd, RECT rect, IntPtr priorWindow)
+        public static bool SetWindowLayout(IntPtr hWnd, RECT rect, IntPtr priorWindow)
         {
             return NativeMethods.SetWindowPos(hWnd, priorWindow, rect.Left, rect.Top, rect.Right - rect.Left, rect.Bottom - rect.Top, NativeMethods.SWP_Flags.SWP_ASYNCWINDOWPOS | NativeMethods.SWP_Flags.SWP_NOACTIVE);
+        }
+        public static bool SetWindowRect(IntPtr hWnd, RECT rect)
+        {
+            return NativeMethods.SetWindowPos(hWnd, IntPtr.Zero, rect.Left, rect.Top, rect.Right - rect.Left, rect.Bottom - rect.Top, NativeMethods.SWP_Flags.SWP_ASYNCWINDOWPOS | NativeMethods.SWP_Flags.SWP_NOACTIVE | NativeMethods.SWP_Flags.SWP_NOOWNERZORDER | NativeMethods.SWP_Flags.SWP_NOZORDER);
         }
 
         public static string GetWindowTitle(IntPtr hWnd)
@@ -84,11 +89,80 @@ namespace WindowsPluginBase.Window
             NativeMethods.GetWindowText(hWnd, builder, titleLength + 1);
             return builder.ToString();
         }
+
+        public static Point CurrentCursorPosition()
+        {
+            NativeMethods.GetCursorPos(out POINT lpPoint);
+            return new Point(lpPoint);
+        }
+
+        public static Rectangle CurrentMonitorSize()
+        {
+            NativeMethods.GetCursorPos(out POINT lpPoint);
+            IntPtr lPrimaryScreen = NativeMethods.MonitorFromPoint(lpPoint, NativeMethods.MonitorOptions.MONITOR_DEFAULTTOPRIMARY);
+            MONITORINFO lPrimaryScreenInfo = new MONITORINFO();
+            lPrimaryScreenInfo.cbSize = (uint)Marshal.SizeOf(lPrimaryScreenInfo);
+            if (NativeMethods.GetMonitorInfo(lPrimaryScreen, lPrimaryScreenInfo) == false)
+            {
+                Debug.WriteLine(Marshal.GetLastWin32Error());
+                return new Rectangle();
+            }
+            return new Rectangle { Rect = lPrimaryScreenInfo.rcWork };
+            Debug.WriteLine(lPrimaryScreenInfo.rcWork.Top);
+            Debug.WriteLine(lPrimaryScreenInfo.rcWork.Left);
+            Debug.WriteLine(lPrimaryScreenInfo.rcWork.Bottom);
+            Debug.WriteLine(lPrimaryScreenInfo.rcWork.Right);
+            // IntPtr monitor = NativeMethods.MonitorFromPoint(lpPoint, NativeMethods.MonitorOptions.MONITOR_DEFAULTTONEAREST);
+
+            // MONITORINFO info = new();
+            // bool success = NativeMethods.GetMonitorInfo(monitor, ref info);
+            // if (!success)
+            // {
+            // // Debug.WriteLine(Marshal.GetLastWin32Error());
+            // }
+            return new Rectangle { Rect = MonitorEnumerator.AllMonitorInfo[0].rcWork };
+        }
+
+
+        private class MonitorEnumerator
+        {
+            public static readonly List<MONITORINFO> AllMonitorInfo = new();
+
+            static MonitorEnumerator()
+            {
+                EnumMonitors();
+            }
+
+            private static void EnumMonitors()
+            {
+                NativeMethods.EnumDisplayMonitors(IntPtr.Zero, IntPtr.Zero, MonitorEnumCallBack, IntPtr.Zero);
+            }
+
+            private static bool MonitorEnumCallBack(IntPtr hMonitor, IntPtr hdcMonitor, ref RECT lprcMonitor, IntPtr dwData)
+            {
+                Debug.WriteLine(hMonitor);
+                MONITORINFO mon_info = new MONITORINFO();
+                mon_info.cbSize = (uint)Marshal.SizeOf(mon_info);
+                NativeMethods.GetMonitorInfo(hMonitor, mon_info);
+                Debug.WriteLine(Marshal.GetLastWin32Error());
+                AllMonitorInfo.Add(mon_info);
+                return true;
+            }
+        }
+
     }
 
     public static class NativeMethods
     {
         public static long SWEH_CHILDID_SELF = 0;
+
+        public enum MonitorOptions : uint
+        {
+            MONITOR_DEFAULTTONULL = 0x00000000,
+            MONITOR_DEFAULTTOPRIMARY = 0x00000001,
+            MONITOR_DEFAULTTONEAREST = 0x00000002
+        }
+
 
         //SetWinEventHook() flags
         public enum SWEH_dwFlags : uint
@@ -284,5 +358,19 @@ namespace WindowsPluginBase.Window
 
         [DllImport("USER32.DLL")]
         internal static extern int GetWindowRect(IntPtr hWnd, out RECT rect);
+
+        [DllImport("User32.dll", SetLastError = true)]
+        internal static extern bool GetMonitorInfo(IntPtr hmonitor, MONITORINFO info);
+
+        [DllImport("User32.dll", ExactSpelling = true)]
+        internal static extern IntPtr MonitorFromPoint(POINT pt, MonitorOptions dwFlags);
+
+        [DllImport("user32.dll")]
+        internal static extern bool GetCursorPos(out POINT lpPoint);
+
+        [DllImport("user32.dll")]
+        internal static extern bool EnumDisplayMonitors(IntPtr hdc, IntPtr lprcClip, MonitorEnumProc lpfnEnum, IntPtr dwData);
+
+        internal delegate bool MonitorEnumProc(IntPtr hMonitor, IntPtr hdcMonitor, ref RECT lprcMonitor, IntPtr dwData);
     }
 }

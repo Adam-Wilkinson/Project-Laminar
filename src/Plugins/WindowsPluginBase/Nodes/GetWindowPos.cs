@@ -14,7 +14,7 @@ namespace WindowsPluginBase.Nodes
 {
     public class GetWindowPos : IFunctionNode
     {
-        private readonly INodeField _mainField = Constructor.NodeField("Window").WithInput<WindowStub>().WithOutput<WindowLayout>();
+        private readonly INodeField _mainField = Constructor.NodeField("Window").WithInput<Window.Window>().WithOutput<Rectangle>();
 
         public IEnumerable<INodeComponent> Fields
         {
@@ -28,6 +28,7 @@ namespace WindowsPluginBase.Nodes
 
         public void Evaluate()
         {
+            _mainField.GetOutput<Rectangle>().Rect = _mainField.GetInput<Window.Window>().Location;
         }
     }
 }

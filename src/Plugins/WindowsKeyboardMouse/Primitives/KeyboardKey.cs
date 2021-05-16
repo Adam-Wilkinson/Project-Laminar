@@ -30,22 +30,34 @@ namespace WindowsKeyboardMouse.Primitives
             HookKey = (Keys)virtualKey;
             StringBuilder builder = new();
 
-            if (modifiers.HasFlag(KeyModifiers.Ctrl) && (Keys)virtualKey is not Keys.LControlKey or Keys.RControlKey)
+            if (modifiers.HasFlag(KeyModifiers.Ctrl))
             {
-                builder.Append("Ctrl + ");
                 HookKey |= Keys.Control;
+
+                if ((Keys)virtualKey is not Keys.LControlKey or Keys.RControlKey)
+                {
+                    builder.Append("Ctrl + ");
+                }
             }
 
-            if (modifiers.HasFlag(KeyModifiers.Shift) && (Keys)virtualKey is not Keys.LShiftKey or Keys.RShiftKey)
+            if (modifiers.HasFlag(KeyModifiers.Shift))
             {
-                builder.Append("Shift + ");
                 HookKey |= Keys.Shift;
+
+                if ((Keys) virtualKey is not Keys.LShiftKey or Keys.RShiftKey)
+                {
+                    builder.Append("Shift + ");
+                }
             }
 
-            if (modifiers.HasFlag(KeyModifiers.Alt) && (Keys)virtualKey is not Keys.LMenu or Keys.RMenu)
+            if (modifiers.HasFlag(KeyModifiers.Alt))
             {
-                builder.Append("Alt + ");
                 HookKey |= Keys.Alt;
+
+                if ((Keys)virtualKey is not Keys.LMenu or Keys.RMenu)
+                {
+                    builder.Append("Alt + ");
+                }
             }
 
             if (UserfriendlyNames.TryGetValue(virtualKey, out string friendlyName))

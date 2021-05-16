@@ -94,16 +94,21 @@
             }
 
             base.CloneTo(component);
-            componentCollection.CopyComponentsFrom(this);
+            ProtectedCloneTo(componentCollection);
         }
 
-        public void CopyComponentsFrom(INodeComponentCollection componentCollection)
+        public virtual void CopyComponentsFrom(INodeComponentCollection componentCollection)
         {
             ProtectedReset();
             foreach (INodeComponent component in componentCollection)
             {
                 ProtectedAdd(component.Clone());
             }
+        }
+
+        protected virtual void ProtectedCloneTo(INodeComponentCollection collection)
+        {
+            collection.CopyComponentsFrom(this);
         }
 
         protected virtual void ProtectedAdd(INodeComponent newComponent)

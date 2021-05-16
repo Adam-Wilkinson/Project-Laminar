@@ -18,16 +18,35 @@ namespace Laminar_Core.Scripting.Advanced.Compilation
         private readonly List<CompiledNodeWrapper> _dependencies = new();
         public readonly List<CompiledNodeChain> flowOutChains = new();
 
-        public CompiledNodeWrapper(INodeContainer container, IAdvancedScriptCompiler compilerInstance, int indexOfRequestedOutput = -1)
+        public static CompiledNodeWrapper Get(INodeContainer container, IAdvancedScriptCompiler compilerInstance)
         {
-            _compilerInstance = compilerInstance;
-            CoreNode = container.GetCoreNodeInstance();
-            DependencyValue = SetupDependencies(container, CoreNode, indexOfRequestedOutput);
+            if (compilerInstance.AllNodes.TryGetValue(container, out CompiledNodeWrapper wrapper))
+            {
+                return wrapper;
+            }
+
+            CompiledNodeWrapper newWrapper = new(container, compilerInstance);
+            compilerInstance.AllNodes.Add(container, newWrapper);
+            return newWrapper;
         }
 
-        public INode CoreNode { get; }
+        private CompiledNodeWrapper(INodeContainer container, IAdvancedScriptCompiler compilerInstance)
+        {
+            _compilerInstance = compilerInstance;
+            if (container.CoreNode is InputNode inputNode && _compilerInstance.Inputs.TryGetValue(inputNode, out ILaminarValue value))
+            {
+                Outputs.Add(value);
+            }
+            else
+            {
+                CoreNode = container.GetCoreNodeInstance();
+                SetupDependencies(container, CoreNode);
+            }
+        }
 
-        public ILaminarValue DependencyValue { get; }
+        public List<ILaminarValue> Outputs { get; } = new();
+
+        public INode CoreNode { get; }
 
         public void Activate()
         {
@@ -50,29 +69,21 @@ namespace Laminar_Core.Scripting.Advanced.Compilation
             }
         }
 
-        private ILaminarValue SetupDependencies(INodeContainer rootNode, INode myNodeClone, int indexOfRequestedOutput = -1)
+        private void SetupDependencies(INodeContainer rootNode, INode myNodeClone)
         {
-            if (rootNode.CoreNode is InputNode inputNode && _compilerInstance.Inputs.TryGetValue(inputNode, out ILaminarValue value))
-            {
-                return value;
-            }
-
-            ILaminarValue output = null;
-            int index = 0;
             foreach ((var originalContainer, var clonedComponent) in ((IEnumerable<IVisualNodeComponentContainer>)rootNode.Fields).Zip(myNodeClone.GetVisualComponents()))
             {
-                if (clonedComponent is INodeField clonedField && originalContainer.InputConnector.ExclusiveConnection is INodeConnection connection && !clonedField.FlowInput.Exists)
+                if (clonedComponent is INodeField clonedField)
                 {
-                    INodeContainer connectedNodeContainer = connection.OutputConnector.ConnectorNode;
-                    int indexOfConnectedField = connection.OutputConnector.ParentComponentContainer.Child.IndexInParent;
-                    CompiledNodeWrapper dependency = new(connectedNodeContainer, _compilerInstance, indexOfConnectedField);
-                    _dependencies.Add(dependency);
-
-                    clonedField.GetValue(INodeField.InputKey).SetDependency(dependency.DependencyValue);
-
-                    if (index == indexOfRequestedOutput)
+                    Outputs.Add(clonedField.GetValue(INodeField.OutputKey));
+                    if (originalContainer.InputConnector.ExclusiveConnection is INodeConnection connection && !clonedField.FlowInput.Exists)
                     {
-                        output = clonedField.GetValue(INodeField.OutputKey);
+                        INodeContainer connectedNodeContainer = connection.OutputConnector.ConnectorNode;
+                        int indexOfConnectedField = connection.OutputConnector.ParentComponentContainer.Child.IndexInParent;
+                        CompiledNodeWrapper dependency = Get(connectedNodeContainer, _compilerInstance);
+                        _dependencies.Add(dependency);
+
+                        clonedField.GetValue(INodeField.InputKey).SetDependency(dependency.Outputs[indexOfConnectedField]);
                     }
                 }
 
@@ -80,10 +91,7 @@ namespace Laminar_Core.Scripting.Advanced.Compilation
                 {
                     flowOutChains.Add(new(originalContainer, clonedComponent.FlowOutput, _compilerInstance));
                 }
-                index++;
             }
-
-            return output;
         }
     }
 }

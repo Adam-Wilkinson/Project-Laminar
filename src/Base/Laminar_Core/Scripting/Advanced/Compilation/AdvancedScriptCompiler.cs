@@ -26,6 +26,8 @@ namespace Laminar_Core.Scripting.Advanced.Compilation
 
         public Dictionary<InputNode, ILaminarValue> Inputs { get; private set; }
 
+        public Dictionary<INodeContainer, CompiledNodeWrapper> AllNodes { get; } = new();
+
         public ICompiledScript Compile(IAdvancedScript script)
         {
             ICompiledScript compiledScript = _factory.CreateInstance<ICompiledScript>();
@@ -44,7 +46,7 @@ namespace Laminar_Core.Scripting.Advanced.Compilation
             {
                 if (triggerNode.Name.OutputConnector.ExclusiveConnection is not null)
                 {
-                    CompiledNodeWrapper wrappedTrigger = new(triggerNode, this);
+                    CompiledNodeWrapper wrappedTrigger = CompiledNodeWrapper.Get(triggerNode, this);
                     compiledScript.AllTriggerNodes.Add(wrappedTrigger);
                     wrappedTrigger.flowOutChains.Add(new CompiledNodeChain(triggerNode.Name, wrappedTrigger.CoreNode.GetNameLabel().FlowOutput, this));
                 }

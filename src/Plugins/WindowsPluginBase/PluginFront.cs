@@ -5,8 +5,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using WindowsPluginBase.Nodes;
+using WindowsPluginBase.Window;
 
-namespace WindowsPluginBase.Window
+namespace WindowsPluginBase
 {
     public class PluginFront : IPlugin
     {
@@ -19,12 +20,14 @@ namespace WindowsPluginBase.Window
         public void Register(IPluginHost host)
         {
             host.RegisterType<AllWindowsLayout>("#00FF00", "Window Layout", new AllWindowsLayout(), null, null, false);
-            host.RegisterType<WindowStub>("#7D3E11", "Window", null, null, null, false);
-            host.RegisterType<WindowLayout>("#00b9bc", "Window Position", null, null, null, false);
+            host.RegisterType<Window.Window>("#00b38c", "Window", new Window.Window { hWnd = IntPtr.Zero }, null, null, false);
+            host.RegisterType<Rectangle>("#0091bf", "Rectangle", new Rectangle(), null, null, false);
+            host.RegisterType<Point>("#176931", "Point", null, null, null, true);
 
-
-            host.AddNodeToMenu<WindowLayoutChanged>("Triggers");
-            host.AddNodeToMenu<SetWindowLayout, SetWindowPos, GetWindowPos>("Window Management");
+            host.AddNodeToMenu<WindowLayoutChanged, WindowMoved>("Triggers");
+            host.AddNodeToMenu<SetWindowLayout, SetWindowPos, GetWindowPos, CurrentMonitorRect>("Window Management");
+            host.AddNodeToMenu<CursorPosition>("Mouse");
+            host.AddNodeToMenu<CustomRectangleNode>("Shapes");
             // host.AddNodeToMenu<NotifyUser>("Interactivity");
         }
 
@@ -32,6 +35,4 @@ namespace WindowsPluginBase.Window
         {
         }
     }
-
-    public class WindowStub { }
 }

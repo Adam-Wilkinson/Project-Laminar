@@ -1,6 +1,7 @@
 ﻿namespace Laminar_Core.NodeSystem.NodeComponents.Collections
 {
     using System;
+    using System.Collections.Generic;
     using Laminar_PluginFramework.NodeSystem.NodeComponents;
     using Laminar_PluginFramework.NodeSystem.NodeComponents.Collections;
     using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
@@ -35,6 +36,16 @@
             _originalClone.RemoveAction = (component) => ProtectedRemove(component);
 
             ProtectedReset();
+        }
+
+        protected override void ProtectedCloneTo(INodeComponentCollection componentCollection)
+        {
+            if (componentCollection is not INodeComponentAutoCloner cloner)
+            {
+                throw new ArgumentException("NodeComponentAutoCloner can only copy to other NodeComponentAutoCloners");
+            }
+
+            cloner.ResetWith(_originalClone, _minimumFieldCount, _nameRule);
         }
 
         protected override void ProtectedReset()
