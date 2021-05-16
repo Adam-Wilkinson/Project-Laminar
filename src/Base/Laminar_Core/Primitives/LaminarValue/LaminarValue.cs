@@ -6,15 +6,14 @@
 
     public class LaminarValue : DependentValue<object>, ILaminarValue
     {
-        private readonly ITypeDefinitionProvider _typeDefinitionProvider;
         private readonly IObjectFactory _factory;
         private ITypeDefinition _currentTypeDefinition;
+        private ITypeDefinitionProvider _typeDefinitionProvider;
         private string _name;
 
         public LaminarValue(ITypeDefinitionProvider provider, IObservableValue<bool> isUserEditable, IObservableValue<bool> hasDependency, IObjectFactory factory) : base(hasDependency)
         {
-            _typeDefinitionProvider = provider;
-            TypeDefinition = _typeDefinitionProvider.DefaultDefinition;
+            SetTypeDefinitionProvider(provider);
             IsUserEditable = isUserEditable;
             _factory = factory;
             hasDependency.OnChange += (b) =>
@@ -60,7 +59,7 @@
             {
                 _currentTypeDefinition ??= _typeDefinitionProvider.TryGetDefinitionFor(value, out ITypeDefinition typeDefinition) ? typeDefinition : null;
 
-                if (_currentTypeDefinition.TryConstrainValue(value, out object outputVal))
+                if (_currentTypeDefinition is not null && _currentTypeDefinition.TryConstrainValue(value, out object outputVal))
                 {
                     base.Value = outputVal;
                 }
@@ -85,13 +84,28 @@
 
         public override ILaminarValue Clone()
         {
-            ILaminarValue output = new LaminarValue(_typeDefinitionProvider, _factory.GetImplementation<IObservableValue<bool>>(), _factory.GetImplementation<IObservableValue<bool>>(), _factory)
-            {
-                Value = Value,
-                Name = Name,
-            };
-            output.IsUserEditable.Value = IsUserEditable.Value;
+            ILaminarValue output = new LaminarValue(_typeDefinitionProvider, _factory.GetImplementation<IObservableValue<bool>>(), _factory.GetImplementation<IObservableValue<bool>>(), _factory);
+            CloneTo(output);
             return output;
+        }
+
+        public void SetTypeDefinitionProvider(ITypeDefinitionProvider provider)
+        {
+            if (provider == _typeDefinitionProvider)
+            {
+                return;
+            }
+
+            _typeDefinitionProvider = provider;
+            TypeDefinition = _typeDefinitionProvider.DefaultDefinition;
+        }
+
+        public void CloneTo(ILaminarValue value)
+        {
+            value.SetTypeDefinitionProvider(_typeDefinitionProvider);
+            value.Value = Value;
+            value.Name = Name;
+            value.IsUserEditable.Value = IsUserEditable.Value;
         }
     }
 }

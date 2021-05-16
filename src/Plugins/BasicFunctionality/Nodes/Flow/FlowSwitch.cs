@@ -15,8 +15,6 @@
 
     public class FlowSwitch : IFlowNode
     {
-        private readonly INodeLabel flowInput = Constructor.NodeLabel("Flow Input").WithFlowInput();
-
         private readonly INodeField valueInput = Constructor.NodeField("Switch Value").WithInput(Constructor.TypeDefinitionManager());
 
         private readonly INodeLabel OutputsLabel = Constructor.NodeLabel("Possible Values");
@@ -26,8 +24,8 @@
         private readonly INodeComponentDictionary flowOutputs = Constructor.NodeComponentDictionary().WithElement(
                 typeof(bool),
                 Constructor.NodeComponentList(
-                    Constructor.NodeField("True").WithValue("Displayed", Constructor.ManualTypeDefinitionManager().WithAcceptedDefinition<bool>(true, "DefaultDisplay"), false).WithFlowOutput(),
-                    Constructor.NodeField("False").WithValue("Displayed", Constructor.ManualTypeDefinitionManager().WithAcceptedDefinition<bool>(false, "DefaultDisplay"), false).WithFlowOutput()));
+                    Constructor.NodeField("True").WithValue("Displayed", Constructor.TypeDefinition(true, "DefaultDisplay"), false).WithFlowOutput(),
+                    Constructor.NodeField("False").WithValue("Displayed", Constructor.TypeDefinition(false, "DefaultDisplay"), false).WithFlowOutput()));
 
         public FlowSwitch()
         {
@@ -40,7 +38,6 @@
         {
             get
             {
-                yield return flowInput;
                 yield return valueInput;
                 yield return Constructor.Separator();
                 yield return OutputsLabel;

@@ -34,7 +34,7 @@ namespace WindowsKeyboardMouse
 
             host.AddNodeToMenu<MouseButtonTrigger>("Mouse", "Triggers");
 
-            host.AddNodeToMenu<KeyPresser, TextTyper>("Keyboard");
+            host.AddNodeToMenu<KeyPresser, TextTyper, IsKeyDown>("Keyboard");
         }
     }
 }

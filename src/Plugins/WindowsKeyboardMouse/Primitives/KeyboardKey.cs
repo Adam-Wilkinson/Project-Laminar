@@ -1,7 +1,9 @@
 ﻿using Avalonia.Input;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using WindowsHook;
@@ -24,6 +26,7 @@ namespace WindowsKeyboardMouse.Primitives
 
         public KeyboardKey(int virtualKey, KeyModifiers modifiers = KeyModifiers.None)
         {
+            VirtualKey = virtualKey; 
             HookKey = (Keys)virtualKey;
             StringBuilder builder = new();
 
@@ -57,7 +60,26 @@ namespace WindowsKeyboardMouse.Primitives
             _asString = builder.ToString();
         }
 
+        private int VirtualKey { get; }
+
         public Keys HookKey { get; }
+
+        public bool IsPressed()
+        {
+            Debug.WriteLine("Printing key states");
+            Debug.WriteLine(KeyIsDown(VirtualKey));
+            Debug.WriteLine(HookKey.HasFlag(Keys.Shift));
+            Debug.WriteLine(KeyIsDown((int)Keys.LShiftKey) | KeyIsDown((int)Keys.RShiftKey));
+            Debug.WriteLine(HookKey.HasFlag(Keys.Control));
+            Debug.WriteLine(KeyIsDown((int)Keys.LControlKey) | KeyIsDown((int)Keys.RControlKey));
+            Debug.WriteLine(HookKey.HasFlag(Keys.Alt));
+            Debug.WriteLine(KeyIsDown((int)Keys.LMenu) | KeyIsDown((int)Keys.RMenu));
+            Debug.WriteLine("");
+            return KeyIsDown(VirtualKey) &&
+                (HookKey.HasFlag(Keys.Shift) == (KeyIsDown((int)Keys.LShiftKey) | KeyIsDown((int)Keys.RShiftKey))) &&
+                (HookKey.HasFlag(Keys.Control) == (KeyIsDown((int)Keys.LControlKey) | KeyIsDown((int)Keys.RControlKey))) && 
+                (HookKey.HasFlag(Keys.Alt) == (KeyIsDown((int)Keys.LMenu) | KeyIsDown((int)Keys.RMenu)));
+        }
 
         public override string ToString() => _asString;
 
@@ -69,6 +91,15 @@ namespace WindowsKeyboardMouse.Primitives
         public override int GetHashCode()
         {
             return HookKey.GetHashCode();
+        }
+
+        [DllImport("user32.dll")]
+        private static extern short GetKeyState(int vKey);
+
+        private bool KeyIsDown(int vk)
+        {
+            short keyState = GetKeyState(vk);
+            return (keyState & 0x8000) == 0x8000;
         }
     }
 }

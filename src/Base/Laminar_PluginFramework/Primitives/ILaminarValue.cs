@@ -14,6 +14,10 @@ namespace Laminar_PluginFramework.Primitives
 
         ITypeDefinition TypeDefinition { get; }
 
+        void SetTypeDefinitionProvider(ITypeDefinitionProvider provider);
+
+        public void CloneTo(ILaminarValue value);
+
         bool CanSetValue(object value);
     }
 }

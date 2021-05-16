@@ -13,6 +13,12 @@ namespace Laminar_Core.Primitives.LaminarValue.TypeDefinition
 
         public virtual bool TryGetDefinitionFor(object value, out ITypeDefinition typeDefinition)
         {
+            if (value is null)
+            {
+                typeDefinition = default;
+                return false;
+            }
+
             typeDefinition = new TypeDefinition(value);
             DefaultDefinition = typeDefinition;
             return true;

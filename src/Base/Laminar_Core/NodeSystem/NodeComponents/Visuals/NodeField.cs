@@ -99,7 +99,14 @@ namespace Laminar_Core.NodeSystem.NodeComponents.Visuals
             base.CloneTo(component);
             foreach (var kvp in _valueStore.AllValues)
             {
-                nodeField.AddValue(kvp.Key, (ILaminarValue)kvp.Value.Clone());
+                if (nodeField.GetValue(kvp.Key) is ILaminarValue existingValue)
+                {
+                    kvp.Value.CloneTo(existingValue);
+                }
+                else
+                {
+                    nodeField.AddValue(kvp.Key, (ILaminarValue)kvp.Value.Clone());
+                }
             }
             nodeField.DisplayedValueKey = DisplayedValueKey;
         }
