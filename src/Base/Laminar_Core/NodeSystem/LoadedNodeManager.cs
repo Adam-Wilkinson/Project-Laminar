@@ -19,10 +19,6 @@ namespace Laminar_Core.NodeSystem
             where TNode : INode, new()
         {
             TNode newNode = new();
-            if (newNode is IFunctionNode functionNode)
-            {
-                // functionNode.Evaluate();
-            }
             INodeContainer container = _nodeFactory.Get(newNode);
             LoadedNodes.PlaceNode(new string[] { catagoryName, subCatagoryName }, container);
         }

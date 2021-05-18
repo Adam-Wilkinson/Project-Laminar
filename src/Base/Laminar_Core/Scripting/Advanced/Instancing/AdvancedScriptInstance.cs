@@ -14,7 +14,7 @@ namespace Laminar_Core.Scripting.Advanced.Instancing
         {
             IsActive.Value = false;
             _nodeFactory = nodeFactory;
-            ActiveChanged(IsActive.Value);
+            ActiveChanged(null, IsActive.Value);
             IsActive.OnChange += ActiveChanged;
         }
 
@@ -40,7 +40,7 @@ namespace Laminar_Core.Scripting.Advanced.Instancing
         }
 
 
-        private void ActiveChanged(bool isActive)
+        private void ActiveChanged(object sender, bool isActive)
         {
             if (_compiledScript is not null)
             {

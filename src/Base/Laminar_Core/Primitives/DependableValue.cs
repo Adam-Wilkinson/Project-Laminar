@@ -44,7 +44,7 @@ namespace Laminar_Core.Primitives
             _dependency = dep;
             dep.OnChange += OnDependencyChanged;
             HasDependency.Value = true;
-            OnDependencyChanged(dep.Value);
+            OnDependencyChanged(dep, dep.Value);
         }
 
         public void RemoveDependency<TDep>()
@@ -55,7 +55,7 @@ namespace Laminar_Core.Primitives
             HasDependency.Value = false;
         }
 
-        private void OnDependencyChanged<TDep>(TDep newValue)
+        private void OnDependencyChanged<TDep>(object sender, TDep newValue)
         {
             _valueFromDependency = ((Func<TDep, T>)_dependencyFunction)(newValue);
             ValueChanged();

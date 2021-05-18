@@ -100,7 +100,7 @@ namespace WindowsPluginBase.Window
         {
             NativeMethods.GetCursorPos(out POINT lpPoint);
             IntPtr lPrimaryScreen = NativeMethods.MonitorFromPoint(lpPoint, NativeMethods.MonitorOptions.MONITOR_DEFAULTTOPRIMARY);
-            MONITORINFO lPrimaryScreenInfo = new MONITORINFO();
+            MONITORINFO lPrimaryScreenInfo = new();
             lPrimaryScreenInfo.cbSize = (uint)Marshal.SizeOf(lPrimaryScreenInfo);
             if (NativeMethods.GetMonitorInfo(lPrimaryScreen, lPrimaryScreenInfo) == false)
             {
@@ -108,19 +108,6 @@ namespace WindowsPluginBase.Window
                 return new Rectangle();
             }
             return new Rectangle { Rect = lPrimaryScreenInfo.rcWork };
-            Debug.WriteLine(lPrimaryScreenInfo.rcWork.Top);
-            Debug.WriteLine(lPrimaryScreenInfo.rcWork.Left);
-            Debug.WriteLine(lPrimaryScreenInfo.rcWork.Bottom);
-            Debug.WriteLine(lPrimaryScreenInfo.rcWork.Right);
-            // IntPtr monitor = NativeMethods.MonitorFromPoint(lpPoint, NativeMethods.MonitorOptions.MONITOR_DEFAULTTONEAREST);
-
-            // MONITORINFO info = new();
-            // bool success = NativeMethods.GetMonitorInfo(monitor, ref info);
-            // if (!success)
-            // {
-            // // Debug.WriteLine(Marshal.GetLastWin32Error());
-            // }
-            return new Rectangle { Rect = MonitorEnumerator.AllMonitorInfo[0].rcWork };
         }
 
 
@@ -141,7 +128,7 @@ namespace WindowsPluginBase.Window
             private static bool MonitorEnumCallBack(IntPtr hMonitor, IntPtr hdcMonitor, ref RECT lprcMonitor, IntPtr dwData)
             {
                 Debug.WriteLine(hMonitor);
-                MONITORINFO mon_info = new MONITORINFO();
+                MONITORINFO mon_info = new();
                 mon_info.cbSize = (uint)Marshal.SizeOf(mon_info);
                 NativeMethods.GetMonitorInfo(hMonitor, mon_info);
                 Debug.WriteLine(Marshal.GetLastWin32Error());
@@ -154,7 +141,7 @@ namespace WindowsPluginBase.Window
 
     public static class NativeMethods
     {
-        public static long SWEH_CHILDID_SELF = 0;
+        public const long SWEH_CHILDID_SELF = 0;
 
         public enum MonitorOptions : uint
         {
@@ -318,7 +305,7 @@ namespace WindowsPluginBase.Window
             DWMWA_ACCENTPOLICY = 19
         }
 
-        public static SWEH_dwFlags WinEventHookInternalFlags =
+        public const SWEH_dwFlags WinEventHookInternalFlags =
             SWEH_dwFlags.WINEVENT_OUTOFCONTEXT |
             SWEH_dwFlags.WINEVENT_SKIPOWNPROCESS |
             SWEH_dwFlags.WINEVENT_SKIPOWNTHREAD;
@@ -350,7 +337,7 @@ namespace WindowsPluginBase.Window
         [DllImport("user32.dll")]
         internal static extern IntPtr GetWindow(IntPtr hWnd, GW_Command uCmd);
 
-        [DllImport("USER32.DLL")]
+        [DllImport("USER32.DLL", CharSet = CharSet.Unicode)]
         internal static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
 
         [DllImport("USER32.DLL")]

@@ -8,6 +8,8 @@ namespace Laminar_Inbuilt.UserControls
 {
     public class EnumEditor : UserControl
     {
+        private ComboBox _combobox;
+
         public EnumEditor()
         {
             InitializeComponent();
@@ -17,11 +19,13 @@ namespace Laminar_Inbuilt.UserControls
         {
             AvaloniaXamlLoader.Load(this);
             DataContextChanged += EnumEditor_DataContextChanged;
+            _combobox = this.FindControl<ComboBox>("CBox");
+            _combobox.PointerPressed += (o, e) => { e.Handled = true; };
         }
 
         private void EnumEditor_DataContextChanged(object sender, System.EventArgs e)
         {
-            this.FindControl<ComboBox>("CBox").Items = (DataContext as ILaminarValue)?.TypeDefinition.ValueType.GetEnumValues();
+            _combobox.Items = (DataContext as ILaminarValue)?.TypeDefinition.ValueType.GetEnumValues();
         }
     }
 }

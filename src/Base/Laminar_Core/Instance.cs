@@ -12,6 +12,7 @@ using System.Collections.ObjectModel;
 using System.Runtime.CompilerServices;
 using Laminar_Core.NodeSystem.Nodes;
 using Laminar_Core.Scripting.Advanced;
+using System.Diagnostics;
 
 namespace Laminar_Core
 {
@@ -63,7 +64,7 @@ namespace Laminar_Core
 
             if (type.IsEnum)
             {
-                return new TypeInfoRecord(type, default, "#000000", "StringDisplay", "EnumDisplay", null, false);
+                return new TypeInfoRecord(type, default, "#000000", "StringDisplay", "EnumEditor", null, false);
             }
 
             throw new NotSupportedException($"The type {type} is not registered");

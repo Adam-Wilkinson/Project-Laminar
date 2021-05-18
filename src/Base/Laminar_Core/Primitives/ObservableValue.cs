@@ -10,6 +10,7 @@ namespace Laminar_Core.Primitives
         private T _value;
 
         public event PropertyChangedEventHandler PropertyChanged;
+        public event EventHandler<T> OnChange;
 
         public virtual T Value
         {
@@ -23,8 +24,6 @@ namespace Laminar_Core.Primitives
                 }
             }
         }
-
-        public Action<T> OnChange { get; set; }
 
         public virtual IObservableValue<T> Clone() => new ObservableValue<T>() { Value = Value };
 
@@ -41,7 +40,7 @@ namespace Laminar_Core.Primitives
         protected void ValueChanged()
         {
             NotifyPropertyChanged(nameof(Value));
-            OnChange?.Invoke(Value);
+            OnChange?.Invoke(this, Value);
         }
 
     }

@@ -27,8 +27,8 @@ namespace WindowsPluginBase.Nodes
         public void Evaluate()
         {
             Point currentPos = WindowHooks.CurrentCursorPosition();
-            _XField.SetOutput(currentPos.X);
-            _YField.SetOutput(currentPos.Y);
+            _XField.SetOutput(Convert.ToDouble(currentPos.X));
+            _YField.SetOutput(Convert.ToDouble(currentPos.Y));
         }
     }
 }

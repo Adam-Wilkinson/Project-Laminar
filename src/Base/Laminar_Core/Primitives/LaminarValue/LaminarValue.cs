@@ -16,11 +16,11 @@
             SetTypeDefinitionProvider(provider);
             IsUserEditable = isUserEditable;
             _factory = factory;
-            hasDependency.OnChange += (b) =>
+            hasDependency.OnChange += (o, b) =>
             {
                 IsUserEditable.Value = !b;
             };
-            OnChange += (val) => NotifyPropertyChanged(nameof(TrueValue));
+            OnChange += (o, val) => NotifyPropertyChanged(nameof(TrueValue));
         }
 
         public event EventHandler<ITypeDefinition> TypeDefinitionChanged;

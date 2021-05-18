@@ -19,8 +19,7 @@ namespace Laminar_Core.Scripting.Advanced.Editing.Connection.ConnectorManagers
         private IVisualNodeComponent _parentComponent;
         private ConnectorType _connectorType;
         private bool _isActivating;
-        private object _inputConnectorOldValue;
-        private ILaminarValue _inputLaminarValue;
+        private object _oldValue;
 
         public ValueConnectionManager(Instance instance, IObservableValue<string> hexColour)
         {
@@ -99,23 +98,36 @@ namespace Laminar_Core.Scripting.Advanced.Editing.Connection.ConnectorManagers
 
         public void ConnectionAddedAction(IConnectorManager manager)
         {
-            _pairedManagers.Add(manager as ValueConnectionManager);
-            if (_connectorType is ConnectorType.Output && manager is ValueConnectionManager valConnection)
+            if (manager is not ValueConnectionManager valConnection)
             {
-                _inputLaminarValue = valConnection.LaminarValue;
-                _inputConnectorOldValue = _inputLaminarValue.Value;
-                _inputLaminarValue.Value = LaminarValue.Value;
-                _inputLaminarValue.IsUserEditable.Value = false;
+                throw new ArgumentException("ValueConnectionManager can only connect to other ValueConnectionManagers");
+            }
+
+            _pairedManagers.Add(valConnection);
+            if (_connectorType is ConnectorType.Output)
+            {
+                Activate(null, PropagationDirection.Forwards);
+            }
+
+            if (_connectorType is ConnectorType.Input)
+            {
+                _oldValue = LaminarValue.Value;
+                LaminarValue.IsUserEditable.Value = false;
             }
         }
 
         public void ConnectionRemovedAction(IConnectorManager manager)
         {
-            _pairedManagers.Remove(manager as ValueConnectionManager);
-            if (_connectorType is ConnectorType.Output && manager is ValueConnectionManager valConnection)
+            if (manager is not ValueConnectionManager valConnection)
             {
-                valConnection.LaminarValue.IsUserEditable.Value = true;
-                valConnection.LaminarValue.Value = _inputConnectorOldValue;
+                throw new ArgumentException("ValueConnectionManager can only connect to other ValueConnectionManagers");
+            }
+
+            _pairedManagers.Remove(valConnection);
+            if (_connectorType is ConnectorType.Input)
+            {
+                LaminarValue.IsUserEditable.Value = true;
+                LaminarValue.Value = _oldValue;
             }
         }
 
@@ -157,7 +169,8 @@ namespace Laminar_Core.Scripting.Advanced.Editing.Connection.ConnectorManagers
                 {
                     foreach (ValueConnectionManager manager in _pairedManagers)
                     {
-                        INodeContainer.NodeBases[manager._parentComponent.ParentNode].SetFieldValue(instance, manager._parentComponent as INodeField, _inputLaminarValue, parentNode.GetFieldValue(instance, _parentComponent as INodeField, LaminarValue));
+                        (manager._parentComponent as INodeField).SetInput((_parentComponent as INodeField).GetOutput());
+                        // INodeContainer.NodeBases[manager._parentComponent.ParentNode].SetFieldValue(instance, manager._parentComponent as INodeField, _inputLaminarValue, parentNode.GetFieldValue(instance, _parentComponent as INodeField, LaminarValue));
                         manager.Activate(instance, direction);
                     }
                 }
@@ -166,7 +179,8 @@ namespace Laminar_Core.Scripting.Advanced.Editing.Connection.ConnectorManagers
                     foreach (ValueConnectionManager manager in _pairedManagers)
                     {
                         parentNode.Update(instance);
-                        INodeContainer.NodeBases[manager._parentComponent.ParentNode].SetFieldValue(instance, manager._parentComponent as INodeField, _inputLaminarValue, parentNode.GetFieldValue(instance, _parentComponent as INodeField, LaminarValue));
+                        (manager._parentComponent as INodeField).SetInput((_parentComponent as INodeField).GetOutput());
+                        // INodeContainer.NodeBases[manager._parentComponent.ParentNode].SetFieldValue(instance, manager._parentComponent as INodeField, _inputLaminarValue, parentNode.GetFieldValue(instance, _parentComponent as INodeField, LaminarValue));
                     }
                 }
             }

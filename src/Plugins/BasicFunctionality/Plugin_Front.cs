@@ -42,8 +42,7 @@ namespace Laminar_Inbuilt
             host.RegisterEditor<IControl, UserControls.ToggleSwitch>("ToggleSwitch");
             host.RegisterEditor<IControl, UserControls.CheckBox>("CheckBox");
 
-
-            host.AddNodeToMenu<NodeAdd, NodeDifference, NodeMultiply, NodeDivide, SliderTest>("Number", "Arithmetic");
+            host.AddNodeToMenu<NodeAdd, NodeDifference, NodeMultiply, NodeDivide, Round>("Number", "Arithmetic");
             host.AddNodeToMenu<NodeSine>("Number", "Functions");
             host.AddNodeToMenu<Equal>("Number", "Comparisons");
             host.AddNodeToMenu<Node_Join_Strings, CharacterCounter>("Text");

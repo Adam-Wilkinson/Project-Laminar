@@ -42,16 +42,6 @@ namespace Laminar_Core.Primitives.LaminarValue
 
         public int Count => _coreDictionary.Count;
 
-        public string StoreName
-        {
-            get => _storeName;
-            set
-            {
-                _storeName = value;
-                SetValueName(_storeName);
-            }
-        }
-
         public IEnumerable<KeyValuePair<object, ILaminarValue>> AllValues
         {
             get
@@ -80,7 +70,7 @@ namespace Laminar_Core.Primitives.LaminarValue
 
         public ILaminarValue GetValue(object key) => _coreDictionary.TryGetValue(key, out ILaminarValue value) ? value : null;
 
-        public void SetValueName(string name)
+        public void SetValueName(object sender, string name)
         {
             _storeName = name;
             foreach (ILaminarValue value in _coreDictionary.Values)

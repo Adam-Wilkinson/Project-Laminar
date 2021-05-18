@@ -80,7 +80,7 @@ namespace WindowsKeyboardMouse.Nodes.Keyboard.Triggers
             KeyField.GetValue(INodeField.InputKey).OnChange += TriggerKeyChanged;
         }
 
-        private void TriggerKeyChanged(object key)
+        private void TriggerKeyChanged(object sender, object key)
         {
             RemoveSelfFromAllTriggers();
 

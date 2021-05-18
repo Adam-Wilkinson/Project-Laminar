@@ -5,9 +5,9 @@ namespace Laminar_PluginFramework.Primitives
 {
     public interface IObservableValue<T> : INotifyPropertyChanged
     {
-        T Value { get; set; }
+        event EventHandler<T> OnChange;
 
-        public Action<T> OnChange { get; set; }
+        T Value { get; set; }
 
         IObservableValue<T> Clone();
     }

@@ -26,7 +26,7 @@ namespace Laminar_Core.Primitives.LaminarValue
 
         void Reset();
 
-        void SetValueName(string name);
+        void SetValueName(object sender, string name);
 
         ILaminarValue GetValue(object key);
     }

@@ -22,7 +22,7 @@ namespace WindowsKeyboardMouse.Primitives
             { 0xA5, "Right Alt" },
         };
 
-        private string _asString;
+        private readonly string _asString;
 
         public KeyboardKey(int virtualKey, KeyModifiers modifiers = KeyModifiers.None)
         {
@@ -99,7 +99,7 @@ namespace WindowsKeyboardMouse.Primitives
         [DllImport("user32.dll")]
         private static extern short GetKeyState(int vKey);
 
-        private bool KeyIsDown(int vk)
+        private static bool KeyIsDown(int vk)
         {
             short keyState = GetKeyState(vk);
             return (keyState & 0x8000) == 0x8000;
