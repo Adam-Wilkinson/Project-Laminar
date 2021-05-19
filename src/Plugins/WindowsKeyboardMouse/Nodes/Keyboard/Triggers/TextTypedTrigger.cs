@@ -36,7 +36,7 @@ namespace WindowsKeyboardMouse.Nodes.Keyboard.Triggers
         {
             textInput.GetValue(INodeField.InputKey).OnChange += TextInputChanged;
 
-            TextInputChanged(textInput.GetValue(INodeField.InputKey).Value);
+            TextInputChanged(null, textInput.GetValue(INodeField.InputKey).Value);
         }
 
         public void RemoveTriggers()
@@ -44,7 +44,7 @@ namespace WindowsKeyboardMouse.Nodes.Keyboard.Triggers
             _globalHook?.Dispose();
         }
 
-        private void TextInputChanged(object obj)
+        private void TextInputChanged(object sender, object obj)
         {
             if (obj as string is null or "")
             {

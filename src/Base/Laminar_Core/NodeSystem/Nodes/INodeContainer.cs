@@ -2,6 +2,8 @@
 using Laminar_Core.Primitives;
 using Laminar_Core.Scripting;
 using Laminar_Core.Scripting.Advanced.Instancing;
+using Laminar_Core.Serialization;
+using Laminar_Core.Serialization.SerializedObjects;
 using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
 using Laminar_PluginFramework.NodeSystem.Nodes;
 using Laminar_PluginFramework.Primitives;
@@ -26,6 +28,8 @@ namespace Laminar_Core.NodeSystem.Nodes
         INode GetCoreNodeInstance();
 
         bool HasFields { get; }
+
+        Guid Guid { get; }
 
         INotifyCollectionChanged Fields { get; }
 

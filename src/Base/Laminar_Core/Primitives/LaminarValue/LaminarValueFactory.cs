@@ -21,7 +21,7 @@ namespace Laminar_Core.Primitives.LaminarValue
 
         public ILaminarValue Get(object value, bool isUserEditable)
         {
-            ILaminarValue output = new LaminarValue(GetProvider(value), _factory.GetImplementation<IObservableValue<bool>>(), _factory.GetImplementation<IObservableValue<bool>>(), _factory);
+            ILaminarValue output = new LaminarValue(GetProvider(value), _factory.GetImplementation<IObservableValue<bool>>(), _factory);
             output.IsUserEditable.Value = isUserEditable;
             return output;
         }

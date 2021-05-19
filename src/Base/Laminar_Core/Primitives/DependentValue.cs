@@ -13,46 +13,37 @@ namespace Laminar_Core.Primitives
         private T _valueFromDependency;
         private object _dependency;
 
-        public DependentValue(IObservableValue<bool> hasDependency)
-        {
-            HasDependency = hasDependency;
-            HasDependency.Value = false;
-        }
-
         public override T Value
         {
-            get => HasDependency.Value ? _valueFromDependency : base.Value;
+            get => _dependency is not null ? _valueFromDependency : base.Value;
             set
             {
-                if (!HasDependency.Value)
+                if (_dependency is null)
                 {
                     base.Value = value;
                 }
             }
         }
 
-        public IObservableValue<bool> HasDependency { get; }
-
         public void SetDependency(IObservableValue<T> dep)
         {
             SetDependency(dep, x => x);
         }
 
-        public void SetDependency<TDep>(IObservableValue<TDep> dep, Func<TDep, T> conversion)
+        public virtual void SetDependency<TDep>(IObservableValue<TDep> dep, Func<TDep, T> conversion)
         {
             _dependencyFunction = conversion;
             _dependency = dep;
             dep.OnChange += OnDependencyChanged;
-            HasDependency.Value = true;
             OnDependencyChanged(dep, dep.Value);
         }
 
-        public void RemoveDependency<TDep>()
+        public virtual void RemoveDependency<TDep>()
         {
             (_dependency as IObservableValue<TDep>).OnChange -= OnDependencyChanged;
             _dependencyFunction = null;
             _dependency = null;
-            HasDependency.Value = false;
+            ValueChanged();
         }
 
         private void OnDependencyChanged<TDep>(object sender, TDep newValue)

@@ -8,7 +8,7 @@ namespace Laminar_PluginFramework.Primitives
 {
     public interface IDependentValue<T> : IObservableValue<T>
     {
-        IObservableValue<bool> HasDependency { get; }
+        // IObservableValue<bool> HasDependency { get; }
 
         void SetDependency<TDep>(IObservableValue<TDep> dep, Func<TDep, T> conversion);
 

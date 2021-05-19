@@ -35,12 +35,12 @@ namespace Laminar_Core.Scripting.Advanced.Compilation
         public void Refresh(IAdvancedScript script)
         {
             var inputLocationChanges = new List<(int indexInNew, int indexInOld)>();
-            Guid[] newInputsOrder = new Guid[script.Inputs.InputNodes.Count];
+            Guid[] newInputsOrder = new Guid[script.Editor.Inputs.Count];
             _script = script;
 
             int indexInNew = 0;
             int indexInOld = 0;
-            foreach (InputNode inputNode in script.Inputs.InputNodes)
+            foreach (InputNode inputNode in script.Editor.Inputs.InputNodes)
             {
                 if (_inputsOrder is not null)
                 {

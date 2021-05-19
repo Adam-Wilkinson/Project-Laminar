@@ -14,7 +14,7 @@
 			<Button DockPanel.Dock="Right" Margin="10,5" Padding="6" MinWidth="60" Command="{Binding $parent[w:MainWindow].CloseScriptEditor}">Exit</Button>
 		</DockPanel>
 		<additions:ToolbarPanel DefaultWidth="250">
-			<nodes:AdvancedScriptInputsDisplay additions:ToolbarPanel.DockDirection="Left"/>
+			<nodes:AdvancedScriptInputsDisplay DataContext="{Binding Editor.Inputs}" additions:ToolbarPanel.DockDirection="Left"/>
 			<nodes:NodePickerTabBar additions:ToolbarPanel.DockDirection="Top"/>
 			<nodes:ZoomBorder DataContext="{Binding Editor}" Background="{Binding $parent.Background}"/>
 		</additions:ToolbarPanel>

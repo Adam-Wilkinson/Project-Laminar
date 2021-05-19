@@ -57,7 +57,7 @@ namespace Laminar_Avalonia.NodeDisplaySystem
 
         public void AddInputOfType(Type type)
         {
-            (DataContext as IAdvancedScript).Inputs.Add(type);
+            (DataContext as IAdvancedScriptInputs).Add(type);
             _toggleAddMenuButton.IsChecked = false;
         }
 
@@ -76,62 +76,40 @@ namespace Laminar_Avalonia.NodeDisplaySystem
             }
         }
 
-        private void RemoveNode(object item)
+        private void RemoveNode(object sender, InputNode item)
         {
-            InputNodes.Remove(item as NodeDisplay);
         }
 
-        private void AddNode(object item)
+        private void AddNode(object sender, InputNode inputNode)
         {
-            if (item is InputNode inputNode)
+            INodeContainer nodeContainer = _nodeFactory.Get(inputNode);
+            NodeDisplay newNode = new() { CoreNode = nodeContainer };
+            InputNodes.Add(newNode);
+            newNode.PointerPressed += (o, e) =>
             {
-                INodeContainer nodeContainer = _nodeFactory.Get(inputNode);
-                NodeDisplay newNode = new() { CoreNode = nodeContainer };
-                InputNodes.Add(newNode);
-                newNode.PointerPressed += (o, e) =>
-                {
-                    _lastClickedDisplay = new NodeDisplay() { CoreNode = nodeContainer };
-                    _dragOffset = e.GetPosition(newNode);
-                };
+                _lastClickedDisplay = new NodeDisplay() { CoreNode = nodeContainer };
+                _dragOffset = e.GetPosition(newNode);
+            };
 
-                newNode.PointerReleased += (o, e) =>
-                {
-                    _lastClickedDisplay = null;
-                };
+            newNode.PointerReleased += (o, e) =>
+            {
+                _lastClickedDisplay = null;
+            };
 
-                newNode.CoreNode.IsLive = true;
-                newNode.CoreNode.CoreNode.GetNameLabel().NeedsEditing = true;
-            }
+            newNode.CoreNode.IsLive = true;
+            newNode.CoreNode.CoreNode.GetNameLabel().NeedsEditing = true;
         }
 
         private void NodeTreeInputDisplay_DataContextChanged(object sender, EventArgs e)
         {
-            if (DataContext is IAdvancedScript nodeTree)
+            if (DataContext is IAdvancedScriptInputs inputs)
             {
-                ((INotifyCollectionChanged)nodeTree.Inputs.InputNodes).CollectionChanged += NodeTreeInputDisplay_CollectionChanged;
-                foreach (InputNode inputNode in nodeTree.Inputs.InputNodes)
+                inputs.NodeAdded += AddNode;
+                inputs.NodeRemoved += RemoveNode;
+                foreach (var inputNode in inputs.InputNodes)
                 {
-                    AddNode(inputNode);
+                    AddNode(null, inputNode);
                 }
-            }
-        }
-
-        private void NodeTreeInputDisplay_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            switch (e.Action)
-            {
-                case NotifyCollectionChangedAction.Add:
-                    foreach (object item in e.NewItems)
-                    {
-                        AddNode(item);
-                    }
-                    break;
-                case NotifyCollectionChangedAction.Remove:
-                    foreach (object item in e.OldItems)
-                    {
-                        RemoveNode(item);
-                    }
-                    break;
             }
         }
     }

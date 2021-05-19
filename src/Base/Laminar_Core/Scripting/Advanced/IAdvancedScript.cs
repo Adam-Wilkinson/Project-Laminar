@@ -11,14 +11,16 @@ namespace Laminar_Core.Scripting.Advanced
 {
     public interface IAdvancedScript
     {
-        public IAdvancedScriptEditor Editor { get; }
+        IAdvancedScriptEditor Editor { get; }
 
-        public bool IsBeingEdited { get; set; }
+        bool IsBeingEdited { get; set; }
 
-        public IObservableValue<string> Name { get; }
+        IObservableValue<string> Name { get; }
 
-        IAdvancedScriptInputs Inputs { get; }
+        ReadOnlyDictionary<string, InputNode> Inputs { get; }
 
-        public IAdvancedScriptInstance CreateInstance();
+        void UpdateInputs();
+
+        IAdvancedScriptInstance CreateInstance();
     }
 }

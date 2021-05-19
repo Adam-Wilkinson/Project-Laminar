@@ -29,7 +29,14 @@ namespace Laminar_Core.NodeSystem.Nodes
         public INodeContainer Get<T>() where T : INode, new()
             => Get(_factory.CreateInstance<T>());
 
-        private INodeContainer PrivateGet<T>(T node) where T : INode, new()
+        public INodeContainer Get<T>(T node, Guid guid) where T : INode, new()
+        {
+            NodeContainer<T> output = PrivateGet(node);
+            output.Guid = guid;
+            return output;
+        }
+
+        private NodeContainer<T> PrivateGet<T>(T node) where T : INode, new()
         {
             if (typeof(IFlowNode).IsAssignableFrom(typeof(T)))
             {
@@ -59,9 +66,9 @@ namespace Laminar_Core.NodeSystem.Nodes
             return Make<NodeContainer<T>, T>(node);
         }
 
-        private INodeContainer Make<TContainer, TNode>(TNode node) where TNode : INode, new() where TContainer : NodeContainer<TNode>
+        private NodeContainer<TNode> Make<TContainer, TNode>(TNode node) where TNode : INode, new() where TContainer : NodeContainer<TNode>
         {
-            TContainer output = _factory.CreateInstance<TContainer>();
+            NodeContainer<TNode> output = _factory.CreateInstance<TContainer>();
 
             output.BaseNode = node;
 

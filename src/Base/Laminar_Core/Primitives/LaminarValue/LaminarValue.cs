@@ -11,15 +11,11 @@
         private ITypeDefinitionProvider _typeDefinitionProvider;
         private string _name;
 
-        public LaminarValue(ITypeDefinitionProvider provider, IObservableValue<bool> isUserEditable, IObservableValue<bool> hasDependency, IObjectFactory factory) : base(hasDependency)
+        public LaminarValue(ITypeDefinitionProvider provider, IObservableValue<bool> isUserEditable, IObjectFactory factory) : base()
         {
             SetTypeDefinitionProvider(provider);
             IsUserEditable = isUserEditable;
             _factory = factory;
-            hasDependency.OnChange += (o, b) =>
-            {
-                IsUserEditable.Value = !b;
-            };
             OnChange += (o, val) => NotifyPropertyChanged(nameof(TrueValue));
         }
 
@@ -84,9 +80,21 @@
 
         public override ILaminarValue Clone()
         {
-            ILaminarValue output = new LaminarValue(_typeDefinitionProvider, _factory.GetImplementation<IObservableValue<bool>>(), _factory.GetImplementation<IObservableValue<bool>>(), _factory);
+            ILaminarValue output = new LaminarValue(_typeDefinitionProvider, IsUserEditable.Clone(), _factory);
             CloneTo(output);
             return output;
+        }
+
+        public override void SetDependency<TDep>(IObservableValue<TDep> dep, Func<TDep, object> conversion)
+        {
+            base.SetDependency(dep, conversion);
+            IsUserEditable.Value = false;
+        }
+
+        public override void RemoveDependency<TDep>()
+        {
+            base.RemoveDependency<TDep>();
+            IsUserEditable.Value = true;
         }
 
         public void SetTypeDefinitionProvider(ITypeDefinitionProvider provider)

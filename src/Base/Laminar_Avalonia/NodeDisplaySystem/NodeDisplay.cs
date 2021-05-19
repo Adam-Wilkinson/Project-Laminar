@@ -19,7 +19,7 @@ namespace Laminar_Avalonia.NodeDisplaySystem
             {
                 if (newNode is not null)
                 {
-                    newNode.ErrorState.OnChange += (error) =>
+                    newNode.ErrorState.OnChange += (o, error) =>
                     {
                         IsError = error;
                     };

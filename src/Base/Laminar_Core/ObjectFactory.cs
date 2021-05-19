@@ -14,6 +14,7 @@ using Laminar_Core.Scripting.Advanced.Compilation;
 using Laminar_Core.Scripting.Advanced.Editing;
 using Laminar_Core.Scripting.Advanced.Editing.Connection;
 using Laminar_Core.Scripting.Advanced.Instancing;
+using Laminar_Core.Serialization;
 using Laminar_PluginFramework.NodeSystem.NodeComponents.Collections;
 using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
 using Laminar_PluginFramework.Primitives;
@@ -65,7 +66,7 @@ namespace Laminar_Core
             RegisterImplementation<ICompiledScript, CompiledScript>();
             RegisterImplementation<ICompiledScriptManager, CompiledScriptManager>();
             RegisterImplementation<IScriptCollection, ScriptCollection>();
-            // RegisterImplementation<IAdvancedScriptInstance, AdvancedScriptInstance>();
+            RegisterImplementation<ISerializer, Serializer>();
             RegisterImplementationUnsafe(typeof(IObservableValue<>), typeof(ObservableValue<>));
             RegisterImplementationUnsafe(typeof(IDependentValue<>), typeof(DependentValue<>));
             RegisterImplementationUnsafe(typeof(IValueConstraint<>), typeof(ValueConstraint<>));

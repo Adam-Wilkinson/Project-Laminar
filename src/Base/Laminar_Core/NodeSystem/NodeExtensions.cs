@@ -47,6 +47,15 @@ namespace Laminar_Core.NodeSystem
             return newNode;
         }
 
+        public static void CopyComponents(this INode node, IEnumerable<INodeComponent> components)
+        {
+            foreach ((INodeComponent CloneFrom, INodeComponent CloneTo) in components.Zip(node.Fields))
+            {
+                CloneFrom.CloneTo(CloneTo);
+                CloneTo.ParentNode = node;
+            }
+        }
+
         public static IEnumerable<IVisualNodeComponent> GetVisualComponents(this INode node)
         {
             foreach (INodeComponent component in node.Fields)

@@ -26,7 +26,7 @@ namespace BasicFunctionality.Nodes.Flow
         {
             resetTimer.Elapsed += ResetTimer_Elapsed;
             TimeoutTime.IsVisible = (bool)hasTimeout["display"];
-            hasTimeout.GetValue("display").OnChange += (b) =>
+            hasTimeout.GetValue("display").OnChange += (o, b) =>
             {
                 TimeoutTime.IsVisible = (bool)b;
             };

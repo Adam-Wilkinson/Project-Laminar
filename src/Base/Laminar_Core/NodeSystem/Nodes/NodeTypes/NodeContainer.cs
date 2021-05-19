@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using Laminar_Core.Scripting;
 using System.Collections;
 using Laminar_Core.Scripting.Advanced.Instancing;
+using Newtonsoft.Json;
 
 namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
 {
@@ -80,6 +81,8 @@ namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
         public bool HasFields => FieldList.VisualComponentList.Count > 0;
 
         public INode CoreNode => BaseNode;
+
+        public Guid Guid { get; set; } = Guid.NewGuid();
 
         public virtual INodeContainer DuplicateNode() => new NodeFactory(_factory).Get(BaseNode.Clone());
 

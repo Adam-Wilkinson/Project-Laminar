@@ -34,7 +34,7 @@ namespace Laminar_Core.Scripting.Advanced.Compilation
             compiledScript.OriginalScript = script;
             Inputs = new();
 
-            foreach (InputNode scriptInput in script.Inputs.InputNodes)
+            foreach (InputNode scriptInput in script.Editor.Inputs.InputNodes)
             {
                 ILaminarValue myInputValue = _valueFactory.Get(scriptInput.Value, true);
                 myInputValue.Name = scriptInput.GetNameLabel().LabelText.Value;

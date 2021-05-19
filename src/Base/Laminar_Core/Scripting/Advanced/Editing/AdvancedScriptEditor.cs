@@ -12,6 +12,8 @@ namespace Laminar_Core.Scripting.Advanced.Editing
 {
     public class AdvancedScriptEditor : IAdvancedScriptEditor
     {
+        private readonly Dictionary<Guid, INodeContainer> _nodesByGuid = new();
+
         private readonly List<INodeContainer> _triggerNodes = new();
         private readonly ObservableCollection<INodeContainer> _nodes = new();
         private readonly INodeConnectionFactory _connectionFactory;
@@ -61,6 +63,7 @@ namespace Laminar_Core.Scripting.Advanced.Editing
                 _triggerNodes.Add(newNode);
             }
             _nodes.Add(newNode);
+            _nodesByGuid.Add(newNode.Guid, newNode);
         }
 
         public void DeleteNode(INodeContainer node)
@@ -71,6 +74,12 @@ namespace Laminar_Core.Scripting.Advanced.Editing
             }
 
             _nodes.Remove(node);
+            _nodesByGuid.Remove(node.Guid);
+        }
+
+        public INodeContainer GetNode(Guid guid)
+        {
+            return _nodesByGuid[guid];
         }
 
         public IConnector GetActiveConnector(IConnector interacted)
@@ -88,15 +97,19 @@ namespace Laminar_Core.Scripting.Advanced.Editing
 
         public IEnumerable<INodeConnection> Connections => _connections;
 
-        public bool TryConnectFields(IConnector field1, IConnector field2)
+        public IAdvancedScriptInputs Inputs { get; }
+
+        public bool TryConnectFields(IConnector field1, IConnector field2, out INodeConnection connection)
         {
             if (_connectionFactory.TryConnect(field1, field2, out INodeConnection newConnection))
             {
                 _connections.Add(newConnection);
                 newConnection.OnBreak += Connection_OnBreak;
+                connection = newConnection;
                 return true;
             }
 
+            connection = default;
             return false;
         }
 

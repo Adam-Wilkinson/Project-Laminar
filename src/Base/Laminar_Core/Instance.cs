@@ -13,6 +13,7 @@ using System.Runtime.CompilerServices;
 using Laminar_Core.NodeSystem.Nodes;
 using Laminar_Core.Scripting.Advanced;
 using System.Diagnostics;
+using Laminar_Core.Serialization;
 
 namespace Laminar_Core
 {
@@ -29,6 +30,7 @@ namespace Laminar_Core
 
             RegisteredEditors = Factory.GetImplementation<IUserInterfaceRegister>();
             RegisteredDisplays = Factory.GetImplementation<IUserInterfaceRegister>();
+            Serializer = Factory.GetImplementation<ISerializer>();
             LoadedNodeManager = Factory.CreateInstance<LoadedNodeManager>();
             AllScripts = Factory.GetImplementation<IScriptCollection>();
 
@@ -38,6 +40,8 @@ namespace Laminar_Core
         }
 
         public ObservableCollection<IAdvancedScript> AllAdvancedScripts { get; } = new();
+
+        public ISerializer Serializer { get; }
 
         public IScriptCollection AllScripts { get; }
 

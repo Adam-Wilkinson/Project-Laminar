@@ -149,7 +149,7 @@ namespace Laminar_Avalonia.NodeDisplaySystem
                     if (visualUnderPointer is Control controlUnderPointer && controlUnderPointer.Tag is IConnector endConnector)
                     {
                         endConnector.Tag = controlUnderPointer;
-                        _editor.TryConnectFields(selectedField.Tag as IConnector, endConnector);
+                        _editor.TryConnectFields(selectedField.Tag as IConnector, endConnector, out _);
                     }
 
                     break;
