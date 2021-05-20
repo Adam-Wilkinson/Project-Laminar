@@ -7,14 +7,20 @@ namespace Laminar_Core.PluginManagement
     public class PluginHost : IPluginHost
     {
         private readonly Instance _instance;
+        private readonly PluginLoader.RegisteredPlugin _registeredPlugin;
 
-        public PluginHost(Instance instance)
+        public PluginHost(Instance instance, PluginLoader.RegisteredPlugin registeredPlugin)
         {
             _instance = instance;
+            _registeredPlugin = registeredPlugin;
         }
 
         public void AddNodeToMenu<TNode>(string menuItemName, string subItemName = null) where TNode : INode, new()
-            => _instance.LoadedNodeManager.AddNodeToCatagory<TNode>(menuItemName, subItemName);
+        {
+            TNode node = new();
+            _registeredPlugin.RegisterNode(node);
+            _instance.LoadedNodeManager.AddNodeToCatagory(node, menuItemName, subItemName);
+        }
 
         public bool RegisterType<T>(string hexColour, string userFriendlyName, T defaultValue = default, string defaultEditorName = null, string defaultDisplayName = null, bool isTreeInput = true)
             => _instance.RegisterTypeInfo(typeof(T), new TypeInfoRecord(typeof(T), defaultValue, hexColour, defaultDisplayName, defaultEditorName, userFriendlyName, isTreeInput));

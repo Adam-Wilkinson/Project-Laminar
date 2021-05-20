@@ -28,6 +28,7 @@ namespace Laminar_Core.Scripting.Advanced.Editing
             newNode.SetType(valueType);
             newNode.GetNameLabel().LabelText.Value = $"Input {_inputNodes.Count + 1}";
             _inputNodes.Add(newNode);
+            NodeAdded?.Invoke(this, newNode);
         }
 
         public void Add(string name, object value)
@@ -37,6 +38,7 @@ namespace Laminar_Core.Scripting.Advanced.Editing
             newNode.Value = value;
             newNode.GetNameLabel().LabelText.Value = name;
             _inputNodes.Add(newNode);
+            NodeAdded?.Invoke(this, newNode);
         }
 
         public void Add<T>()

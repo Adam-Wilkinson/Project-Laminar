@@ -25,7 +25,7 @@ namespace Laminar_Core.Serialization.SerializedObjects
                 throw new ArgumentException("NodeConnectionSerializer can only deserialize SerializedNodeConnections");
             }
 
-            IConnector outputConnector = ((IList<IVisualNodeComponentContainer>)editor.GetNode(serializedNodeConnection.OutputNodeGuid).Fields)[serializedNodeConnection.OutputFieldIndex].InputConnector;
+            IConnector outputConnector = ((IList<IVisualNodeComponentContainer>)editor.GetNode(serializedNodeConnection.OutputNodeGuid).Fields)[serializedNodeConnection.OutputFieldIndex].OutputConnector;
             IConnector inputConnector = ((IList<IVisualNodeComponentContainer>)editor.GetNode(serializedNodeConnection.InputNodeGuid).Fields)[serializedNodeConnection.InputFieldIndex].InputConnector;
 
             if (editor.TryConnectFields(outputConnector, inputConnector, out INodeConnection connection))

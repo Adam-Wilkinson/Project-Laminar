@@ -32,7 +32,7 @@ namespace Laminar_Avalonia.Views
             {
                 MainWindow host = VisualRoot as MainWindow;
 
-                if (host is not null && DataContext is Instance instance && instance.AllScripts.Scripts.Count == 0)
+                if (host is not null && DataContext is Instance instance && instance.AllAdvancedScripts.Count == 0)
                 {
                     _addScriptButton.IsChecked = false;
                     host.AddScript();

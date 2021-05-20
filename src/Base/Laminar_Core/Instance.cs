@@ -14,6 +14,7 @@ using Laminar_Core.NodeSystem.Nodes;
 using Laminar_Core.Scripting.Advanced;
 using System.Diagnostics;
 using Laminar_Core.Serialization;
+using Laminar_PluginFramework.NodeSystem.Nodes;
 
 namespace Laminar_Core
 {
@@ -21,6 +22,7 @@ namespace Laminar_Core
     {
         private readonly Dictionary<Type, TypeInfoRecord> _typeInfo = new();
         private readonly PluginLoader _pluginLoader;
+        private bool _isLoading;
 
         public Instance(SynchronizationContext uiContext, [CallerFilePath] string path = "")
         {
@@ -28,20 +30,59 @@ namespace Laminar_Core
             Factory = new ObjectFactory(this);
             Laminar.Init(Factory);
 
+            Serializer = Factory.GetImplementation<ISerializer>();
+            UserData = Factory.GetImplementation<IUserDataStore>();
             RegisteredEditors = Factory.GetImplementation<IUserInterfaceRegister>();
             RegisteredDisplays = Factory.GetImplementation<IUserInterfaceRegister>();
-            Serializer = Factory.GetImplementation<ISerializer>();
             LoadedNodeManager = Factory.CreateInstance<LoadedNodeManager>();
             AllScripts = Factory.GetImplementation<IScriptCollection>();
 
-            _pluginLoader = new PluginLoader(new PluginHost(this), path);
-            LoadedNodeManager.AddNodeToCatagory<ManualTriggerNode>("Triggers");
+            _pluginLoader = new PluginLoader(this, path);
+            LoadedNodeManager.AddNodeToCatagory(new ManualTriggerNode(), "Triggers");
             AllRegisteredTypes = _typeInfo.Values.Where(x => x.CanBeInput);
+
+            if (UserData.TryLoad<IEnumerable<ISerializedObject<IAdvancedScript>>>("Scripts.pls", out var serializedObjects))
+            {
+                _isLoading = true;
+                foreach (IAdvancedScript script in Serializer.Deserialize<IAdvancedScript>(serializedObjects, null))
+                {
+                    AllAdvancedScripts.Add(script);
+                }
+                _isLoading = false;
+            }
+        }
+
+        public Type GetNodeType(string nodeName, string pluginName)
+        {
+            foreach (IRegisteredPlugin plugin in _pluginLoader.RegisteredPlugins)
+            {
+                if (plugin.PluginName == pluginName && plugin.RegisteredNodes.TryGetValue(nodeName, out Type type))
+                {
+                    return type;
+                }
+            }
+
+            throw new Exception($"The node {nodeName} is not loaded");
+        }
+
+        public IRegisteredPlugin GetNodePlugin(INode node)
+        {
+            foreach (IRegisteredPlugin plugin in _pluginLoader.RegisteredPlugins)
+            {
+                if (plugin.ContainsNode(node))
+                {
+                    return plugin;
+                }
+            }
+
+            return null;
         }
 
         public ObservableCollection<IAdvancedScript> AllAdvancedScripts { get; } = new();
 
         public ISerializer Serializer { get; }
+
+        public IUserDataStore UserData { get; }
 
         public IScriptCollection AllScripts { get; }
 
@@ -58,6 +99,16 @@ namespace Laminar_Core
         public IEnumerable<TypeInfoRecord> AllRegisteredTypes { get; }
 
         public bool RegisterTypeInfo(Type type, TypeInfoRecord record) => _typeInfo.TryAdd(type, record);
+
+        public void ResaveUserData()
+        {
+            if (_isLoading)
+            {
+                return;
+            }
+
+            UserData.Save("Scripts.pls", Serializer.Serialize((IEnumerable<IAdvancedScript>)AllAdvancedScripts));
+        }
 
         public TypeInfoRecord GetTypeInfo(Type type)
         {
@@ -76,7 +127,7 @@ namespace Laminar_Core
 
         public void Dispose()
         {
-            _pluginLoader.Dispose();
+            // _pluginLoader.Dispose();
         }
     }
 

@@ -1,4 +1,5 @@
-﻿using Laminar_Core.Scripting.Advanced.Compilation;
+﻿using Laminar_Core.NodeSystem;
+using Laminar_Core.Scripting.Advanced.Compilation;
 using Laminar_Core.Scripting.Advanced.Editing;
 using Laminar_Core.Scripting.Advanced.Instancing;
 using Laminar_PluginFramework.Primitives;
@@ -11,11 +12,13 @@ namespace Laminar_Core.Scripting.Advanced
     public class AdvancedScript : IAdvancedScript
     {
         private readonly ICompiledScriptManager _compilerManager;
+        private readonly Instance _instance;
         private Dictionary<string, InputNode> _defaultInputs = new();
         private bool _isBeingEdited;
 
-        public AdvancedScript(IObservableValue<string> name, ICompiledScriptManager compilationManager, IAdvancedScriptEditor editor)
+        public AdvancedScript(Instance instance, IObservableValue<string> name, ICompiledScriptManager compilationManager, IAdvancedScriptEditor editor)
         {
+            _instance = instance;
             _compilerManager = compilationManager;
             Inputs = new(_defaultInputs);
 
@@ -48,6 +51,7 @@ namespace Laminar_Core.Scripting.Advanced
                     _compilerManager.Refresh(this);
                     _compilerManager.EnableAllScripts();
                     UpdateInputs();
+                    _instance.ResaveUserData();
                 }
 
                 Editor.IsLive = _isBeingEdited;
@@ -64,7 +68,7 @@ namespace Laminar_Core.Scripting.Advanced
 
         public void UpdateInputs()
         {
-            _defaultInputs = Editor.Inputs.InputNodes.ToDictionary(x => x.NodeName);
+            _defaultInputs = Editor.Inputs.InputNodes.ToDictionary(x => x.GetNameLabel().LabelText.Value);
             Inputs = new(_defaultInputs);
         }
     }

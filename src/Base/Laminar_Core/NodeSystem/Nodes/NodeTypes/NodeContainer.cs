@@ -161,6 +161,7 @@ namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
             foreach (IVisualNodeComponentContainer container in (IList)Fields)
             {
                 container.Child.IndexInParent = index;
+                index++;
             }
         }
 

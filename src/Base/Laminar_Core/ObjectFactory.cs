@@ -67,6 +67,7 @@ namespace Laminar_Core
             RegisterImplementation<ICompiledScriptManager, CompiledScriptManager>();
             RegisterImplementation<IScriptCollection, ScriptCollection>();
             RegisterImplementation<ISerializer, Serializer>();
+            RegisterImplementation<IUserDataStore, AppDataManager>();
             RegisterImplementationUnsafe(typeof(IObservableValue<>), typeof(ObservableValue<>));
             RegisterImplementationUnsafe(typeof(IDependentValue<>), typeof(DependentValue<>));
             RegisterImplementationUnsafe(typeof(IValueConstraint<>), typeof(ValueConstraint<>));

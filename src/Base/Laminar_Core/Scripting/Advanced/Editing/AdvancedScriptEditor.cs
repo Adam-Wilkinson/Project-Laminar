@@ -20,10 +20,11 @@ namespace Laminar_Core.Scripting.Advanced.Editing
         private readonly List<INodeConnection> _connections = new();
         private bool _isLive;
 
-        public AdvancedScriptEditor(INodeConnectionFactory connectionFactory)
+        public AdvancedScriptEditor(INodeConnectionFactory connectionFactory, IAdvancedScriptInputs inputs)
         {
             Nodes = new(_nodes);
             _connectionFactory = connectionFactory;
+            Inputs = inputs;
         }
 
         public bool IsLive
