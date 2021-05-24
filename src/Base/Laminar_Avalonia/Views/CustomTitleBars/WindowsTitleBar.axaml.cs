@@ -119,13 +119,13 @@ namespace Laminar_Avalonia.Views.CustomTitleBars
             {
                 if (s != WindowState.Maximized)
                 {
-                    maximizeIcon.Data = Geometry.Parse("M2048 2048v-2048h-2048v2048h2048zM1843 1843h-1638v-1638h1638v1638z");
+                    maximizeIcon.Data = Geometry.Parse("M1,1 v-2 h-2 v2 z");
                     hostWindow.Padding = new Thickness(0,0,0,0);
                     maximizeToolTip.Content = "Maximize";
                 }
                 if (s == WindowState.Maximized)
                 {
-                    maximizeIcon.Data = Geometry.Parse("M2048 1638h-410v410h-1638v-1638h410v-410h1638v1638zm-614-1024h-1229v1229h1229v-1229zm409-409h-1229v205h1024v1024h205v-1229z");
+                    maximizeIcon.Data = Geometry.Parse("M2,1.5 h-0.5 v0.5 h0.5 z M2,1.8 h0.2 v-0.5 h-0.5 v0.2");
                     hostWindow.Padding = new Thickness(7,7,7,7);
                     maximizeToolTip.Content = "Restore Down";
 

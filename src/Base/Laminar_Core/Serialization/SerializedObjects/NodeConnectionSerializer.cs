@@ -1,4 +1,5 @@
 ﻿using Laminar_Core.NodeSystem.NodeComponents.Visuals;
+using Laminar_Core.NodeSystem.Nodes;
 using Laminar_Core.Scripting.Advanced.Editing;
 using Laminar_Core.Scripting.Advanced.Editing.Connection;
 using System;
@@ -25,8 +26,8 @@ namespace Laminar_Core.Serialization.SerializedObjects
                 throw new ArgumentException("NodeConnectionSerializer can only deserialize SerializedNodeConnections");
             }
 
-            IConnector outputConnector = ((IList<IVisualNodeComponentContainer>)editor.GetNode(serializedNodeConnection.OutputNodeGuid).Fields)[serializedNodeConnection.OutputFieldIndex].OutputConnector;
-            IConnector inputConnector = ((IList<IVisualNodeComponentContainer>)editor.GetNode(serializedNodeConnection.InputNodeGuid).Fields)[serializedNodeConnection.InputFieldIndex].InputConnector;
+            IConnector outputConnector = GetComponentByIndex(editor.GetNode(serializedNodeConnection.OutputNodeGuid), serializedNodeConnection.OutputFieldIndex).OutputConnector;
+            IConnector inputConnector = GetComponentByIndex(editor.GetNode(serializedNodeConnection.InputNodeGuid), serializedNodeConnection.InputFieldIndex).InputConnector;
 
             if (editor.TryConnectFields(outputConnector, inputConnector, out INodeConnection connection))
             {
@@ -34,6 +35,16 @@ namespace Laminar_Core.Serialization.SerializedObjects
             }
 
             throw new Exception("Unable to connect fields when deserializing");
+        }
+
+        private static IVisualNodeComponentContainer GetComponentByIndex(INodeContainer container, int index)
+        {
+            if (index == -1)
+            {
+                return container.Name;
+            }
+
+            return ((IList<IVisualNodeComponentContainer>)container.Fields)[index];
         }
 
         public ISerializedObject<INodeConnection> Serialize(INodeConnection toSerialize)

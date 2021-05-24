@@ -28,99 +28,66 @@
                      VerticalAlignment="Center"
                      IsHitTestVisible="False"
                      Name="SystemChromeTitle"/>
-			<TextBlock Text="Laminar"
+    	  <TextBlock Text="Laminar"
 		             FontSize="20"
- 				     FontFamily="Lucida Sans"
+ 			 	     FontFamily="Lucida Sans"
 				     FontWeight="Light"
 		             VerticalAlignment="Center"
 		             IsHitTestVisible="False"/>
         </StackPanel>
         <StackPanel HorizontalAlignment="Right"
-                    Orientation="Horizontal"
-                    Spacing="0">
-          <Button Width="46"
-                  HorizontalContentAlignment="Center"
-                  BorderThickness="0"
-				  Padding="5"
-                  Name="MinimizeButton"
-                  ToolTip.Tip="Minimize">
-            <Button.Resources>
-              <CornerRadius x:Key="ControlCornerRadius">0</CornerRadius>
-            </Button.Resources>
-            <Button.Styles>
-              <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-                <Setter Property="Background" Value="#44AAAAAA"/>
-              </Style>
-              <Style Selector="Button:not(:pointerover) /template/ ContentPresenter#PART_ContentPresenter">
-                <Setter Property="Background" Value="Transparent"/>
-              </Style>
-            </Button.Styles>
-            <Path Margin="10,0,10,0"
-                  Stretch="Uniform"
-                  Fill="#DDDDDD"
-                  Data="M2048 1229v-205h-2048v205h2048z"></Path>
-          </Button>
+                    Orientation="Horizontal">
+			
+			<StackPanel.Styles>
+				<Style Selector="Button">
+					<Setter Property="Padding" Value="5"/>
+					<Setter Property="Width" Value="46"/>
+					<Setter Property="BorderThickness" Value="0"/>
+				</Style>
+				<Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+					<Setter Property="Background" Value="#44AAAAAA"/>
+				</Style>
+				<Style Selector="Button:not(:pointerover) /template/ ContentPresenter#PART_ContentPresenter">
+					<Setter Property="Background" Value="Transparent"/>
+				</Style>
+				<Style Selector="Path">
+					<Setter Property="Stretch" Value="Uniform"/>
+					<Setter Property="Margin" Value="10"/>
+					<Setter Property="Stroke" Value="#DDDDDD"/>
+					<Setter Property="StrokeThickness" Value="2"/>
+				</Style>
+			</StackPanel.Styles>
+			
+			<Button Name="SysTrayButton"
+					ToolTip.Tip="Minimize to System tray">
+				<Path Data="M-1,1 v1 h-1.7 M-3,0"/>
+			</Button>
+			
+            <Button Name="MinimizeButton"
+                    ToolTip.Tip="Minimize">
+              <Path Data="M0,1 h-2 v0.065 h2 z"/>
+            </Button>
 
-          <Button Width="46"
-                  VerticalAlignment="Stretch"
-				  Padding="5"
-				  BorderThickness="0"
-                  Name="MaximizeButton">
-            <ToolTip.Tip>
-              <ToolTip Content="Maximize"
-                       Name="MaximizeToolTip"></ToolTip>
-            </ToolTip.Tip>
+            <Button Name="MaximizeButton">
+              <ToolTip.Tip>
+                <ToolTip Content="Maximize"
+                         Name="MaximizeToolTip"/>
+              </ToolTip.Tip>
+              <Path Name="MaximizeIcon"/>
+            </Button>
 
-            <Button.Resources>
-              <CornerRadius x:Key="ControlCornerRadius">0</CornerRadius>
-            </Button.Resources>
-            <Button.Styles>
-              <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-                <Setter Property="Background" Value="#44AAAAAA"/>
-              </Style>
-              <Style Selector="Button:not(:pointerover) /template/ ContentPresenter#PART_ContentPresenter">
-                <Setter Property="Background" Value="Transparent"/>
-              </Style>
-            </Button.Styles>
-            <Path Margin="10,0,10,0"
-                  Stretch="Uniform"
-                  Fill="#DDDDDD"
-                  Name="MaximizeIcon"
-                  Data="M2048 2048v-2048h-2048v2048h2048zM1843 1843h-1638v-1638h1638v1638z"></Path>
-          </Button>
-
-          <Button Width="46"
-				  Padding="5"
-				  VerticalAlignment="Stretch"
-                  BorderThickness="0"
-                  Name="CloseButton"
+          <Button Name="CloseButton"
                   ToolTip.Tip="Close">
-            <Button.Resources>
-              <CornerRadius x:Key="ControlCornerRadius">0</CornerRadius>
-            </Button.Resources>
             <Button.Styles>
               <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
                 <Setter Property="Background" Value="Red"/>
               </Style>
-              <Style Selector="Button:not(:pointerover) /template/ ContentPresenter#PART_ContentPresenter">
-                <Setter Property="Background" Value="Transparent"/>
-              </Style>
-              <Style Selector="Button:pointerover > Path">
-                <Setter Property="Fill" Value="White"/>
-              </Style>
-              <Style Selector="Button:not(:pointerover) > Path">
-                <Setter Property="Fill" Value="#DDDDDD"/>
-              </Style>
             </Button.Styles>
-            <Path Margin="10,0,10,0"
-                  Stretch="Uniform"
-                  Data="M1169 1024l879 -879l-145 -145l-879 879l-879 -879l-145 145l879 879l-879 879l145 145l879 -879l879 879l145 -145z"></Path>
+            <Path Data="M1,1 L-1,-1 M-1,1 L1,-1"></Path>
           </Button>
 
         </StackPanel>
       </DockPanel>
     </Grid>
-    <NativeMenuBar HorizontalAlignment="Left"
-                   Name="DefaultMenuBar"></NativeMenuBar>
   </StackPanel>
 </UserControl>

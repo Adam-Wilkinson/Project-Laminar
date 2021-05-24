@@ -113,18 +113,11 @@ namespace Laminar_Core.NodeSystem.NodeComponents.Visuals
 
         private void ValueStore_ChildValueChanged(object sender, ILaminarValue laminarValue)
         {
-            try
+            if (ParentNode is not null or IActionNode && laminarValue.IsUserEditable.Value)
             {
-                if (ParentNode is not null or IActionNode && laminarValue.IsUserEditable.Value)
-                {
-                    INodeContainer.NodeBases[ParentNode].Update(null);
-                }
-                NotifyPropertyChanged("Child Value");
+                INodeContainer.NodeBases[ParentNode].Update(null);
             }
-            catch (Exception e)
-            {
-
-            } 
+            NotifyPropertyChanged("Child Value");
         }
     }
 }

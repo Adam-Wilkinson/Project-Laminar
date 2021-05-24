@@ -24,6 +24,7 @@ namespace Laminar_Core.NodeSystem
 
             IEditableNodeLabel output = Constructor.EditableNodeLabel(node.NodeName);
             output.ParentNode = node;
+            output.IndexInParent = -1;
             NameLabels.Add(node, output);
             if (node is ITriggerNode triggerNode)
             {

@@ -9,14 +9,14 @@ namespace Laminar_Core.Serialization
 {
     public class Serializer : ISerializer
     {
-        private static readonly Dictionary<Type, object> SerializableTypes = new();
+        private static readonly Dictionary<Type, object> Serializers = new();
 
         private readonly IObjectFactory _factory;
 
         public Serializer(IObjectFactory factory)
         {
             _factory = factory;
-            if (SerializableTypes.Count == 0)
+            if (Serializers.Count == 0)
             {
                 InitializeDictionaries();
             }
@@ -24,7 +24,7 @@ namespace Laminar_Core.Serialization
 
         public ISerializedObject<T> Serialize<T>(T serializable)
         {
-            if (!(SerializableTypes.TryGetValue(typeof(T), out object serializer) && serializer is IObjectSerializer<T> objectSerializer))
+            if (!(Serializers.TryGetValue(typeof(T), out object serializer) && serializer is IObjectSerializer<T> objectSerializer))
             {
                 throw new NotImplementedException($"No serializable type found for type {typeof(T)}");
             }
@@ -42,7 +42,7 @@ namespace Laminar_Core.Serialization
 
         public T Deserialize<T>(object serialized, object deserializationContext)
         {
-            if (!(SerializableTypes.TryGetValue(typeof(T), out object serializer) && serialized is ISerializedObject<T> serializedObject && serializer is IObjectSerializer<T> objectSerializer))
+            if (!(Serializers.TryGetValue(typeof(T), out object serializer) && serialized is ISerializedObject<T> serializedObject && serializer is IObjectSerializer<T> objectSerializer))
             {
                 throw new NotSupportedException($"Cannot deserialize objects of type {serialized.GetType()}. It does not implement ISerializedObject or a valid Serializer was not found");
             }
@@ -68,7 +68,7 @@ namespace Laminar_Core.Serialization
                     object serializer = _factory.CreateInstance(type);
                     type.GetProperty(nameof(IObjectSerializer<object>.Serializer)).SetValue(serializer, this);
                     Type genericParameter = serializerType.GetGenericArguments().FirstOrDefault();
-                    SerializableTypes.Add(genericParameter, serializer);
+                    Serializers.Add(genericParameter, serializer);
                 }
             }
         }

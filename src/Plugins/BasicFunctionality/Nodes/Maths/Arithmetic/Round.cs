@@ -52,7 +52,7 @@ namespace Laminar_Inbuilt.Nodes.Maths.Arithmetic
             _roundedValue.SetOutput(integerRoundingValue * _roundValueField.GetInput<double>());
         }
 
-        public enum RoundingMethod
+        public enum RoundingMethod : int
         {
             Closest,
             Up,

@@ -61,10 +61,11 @@ namespace WindowsPluginBase.Window
 
         public static RECT GetWindowRect(IntPtr hWnd)
         {
-            NativeMethods.GetWindowRect(hWnd, out RECT rect);
-            // NativeMethods.DwmGetWindowAttribute(hWnd,
-            //    NativeMethods.DWMWINDOWATTRIBUTE.DWMWA_EXTENDED_FRAME_BOUNDS,
-            //    out RECT rect, Marshal.SizeOf<RECT>());
+            int result = NativeMethods.GetWindowRect(hWnd, out RECT rect);
+            if (result < 0)
+            {
+                throw new Exception("Unable to get window rect");
+            }
             return rect;
         }
 
@@ -86,7 +87,11 @@ namespace WindowsPluginBase.Window
         {
             int titleLength = NativeMethods.GetWindowTextLength(hWnd);
             StringBuilder builder = new(titleLength);
-            NativeMethods.GetWindowText(hWnd, builder, titleLength + 1);
+            int result = NativeMethods.GetWindowText(hWnd, builder, titleLength + 1);
+            if (result < 0)
+            {
+                throw new Exception("Unable to get window title");
+            }
             return builder.ToString();
         }
 
@@ -150,7 +155,6 @@ namespace WindowsPluginBase.Window
             MONITOR_DEFAULTTONEAREST = 0x00000002
         }
 
-
         //SetWinEventHook() flags
         public enum SWEH_dwFlags : uint
         {
@@ -160,7 +164,9 @@ namespace WindowsPluginBase.Window
             WINEVENT_INCONTEXT = 0x0004         // Events are SYNC, this causes your dll to be injected into every process
         }
 
+
         //SetWinEventHook() events
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1069:Enums values should not be duplicated", Justification = "These are the values as Microsoft defines them")]
         public enum SWEH_Events : uint
         {
             EVENT_MIN = 0x00000001,
@@ -252,6 +258,7 @@ namespace WindowsPluginBase.Window
         }
 
         //SetWindowPos() Flags
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1069:Enums values should not be duplicated", Justification = "These are the values as Microsoft defines them")]
         public enum SWP_Flags : uint
         {
             SWP_ASYNCWINDOWPOS = 0x4000,

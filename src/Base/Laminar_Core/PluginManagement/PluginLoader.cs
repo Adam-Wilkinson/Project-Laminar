@@ -1,4 +1,5 @@
-﻿using Laminar_PluginFramework.NodeSystem.Nodes;
+﻿using Laminar_Core.Scripting.Advanced.Editing;
+using Laminar_PluginFramework.NodeSystem.Nodes;
 using Laminar_PluginFramework.Registration;
 using System;
 using System.Collections.Generic;
@@ -25,10 +26,14 @@ namespace Laminar_Core.PluginManagement
                     if (typeof(IPlugin).IsAssignableFrom(type) && !type.IsInterface)
                     {
                         IPlugin plugin = (IPlugin)Activator.CreateInstance(type);
-                        IRegisteredPlugin registeredPlugin = new RegisteredPlugin(plugin, instance);
+                        RegisteredPlugin registeredPlugin = new(plugin, instance);
                         if (AutoLoadPlugins.Contains(registeredPlugin.PluginName))
                         {
                             registeredPlugin.Load();
+                        }
+                        if (registeredPlugin.PluginName == "Base plugin functionality")
+                        {
+                            registeredPlugin.RegisterNode(new InputNode());
                         }
                         registeredPlugins.Add(registeredPlugin);
 

@@ -9,6 +9,7 @@ using Avalonia.Controls;
 using Laminar_Inbuilt.UserControls;
 using Laminar_PluginFramework.Primitives;
 using BasicFunctionality.Nodes.Flow;
+using Laminar_Inbuilt.Nodes.Triggers;
 
 namespace Laminar_Inbuilt
 {
@@ -18,11 +19,7 @@ namespace Laminar_Inbuilt
 
         public string PluginName { get; } = "Base plugin functionality";
 
-        public string PluginDescription { get; } = "Implements all the base functionality for Laminar";
-
-        public void Dispose()
-        {
-        }
+        public string PluginDescription { get; } = "Implements all the base functionality for Project: Laminar";
 
         public void Register(IPluginHost host)
         {
@@ -42,6 +39,7 @@ namespace Laminar_Inbuilt
             host.RegisterEditor<IControl, UserControls.ToggleSwitch>("ToggleSwitch");
             host.RegisterEditor<IControl, UserControls.CheckBox>("CheckBox");
 
+            host.AddNodeToMenu<ManualTriggerNode>("Triggers");
             host.AddNodeToMenu<NodeAdd, NodeDifference, NodeMultiply, NodeDivide, Round>("Number", "Arithmetic");
             host.AddNodeToMenu<NodeSine>("Number", "Functions");
             host.AddNodeToMenu<Equal>("Number", "Comparisons");

@@ -103,21 +103,26 @@
 				   PlacementGravity="Bottom"
 				   PlacementMode="AnchorAndGravity"
 				   IsLightDismissEnabled="True">
-				<StackPanel>
-					<ItemsPresenter Items="{Binding AllAdvancedScripts}">
-						<ItemsPresenter.ItemTemplate>
-							<DataTemplate>
-								<Button Content="{Binding Name.Value}"
-										FontSize="20"
-										Command="{Binding $parent[w:MainWindow].AddScriptInstance}"
-										CommandParameter="{Binding}"/>
-							</DataTemplate>
-						</ItemsPresenter.ItemTemplate>
-					</ItemsPresenter>
-					<Button Command="{Binding $parent[w:MainWindow].AddScript}"
-							FontSize="20"
-							Padding="10">New Script</Button>
-				</StackPanel>
+				<Border>
+					<StackPanel>
+						<StackPanel.Styles>
+							<Style Selector="Button">
+								<Setter Property="FontSize" Value="20"/>
+								<Setter Property="Padding" Value="20,7"/>
+							</Style>
+						</StackPanel.Styles>
+						<ItemsPresenter Items="{Binding AllAdvancedScripts}">
+							<ItemsPresenter.ItemTemplate>
+								<DataTemplate>
+									<Button Content="{Binding Name.Value}"
+											Command="{Binding $parent[w:MainWindow].AddScriptInstance}"
+											CommandParameter="{Binding}"/>
+								</DataTemplate>
+							</ItemsPresenter.ItemTemplate>
+						</ItemsPresenter>
+						<Button Command="{Binding $parent[w:MainWindow].AddScript}">New Script</Button>
+					</StackPanel>
+				</Border>
 			</Popup>
 		</Panel>
 	</StackPanel>

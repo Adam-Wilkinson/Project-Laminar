@@ -12,14 +12,24 @@ namespace WindowsKeyboardMouse.Primitives
 {
     public class KeyboardKey
     {
-        private static readonly Dictionary<int, string> UserfriendlyNames = new()
+        private static readonly Dictionary<Keys, string> UserfriendlyNames = new()
         {
-            { 0xA0, "Left Shift" },
-            { 0xA1, "Right Shift" },
-            { 0xA2, "Left control" },
-            { 0xA3, "Right control" },
-            { 0xA4, "Left Alt" },
-            { 0xA5, "Right Alt" },
+            { Keys.D1, "1" },
+            { Keys.D2, "2" },
+            { Keys.D3, "3" },
+            { Keys.D4, "4" },
+            { Keys.D5, "5" },
+            { Keys.D6, "6" },
+            { Keys.D7, "7" },
+            { Keys.D8, "8" },
+            { Keys.D9, "9" },
+            { Keys.D0, "0" },
+            { Keys.LShiftKey, "Left Shift" },
+            { Keys.RShiftKey, "Right Shift" },
+            { Keys.LControlKey, "Left control" },
+            { Keys.RControlKey, "Right control" },
+            { Keys.LMenu, "Left Alt" },
+            { Keys.RMenu, "Right Alt" },
         };
 
         private readonly string _asString;
@@ -60,7 +70,7 @@ namespace WindowsKeyboardMouse.Primitives
                 }
             }
 
-            if (UserfriendlyNames.TryGetValue(virtualKey, out string friendlyName))
+            if (UserfriendlyNames.TryGetValue((Keys)virtualKey, out string friendlyName))
             {
                 builder.Append(friendlyName);
             }

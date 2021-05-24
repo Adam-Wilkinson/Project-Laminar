@@ -29,7 +29,7 @@ namespace Laminar_Core.NodeSystem
                 Index = index;
             }
 
-            public Dictionary<string, NodeCatagories> SubCatagories { get; } = new Dictionary<string, NodeCatagories>();
+            public Dictionary<string, NodeCatagories> SubCatagories { get; private set; } = new Dictionary<string, NodeCatagories>();
 
             public int Index { get; }
 
@@ -44,6 +44,15 @@ namespace Laminar_Core.NodeSystem
                 else
                 {
                     return SubCatagories.First().Value.FirstGroup();
+                }
+            }
+
+            public void Sort()
+            {
+                SubCatagories = new(SubCatagories.OrderBy(x => x.Key));
+                foreach (var kvp in SubCatagories)
+                {
+                    kvp.Value.Sort();
                 }
             }
 

@@ -86,7 +86,7 @@ namespace Laminar_Avalonia.Views
 
         protected override void OnClosed(EventArgs e)
         {
-            App.LaminarInstance.Dispose();
+            
         }
 
         private void InitializeComponent()

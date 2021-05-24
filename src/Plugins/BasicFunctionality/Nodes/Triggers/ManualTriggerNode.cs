@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using Laminar_PluginFramework;
-using Laminar_PluginFramework.Primitives.TypeDefinition;
 using Laminar_PluginFramework.NodeSystem.NodeComponents;
 using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
 using Laminar_PluginFramework.NodeSystem.Nodes;
 
-namespace Laminar_Core.NodeSystem.Nodes
+namespace Laminar_Inbuilt.Nodes.Triggers
 {
     public class ManualTriggerNode : ITriggerNode
     {
-        private readonly INodeField _sourceField = Constructor.NodeField("Manual Trigger").WithValue<Action>("Displayed", false);
+        private readonly INodeField _sourceField = Constructor.NodeField("Manual Trigger").WithValue("Displayed", (Action)(() => { }), false);
 
         public IVisualNodeComponent FlowOutComponent => _sourceField;
 
@@ -28,6 +27,7 @@ namespace Laminar_Core.NodeSystem.Nodes
 
         public void RemoveTriggers()
         {
+            _sourceField["Displayed"] = (Action)(() => { });
         }
 
         public void HookupTriggers()

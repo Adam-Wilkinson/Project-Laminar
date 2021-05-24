@@ -18,11 +18,13 @@ using Laminar_PluginFramework.NodeSystem.Nodes;
 
 namespace Laminar_Core
 {
-    public class Instance : IDisposable
+    public class Instance
     {
+        public static HashSet<Type> InternalNodes { get; } = new();
+
         private readonly Dictionary<Type, TypeInfoRecord> _typeInfo = new();
         private readonly PluginLoader _pluginLoader;
-        private bool _isLoading;
+        private readonly bool _isLoading;
 
         public Instance(SynchronizationContext uiContext, [CallerFilePath] string path = "")
         {
@@ -38,7 +40,7 @@ namespace Laminar_Core
             AllScripts = Factory.GetImplementation<IScriptCollection>();
 
             _pluginLoader = new PluginLoader(this, path);
-            LoadedNodeManager.AddNodeToCatagory(new ManualTriggerNode(), "Triggers");
+            LoadedNodeManager.LoadedNodes.Sort();
             AllRegisteredTypes = _typeInfo.Values.Where(x => x.CanBeInput);
 
             if (UserData.TryLoad<IEnumerable<ISerializedObject<IAdvancedScript>>>("Scripts.pls", out var serializedObjects))
@@ -75,7 +77,7 @@ namespace Laminar_Core
                 }
             }
 
-            return null;
+            throw new ArgumentException($"Couldn't find a plugin for node of type {node.GetType()}");
         }
 
         public ObservableCollection<IAdvancedScript> AllAdvancedScripts { get; } = new();
@@ -123,11 +125,6 @@ namespace Laminar_Core
             }
 
             throw new NotSupportedException($"The type {type} is not registered");
-        }
-
-        public void Dispose()
-        {
-            // _pluginLoader.Dispose();
         }
     }
 

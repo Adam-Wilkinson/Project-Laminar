@@ -13,7 +13,7 @@ namespace Laminar_Core
     class AppDataManager : IUserDataStore
     {
         private static readonly string AppDataLocation = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Project Laminar");
-        private static JsonSerializerSettings JsonSettings = new()
+        private static readonly JsonSerializerSettings JsonSettings = new()
         {
             TypeNameHandling = TypeNameHandling.Auto,
             TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Full,
@@ -47,10 +47,8 @@ namespace Laminar_Core
         {
             string json = JsonConvert.SerializeObject(toSave, Formatting.Indented, JsonSettings);
 
-            using (var stream = File.CreateText(Path.Combine(AppDataLocation, fileName)))
-            {
-                stream.Write(json);
-            }
+            using var stream = File.CreateText(Path.Combine(AppDataLocation, fileName));
+            stream.Write(json);
         }
 
         public bool TryLoad<T>(string fileName, out T loaded)

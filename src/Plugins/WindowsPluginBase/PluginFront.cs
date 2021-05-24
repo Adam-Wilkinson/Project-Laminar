@@ -26,13 +26,9 @@ namespace WindowsPluginBase
 
             host.AddNodeToMenu<WindowLayoutChanged, WindowMoved>("Triggers");
             host.AddNodeToMenu<SetWindowLayout, SetWindowPos, GetWindowPos, CurrentMonitorRect>("Window Management");
-            host.AddNodeToMenu<CursorPosition>("Mouse");
+            host.AddNodeToMenu<CursorPosition>("Input", "Mouse");
             host.AddNodeToMenu<CustomRectangleNode>("Shapes");
             // host.AddNodeToMenu<NotifyUser>("Interactivity");
-        }
-
-        public void Dispose()
-        {
         }
     }
 }

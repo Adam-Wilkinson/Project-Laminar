@@ -19,10 +19,6 @@ namespace WindowsKeyboardMouse
 
         public string PluginDescription { get; } = "Allows for interfacing with the keyboard and mouse, including listening for keyboard and mouse events and sending keyboard and mouse input in Windows";
 
-        public void Dispose()
-        {
-        }
-
         public void Register(IPluginHost host)
         {
             host.RegisterType<MouseButtons>("#FFFF00", "Mouse Button", MouseButtons.Left, "EnumEditor", "StringDisplay", true);
@@ -34,7 +30,7 @@ namespace WindowsKeyboardMouse
 
             // host.AddNodeToMenu<MouseButtonTrigger>("Mouse", "Triggers");
 
-            host.AddNodeToMenu<KeyPresser, TextTyper, IsKeyDown>("Keyboard");
+            host.AddNodeToMenu<KeyPresser, TextTyper, IsKeyDown>("Input", "Keyboard");
         }
     }
 }

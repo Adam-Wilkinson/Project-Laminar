@@ -48,7 +48,7 @@ namespace Laminar_Core.Scripting.Advanced.Editing.Connection.ConnectorManagers
 
         private void FlowActivated(object sender, EventArgs e)
         {
-            ActivateFlow(INodeContainer.GetNodeInstance((sender as IFlow).ParentComponent.ParentNode));
+            ActivateFlow(null);
         }
 
         public void ActivateFlow(IAdvancedScriptInstance activatedInstance)

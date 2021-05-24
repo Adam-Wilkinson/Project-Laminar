@@ -17,8 +17,6 @@ namespace Laminar_Core.NodeSystem.Nodes
     {
         public static Dictionary<INode, INodeContainer> NodeBases { get; } = new();
 
-        public static IAdvancedScriptInstance GetNodeInstance(INode node) => null;
-
         IObservableValue<bool> ErrorState { get; }
 
         IVisualNodeComponentContainer Name { get; }
