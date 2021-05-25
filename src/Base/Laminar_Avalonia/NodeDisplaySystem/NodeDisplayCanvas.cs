@@ -324,7 +324,7 @@ namespace Laminar_Avalonia.NodeDisplaySystem
             {
                 foreach (IVisual visual in this.GetVisualChildren())
                 {
-                    if (visual is NodeDisplay nodeDisplay && (nodeDisplay.CoreNode.Fields as IList).Cast<IVisualNodeComponentContainer>().Any(x => x.InputConnector == connector || x.OutputConnector == connector))
+                    if (visual is NodeDisplay nodeDisplay && connector.ConnectorNode == nodeDisplay.CoreNode)
                     {
                         foreach (IVisual nodeVisual in nodeDisplay.GetVisualDescendants())
                         {

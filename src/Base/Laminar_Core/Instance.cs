@@ -15,6 +15,8 @@ using Laminar_Core.Scripting.Advanced;
 using System.Diagnostics;
 using Laminar_Core.Serialization;
 using Laminar_PluginFramework.NodeSystem.Nodes;
+using Laminar_PluginFramework.Serialization;
+using System.IO;
 
 namespace Laminar_Core
 {
@@ -43,15 +45,12 @@ namespace Laminar_Core
             LoadedNodeManager.LoadedNodes.Sort();
             AllRegisteredTypes = _typeInfo.Values.Where(x => x.CanBeInput);
 
-            if (UserData.TryLoad<IEnumerable<ISerializedObject<IAdvancedScript>>>("Scripts.pls", out var serializedObjects))
+            _isLoading = true;
+            foreach (var serializedScript in UserData.LoadAllFromFolder<ISerializedObject<IAdvancedScript>>("Scripts", "las"))
             {
-                _isLoading = true;
-                foreach (IAdvancedScript script in Serializer.Deserialize<IAdvancedScript>(serializedObjects, null))
-                {
-                    AllAdvancedScripts.Add(script);
-                }
-                _isLoading = false;
+                AllAdvancedScripts.Add(Serializer.Deserialize(serializedScript, null));
             }
+            _isLoading = false;
         }
 
         public Type GetNodeType(string nodeName, string pluginName)
@@ -102,14 +101,14 @@ namespace Laminar_Core
 
         public bool RegisterTypeInfo(Type type, TypeInfoRecord record) => _typeInfo.TryAdd(type, record);
 
-        public void ResaveUserData()
+        public void SaveScript(IAdvancedScript script)
         {
             if (_isLoading)
             {
                 return;
             }
 
-            UserData.Save("Scripts.pls", Serializer.Serialize((IEnumerable<IAdvancedScript>)AllAdvancedScripts));
+            UserData.Save($"Scripts/{script.Name.Value}.las", Serializer.Serialize(script));
         }
 
         public TypeInfoRecord GetTypeInfo(Type type)

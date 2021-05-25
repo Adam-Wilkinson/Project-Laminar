@@ -2,6 +2,7 @@
 using Laminar_Core.Scripting.Advanced;
 using Laminar_Core.Scripting.Advanced.Editing.Connection;
 using Laminar_PluginFramework.Primitives;
+using Laminar_PluginFramework.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,14 +15,12 @@ namespace Laminar_Core.Serialization.SerializedObjects
     {
         private readonly IObjectFactory _factory;
 
-        public ISerializer Serializer { get; set; }
-
         public AdvancedScriptSerializer(IObjectFactory factory)
         {
             _factory = factory;
         }
 
-        public IAdvancedScript DeSerialize(ISerializedObject<IAdvancedScript> serialized, object deserializationContext)
+        public IAdvancedScript DeSerialize(ISerializedObject<IAdvancedScript> serialized, ISerializer serializer, object deserializationContext)
         {
             if (serialized is not SerializedAdvancedScript serializedAdvancedScript)
             {
@@ -34,18 +33,18 @@ namespace Laminar_Core.Serialization.SerializedObjects
 
             foreach (var kvp in serializedAdvancedScript.Inputs)
             {
-                output.Editor.Inputs.Add(kvp.Key, kvp.Value);
+                output.Editor.Inputs.Add(kvp.Key, serializer.TryDeserializeObject(kvp.Value, null));
             }
             output.UpdateInputs();
 
-            foreach (INodeContainer node in Serializer.Deserialize<INodeContainer>(serializedAdvancedScript.Nodes, output))
+            foreach (var node in serializedAdvancedScript.Nodes)
             {
-                output.Editor.AddNode(node);
+                output.Editor.AddNode(serializer.Deserialize(node, output));
             }
 
             foreach (ISerializedObject<INodeConnection> connection in serializedAdvancedScript.Connections)
             {
-                Serializer.Deserialize<INodeConnection>(connection, output.Editor);
+                serializer.Deserialize(connection, output.Editor);
             }
 
             output.IsBeingEdited = false;
@@ -54,9 +53,9 @@ namespace Laminar_Core.Serialization.SerializedObjects
 
         }
 
-        public ISerializedObject<IAdvancedScript> Serialize(IAdvancedScript toSerialize)
+        public ISerializedObject<IAdvancedScript> Serialize(IAdvancedScript toSerialize, ISerializer serializer)
         {
-            return new SerializedAdvancedScript(toSerialize.Name.Value, Serializer.Serialize((IEnumerable<INodeContainer>)toSerialize.Editor.Nodes).ToList(), Serializer.Serialize(toSerialize.Editor.Connections).ToList(), toSerialize.Inputs.ToDictionary(x => x.Key, x => x.Value.Value));
+            return new SerializedAdvancedScript(toSerialize.Name.Value, toSerialize.Editor.Nodes.Select(x => serializer.Serialize(x)).ToList(), toSerialize.Editor.Connections.Select(x => serializer.Serialize(x)).ToList(), toSerialize.Inputs.ToDictionary(x => x.Key, x => serializer.TrySerializeObject(x.Value.Value)));
         }
 
         public record SerializedAdvancedScript(

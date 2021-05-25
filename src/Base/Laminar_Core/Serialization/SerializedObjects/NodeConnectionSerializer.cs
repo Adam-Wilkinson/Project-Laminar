@@ -2,6 +2,7 @@
 using Laminar_Core.NodeSystem.Nodes;
 using Laminar_Core.Scripting.Advanced.Editing;
 using Laminar_Core.Scripting.Advanced.Editing.Connection;
+using Laminar_PluginFramework.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,9 +13,7 @@ namespace Laminar_Core.Serialization.SerializedObjects
 {
     public class NodeConnectionSerializer : IObjectSerializer<INodeConnection>
     {
-        public ISerializer Serializer { get; set; }
-
-        public INodeConnection DeSerialize(ISerializedObject<INodeConnection> serialized, object deserialiationContext)
+        public INodeConnection DeSerialize(ISerializedObject<INodeConnection> serialized, ISerializer serialize, object deserialiationContext)
         {
             if (deserialiationContext is not IAdvancedScriptEditor editor)
             {
@@ -47,7 +46,7 @@ namespace Laminar_Core.Serialization.SerializedObjects
             return ((IList<IVisualNodeComponentContainer>)container.Fields)[index];
         }
 
-        public ISerializedObject<INodeConnection> Serialize(INodeConnection toSerialize)
+        public ISerializedObject<INodeConnection> Serialize(INodeConnection toSerialize, ISerializer serialize)
         {
             return new SerializedNodeConnection(toSerialize.OutputConnector.ConnectorNode.Guid, toSerialize.OutputConnector.ParentComponentContainer.Child.IndexInParent, toSerialize.InputConnector.ConnectorNode.Guid, toSerialize.InputConnector.ParentComponentContainer.Child.IndexInParent);
         }

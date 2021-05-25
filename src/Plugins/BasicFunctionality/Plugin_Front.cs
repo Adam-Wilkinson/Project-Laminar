@@ -23,10 +23,10 @@ namespace Laminar_Inbuilt
 
         public void Register(IPluginHost host)
         {
-            host.RegisterType<double>("#FF0000", "Number", 0.0, "NumberEditor", "StringDisplay", true);
-            host.RegisterType<string>("#0000FF", "Text", "", "StringEditor", "StringDisplay", true);
-            host.RegisterType<bool>("#00FFFF", "Condition", false, "BoolEditor", "StringDisplay", true);
-            host.RegisterType<Action>("00FF00", "Button", null, "DefaultDisplay", "ActionDisplay", false);
+            host.RegisterType<double>("#FF0000", "Number", 0.0, "NumberEditor", "StringDisplay", true, null);
+            host.RegisterType<string>("#0000FF", "Text", "", "StringEditor", "StringDisplay", true, null);
+            host.RegisterType<bool>("#00FFFF", "Condition", false, "BoolEditor", "StringDisplay", true, null);
+            host.RegisterType<Action>("00FF00", "Button", null, "DefaultDisplay", "ActionDisplay", false, null);
 
             host.RegisterDisplay<IControl, DefaultDisplay>("DefaultDisplay");
             host.RegisterDisplay<IControl, StringDisplay>("StringDisplay");

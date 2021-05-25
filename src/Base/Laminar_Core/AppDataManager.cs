@@ -15,7 +15,7 @@ namespace Laminar_Core
         private static readonly string AppDataLocation = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Project Laminar");
         private static readonly JsonSerializerSettings JsonSettings = new()
         {
-            TypeNameHandling = TypeNameHandling.Auto,
+            TypeNameHandling = TypeNameHandling.All,
             TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Full,
         };
 
@@ -24,6 +24,14 @@ namespace Laminar_Core
             if (!Directory.Exists(AppDataLocation))
             {
                 Directory.CreateDirectory(AppDataLocation);
+            }
+        }
+
+        public IEnumerable<T> LoadAllFromFolder<T>(string folder, string fileType)
+        {
+            foreach (string dir in Directory.EnumerateFiles(Path.Combine(AppDataLocation, folder), $"*.{fileType}"))
+            {
+                yield return Load<T>(dir);
             }
         }
 
@@ -45,6 +53,12 @@ namespace Laminar_Core
 
         public void Save(string fileName, object toSave)
         {
+            string savePath = Path.Combine(AppDataLocation, fileName);
+            if (!Directory.Exists(Path.GetDirectoryName(savePath)))
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(savePath));
+            }
+
             string json = JsonConvert.SerializeObject(toSave, Formatting.Indented, JsonSettings);
 
             using var stream = File.CreateText(Path.Combine(AppDataLocation, fileName));

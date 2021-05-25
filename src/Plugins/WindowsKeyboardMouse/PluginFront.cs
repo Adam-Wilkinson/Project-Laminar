@@ -21,8 +21,8 @@ namespace WindowsKeyboardMouse
 
         public void Register(IPluginHost host)
         {
-            host.RegisterType<MouseButtons>("#FFFF00", "Mouse Button", MouseButtons.Left, "EnumEditor", "StringDisplay", true);
-            host.RegisterType<KeyboardKey>("#FFA500", "Keyboard Button", new KeyboardKey((int)Keys.A), "KeyboardKeyEditor", "StringDisplay", true);
+            host.RegisterType<MouseButtons>("#FFFF00", "Mouse Button", MouseButtons.Left, "EnumEditor", "StringDisplay", true, null);
+            host.RegisterType<KeyboardKey>("#FFA500", "Keyboard Button", new KeyboardKey((int)Keys.A), "KeyboardKeyEditor", "StringDisplay", true, new KeyboardKeySerializer());
 
             host.RegisterEditor<IControl, KeyboardKeyEditor>("KeyboardKeyEditor");
 

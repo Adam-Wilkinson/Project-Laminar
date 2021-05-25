@@ -32,11 +32,10 @@ namespace WindowsKeyboardMouse.Primitives
             { Keys.RMenu, "Right Alt" },
         };
 
-        private readonly string _asString;
-
         public KeyboardKey(int virtualKey, KeyModifiers modifiers = KeyModifiers.None)
         {
-            VirtualKey = virtualKey; 
+            VirtualKey = virtualKey;
+            Modifiers = modifiers;
             HookKey = (Keys)virtualKey;
             StringBuilder builder = new();
 
@@ -79,10 +78,14 @@ namespace WindowsKeyboardMouse.Primitives
                 builder.Append((Keys)virtualKey);
             }
 
-            _asString = builder.ToString();
+            AsString = builder.ToString();
         }
 
-        private int VirtualKey { get; }
+        public int VirtualKey { get; }
+
+        public KeyModifiers Modifiers { get; }
+
+        public string AsString { get; }
 
         public Keys HookKey { get; }
 
@@ -94,7 +97,7 @@ namespace WindowsKeyboardMouse.Primitives
                 (HookKey.HasFlag(Keys.Alt) == (KeyIsDown((int)Keys.LMenu) | KeyIsDown((int)Keys.RMenu)));
         }
 
-        public override string ToString() => _asString;
+        public override string ToString() => AsString;
 
         public override bool Equals(object obj)
         {

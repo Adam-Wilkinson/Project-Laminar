@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Laminar_Core.Serialization
+namespace Laminar_PluginFramework.Serialization
 {
     public interface ISerializedObject<T>
     {

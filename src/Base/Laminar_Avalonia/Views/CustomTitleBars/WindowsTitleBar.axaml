@@ -59,7 +59,7 @@
 			</StackPanel.Styles>
 			
 			<Button Name="SysTrayButton"
-					ToolTip.Tip="Minimize to System tray">
+					ToolTip.Tip="Minimize to System Tray">
 				<Path Data="M-1,1 v1 h-1.7 M-3,0"/>
 			</Button>
 			

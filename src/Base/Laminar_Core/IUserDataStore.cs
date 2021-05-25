@@ -13,5 +13,6 @@ namespace Laminar_Core
         T Load<T>(string fileName);
 
         bool TryLoad<T>(string fileName, out T loaded);
+        IEnumerable<T> LoadAllFromFolder<T>(string folder, string fileType);
     }
 }

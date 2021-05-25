@@ -118,7 +118,7 @@
         <Image Source="/Assets/ProjectLaminarLogo.png"
                Height="25"
                Width="25"></Image>
-        <TextBlock Text="Custom TitleBar Demo"
+        <TextBlock Text="Project: Laminar"
                    FontSize="20"
                    VerticalAlignment="Center"
                    Foreground="{DynamicResource MacOsWindowTitleColor}">

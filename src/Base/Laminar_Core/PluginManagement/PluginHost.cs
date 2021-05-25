@@ -1,6 +1,8 @@
 ﻿using System;
+using Laminar_Core.Serialization;
 using Laminar_PluginFramework.NodeSystem.Nodes;
 using Laminar_PluginFramework.Registration;
+using Laminar_PluginFramework.Serialization;
 
 namespace Laminar_Core.PluginManagement
 {
@@ -22,8 +24,14 @@ namespace Laminar_Core.PluginManagement
             _instance.LoadedNodeManager.AddNodeToCatagory(node, menuItemName, subItemName);
         }
 
-        public bool RegisterType<T>(string hexColour, string userFriendlyName, T defaultValue = default, string defaultEditorName = null, string defaultDisplayName = null, bool isTreeInput = true)
-            => _instance.RegisterTypeInfo(typeof(T), new TypeInfoRecord(typeof(T), defaultValue, hexColour, defaultDisplayName, defaultEditorName, userFriendlyName, isTreeInput));
+        public bool RegisterType<T>(string hexColour, string userFriendlyName, T defaultValue, string defaultEditorName, string defaultDisplayName, bool isTreeInput, IObjectSerializer<T> serializer)
+        {
+            if (serializer is not null)
+            {
+                _instance.Serializer.RegisterSerializer(serializer);
+            }
+            return _instance.RegisterTypeInfo(typeof(T), new TypeInfoRecord(typeof(T), defaultValue, hexColour, defaultDisplayName, defaultEditorName, userFriendlyName, isTreeInput));
+        }
 
         public bool TryAddTypeConverter<TInput, TOutput, TConverter>() where TConverter : INode
             => throw new NotImplementedException();

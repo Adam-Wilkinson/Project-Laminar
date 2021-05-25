@@ -19,6 +19,7 @@ using Laminar_PluginFramework.NodeSystem.NodeComponents.Collections;
 using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
 using Laminar_PluginFramework.Primitives;
 using Laminar_PluginFramework.Primitives.TypeDefinition;
+using Laminar_PluginFramework.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;

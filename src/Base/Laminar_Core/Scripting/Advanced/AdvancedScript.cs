@@ -51,7 +51,7 @@ namespace Laminar_Core.Scripting.Advanced
                     _compilerManager.Refresh(this);
                     _compilerManager.EnableAllScripts();
                     UpdateInputs();
-                    _instance.ResaveUserData();
+                    _instance.SaveScript(this);
                 }
 
                 Editor.IsLive = _isBeingEdited;

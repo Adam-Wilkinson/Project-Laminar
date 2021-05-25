@@ -7,6 +7,7 @@ using Laminar_PluginFramework.NodeSystem.NodeComponents.Collections;
 using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
 using Laminar_PluginFramework.NodeSystem.Nodes;
 using Laminar_PluginFramework.Primitives;
+using Laminar_PluginFramework.Serialization;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -40,17 +41,17 @@ namespace Laminar_Core.Serialization.SerializedObjects
             }
         }
 
-        public ISerializedObject<INodeContainer> Serialize(INodeContainer toSerialize)
+        public ISerializedObject<INodeContainer> Serialize(INodeContainer toSerialize, ISerializer serializer)
         {
             List<object> components = new();
             foreach (INodeComponent component in toSerialize.CoreNode.Fields)
             {
-                components.Add(SerializeNodeComponent(component));
+                components.Add(SerializeNodeComponent(component, serializer));
             }
             return new SerializedNodeContainer(toSerialize.Guid, toSerialize.CoreNode.NodeName, _instance.GetNodePlugin(toSerialize.CoreNode).PluginName, toSerialize.CoreNode.GetNameLabel().LabelText.Value, toSerialize.Location.X, toSerialize.Location.Y, components);
         }
 
-        public INodeContainer DeSerialize(ISerializedObject<INodeContainer> serialized, object deserializationContext)
+        public INodeContainer DeSerialize(ISerializedObject<INodeContainer> serialized, ISerializer serializer, object deserializationContext)
         {
             if (serialized is not SerializedNodeContainer serializedNodeContainer)
             {
@@ -79,7 +80,7 @@ namespace Laminar_Core.Serialization.SerializedObjects
                 foreach ((object serializedComponent, INodeComponent component) in serializedNodeContainer.SerializedComponents.Zip(coreNode.Fields))
                 {
                     component.ParentNode = coreNode;
-                    DeserializeNodeComponentTo(serializedComponent, component);
+                    DeserializeNodeComponentTo(serializedComponent, component, serializer);
                 }
             }
             output.Location.X = serializedNodeContainer.X;
@@ -87,11 +88,11 @@ namespace Laminar_Core.Serialization.SerializedObjects
             return output;
         }
 
-        private object SerializeNodeComponent(INodeComponent component)
+        private object SerializeNodeComponent(INodeComponent component, ISerializer serializer)
         {
             if (component is INodeField nodeField)
             {
-                return new SerializedNodeField(nodeField.Name.Value, nodeField.AllValues.ToDictionary(x => x.Key, x => x.Value.Value));
+                return new SerializedNodeField(nodeField.Name.Value, nodeField.AllValues.ToDictionary(x => x.Key, x => serializer.TrySerializeObject(x.Value.Value)));
             }
 
             if (component is INodeLabel nodeLabel)
@@ -101,20 +102,20 @@ namespace Laminar_Core.Serialization.SerializedObjects
 
             if (component is INodeComponentCollection componentCollection)
             {
-                return new SerializedNodeComponentCollection(componentCollection.Select(x => SerializeNodeComponent(x)).ToList());
+                return new SerializedNodeComponentCollection(componentCollection.Select(x => SerializeNodeComponent(x, serializer)).ToList());
             }
 
             return null;
         }
 
-        private void DeserializeNodeComponentTo(object serializedNodeComponent, INodeComponent serializeTo)
+        private void DeserializeNodeComponentTo(object serializedNodeComponent, INodeComponent serializeTo, ISerializer serializer)
         {
             if (serializedNodeComponent is SerializedNodeField serializedNodeField && serializeTo is INodeField nodeField)
             {
                 nodeField.Name.Value = serializedNodeField.Name;
                 foreach (var kvp in serializedNodeField.Values)
                 {
-                    nodeField[kvp.Key] = kvp.Value;
+                    nodeField[kvp.Key] = serializer.TryDeserializeObject(kvp.Value, null);
                 }
             }
 
@@ -127,7 +128,7 @@ namespace Laminar_Core.Serialization.SerializedObjects
             {
                 foreach ((object serializedChildComponent, INodeComponent childSerializeTo) in serializedNodeComponentCollection.SerializedChildComponents.Zip(nodeComponentCollection))
                 {
-                    DeserializeNodeComponentTo(serializedChildComponent, childSerializeTo);
+                    DeserializeNodeComponentTo(serializedChildComponent, childSerializeTo, serializer);
                 }
             }
         }
