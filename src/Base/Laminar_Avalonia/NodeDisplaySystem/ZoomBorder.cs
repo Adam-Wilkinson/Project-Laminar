@@ -111,7 +111,9 @@
 
             if (dragDropInstance.DragTypeIdentifier == "NodeDisplay" && dragDropInstance.DragControl is NodeDisplay nodeToCopy)
             {
-                nodeManager.AddNode(new NodeDisplay() { CoreNode = nodeToCopy.CoreNode }, e.GetPosition(nodeManager) - dragDropInstance.ClickOffset);
+                INodeContainer newNode = nodeToCopy.CoreNode.DuplicateNode();
+                newNode.IsLive = true;
+                nodeManager.AddNode(new NodeDisplay() { CoreNode = newNode }, e.GetPosition(nodeManager) - dragDropInstance.ClickOffset);
                 return true;
             }
 

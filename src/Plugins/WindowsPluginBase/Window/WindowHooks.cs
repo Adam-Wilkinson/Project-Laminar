@@ -80,6 +80,9 @@ namespace WindowsPluginBase.Window
         }
         public static bool SetWindowRect(IntPtr hWnd, RECT rect)
         {
+            rect.Left -= 7;
+            rect.Right += 7;
+            rect.Bottom += 7;
             return NativeMethods.SetWindowPos(hWnd, IntPtr.Zero, rect.Left, rect.Top, rect.Right - rect.Left, rect.Bottom - rect.Top, NativeMethods.SWP_Flags.SWP_ASYNCWINDOWPOS | NativeMethods.SWP_Flags.SWP_NOACTIVE | NativeMethods.SWP_Flags.SWP_NOOWNERZORDER | NativeMethods.SWP_Flags.SWP_NOZORDER);
         }
 

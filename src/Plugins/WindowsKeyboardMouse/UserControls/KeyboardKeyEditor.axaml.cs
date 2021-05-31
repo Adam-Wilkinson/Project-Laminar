@@ -29,10 +29,21 @@ namespace WindowsKeyboardMouse.UserControls
         {
             if (DataContext is ILaminarValue laminarValue)
             {
+                if (_laminarValue is not null)
+                {
+                    _laminarValue.OnChange -= LaminarValue_OnChange;
+                }
+
                 _laminarValue = laminarValue;
+                _laminarValue.OnChange += LaminarValue_OnChange;
                 UpdateTextBlock(_laminarValue.Value);
             }
             base.OnDataContextChanged(e);
+        }
+
+        private void LaminarValue_OnChange(object sender, object e)
+        {
+            UpdateTextBlock(_laminarValue.Value);
         }
 
         protected override void OnKeyDown(KeyEventArgs e)

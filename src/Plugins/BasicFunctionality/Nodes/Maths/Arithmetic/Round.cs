@@ -40,12 +40,15 @@ namespace Laminar_Inbuilt.Nodes.Maths.Arithmetic
             switch (_roundingMethod["display"])
             {
                 case RoundingMethod.Closest:
+                case 0:
                     integerRoundingValue = Math.Round(integerRoundingValue);
                     break;
                 case RoundingMethod.Up:
+                case 1:
                     integerRoundingValue = Math.Round(integerRoundingValue, MidpointRounding.ToPositiveInfinity);
                     break;
                 case RoundingMethod.Down:
+                case 2:
                     integerRoundingValue = Math.Round(integerRoundingValue, MidpointRounding.ToNegativeInfinity);
                     break;
             }

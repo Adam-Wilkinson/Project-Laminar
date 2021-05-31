@@ -24,8 +24,8 @@
         private readonly INodeComponentDictionary flowOutputs = Constructor.NodeComponentDictionary().WithElement(
                 typeof(bool),
                 Constructor.NodeComponentList(
-                    Constructor.NodeField("True").WithValue("Displayed", Constructor.TypeDefinition(true, "DefaultDisplay"), false).WithFlowOutput(),
-                    Constructor.NodeField("False").WithValue("Displayed", Constructor.TypeDefinition(false, "DefaultDisplay"), false).WithFlowOutput()));
+                    Constructor.NodeField("True").WithValue("Displayed", Constructor.TypeDefinition(true, null, "DefaultDisplay"), false).WithFlowOutput(),
+                    Constructor.NodeField("False").WithValue("Displayed", Constructor.TypeDefinition(false, null, "DefaultDisplay"), false).WithFlowOutput()));
 
         public FlowSwitch()
         {
@@ -48,11 +48,13 @@
 
         public void Evaluate()
         {
+            Debug.WriteLine("Flow switch hit");
             foreach (IVisualNodeComponent field in flowOutputs.VisualComponentList)
             {
                 if (field is INodeField valueField && valueField.DisplayedValue != null && valueField.DisplayedValue.Value.Equals(valueInput.GetInput()))
                 {
                     field.FlowOutput.Activate();
+                    Debug.WriteLine($"Flow output {field.Name} activated");
                     return;
                 }
             }

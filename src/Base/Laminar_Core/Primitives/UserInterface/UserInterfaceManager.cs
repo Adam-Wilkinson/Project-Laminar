@@ -13,9 +13,11 @@ namespace Laminar_Core.Primitives.UserInterface
         private readonly IObjectFactory _factory;
         private readonly Instance _instance;
         private readonly List<IObservableValue<object>> _userInterfaces = new();
+        private readonly IObservableValue<object> _userInterface;
 
-        public UserInterfaceManager(Instance instance)
+        public UserInterfaceManager(Instance instance, IObservableValue<object> userInterface)
         {
+            _userInterface = userInterface;
             _factory = instance.Factory;
             _instance = instance;
         }
@@ -37,6 +39,7 @@ namespace Laminar_Core.Primitives.UserInterface
                 IObservableValue<object> newObject = _factory.GetImplementation<IObservableValue<object>>();
                 newObject.Value = GetUIOfType(key);
                 _userInterfaces.Add(newObject);
+                // RefreshUserInterfaces();
                 return newObject;
             }
         }
@@ -71,6 +74,7 @@ namespace Laminar_Core.Primitives.UserInterface
 
         private void RefreshUserInterfaces()
         {
+            _userInterface.Value = GetUIOfType(_userInterfaceType);
             foreach (IObservableValue<object> userInterface in _userInterfaces)
             {
                 userInterface.Value = GetUIOfType(_userInterfaceType);

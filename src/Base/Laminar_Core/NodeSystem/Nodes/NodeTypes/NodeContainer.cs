@@ -17,19 +17,22 @@ using Newtonsoft.Json;
 
 namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
 {
-    public class NodeContainer<T> 
-        : INodeContainer where T : INode, new()
+    public record NodeDependencyAggregate(IPoint Location, IObservableValue<bool> ErrorState, INodeComponentList FieldList, IVisualNodeComponentContainer Name, IObservableCollectionMapper<IVisualNodeComponent, IVisualNodeComponentContainer> VisualComponentMapper, INodeFactory NodeFactory);
+
+    public class NodeContainer<T> : INodeContainer where T : INode, new()
     {
         private T _baseNode;
         private bool _isLive = false;
         private bool _isUpdating = true;
-        private readonly IObjectFactory _factory;
 
         public NodeContainer(NodeDependencyAggregate dependencies)
         {
-            (Location, ErrorState, FieldList, _factory) = dependencies;
-            Name = _factory.GetImplementation<IVisualNodeComponentContainer>();
-            Fields = ObservableCollectionMapper<IVisualNodeComponent, IVisualNodeComponentContainer>.Create(FieldList.VisualNodeComponentsObservable, _factory);
+            Location = dependencies.Location;
+            ErrorState = dependencies.ErrorState;
+            FieldList = dependencies.FieldList;
+            Name = dependencies.Name;
+            Fields = dependencies.VisualComponentMapper.Map(FieldList.VisualNodeComponentsObservable);
+            NodeFactory = dependencies.NodeFactory;
 
             Fields.CollectionChanged += Fields_CollectionChanged;
         }
@@ -38,7 +41,7 @@ namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
         {
             get
             {
-                _baseNode ??= _factory.CreateInstance<T>();
+                _baseNode ??= new();
 
                 return _baseNode;
             }
@@ -68,6 +71,8 @@ namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
             }
         }
 
+        protected INodeFactory NodeFactory { get; }
+
         protected INodeComponentList FieldList { get; }
 
         public IVisualNodeComponentContainer Name { get; }
@@ -84,7 +89,7 @@ namespace Laminar_Core.NodeSystem.Nodes.NodeTypes
 
         public Guid Guid { get; set; } = Guid.NewGuid();
 
-        public virtual INodeContainer DuplicateNode() => new NodeFactory(_factory).Get(BaseNode.Clone());
+        public virtual INodeContainer DuplicateNode() => NodeFactory.Get(BaseNode.Clone());
 
         public void Update(IAdvancedScriptInstance instance)
         {

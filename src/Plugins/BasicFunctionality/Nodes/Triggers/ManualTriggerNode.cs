@@ -9,11 +9,11 @@ namespace Laminar_Inbuilt.Nodes.Triggers
 {
     public class ManualTriggerNode : ITriggerNode
     {
-        private readonly INodeField _sourceField = Constructor.NodeField("Manual Trigger").WithValue("Displayed", (Action)(() => { }), false);
+        private readonly INodeField _sourceField = Constructor.NodeField("Trigger").WithValue("Displayed", (Action)(() => { }), false);
 
         public IVisualNodeComponent FlowOutComponent => _sourceField;
 
-        public string NodeName => "Flow Source";
+        public string NodeName => "Manual Trigger";
 
         public IEnumerable<INodeComponent> Fields
         {

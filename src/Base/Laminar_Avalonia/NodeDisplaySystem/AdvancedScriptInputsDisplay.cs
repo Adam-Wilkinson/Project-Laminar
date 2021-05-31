@@ -71,7 +71,7 @@ namespace Laminar_Avalonia.NodeDisplaySystem
         {
             if (_lastClickedDisplay is not null)
             {
-                DragDropHandler.StartDrop(e, "NodeDisplay", _lastClickedDisplay, null, _dragOffset);
+                DragDropHandler.StartDrop(e, "NodeDisplay", new NodeDisplay { CoreNode = _lastClickedDisplay.CoreNode.DuplicateNode() }, null, _dragOffset);
                 _lastClickedDisplay = null;
             }
         }
@@ -87,7 +87,7 @@ namespace Laminar_Avalonia.NodeDisplaySystem
             InputNodes.Add(newNode);
             newNode.PointerPressed += (o, e) =>
             {
-                _lastClickedDisplay = new NodeDisplay() { CoreNode = nodeContainer };
+                _lastClickedDisplay = new NodeDisplay { CoreNode = nodeContainer };
                 _dragOffset = e.GetPosition(newNode);
             };
 

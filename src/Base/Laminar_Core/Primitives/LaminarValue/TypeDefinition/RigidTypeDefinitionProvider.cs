@@ -9,7 +9,7 @@ namespace Laminar_Core.Primitives.LaminarValue.TypeDefinition
 {
     public class RigidTypeDefinitionProvider : TypeDefinitionProvider, IRigidTypeDefinitionManager
     {
-        private Instance _instance;
+        private readonly Instance _instance;
 
         public RigidTypeDefinitionProvider(Instance instance)
         {

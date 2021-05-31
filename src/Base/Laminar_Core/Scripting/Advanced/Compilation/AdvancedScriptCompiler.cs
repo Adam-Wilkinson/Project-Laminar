@@ -26,13 +26,14 @@ namespace Laminar_Core.Scripting.Advanced.Compilation
 
         public Dictionary<InputNode, ILaminarValue> Inputs { get; private set; }
 
-        public Dictionary<INodeContainer, CompiledNodeWrapper> AllNodes { get; } = new();
+        public Dictionary<INodeContainer, CompiledNodeWrapper> AllNodes { get; private set; }
 
         public ICompiledScript Compile(IAdvancedScript script)
         {
             ICompiledScript compiledScript = _factory.CreateInstance<ICompiledScript>();
             compiledScript.OriginalScript = script;
             Inputs = new();
+            AllNodes = new();
 
             foreach (InputNode scriptInput in script.Editor.Inputs.InputNodes)
             {

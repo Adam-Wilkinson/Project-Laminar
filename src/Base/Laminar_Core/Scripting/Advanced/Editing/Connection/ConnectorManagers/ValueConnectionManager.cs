@@ -104,15 +104,12 @@ namespace Laminar_Core.Scripting.Advanced.Editing.Connection.ConnectorManagers
             }
 
             _pairedManagers.Add(valConnection);
-            if (_connectorType is ConnectorType.Output)
-            {
-                Activate(null, PropagationDirection.Forwards);
-            }
 
             if (_connectorType is ConnectorType.Input)
             {
                 _oldValue = LaminarValue.Value;
                 LaminarValue.IsUserEditable.Value = false;
+                manager.Activate(null, PropagationDirection.Forwards);
             }
         }
 

@@ -15,8 +15,8 @@ namespace WindowsPluginBase.Nodes
     {
         private readonly INodeField _topField = Constructor.NodeField("Top").WithOutput<double>();
         private readonly INodeField _leftField = Constructor.NodeField("Left").WithOutput<double>();
-        private readonly INodeField _widthField = Constructor.NodeField("Width").WithOutput<double>();
-        private readonly INodeField _heightField = Constructor.NodeField("Height").WithOutput<double>();
+        private readonly INodeField _widthField = Constructor.NodeField("Width").WithOutput(1920.0);
+        private readonly INodeField _heightField = Constructor.NodeField("Height").WithOutput(1080.0);
 
         public IEnumerable<INodeComponent> Fields
         {

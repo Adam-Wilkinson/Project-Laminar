@@ -10,7 +10,7 @@ namespace Laminar_PluginFramework.Serialization
     {
         public object TrySerializeObject(object toSerialize);
 
-        public object TryDeserializeObject(object serialized, object deserializationContext);
+        public object TryDeserializeObject(object serialized, Type requestedType = null, object deserializationContext = null);
 
         public void RegisterSerializer<T>(IObjectSerializer<T> serializer);
 

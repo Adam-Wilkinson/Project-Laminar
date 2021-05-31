@@ -2,6 +2,7 @@
 using Laminar_PluginFramework.NodeSystem.NodeComponents;
 using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
 using Laminar_PluginFramework.NodeSystem.Nodes;
+using Laminar_PluginFramework.Primitives;
 using System;
 using System.Collections.Generic;
 
@@ -21,12 +22,18 @@ namespace Laminar_Core.Scripting.Advanced.Editing
 
         public string NodeName { get; } = "Input";
 
-        public Guid InputID { get; } = Guid.NewGuid();
+        public Guid InputID { get; set; } = Guid.NewGuid();
 
         public object Value
         {
-            get => _valueField.GetValue(INodeField.OutputKey).Value;
-            set => _valueField.GetValue(INodeField.OutputKey).Value = value;
+            get => LaminarValue.Value;
+            set => LaminarValue.Value = value;
+        }
+
+        public ILaminarValue LaminarValue
+        {
+            get => _valueField.GetValue(INodeField.OutputKey);
+            set => _valueField.AddValue(INodeField.OutputKey, value);
         }
 
         public void SetType(Type inputType)

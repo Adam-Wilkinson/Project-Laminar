@@ -58,12 +58,25 @@ namespace Laminar_Core.Serialization
             return toSerialize;
         }
 
-        public object TryDeserializeObject(object serialized, object deserializationContext)
+        public object TryDeserializeObject(object serialized, Type requestedType, object deserializationContext)
         {
+            if (requestedType is not null)
+            {
+                if (requestedType.IsEnum)
+                {
+                    return Enum.ToObject(requestedType, serialized);
+                }
+            }
+
             Type deserializedType = serialized.GetType().GetInterfaces().Where(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(ISerializedObject<>)).FirstOrDefault()?.GetGenericArguments()[0];
             if (deserializedType is not null && Serializers.TryGetValue(deserializedType, out object serializer))
             {
                 return typeof(IObjectSerializer<>).MakeGenericType(deserializedType).GetMethod(nameof(IObjectSerializer<object>.DeSerialize)).Invoke(serializer, new object[] { serialized, this, deserializationContext });
+            }
+
+
+            if (requestedType is not null)
+            {
             }
 
             return serialized;

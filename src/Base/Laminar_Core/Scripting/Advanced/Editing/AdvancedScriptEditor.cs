@@ -69,8 +69,9 @@ namespace Laminar_Core.Scripting.Advanced.Editing
 
         public void DeleteNode(INodeContainer node)
         {
-            if (node.CanGetCoreNodeOfType(out ITriggerNode _))
+            if (node.CanGetCoreNodeOfType(out ITriggerNode triggerNode))
             {
+                triggerNode.RemoveTriggers();
                 _triggerNodes.Remove(node);
             }
 

@@ -115,7 +115,8 @@ namespace Laminar_Core.Serialization.SerializedObjects
                 nodeField.Name.Value = serializedNodeField.Name;
                 foreach (var kvp in serializedNodeField.Values)
                 {
-                    nodeField[kvp.Key] = serializer.TryDeserializeObject(kvp.Value, null);
+                    object deserializedValue = serializer.TryDeserializeObject(kvp.Value, nodeField.GetValue(kvp.Key).TypeDefinition?.ValueType, null);
+                    nodeField[kvp.Key] = deserializedValue;
                 }
             }
 

@@ -73,6 +73,7 @@ namespace Laminar_Core
             RegisterImplementationUnsafe(typeof(IDependentValue<>), typeof(DependentValue<>));
             RegisterImplementationUnsafe(typeof(IValueConstraint<>), typeof(ValueConstraint<>));
             RegisterImplementationUnsafe(typeof(ITypeDefinitionConstructor<>), typeof(TypeDefinitionConstructor<>));
+            RegisterImplementationUnsafe(typeof(IObservableCollectionMapper<,>), typeof(ObservableCollectionMapper<,>));
         }
 
         public T GetImplementation<T>()

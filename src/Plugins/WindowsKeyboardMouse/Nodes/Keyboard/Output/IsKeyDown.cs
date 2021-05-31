@@ -4,6 +4,7 @@ using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
 using Laminar_PluginFramework.NodeSystem.Nodes;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -28,6 +29,7 @@ namespace WindowsKeyboardMouse.Nodes.Keyboard.Output
 
         public void Evaluate()
         {
+            Debug.WriteLine($"Someone asked if the key {_keyField.GetInput()} is down. It got the value {_keyField.GetInput<KeyboardKey>().IsPressed()}");
             _keyField[INodeField.OutputKey] = _keyField.GetInput<KeyboardKey>().IsPressed();
         }
     }

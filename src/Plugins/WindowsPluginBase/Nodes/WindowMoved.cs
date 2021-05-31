@@ -4,6 +4,7 @@ using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
 using Laminar_PluginFramework.NodeSystem.Nodes;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -48,6 +49,7 @@ namespace WindowsPluginBase.Nodes
 
         private void WindowMovedMethod(IntPtr hWndEventHook, NativeMethods.SWEH_Events eventType, IntPtr hWnd, NativeMethods.SWEH_ObjectId objID, long idChild, uint dwEventThread, uint dwmsEventTime)
         {
+            Debug.WriteLine("A window has been moved");
             movedWindow.SetOutput(new Window.Window { hWnd = hWnd });
             Trigger?.Invoke(this, new EventArgs());
         }
