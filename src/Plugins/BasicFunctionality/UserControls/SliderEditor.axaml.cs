@@ -2,7 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 
-namespace Laminar_Inbuilt.UserControls
+namespace BasicFunctionality.UserControls
 {
     public class SliderEditor : UserControl
     {

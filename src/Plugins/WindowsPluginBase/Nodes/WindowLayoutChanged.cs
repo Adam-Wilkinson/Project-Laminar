@@ -68,5 +68,9 @@ namespace WindowsPluginBase.Nodes
             ArrangementChanged();
             Trigger?.Invoke(this, new EventArgs());
         }
+
+        public void Evaluate()
+        {
+        }
     }
 }

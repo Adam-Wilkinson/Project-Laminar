@@ -1,32 +1,17 @@
-﻿namespace Laminar_Inbuilt.Nodes.Maths.Arithmetic
+﻿using Laminar.PluginFramework.NodeSystem;
+using Laminar_PluginFramework.NodeSystem.Nodes;
+
+namespace BasicFunctionality.Nodes.Maths.Arithmetic;
+public class NodeDifference : IFunctionNode
 {
-    using System.Collections.Generic;
-    using Laminar_PluginFramework;
-    using Laminar_PluginFramework.NodeSystem.NodeComponents;
-    using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
-    using Laminar_PluginFramework.NodeSystem.Nodes;
+    [ValueInput<double>("First Number")] double FirstNumber { get; set; } = 0.0;
+    [ValueInput<double>("Second Number")] double SecondNumber { get; set; } = 0.0;
+    [ValueOutput<double>("Difference")] double Difference { get; set; } = 0.0;
 
-    public class NodeDifference : IFunctionNode
+    public string NodeName => "Difference";
+
+    public void Evaluate()
     {
-        private readonly INodeField firstNumber = Constructor.NodeField("Number 1").WithInput(0.0);
-        private readonly INodeField secondNumber = Constructor.NodeField("Number 2").WithInput(0.0);
-        private readonly INodeField outputField = Constructor.NodeField("Difference").WithOutput(0.0);
-
-        public string NodeName => "Difference";
-
-        public IEnumerable<INodeComponent> Fields
-        {
-            get
-            {
-                yield return firstNumber;
-                yield return secondNumber;
-                yield return outputField;
-            }
-        }
-
-        public void Evaluate()
-        {
-            outputField.SetOutput(firstNumber.GetInput<double>() - secondNumber.GetInput<double>());
-        }
+        Difference = FirstNumber - SecondNumber;
     }
 }

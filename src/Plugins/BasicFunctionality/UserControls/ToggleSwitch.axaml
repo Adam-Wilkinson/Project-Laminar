@@ -3,10 +3,9 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="Laminar_Inbuilt.UserControls.ToggleSwitch"
-			 DataContext="{Binding DisplayedValue}">
+             x:Class="BasicFunctionality.UserControls.ToggleSwitch">
 	<StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
 		<TextBlock Text="{Binding Name}" Margin="5,0" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-		<CheckBox IsChecked="{Binding TrueValue}" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+		<CheckBox IsChecked="{Binding Value}" VerticalAlignment="Center" HorizontalAlignment="Left"/>
 	</StackPanel>
 </UserControl>

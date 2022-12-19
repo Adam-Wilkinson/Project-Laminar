@@ -1,4 +1,4 @@
-﻿namespace Laminar_Inbuilt.Nodes.StringOperations
+﻿namespace BasicFunctionality.Nodes.StringOperations
 {
     using System.Collections.Generic;
     using Laminar_PluginFramework;

@@ -2,79 +2,71 @@
 using Laminar_PluginFramework.NodeSystem.NodeComponents;
 using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
 using Laminar_PluginFramework.NodeSystem.Nodes;
-using Laminar_PluginFramework.Primitives;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using WindowsHook;
-using WindowsKeyboardMouse.Nodes.Keyboard.Output;
 
-namespace WindowsKeyboardMouse.Nodes.Keyboard.Triggers
+namespace WindowsKeyboardMouse.Nodes.Keyboard.Triggers;
+
+public class TextTypedTrigger : ITriggerNode
 {
-    public class TextTypedTrigger : ITriggerNode
+    private readonly INodeField textInput = Constructor.NodeField("Text to listen for").WithInput<string>();
+
+    // private IKeyboardMouseEvents _globalHook;
+
+    public IEnumerable<INodeComponent> Fields
     {
-        private readonly INodeField textInput = Constructor.NodeField("Text to listen for").WithInput<string>();
-
-        private IKeyboardMouseEvents _globalHook;
-
-        public IEnumerable<INodeComponent> Fields
+        get
         {
-            get
-            {
-                yield return textInput;
-            }
+            yield return textInput;
         }
+    }
 
-        public string NodeName { get; } = "Text Typed Trigger";
+    public string NodeName { get; } = "Text Typed Trigger";
 
-        public event EventHandler Trigger;
+    public event EventHandler Trigger;
 
-        public void HookupTriggers()
-        {
-            textInput.GetValue(INodeField.InputKey).OnChange += TextInputChanged;
+    public void HookupTriggers()
+    {
+        textInput.GetValue(INodeField.InputKey).OnChange += TextInputChanged;
 
-            TextInputChanged(null, textInput.GetValue(INodeField.InputKey).Value);
-        }
+        TextInputChanged(null, textInput.GetValue(INodeField.InputKey).Value);
+    }
 
-        public void RemoveTriggers()
+    public void RemoveTriggers()
+    {
+        // _globalHook?.Dispose();
+    }
+
+    private void TextInputChanged(object sender, object obj)
+    {
+        /*
+        if (obj as string is null or "")
         {
             _globalHook?.Dispose();
+            return;
         }
 
-        private void TextInputChanged(object sender, object obj)
+        Combination[] combinations = new Combination[((string)obj).Length];
+        int i = 0;
+        foreach (char ch in (string)obj)
         {
-            if (obj as string is null or "")
-            {
-                _globalHook?.Dispose();
-                return;
-            }
-
-            Combination[] combinations = new Combination[((string)obj).Length];
-            int i = 0;
-            foreach (char ch in (string)obj)
-            {
-                combinations[i] = Combination.TriggeredBy(TextTyper.ConvertCharToKey(ch));
-                i++;
-            }
-            Sequence sequence = Sequence.Of(combinations);
-
-            _globalHook?.Dispose();
-            _globalHook = Hook.GlobalEvents();
-            _globalHook.OnSequence(new KeyValuePair<Sequence, Action>[] { new KeyValuePair<Sequence, Action>(sequence, ActivateTriggerOnKeyUp) });
+            combinations[i] = Combination.TriggeredBy(TextTyper.ConvertCharToKey(ch));
+            i++;
         }
+        Sequence sequence = Sequence.Of(combinations);
 
-        private void ActivateTriggerOnKeyUp()
-        {
-            _globalHook.KeyUp += GlobalHook_KeyUp;
-        }
+        _globalHook?.Dispose();
+        _globalHook = Hook.GlobalEvents();
+        _globalHook.OnSequence(new KeyValuePair<Sequence, Action>[] { new KeyValuePair<Sequence, Action>(sequence, ActivateTriggerOnKeyUp) });
+        */
+    }
 
-        private void GlobalHook_KeyUp(object sender, KeyEventArgs e)
-        {
-            Trigger?.Invoke(this, e);
-            _globalHook.KeyUp -= GlobalHook_KeyUp;
-        }
+    private void ActivateTriggerOnKeyUp()
+    {
+        // _globalHook.KeyUp += GlobalHook_KeyUp;
+    }
+
+    public void Evaluate()
+    {
     }
 }

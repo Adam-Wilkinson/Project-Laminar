@@ -1,0 +1,24 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:w="clr-namespace:Laminar.Avalonia.Views;assembly=Laminar.Avalonia"
+			 xmlns:nodes="clr-namespace:Laminar.Avalonia.NodeDisplaySystem;assembly=Laminar.Avalonia"
+			 xmlns:additions ="clr-namespace:Laminar.Avalonia.ToolbarPanelSystem;assembly=Laminar.Avalonia"
+			 xmlns:scripteditor="clr-namespace:Laminar.Avalonia.Controls.ScriptEditor;assembly=Laminar.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="1920" d:DesignHeight="1080"
+             x:Class="Laminar.Avalonia.Views.ScriptEditor">
+	<DockPanel>
+		<DockPanel Background="#151515" HorizontalAlignment="Stretch" DockPanel.Dock="Top" LastChildFill="False">
+			<TextBlock DockPanel.Dock="Left" FontSize="15" FontWeight="Medium" Padding="25,5,15,5" Text="Currently Editing:" VerticalAlignment="Center"/>
+			<TextBox VerticalContentAlignment="Center" FontSize="15" DockPanel.Dock="Left" Margin="6" Padding="10,5" Text="{Binding Name}"/>
+			<Button DockPanel.Dock="Right" Margin="10,5" Padding="6" MinWidth="60" Command="{Binding $parent[w:MainWindow].CloseScriptEditor}">Exit</Button>
+		</DockPanel>
+		<additions:ToolbarPanel DefaultWidth="250">
+			<nodes:AdvancedScriptInputsDisplay DataContext="{Binding Editor.Inputs}" additions:ToolbarPanel.DockDirection="Left"/>
+			<nodes:NodePickerTabBar additions:ToolbarPanel.DockDirection="Top"/>
+			<scripteditor:ScriptEditorControl ActiveScript="{Binding $parent.DataContext}"/>
+		</additions:ToolbarPanel>
+	</DockPanel>
+
+</UserControl>

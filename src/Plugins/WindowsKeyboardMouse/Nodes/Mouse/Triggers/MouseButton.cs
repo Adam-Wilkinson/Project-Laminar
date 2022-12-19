@@ -2,33 +2,26 @@
 using Laminar_PluginFramework.NodeSystem.NodeComponents;
 using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
 using Laminar_PluginFramework.NodeSystem.Nodes;
-using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using WindowsHook;
 
-namespace WindowsKeyboardMouse.Nodes.Mouse.Triggers
+namespace WindowsKeyboardMouse.Nodes.Mouse.Triggers;
+
+public class MouseButton : IFunctionNode
 {
-    public class MouseButton : IFunctionNode
+    // private readonly INodeField mouseButtonOutput = Constructor.NodeField("Mouse Button").WithValue<MouseButtons>("Display", true).WithOutput<MouseButtons>();
+
+    public string NodeName => "Mouse Button";
+
+    public IEnumerable<INodeComponent> Fields
     {
-        private readonly INodeField mouseButtonOutput = Constructor.NodeField("Mouse Button ").WithValue<MouseButtons>("Display", true).WithOutput<MouseButtons>();
-
-        public string NodeName => "Mouse Button";
-
-        public IEnumerable<INodeComponent> Fields
+        get
         {
-            get
-            {
-                yield return mouseButtonOutput;
-            }
+            yield return null;// mouseButtonOutput;
         }
+    }
 
-        public void Evaluate()
-        {
-            mouseButtonOutput[INodeField.OutputKey] = mouseButtonOutput["Display"];
-        }
+    public void Evaluate()
+    {
+        // mouseButtonOutput[INodeField.OutputKey] = mouseButtonOutput["Display"];
     }
 }

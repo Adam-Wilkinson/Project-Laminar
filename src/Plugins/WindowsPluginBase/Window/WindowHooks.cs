@@ -158,7 +158,6 @@ namespace WindowsPluginBase.Window
             MONITOR_DEFAULTTONEAREST = 0x00000002
         }
 
-        //SetWinEventHook() flags
         public enum SWEH_dwFlags : uint
         {
             WINEVENT_OUTOFCONTEXT = 0x0000,     // Events are ASYNC
@@ -167,8 +166,6 @@ namespace WindowsPluginBase.Window
             WINEVENT_INCONTEXT = 0x0004         // Events are SYNC, this causes your dll to be injected into every process
         }
 
-
-        //SetWinEventHook() events
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1069:Enums values should not be duplicated", Justification = "These are the values as Microsoft defines them")]
         public enum SWEH_Events : uint
         {

@@ -5,7 +5,6 @@ using Laminar_PluginFramework.NodeSystem.Nodes;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading;
-using WindowsHook;
 using WindowsKeyboardMouse.Primitives;
 
 namespace WindowsKeyboardMouse.Nodes.Keyboard.Output
@@ -42,11 +41,13 @@ namespace WindowsKeyboardMouse.Nodes.Keyboard.Output
         
         public void Evaluate()
         {
+            /*
             for (int i = 0; i < numberOfPresses.GetInput<double>(); i++)
             {
                 PressVirtualKey((byte)keyField.GetInput<KeyboardKey>().HookKey, KEYEVENTF_EXTENDEDKEY);
                 Thread.Sleep((int)delay.GetInput<double>());
             }
+            */
         }
     }
 }

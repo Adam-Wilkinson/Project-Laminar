@@ -1,0 +1,8 @@
+﻿<Styles
+  xmlns = "https://github.com/avaloniaui">
+
+  <StyleInclude Source="/Styles/ToolbarPanelStyles.xaml"/>
+  <StyleInclude Source="/Styles/NodePickerStyles.xaml"/>
+  <StyleInclude Source="/Styles/NodeTreeInputStyles.xaml"/>
+  <StyleInclude Source="/Styles/NodeWrapperStyles.axaml"/>
+</Styles>

@@ -1,4 +1,4 @@
-﻿namespace Laminar_Inbuilt.Nodes.Maths.Arithmetic
+﻿namespace BasicFunctionality.Nodes.Maths.Arithmetic
 {
     using System.Collections.Generic;
     using Laminar_PluginFramework.NodeSystem.NodeComponents;

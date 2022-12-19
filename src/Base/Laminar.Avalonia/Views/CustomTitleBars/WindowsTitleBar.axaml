@@ -1,0 +1,93 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="Laminar.Avalonia.Views.CustomTitleBars.WindowsTitleBar"
+             DockPanel.Dock="Top">
+  <StackPanel>
+    <Grid Height="50">
+      <DockPanel Background="{DynamicResource HeaderColour}"
+                 IsHitTestVisible="False"
+                 Name="TitleBarBackground"></DockPanel>
+      <DockPanel Name="TitleBar">
+        <StackPanel Orientation="Horizontal"
+                    DockPanel.Dock="Left"
+                    Spacing="6">
+          <Image Source="/Assets/ProjectLaminarLogo.png"
+                 Height="35"
+                 Width="35"
+				 IsHitTestVisible="False"
+                 VerticalAlignment="Center"
+                 Margin="14,0,2,0"
+                 Name="WindowIcon"/>
+          <TextBlock Text="Project:"
+                     FontSize="20"
+					 FontFamily="Lucida Sans"
+					 FontWeight="UltraBold"
+                     VerticalAlignment="Center"
+                     IsHitTestVisible="False"
+                     Name="SystemChromeTitle"/>
+    	  <TextBlock Text="Laminar"
+		             FontSize="20"
+ 			 	     FontFamily="Lucida Sans"
+				     FontWeight="Light"
+		             VerticalAlignment="Center"
+		             IsHitTestVisible="False"/>
+        </StackPanel>
+        <StackPanel HorizontalAlignment="Right"
+                    Orientation="Horizontal">
+			
+			<StackPanel.Styles>
+				<Style Selector="Button">
+					<Setter Property="Padding" Value="5"/>
+					<Setter Property="Width" Value="46"/>
+					<Setter Property="BorderThickness" Value="0"/>
+				</Style>
+				<Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+					<Setter Property="Background" Value="#44AAAAAA"/>
+				</Style>
+				<Style Selector="Button:not(:pointerover) /template/ ContentPresenter#PART_ContentPresenter">
+					<Setter Property="Background" Value="Transparent"/>
+				</Style>
+				<Style Selector="Path">
+					<Setter Property="Stretch" Value="Uniform"/>
+					<Setter Property="Margin" Value="10"/>
+					<Setter Property="Stroke" Value="#DDDDDD"/>
+					<Setter Property="StrokeThickness" Value="2"/>
+				</Style>
+			</StackPanel.Styles>
+			
+			<Button Name="SysTrayButton"
+					ToolTip.Tip="Minimize to System Tray">
+				<Path Data="M-1,1 v1 h-1.7 M-3,0"/>
+			</Button>
+			
+            <Button Name="MinimizeButton"
+                    ToolTip.Tip="Minimize">
+              <Path Data="M0,1 h-2 v0.065 h2 z"/>
+            </Button>
+
+            <Button Name="MaximizeButton">
+              <ToolTip.Tip>
+                <ToolTip Content="Maximize"
+                         Name="MaximizeToolTip"/>
+              </ToolTip.Tip>
+              <Path Name="MaximizeIcon"/>
+            </Button>
+
+          <Button Name="CloseButton"
+                  ToolTip.Tip="Close">
+            <Button.Styles>
+              <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+                <Setter Property="Background" Value="Red"/>
+              </Style>
+            </Button.Styles>
+            <Path Data="M1,1 L-1,-1 M-1,1 L1,-1"></Path>
+          </Button>
+
+        </StackPanel>
+      </DockPanel>
+    </Grid>
+  </StackPanel>
+</UserControl>

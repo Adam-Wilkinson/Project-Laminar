@@ -6,54 +6,48 @@ using Laminar_PluginFramework.Primitives;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using WindowsHook;
 
-namespace WindowsKeyboardMouse.Nodes.Mouse.Triggers
+namespace WindowsKeyboardMouse.Nodes.Mouse.Triggers;
+
+public class MouseButtonTrigger : ITriggerNode
 {
-    public class MouseButtonTrigger : ITriggerNode
+    // private readonly INodeField MouseButton = Constructor.NodeField("Mouse Button").WithInput<MouseButtons>();
+    // private MouseButtons _buttonToListenFor;
+
+    public event EventHandler Trigger;
+
+    public string NodeName { get; } = "Mouse Button Trigger";
+
+    public IEnumerable<INodeComponent> Fields
     {
-        private readonly INodeField MouseButton = Constructor.NodeField("Mouse Button").WithInput<MouseButtons>();
-        private MouseButtons _buttonToListenFor;
-
-        public event EventHandler Trigger;
-
-        public string NodeName { get; } = "Mouse Button Trigger";
-
-        public IEnumerable<INodeComponent> Fields
+        get
         {
-            get
-            {
-                yield return MouseButton;
-            }
+            yield return null;// MouseButton;
         }
+    }
 
-        public void HookupTriggers()
+    public void HookupTriggers()
+    {
+        // MouseButton.GetValue(INodeField.InputKey).PropertyChanged += MouseButtonTrigger_PropertyChanged;
+        MouseButtonTrigger_PropertyChanged(null, new PropertyChangedEventArgs(nameof(ILaminarValue.Value)));
+
+        // Hook.GlobalEvents().MouseDown += MouseButtonTrigger_MouseDown;
+    }
+
+    private void MouseButtonTrigger_PropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName is nameof(ILaminarValue.Value))
         {
-            MouseButton.GetValue(INodeField.InputKey).PropertyChanged += MouseButtonTrigger_PropertyChanged;
-            MouseButtonTrigger_PropertyChanged(null, new PropertyChangedEventArgs(nameof(ILaminarValue.Value)));
-
-            Hook.GlobalEvents().MouseDown += MouseButtonTrigger_MouseDown;
+            // _buttonToListenFor = MouseButton.GetInput<MouseButtons>();
         }
+    }
 
-        private void MouseButtonTrigger_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName is nameof(ILaminarValue.Value))
-            {
-                _buttonToListenFor = MouseButton.GetInput<MouseButtons>();
-            }
-        }
+    public void RemoveTriggers()
+    {
+        // Hook.GlobalEvents().MouseDown -= MouseButtonTrigger_MouseDown;
+    }
 
-        private void MouseButtonTrigger_MouseDown(object sender, MouseEventArgs e)
-        {
-            if (e.Button == _buttonToListenFor)
-            {
-                Trigger?.Invoke(this, new EventArgs());
-            }
-        }
-
-        public void RemoveTriggers()
-        {
-            Hook.GlobalEvents().MouseDown -= MouseButtonTrigger_MouseDown;
-        }
+    public void Evaluate()
+    {
     }
 }

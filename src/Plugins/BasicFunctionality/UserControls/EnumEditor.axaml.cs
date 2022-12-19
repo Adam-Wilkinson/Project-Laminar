@@ -4,7 +4,7 @@ using Avalonia.Markup.Xaml;
 using Laminar_PluginFramework.Primitives;
 using System.Diagnostics;
 
-namespace Laminar_Inbuilt.UserControls
+namespace BasicFunctionality.UserControls
 {
     public class EnumEditor : UserControl
     {

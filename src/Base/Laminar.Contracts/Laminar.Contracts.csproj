@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Laminar.Domain\Laminar.Domain.csproj" />
+    <ProjectReference Include="..\Laminar.PluginFramework\Laminar.PluginFramework.csproj" />
+  </ItemGroup>
+
+</Project>

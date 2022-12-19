@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Laminar_Inbuilt.Nodes.Maths.Arithmetic
+namespace BasicFunctionality.Nodes.Maths.Arithmetic
 {
     public class SliderTest : IFunctionNode
     {

@@ -5,7 +5,7 @@ using Laminar_PluginFramework.NodeSystem.NodeComponents;
 using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
 using Laminar_PluginFramework.NodeSystem.Nodes;
 
-namespace Laminar_Inbuilt.Nodes.Triggers
+namespace BasicFunctionality.Nodes.Triggers
 {
     public class ManualTriggerNode : ITriggerNode
     {
@@ -36,6 +36,10 @@ namespace Laminar_Inbuilt.Nodes.Triggers
             {
                 Trigger?.Invoke(this, new EventArgs());
             });
+        }
+
+        public void Evaluate()
+        {
         }
     }
 }

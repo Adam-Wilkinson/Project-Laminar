@@ -1,4 +1,4 @@
-﻿namespace Laminar_Inbuilt.Nodes.Maths.Functions
+﻿namespace BasicFunctionality.Nodes.Maths.Functions
 {
     using System;
     using System.Collections.Generic;

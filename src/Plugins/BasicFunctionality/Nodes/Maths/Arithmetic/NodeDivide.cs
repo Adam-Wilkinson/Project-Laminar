@@ -1,32 +1,34 @@
-﻿namespace Laminar_Inbuilt.Nodes.Maths.Arithmetic
+﻿namespace BasicFunctionality.Nodes.Maths.Arithmetic;
+
+using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using System.Runtime.Versioning;
+using Laminar.PluginFramework.NodeSystem;
+using Laminar_PluginFramework;
+using Laminar_PluginFramework.NodeSystem;
+using Laminar_PluginFramework.NodeSystem.NodeComponents;
+using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
+using Laminar_PluginFramework.NodeSystem.Nodes;
+
+public class NodeDivide : IFunctionNode
 {
-    using System.Collections.Generic;
-    using Laminar_PluginFramework;
-    using Laminar_PluginFramework.NodeSystem.NodeComponents;
-    using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
-    using Laminar_PluginFramework.NodeSystem.Nodes;
+    public string NodeName => "Divide";
 
-    public class NodeDivide : IFunctionNode
+    public ValueInput<double> FirstNumber = new("Numerator", 0.0);
+    public ValueInput<double> SecondNumber = new("Denominator", 1.0);
+    public ValueOutput<double> ResultNumber = new("Result", 0.0);
+
+    public IEnumerable<INodeComponent> Fields
     {
-        private readonly INodeField firstNumber = Constructor.NodeField("Number 1").WithInput(0.0);
-        private readonly INodeField secondNumber = Constructor.NodeField("Number 2").WithInput(1.0);
-        private readonly INodeField outputField = Constructor.NodeField("Result").WithOutput(0.0);
-
-        public string NodeName => "Divide";
-
-        public IEnumerable<INodeComponent> Fields
+        get
         {
-            get
-            {
-                yield return firstNumber;
-                yield return secondNumber;
-                yield return outputField;
-            }
+            yield return null;
         }
+    }
 
-        public void Evaluate()
-        {
-            outputField.SetOutput(firstNumber.GetInput<double>() / secondNumber.GetInput<double>());
-        }
+    public void Evaluate()
+    {
+        ResultNumber.Value = FirstNumber / SecondNumber;
     }
 }

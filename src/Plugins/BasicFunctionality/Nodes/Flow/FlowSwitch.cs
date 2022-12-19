@@ -1,4 +1,4 @@
-﻿namespace Laminar_Inbuilt.Nodes.Flow
+﻿namespace BasicFunctionality.Nodes.Flow
 {
     using System;
     using System.Collections.Generic;

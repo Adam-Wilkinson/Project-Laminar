@@ -3,19 +3,18 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="Laminar_Inbuilt.UserControls.NumberEditor"
-			 DataContext="{Binding DisplayedValue}">
+             x:Class="BasicFunctionality.UserControls.NumberEditor">
 	<Grid HorizontalAlignment="Stretch">
 		<Grid.ColumnDefinitions>
-			<ColumnDefinition Width="Auto"/>
 			<ColumnDefinition Width="*"/>
+			<ColumnDefinition Width="Auto"/>
 			<ColumnDefinition Width="Auto"/>
 		</Grid.ColumnDefinitions>
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto"/>
 		</Grid.RowDefinitions>
-		<TextBlock Text="{Binding Name}" VerticalAlignment="Center" Grid.Column="0" Grid.Row="0"/>
-		<NumericUpDown Value="{Binding TrueValue}" Margin="8,0,2,0" VerticalAlignment="Center" Grid.Column="1" Grid.Row="0"/>
-		<TextBlock Text="{Binding TypeDefinition[Units]}" Grid.Column="2" VerticalAlignment="Center"/>
+		<TextBlock Text="{Binding Name}" VerticalAlignment="Center" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Center"/>
+		<NumericUpDown Value="{Binding Value}" Margin="8,0,2,0" VerticalAlignment="Center" Grid.Column="1" Grid.Row="0"/>
+		<TextBlock Text="{Binding InterfaceDefinition.Units}" Grid.Column="2" VerticalAlignment="Center"/>
 	</Grid>
 </UserControl>

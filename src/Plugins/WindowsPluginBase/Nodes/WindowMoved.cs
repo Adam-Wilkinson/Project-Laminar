@@ -31,6 +31,10 @@ namespace WindowsPluginBase.Nodes
 
         public event EventHandler Trigger;
 
+        public void Evaluate()
+        {
+        }
+
         public void HookupTriggers()
         {
             WindowHooks.WinEventDelegate windowMovedDelegate = new(WindowMovedMethod);

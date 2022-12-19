@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Laminar_Inbuilt.Nodes.StringOperations
+namespace BasicFunctionality.Nodes.StringOperations
 {
     public class CharacterCounter : IFunctionNode
     {
