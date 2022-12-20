@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Avalonia" Version="0.10.3">
+    <PackageReference Include="Avalonia" Version="0.10.18">
 		<ExcludeAssets>runtime</ExcludeAssets>
 	</PackageReference>
   </ItemGroup>

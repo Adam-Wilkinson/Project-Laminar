@@ -12,7 +12,7 @@ internal class ValuePassingBenchmark
     private readonly IScript _script;
     private readonly IScriptEditor _scriptEditor;
     private readonly INodeFactory _nodeWrapperFactory;
-    Instance instance = new(null);
+    Instance instance = new(null, PluginFramework.Registration.FrontendDependency.None);
 
     public ValuePassingBenchmark()
     {

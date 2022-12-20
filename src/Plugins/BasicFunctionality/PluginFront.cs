@@ -8,9 +8,6 @@ using BasicFunctionality.Nodes.Maths.Comparisons;
 using Laminar_PluginFramework.Primitives;
 using BasicFunctionality.Nodes.Triggers;
 using Laminar_PluginFramework.UserInterfaces;
-using Laminar.PluginFramework.Registration;
-
-[module: TargetFrontend(Frontend.All)]
 
 namespace BasicFunctionality;
 

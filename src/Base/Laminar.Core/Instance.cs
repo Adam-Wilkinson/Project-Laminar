@@ -27,6 +27,7 @@ using Laminar.PluginFramework.NodeSystem.Contracts.Connectors;
 using Laminar.PluginFramework.NodeSystem.Contracts.IO;
 using Laminar.Contracts.NodeSystem.Execution;
 using Laminar.Core.ScriptEditor;
+using Laminar.PluginFramework.Registration;
 
 namespace Laminar.Core;
 
@@ -38,7 +39,7 @@ public class Instance
     private readonly PluginLoader _pluginLoader;
     private readonly bool _isLoading;
 
-    public Instance(SynchronizationContext uiContext, [CallerFilePath] string path = "")
+    public Instance(SynchronizationContext uiContext, FrontendDependency frontend, [CallerFilePath] string path = "")
     {
         UIContext = uiContext;
         Factory = new Laminar_Core.ObjectFactory(this);
@@ -50,7 +51,7 @@ public class Instance
         RegisteredDisplays = Factory.GetImplementation<IUserInterfaceRegister>();
         AllScripts = Factory.GetImplementation<IScriptCollection>();
 
-        _pluginLoader = new PluginLoader(path, ServiceProvider.GetService<IUserInterfaceStore>(), ServiceProvider.GetService<ITypeInfoStore>(), ServiceProvider.GetService<ILoadedNodeManager>(), ServiceProvider.GetService<IConnectorViewFactory>());
+        _pluginLoader = new PluginLoader(path, frontend, ServiceProvider.GetService<IPluginHostFactory>());
         AllRegisteredTypes = _typeInfo.Values.Where(x => x.CanBeInput);
 
         _isLoading = true;
@@ -159,6 +160,8 @@ public class Instance
 
         serviceCollection.AddSingleton<IUserPreferenceManager, UserPreferenceManager>();
         serviceCollection.AddSingleton<IClassInstancer, ClassInstancer>();
+
+        serviceCollection.AddSingleton<IPluginHostFactory, PluginHostFactory>();
 
         return serviceCollection;
     }

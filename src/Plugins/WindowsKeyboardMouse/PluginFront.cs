@@ -7,6 +7,9 @@ using Avalonia.Controls;
 using WindowsKeyboardMouse.UserControls;
 using WindowsKeyboardMouse.Primitives;
 using Laminar_PluginFramework.UserInterfaces;
+using Laminar.PluginFramework.Registration;
+
+[module: HasFrontendDependency(FrontendDependency.Avalonia)]
 
 namespace WindowsKeyboardMouse;
 

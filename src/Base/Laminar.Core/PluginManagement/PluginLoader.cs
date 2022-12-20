@@ -1,8 +1,4 @@
-﻿using Laminar.Contracts.NodeSystem;
-using Laminar.Contracts.NodeSystem.Connection;
-using Laminar.Contracts.UserInterface;
-using Laminar.PluginFramework.Registration;
-using Laminar_Core.Scripting.Advanced.Editing;
+﻿using Laminar.PluginFramework.Registration;
 using Laminar_PluginFramework.NodeSystem.Nodes;
 using Laminar_PluginFramework.Registration;
 using System;
@@ -15,11 +11,11 @@ namespace Laminar.Core.PluginManagement;
 
 public class PluginLoader
 {
-    private readonly string[] AutoLoadPlugins = { "Base plugin functionality", "Keyboard and Mouse interface", "Windows Base" };
-    readonly Frontend _frontend;
+    private readonly string[] AutoLoadPlugins = { "Basic Functionality UI", "Base plugin functionality", "Keyboard and Mouse interface", "Windows Base" };
+    readonly FrontendDependency _frontend;
     private readonly IPluginHostFactory _pluginHostFactory;
 
-    public PluginLoader(string path, Frontend frontend, IPluginHostFactory pluginHostFactory)
+    public PluginLoader(string path, FrontendDependency frontend, IPluginHostFactory pluginHostFactory)
     {
         _frontend = frontend;
         _pluginHostFactory = pluginHostFactory;
@@ -43,7 +39,7 @@ public class PluginLoader
 
     private RegisteredPlugin? LoadModule(Module module)
     {
-        if (module.GetCustomAttribute<TargetFrontendAttribute>() is not TargetFrontendAttribute attr || (attr.FrontEndTarget != Frontend.All && attr.FrontEndTarget != _frontend))
+        if (module.GetCustomAttribute<HasFrontendDependencyAttribute>() is HasFrontendDependencyAttribute attr && attr.FrontendDependency != _frontend)
         {
             return null;
         }

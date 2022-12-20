@@ -5,7 +5,7 @@ using Laminar_PluginFramework.Primitives;
 using Laminar_PluginFramework.Registration;
 using Laminar_PluginFramework.UserInterfaces;
 
-[module: TargetFrontend(Frontend.Avalonia)]
+[module: HasFrontendDependency(FrontendDependency.Avalonia)]
 
 namespace BasicFunctionality.Avalonia;
 
