@@ -3,7 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using Laminar_PluginFramework.UserInterfaces;
 
-namespace BasicFunctionality.UserControls;
+namespace BasicFunctionality.Avalonia.UserControls;
 
 public class StringDisplay : UserControl
 {

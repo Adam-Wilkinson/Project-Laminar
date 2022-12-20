@@ -4,19 +4,9 @@
     <StyleCopTreatErrorsAsWarnings>True</StyleCopTreatErrorsAsWarnings>
   </PropertyGroup>
   <ItemGroup>
-	  <PackageReference Include="Avalonia" Version="0.10.3">
-		  <ExcludeAssets>runtime</ExcludeAssets>
-	  </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
 	  <ProjectReference Include="..\..\Base\Laminar.PluginFramework\Laminar.PluginFramework.csproj">
 		  <Private>false</Private>
 		  <ExcludeAssets>runtime</ExcludeAssets>
 	  </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Update="UserControls\CheckBox.axaml.cs">
-      <DependentUpon>CheckBox.axaml</DependentUpon>
-    </Compile>
   </ItemGroup>
 </Project>

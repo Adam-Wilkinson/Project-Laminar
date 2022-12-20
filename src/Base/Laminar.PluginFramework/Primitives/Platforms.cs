@@ -1,16 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Laminar_PluginFramework.Primitives
+namespace Laminar_PluginFramework.Primitives;
+
+[Flags]
+public enum Platforms
 {
-    [Flags]
-    public enum Platforms
-    {
-        Windows,
-        Mac,
-        Linux,
-    }
+    None = 0,
+    Windows = 0b001,
+    Mac = 0b010,
+    Linux = 0b100,
+    All = Windows | Mac | Linux,
 }

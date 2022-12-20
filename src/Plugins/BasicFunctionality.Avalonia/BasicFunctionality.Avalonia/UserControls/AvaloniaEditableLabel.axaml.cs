@@ -4,10 +4,11 @@ using Avalonia.Input;
 using Avalonia.Markup.Xaml;
 using Laminar_PluginFramework.UserInterfaces;
 
-namespace BasicFunctionality.UserControls;
+namespace BasicFunctionality.Avalonia.UserControls;
+
 public partial class AvaloniaEditableLabel : UserControl
 {
-    string _persistentValue;
+    string? _persistentValue;
 
     TextBlock _label;
     TextBox _entry;
@@ -23,7 +24,7 @@ public partial class AvaloniaEditableLabel : UserControl
         _entry.KeyDown += Entry_KeyDown;
     }
 
-    private void Entry_KeyDown(object sender, KeyEventArgs e)
+    private void Entry_KeyDown(object? sender, KeyEventArgs e)
     {
         if (e.Key == Key.Enter)
         {
@@ -38,7 +39,7 @@ public partial class AvaloniaEditableLabel : UserControl
         }
     }
 
-    private void AvaloniaEditableLabel_DoubleTapped(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+    private void AvaloniaEditableLabel_DoubleTapped(object? sender, global::Avalonia.Interactivity.RoutedEventArgs e)
     {
         _persistentValue = _label.Text;
         SetEditing(true);
@@ -54,7 +55,7 @@ public partial class AvaloniaEditableLabel : UserControl
         }
     }
 
-    private void SetText(string text)
+    private void SetText(string? text)
     {
         _label.Text = text;
         _entry.Text = text;

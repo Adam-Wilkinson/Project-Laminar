@@ -3,18 +3,16 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="BasicFunctionality.UserControls.NumberEditor">
+             x:Class="BasicFunctionality.Avalonia.UserControls.StringEditor">
 	<Grid HorizontalAlignment="Stretch">
 		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="Auto"/>
 			<ColumnDefinition Width="*"/>
-			<ColumnDefinition Width="Auto"/>
-			<ColumnDefinition Width="Auto"/>
 		</Grid.ColumnDefinitions>
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto"/>
 		</Grid.RowDefinitions>
-		<TextBlock Text="{Binding Name}" VerticalAlignment="Center" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Center"/>
-		<NumericUpDown Value="{Binding Value}" Margin="8,0,2,0" VerticalAlignment="Center" Grid.Column="1" Grid.Row="0"/>
-		<TextBlock Text="{Binding InterfaceDefinition.Units}" Grid.Column="2" VerticalAlignment="Center"/>
+		<TextBlock Text="{Binding Name}" VerticalAlignment="Center" Grid.Column="0"/>
+		<TextBox Text="{Binding Value}" VerticalAlignment="Center" Margin="5,0" Grid.Column="1" HorizontalAlignment="Stretch"/>
 	</Grid>
 </UserControl>

@@ -3,7 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="BasicFunctionality.UserControls.SliderEditor">
+             x:Class="BasicFunctionality.Avalonia.UserControls.SliderEditor">
 	<StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
 		<DockPanel HorizontalAlignment="Stretch">
 			<TextBlock HorizontalAlignment="Left" DockPanel.Dock="Left" Text="{Binding Name}"/>
