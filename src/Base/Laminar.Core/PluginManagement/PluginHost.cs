@@ -14,13 +14,13 @@ namespace Laminar.Core.PluginManagement;
 
 public class PluginHost : IPluginHost
 {
-    private readonly PluginLoader.RegisteredPlugin _registeredPlugin;
+    private readonly IRegisteredPlugin _registeredPlugin;
     private readonly ITypeInfoStore _typeInfoStore;
     private readonly ILoadedNodeManager _loadedNodeManager;
     private readonly IUserInterfaceStore _userInterfaceStore;
     private readonly IConnectorViewFactory _connectorFactory;
 
-    public PluginHost(PluginLoader.RegisteredPlugin registeredPlugin, ITypeInfoStore typeInfoStore, ILoadedNodeManager loadedNodeManager, IUserInterfaceStore userInterfaceStore, IConnectorViewFactory connectorFactory)
+    public PluginHost(IRegisteredPlugin registeredPlugin, ITypeInfoStore typeInfoStore, ILoadedNodeManager loadedNodeManager, IUserInterfaceStore userInterfaceStore, IConnectorViewFactory connectorFactory)
     {
         _registeredPlugin = registeredPlugin;
         _typeInfoStore = typeInfoStore;

@@ -5,15 +5,15 @@ namespace Laminar.PluginFramework.Registration;
 [AttributeUsage(AttributeTargets.Assembly | AttributeTargets.Module)]
 public class TargetFrontendAttribute : Attribute
 {
-    public TargetFrontendAttribute(Frontent frontentTarget)
+    public TargetFrontendAttribute(Frontend frontentTarget)
     {
-        FrontentTarget = frontentTarget;
+        FrontEndTarget = frontentTarget;
     }
 
-    public Frontent FrontentTarget { get; }
+    public Frontend FrontEndTarget { get; }
 }
 
-public enum Frontent
+public enum Frontend
 {
     All,
     Avalonia,

@@ -10,7 +10,7 @@ using BasicFunctionality.Nodes.Triggers;
 using Laminar_PluginFramework.UserInterfaces;
 using Laminar.PluginFramework.Registration;
 
-[module: TargetFrontend(Frontent.All)]
+[module: TargetFrontend(Frontend.All)]
 
 namespace BasicFunctionality;
 

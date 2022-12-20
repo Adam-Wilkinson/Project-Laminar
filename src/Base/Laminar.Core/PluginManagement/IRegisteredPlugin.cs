@@ -19,6 +19,8 @@ namespace Laminar.Core.PluginManagement
 
         void Load();
 
+        void RegisterNode(INode node);
+
         void Unload();
     }
 }
