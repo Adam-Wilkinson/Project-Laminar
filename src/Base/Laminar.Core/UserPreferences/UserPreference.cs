@@ -9,17 +9,17 @@ internal class UserPreference<T> : IUserPreference, IUserPreference<T>, INotific
     private readonly T _defaultValue;
     private readonly ValueInfo<T> _valueInfo;
 
-    public UserPreference(IValueDisplayFactory valueDisplayFactory, T defaultValue, string name)
+    public UserPreference(IDisplayFactory valueDisplayFactory, T defaultValue, string name)
     {
         _valueInfo = new(name, defaultValue);
-        ValueDisplay = valueDisplayFactory.CreateValueDisplay(_valueInfo);
+        Display = valueDisplayFactory.CreateDisplayForValue(_valueInfo);
         Value = defaultValue;
         _defaultValue = defaultValue;
     }
 
     public event PropertyChangedEventHandler PropertyChanged;
 
-    public IValueDisplay ValueDisplay { get; }
+    public IDisplay Display { get; }
 
     public T Value { get; set; }
 

@@ -1,12 +1,13 @@
-﻿using Laminar_PluginFramework.UserInterfaces;
+﻿using Laminar.PluginFramework.NodeSystem.Contracts;
+using Laminar_PluginFramework.UserInterfaces;
 
 namespace Laminar.Contracts.UserInterface;
 
 public interface IUserInterfaceProvider
 {
-    bool InterfaceImplemented(IUserInterfaceDefinition interfaceDefinition, string frontendKey);
+    bool InterfaceImplemented(IUserInterfaceDefinition interfaceDefinition);
 
-    object GetUserInterface(IUserInterfaceDefinition definition, string frontendKey);
+    object GetUserInterface(IUserInterfaceDefinition definition);
 
-    IUserInterfaceDefinition GetDefaultDefinition(Type valueType, bool getEditor);
+    IUserInterfaceDefinition FindDefinitionForValueInfo(IValueInfo valueInfo);
 }

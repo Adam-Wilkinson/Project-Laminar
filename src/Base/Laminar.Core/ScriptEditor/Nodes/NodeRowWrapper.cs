@@ -1,8 +1,5 @@
 ﻿using System.ComponentModel;
-using System;
 using Laminar.Contracts.NodeSystem;
-using System.Diagnostics;
-using Laminar_PluginFramework.NodeSystem;
 using Laminar.Contracts.Primitives;
 using Laminar.Contracts.UserInterface;
 using Laminar.PluginFramework.NodeSystem;
@@ -14,7 +11,7 @@ public class NodeRowWrapper : INodeRowWrapper
 {
     readonly INotificationClient<LaminarExecutionContext> _userChangedValueNotifiee;
 
-    public NodeRowWrapper(NodeRow row, IConnectorViewFactory connectorFactory, IValueDisplayFactory valueDisplayFactory, INotificationClient<LaminarExecutionContext> userChangedValueNotifiee)
+    public NodeRowWrapper(NodeRow row, IConnectorViewFactory connectorFactory, IDisplayFactory valueDisplayFactory, INotificationClient<LaminarExecutionContext> userChangedValueNotifiee)
     {
         if (row.Input is not null)
         {
@@ -28,9 +25,8 @@ public class NodeRowWrapper : INodeRowWrapper
             OutputConnector = connectorFactory.CreateConnector(row.Output);
         }
 
-        Display = valueDisplayFactory.CreateValueDisplay(row.DisplayValue);
+        Display = valueDisplayFactory.CreateDisplayForValue(row.DisplayValue);
         _userChangedValueNotifiee = userChangedValueNotifiee;
-        RefreshDisplay();
     }
 
     private void StartExecution(object sender, LaminarExecutionContext e)
@@ -42,13 +38,13 @@ public class NodeRowWrapper : INodeRowWrapper
 
     public IConnectorView? OutputConnector { get; }
 
-    public IValueDisplay Display { get; }
+    public IDisplay Display { get; }
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
     public void CloneTo(INodeRowWrapper cloneTo)
     {
-        Display.CopyValueTo(cloneTo.Display);
+        cloneTo.Display.Value.Value = Display.Value.Value;
     }
 
     public void RefreshDisplay()

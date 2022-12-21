@@ -7,11 +7,11 @@ namespace Laminar.Core.UserPreferences;
 
 internal class UserPreferenceManager : IUserPreferenceManager
 {
-    private readonly IValueDisplayFactory _valueDisplayFactory;
+    private readonly IDisplayFactory _valueDisplayFactory;
     private ItemCatagory<IUserPreference> _userPreferences = new("root");
     private Dictionary<string, IUserPreference> _userPreferencesDictionary = new();
 
-    public UserPreferenceManager(IValueDisplayFactory valueDisplayFactory)
+    public UserPreferenceManager(IDisplayFactory valueDisplayFactory)
     {
         _valueDisplayFactory = valueDisplayFactory;
     }

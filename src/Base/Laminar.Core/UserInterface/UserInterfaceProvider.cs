@@ -1,5 +1,7 @@
 ﻿using System;
 using Laminar.Contracts.UserInterface;
+using Laminar.Core.UserPreferences;
+using Laminar.PluginFramework.NodeSystem.Contracts;
 using Laminar_PluginFramework.UserInterfaces;
 
 namespace Laminar.Core.UserInterface;
@@ -15,14 +17,24 @@ public class UserInterfaceProvider : IUserInterfaceProvider
         _typeInfoStore = typeInfoStore;
     }
 
-    public IUserInterfaceDefinition GetDefaultDefinition(Type valueType, bool getEditor)
+    public IUserInterfaceDefinition FindDefinitionForValueInfo(IValueInfo valueInfo)
     {
-        if (getEditor && _typeInfoStore.GetTypeInfo(valueType).EditorDefinition is IUserInterfaceDefinition editorDefinition)
+        if (valueInfo.IsUserEditable && valueInfo.Editor is not null && InterfaceImplemented(valueInfo.Editor))
+        {
+            return valueInfo.Editor;
+        }
+
+        if (!valueInfo.IsUserEditable && valueInfo.Viewer is not null && InterfaceImplemented(valueInfo.Viewer))
+        {
+            return valueInfo.Viewer;
+        }
+
+        if (valueInfo.IsUserEditable && _typeInfoStore.GetTypeInfo(valueInfo.ValueType).EditorDefinition is IUserInterfaceDefinition editorDefinition && InterfaceImplemented(editorDefinition))
         {
             return editorDefinition;
         }
 
-        if (!getEditor && _typeInfoStore.GetTypeInfo(valueType).ViewerDefinition is IUserInterfaceDefinition viewerDefinition)
+        if (!valueInfo.IsUserEditable && _typeInfoStore.GetTypeInfo(valueInfo.ValueType).ViewerDefinition is IUserInterfaceDefinition viewerDefinition && InterfaceImplemented(viewerDefinition))
         {
             return viewerDefinition;
         }
@@ -30,28 +42,23 @@ public class UserInterfaceProvider : IUserInterfaceProvider
         return new DefaultViewer();
     }
 
-    public object GetUserInterface(IUserInterfaceDefinition definition, string frontendTypeKey)
+    public object GetUserInterface(IUserInterfaceDefinition definition)
     {
-        if (!_store.HasFrontendOfType(frontendTypeKey))
-        {
-            throw new ArgumentException(nameof(frontendTypeKey));
-        }
-
-        if (definition is not null && _store.TryGetUserInterface(frontendTypeKey, definition.GetType(), out Type userInterface))
+        if (definition is not null && _store.TryGetUserInterface(definition.GetType(), out Type userInterface))
         {
             return Activator.CreateInstance(userInterface);
         }
 
-        if (_store.TryGetUserInterface(frontendTypeKey, typeof(DefaultViewer), out Type defaultViewer))
+        if (_store.TryGetUserInterface(typeof(DefaultViewer), out Type defaultViewer))
         {
             return Activator.CreateInstance(defaultViewer);
         }
 
-        throw new ApplicationException("Frontend doesn't have a default viewer");
+        throw new ApplicationException("There is no default viewer");
     }
 
-    public bool InterfaceImplemented(IUserInterfaceDefinition interfaceDefinition, string frontendKey)
+    public bool InterfaceImplemented(IUserInterfaceDefinition interfaceDefinition)
     {
-        return _store.HasImplementation(frontendKey, interfaceDefinition.GetType());
+        return _store.HasImplementation(interfaceDefinition.GetType());
     }
 }

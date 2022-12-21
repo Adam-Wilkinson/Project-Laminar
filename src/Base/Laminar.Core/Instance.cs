@@ -39,7 +39,7 @@ public class Instance
     private readonly PluginLoader _pluginLoader;
     private readonly bool _isLoading;
 
-    public Instance(SynchronizationContext uiContext, FrontendDependency frontend, [CallerFilePath] string path = "")
+    public Instance(SynchronizationContext uiContext, FrontendDependency supportedDependencies, [CallerFilePath] string path = "")
     {
         UIContext = uiContext;
         Factory = new Laminar_Core.ObjectFactory(this);
@@ -51,7 +51,7 @@ public class Instance
         RegisteredDisplays = Factory.GetImplementation<IUserInterfaceRegister>();
         AllScripts = Factory.GetImplementation<IScriptCollection>();
 
-        _pluginLoader = new PluginLoader(path, frontend, ServiceProvider.GetService<IPluginHostFactory>());
+        _pluginLoader = new PluginLoader(path, supportedDependencies, ServiceProvider.GetService<IPluginHostFactory>());
         AllRegisteredTypes = _typeInfo.Values.Where(x => x.CanBeInput);
 
         _isLoading = true;
@@ -143,8 +143,7 @@ public class Instance
         serviceCollection.AddSingleton<IUserInterfaceProvider, UserInterfaceProvider>();
         serviceCollection.AddSingleton<INodeFactory, NodeFactory>();
         serviceCollection.AddSingleton<INodeRowWrapperFactory, NodeRowWrapperFactory>();
-        serviceCollection.AddSingleton<IValueDisplayFactory, ValueDisplayFactory>();
-        serviceCollection.AddSingleton<IUserInterfaceFactory, UserInterfaceFactory>();
+        serviceCollection.AddSingleton<IDisplayFactory, DisplayFactory>();
 
         serviceCollection.AddSingleton<IScriptExecutionManager, ScriptExecutionManager>();
         serviceCollection.AddSingleton<IConnectorViewFactory, ConnectorViewFactory>();

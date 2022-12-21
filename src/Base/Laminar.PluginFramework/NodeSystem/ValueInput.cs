@@ -68,10 +68,11 @@ public class ValueInput<T> : IValueInput
 
     private void FireValueChange()
     {
-        StartExecution?.Invoke(this, new LaminarExecutionContext
-        {
-            ExecutionFlags = ExecutionFlags.ValuesChanged,
-            TimeOfStart = DateTime.Now,
-        });
+        StartExecution?.Invoke(this, new LaminarExecutionContext(null, ExecutionFlags.ValuesChanged, DateTime.Now));
+        //{
+        //    ExecutionSource = null,
+        //    ExecutionFlags = ExecutionFlags.ValuesChanged,
+        //    TimeOfStart = DateTime.Now,
+        //});
     }
 }

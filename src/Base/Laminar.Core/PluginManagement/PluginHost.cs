@@ -56,7 +56,7 @@ public class PluginHost : IPluginHost
         where TInterface : TFrontend, new()
         where TInterfaceDefinition : IUserInterfaceDefinition
     {
-        _userInterfaceStore.AddUserInterfaceImplementation<TInterfaceDefinition, TFrontend, TInterface>();
+        _userInterfaceStore.AddUserInterfaceImplementation<TInterfaceDefinition, TInterface>();
         return true;
     }
 

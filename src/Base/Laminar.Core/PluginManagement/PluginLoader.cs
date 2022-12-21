@@ -23,7 +23,7 @@ public class PluginLoader
         foreach (string pluginPath in InbuiltPluginFinder.GetInbuiltPlugins(path))
         {
             PluginLoadContext pluginContext = new(pluginPath);
-            Assembly pluginAssembly = pluginContext.LoadFromAssemblyName(new AssemblyName(Path.GetFileNameWithoutExtension(pluginPath)));
+            Assembly pluginAssembly = pluginContext.LoadFromAssemblyPath(pluginPath);
             foreach (Module module in pluginAssembly.Modules)
             {
                 if (LoadModule(module) is RegisteredPlugin plugin)

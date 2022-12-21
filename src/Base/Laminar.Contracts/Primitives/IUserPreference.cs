@@ -4,7 +4,7 @@ namespace Laminar.Contracts.Primitives;
 
 public interface IUserPreference
 {
-    public IValueDisplay ValueDisplay { get; }
+    public IDisplay Display { get; }
 
     public void Reset();
 }

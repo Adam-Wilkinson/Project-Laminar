@@ -11,7 +11,7 @@ public interface INodeRowWrapper
 
     public IConnectorView? OutputConnector { get; }
 
-    public IValueDisplay Display { get; }
+    public IDisplay Display { get; }
 
     public void CloneTo(INodeRowWrapper wrapper);
 

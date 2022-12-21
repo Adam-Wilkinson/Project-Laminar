@@ -19,7 +19,7 @@ internal class NodeRowCollectionFactory : INodeRowCollectionFactory
     {
         for (int i = 0; i < from.Fields.Count; i++)
         {
-            from.Fields[i].Display.CopyValueTo(to.Fields[i].Display);
+            from.Fields[i].CloneTo(to.Fields[i]);
         }
     }
 

@@ -17,13 +17,7 @@ public class DeleteNodeAction : IUserAction
 
     public bool Execute()
     {
-        _nodeCollection.Remove(_node);
-        _ = _node.NameRow.Display[null];
-        foreach (var row in _node.Fields)
-        {
-            _ = row.Display[null];
-        }
-        return true;
+        return _nodeCollection.Remove(_node);
     }
 
     public IUserAction GetInverse()

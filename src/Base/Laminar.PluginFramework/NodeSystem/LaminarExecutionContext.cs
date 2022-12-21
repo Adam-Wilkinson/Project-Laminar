@@ -5,7 +5,7 @@ namespace Laminar.PluginFramework.NodeSystem;
 /// <summary>
 /// Context used by nodes to determine what actions should be taken
 /// </summary>
-public record struct LaminarExecutionContext(object ExecutionSource, ExecutionFlags ExecutionFlags, DateTime TimeOfStart);
+public record LaminarExecutionContext(object? ExecutionSource, ExecutionFlags ExecutionFlags, DateTime TimeOfStart);
 
 [Flags]
 public enum ExecutionFlags

@@ -14,9 +14,9 @@ namespace Laminar.Core.ScriptEditor.Nodes;
 public class NodeRowWrapperFactory : INodeRowWrapperFactory
 {
     private readonly IConnectorViewFactory _connectorFactory;
-    private readonly IValueDisplayFactory _valueDisplayFactory;
+    private readonly IDisplayFactory _valueDisplayFactory;
 
-    public NodeRowWrapperFactory(IConnectorViewFactory connectorFactory, IValueDisplayFactory displayFactory)
+    public NodeRowWrapperFactory(IConnectorViewFactory connectorFactory, IDisplayFactory displayFactory)
     {
         _connectorFactory = connectorFactory;
         _valueDisplayFactory = displayFactory;

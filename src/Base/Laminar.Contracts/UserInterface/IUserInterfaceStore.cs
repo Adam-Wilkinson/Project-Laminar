@@ -4,7 +4,7 @@ namespace Laminar.Contracts.UserInterface;
 
 public interface IUserInterfaceStore : IReadOnlyUserInterfaceStore
 {
-    bool AddUserInterfaceImplementation<TDefinition, TFrontend, TInterface>() 
+    bool AddUserInterfaceImplementation<TDefinition, TInterface>() 
         where TDefinition : IUserInterfaceDefinition 
-        where TInterface : TFrontend, new();
+        where TInterface : new();
 }
