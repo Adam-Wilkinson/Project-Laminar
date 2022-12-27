@@ -9,6 +9,4 @@ public interface IEditableScript : IScript
     public new IConnectionCollection Connections { get; }
 
     public new IObservableCollection<INodeWrapper> Nodes { get; }
-
-    public IScriptExecutionInstance ExecutionInstance { get; }
 }

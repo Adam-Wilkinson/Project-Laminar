@@ -9,9 +9,10 @@ namespace Laminar.Core.ScriptEditor;
 public class NodeTree : INodeTree
 {
     readonly Dictionary<INodeWrapper, List<INodeWrapper>> _dependentNodes = new();
-    readonly Dictionary<INodeWrapper, List<INodeWrapper>> _knownExecutionPaths = new();
+    readonly Dictionary<INodeWrapper, INodeWrapper[]> _knownExecutionPaths = new();
     readonly Dictionary<IIOConnector, INodeWrapper> _connectorParents = new();
 
+    List<INodeWrapper>? _currentExecutionTree;
     IReadOnlyList<INodeWrapper> _currentExecutionLevel;
 
     public NodeTree(IScript script)
@@ -25,34 +26,31 @@ public class NodeTree : INodeTree
 
     public IReadOnlyList<INodeWrapper> GetDirectDependents(INodeWrapper node) => _dependentNodes.TryGetValue(node, out List<INodeWrapper> dependentNodes) ? dependentNodes : Array.Empty<INodeWrapper>();
 
-    public IEnumerable<INodeWrapper> GetExecutionOrder(INodeWrapper node)
+    public INodeWrapper[] GetExecutionOrder(INodeWrapper node)
     {
-        if (_knownExecutionPaths.TryGetValue(node, out List<INodeWrapper> outputList))
+        if (_knownExecutionPaths.TryGetValue(node, out INodeWrapper[] executionOrder))
         {
-            foreach (var currentNode in outputList)
-            {
-                yield return currentNode;
-            }
+            return executionOrder;
         }
-        else
-        {
-            _knownExecutionPaths.Add(node, new List<INodeWrapper> { node });
-            yield return node;
-            _currentExecutionLevel = GetDirectDependents(node);
-            List<INodeWrapper> nextExecutionLevel = new();
 
-            while (_currentExecutionLevel.Count > 0)
+        List<INodeWrapper> newExecutionOrder = new() { node };
+        _currentExecutionLevel = GetDirectDependents(node);
+        List<INodeWrapper> nextExecutionLevel = new();
+
+        while (_currentExecutionLevel.Count > 0)
+        {
+            foreach (var currentNode in _currentExecutionLevel)
             {
-                foreach (var currentNode in _currentExecutionLevel)
-                {
-                    _knownExecutionPaths[node].Add(currentNode);
-                    nextExecutionLevel.AddRange(GetDirectDependents(currentNode));
-                    yield return currentNode;
-                }
-                _currentExecutionLevel = nextExecutionLevel;
-                nextExecutionLevel = new();
+                newExecutionOrder.Add(currentNode);
+                nextExecutionLevel.AddRange(GetDirectDependents(currentNode));
             }
+            _currentExecutionLevel = nextExecutionLevel;
+            nextExecutionLevel = new();
         }
+
+        INodeWrapper[] newOrderArray = newExecutionOrder.ToArray();
+        _knownExecutionPaths.Add(node, newOrderArray);
+        return newOrderArray;
     }
 
     private void ConnectionRemoved(object sender, IConnection removedConnection)

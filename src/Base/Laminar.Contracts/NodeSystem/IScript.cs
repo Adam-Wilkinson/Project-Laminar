@@ -14,5 +14,7 @@ public interface IScript
 
     public INodeTree NodeTree { get; }
 
+    public IScriptExecutionInstance ExecutionInstance { get; }
+
     public ScriptState State { get; }
 }

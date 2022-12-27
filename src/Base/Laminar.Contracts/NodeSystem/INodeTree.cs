@@ -7,5 +7,5 @@ public interface INodeTree
 {
     IReadOnlyList<INodeWrapper> GetDirectDependents(INodeWrapper node);
 
-    IEnumerable<INodeWrapper> GetExecutionOrder(INodeWrapper node);
+    INodeWrapper[] GetExecutionOrder(INodeWrapper node);
 }

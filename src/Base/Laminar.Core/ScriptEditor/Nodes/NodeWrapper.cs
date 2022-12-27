@@ -2,10 +2,8 @@
 using System.Collections.ObjectModel;
 using Laminar.Contracts.NodeSystem;
 using Laminar.Contracts.Primitives;
-using Laminar.Domain.Contexts;
 using Laminar.Domain.ValueObjects;
 using Laminar.PluginFramework.NodeSystem;
-using Laminar.PluginFramework.NodeSystem.Contracts.Connectors;
 using Laminar_PluginFramework.NodeSystem.Nodes;
 
 namespace Laminar.Core.ScriptEditor.Nodes;
@@ -58,7 +56,7 @@ public class NodeWrapper<T> : INodeWrapper where T : INode, new()
     {
         if (_userChangedValueNotificationClient is null)
         {
-            Update(context with { ExecutionSource = Id.AsGuid(), ExecutionFlags = context.ExecutionFlags | ExecutionFlags.UpdateUI });
+            Update(context with { ExecutionSource = this });
         }
         else
         {
@@ -75,7 +73,7 @@ public class NodeWrapper<T> : INodeWrapper where T : INode, new()
 
         _coreNode.Evaluate();
 
-        if (context.ExecutionFlags.HasFlag(ExecutionFlags.UpdateUI))
+        if (context.ExecutionFlags.HasUIUpdateFlag())
         {
             foreach (INodeRowWrapper field in Fields)
             {

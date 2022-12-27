@@ -1,8 +1,12 @@
 ﻿// See https://aka.ms/new-console-template for more information
+using BenchmarkDotNet.Running;
 using Laminar.Benchmarks;
 
-Console.WriteLine("Hello, World!");
+//var test = new ValuePassingBenchmark();
+//test.Setup();
+//Console.WriteLine("Setup Complete");
+//Console.ReadLine();
+//Console.WriteLine(test.PassValueFields(4));
 
-var benchmarkOne = new ValuePassingBenchmark();
-
-Console.WriteLine(benchmarkOne.PassValue(4));
+// Console.WriteLine(ValuePassingBenchmark.TestRun());
+BenchmarkRunner.Run<ValuePassingBenchmark>();

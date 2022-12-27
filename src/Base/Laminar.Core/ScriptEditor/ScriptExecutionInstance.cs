@@ -1,4 +1,7 @@
-﻿using Laminar.Contracts.NodeSystem;
+﻿using System;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using Laminar.Contracts.NodeSystem;
 using Laminar.Contracts.NodeSystem.Execution;
 using Laminar.PluginFramework.NodeSystem;
 
@@ -23,14 +26,15 @@ internal class ScriptExecutionInstance : IScriptExecutionInstance
 
         if (IsShownInUI)
         {
-            context = context with { ExecutionFlags = context.ExecutionFlags | ExecutionFlags.UpdateUI };
+            context.ExecutionFlags.AddFlag(UIUpdateExecutionFlag.Value);
         }
 
         if (context.ExecutionSource is INodeWrapper nodeWrapper)
         {
-            foreach (var node in _editableScript.NodeTree.GetExecutionOrder(nodeWrapper))
+            Span<INodeWrapper> iter = _editableScript.NodeTree.GetExecutionOrder(nodeWrapper);
+            for (int i = 0; i < iter.Length; i++)
             {
-                node.Update(context);
+                iter[i].Update(context);
             }
         }
     }

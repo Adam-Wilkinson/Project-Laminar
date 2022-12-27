@@ -1,6 +1,7 @@
 ﻿using System;
 using Laminar.PluginFramework.NodeSystem.Contracts;
 using Laminar.PluginFramework.NodeSystem.Contracts.IO;
+using Laminar.PluginFramework.NodeSystem.ExecutionFlags;
 using Laminar_PluginFramework.UserInterfaces;
 
 namespace Laminar.PluginFramework.NodeSystem;
@@ -8,7 +9,7 @@ namespace Laminar.PluginFramework.NodeSystem;
 public class ValueInput<T> : IValueInput
 {
     IValueProvider<T>? _valueProvider;
-    T _internalValue;
+    protected T _internalValue;
 
     public ValueInput(string name, T defaultValue)
     {
@@ -25,6 +26,12 @@ public class ValueInput<T> : IValueInput
     public IUserInterfaceDefinition? Viewer { get; set; }
 
     public T Value => _valueProvider is not null ? _valueProvider.Value : _internalValue;
+
+    public void SetInternalValue(T newVal)
+    {
+        _internalValue = newVal;
+        FireValueChange();
+    }
 
     object? IValueInfo.BoxedValue
     {
@@ -66,13 +73,8 @@ public class ValueInput<T> : IValueInput
 
     public static implicit operator T(ValueInput<T> inputValue) => inputValue.Value;
 
-    private void FireValueChange()
-    {
-        StartExecution?.Invoke(this, new LaminarExecutionContext(null, ExecutionFlags.ValuesChanged, DateTime.Now));
-        //{
-        //    ExecutionSource = null,
-        //    ExecutionFlags = ExecutionFlags.ValuesChanged,
-        //    TimeOfStart = DateTime.Now,
-        //});
-    }
+    protected void FireValueChange() => StartExecution?.Invoke(this, new LaminarExecutionContext {
+        ExecutionFlags = ValueExecutionFlag.Value,
+        ExecutionSource = this,
+    });
 }
