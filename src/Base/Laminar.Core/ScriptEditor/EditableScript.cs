@@ -7,9 +7,7 @@ namespace Laminar.Core.ScriptEditor;
 
 internal class EditableScript : IEditableScript
 {
-    public EditableScript(
-        IScriptExecutionManager executionManager,
-        IConnectionCollection connectionCollection)
+    public EditableScript(IScriptExecutionManager executionManager, IConnectionCollection connectionCollection)
     {
         ExecutionInstance = executionManager.CreateExecutionInstance(this);
         Connections = connectionCollection;
