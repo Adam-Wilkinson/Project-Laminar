@@ -1,5 +1,6 @@
 ﻿using System.Transactions;
 using BenchmarkDotNet.Attributes;
+using Laminar.Benchmarks.BenchmarkNodes;
 using Laminar.Contracts.NodeSystem;
 using Laminar.Core;
 using Laminar.PluginFramework.NodeSystem;
@@ -17,11 +18,11 @@ public class ValuePassingBenchmark
     private INodeFactory _nodeWrapperFactory;
     Instance instance = new(null, PluginFramework.Registration.FrontendDependency.None);
 
-    private TestNodeProperties _firstNode;
-    private TestNodeProperties _lastNode;
+    private ValueAttributeBenchmarkNode _firstNode;
+    private ValueAttributeBenchmarkNode _lastNode;
 
-    private TestNodeFields _fieldsFirstNode;
-    private TestNodeFields _fieldsLastNode;
+    private ValueIOBenchmarNode _fieldsFirstNode;
+    private ValueIOBenchmarNode _fieldsLastNode;
 
     [GlobalSetup]
     public void Setup()
@@ -31,26 +32,26 @@ public class ValuePassingBenchmark
         _scriptEditor = instance.ServiceProvider.GetService<IScriptEditor>()!;
         _nodeWrapperFactory = instance.ServiceProvider.GetService<INodeFactory>()!;
 
-        SetupScript<TestNodeFields>(_script1);
-        SetupScript<TestNodeProperties>(_script2);
+        SetupScript<ValueIOBenchmarNode>(_script1, 500);
+        SetupScript<ValueAttributeBenchmarkNode>(_script2, 500);
 
-        _firstNode = TestNodeProperties.Instances[1];
-        _lastNode = TestNodeProperties.Instances[4];
+        _firstNode = ValueAttributeBenchmarkNode.Instances[1];
+        _lastNode = ValueAttributeBenchmarkNode.Instances[^1];
 
-        _fieldsFirstNode = TestNodeFields.Instances[1];
-        _fieldsLastNode = TestNodeFields.Instances[4];
+        _fieldsFirstNode = ValueIOBenchmarNode.Instances[1];
+        _fieldsLastNode = ValueIOBenchmarNode.Instances[^1];
     }
 
-    private void SetupScript<T>(IScript script) where T : INode, new()
+    private void SetupScript<T>(IScript script, int nodeCount) where T : INode, new()
     {
         INodeWrapper originalNode = _nodeWrapperFactory.WrapNode<T>();
-        var firstNode = _scriptEditor.AddCopyOfNode(script, originalNode);
-        var secondNode = _scriptEditor.AddCopyOfNode(script, originalNode);
-        var thirdNode = _scriptEditor.AddCopyOfNode(script, originalNode);
-        var fourthNode = _scriptEditor.AddCopyOfNode(script, originalNode);
-        _scriptEditor.TryBridgeConnectors(script, firstNode.Fields[1].OutputConnector!.NodeIOConnector, secondNode.Fields[0].InputConnector!.NodeIOConnector);
-        _scriptEditor.TryBridgeConnectors(script, firstNode.Fields[1].OutputConnector!.NodeIOConnector, thirdNode.Fields[0].InputConnector!.NodeIOConnector);
-        _scriptEditor.TryBridgeConnectors(script, secondNode.Fields[1].OutputConnector!.NodeIOConnector, fourthNode.Fields[0].InputConnector!.NodeIOConnector);
+        var previousNode = _scriptEditor.AddCopyOfNode(script, originalNode);
+        for (int i = 0; i < nodeCount; i++)
+        {
+            var nextNode = _scriptEditor.AddCopyOfNode(script, originalNode);
+            _scriptEditor.TryBridgeConnectors(script, previousNode.Fields[1].OutputConnector!.NodeIOConnector, nextNode.Fields[0].InputConnector!.NodeIOConnector);
+            previousNode = nextNode;
+        }
         script.Nodes[0].Fields[0].Display.Value.Value = 3.0;
         script.ExecutionInstance.IsShownInUI = false;
     }
@@ -76,55 +77,5 @@ public class ValuePassingBenchmark
     {
         _firstNode.UpdateInput(value);
         return _lastNode.Output;
-    }
-
-    private class TestNodeFields : INode
-    {
-        public static List<TestNodeFields> Instances = new();
-
-        public TestNodeFields()
-        {
-            Instances.Add(this);
-        }
-
-        public readonly ValueInput<double> Input = new("input", 0.0);
-
-        public readonly ValueOutput<double> Output = new("output", 0.0);
-
-        public string NodeName { get; } = "Test Node";
-
-        public void Evaluate()
-        {
-            Output.Value = Input;
-        }
-    }
-
-
-    private class TestNodeProperties : INode
-    {
-        public static List<TestNodeProperties> Instances = new();
-
-        public TestNodeProperties()
-        {
-            Instances.Add(this);
-        }
-
-        [ValueInput<double>("input", TriggerEventName: nameof(InputChanged))] double Input { get; set; } = 0;
-        [ValueOutput<double>("output")] public double Output { get; set; } = 0;
-
-        public event EventHandler? InputChanged;
-
-        public string NodeName { get; } = "Test Node";
-
-        public void UpdateInput(double newValue)
-        {
-            Input = newValue;
-            InputChanged?.Invoke(this, EventArgs.Empty);
-        }
-
-        public void Evaluate()
-        {
-            Output = Input;
-        }
     }
 }
