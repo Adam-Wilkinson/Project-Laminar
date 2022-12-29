@@ -21,6 +21,8 @@ internal class ValueOutputConnector : IOutputConnector<IValueOutput>
 
     public Action PreEvaluateAction => _nodeOutput!.PreEvaluateAction;
 
+    public ActivitySetting ActivitySetting => ActivitySetting.AlwaysActive;
+
     public void Init(IValueOutput nodeOutput) => _nodeOutput = nodeOutput;
 
     public void OnDisconnectedFrom(IInputConnector connector)

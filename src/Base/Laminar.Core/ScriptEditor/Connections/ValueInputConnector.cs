@@ -21,6 +21,8 @@ internal class ValueInputConnector : IInputConnector<IValueInput>
 
     public Action PreEvaluateAction => _input.PreEvaluateAction;
 
+    public ActivitySetting ActivitySetting => ActivitySetting.AlwaysActive;
+
     public void Init(IValueInput nodeInput)
     {
         _input = nodeInput;

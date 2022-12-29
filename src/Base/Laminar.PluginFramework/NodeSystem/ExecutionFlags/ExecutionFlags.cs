@@ -1,8 +1,4 @@
-﻿using System;
-using System.Formats.Tar;
-using System.Numerics;
-
-namespace Laminar.PluginFramework.NodeSystem.ExecutionFlags;
+﻿namespace Laminar.PluginFramework.NodeSystem.ExecutionFlags;
 
 public struct ExecutionFlags
 {
@@ -20,6 +16,8 @@ public struct ExecutionFlags
     public static int ReserveNextFlagValue() => 1 << HighestIndex++;
 
     public static bool HasFlag(ExecutionFlags flags, int flagValue) => (flags._asNumber & flagValue) != 0;
+
+    public static ExecutionFlags None => 0;
 
     public static ExecutionFlags operator &(ExecutionFlags left, ExecutionFlags right) => new(left._asNumber + right._asNumber);
 
