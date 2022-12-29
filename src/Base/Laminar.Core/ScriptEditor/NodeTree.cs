@@ -56,7 +56,62 @@ public class NodeTree : INodeTree
 
     private ConditionalExecutionBranch[] GetBranchesFromNodes(IEnumerable<INodeWrapper> firstExecutionLevel, ExecutionFlags flags)
     {
-        return Array.Empty<ConditionalExecutionBranch>();
+        List<ConditionalExecutionBranch> result = new();
+        List<IOutputConnector> remainingBranchStarters = new();
+        //List<INodeWrapper>currentBranchOrder = new();
+        List<INodeWrapper> nextExecutionLevel = new();
+
+        foreach (INodeWrapper node in firstExecutionLevel)
+        {
+
+        }
+
+
+        while (remainingBranchStarters.Count > 0)
+        {
+            IOutputConnector currentBranchStarter = remainingBranchStarters[0];
+            List<INodeWrapper> currentBranchOrder = new();
+            if (_connections.TryGetValue(currentBranchStarter, out List<INodeWrapper> connectedNodes))
+            {
+                foreach (INodeWrapper node in connectedNodes)
+                {
+                    currentBranchOrder.Add(node);
+                    foreach (INodeRowWrapper row in node.Fields)
+                    {
+                        if (row.OutputConnector is IOutputConnector currentOutputConnector
+                            && _connections.TryGetValue(currentOutputConnector, out List<INodeWrapper> nextNodes))
+                        {
+                            if (currentOutputConnector.ActivitySetting is ActivitySetting.AlwaysActive)
+                            {
+                                currentBranchOrder.AddRange(nextNodes);
+                            }
+                            else if (currentOutputConnector.ActivitySetting is ActivitySetting.CurrentlyActive or ActivitySetting.Inactive)
+                            {
+                                remainingBranchStarters.Add(currentOutputConnector);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        while (currentBranchOrder.Count > 0)
+        {
+            foreach (INodeWrapper node in currentBranchOrder)
+            {
+                currentBranchOrder.Add(node);
+                foreach (INodeRowWrapper row in node.Fields)
+                {
+                    if (row.OutputConnector is IOutputConnector outputConnector 
+                        && outputConnector.ActivitySetting == ActivitySetting.AlwaysActive 
+                        && _connections.TryGetValue(outputConnector, out List<INodeWrapper> nextNodes))
+                    {
+                        nextExecutionLevel.AddRange(nextNodes);
+                    }
+                }
+            }
+        }
+
+        return result.ToArray();
     }
 
     public INodeWrapper[] GetExecutionOrder(INodeWrapper node)
