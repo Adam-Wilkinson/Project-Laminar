@@ -94,22 +94,6 @@ public class NodeTree : INodeTree
                 }
             }
         }
-        while (currentBranchOrder.Count > 0)
-        {
-            foreach (INodeWrapper node in currentBranchOrder)
-            {
-                currentBranchOrder.Add(node);
-                foreach (INodeRowWrapper row in node.Fields)
-                {
-                    if (row.OutputConnector is IOutputConnector outputConnector 
-                        && outputConnector.ActivitySetting == ActivitySetting.AlwaysActive 
-                        && _connections.TryGetValue(outputConnector, out List<INodeWrapper> nextNodes))
-                    {
-                        nextExecutionLevel.AddRange(nextNodes);
-                    }
-                }
-            }
-        }
 
         return result.ToArray();
     }
