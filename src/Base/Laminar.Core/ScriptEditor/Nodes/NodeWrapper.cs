@@ -56,11 +56,11 @@ public class NodeWrapper<T> : INodeWrapper where T : INode, new()
     {
         if (_userChangedValueNotificationClient is null)
         {
-            Update(context with { ExecutionSource = this });
+            Update(context);
         }
         else
         {
-            _userChangedValueNotificationClient.TriggerNotification(context with { ExecutionSource = this });
+            _userChangedValueNotificationClient.TriggerNotification(context);
         }
     }
 

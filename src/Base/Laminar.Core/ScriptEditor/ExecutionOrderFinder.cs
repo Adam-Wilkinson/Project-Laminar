@@ -20,8 +20,8 @@ internal class ExecutionOrderFinder
         {
             IOutputConnector currentBranchStarter = _remainingBranchStarters[0];
             _currentBranchOrder = new();
-            FindPathFromOutputConnector(currentBranchStarter);
-            ConditionalExecutionBranch recentlyFoundBranch = new(_currentBranchOrder.ToArray(), () => currentBranchStarter.ActivitySetting is ActivitySetting.AlwaysActive or ActivitySetting.CurrentlyActive);
+            FindPathFromOutputConnector(currentBranchStarter, flags);
+            ConditionalExecutionBranch recentlyFoundBranch = new(_currentBranchOrder.ToArray(), currentBranchStarter);
             completedBranches.Add(recentlyFoundBranch);
             _remainingBranchStarters.RemoveAt(0);
         }
@@ -29,54 +29,87 @@ internal class ExecutionOrderFinder
         return completedBranches.ToArray();
     }
 
-    private void FindPathFromOutputConnector(IOutputConnector currentBranchStarter)
+    public ConditionalExecutionBranch[] FindExecutionPath(INodeWrapper firstNode, ExecutionFlags flags, Dictionary<IOutputConnector, List<INodeWrapper>> connections)
     {
-        if (_connections.TryGetValue(currentBranchStarter, out List<INodeWrapper> connectedNodes))
+        _connections = connections;
+        _remainingBranchStarters = new();
+
+        _currentBranchOrder = new() { firstNode };
+        foreach (INodeRowWrapper row in firstNode.Fields)
         {
-            foreach (INodeWrapper node in connectedNodes)
+            if (GetConnectionsIfBranchContinues(row, flags) is not null)
             {
-                FindExecutionFromNode(node);
+                FindPathFromOutputConnector((IOutputConnector)(row.OutputConnector.NodeIOConnector), flags);
             }
         }
 
-        List<INodeWrapper> newExecutionOrder = new() { node };
-        _currentExecutionLevel = GetDirectDependents(node);
-        List<INodeWrapper> nextExecutionLevel = new();
+        List<ConditionalExecutionBranch> completedBranches = new() { new ConditionalExecutionBranch(_currentBranchOrder.ToArray()) };
 
-        while (_currentExecutionLevel.Count > 0)
+        while (_remainingBranchStarters.Count > 0)
         {
-            foreach (var currentNode in _currentExecutionLevel)
-            {
-                newExecutionOrder.Add(currentNode);
-                nextExecutionLevel.AddRange(GetDirectDependents(currentNode));
-            }
-            _currentExecutionLevel = nextExecutionLevel;
-            nextExecutionLevel = new();
-        }`
+            IOutputConnector currentBranchStarter = _remainingBranchStarters[0];
+            _currentBranchOrder = new();
+            FindPathFromOutputConnector(currentBranchStarter, flags);
+            ConditionalExecutionBranch recentlyFoundBranch = new(_currentBranchOrder.ToArray(), currentBranchStarter);
+            completedBranches.Add(recentlyFoundBranch);
+            _remainingBranchStarters.RemoveAt(0);
+        }
+        return completedBranches.ToArray();
     }
 
-    private void FindExecutionFromNode(INodeWrapper node)
+    private void FindPathFromOutputConnector(IOutputConnector currentBranchStarter, ExecutionFlags executionFlags)
     {
-        _currentBranchOrder.Add(node);
+        if (!_connections.TryGetValue(currentBranchStarter, out List<INodeWrapper> currentNodeLevel))
+        {
+            return;
+        }
+
+        List<INodeWrapper> nextNodeLevel = new();
+
+        while (currentNodeLevel.Count > 0)
+        {
+            foreach (INodeWrapper currentNode in currentNodeLevel)
+            {
+                _currentBranchOrder.Remove(currentNode);
+                _currentBranchOrder.Add(currentNode);
+                nextNodeLevel.AddRange(GetDependentNodes(currentNode, executionFlags));
+            }
+            currentNodeLevel = nextNodeLevel;
+            nextNodeLevel = new();
+        }
+    }
+
+    private IEnumerable<INodeWrapper> GetDependentNodes(INodeWrapper node, ExecutionFlags executionFlags)
+    {
         foreach (INodeRowWrapper row in node.Fields)
         {
-            FindExecutionsFromRow(row);
+            if (GetConnectionsIfBranchContinues(row, executionFlags) is List<INodeWrapper> connectedNodes)
+            {
+                foreach (INodeWrapper connectedNode in connectedNodes)
+                {
+                    yield return connectedNode;
+                }
+            }
         }
     }
 
-    private void FindExecutionsFromRow(INodeRowWrapper row)
+    private List<INodeWrapper>? GetConnectionsIfBranchContinues(INodeRowWrapper row, ExecutionFlags flags)
     {
-        if (row.OutputConnector is IOutputConnector currentOutputConnector
-            && _connections.TryGetValue(currentOutputConnector, out List<INodeWrapper> nextNodes))
+        if (row.OutputConnector?.NodeIOConnector is IOutputConnector outputConnector
+            && _connections.TryGetValue(outputConnector, out List<INodeWrapper> connectedNodes))
         {
-            if (currentOutputConnector.ActivitySetting is ActivitySetting.AlwaysActive)
+            switch (outputConnector.PassUpdate(flags))
             {
-                _currentBranchOrder.AddRange(nextNodes);
-            }
-            else if (currentOutputConnector.ActivitySetting is ActivitySetting.CurrentlyActive or ActivitySetting.Inactive)
-            {
-                _remainingBranchStarters.Add(currentOutputConnector);
+                case PassUpdateOption.AlwaysPasses:
+                    return connectedNodes;
+                case PassUpdateOption.CurrentlyPasses:
+                case PassUpdateOption.CurrentlyDoesNotPass:
+                    _remainingBranchStarters.Add(outputConnector);
+                    break;
+
             }
         }
+
+        return null;
     }
 }

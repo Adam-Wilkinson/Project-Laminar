@@ -30,8 +30,8 @@ public class ValuePassingBenchmark
         _scriptEditor = instance.ServiceProvider.GetService<IScriptEditor>()!;
         _nodeWrapperFactory = instance.ServiceProvider.GetService<INodeFactory>()!;
 
-        SetupScript<ValueIOBenchmarNode>(_script1, 500);
-        SetupScript<ValueAttributeBenchmarkNode>(_script2, 500);
+        SetupScript<ValueIOBenchmarNode>(_script1, 5);
+        SetupScript<ValueAttributeBenchmarkNode>(_script2, 5);
 
         _firstNode = ValueAttributeBenchmarkNode.Instances[1];
         _lastNode = ValueAttributeBenchmarkNode.Instances[^1];

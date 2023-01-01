@@ -4,6 +4,7 @@ using Laminar.Contracts.Primitives;
 using Laminar.Contracts.UserInterface;
 using Laminar.PluginFramework.NodeSystem;
 using Laminar.Contracts.NodeSystem.Connection;
+using Laminar.PluginFramework.NodeSystem.Contracts.IO;
 
 namespace Laminar.Core.ScriptEditor.Nodes;
 
@@ -31,6 +32,14 @@ public class NodeRowWrapper : INodeRowWrapper
 
     private void StartExecution(object sender, LaminarExecutionContext e)
     {
+        if (e.ExecutionSource is IOutput)
+        {
+            _userChangedValueNotifiee.TriggerNotification(e with { ExecutionSource = OutputConnector.NodeIOConnector });
+        }
+        else if (e.ExecutionSource is IInput)
+        {
+            _userChangedValueNotifiee.TriggerNotification(e with { ExecutionSource = InputConnector.NodeIOConnector });
+        }
         _userChangedValueNotifiee.TriggerNotification(e);
     }
 

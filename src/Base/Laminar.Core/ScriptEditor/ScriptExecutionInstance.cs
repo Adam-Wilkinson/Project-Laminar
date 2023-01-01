@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using Laminar.Contracts.NodeSystem;
 using Laminar.Contracts.NodeSystem.Execution;
 using Laminar.PluginFramework.NodeSystem;
+using Laminar.PluginFramework.NodeSystem.Contracts.Connectors;
 
 namespace Laminar.Core.ScriptEditor;
 
@@ -26,15 +25,23 @@ internal class ScriptExecutionInstance : IScriptExecutionInstance
 
         if (IsShownInUI)
         {
-            context.ExecutionFlags.AddFlag(UIUpdateExecutionFlag.Value);
+            context = context with { ExecutionFlags = context.ExecutionFlags & UIUpdateExecutionFlag.Value };
         }
 
-        if (context.ExecutionSource is INodeWrapper nodeWrapper)
+        if (context.ExecutionSource is IIOConnector connectorSource)
         {
-            Span<INodeWrapper> iter = _editableScript.NodeTree.GetExecutionOrder(nodeWrapper);
-            for (int i = 0; i < iter.Length; i++)
+            ReadOnlySpan<IConditionalExecutionBranch> iter = new(_editableScript.NodeTree.GetExecutionBranches(connectorSource, context.ExecutionFlags));
+
+            if (iter.Length == 1)
             {
-                iter[i].Update(context);
+                iter[0].Execute(context);
+            }
+            else
+            {
+                for (int i = 0; i < iter.Length; i++)
+                {
+                    iter[i].Execute(context);
+                }
             }
         }
     }

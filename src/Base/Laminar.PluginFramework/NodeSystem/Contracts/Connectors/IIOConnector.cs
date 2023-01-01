@@ -4,7 +4,7 @@ namespace Laminar.PluginFramework.NodeSystem.Contracts.Connectors;
 
 public interface IIOConnector
 {
-    public ActivitySetting ActivitySetting { get; }
+    public PassUpdateOption PassUpdate(ExecutionFlags.ExecutionFlags executionFlags);
 
     public Action? PreEvaluateAction { get; }
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Laminar.Contracts.NodeSystem;
 using Laminar.Contracts.NodeSystem.Connection;
+using Laminar.Contracts.NodeSystem.Execution;
 using Laminar.Core.Extensions;
 using Laminar.PluginFramework.NodeSystem.Contracts.Connectors;
 using Laminar.PluginFramework.NodeSystem.ExecutionFlags;
@@ -10,13 +11,15 @@ namespace Laminar.Core.ScriptEditor;
 
 public class NodeTree : INodeTree
 {
+    readonly ExecutionOrderFinder _executionOrderFinder = new();
+    
     readonly Dictionary<INodeWrapper, List<INodeWrapper>> _dependentNodes = new();
     readonly Dictionary<INodeWrapper, INodeWrapper[]> _knownExecutionPaths = new();
     readonly Dictionary<IOutputConnector, List<INodeWrapper>> _connections = new();
-    readonly Dictionary<(IIOConnector, ExecutionFlags), ConditionalExecutionBranch[]> _executionPaths = new();
+    //readonly Dictionary<IIOConnector, Dictionary<int, ConditionalExecutionBranch[]>> _executionPaths = new();
+    readonly Dictionary<(IIOConnector, int), ConditionalExecutionBranch[]> _executionPaths = new();
     readonly Dictionary<IIOConnector, INodeWrapper> _connectorParents = new();
 
-    List<INodeWrapper>? _currentExecutionTree;
     IReadOnlyList<INodeWrapper> _currentExecutionLevel;
 
     public NodeTree(IScript script)
@@ -28,75 +31,44 @@ public class NodeTree : INodeTree
         script.Connections.ItemRemoved += ConnectionRemoved;
     }
 
-    public IReadOnlyList<INodeWrapper> GetDirectDependents(INodeWrapper node) => _dependentNodes.TryGetValue(node, out List<INodeWrapper> dependentNodes) ? dependentNodes : Array.Empty<INodeWrapper>();
-
-    public ConditionalExecutionBranch[] GetExecutionBranches(IIOConnector connector, ExecutionFlags flags)
+    public IConditionalExecutionBranch[] GetExecutionBranches(IIOConnector connector, ExecutionFlags flags)
     {
-        if (_executionPaths.TryGetValue((connector, flags), out ConditionalExecutionBranch[] branches))
+        //if (_executionPaths.TryGetValue(connector, out Dictionary<int, ConditionalExecutionBranch[]> connectorPaths) && connectorPaths.TryGetValue(flags.AsNumber, out ConditionalExecutionBranch[] branches))
+        if (_executionPaths.TryGetValue((connector, flags.AsNumber), out ConditionalExecutionBranch[] branches))
         {
             return branches;
         }
 
         if (connector is IInputConnector)
         {
-            ConditionalExecutionBranch[] result = GetBranchesFromNodes(_connectorParents[connector].Yield(), flags);
-            _executionPaths.Add((connector, flags), result);
+            ConditionalExecutionBranch[] result = _executionOrderFinder.FindExecutionPath(_connectorParents[connector], flags, _connections);
+            //AddExecutionPath(connector, flags.AsNumber, result);
+            _executionPaths.Add((connector, flags.AsNumber), result);
             return result;
         }
 
         if (connector is IOutputConnector outputConnector)
         {
-            ConditionalExecutionBranch[] result = GetBranchesFromNodes(_connections[outputConnector], flags);
-            _executionPaths.Add((connector, flags), result);
+            ConditionalExecutionBranch[] result = _executionOrderFinder.FindExecutionPath(outputConnector, flags, _connections);
+            //AddExecutionPath(connector, flags.AsNumber, result);
+            _executionPaths.Add((connector, flags.AsNumber), result);
             return result;
         }
 
         throw new ArgumentException($"Cannot start execution with object of type {connector.GetType()}", nameof(connector));
     }
 
-    private ConditionalExecutionBranch[] GetBranchesFromNodes(IEnumerable<INodeWrapper> firstExecutionLevel, ExecutionFlags flags)
-    {
-        List<ConditionalExecutionBranch> result = new();
-        List<IOutputConnector> remainingBranchStarters = new();
-        //List<INodeWrapper>currentBranchOrder = new();
-        List<INodeWrapper> nextExecutionLevel = new();
-
-        foreach (INodeWrapper node in firstExecutionLevel)
-        {
-
-        }
-
-
-        while (remainingBranchStarters.Count > 0)
-        {
-            IOutputConnector currentBranchStarter = remainingBranchStarters[0];
-            List<INodeWrapper> currentBranchOrder = new();
-            if (_connections.TryGetValue(currentBranchStarter, out List<INodeWrapper> connectedNodes))
-            {
-                foreach (INodeWrapper node in connectedNodes)
-                {
-                    currentBranchOrder.Add(node);
-                    foreach (INodeRowWrapper row in node.Fields)
-                    {
-                        if (row.OutputConnector is IOutputConnector currentOutputConnector
-                            && _connections.TryGetValue(currentOutputConnector, out List<INodeWrapper> nextNodes))
-                        {
-                            if (currentOutputConnector.ActivitySetting is ActivitySetting.AlwaysActive)
-                            {
-                                currentBranchOrder.AddRange(nextNodes);
-                            }
-                            else if (currentOutputConnector.ActivitySetting is ActivitySetting.CurrentlyActive or ActivitySetting.Inactive)
-                            {
-                                remainingBranchStarters.Add(currentOutputConnector);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        return result.ToArray();
-    }
+    //private void AddExecutionPath(IIOConnector connector, int flags, ConditionalExecutionBranch[] result)
+    //{
+    //    if (_executionPaths.TryGetValue(connector, out Dictionary<int, ConditionalExecutionBranch[]> subDict))
+    //    {
+    //        subDict[flags] = result;
+    //    }
+    //    else
+    //    {
+    //        _executionPaths.Add(connector, new Dictionary<int, ConditionalExecutionBranch[]>() { { flags, result } });
+    //    }
+    //}
 
     public INodeWrapper[] GetExecutionOrder(INodeWrapper node)
     {
@@ -124,6 +96,8 @@ public class NodeTree : INodeTree
         _knownExecutionPaths.Add(node, newOrderArray);
         return newOrderArray;
     }
+
+    private IReadOnlyList<INodeWrapper> GetDirectDependents(INodeWrapper node) => _dependentNodes.TryGetValue(node, out List<INodeWrapper> dependentNodes) ? dependentNodes : Array.Empty<INodeWrapper>();
 
     private void ConnectionRemoved(object sender, IConnection removedConnection)
     {

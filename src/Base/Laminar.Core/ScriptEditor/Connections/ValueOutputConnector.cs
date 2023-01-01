@@ -2,6 +2,7 @@
 using Laminar.Contracts.UserInterface;
 using Laminar.PluginFramework.NodeSystem.Contracts.Connectors;
 using Laminar.PluginFramework.NodeSystem.Contracts.IO;
+using Laminar.PluginFramework.NodeSystem.ExecutionFlags;
 
 namespace Laminar.Core.ScriptEditor.Connections;
 
@@ -21,8 +22,6 @@ internal class ValueOutputConnector : IOutputConnector<IValueOutput>
 
     public Action PreEvaluateAction => _nodeOutput!.PreEvaluateAction;
 
-    public ActivitySetting ActivitySetting => ActivitySetting.AlwaysActive;
-
     public void Init(IValueOutput nodeOutput) => _nodeOutput = nodeOutput;
 
     public void OnDisconnectedFrom(IInputConnector connector)
@@ -32,5 +31,15 @@ internal class ValueOutputConnector : IOutputConnector<IValueOutput>
     public bool TryConnectTo(IInputConnector connector)
     {
         return connector is IInputConnector<IValueInput> valConnector && valConnector.Input.TrySetValueProvider(_nodeOutput);
+    }
+
+    public PassUpdateOption PassUpdate(ExecutionFlags executionFlags)
+    {
+        if (executionFlags.HasValueFlag())
+        {
+            return PassUpdateOption.AlwaysPasses;
+        }
+
+        return PassUpdateOption.NeverPasses;
     }
 }
