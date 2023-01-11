@@ -6,9 +6,9 @@ public class NodeDivide : INode
 {
     public string NodeName => "Divide";
 
-    public ValueInput<double> FirstNumber = new("Numerator", 0.0);
-    public ValueInput<double> SecondNumber = new("Denominator", 1.0);
-    public ValueOutput<double> ResultNumber = new("Result", 0.0);
+    ValueInput<double> FirstNumber = new("Numerator", 0.0);
+    ValueInput<double> SecondNumber = new("Denominator", 1.0);
+    ValueOutput<double> ResultNumber = new("Result", 0.0);
 
     public void Evaluate()
     {
