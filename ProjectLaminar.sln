@@ -11,13 +11,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Base", "Base", "{B6015095-D
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugins", "Plugins", "{DD409C11-D6B5-47ED-9FD2-FDECE50FC4FA}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Base", "Base", "{497F048D-2E1C-4018-8350-A5786F43E570}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugins", "Plugins", "{3A8E10AB-3140-4973-A9A5-1476B49070BE}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Laminar.Avalonia", "src\Base\Laminar.Avalonia\Laminar.Avalonia.csproj", "{145AE802-142C-4489-9AF3-5A8FB5163EBF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Laminar.Implementation", "src\Base\Laminar.Core\Laminar.Implementation.csproj", "{D7AB1EAC-56CB-4C13-B10C-BCEE1CD241CA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Laminar.Implementation", "src\Base\Laminar.Implementation\Laminar.Implementation.csproj", "{D7AB1EAC-56CB-4C13-B10C-BCEE1CD241CA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Laminar.PluginFramework", "src\Base\Laminar.PluginFramework\Laminar.PluginFramework.csproj", "{1FF90085-7F7A-4035-A502-46241BC9A939}"
 EndProject
