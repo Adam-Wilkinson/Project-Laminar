@@ -1,32 +1,16 @@
-﻿using Laminar_PluginFramework;
-using Laminar_PluginFramework.NodeSystem.NodeComponents;
-using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
-using Laminar_PluginFramework.NodeSystem.Nodes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Laminar.PluginFramework.NodeSystem;
 
-namespace BasicFunctionality.Nodes.StringOperations
+namespace BasicFunctionality.Nodes.StringOperations;
+
+public class CharacterCounter : INode
 {
-    public class CharacterCounter : IFunctionNode
+    private readonly ValueInput<string> input = new("String", "");
+    private readonly ValueOutput<double> output = new("Character Count", 0.0);
+
+    public string NodeName { get; } = "Character Counter";
+
+    public void Evaluate()
     {
-        private readonly INodeField counterField = Constructor.NodeField("Count").WithOutput<double>().WithInput<string>();
-
-        public IEnumerable<INodeComponent> Fields
-        {
-            get
-            {
-                yield return counterField;
-            }
-        }
-
-        public string NodeName { get; } = "Character Counter";
-
-        public void Evaluate()
-        {
-            counterField.SetOutput(Convert.ToDouble(counterField.GetInput<string>().Length));
-        }
+        output.Value = input.Value.Length;
     }
 }

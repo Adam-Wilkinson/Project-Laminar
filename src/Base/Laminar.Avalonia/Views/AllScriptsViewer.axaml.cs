@@ -32,7 +32,7 @@ public class AllScriptsViewer : UserControl
         {
             MainWindow host = VisualRoot as MainWindow;
 
-            if (host is not null && DataContext is Instance instance && instance.AllAdvancedScripts.Count == 0)
+            if (host is not null && DataContext is Instance instance)
             {
                 _addScriptButton.IsChecked = false;
                 host.AddScript();

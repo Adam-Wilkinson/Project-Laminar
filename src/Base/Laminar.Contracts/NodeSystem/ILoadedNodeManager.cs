@@ -1,6 +1,6 @@
 ﻿using Laminar.Contracts.Primitives;
 using Laminar.Domain;
-using Laminar_PluginFramework.NodeSystem.Nodes;
+using Laminar.PluginFramework.NodeSystem;
 
 namespace Laminar.Contracts.NodeSystem;
 

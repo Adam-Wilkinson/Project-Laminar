@@ -2,7 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Markup.Xaml;
-using Laminar_PluginFramework.UserInterfaces;
+using Laminar.PluginFramework.UserInterfaces;
 
 namespace BasicFunctionality.Avalonia.UserControls;
 

@@ -2,7 +2,7 @@
 using Laminar.PluginFramework.NodeSystem.Contracts;
 using Laminar.PluginFramework.NodeSystem.Contracts.IO;
 using Laminar.PluginFramework.NodeSystem.ExecutionFlags;
-using Laminar_PluginFramework.UserInterfaces;
+using Laminar.PluginFramework.UserInterfaces;
 
 namespace Laminar.PluginFramework.NodeSystem;
 

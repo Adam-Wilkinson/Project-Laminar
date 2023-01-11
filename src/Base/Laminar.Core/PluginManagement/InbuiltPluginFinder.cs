@@ -24,6 +24,12 @@ namespace Laminar.Core.PluginManagement
         private static string GetOutputFromProjectFolder(string projectFolder)
         {
             string debugs = Path.Combine(projectFolder, @"bin\Debug");
+
+            if (!Directory.Exists(debugs))
+            {
+                return null;
+            }
+
             foreach (string path in Directory.EnumerateDirectories(debugs))
             {
                 return path;

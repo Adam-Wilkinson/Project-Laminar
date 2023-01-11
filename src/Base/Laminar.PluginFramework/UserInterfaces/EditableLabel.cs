@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace Laminar_PluginFramework.UserInterfaces;
+namespace Laminar.PluginFramework.UserInterfaces;
 
 public class EditableLabel : IUserInterfaceDefinition, INotifyPropertyChanged
 {

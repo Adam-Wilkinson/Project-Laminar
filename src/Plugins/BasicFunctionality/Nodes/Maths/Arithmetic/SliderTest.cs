@@ -1,32 +1,15 @@
-﻿using Laminar_PluginFramework;
-using Laminar_PluginFramework.NodeSystem.NodeComponents;
-using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
-using Laminar_PluginFramework.NodeSystem.Nodes;
-using Laminar_PluginFramework.Primitives.TypeDefinition;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Laminar.PluginFramework.NodeSystem;
+using Laminar.PluginFramework.UserInterfaces;
 
-namespace BasicFunctionality.Nodes.Maths.Arithmetic
+namespace BasicFunctionality.Nodes.Maths.Arithmetic;
+
+public class SliderTest : INode
 {
-    public class SliderTest : IFunctionNode
+    public readonly ValueInput<double> _sliderTest = new("Slider Test", 2.0) { Editor = new Slider(0, 4) };
+
+    public string NodeName { get; } = "Slider Test";
+
+    public void Evaluate()
     {
-        private readonly INodeField _sliderTest = Constructor.NodeField("Slider Test").WithValue("Display", Constructor.RigidTypeDefinitionManager(50.0, "SliderEditor", null), true);
-
-        public string NodeName { get; } = "Slider Test";
-
-        public IEnumerable<INodeComponent> Fields
-        {
-            get
-            {
-                yield return _sliderTest;
-            }
-        }
-
-        public void Evaluate()
-        {
-        }
     }
 }

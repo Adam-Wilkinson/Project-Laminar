@@ -1,16 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
-using Laminar_Core.Primitives.UserInterface;
 using Laminar.Core.PluginManagement;
-using Laminar_PluginFramework.Primitives;
 using System.Linq;
-using Laminar_Core.Scripting;
-using System.Collections.ObjectModel;
 using System.Runtime.CompilerServices;
-using Laminar_Core.Scripting.Advanced;
-using Laminar_PluginFramework.NodeSystem.Nodes;
-using Laminar_PluginFramework.Serialization;
+using Laminar.PluginFramework.Serialization;
 using Laminar.Core.ScriptEditor.Nodes;
 using Laminar.Contracts.UserInterface;
 using Laminar.Contracts.NodeSystem;
@@ -19,15 +13,13 @@ using Laminar.Contracts.ActionSystem;
 using Laminar.Core.ScriptEditor.Actions;
 using Laminar.Core.ScriptEditor.Connections;
 using Laminar.Core.UserInterface;
-using Laminar_PluginFramework.NodeSystem;
 using Laminar.Contracts.Primitives;
 using Laminar.Core.UserPreferences;
 using Laminar.Contracts.NodeSystem.Connection;
-using Laminar.PluginFramework.NodeSystem.Contracts.Connectors;
-using Laminar.PluginFramework.NodeSystem.Contracts.IO;
 using Laminar.Contracts.NodeSystem.Execution;
 using Laminar.Core.ScriptEditor;
 using Laminar.PluginFramework.Registration;
+using Laminar.PluginFramework.NodeSystem;
 
 namespace Laminar.Core;
 
@@ -41,24 +33,14 @@ public class Instance
 
     public Instance(SynchronizationContext uiContext, FrontendDependency supportedDependencies, [CallerFilePath] string path = "")
     {
-        UIContext = uiContext;
-        Factory = new Laminar_Core.ObjectFactory(this);
-        Laminar_PluginFramework.Laminar.Init(new Laminar_Core.ObjectFactory(this));
-
-        Serializer = Factory.GetImplementation<ISerializer>();
-        UserData = Factory.GetImplementation<IUserDataStore>();
-        RegisteredEditors = Factory.GetImplementation<IUserInterfaceRegister>();
-        RegisteredDisplays = Factory.GetImplementation<IUserInterfaceRegister>();
-        AllScripts = Factory.GetImplementation<IScriptCollection>();
-
         _pluginLoader = new PluginLoader(path, supportedDependencies, ServiceProvider.GetService<IPluginHostFactory>());
         AllRegisteredTypes = _typeInfo.Values.Where(x => x.CanBeInput);
 
         _isLoading = true;
-        foreach (var serializedScript in UserData.LoadAllFromFolder<ISerializedObject<IAdvancedScript>>("Scripts", "las"))
-        {
-            AllAdvancedScripts.Add(Serializer.Deserialize(serializedScript, null));
-        }
+        //foreach (var serializedScript in UserData.LoadAllFromFolder<ISerializedObject<IAdvancedScript>>("Scripts", "las"))
+        //{
+        //    AllAdvancedScripts.Add(Serializer.Deserialize(serializedScript, null));
+        //}
         _isLoading = false;
     }
 
@@ -88,37 +70,17 @@ public class Instance
         throw new ArgumentException($"Couldn't find a plugin for node of type {node.GetType()}");
     }
 
-    public ObservableCollection<IAdvancedScript> AllAdvancedScripts { get; } = new();
-
     public IServiceProvider ServiceProvider { get; } = InitializeServices(new ServiceCollection()).BuildServiceProvider();
 
     public ISerializer Serializer { get; }
 
     public IUserDataStore UserData { get; }
 
-    public IScriptCollection AllScripts { get; }
-
-    public IObjectFactory Factory { get; }
-
     public SynchronizationContext UIContext { get; }
-
-    public IUserInterfaceRegister RegisteredEditors { get; }
-
-    public IUserInterfaceRegister RegisteredDisplays { get; }
 
     public IEnumerable<TypeInfoRecord> AllRegisteredTypes { get; }
 
     public bool RegisterTypeInfo(Type type, TypeInfoRecord record) => _typeInfo.TryAdd(type, record);
-
-    public void SaveScript(IAdvancedScript script)
-    {
-        if (_isLoading)
-        {
-            return;
-        }
-
-        UserData.Save($"Scripts/{script.Name.Value}.las", Serializer.Serialize(script));
-    }
 
     public TypeInfoRecord GetTypeInfo(Type type)
     {

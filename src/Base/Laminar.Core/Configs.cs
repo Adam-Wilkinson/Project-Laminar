@@ -1,92 +1,91 @@
-﻿namespace Laminar_Core
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.IO;
+using System.Xml;
+
+namespace Laminar.Core;
+
+public class Configs
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Diagnostics;
-    using System.IO;
-    using System.Xml;
+    private readonly string _xmlDocPath;
+    private State _state;
+    private XmlNode _configs;
 
-    public class Configs
+    public Configs(string path)
     {
-        private readonly string _xmlDocPath;
-        private State _state;
-        private XmlNode _configs;
+        _xmlDocPath = path;
+        Reload();
+    }
 
-        public Configs(string path)
+    public string ErrorState => _state switch
+    {
+        State.InvalidPath => "The config file could not be found in " + _xmlDocPath,
+        State.InvalidFile => "The config file was found but is not valid",
+        State.Unknown => "An unknown error occured loading the config file",
+        State.Working => "There were no errors, the config file is valid",
+        _ => "wtf bro",
+    };
+
+    public bool Valid => _state == State.Working;
+
+    public ReadOnlyCollection<string> PluginPaths { get; private set; }
+
+    public void Reload()
+    {
+        _state = State.Unknown;
+        try
         {
-            _xmlDocPath = path;
-            Reload();
+            if (!File.Exists(_xmlDocPath))
+            {
+                _state = State.InvalidPath;
+            }
+
+            XmlDocument configsDocu = new();
+            configsDocu.Load(_xmlDocPath);
+            if (configsDocu["Configs"] == null)
+            {
+                _state = State.InvalidFile;
+            }
+
+            _configs = configsDocu["Configs"];
+            _state = State.Working;
+        }
+        catch (Exception e)
+        {
+            Debug.WriteLine($"Exception {e}; Configs not found! Invalid Config File");
         }
 
-        public string ErrorState => _state switch
+        LoadPluginDirectories();
+    }
+
+    public void LoadPluginDirectories()
+    {
+        if (Valid)
         {
-            State.InvalidPath => "The config file could not be found in " + _xmlDocPath,
-            State.InvalidFile => "The config file was found but is not valid",
-            State.Unknown => "An unknown error occured loading the config file",
-            State.Working => "There were no errors, the config file is valid",
-            _ => "wtf bro",
-        };
-
-        public bool Valid => _state == State.Working;
-
-        public ReadOnlyCollection<string> PluginPaths { get; private set; }
-
-        public void Reload()
-        {
-            _state = State.Unknown;
-            try
+            List<string> output = new();
+            foreach (XmlNode path in _configs["PluginDirectories"])
             {
-                if (!File.Exists(_xmlDocPath))
+                if (Directory.Exists(path.InnerText))
                 {
-                    _state = State.InvalidPath;
+                    output.AddRange(Directory.GetDirectories(path.InnerText));
                 }
-
-                XmlDocument configsDocu = new();
-                configsDocu.Load(_xmlDocPath);
-                if (configsDocu["Configs"] == null)
-                {
-                    _state = State.InvalidFile;
-                }
-
-                _configs = configsDocu["Configs"];
-                _state = State.Working;
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine($"Exception {e}; Configs not found! Invalid Config File");
             }
 
-            LoadPluginDirectories();
+            PluginPaths = new ReadOnlyCollection<string>(output);
         }
-
-        public void LoadPluginDirectories()
+        else
         {
-            if (Valid)
-            {
-                List<string> output = new();
-                foreach (XmlNode path in _configs["PluginDirectories"])
-                {
-                    if (Directory.Exists(path.InnerText))
-                    {
-                        output.AddRange(Directory.GetDirectories(path.InnerText));
-                    }
-                }
-
-                PluginPaths = new ReadOnlyCollection<string>(output);
-            }
-            else
-            {
-                PluginPaths = null;
-            }
+            PluginPaths = null;
         }
+    }
 
-        private enum State
-        {
-            InvalidPath,
-            InvalidFile,
-            Unknown,
-            Working,
-        }
+    private enum State
+    {
+        InvalidPath,
+        InvalidFile,
+        Unknown,
+        Working,
     }
 }

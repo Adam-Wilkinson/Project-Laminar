@@ -1,31 +1,13 @@
-﻿namespace BasicFunctionality.Nodes.StringOperations
+﻿using Laminar.PluginFramework.NodeSystem;
+
+namespace BasicFunctionality.Nodes.StringOperations;
+
+public class Node_Convert_To_String : INode
 {
-    using System.Collections.Generic;
-    using Laminar_PluginFramework;
-    using Laminar_PluginFramework.NodeSystem.NodeComponents;
-    using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
-    using Laminar_PluginFramework.NodeSystem.Nodes;
-    using Laminar_PluginFramework.Primitives.TypeDefinition;
+    public string NodeName => "Convert to Text";
 
-    public class Node_Convert_To_String : IFunctionNode
+    public void Evaluate()
     {
-        private readonly INodeField converterField = Constructor.NodeField("Text")
-            .WithInput(Constructor.TypeDefinitionManager())
-            .WithOutput("");
-
-        public string NodeName => "Convert to Text";
-
-        public IEnumerable<INodeComponent> Fields
-        {
-            get
-            {
-                yield return converterField;
-            }
-        }
-
-        public void Evaluate()
-        {
-            converterField.SetOutput(converterField.GetInput() == null ? string.Empty : converterField.GetInput().ToString());
-        }
+        // converterField.SetOutput(converterField.GetInput() == null ? string.Empty : converterField.GetInput().ToString());
     }
 }

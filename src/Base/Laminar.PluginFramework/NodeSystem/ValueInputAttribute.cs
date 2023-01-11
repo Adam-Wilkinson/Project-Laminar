@@ -3,7 +3,7 @@ using System.Reflection;
 using Laminar.PluginFramework.NodeSystem.Attributes;
 using Laminar.PluginFramework.NodeSystem.Contracts;
 using Laminar.PluginFramework.NodeSystem.Contracts.IO;
-using Laminar_PluginFramework.UserInterfaces;
+using Laminar.PluginFramework.UserInterfaces;
 
 namespace Laminar.PluginFramework.NodeSystem;
 

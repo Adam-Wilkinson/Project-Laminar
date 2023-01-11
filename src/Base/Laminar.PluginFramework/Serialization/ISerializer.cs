@@ -1,21 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Laminar_PluginFramework.Serialization
+namespace Laminar.PluginFramework.Serialization;
+
+public interface ISerializer
 {
-    public interface ISerializer
-    {
-        public object TrySerializeObject(object toSerialize);
+    public object TrySerializeObject(object toSerialize);
 
-        public object TryDeserializeObject(object serialized, Type requestedType = null, object deserializationContext = null);
+    public object TryDeserializeObject(object serialized, Type requestedType = null, object deserializationContext = null);
 
-        public void RegisterSerializer<T>(IObjectSerializer<T> serializer);
+    public void RegisterSerializer<T>(IObjectSerializer<T> serializer);
 
-        public ISerializedObject<T> Serialize<T>(T serializable);
+    public ISerializedObject<T> Serialize<T>(T serializable);
 
-        public T Deserialize<T>(ISerializedObject<T> serialized, object deserializationContext);
-    }
+    public T Deserialize<T>(ISerializedObject<T> serialized, object deserializationContext);
 }

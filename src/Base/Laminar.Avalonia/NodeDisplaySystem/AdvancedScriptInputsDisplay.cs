@@ -4,85 +4,84 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Layout;
 using Laminar.Contracts.NodeSystem;
 using Laminar.Core;
-using Laminar_Core.Scripting.Advanced.Editing;
+using Laminar.PluginFramework.NodeSystem;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
-namespace Laminar.Avalonia.NodeDisplaySystem
+namespace Laminar.Avalonia.NodeDisplaySystem;
+
+public class AdvancedScriptInputsDisplay : TemplatedControl
 {
-    public class AdvancedScriptInputsDisplay : TemplatedControl
+    public static readonly StyledProperty<ObservableCollection<INodeWrapper>> InputNodesProperty = AvaloniaProperty.Register<AdvancedScriptInputsDisplay, ObservableCollection<INodeWrapper>>(nameof(InputNodes));
+    public static readonly StyledProperty<Orientation> OrientationProperty = AvaloniaProperty.Register<AdvancedScriptInputsDisplay, Orientation>(nameof(Orientation), Orientation.Vertical);
+    public static readonly StyledProperty<IEnumerable<TypeInfoRecord>> AllTypeInfoProperty = AvaloniaProperty.Register<AdvancedScriptInputsDisplay, IEnumerable<TypeInfoRecord>>(nameof(AllTypeInfo));
+
+    private readonly INodeFactory _nodeFactory;
+
+    private ToggleButton _toggleAddMenuButton;
+    private Vector _dragOffset;
+
+    public AdvancedScriptInputsDisplay()
     {
-        public static readonly StyledProperty<ObservableCollection<INodeWrapper>> InputNodesProperty = AvaloniaProperty.Register<AdvancedScriptInputsDisplay, ObservableCollection<INodeWrapper>>(nameof(InputNodes));
-        public static readonly StyledProperty<Orientation> OrientationProperty = AvaloniaProperty.Register<AdvancedScriptInputsDisplay, Orientation>(nameof(Orientation), Orientation.Vertical);
-        public static readonly StyledProperty<IEnumerable<TypeInfoRecord>> AllTypeInfoProperty = AvaloniaProperty.Register<AdvancedScriptInputsDisplay, IEnumerable<TypeInfoRecord>>(nameof(AllTypeInfo));
+        _nodeFactory = App.LaminarInstance.ServiceProvider.GetService<INodeFactory>();
+        InputNodes = new();
+        DataContextChanged += NodeTreeInputDisplay_DataContextChanged;
 
-        private readonly INodeFactory _nodeFactory;
+        AllTypeInfo = App.LaminarInstance.AllRegisteredTypes;
+    }
 
-        private ToggleButton _toggleAddMenuButton;
-        private Vector _dragOffset;
+    public IEnumerable<TypeInfoRecord> AllTypeInfo
+    {
+        get => GetValue(AllTypeInfoProperty);
+        set => SetValue(AllTypeInfoProperty, value);
+    }
 
-        public AdvancedScriptInputsDisplay()
-        {
-            _nodeFactory = App.LaminarInstance.ServiceProvider.GetService<INodeFactory>();
-            InputNodes = new();
-            DataContextChanged += NodeTreeInputDisplay_DataContextChanged;
+    public ObservableCollection<INodeWrapper> InputNodes
+    {
+        get => GetValue(InputNodesProperty);
+        set => SetValue(InputNodesProperty, value);
+    }
 
-            AllTypeInfo = App.LaminarInstance.AllRegisteredTypes;
-        }
+    public Orientation Orientation
+    {
+        get => GetValue(OrientationProperty);
+        set => SetValue(OrientationProperty, value);
+    }
 
-        public IEnumerable<TypeInfoRecord> AllTypeInfo
-        {
-            get => GetValue(AllTypeInfoProperty);
-            set => SetValue(AllTypeInfoProperty, value);
-        }
+    public void AddInputOfType(Type type)
+    {
+        // (DataContext as IAdvancedScriptInputs).Add(type);
+        _toggleAddMenuButton.IsChecked = false;
+    }
 
-        public ObservableCollection<INodeWrapper> InputNodes
-        {
-            get => GetValue(InputNodesProperty);
-            set => SetValue(InputNodesProperty, value);
-        }
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
+    {
+        base.OnApplyTemplate(e);
+        _toggleAddMenuButton = e.NameScope.Find<ToggleButton>("PART_AddNodeButton");
+    }
 
-        public Orientation Orientation
-        {
-            get => GetValue(OrientationProperty);
-            set => SetValue(OrientationProperty, value);
-        }
+    private void RemoveNode(object sender, INode item)
+    {
+    }
 
-        public void AddInputOfType(Type type)
-        {
-            // (DataContext as IAdvancedScriptInputs).Add(type);
-            _toggleAddMenuButton.IsChecked = false;
-        }
+    private void AddNode(object sender, INode inputNode)
+    {
+        //INodeWrapper nodeContainer = _nodeFactory.WrapNode(inputNode, null);
+        //InputNodes.Add(nodeContainer);
+    }
 
-        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
-        {
-            base.OnApplyTemplate(e);
-            _toggleAddMenuButton = e.NameScope.Find<ToggleButton>("PART_AddNodeButton");
-        }
-
-        private void RemoveNode(object sender, InputNode item)
-        {
-        }
-
-        private void AddNode(object sender, InputNode inputNode)
-        {
-            INodeWrapper nodeContainer = _nodeFactory.WrapNode(inputNode, null);
-            InputNodes.Add(nodeContainer);
-        }
-
-        private void NodeTreeInputDisplay_DataContextChanged(object sender, EventArgs e)
-        {
-            if (DataContext is IAdvancedScriptInputs inputs)
-            {
-                inputs.NodeAdded += AddNode;
-                inputs.NodeRemoved += RemoveNode;
-                foreach (var inputNode in inputs.InputNodes)
-                {
-                    AddNode(null, inputNode);
-                }
-            }
-        }
+    private void NodeTreeInputDisplay_DataContextChanged(object sender, EventArgs e)
+    {
+        //if (DataContext is IAdvancedScriptInputs inputs)
+        //{
+        //    inputs.NodeAdded += AddNode;
+        //    inputs.NodeRemoved += RemoveNode;
+        //    foreach (var inputNode in inputs.InputNodes)
+        //    {
+        //        AddNode(null, inputNode);
+        //    }
+        //}
     }
 }

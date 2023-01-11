@@ -7,10 +7,11 @@
 	<StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
 		<DockPanel HorizontalAlignment="Stretch">
 			<TextBlock HorizontalAlignment="Left" DockPanel.Dock="Left" Text="{Binding Name}"/>
-			<TextBlock HorizontalAlignment="Right" DockPanel.Dock="Right" Text="{Binding TrueValue, StringFormat=\{0:00.0\}}}"/>
+			<TextBlock HorizontalAlignment="Right" DockPanel.Dock="Right" Text="{Binding Value, StringFormat=\{0:00.0\}}}"/>
 		</DockPanel>
 		<Slider Value="{Binding Value}"		   
-					   Maximum="{Binding InterfaceDefinition.MaxValue, FallbackValue=100}"
-					   Minimum="{Binding InterfaceDefinition.MinValue, FallbackValue=0}"/>
+				Maximum="{Binding InterfaceDefinition.Max, FallbackValue=100}"
+				Minimum="{Binding InterfaceDefinition.Min, FallbackValue=0}"
+				Increment="{Binding InterfaceDefinition.Increment, FallbackValue=1}"/>
 	</StackPanel>
 </UserControl>

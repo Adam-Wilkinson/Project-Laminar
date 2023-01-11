@@ -1,26 +1,22 @@
-﻿using Laminar_PluginFramework.NodeSystem.Nodes;
+﻿using Laminar.PluginFramework.NodeSystem;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Laminar.Core.PluginManagement
+namespace Laminar.Core.PluginManagement;
+
+public interface IRegisteredPlugin
 {
-    public interface IRegisteredPlugin
-    {
-        string PluginName { get; }
+    string PluginName { get; }
 
-        string PluginDescription { get; }
+    string PluginDescription { get; }
 
-        public IReadOnlyDictionary<string, Type> RegisteredNodes { get; }
+    public IReadOnlyDictionary<string, Type> RegisteredNodes { get; }
 
-        public bool ContainsNode(INode node);
+    public bool ContainsNode(INode node);
 
-        void Load();
+    void Load();
 
-        void RegisterNode(INode node);
+    void RegisterNode(INode node);
 
-        void Unload();
-    }
+    void Unload();
 }

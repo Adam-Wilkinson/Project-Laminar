@@ -3,11 +3,10 @@ using BasicFunctionality.Nodes.Flow;
 using BasicFunctionality.Nodes.Maths.Arithmetic;
 using BasicFunctionality.Nodes.Maths.Functions;
 using BasicFunctionality.Nodes.StringOperations;
-using Laminar_PluginFramework.Registration;
+using Laminar.PluginFramework.Registration;
 using BasicFunctionality.Nodes.Maths.Comparisons;
-using Laminar_PluginFramework.Primitives;
 using BasicFunctionality.Nodes.Triggers;
-using Laminar_PluginFramework.UserInterfaces;
+using Laminar.PluginFramework.UserInterfaces;
 
 namespace BasicFunctionality;
 
@@ -27,7 +26,7 @@ public class PluginFront : IPlugin
         host.RegisterType<Action>("00FF00", "Button", null, new DefaultViewer(), new DefaultViewer(), null);
 
         host.AddNodeToMenu<ManualTriggerNode>("Triggers");
-        host.AddNodeToMenu<NodeAdd, NodeDifference, NodeMultiply, NodeDivide, Round>("Number", "Arithmetic");
+        host.AddNodeToMenu<NodeAdd, NodeDifference, NodeMultiply, NodeDivide, Round, SliderTest>("Number", "Arithmetic");
         host.AddNodeToMenu<NodeSine>("Number", "Functions");
         host.AddNodeToMenu<Equal>("Number", "Comparisons");
         host.AddNodeToMenu<Node_Join_Strings, CharacterCounter>("Text");

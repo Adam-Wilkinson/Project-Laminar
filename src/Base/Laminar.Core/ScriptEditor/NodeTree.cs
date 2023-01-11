@@ -39,7 +39,7 @@ public class NodeTree : INodeTree
             return branches;
         }
 
-        if (connector is IInputConnector)
+        if (connector is IInputConnector && _connectorParents.ContainsKey(connector))
         {
             ConditionalExecutionBranch[] result = _executionOrderFinder.FindExecutionPath(_connectorParents[connector], flags, _connections);
             //AddExecutionPath(connector, flags.AsNumber, result);
@@ -55,20 +55,8 @@ public class NodeTree : INodeTree
             return result;
         }
 
-        throw new ArgumentException($"Cannot start execution with object of type {connector.GetType()}", nameof(connector));
+        return Array.Empty<IConditionalExecutionBranch>();
     }
-
-    //private void AddExecutionPath(IIOConnector connector, int flags, ConditionalExecutionBranch[] result)
-    //{
-    //    if (_executionPaths.TryGetValue(connector, out Dictionary<int, ConditionalExecutionBranch[]> subDict))
-    //    {
-    //        subDict[flags] = result;
-    //    }
-    //    else
-    //    {
-    //        _executionPaths.Add(connector, new Dictionary<int, ConditionalExecutionBranch[]>() { { flags, result } });
-    //    }
-    //}
 
     public INodeWrapper[] GetExecutionOrder(INodeWrapper node)
     {

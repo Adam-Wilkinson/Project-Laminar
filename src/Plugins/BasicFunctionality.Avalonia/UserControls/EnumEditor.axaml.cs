@@ -1,7 +1,7 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
-using Laminar_PluginFramework.Primitives;
+using Laminar.PluginFramework.UserInterfaces;
 using System.Diagnostics;
 
 namespace BasicFunctionality.Avalonia.UserControls;
@@ -25,6 +25,6 @@ public class EnumEditor : UserControl
 
     private void EnumEditor_DataContextChanged(object sender, System.EventArgs e)
     {
-        _combobox.Items = (DataContext as ILaminarValue)?.TypeDefinition.ValueType.GetEnumValues();
+        _combobox.Items = (DataContext as IDisplayValue)?.Value.GetType().GetEnumValues();
     }
 }

@@ -1,9 +1,7 @@
-﻿using Laminar.PluginFramework.Registration;
-using Laminar_PluginFramework.NodeSystem.Nodes;
-using Laminar_PluginFramework.Registration;
+﻿using Laminar.PluginFramework.NodeSystem;
+using Laminar.PluginFramework.Registration;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 
@@ -11,7 +9,7 @@ namespace Laminar.Core.PluginManagement;
 
 public class PluginLoader
 {
-    private readonly string[] AutoLoadPlugins = { "Basic Functionality UI", "Base plugin functionality", "Keyboard and Mouse interface", "Windows Base" };
+    private readonly string[] AutoLoadPlugins = { "Basic Functionality UI", "Base plugin functionality" };//, "Keyboard and Mouse interface", "Windows Base" };
     readonly FrontendDependency _frontend;
     private readonly IPluginHostFactory _pluginHostFactory;
 

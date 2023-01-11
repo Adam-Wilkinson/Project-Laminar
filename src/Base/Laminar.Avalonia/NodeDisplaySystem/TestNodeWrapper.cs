@@ -4,9 +4,7 @@ using Laminar.Contracts.NodeSystem;
 using Laminar.Contracts.Primitives;
 using Laminar.Domain.ValueObjects;
 using Laminar.PluginFramework.NodeSystem;
-using Laminar_Core;
-using Laminar_PluginFramework.NodeSystem.NodeComponents;
-using Laminar_PluginFramework.NodeSystem.Nodes;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Laminar.Avalonia.NodeDisplaySystem;
 
@@ -16,7 +14,7 @@ public class TestNodeWrapper : INodeWrapper
 
     public TestNodeWrapper()
     {
-        _coreNode = new ObjectFactory(null).GetImplementation<INodeFactory>().WrapNode(new TestNode(), null);
+        _coreNode = App.LaminarInstance.ServiceProvider.GetService<INodeFactory>().WrapNode(new TestNode(), null);
     }
 
     public Identifier<INodeWrapper> Id => _coreNode.Id;
@@ -39,8 +37,6 @@ public class TestNodeWrapper : INodeWrapper
     {
         public readonly ValueInput<string> TestStringInput = new("Test Input", "Example");
         public readonly ValueOutput<double> TestNumberOutput = new("Test Output", 5);
-
-        public IEnumerable<INodeComponent> Fields => null;
 
         public string NodeName { get; } = "Test";
 

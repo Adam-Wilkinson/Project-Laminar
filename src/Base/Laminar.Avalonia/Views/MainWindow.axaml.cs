@@ -7,10 +7,6 @@ using Laminar.Avalonia.KeyBIndings;
 using Laminar.Avalonia.Models;
 using Laminar.Contracts.ActionSystem;
 using Laminar.Contracts.NodeSystem;
-using Laminar_Core.Scripting;
-using Laminar_Core.Scripting.Advanced;
-using Laminar_Core.Scripting.Advanced.Editing;
-using Laminar_Core.Scripting.Advanced.Instancing;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Runtime.InteropServices;
@@ -49,9 +45,9 @@ public class MainWindow : Window
 
     public void CloseScriptEditor()
     {
-        if (DataContext is MainWindowViewModel mwvm && mwvm.MainControl is ScriptEditor scriptEditor && scriptEditor.DataContext is IAdvancedScript openNodeTree)
+        if (DataContext is MainWindowViewModel mwvm && mwvm.MainControl is ScriptEditor scriptEditor && scriptEditor.DataContext is IScript openNodeTree)
         {
-            openNodeTree.IsBeingEdited = false;
+            openNodeTree.ExecutionInstance.IsShownInUI = false;
             if (_needsScriptInstance)
             {
                 AddScriptInstance(openNodeTree);
@@ -61,15 +57,9 @@ public class MainWindow : Window
         }
     }
 
-    public void DeleteScript(IScriptInstance script)
-    {
-        App.LaminarInstance.AllScripts.Scripts.Remove(script);
-    }
-
-    public void AddScriptInstance(IAdvancedScript script)
+    public void AddScriptInstance(IScript script)
     {
         (DataContext as MainWindowViewModel).CloseAddScriptsButton();
-        App.LaminarInstance.AllScripts.Scripts.Add(script.CreateInstance());
     }
 
     public void AddScript()

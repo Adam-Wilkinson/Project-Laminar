@@ -9,8 +9,6 @@
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture) => (value) switch
             {
-                Laminar_Core.Primitives.HorizontalAlignment.Left => HorizontalAlignment.Left,
-                Laminar_Core.Primitives.HorizontalAlignment.Right => HorizontalAlignment.Right,
                 _ => HorizontalAlignment.Stretch,
             };
 

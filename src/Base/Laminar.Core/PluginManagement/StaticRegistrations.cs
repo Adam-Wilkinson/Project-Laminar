@@ -1,6 +1,6 @@
 ﻿using Laminar.Core.ScriptEditor.Connections;
 using Laminar.PluginFramework.NodeSystem.Contracts.IO;
-using Laminar_PluginFramework.Registration;
+using Laminar.PluginFramework.Registration;
 
 namespace Laminar.Core.PluginManagement;
 

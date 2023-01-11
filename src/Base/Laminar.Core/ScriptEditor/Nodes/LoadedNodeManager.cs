@@ -1,6 +1,6 @@
 ﻿using Laminar.Contracts.NodeSystem;
 using Laminar.Domain;
-using Laminar_PluginFramework.NodeSystem.Nodes;
+using Laminar.PluginFramework.NodeSystem;
 
 namespace Laminar.Core.ScriptEditor.Nodes;
 

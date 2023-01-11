@@ -4,7 +4,6 @@ using Laminar.Contracts.NodeSystem;
 using Laminar.Contracts.Primitives;
 using Laminar.Domain.ValueObjects;
 using Laminar.PluginFramework.NodeSystem;
-using Laminar_PluginFramework.NodeSystem.Nodes;
 
 namespace Laminar.Core.ScriptEditor.Nodes;
 

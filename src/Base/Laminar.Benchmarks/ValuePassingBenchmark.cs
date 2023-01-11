@@ -2,7 +2,7 @@
 using Laminar.Benchmarks.BenchmarkNodes;
 using Laminar.Contracts.NodeSystem;
 using Laminar.Core;
-using Laminar_PluginFramework.NodeSystem.Nodes;
+using Laminar.PluginFramework.NodeSystem;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Laminar.Benchmarks;
