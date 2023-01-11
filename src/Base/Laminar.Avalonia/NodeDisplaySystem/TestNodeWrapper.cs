@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using Laminar.Contracts.NodeSystem;
+using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Contracts.Primitives;
 using Laminar.Domain.ValueObjects;
 using Laminar.PluginFramework.NodeSystem;
@@ -8,24 +8,24 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Laminar.Avalonia.NodeDisplaySystem;
 
-public class TestNodeWrapper : INodeWrapper
+public class TestNodeWrapper : IWrappedNode
 {
-    private INodeWrapper _coreNode;
+    private IWrappedNode _coreNode;
 
     public TestNodeWrapper()
     {
         _coreNode = App.LaminarInstance.ServiceProvider.GetService<INodeFactory>().WrapNode(new TestNode(), null);
     }
 
-    public Identifier<INodeWrapper> Id => _coreNode.Id;
+    public Identifier<IWrappedNode> Id => _coreNode.Id;
 
-    public INodeRowWrapper NameRow => _coreNode.NameRow;
+    public IWrappedNodeRow NameRow => _coreNode.NameRow;
 
-    public ObservableCollection<INodeRowWrapper> Fields => _coreNode.Fields;
+    public ObservableCollection<IWrappedNodeRow> Fields => _coreNode.Fields;
 
     public ObservableValue<Point> Location => _coreNode.Location;
 
-    public INodeWrapper Clone(INotificationClient<LaminarExecutionContext> notificationClient) => _coreNode.Clone(notificationClient);
+    public IWrappedNode Clone(INotificationClient<LaminarExecutionContext> notificationClient) => _coreNode.Clone(notificationClient);
 
     public void TriggerNotification(LaminarExecutionContext source)
     {

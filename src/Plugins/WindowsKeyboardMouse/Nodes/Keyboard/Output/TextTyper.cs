@@ -1,23 +1,12 @@
-﻿using Laminar_PluginFramework;
-using Laminar_PluginFramework.NodeSystem.NodeComponents;
-using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
-using Laminar_PluginFramework.NodeSystem.Nodes;
+﻿using Laminar.PluginFramework.NodeSystem;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 namespace WindowsKeyboardMouse.Nodes.Keyboard.Output;
 
-public class TextTyper : IActionNode
+public class TextTyper : INode
 {
-    private readonly INodeField textField = Constructor.NodeField("Text to type").WithInput<string>();
-
-    public IEnumerable<INodeComponent> Fields
-    {
-        get
-        {
-            yield return textField;
-        }
-    }
+    // private readonly INodeField textField = Constructor.NodeField("Text to type").WithInput<string>();
 
     public string NodeName { get; } = "Text Typer";
 

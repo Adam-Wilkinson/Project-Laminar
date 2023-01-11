@@ -1,7 +1,7 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Laminar.Avalonia.Views;
-using Laminar.Contracts.NodeSystem;
+using Laminar.Contracts.Scripting;
 using System.ComponentModel;
 
 namespace Laminar.Avalonia.Models

@@ -1,32 +1,18 @@
-﻿using Laminar_PluginFramework;
-using Laminar_PluginFramework.NodeSystem.NodeComponents;
-using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
-using Laminar_PluginFramework.NodeSystem.Nodes;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using System.Threading;
+using Laminar.PluginFramework.NodeSystem;
 using WindowsKeyboardMouse.Primitives;
 
 namespace WindowsKeyboardMouse.Nodes.Keyboard.Output
 {
-    public class KeyPresser : IActionNode
+    public class KeyPresser : INode
     {
         public const uint KEYEVENTF_EXTENDEDKEY = 0x0001;
         public const uint KEYEVENTF_KEYUP = 0x0002;
 
-        private readonly INodeField keyField = Constructor.NodeField("Key To Press").WithInput<KeyboardKey>();
-        private readonly INodeField numberOfPresses = Constructor.NodeField("Number of Presses").WithInput(1.0);
-        private readonly INodeField delay = Constructor.NodeField("Press Delay").WithInput(10.0);
-
-        public IEnumerable<INodeComponent> Fields
-        {
-            get
-            {
-                yield return keyField;
-                yield return numberOfPresses;
-                yield return delay;
-            }
-        }
+        //private readonly INodeField keyField = Constructor.NodeField("Key To Press").WithInput<KeyboardKey>();
+        //private readonly INodeField numberOfPresses = Constructor.NodeField("Number of Presses").WithInput(1.0);
+        //private readonly INodeField delay = Constructor.NodeField("Press Delay").WithInput(10.0);
 
         public string NodeName { get; } = "Key Presser";
 

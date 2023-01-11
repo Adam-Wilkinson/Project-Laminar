@@ -6,9 +6,9 @@ using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.VisualTree;
 using Laminar.Avalonia.NodeDisplaySystem;
-using Laminar.Contracts.NodeSystem;
-using Laminar.Contracts.NodeSystem.Connection;
-using Laminar.Domain;
+using Laminar.Contracts.Scripting;
+using Laminar.Contracts.Scripting.Connection;
+using Laminar.Domain.Notification;
 
 namespace Laminar.Avalonia.Controls.ScriptEditor;
 

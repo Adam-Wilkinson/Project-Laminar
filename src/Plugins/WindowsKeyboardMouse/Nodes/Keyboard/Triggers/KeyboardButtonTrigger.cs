@@ -1,15 +1,12 @@
-﻿using Laminar_PluginFramework;
-using Laminar_PluginFramework.NodeSystem.NodeComponents;
-using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
-using Laminar_PluginFramework.NodeSystem.Nodes;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Timers;
+using Laminar.PluginFramework.NodeSystem;
 using WindowsKeyboardMouse.Primitives;
 
 namespace WindowsKeyboardMouse.Nodes.Keyboard.Triggers;
 
-public class KeyboardButtonTrigger : ITriggerNode
+public class KeyboardButtonTrigger : INode
 {
     // private static readonly Dictionary<Keys, KeyboardButtonTrigger> AllTriggers = new();
     private static readonly Timer CooldownTimer = new(100) { AutoReset = false };
@@ -21,17 +18,8 @@ public class KeyboardButtonTrigger : ITriggerNode
         KeyIsDown = false;
     }
 
-    public readonly INodeField KeyField = Constructor.NodeField("Trigger Key").WithInput<KeyboardKey>();
-    public readonly INodeField SuppressKey = Constructor.NodeField("Suppress Key").WithInput(Constructor.RigidTypeDefinitionManager(false, "CheckBox", null));
-
-    public IEnumerable<INodeComponent> Fields
-    {
-        get
-        {
-            yield return KeyField;
-            yield return SuppressKey;
-        }
-    }
+    //public readonly INodeField KeyField = Constructor.NodeField("Trigger Key").WithInput<KeyboardKey>();
+    //public readonly INodeField SuppressKey = Constructor.NodeField("Suppress Key").WithInput(Constructor.RigidTypeDefinitionManager(false, "CheckBox", null));
 
     public string NodeName { get; } = "Keyboard Trigger";
 

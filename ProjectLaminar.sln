@@ -17,7 +17,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugins", "Plugins", "{3A8E
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Laminar.Avalonia", "src\Base\Laminar.Avalonia\Laminar.Avalonia.csproj", "{145AE802-142C-4489-9AF3-5A8FB5163EBF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Laminar.Core", "src\Base\Laminar.Core\Laminar.Core.csproj", "{D7AB1EAC-56CB-4C13-B10C-BCEE1CD241CA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Laminar.Implementation", "src\Base\Laminar.Core\Laminar.Implementation.csproj", "{D7AB1EAC-56CB-4C13-B10C-BCEE1CD241CA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Laminar.PluginFramework", "src\Base\Laminar.PluginFramework\Laminar.PluginFramework.csproj", "{1FF90085-7F7A-4035-A502-46241BC9A939}"
 EndProject
@@ -40,7 +40,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Laminar.Benchmarks", "src\B
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BasicFunctionality.Avalonia", "src\Plugins\BasicFunctionality.Avalonia\BasicFunctionality.Avalonia.csproj", "{4987BAAF-3CB6-4D50-91CD-88A1F8E2EA54}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Laminar.PluginFramework.UnitTests", "tests\Base\Laminar.PluginFramework.UnitTests\Laminar.PluginFramework.UnitTests.csproj", "{62F510E3-C627-4444-9DA6-E8F7CCB10DD4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Laminar.PluginFramework.UnitTests", "tests\Base\Laminar.PluginFramework.UnitTests\Laminar.PluginFramework.UnitTests.csproj", "{62F510E3-C627-4444-9DA6-E8F7CCB10DD4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

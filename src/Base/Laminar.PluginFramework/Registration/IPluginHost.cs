@@ -7,7 +7,7 @@ using Laminar.PluginFramework.UserInterfaces;
 namespace Laminar.PluginFramework.Registration;
 
 /// <summary>
-/// Defines a host which can have OpenFlow classes from PlugIns registered with it
+/// Defines a host which can have Project: Laminar classes from PlugIns registered with it
 /// </summary>
 public interface IPluginHost
 {

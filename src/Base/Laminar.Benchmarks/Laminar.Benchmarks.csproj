@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Laminar.Core\Laminar.Core.csproj" />
+    <ProjectReference Include="..\Laminar.Core\Laminar.Implementation.csproj" />
   </ItemGroup>
 
 </Project>

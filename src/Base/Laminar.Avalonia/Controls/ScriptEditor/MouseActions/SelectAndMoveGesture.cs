@@ -4,7 +4,8 @@ using Avalonia.Input;
 using Avalonia.Input.GestureRecognizers;
 using Laminar.Avalonia.NodeDisplaySystem;
 using Laminar.Avalonia.Utils;
-using Laminar.Contracts.NodeSystem;
+using Laminar.Contracts.Scripting;
+using Laminar.Contracts.Scripting.NodeWrapping;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Laminar.Avalonia.Controls.ScriptEditor.MouseActions;
@@ -44,7 +45,7 @@ internal class SelectAndMoveGesture : GestureRecogniserBase
         _totalMoveDistance = e.GetPosition(_positionCanvas) - _gestureStartPoint;
         foreach (Control control in _selection.GetSelection<Control>())
         {
-            if (_nodeControlManager.TryGetNode(control, out INodeWrapper node))
+            if (_nodeControlManager.TryGetNode(control, out IWrappedNode node))
             {
                 Canvas.SetLeft(control, node.Location.Value.X + _totalMoveDistance.X);
                 Canvas.SetTop(control, node.Location.Value.Y + _totalMoveDistance.Y);

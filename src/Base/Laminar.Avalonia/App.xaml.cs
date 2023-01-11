@@ -10,7 +10,7 @@ public class App : Application
 {
     public static DragDropHandler DragDropHandler { get; private set; }
 
-    public static Laminar.Core.Instance LaminarInstance { get; } = new(SynchronizationContext.Current, PluginFramework.Registration.FrontendDependency.Avalonia);
+    public static Laminar.Implementation.Instance LaminarInstance { get; } = new(SynchronizationContext.Current, PluginFramework.Registration.FrontendDependency.Avalonia);
 
     public override void Initialize()
     {

@@ -5,7 +5,7 @@ using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.VisualTree;
 using Laminar.Avalonia.NodeDisplaySystem;
-using Laminar.Contracts.NodeSystem;
+using Laminar.Contracts.Scripting;
 using Laminar.PluginFramework.NodeSystem.Contracts.Connectors;
 using Microsoft.Extensions.DependencyInjection;
 

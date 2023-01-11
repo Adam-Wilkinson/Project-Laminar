@@ -1,9 +1,9 @@
 ﻿<Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 		xmlns:n="clr-namespace:Laminar.Avalonia.NodeDisplaySystem;assembly=Laminar.Avalonia"
-		xmlns:con="clr-namespace:Laminar.Contracts.NodeSystem.Connection;assembly=Laminar.Contracts"
-		xmlns:nod="clr-namespace:Laminar.Contracts.NodeSystem;assembly=Laminar.Contracts"
-		xmlns:conui="clr-namespace:Laminar.Contracts.UserInterface;assembly=Laminar.Contracts"
+		xmlns:con="clr-namespace:Laminar.Contracts.Scripting.Connection;assembly=Laminar.Contracts"
+		xmlns:nod="clr-namespace:Laminar.Contracts.Scripting.NodeWrapping;assembly=Laminar.Contracts"
+		xmlns:conui="clr-namespace:Laminar.Contracts.Base.UserInterface;assembly=Laminar.Contracts"
 		xmlns:gestures="clr-namespace:Laminar.Avalonia.Controls.ScriptEditor.MouseActions;assembly=Laminar.Avalonia"
 		xmlns:mycontrols="clr-namespace:Laminar.Avalonia.Controls;assembly=Laminar.Avalonia">
 	<Design.PreviewWith>
@@ -46,7 +46,7 @@
 								ChildDataContext="{Binding Value}"/>
 						</DataTemplate>
 
-						<DataTemplate DataType="{x:Type nod:INodeRowWrapper}">
+						<DataTemplate DataType="{x:Type nod:IWrappedNodeRow}">
 							<Panel>
 								<ContentControl Content="{Binding InputConnector}"
 												HorizontalAlignment="Left"

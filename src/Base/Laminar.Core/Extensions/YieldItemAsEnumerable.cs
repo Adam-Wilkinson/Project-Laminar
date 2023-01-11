@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Laminar.Core.Extensions;
+namespace Laminar.Implementation.Extensions;
 
 public static class YieldItemAsEnumerable
 {

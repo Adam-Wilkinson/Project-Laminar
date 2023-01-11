@@ -1,25 +1,14 @@
-﻿using Laminar_PluginFramework;
-using Laminar_PluginFramework.NodeSystem.NodeComponents;
-using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
-using Laminar_PluginFramework.NodeSystem.Nodes;
+﻿using Laminar.PluginFramework.NodeSystem;
 using System;
 using System.Collections.Generic;
 
 namespace WindowsKeyboardMouse.Nodes.Keyboard.Triggers;
 
-public class TextTypedTrigger : ITriggerNode
+public class TextTypedTrigger : INode
 {
-    private readonly INodeField textInput = Constructor.NodeField("Text to listen for").WithInput<string>();
+    // private readonly INodeField textInput = Constructor.NodeField("Text to listen for").WithInput<string>();
 
     // private IKeyboardMouseEvents _globalHook;
-
-    public IEnumerable<INodeComponent> Fields
-    {
-        get
-        {
-            yield return textInput;
-        }
-    }
 
     public string NodeName { get; } = "Text Typed Trigger";
 
@@ -27,9 +16,9 @@ public class TextTypedTrigger : ITriggerNode
 
     public void HookupTriggers()
     {
-        textInput.GetValue(INodeField.InputKey).OnChange += TextInputChanged;
+        //textInput.GetValue(INodeField.InputKey).OnChange += TextInputChanged;
 
-        TextInputChanged(null, textInput.GetValue(INodeField.InputKey).Value);
+        //TextInputChanged(null, textInput.GetValue(INodeField.InputKey).Value);
     }
 
     public void RemoveTriggers()

@@ -1,7 +1,8 @@
 ﻿using BenchmarkDotNet.Attributes;
 using Laminar.Benchmarks.BenchmarkNodes;
-using Laminar.Contracts.NodeSystem;
-using Laminar.Core;
+using Laminar.Contracts.Scripting;
+using Laminar.Contracts.Scripting.NodeWrapping;
+using Laminar.Implementation;
 using Laminar.PluginFramework.NodeSystem;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -42,7 +43,7 @@ public class ValuePassingBenchmark
 
     private void SetupScript<T>(IScript script, int nodeCount) where T : INode, new()
     {
-        INodeWrapper originalNode = _nodeWrapperFactory.WrapNode<T>();
+        IWrappedNode originalNode = _nodeWrapperFactory.WrapNode<T>();
         var previousNode = _scriptEditor.AddCopyOfNode(script, originalNode);
         for (int i = 0; i < nodeCount; i++)
         {

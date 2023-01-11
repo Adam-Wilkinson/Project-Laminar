@@ -2,7 +2,7 @@
 using Avalonia.Input;
 using Avalonia.Media;
 using Laminar.Avalonia.NodeDisplaySystem;
-using Laminar.Contracts.NodeSystem;
+using Laminar.Contracts.Scripting;
 using Avalonia.Controls;
 using Laminar.Avalonia.Controls.ScriptEditor.MouseActions;
 using Laminar.Avalonia.Utils;
@@ -10,6 +10,7 @@ using Laminar.Avalonia.Controls.ScriptEditor.ObjectFinders;
 using Microsoft.Extensions.DependencyInjection;
 using Laminar.Avalonia.KeyBIndings;
 using Avalonia;
+using Laminar.Contracts.Scripting.NodeWrapping;
 
 namespace Laminar.Avalonia.Controls.ScriptEditor;
 
@@ -52,7 +53,7 @@ public class ScriptEditorControl : Border, DragDropHandler.IDragRecepticle
 
     public bool EndDrag(DragDropHandler dragDropInstance, PointerReleasedEventArgs e)
     {
-        if (dragDropInstance.DragTypeIdentifier == "NodeDisplay" && dragDropInstance.DragContext is INodeWrapper nodeToCopy)
+        if (dragDropInstance.DragTypeIdentifier == "NodeDisplay" && dragDropInstance.DragContext is IWrappedNode nodeToCopy)
         {
             nodeToCopy.Location.Value = ValueObjectConverter.Point(e.GetPosition(_displayCanvas) - dragDropInstance.ClickOffset);
             _scriptEditor.AddCopyOfNode(ActiveScript, nodeToCopy);
@@ -62,13 +63,13 @@ public class ScriptEditorControl : Border, DragDropHandler.IDragRecepticle
         return false;
     }
 
-    private void NodeRemoved(object sender, INodeWrapper node)
+    private void NodeRemoved(object sender, IWrappedNode node)
     {
         _displayCanvas.Children.Remove(_nodeControlManager.GetControl(node));
         _nodeControlManager.ForgetNode(node);
     }
 
-    private void NodeAdded(object sender, INodeWrapper newNode)
+    private void NodeAdded(object sender, IWrappedNode newNode)
     {
         Control nodeControl = _nodeControlManager.GetControl(newNode);
         Canvas.SetLeft(nodeControl, newNode.Location.Value.X);
