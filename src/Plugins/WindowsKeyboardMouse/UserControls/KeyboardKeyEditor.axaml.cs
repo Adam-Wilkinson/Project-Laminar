@@ -2,7 +2,6 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Markup.Xaml;
-using Laminar_PluginFramework.Primitives;
 using System;
 using System.Diagnostics;
 using System.Linq;
@@ -16,7 +15,7 @@ namespace WindowsKeyboardMouse.UserControls
 
         private readonly TextBlock _mainTextBlock;
         private KeyboardKey _keyValue;
-        private ILaminarValue _laminarValue;
+        // private ILaminarValue _laminarValue;
         private State _state;
 
         public KeyboardKeyEditor()
@@ -27,23 +26,23 @@ namespace WindowsKeyboardMouse.UserControls
 
         protected override void OnDataContextChanged(EventArgs e)
         {
-            if (DataContext is ILaminarValue laminarValue)
-            {
-                if (_laminarValue is not null)
-                {
-                    _laminarValue.OnChange -= LaminarValue_OnChange;
-                }
+            //if (DataContext is ILaminarValue laminarValue)
+            //{
+            //    if (_laminarValue is not null)
+            //    {
+            //        _laminarValue.OnChange -= LaminarValue_OnChange;
+            //    }
 
-                _laminarValue = laminarValue;
-                _laminarValue.OnChange += LaminarValue_OnChange;
-                UpdateTextBlock(_laminarValue.Value);
-            }
+            //    _laminarValue = laminarValue;
+            //    _laminarValue.OnChange += LaminarValue_OnChange;
+            //    UpdateTextBlock(_laminarValue.Value);
+            //}
             base.OnDataContextChanged(e);
         }
 
         private void LaminarValue_OnChange(object sender, object e)
         {
-            UpdateTextBlock(_laminarValue.Value);
+            // UpdateTextBlock(_laminarValue.Value);
         }
 
         protected override void OnKeyDown(KeyEventArgs e)
@@ -88,21 +87,21 @@ namespace WindowsKeyboardMouse.UserControls
 
         private void UpdateTextBlock(object value)
         {
-            if (_laminarValue.Name is not "" or null)
-            {
-                _mainTextBlock.Text = $"{_laminarValue.Name}: {value}";
-            }
-            else
-            {
-                _mainTextBlock.Text = value.ToString();
-            }
+            //if (_laminarValue.Name is not "" or null)
+            //{
+            //    _mainTextBlock.Text = $"{_laminarValue.Name}: {value}";
+            //}
+            //else
+            //{
+            //    _mainTextBlock.Text = value.ToString();
+            //}
         }
 
 
         private void FinishFindingKey()
         {
             _state = State.None;
-            _laminarValue.Value = _keyValue;
+            // _laminarValue.Value = _keyValue;
         }
 
         private enum State

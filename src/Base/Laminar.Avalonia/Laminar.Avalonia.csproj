@@ -37,7 +37,7 @@
     <PackageReference Include="Avalonia.ReactiveUI" Version="0.10.18" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Laminar.Core\Laminar.Implementation.csproj" />
+    <ProjectReference Include="..\Laminar.Implementation\Laminar.Implementation.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="Styles\NodePickerStyles.xaml">

@@ -12,6 +12,6 @@
 		<Slider Value="{Binding Value}"		   
 				Maximum="{Binding InterfaceDefinition.Max, FallbackValue=100}"
 				Minimum="{Binding InterfaceDefinition.Min, FallbackValue=0}"
-				Increment="{Binding InterfaceDefinition.Increment, FallbackValue=1}"/>
+				Ticks="{Binding InterfaceDefinition.Increment, FallbackValue=1}"/>
 	</StackPanel>
 </UserControl>

@@ -17,8 +17,8 @@ public class ValuePassingBenchmark
     private INodeFactory _nodeWrapperFactory;
     Instance instance = new(null, PluginFramework.Registration.FrontendDependency.None);
 
-    private ValueAttributeBenchmarkNode _firstNode;
-    private ValueAttributeBenchmarkNode _lastNode;
+    //private ValueAttributeBenchmarkNode _firstNode;
+    //private ValueAttributeBenchmarkNode _lastNode;
 
     private ValueIOBenchmarNode _fieldsFirstNode;
     private ValueIOBenchmarNode _fieldsLastNode;
@@ -32,10 +32,10 @@ public class ValuePassingBenchmark
         _nodeWrapperFactory = instance.ServiceProvider.GetService<INodeFactory>()!;
 
         SetupScript<ValueIOBenchmarNode>(_script1, 5);
-        SetupScript<ValueAttributeBenchmarkNode>(_script2, 5);
+        //SetupScript<ValueAttributeBenchmarkNode>(_script2, 5);
 
-        _firstNode = ValueAttributeBenchmarkNode.Instances[1];
-        _lastNode = ValueAttributeBenchmarkNode.Instances[^1];
+        //_firstNode = ValueAttributeBenchmarkNode.Instances[1];
+        //_lastNode = ValueAttributeBenchmarkNode.Instances[^1];
 
         _fieldsFirstNode = ValueIOBenchmarNode.Instances[1];
         _fieldsLastNode = ValueIOBenchmarNode.Instances[^1];
@@ -68,13 +68,5 @@ public class ValuePassingBenchmark
     {
         _fieldsFirstNode.Input.SetInternalValue(value);
         return _fieldsLastNode.Output.Value;
-    }
-
-    [Benchmark]
-    [Arguments(4)]
-    public double PassValueProperties(double value)
-    {
-        _firstNode.UpdateInput(value);
-        return _lastNode.Output;
     }
 }

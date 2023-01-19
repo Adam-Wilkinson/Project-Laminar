@@ -1,34 +1,21 @@
-﻿using Laminar_PluginFramework;
-using Laminar_PluginFramework.NodeSystem.NodeComponents;
-using Laminar_PluginFramework.NodeSystem.NodeComponents.Visuals;
-using Laminar_PluginFramework.NodeSystem.Nodes;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using Laminar.PluginFramework.NodeSystem;
 using WindowsPluginBase.Window;
 
-namespace WindowsPluginBase.Nodes
+namespace WindowsPluginBase.Nodes;
+
+public class CursorPosition : INode
 {
-    public class CursorPosition : IFunctionNode
+    //private readonly INodeField _XField = Constructor.NodeField("X").WithOutput<double>();
+    //private readonly INodeField _YField = Constructor.NodeField("Y").WithOutput<double>();
+
+    public string NodeName { get; } = "Cursor Position";
+
+    public void Evaluate()
     {
-        private readonly INodeField _XField = Constructor.NodeField("X").WithOutput<double>();
-        private readonly INodeField _YField = Constructor.NodeField("Y").WithOutput<double>();
-
-        public IEnumerable<INodeComponent> Fields
-        {
-            get
-            {
-                yield return _XField;
-                yield return _YField;
-            }
-        }
-
-        public string NodeName { get; } = "Cursor Position";
-
-        public void Evaluate()
-        {
-            Point currentPos = WindowHooks.CurrentCursorPosition();
-            _XField.SetOutput(Convert.ToDouble(currentPos.X));
-            _YField.SetOutput(Convert.ToDouble(currentPos.Y));
-        }
+        Point currentPos = WindowHooks.CurrentCursorPosition();
+        //_XField.SetOutput(Convert.ToDouble(currentPos.X));
+        //_YField.SetOutput(Convert.ToDouble(currentPos.Y));
     }
 }
