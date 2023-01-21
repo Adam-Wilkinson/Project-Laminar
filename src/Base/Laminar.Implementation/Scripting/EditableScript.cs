@@ -23,7 +23,7 @@ internal class EditableScript : IEditableScript
 
     public IConnectionCollection Connections { get; }
 
-    public IObservableCollection<IWrappedNode> Nodes { get; } = new ObservableCollection<IWrappedNode>();
+    public IObservableCollection<IWrappedNode> Nodes { get; } = new LaminarObservableCollection<IWrappedNode>();
 
     public ScriptState State => ExecutionInstance.State;
 

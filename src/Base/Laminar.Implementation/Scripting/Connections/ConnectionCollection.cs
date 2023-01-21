@@ -8,7 +8,7 @@ using Laminar.PluginFramework.NodeSystem.Contracts.Connectors;
 
 namespace Laminar.Implementation.Scripting.Connections;
 
-internal class ConnectionCollection : ObservableCollection<IConnection>, IConnectionCollection
+internal class ConnectionCollection : LaminarObservableCollection<IConnection>, IConnectionCollection
 {
     private readonly Dictionary<IIOConnector, List<IConnection>> _connections = new();
     private readonly IUserActionManager _actionManager;

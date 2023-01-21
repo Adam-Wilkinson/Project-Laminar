@@ -2,7 +2,7 @@
 
 namespace Laminar.Domain.Notification;
 
-public class ObservableCollection<T> : IObservableCollection<T>
+public class LaminarObservableCollection<T> : IObservableCollection<T>
 {
     private List<T> _internalList = new();
 
