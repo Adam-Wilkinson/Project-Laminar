@@ -22,7 +22,7 @@ public class FlattenedObservableTreeTests
         new ObservableCollection<int>() {10, 11 },
     };
 
-    private FlattenedObservableTree<int> _sut;
+    private FlattenedObservableTree<int>? _sut;
 
     [Fact]
     public void FOT_ShouldFlattenCorrectly()
@@ -43,8 +43,8 @@ public class FlattenedObservableTreeTests
             .WithSender(_sut)
             .WithArgs<NotifyCollectionChangedEventArgs>(args =>
                 args.Action == NotifyCollectionChangedAction.Add &&
-                args.NewItems.Count == 1 &&
-                (int)args.NewItems[0] == 13 &&
+                args.NewItems!.Count == 1 &&
+                (int)args.NewItems[0]! == 13 &&
                 args.NewStartingIndex == 7);
     }
 
@@ -164,6 +164,82 @@ public class FlattenedObservableTreeTests
         }
 
         _sut.Should().Equal(new List<int>() { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 });
+    }
+
+    [Fact]
+    public void FOT_ShouldRaiseCorrectEvent_AfterReset()
+    {
+        _sut = new(_tree);
+        using var mon = _sut.Monitor();
+        _tree.Clear();
+
+        mon.Should().Raise(nameof(FlattenedObservableTree<int>.CollectionChanged))
+            .WithSender(_sut)
+            .WithArgs<NotifyCollectionChangedEventArgs>(args =>
+                args.Action == NotifyCollectionChangedAction.Reset
+            );
+            
+    }
+
+    [Fact]
+    public void FOT_ShouldBeEmpty_AfterReset()
+    {
+        _sut = new(_tree);
+        _tree.Clear();
+
+        _sut.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void FOT_ShouldRaiseCorrectEvent_WhenSubtreeMoved()
+    {
+        _sut = new(_tree);
+        using var mon = _sut.Monitor();
+
+        _tree.Move(0, 2);
+
+        mon.Should().Raise(nameof(FlattenedObservableTree<int>.CollectionChanged))
+            .WithSender(_sut)
+            .WithArgs<NotifyCollectionChangedEventArgs>(args =>
+                args.Action == NotifyCollectionChangedAction.Move &&
+                args.OldStartingIndex == 0 &&
+                args.NewStartingIndex == 7 &&
+                TypelessSequenceEqual(args.NewItems, new List<int>() { 1, 2 }));
+    }
+
+    [Fact]
+    public void FOT_ShouldFlattenedCorrectly_WhenSubtreeMoved()
+    {
+        _sut = new(_tree);
+        _tree.Move(0, 2);
+
+        _sut.Should().Equal(new List<int> { 3, 4, 5, 6, 7, 8, 9, 1, 2, 10, 11 });
+    }
+
+    [Fact]
+    public void FOT_ShouldRaiseCorrectEvent_WhenItemMoved()
+    {
+        _sut = new(_tree);
+        using var mon = _sut.Monitor();
+
+        _tree.Move(1, 2);
+
+        mon.Should().Raise(nameof(FlattenedObservableTree<int>.CollectionChanged))
+            .WithSender(_sut)
+            .WithArgs<NotifyCollectionChangedEventArgs>(args =>
+                args.Action == NotifyCollectionChangedAction.Move &&
+                args.OldStartingIndex == 2 &&
+                args.NewStartingIndex == 8 &&
+                TypelessSequenceEqual(args.NewItems, new List<int>() { 3 }));
+    }
+
+    [Fact]
+    public void FOT_ShouldFlattenCorrectly_WhenItemMoved()
+    {
+        _sut = new(_tree);
+        _tree.Move(1, 2);
+
+        _sut.Should().Equal(new List<int>() { 1, 2, 4, 5, 6, 7, 8, 9, 3, 10, 11 });
     }
 
     private static bool TypelessSequenceEqual(IEnumerable? firstList, IEnumerable? secondList)
