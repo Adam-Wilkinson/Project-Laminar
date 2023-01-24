@@ -1,21 +1,20 @@
 ﻿using Laminar.PluginFramework.NodeSystem;
 
-namespace BasicFunctionality.Nodes.Maths.Arithmetic
+namespace BasicFunctionality.Nodes.Maths.Arithmetic;
+
+public class NodeMultiply : INode
 {
-    public class NodeMultiply : INode
+    public string NodeName => "Multiply";
+
+    public void Evaluate()
     {
-        public string NodeName => "Multiply";
+        //double output = 1.0;
 
-        public void Evaluate()
-        {
-            //double output = 1.0;
+        //foreach (INodeField field in multiplyFields)
+        //{
+        //    output *= field.GetInput<double>();
+        //}
 
-            //foreach (INodeField field in multiplyFields)
-            //{
-            //    output *= field.GetInput<double>();
-            //}
-
-            //outputField.SetOutput(output);
-        }
+        //outputField.SetOutput(output);
     }
 }

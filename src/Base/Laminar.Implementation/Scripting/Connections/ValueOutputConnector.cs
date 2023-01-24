@@ -1,6 +1,5 @@
 ﻿using System;
 using Laminar.Contracts.Base;
-using Laminar.Contracts.Base.UserInterface;
 using Laminar.PluginFramework.NodeSystem.Contracts.Connectors;
 using Laminar.PluginFramework.NodeSystem.Contracts.IO;
 using Laminar.PluginFramework.NodeSystem.ExecutionFlags;
@@ -13,7 +12,7 @@ internal class ValueOutputConnector : IOutputConnector<IValueOutput>
     IValueOutput? _nodeOutput;
 
     public ValueOutputConnector(ITypeInfoStore typeInfoStore)
-{
+    {
         _typeInfoStore = typeInfoStore;
     }
 

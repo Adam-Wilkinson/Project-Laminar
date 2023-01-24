@@ -1,4 +1,3 @@
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Markup.Xaml;
@@ -9,9 +8,8 @@ namespace BasicFunctionality.Avalonia.UserControls;
 public partial class AvaloniaEditableLabel : UserControl
 {
     string? _persistentValue;
-
-    TextBlock _label;
-    TextBox _entry;
+    readonly TextBlock _label;
+    readonly TextBox _entry;
 
     public AvaloniaEditableLabel()
     {
@@ -57,6 +55,8 @@ public partial class AvaloniaEditableLabel : UserControl
 
     private void SetText(string? text)
     {
+        text ??= "";
+
         _label.Text = text;
         _entry.Text = text;
         if (DataContext is IDisplayValue displayValue)

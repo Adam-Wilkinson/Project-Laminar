@@ -1,4 +1,7 @@
-﻿using Avalonia;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Layout;
@@ -6,9 +9,6 @@ using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Domain;
 using Laminar.PluginFramework.NodeSystem;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 
 namespace Laminar.Avalonia.NodeDisplaySystem;
 
@@ -21,7 +21,7 @@ public class AdvancedScriptInputsDisplay : TemplatedControl
     private readonly INodeFactory _nodeFactory;
 
     private ToggleButton _toggleAddMenuButton;
-    private Vector _dragOffset;
+    private readonly Vector _dragOffset;
 
     public AdvancedScriptInputsDisplay()
     {

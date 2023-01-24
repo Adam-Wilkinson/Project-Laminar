@@ -1,5 +1,4 @@
-﻿using System;
-using Laminar.PluginFramework.NodeSystem;
+﻿using Laminar.PluginFramework.NodeSystem;
 
 namespace BasicFunctionality.Nodes.Maths.Arithmetic;
 

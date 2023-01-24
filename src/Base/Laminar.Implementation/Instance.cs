@@ -1,17 +1,17 @@
 ﻿using System;
-using System.Threading;
 using System.Runtime.CompilerServices;
-using Microsoft.Extensions.DependencyInjection;
-using Laminar.PluginFramework.Registration;
-using Laminar.Implementation.Base.PluginLoading;
+using System.Threading;
 using Laminar.Contracts.Base.PluginLoading;
+using Laminar.Implementation.Base.PluginLoading;
 using Laminar.Implementation.Extensions.ServiceInitializers;
+using Laminar.PluginFramework.Registration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Laminar.Implementation;
 
 public class Instance
 {
-    private PluginLoader _pluginLoader;
+    private readonly PluginLoader _pluginLoader;
 
     public Instance(SynchronizationContext uiContext, FrontendDependency supportedDependencies, [CallerFilePath] string path = "")
     {

@@ -1,7 +1,6 @@
-﻿using Avalonia.Controls.Shapes;
+﻿using Avalonia;
+using Avalonia.Controls.Shapes;
 using Avalonia.Media;
-using Avalonia;
-using System;
 using Laminar.Avalonia.NodeDisplaySystem;
 
 namespace Laminar.Avalonia.Controls;

@@ -1,12 +1,11 @@
-﻿using System.Collections.Generic;
-using Laminar.PluginFramework.NodeSystem;
+﻿using Laminar.PluginFramework.NodeSystem;
 using Windows.UI.Notifications;
 
 namespace WindowsPluginBase.Nodes;
 
 public class NotifyUser : INode
 {
-    private static ToastNotifier manager = ToastNotificationManager.CreateToastNotifier("LaminarToast");
+    private static readonly ToastNotifier manager = ToastNotificationManager.CreateToastNotifier("LaminarToast");
 
     //private readonly INodeField _titleField = Constructor.NodeField("Title").WithInput<string>();
     //private readonly INodeField _textField = Constructor.NodeField("Body").WithInput<string>();

@@ -1,7 +1,6 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
-using Avalonia.Input.GestureRecognizers;
 using Laminar.Avalonia.NodeDisplaySystem;
 using Laminar.Avalonia.Utils;
 using Laminar.Contracts.Scripting;

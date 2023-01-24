@@ -1,5 +1,5 @@
-﻿using Avalonia.Input;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Avalonia.Input;
 
 namespace WindowsKeyboardMouse.UserControls;
 

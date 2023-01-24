@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using Laminar.Contracts.Scripting.NodeWrapping;
+﻿using System.Collections.ObjectModel;
 using Laminar.Contracts.Primitives;
+using Laminar.Contracts.Scripting.NodeWrapping;
+using Laminar.Domain.Notification;
 using Laminar.Domain.ValueObjects;
 using Laminar.PluginFramework.NodeSystem;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,7 +10,7 @@ namespace Laminar.Avalonia.NodeDisplaySystem;
 
 public class TestNodeWrapper : IWrappedNode
 {
-    private IWrappedNode _coreNode;
+    private readonly IWrappedNode _coreNode;
 
     public TestNodeWrapper()
     {
@@ -21,7 +21,7 @@ public class TestNodeWrapper : IWrappedNode
 
     public IWrappedNodeRow NameRow => _coreNode.NameRow;
 
-    public ObservableCollection<IWrappedNodeRow> Fields => _coreNode.Fields;
+    public IReadOnlyObservableCollection<IWrappedNodeRow> Rows => _coreNode.Rows;
 
     public ObservableValue<Point> Location => _coreNode.Location;
 

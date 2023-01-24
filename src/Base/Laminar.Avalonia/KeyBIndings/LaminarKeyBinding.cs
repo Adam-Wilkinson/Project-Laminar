@@ -26,7 +26,7 @@ internal class LaminarKeyBinding : KeyBinding, ICommand
         {
             Source = userPreferenceManager.GetPreference<KeyGesture>(bindingKey),
             Path = nameof(IUserPreference<KeyGesture>.Value),
-        }; 
+        };
     }
 
     public event EventHandler CanExecuteChanged;

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
-using Laminar.Contracts.Base.UserInterface;
 using Laminar.Contracts.Base.Settings;
+using Laminar.Contracts.Base.UserInterface;
 using Laminar.Contracts.Primitives;
 
 namespace Laminar.Implementation.Base.Settings;

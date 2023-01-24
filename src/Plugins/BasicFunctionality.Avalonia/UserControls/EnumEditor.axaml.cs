@@ -1,8 +1,6 @@
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using Laminar.PluginFramework.UserInterfaces;
-using System.Diagnostics;
 
 namespace BasicFunctionality.Avalonia.UserControls;
 

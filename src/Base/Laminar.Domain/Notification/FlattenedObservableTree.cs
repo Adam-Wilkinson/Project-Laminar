@@ -1,13 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Specialized;
-using Laminar.Domain.Extensions;
-
-using TreeIndex = System.Int32;
 using FlattenedIndex = System.Int32;
+using TreeIndex = System.Int32;
 
 namespace Laminar.Domain.Notification;
 
-public class FlattenedObservableTree<T> : INotifyCollectionChanged, IReadOnlyList<T>
+public class FlattenedObservableTree<T> : IReadOnlyObservableCollection<T>
 {
     readonly List<T> _flattenedItems = new();
     readonly List<object> _childNodes = new();

@@ -1,4 +1,3 @@
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using Laminar.PluginFramework.UserInterfaces;
@@ -7,7 +6,7 @@ namespace BasicFunctionality.Avalonia.UserControls;
 
 public class StringDisplay : UserControl
 {
-    TextBlock _mainTextBlock;
+    readonly TextBlock _mainTextBlock;
     private IDisplayValue _displayValue;
     private StringViewer _interfaceDefinition;
 

@@ -14,7 +14,7 @@ public class CurrentMonitorRect : INode
 
     public void Evaluate()
     {
-        Rectangle monitorSize = WindowHooks.CurrentMonitorSize();
+        // Rectangle monitorSize = WindowHooks.CurrentMonitorSize();
         //_topField.SetOutput((double)monitorSize.Rect.Top);
         //_leftField.SetOutput((double)monitorSize.Rect.Left);
         //_widthField.SetOutput((double)monitorSize.Rect.Right - monitorSize.Rect.Left);

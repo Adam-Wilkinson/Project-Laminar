@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Contracts.Primitives;
+using Laminar.Contracts.Scripting.NodeWrapping;
+using Laminar.Domain.Notification;
 using Laminar.Domain.ValueObjects;
-using Laminar.PluginFramework.NodeSystem;
 using Laminar.Implementation.Scripting.Execution;
+using Laminar.PluginFramework.NodeSystem;
 
 namespace Laminar.Implementation.Scripting.Nodes;
 
@@ -13,19 +14,18 @@ public class WrappedNode<T> : IWrappedNode where T : INode, new()
     readonly T _coreNode;
     readonly INotificationClient<LaminarExecutionContext>? _userChangedValueNotificationClient;
     readonly INodeFactory _factory;
-
-    Action? _preEvaluateAction;
+    readonly Action? _preEvaluateAction;
 
     public WrappedNode(IWrappedNodeRow nameRow, INodeRowCollectionFactory rowCollectionFactory, INotificationClient<LaminarExecutionContext>? userChangedValueNotificationClient, INodeFactory nodeFactory, T node)
     {
         _factory = nodeFactory;
         _coreNode = node;
-        Fields = rowCollectionFactory.CreateNodeRowsForObject(_coreNode, this);
+        Rows = rowCollectionFactory.CreateNodeRowsForObject(_coreNode, this);
         _userChangedValueNotificationClient = userChangedValueNotificationClient;
 
         NameRow = nameRow;
 
-        foreach (var field in Fields)
+        foreach (var field in Rows)
         {
             if (field.OutputConnector is not null && field.OutputConnector.NodeIOConnector.PreEvaluateAction is Action currentActionO)
             {
@@ -41,7 +41,7 @@ public class WrappedNode<T> : IWrappedNode where T : INode, new()
 
     public IWrappedNodeRow NameRow { get; }
 
-    public ObservableCollection<IWrappedNodeRow> Fields { get; set; }
+    public IReadOnlyObservableCollection<IWrappedNodeRow> Rows { get; set; }
 
     public ObservableValue<Point> Location { get; set; } = new ObservableValue<Point>(new Point { X = 0, Y = 0 });
 
@@ -75,7 +75,7 @@ public class WrappedNode<T> : IWrappedNode where T : INode, new()
 
         if (context.ExecutionFlags.HasUIUpdateFlag())
         {
-            foreach (IWrappedNodeRow field in Fields)
+            foreach (IWrappedNodeRow field in Rows)
             {
                 field.RefreshDisplay();
             }

@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using Laminar.PluginFramework.NodeSystem;
-using WindowsKeyboardMouse.Primitives;
 
 namespace WindowsKeyboardMouse.Nodes.Keyboard.Triggers;
 
@@ -13,7 +11,7 @@ public class KeyCombinationTrigger : INode
 
     // private Sequence sequence;
     // private IKeyboardMouseEvents _globalHook;
-    private bool live;
+    private readonly bool live;
 
     public KeyCombinationTrigger()
     {

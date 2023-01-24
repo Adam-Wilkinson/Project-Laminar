@@ -1,16 +1,16 @@
 ﻿using System;
+using Laminar.Contracts.Base;
+using Laminar.Contracts.Base.PluginLoading;
+using Laminar.Contracts.Base.UserInterface;
+using Laminar.Contracts.Scripting.Connection;
+using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Domain;
+using Laminar.PluginFramework.NodeSystem;
+using Laminar.PluginFramework.NodeSystem.Contracts.Connectors;
+using Laminar.PluginFramework.NodeSystem.Contracts.IO;
 using Laminar.PluginFramework.Registration;
 using Laminar.PluginFramework.Serialization;
 using Laminar.PluginFramework.UserInterfaces;
-using Laminar.Contracts.Scripting.Connection;
-using Laminar.PluginFramework.NodeSystem.Contracts.IO;
-using Laminar.PluginFramework.NodeSystem.Contracts.Connectors;
-using Laminar.PluginFramework.NodeSystem;
-using Laminar.Contracts.Base.UserInterface;
-using Laminar.Contracts.Scripting.NodeWrapping;
-using Laminar.Contracts.Base.PluginLoading;
-using Laminar.Contracts.Base;
 
 namespace Laminar.Implementation.Base.PluginLoading;
 
@@ -33,7 +33,7 @@ public class PluginHost : IPluginHost
         StaticRegistrations.Register(this);
     }
 
-    public void AddNodeToMenu<TNode>(string menuItemName, string subItemName = null) where TNode : INode, new()
+    public void AddNodeToMenu<TNode>(string menuItemName, string? subItemName = null) where TNode : INode, new()
     {
         TNode node = new();
         _registeredPlugin.RegisterNode(node);
@@ -47,7 +47,7 @@ public class PluginHost : IPluginHost
             // _instance.Serializer.RegisterSerializer(serializer);
         }
 
-        _typeInfoStore.RegisterType(typeof(T), new TypeInfo(userFriendlyName, defaultEditor, defaultDisplay, hexColour, defaultValue));
+        _typeInfoStore.RegisterType(typeof(T), new TypeInfo(userFriendlyName, defaultEditor, defaultDisplay, hexColour, defaultValue!));
         return true;
     }
 
@@ -62,7 +62,7 @@ public class PluginHost : IPluginHost
         return true;
     }
 
-    public void AddNodeToMenu<TNode1, TNode2>(string menuItemName, string subItemName = null)
+    public void AddNodeToMenu<TNode1, TNode2>(string menuItemName, string? subItemName = null)
         where TNode1 : INode, new()
         where TNode2 : INode, new()
     {
@@ -70,7 +70,7 @@ public class PluginHost : IPluginHost
         AddNodeToMenu<TNode2>(menuItemName, subItemName);
     }
 
-    public void AddNodeToMenu<TNode1, TNode2, TNode3>(string menuItemName, string subItemName = null)
+    public void AddNodeToMenu<TNode1, TNode2, TNode3>(string menuItemName, string? subItemName = null)
         where TNode1 : INode, new()
         where TNode2 : INode, new()
         where TNode3 : INode, new()
@@ -80,7 +80,7 @@ public class PluginHost : IPluginHost
         AddNodeToMenu<TNode3>(menuItemName, subItemName);
     }
 
-    public void AddNodeToMenu<TNode1, TNode2, TNode3, TNode4>(string menuItemName, string subItemName = null)
+    public void AddNodeToMenu<TNode1, TNode2, TNode3, TNode4>(string menuItemName, string? subItemName = null)
         where TNode1 : INode, new()
         where TNode2 : INode, new()
         where TNode3 : INode, new()
@@ -92,7 +92,7 @@ public class PluginHost : IPluginHost
         AddNodeToMenu<TNode4>(menuItemName, subItemName);
     }
 
-    public void AddNodeToMenu<TNode1, TNode2, TNode3, TNode4, TNode5>(string menuItemName, string subItemName = null)
+    public void AddNodeToMenu<TNode1, TNode2, TNode3, TNode4, TNode5>(string menuItemName, string? subItemName = null)
         where TNode1 : INode, new()
         where TNode2 : INode, new()
         where TNode3 : INode, new()
@@ -106,7 +106,7 @@ public class PluginHost : IPluginHost
         AddNodeToMenu<TNode5>(menuItemName, subItemName);
     }
 
-    public void AddNodeToMenu<TNode1, TNode2, TNode3, TNode4, TNode5, TNode6>(string menuItemName, string subItemName = null)
+    public void AddNodeToMenu<TNode1, TNode2, TNode3, TNode4, TNode5, TNode6>(string menuItemName, string? subItemName = null)
         where TNode1 : INode, new()
         where TNode2 : INode, new()
         where TNode3 : INode, new()
@@ -122,7 +122,7 @@ public class PluginHost : IPluginHost
         AddNodeToMenu<TNode6>(menuItemName, subItemName);
     }
 
-    public void AddNodeToMenu<TNode1, TNode2, TNode3, TNode4, TNode5, TNode6, TNode7>(string menuItemName, string subItemName = null)
+    public void AddNodeToMenu<TNode1, TNode2, TNode3, TNode4, TNode5, TNode6, TNode7>(string menuItemName, string? subItemName = null)
         where TNode1 : INode, new()
         where TNode2 : INode, new()
         where TNode3 : INode, new()
@@ -140,7 +140,7 @@ public class PluginHost : IPluginHost
         AddNodeToMenu<TNode7>(menuItemName, subItemName);
     }
 
-    public void AddNodeToMenu<TNode1, TNode2, TNode3, TNode4, TNode5, TNode6, TNode7, TNode8>(string menuItemName, string subItemName = null)
+    public void AddNodeToMenu<TNode1, TNode2, TNode3, TNode4, TNode5, TNode6, TNode7, TNode8>(string menuItemName, string? subItemName = null)
         where TNode1 : INode, new()
         where TNode2 : INode, new()
         where TNode3 : INode, new()

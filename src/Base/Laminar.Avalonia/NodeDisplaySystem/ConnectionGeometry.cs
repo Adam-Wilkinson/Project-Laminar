@@ -1,7 +1,6 @@
 ﻿using Avalonia;
 using Avalonia.Media;
 using Avalonia.Platform;
-using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Scripting.Connection;
 
 namespace Laminar.Avalonia.NodeDisplaySystem;

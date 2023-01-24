@@ -1,8 +1,5 @@
-﻿using System;
-using Avalonia;
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using Avalonia.Input;
-using Avalonia.Input.GestureRecognizers;
 using Avalonia.Media;
 using Laminar.Avalonia.NodeDisplaySystem;
 

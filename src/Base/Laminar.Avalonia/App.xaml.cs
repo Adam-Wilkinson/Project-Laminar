@@ -1,8 +1,8 @@
-﻿using Avalonia;
+﻿using System.Threading;
+using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Laminar.Avalonia.Views;
-using System.Threading;
 
 namespace Laminar.Avalonia;
 

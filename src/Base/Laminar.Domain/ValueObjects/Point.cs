@@ -1,6 +1,6 @@
 ﻿namespace Laminar.Domain.ValueObjects;
 
-public struct Point
+public readonly struct Point
 {
     public double X { get; init; }
     public double Y { get; init; }

@@ -81,7 +81,7 @@
 									Padding="10"
 									Margin="0,3">
 								<ItemsPresenter Classes="NodeDisplay"
-												Items="{Binding CoreNode.Fields, RelativeSource={RelativeSource TemplatedParent}}">
+												Items="{Binding CoreNode.Rows, RelativeSource={RelativeSource TemplatedParent}}">
 									<ItemsPresenter.ItemsPanel>
 										<ItemsPanelTemplate>
 											<StackPanel Spacing="10"/>

@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Laminar.PluginFramework.NodeSystem;
+﻿using Laminar.PluginFramework.NodeSystem;
 
 namespace WindowsKeyboardMouse.Nodes.Mouse.Triggers;
 

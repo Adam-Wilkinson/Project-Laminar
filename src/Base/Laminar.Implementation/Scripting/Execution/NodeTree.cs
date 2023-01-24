@@ -4,7 +4,7 @@ using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Scripting.Connection;
 using Laminar.Contracts.Scripting.Execution;
 using Laminar.Contracts.Scripting.NodeWrapping;
-using Laminar.Implementation.Extensions;
+using Laminar.Domain.Notification;
 using Laminar.PluginFramework.NodeSystem.Contracts.Connectors;
 using Laminar.PluginFramework.NodeSystem.ExecutionFlags;
 
@@ -17,19 +17,16 @@ public class NodeTree : INodeTree
     readonly Dictionary<IWrappedNode, List<IWrappedNode>> _dependentNodes = new();
     readonly Dictionary<IWrappedNode, IWrappedNode[]> _knownExecutionPaths = new();
     readonly Dictionary<IOutputConnector, List<IWrappedNode>> _connections = new();
-    //readonly Dictionary<IIOConnector, Dictionary<int, ConditionalExecutionBranch[]>> _executionPaths = new();
     readonly Dictionary<(IIOConnector, int), ConditionalExecutionBranch[]> _executionPaths = new();
     readonly Dictionary<IIOConnector, IWrappedNode> _connectorParents = new();
 
-    IReadOnlyList<IWrappedNode> _currentExecutionLevel;
-
-    public NodeTree(IScript script)
+    public NodeTree(IScript script, INotifyCollectionChangedHelper notificationHelper)
     {
-        script.Nodes.ItemAdded += NodeAdded;
-        script.Nodes.ItemRemoved += NodeRemoved;
+        notificationHelper.HelperInstance(script.Nodes).ItemAdded += NodeAdded;
+        notificationHelper.HelperInstance(script.Nodes).ItemRemoved += NodeRemoved;
 
-        script.Connections.ItemAdded += ConnectionAdded;
-        script.Connections.ItemRemoved += ConnectionRemoved;
+        notificationHelper.HelperInstance(script.Connections).ItemAdded += ConnectionAdded;
+        notificationHelper.HelperInstance(script.Connections).ItemRemoved += ConnectionRemoved;
     }
 
     public IConditionalExecutionBranch[] GetExecutionBranches(IIOConnector connector, ExecutionFlags flags)
@@ -59,37 +56,9 @@ public class NodeTree : INodeTree
         return Array.Empty<IConditionalExecutionBranch>();
     }
 
-    public IWrappedNode[] GetExecutionOrder(IWrappedNode node)
+    private void ConnectionRemoved(object? sender, ItemRemovedEventArgs<IConnection> e)
     {
-        if (_knownExecutionPaths.TryGetValue(node, out IWrappedNode[] executionOrder))
-        {
-            return executionOrder;
-        }
-
-        List<IWrappedNode> newExecutionOrder = new() { node };
-        _currentExecutionLevel = GetDirectDependents(node);
-        List<IWrappedNode> nextExecutionLevel = new();
-
-        while (_currentExecutionLevel.Count > 0)
-        {
-            foreach (var currentNode in _currentExecutionLevel)
-            {
-                newExecutionOrder.Add(currentNode);
-                nextExecutionLevel.AddRange(GetDirectDependents(currentNode));
-            }
-            _currentExecutionLevel = nextExecutionLevel;
-            nextExecutionLevel = new();
-        }
-
-        IWrappedNode[] newOrderArray = newExecutionOrder.ToArray();
-        _knownExecutionPaths.Add(node, newOrderArray);
-        return newOrderArray;
-    }
-
-    private IReadOnlyList<IWrappedNode> GetDirectDependents(IWrappedNode node) => _dependentNodes.TryGetValue(node, out List<IWrappedNode> dependentNodes) ? dependentNodes : Array.Empty<IWrappedNode>();
-
-    private void ConnectionRemoved(object sender, IConnection removedConnection)
-    {
+        IConnection removedConnection = e.Item;
         IWrappedNode outputNode = _connectorParents[removedConnection.OutputConnector];
         _dependentNodes[outputNode].Remove(_connectorParents[removedConnection.InputConnector]);
 
@@ -108,8 +77,9 @@ public class NodeTree : INodeTree
         _knownExecutionPaths.Clear();
     }
 
-    private void ConnectionAdded(object sender, IConnection newConnection)
+    private void ConnectionAdded(object? sender, ItemAddedEventArgs<IConnection> e)
     {
+        IConnection newConnection = e.Item;
         IWrappedNode outputNode = _connectorParents[newConnection.OutputConnector];
         if (!_dependentNodes.ContainsKey(outputNode))
         {
@@ -128,34 +98,36 @@ public class NodeTree : INodeTree
         _knownExecutionPaths.Clear();
     }
 
-    private void NodeRemoved(object sender, IWrappedNode removedNode)
+    private void NodeRemoved(object? sender, ItemRemovedEventArgs<IWrappedNode> e)
     {
-        foreach (var field in removedNode.Fields)
+        IWrappedNode removedNode = e.Item;
+        foreach (IWrappedNodeRow row in removedNode.Rows)
         {
-            if (field.InputConnector is not null)
+            if (row.InputConnector is not null)
             {
-                _connectorParents.Remove(field.InputConnector.NodeIOConnector);
+                _connectorParents.Remove(row.InputConnector.NodeIOConnector);
             }
 
-            if (field.OutputConnector is not null)
+            if (row.OutputConnector is not null)
             {
-                _connectorParents.Remove(field.OutputConnector.NodeIOConnector);
+                _connectorParents.Remove(row.OutputConnector.NodeIOConnector);
             }
         }
     }
 
-    private void NodeAdded(object sender, IWrappedNode newNode)
+    private void NodeAdded(object? sender, ItemAddedEventArgs<IWrappedNode> e)
     {
-        foreach (var field in newNode.Fields)
+        IWrappedNode newNode = e.Item;
+        foreach (IWrappedNodeRow row in newNode.Rows)
         {
-            if (field.InputConnector is not null)
+            if (row.InputConnector is not null)
             {
-                _connectorParents.Add(field.InputConnector.NodeIOConnector, newNode);
+                _connectorParents.Add(row.InputConnector.NodeIOConnector, newNode);
             }
 
-            if (field.OutputConnector is not null)
+            if (row.OutputConnector is not null)
             {
-                _connectorParents.Add(field.OutputConnector.NodeIOConnector, newNode);
+                _connectorParents.Add(row.OutputConnector.NodeIOConnector, newNode);
             }
         }
     }

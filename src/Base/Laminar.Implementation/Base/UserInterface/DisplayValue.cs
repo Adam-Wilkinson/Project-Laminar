@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel;
-using Laminar.Contracts.Primitives;
 using Laminar.PluginFramework.NodeSystem.Contracts;
 using Laminar.PluginFramework.UserInterfaces;
 

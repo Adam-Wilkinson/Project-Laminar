@@ -32,7 +32,7 @@ internal class NodeControlManager
         }
 
         nodes.Add(node, new NodeWrapperDisplay { CoreNode = node });
-        nodes[node].PointerPressed += (o, e) =>  NodeControlManager_PointerPressed(nodes[node], e);
+        nodes[node].PointerPressed += (o, e) => NodeControlManager_PointerPressed(nodes[node], e);
         foreach (IVisual visual in nodes[node].GetVisualDescendants())
         {
             if (visual is ConnectorControl connectorControl)

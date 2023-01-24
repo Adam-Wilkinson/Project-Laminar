@@ -1,5 +1,5 @@
-﻿using System.Collections.ObjectModel;
-using Laminar.Contracts.Primitives;
+﻿using Laminar.Contracts.Primitives;
+using Laminar.Domain.Notification;
 using Laminar.Domain.ValueObjects;
 using Laminar.PluginFramework.NodeSystem;
 
@@ -11,7 +11,7 @@ public interface IWrappedNode : INotificationClient<LaminarExecutionContext>
 
     IWrappedNodeRow NameRow { get; }
 
-    ObservableCollection<IWrappedNodeRow> Fields { get; }
+    IReadOnlyObservableCollection<IWrappedNodeRow> Rows { get; }
 
     ObservableValue<Point> Location { get; }
 

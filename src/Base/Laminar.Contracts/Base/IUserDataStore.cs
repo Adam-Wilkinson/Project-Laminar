@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Laminar.Contracts.Base;
+﻿namespace Laminar.Contracts.Base;
 
 public interface IUserDataStore
 {

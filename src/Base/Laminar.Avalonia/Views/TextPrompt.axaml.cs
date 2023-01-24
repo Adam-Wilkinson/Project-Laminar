@@ -1,7 +1,7 @@
+using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Markup.Xaml;
-using System.Threading.Tasks;
 
 namespace Laminar.Avalonia.Views;
 

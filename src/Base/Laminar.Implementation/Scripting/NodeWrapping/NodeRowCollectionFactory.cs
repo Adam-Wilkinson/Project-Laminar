@@ -1,7 +1,8 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
 using System.Reflection;
-using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Contracts.Primitives;
+using Laminar.Contracts.Scripting.NodeWrapping;
+using Laminar.Domain.Notification;
 using Laminar.PluginFramework.NodeSystem;
 
 namespace Laminar.Implementation.Scripting.Nodes;
@@ -17,15 +18,15 @@ internal class NodeRowCollectionFactory : INodeRowCollectionFactory
 
     public void CopyNodeRowValues<T>(T from, T to) where T : IWrappedNode
     {
-        for (int i = 0; i < from.Fields.Count; i++)
+        for (int i = 0; i < from.Rows.Count; i++)
         {
-            from.Fields[i].CloneTo(to.Fields[i]);
+            from.Rows[i].CloneTo(to.Rows[i]);
         }
     }
 
-    public ObservableCollection<IWrappedNodeRow> CreateNodeRowsForObject(object toWrap, INotificationClient<LaminarExecutionContext> userChangedValueNotificationClient)
+    public IReadOnlyObservableCollection<IWrappedNodeRow> CreateNodeRowsForObject(object toWrap, INotificationClient<LaminarExecutionContext> userChangedValueNotificationClient)
     {
-        var output = new ObservableCollection<IWrappedNodeRow>();
+        var output = new List<IWrappedNodeRow>();
 
         foreach (var field in toWrap.GetType().GetMembers(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance))
         {
@@ -35,6 +36,6 @@ internal class NodeRowCollectionFactory : INodeRowCollectionFactory
             }
         }
 
-        return output;
+        return new FlattenedObservableTree<IWrappedNodeRow>(output);
     }
 }

@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.Runtime.CompilerServices;
 using FluentAssertions;
 using Laminar.Domain.Notification;
 
@@ -10,7 +9,7 @@ namespace Laminar.Domain.UnitTests.Notification.UnitTests;
 public class FlattenedObservableTreeTests
 {
     readonly ObservableCollection<object> _tree = new()
-    {        
+    {
         new ObservableCollection<int>() { 1, 2, },
         3,
         new ObservableCollection<object>()
@@ -178,7 +177,7 @@ public class FlattenedObservableTreeTests
             .WithArgs<NotifyCollectionChangedEventArgs>(args =>
                 args.Action == NotifyCollectionChangedAction.Reset
             );
-            
+
     }
 
     [Fact]

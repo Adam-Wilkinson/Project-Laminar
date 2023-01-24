@@ -1,14 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Reactive.Linq;
-using System;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.VisualTree;
 using Laminar.Avalonia.NodeDisplaySystem;
-using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Scripting.Connection;
 using Laminar.Domain.Notification;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Laminar.Avalonia.Controls.ScriptEditor;
 
@@ -17,6 +17,7 @@ internal class ConnectionCanvas : Canvas
     public static readonly StyledProperty<IReadOnlyObservableCollection<IConnection>> ConnectionsProperty = AvaloniaProperty.Register<ConnectionCanvas, IReadOnlyObservableCollection<IConnection>>(nameof(Connections));
 
     private readonly Dictionary<IConnection, ConnectionGeometry> _connections = new();
+    private readonly INotifyCollectionChangedHelper _notificationHelper = App.LaminarInstance.ServiceProvider.GetService<INotifyCollectionChangedHelper>();
 
     public IReadOnlyObservableCollection<IConnection> Connections
     {
@@ -25,19 +26,19 @@ internal class ConnectionCanvas : Canvas
         {
             if (Connections is not null)
             {
-                Connections.ItemAdded -= ConnectionManager_ConnectionEstablished;
-                Connections.ItemRemoved -= ConnectionManager_ConnectionLost;
+                _notificationHelper.HelperInstance(Connections).ItemAdded -= ConnectionManager_ConnectionEstablished;
+                _notificationHelper.HelperInstance(Connections).ItemRemoved -= ConnectionManager_ConnectionLost;
                 _connections.Clear();
             }
 
             SetValue(ConnectionsProperty, value);
             if (Connections is not null)
             {
-                Connections.ItemAdded += ConnectionManager_ConnectionEstablished;
-                Connections.ItemRemoved += ConnectionManager_ConnectionLost;
+                _notificationHelper.HelperInstance(Connections).ItemAdded += ConnectionManager_ConnectionEstablished;
+                _notificationHelper.HelperInstance(Connections).ItemRemoved += ConnectionManager_ConnectionLost;
                 foreach (IConnection connection in Connections)
                 {
-                    ConnectionManager_ConnectionEstablished(Connections, connection);
+                    AddConnection(connection);
                 }
             }
 
@@ -55,7 +56,7 @@ internal class ConnectionCanvas : Canvas
             {
                 context.DrawGeometry(null, new Pen(Brushes.White, connection.Pen.Thickness * 1.7), connection);
             }
-            
+
             context.DrawGeometry(null, connection.Pen, connection);
         }
         base.Render(context);
@@ -69,25 +70,27 @@ internal class ConnectionCanvas : Canvas
         }
     }
 
-    private void ConnectionManager_ConnectionLost(object sender, IConnection e)
+    private void ConnectionManager_ConnectionLost(object sender, ItemRemovedEventArgs<IConnection> e)
     {
-        _connections[e].Changed -= ConnectionGeometryChanged;
-        _connections.Remove(e);
+        _connections[e.Item].Changed -= ConnectionGeometryChanged;
+        _connections.Remove(e.Item);
         InvalidateVisual();
     }
 
-    private void ConnectionManager_ConnectionEstablished(object sender, IConnection e)
+    private void ConnectionManager_ConnectionEstablished(object sender, ItemAddedEventArgs<IConnection> e) => AddConnection(e.Item);
+
+    private void AddConnection(IConnection newConnection)
     {
-        ConnectionGeometry newConnection = new() { CoreConnection = e, Pen = new Pen(new SolidColorBrush(Color.Parse(e.OutputConnector.ColorHex)), 3) };
-        _connections.Add(e, newConnection);
+        ConnectionGeometry newConnectionGeometry = new() { CoreConnection = newConnection, Pen = new Pen(new SolidColorBrush(Color.Parse(newConnection.OutputConnector.ColorHex)), 3) };
+        _connections.Add(newConnection, newConnectionGeometry);
 
-        Control inputControl = ConnectorControl.FromConnector(e.InputConnector);
-        newConnection[!ConnectionGeometry.EndPointProperty] = inputControl.GetObservable(TransformedBoundsProperty).Select(GetTransformBoundsCenter).ToBinding();
+        Control inputControl = ConnectorControl.FromConnector(newConnection.InputConnector);
+        newConnectionGeometry[!ConnectionGeometry.EndPointProperty] = inputControl.GetObservable(TransformedBoundsProperty).Select(GetTransformBoundsCenter).ToBinding();
 
-        Control outputControl = ConnectorControl.FromConnector(e.OutputConnector);
-        newConnection[!ConnectionGeometry.StartPointProperty] = outputControl.GetObservable(TransformedBoundsProperty).Select(GetTransformBoundsCenter).ToBinding();
+        Control outputControl = ConnectorControl.FromConnector(newConnection.OutputConnector);
+        newConnectionGeometry[!ConnectionGeometry.StartPointProperty] = outputControl.GetObservable(TransformedBoundsProperty).Select(GetTransformBoundsCenter).ToBinding();
 
-        newConnection.Changed += ConnectionGeometryChanged;
+        newConnectionGeometry.Changed += ConnectionGeometryChanged;
 
         InvalidateVisual();
     }

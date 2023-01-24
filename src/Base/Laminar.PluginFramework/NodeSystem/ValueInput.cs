@@ -73,7 +73,8 @@ public class ValueInput<T> : IValueInput
 
     public static implicit operator T(ValueInput<T> inputValue) => inputValue.Value;
 
-    protected void FireValueChange() => StartExecution?.Invoke(this, new LaminarExecutionContext {
+    protected void FireValueChange() => StartExecution?.Invoke(this, new LaminarExecutionContext
+    {
         ExecutionFlags = ValueExecutionFlag.Value,
         ExecutionSource = this,
     });

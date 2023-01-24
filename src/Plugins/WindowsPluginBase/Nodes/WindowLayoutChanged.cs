@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Laminar.PluginFramework.NodeSystem;
 using WindowsPluginBase.Window;
@@ -11,8 +10,8 @@ public class WindowLayoutChanged : INode
     //public readonly INodeField beforeLayout = Constructor.NodeField("Layout Before Change").WithOutput<AllWindowsLayout>();
     //public readonly INodeField afterLayout = Constructor.NodeField("Layout After Change").WithOutput<AllWindowsLayout>();
 
-    private IntPtr _hook;
-    private IntPtr _hook2;
+    private readonly IntPtr _hook;
+    private readonly IntPtr _hook2;
     private GCHandle _gcSafetyHandle;
 
     public string NodeName { get; } = "Window Layout Changed";

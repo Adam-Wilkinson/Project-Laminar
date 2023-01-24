@@ -3,6 +3,7 @@
     <TargetFrameworks>net7.0</TargetFrameworks>
 	  <EnablePreviewFeatures>True</EnablePreviewFeatures>
 	  <OutputType>Library</OutputType>
+	  <Nullable>enable</Nullable>
 	  <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
   <ItemGroup>

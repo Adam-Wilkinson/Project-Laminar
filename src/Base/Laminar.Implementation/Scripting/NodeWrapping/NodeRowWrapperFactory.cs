@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Reflection;
 using Laminar.Contracts.Base.UserInterface;
+using Laminar.Contracts.Primitives;
 using Laminar.Contracts.Scripting.Connection;
 using Laminar.Contracts.Scripting.NodeWrapping;
-using Laminar.Contracts.Primitives;
 using Laminar.PluginFramework.NodeSystem;
 using Laminar.PluginFramework.NodeSystem.Attributes;
 using Laminar.PluginFramework.NodeSystem.Contracts;
@@ -47,7 +47,7 @@ public class NodeRowWrapperFactory : INodeRowWrapperFactory
 
     private static bool GetNodeRowFromPropertyInfo(PropertyInfo propertyInfo, object containingObject, out NodeRow? row)
     {
-        foreach (Attribute attribute in propertyInfo.GetCustomAttributes()) 
+        foreach (Attribute attribute in propertyInfo.GetCustomAttributes())
         {
             if (attribute is IConvertsToNodeRowAttribute converter)
             {

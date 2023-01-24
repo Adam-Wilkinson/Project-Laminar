@@ -1,12 +1,8 @@
 ﻿using Laminar.PluginFramework.Registration;
-using WindowsKeyboardMouse.Nodes.Mouse.Triggers;
-using WindowsKeyboardMouse.Nodes.Keyboard.Triggers;
 using WindowsKeyboardMouse.Nodes.Keyboard.Output;
-using Avalonia.Controls;
-using WindowsKeyboardMouse.UserControls;
+using WindowsKeyboardMouse.Nodes.Keyboard.Triggers;
+using WindowsKeyboardMouse.Nodes.Mouse.Triggers;
 using WindowsKeyboardMouse.Primitives;
-using Laminar.PluginFramework.UserInterfaces;
-using Laminar.PluginFramework.Registration;
 
 [module: HasFrontendDependency(FrontendDependency.Avalonia)]
 

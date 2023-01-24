@@ -1,16 +1,17 @@
 ﻿using System;
+using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
-using Laminar.Avalonia.NodeDisplaySystem;
-using Laminar.Contracts.Scripting;
-using Avalonia.Controls;
 using Laminar.Avalonia.Controls.ScriptEditor.MouseActions;
-using Laminar.Avalonia.Utils;
 using Laminar.Avalonia.Controls.ScriptEditor.ObjectFinders;
-using Microsoft.Extensions.DependencyInjection;
 using Laminar.Avalonia.KeyBIndings;
-using Avalonia;
+using Laminar.Avalonia.NodeDisplaySystem;
+using Laminar.Avalonia.Utils;
+using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Scripting.NodeWrapping;
+using Laminar.Domain.Notification;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Laminar.Avalonia.Controls.ScriptEditor;
 
@@ -19,6 +20,7 @@ public class ScriptEditorControl : Border, DragDropHandler.IDragRecepticle
     public static readonly StyledProperty<IScript> ActiveScriptProperty = AvaloniaProperty.Register<ScriptEditorControl, IScript>(nameof(ActiveScript));
 
     private readonly IScriptEditor _scriptEditor = App.LaminarInstance.ServiceProvider.GetService<IScriptEditor>();
+    private readonly INotifyCollectionChangedHelper _collectionChangedHelper = App.LaminarInstance.ServiceProvider.GetService<INotifyCollectionChangedHelper>();
 
     private readonly ConnectionCanvas _displayCanvas = new();
     private readonly NodeControlManager _nodeControlManager = new();
@@ -63,14 +65,16 @@ public class ScriptEditorControl : Border, DragDropHandler.IDragRecepticle
         return false;
     }
 
-    private void NodeRemoved(object sender, IWrappedNode node)
+    private void NodeRemoved(object sender, ItemRemovedEventArgs<IWrappedNode> e)
     {
+        IWrappedNode node = e.Item;
         _displayCanvas.Children.Remove(_nodeControlManager.GetControl(node));
         _nodeControlManager.ForgetNode(node);
     }
 
-    private void NodeAdded(object sender, IWrappedNode newNode)
+    private void NodeAdded(object sender, ItemAddedEventArgs<IWrappedNode> e)
     {
+        IWrappedNode newNode = e.Item;
         Control nodeControl = _nodeControlManager.GetControl(newNode);
         Canvas.SetLeft(nodeControl, newNode.Location.Value.X);
         Canvas.SetTop(nodeControl, newNode.Location.Value.Y);
@@ -79,7 +83,7 @@ public class ScriptEditorControl : Border, DragDropHandler.IDragRecepticle
             Canvas.SetLeft(nodeControl, newNode.Location.Value.X);
             Canvas.SetTop(nodeControl, newNode.Location.Value.Y);
         };
-        
+
         _displayCanvas.Children.Add(nodeControl);
     }
 
@@ -98,14 +102,14 @@ public class ScriptEditorControl : Border, DragDropHandler.IDragRecepticle
     {
         if (_lastScript is not null)
         {
-            _lastScript.Nodes.ItemAdded -= NodeAdded;
-            _lastScript.Nodes.ItemRemoved -= NodeRemoved;
+            _collectionChangedHelper.HelperInstance(_lastScript.Nodes).ItemAdded -= NodeAdded;
+            _collectionChangedHelper.HelperInstance(_lastScript.Nodes).ItemRemoved -= NodeRemoved;
         }
 
         if (newScript is not null)
         {
-            newScript.Nodes.ItemAdded += NodeAdded;
-            newScript.Nodes.ItemRemoved += NodeRemoved;
+            _collectionChangedHelper.HelperInstance(newScript.Nodes).ItemAdded += NodeAdded;
+            _collectionChangedHelper.HelperInstance(newScript.Nodes).ItemRemoved += NodeRemoved;
             _displayCanvas.Connections = newScript.Connections;
         }
 

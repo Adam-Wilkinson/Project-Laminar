@@ -1,10 +1,10 @@
 ﻿using System.ComponentModel;
-using Laminar.Contracts.Primitives;
-using Laminar.PluginFramework.NodeSystem;
-using Laminar.Contracts.Scripting.Connection;
-using Laminar.PluginFramework.NodeSystem.Contracts.IO;
 using Laminar.Contracts.Base.UserInterface;
+using Laminar.Contracts.Primitives;
+using Laminar.Contracts.Scripting.Connection;
 using Laminar.Contracts.Scripting.NodeWrapping;
+using Laminar.PluginFramework.NodeSystem;
+using Laminar.PluginFramework.NodeSystem.Contracts.IO;
 
 namespace Laminar.Implementation.Scripting.Nodes;
 

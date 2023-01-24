@@ -1,3 +1,5 @@
+using System;
+using System.Runtime.InteropServices;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Markup.Xaml;
@@ -8,9 +10,6 @@ using Laminar.Avalonia.Models;
 using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.Scripting;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 
 namespace Laminar.Avalonia.Views;
 

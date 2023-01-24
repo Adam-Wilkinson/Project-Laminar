@@ -35,7 +35,7 @@ internal class ExecutionOrderFinder
         _remainingBranchStarters = new();
 
         _currentBranchOrder = new() { firstNode };
-        foreach (IWrappedNodeRow row in firstNode.Fields)
+        foreach (IWrappedNodeRow row in firstNode.Rows)
         {
             if (GetConnectionsIfBranchContinues(row, flags) is not null)
             {
@@ -81,7 +81,7 @@ internal class ExecutionOrderFinder
 
     private IEnumerable<IWrappedNode> GetDependentNodes(IWrappedNode node, ExecutionFlags executionFlags)
     {
-        foreach (IWrappedNodeRow row in node.Fields)
+        foreach (IWrappedNodeRow row in node.Rows)
         {
             if (GetConnectionsIfBranchContinues(row, executionFlags) is List<IWrappedNode> connectedNodes)
             {

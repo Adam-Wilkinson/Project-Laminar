@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Timers;
+﻿using System.Timers;
 using Laminar.PluginFramework.NodeSystem;
 
 namespace BasicFunctionality.Nodes.Flow;
 
 public class WaitForTrigger : INode
 {
-    private readonly Timer resetTimer = new() { AutoReset = false };
-    private bool isWaiting = false;
+    //private readonly Timer resetTimer = new() { AutoReset = false };
+    //private readonly bool isWaiting = false;
 
     //public WaitForTrigger()
     //{

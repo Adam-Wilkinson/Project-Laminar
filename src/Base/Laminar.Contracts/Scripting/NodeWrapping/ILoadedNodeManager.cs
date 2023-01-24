@@ -1,5 +1,4 @@
-﻿using Laminar.Contracts.Primitives;
-using Laminar.Domain;
+﻿using Laminar.Domain;
 using Laminar.PluginFramework.NodeSystem;
 
 namespace Laminar.Contracts.Scripting.NodeWrapping;

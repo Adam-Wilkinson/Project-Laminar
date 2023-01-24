@@ -2,5 +2,5 @@
 
 public class NumberEntry : IUserInterfaceDefinition
 {
-    public string Units { get; set; } = ""; 
+    public string Units { get; set; } = "";
 }

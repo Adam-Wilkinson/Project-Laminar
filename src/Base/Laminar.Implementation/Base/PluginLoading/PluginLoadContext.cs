@@ -2,37 +2,36 @@
 using System.Reflection;
 using System.Runtime.Loader;
 
-namespace Laminar.Implementation.Base.PluginLoading
+namespace Laminar.Implementation.Base.PluginLoading;
+
+class PluginLoadContext : AssemblyLoadContext
 {
-    class PluginLoadContext : AssemblyLoadContext
+    private readonly AssemblyDependencyResolver _resolver;
+
+    public PluginLoadContext(string pluginPath)
     {
-        private readonly AssemblyDependencyResolver _resolver;
+        _resolver = new AssemblyDependencyResolver(pluginPath);
+    }
 
-        public PluginLoadContext(string pluginPath)
+    protected override Assembly Load(AssemblyName assemblyName)
+    {
+        string assemblyPath = _resolver.ResolveAssemblyToPath(assemblyName);
+        if (assemblyPath != null)
         {
-            _resolver = new AssemblyDependencyResolver(pluginPath);
+            return LoadFromAssemblyPath(assemblyPath);
         }
 
-        protected override Assembly Load(AssemblyName assemblyName)
-        {
-            string assemblyPath = _resolver.ResolveAssemblyToPath(assemblyName);
-            if (assemblyPath != null)
-            {
-                return LoadFromAssemblyPath(assemblyPath);
-            }
+        return null;
+    }
 
-            return null;
+    protected override IntPtr LoadUnmanagedDll(string unmanagedDllName)
+    {
+        string libraryPath = _resolver.ResolveUnmanagedDllToPath(unmanagedDllName);
+        if (libraryPath != null)
+        {
+            return LoadUnmanagedDllFromPath(libraryPath);
         }
 
-        protected override IntPtr LoadUnmanagedDll(string unmanagedDllName)
-        {
-            string libraryPath = _resolver.ResolveUnmanagedDllToPath(unmanagedDllName);
-            if (libraryPath != null)
-            {
-                return LoadUnmanagedDllFromPath(libraryPath);
-            }
-
-            return IntPtr.Zero;
-        }
+        return IntPtr.Zero;
     }
 }

@@ -1,6 +1,5 @@
-﻿using Laminar.PluginFramework.NodeSystem;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
+using Laminar.PluginFramework.NodeSystem;
 
 namespace WindowsKeyboardMouse.Nodes.Keyboard.Output;
 

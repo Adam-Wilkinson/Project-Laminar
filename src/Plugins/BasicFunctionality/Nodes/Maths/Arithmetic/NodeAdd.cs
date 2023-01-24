@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Laminar.PluginFramework.NodeSystem;
+﻿using Laminar.PluginFramework.NodeSystem;
 
 namespace BasicFunctionality.Nodes.Maths.Arithmetic;
 public class NodeAdd : INode

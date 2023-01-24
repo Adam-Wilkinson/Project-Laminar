@@ -1,10 +1,7 @@
-﻿namespace Laminar.Domain.Notification;
+﻿using System.Collections.Specialized;
 
-public interface IReadOnlyObservableCollection<T> : IEnumerable<T>
+namespace Laminar.Domain.Notification;
+
+public interface IReadOnlyObservableCollection<T> : IReadOnlyList<T>, INotifyCollectionChanged
 {
-    public T this[Index index] { get; }
-
-    public event EventHandler<T> ItemAdded;
-
-    public event EventHandler<T> ItemRemoved;
 }

@@ -5,7 +5,6 @@ using Laminar.Contracts.Scripting.Connection;
 using Laminar.Domain.Exceptions;
 using Laminar.PluginFramework.NodeSystem.Contracts.Connectors;
 using Laminar.PluginFramework.NodeSystem.Contracts.IO;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Laminar.Implementation.Scripting.Connections;
 

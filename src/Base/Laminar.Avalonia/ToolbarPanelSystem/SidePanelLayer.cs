@@ -5,7 +5,6 @@ using Avalonia.Animation;
 using Avalonia.Animation.Easings;
 using Avalonia.Controls;
 using Avalonia.Controls.Shapes;
-using Avalonia.Layout;
 
 namespace Laminar.Avalonia.ToolbarPanelSystem;
 

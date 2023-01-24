@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Timers;
 using Laminar.PluginFramework.NodeSystem;
-using WindowsKeyboardMouse.Primitives;
 
 namespace WindowsKeyboardMouse.Nodes.Keyboard.Triggers;
 
@@ -10,7 +8,7 @@ public class KeyboardButtonTrigger : INode
 {
     // private static readonly Dictionary<Keys, KeyboardButtonTrigger> AllTriggers = new();
     private static readonly Timer CooldownTimer = new(100) { AutoReset = false };
-    private static bool Subscribed;
+    private static readonly bool Subscribed;
     private static bool KeyIsDown;
 
     private static void CooldownTimer_Elapsed(object sender, ElapsedEventArgs e)

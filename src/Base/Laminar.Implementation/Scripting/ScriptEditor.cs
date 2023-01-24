@@ -1,13 +1,13 @@
-﻿using System.Collections.Generic;
-using Laminar.Contracts.Scripting;
-using Laminar.Domain.ValueObjects;
-using Laminar.Implementation.Scripting.Actions;
-using Laminar.Contracts.Scripting.Connection;
-using Laminar.PluginFramework.NodeSystem.Contracts.Connectors;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using Laminar.Contracts.Base.ActionSystem;
+using Laminar.Contracts.Scripting;
+using Laminar.Contracts.Scripting.Connection;
 using Laminar.Contracts.Scripting.NodeWrapping;
+using Laminar.Domain.ValueObjects;
 using Laminar.Implementation.Base.ActionSystem;
+using Laminar.Implementation.Scripting.Actions;
+using Laminar.PluginFramework.NodeSystem.Contracts.Connectors;
 
 namespace Laminar.Implementation.Scripting;
 
@@ -16,7 +16,7 @@ internal class ScriptEditor : IScriptEditor
     private readonly IEnumerable<IConnectionBridger> _connectionBridgers;
 
     public ScriptEditor
-        (IUserActionManager userActionManager, 
+        (IUserActionManager userActionManager,
         IEnumerable<IConnectionBridger> connectionBridgers)
     {
         UserActionManager = userActionManager;
@@ -27,11 +27,7 @@ internal class ScriptEditor : IScriptEditor
 
     public IWrappedNode AddCopyOfNode(IScript script, IWrappedNode node)
     {
-        if (script is not IEditableScript editableScript)
-        {
-            return null;
-        }
-
+        IEditableScript editableScript = MakeEditable(script);
         IWrappedNode newNode = node.Clone(editableScript.ExecutionInstance);
         UserActionManager.ExecuteAction(new AddNodeAction(newNode, editableScript.Nodes));
         return newNode;
@@ -39,11 +35,7 @@ internal class ScriptEditor : IScriptEditor
 
     public void DeleteNodes(IScript script, IEnumerable<IWrappedNode> nodes)
     {
-        if (script is not IEditableScript editableScript)
-        {
-            return;
-        }
-
+        IEditableScript editableScript = MakeEditable(script);
         UserActionManager.BeginCompoundAction();
         foreach (IWrappedNode node in nodes)
         {
@@ -101,10 +93,20 @@ internal class ScriptEditor : IScriptEditor
 
     private static void RemoveConnectionsTo(IEditableScript script, IWrappedNode node)
     {
-        foreach (IWrappedNodeRow row in node.Fields)
+        foreach (IWrappedNodeRow row in node.Rows)
         {
             script.Connections.RemoveConnectionsTo(row.InputConnector?.NodeIOConnector);
             script.Connections.RemoveConnectionsTo(row.OutputConnector?.NodeIOConnector);
         }
+    }
+
+    private static IEditableScript MakeEditable(IScript script)
+    {
+        if (script is not IEditableScript editableScript)
+        {
+            throw new ArgumentException("Scripts must also implement IEditableScript to edit them", nameof(script));
+        }
+
+        return editableScript;
     }
 }

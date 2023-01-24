@@ -28,7 +28,17 @@ public class ValueOutput<T> : IValueOutput, IValueProvider<T>
 
     Type? IValueInfo.ValueType => typeof(T);
 
-    object? IValueInfo.BoxedValue { get => Value; set { if (value is T typedValue) Value = typedValue; } }
+    object? IValueInfo.BoxedValue 
+    { 
+        get => Value; 
+        set 
+        { 
+            if (value is T typedValue) 
+            { 
+                Value = typedValue; 
+            } 
+        } 
+    }
 
     public event EventHandler<LaminarExecutionContext>? StartExecution;
 

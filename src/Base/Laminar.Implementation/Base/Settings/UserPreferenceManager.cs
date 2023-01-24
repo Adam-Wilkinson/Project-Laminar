@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
-using Laminar.Contracts.Base.UserInterface;
 using Laminar.Contracts.Base.Settings;
+using Laminar.Contracts.Base.UserInterface;
 using Laminar.Domain;
 
 namespace Laminar.Implementation.Base.Settings;
@@ -8,8 +8,8 @@ namespace Laminar.Implementation.Base.Settings;
 internal class UserPreferenceManager : IUserPreferenceManager
 {
     private readonly IDisplayFactory _valueDisplayFactory;
-    private ItemCatagory<IUserPreference> _userPreferences = new("root");
-    private Dictionary<string, IUserPreference> _userPreferencesDictionary = new();
+    private readonly ItemCatagory<IUserPreference> _userPreferences = new("root");
+    private readonly Dictionary<string, IUserPreference> _userPreferencesDictionary = new();
 
     public UserPreferenceManager(IDisplayFactory valueDisplayFactory)
     {

@@ -1,9 +1,9 @@
 ﻿using System;
-using Laminar.Implementation.Scripting.Connections;
-using Laminar.Contracts.Scripting.Connection;
-using Laminar.PluginFramework.NodeSystem.Contracts.Connectors;
-using Laminar.Domain.Notification;
+using System.Collections.Generic;
 using Laminar.Contracts.Base.ActionSystem;
+using Laminar.Contracts.Scripting.Connection;
+using Laminar.Implementation.Scripting.Connections;
+using Laminar.PluginFramework.NodeSystem.Contracts.Connectors;
 
 namespace Laminar.Implementation.Scripting.Actions;
 
@@ -11,11 +11,11 @@ public class EstablishConnectionAction : IUserAction
 {
     private readonly IOutputConnector _outputConnector;
     private readonly IInputConnector _inputConnector;
-    private readonly IObservableCollection<IConnection> _connectionCollection;
+    private readonly ICollection<IConnection> _connectionCollection;
 
-    IConnection _connection;
+    IConnection? _connection;
 
-    public EstablishConnectionAction(IOutputConnector connectorOne, IInputConnector connectorTwo, IObservableCollection<IConnection> connectionCollection)
+    public EstablishConnectionAction(IOutputConnector connectorOne, IInputConnector connectorTwo, ICollection<IConnection> connectionCollection)
     {
         _outputConnector = connectorOne;
         _inputConnector = connectorTwo;

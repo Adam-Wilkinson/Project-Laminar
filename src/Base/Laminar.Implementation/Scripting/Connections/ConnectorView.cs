@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using Laminar.Contracts.Scripting.Connection;
 using Laminar.PluginFramework.NodeSystem.Contracts.Connectors;
-using Laminar.PluginFramework.NodeSystem.Contracts.IO;
 
 namespace Laminar.Implementation.Scripting.Connections;
 

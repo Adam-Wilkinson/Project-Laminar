@@ -1,8 +1,8 @@
 ﻿using System.Linq;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
-using Avalonia;
 
 namespace Laminar.Avalonia;
 

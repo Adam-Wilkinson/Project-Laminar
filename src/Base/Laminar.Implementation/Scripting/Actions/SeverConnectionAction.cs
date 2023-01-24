@@ -1,15 +1,15 @@
-﻿using Laminar.Contracts.Base.ActionSystem;
+﻿using System.Collections.Generic;
+using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.Scripting.Connection;
-using Laminar.Domain.Notification;
 
 namespace Laminar.Implementation.Scripting.Actions;
 
 public class SeverConnectionAction : IUserAction
 {
     readonly IConnection _connection;
-    readonly IObservableCollection<IConnection> _connectionCollection;
+    readonly ICollection<IConnection> _connectionCollection;
 
-    public SeverConnectionAction(IConnection connection, IObservableCollection<IConnection> connectionCollection)
+    public SeverConnectionAction(IConnection connection, ICollection<IConnection> connectionCollection)
     {
         _connection = connection;
         _connectionCollection = connectionCollection;

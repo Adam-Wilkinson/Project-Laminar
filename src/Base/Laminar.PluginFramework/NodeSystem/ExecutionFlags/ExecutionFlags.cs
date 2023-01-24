@@ -1,7 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
-
-namespace Laminar.PluginFramework.NodeSystem.ExecutionFlags;
+﻿namespace Laminar.PluginFramework.NodeSystem.ExecutionFlags;
 
 public struct ExecutionFlags
 {

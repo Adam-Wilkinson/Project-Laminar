@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.Scripting.Connection;
 using Laminar.Implementation.Scripting.Actions;
-using Laminar.Domain.Notification;
 using Laminar.PluginFramework.NodeSystem.Contracts.Connectors;
 
 namespace Laminar.Implementation.Scripting.Connections;
 
-internal class ConnectionCollection : LaminarObservableCollection<IConnection>, IConnectionCollection
+internal class ConnectionCollection : ObservableCollection<IConnection>, IConnectionCollection
 {
     private readonly Dictionary<IIOConnector, List<IConnection>> _connections = new();
     private readonly IUserActionManager _actionManager;
@@ -20,15 +20,10 @@ internal class ConnectionCollection : LaminarObservableCollection<IConnection>, 
 
     public IReadOnlyList<IConnection> GetConnectionsTo(IIOConnector ioConnector)
     {
-        if (!_connections.ContainsKey(ioConnector))
-        {
-            return Array.Empty<IConnection>();
-        }
-
-        return _connections[ioConnector];
+        return !_connections.ContainsKey(ioConnector) ? Array.Empty<IConnection>() : _connections[ioConnector];
     }
 
-    public void RemoveConnectionsTo(IIOConnector connector)
+    public void RemoveConnectionsTo(IIOConnector? connector)
     {
         if (connector is null)
         {
@@ -41,24 +36,43 @@ internal class ConnectionCollection : LaminarObservableCollection<IConnection>, 
         }
     }
 
-    protected override void OnAdd(IConnection newConnection)
+    protected override void InsertItem(int index, IConnection newConnection)
     {
-        RegisterConnectionWithConnector(newConnection.InputConnector, newConnection);
-        RegisterConnectionWithConnector(newConnection.OutputConnector, newConnection);
-        newConnection.OnBroken += Connection_OnBroken;
-        base.OnAdd(newConnection);
+        ItemAdded(newConnection);
+        base.InsertItem(index, newConnection);
     }
 
-    protected override void OnRemove(IConnection removedConnection)
+    protected override void RemoveItem(int index)
+    {
+        ItemRemoved(this[index]);
+        base.RemoveItem(index);
+    }
+
+    protected override void SetItem(int index, IConnection item)
+    {
+        ItemRemoved(this[index]);
+        base.SetItem(index, item);
+        ItemAdded(item);
+    }
+
+    private void ItemRemoved(IConnection removedConnection)
     {
         UnregisterConnectionWithConnector(removedConnection.InputConnector, removedConnection);
         UnregisterConnectionWithConnector(removedConnection.OutputConnector, removedConnection);
         removedConnection.OnBroken -= Connection_OnBroken;
-        base.OnRemove(removedConnection);
     }
 
-    private void Connection_OnBroken(object sender, EventArgs e)
+    private void ItemAdded(IConnection newConnection)
     {
+        RegisterConnectionWithConnector(newConnection.InputConnector, newConnection);
+        RegisterConnectionWithConnector(newConnection.OutputConnector, newConnection);
+        newConnection.OnBroken += Connection_OnBroken;
+    }
+
+    private void Connection_OnBroken(object? sender, EventArgs e)
+    {
+        ArgumentNullException.ThrowIfNull(sender);
+
         _actionManager.ExecuteAction(new SeverConnectionAction((IConnection)sender, this));
     }
 

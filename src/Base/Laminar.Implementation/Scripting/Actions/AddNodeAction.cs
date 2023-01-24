@@ -1,15 +1,15 @@
-﻿using Laminar.Contracts.Base.ActionSystem;
+﻿using System.Collections.Generic;
+using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.Scripting.NodeWrapping;
-using Laminar.Domain.Notification;
 
 namespace Laminar.Implementation.Scripting.Actions;
 
 public class AddNodeAction : IUserAction
 {
     readonly IWrappedNode _node;
-    private readonly IObservableCollection<IWrappedNode> _nodeCollection;
+    private readonly ICollection<IWrappedNode> _nodeCollection;
 
-    public AddNodeAction(IWrappedNode node, IObservableCollection<IWrappedNode> nodeCollection)
+    public AddNodeAction(IWrappedNode node, ICollection<IWrappedNode> nodeCollection)
     {
         _node = node;
         _nodeCollection = nodeCollection;

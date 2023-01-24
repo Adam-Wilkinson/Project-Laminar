@@ -15,7 +15,7 @@ public class ValuePassingBenchmark
     private IScript _script2;
     private IScriptEditor _scriptEditor;
     private INodeFactory _nodeWrapperFactory;
-    Instance instance = new(null, PluginFramework.Registration.FrontendDependency.None);
+    readonly Instance instance = new(null, PluginFramework.Registration.FrontendDependency.None);
 
     //private ValueAttributeBenchmarkNode _firstNode;
     //private ValueAttributeBenchmarkNode _lastNode;
@@ -48,10 +48,10 @@ public class ValuePassingBenchmark
         for (int i = 0; i < nodeCount; i++)
         {
             var nextNode = _scriptEditor.AddCopyOfNode(script, originalNode);
-            _scriptEditor.TryBridgeConnectors(script, previousNode.Fields[1].OutputConnector!.NodeIOConnector, nextNode.Fields[0].InputConnector!.NodeIOConnector);
+            _scriptEditor.TryBridgeConnectors(script, previousNode.Rows[1].OutputConnector!.NodeIOConnector, nextNode.Rows[0].InputConnector!.NodeIOConnector);
             previousNode = nextNode;
         }
-        script.Nodes[0].Fields[0].Display.Value.Value = 3.0;
+        script.Nodes[0].Rows[0].Display.Value.Value = 3.0;
         script.ExecutionInstance.IsShownInUI = false;
     }
 

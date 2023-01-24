@@ -11,4 +11,3 @@ public interface IValueInput : IInput, IValueInfo
     /// <returns>True if the state of the value of the input has changed</returns>
     public bool TrySetValueProvider(object? valueProvider);
 }
- 
