@@ -6,7 +6,7 @@ using Laminar.PluginFramework.UserInterfaces;
 
 namespace Laminar.PluginFramework.NodeSystem;
 
-public class ValueInput<T> : IValueInput
+public class ValueInput<T> : IValueInput, IConvertsToNodeComponent
 {
     IValueProvider<T>? _valueProvider;
     protected T _internalValue;
@@ -54,16 +54,9 @@ public class ValueInput<T> : IValueInput
 
     public bool TrySetValueProvider(object? provider)
     {
-        if (provider is null)
+        if (provider is null or IValueProvider<T>)
         {
-            _valueProvider = null;
-            FireValueChange();
-            return true;
-        }
-
-        if (provider is IValueProvider<T> valueProvider)
-        {
-            _valueProvider = valueProvider;
+            _valueProvider = provider as IValueProvider<T>;
             FireValueChange();
             return true;
         }
@@ -78,4 +71,6 @@ public class ValueInput<T> : IValueInput
         ExecutionFlags = ValueExecutionFlag.Value,
         ExecutionSource = this,
     });
+
+    public NodeComponent GetComponent() => NodeComponent.Row(this, this, null);
 }

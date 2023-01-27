@@ -5,6 +5,7 @@ using Laminar.Contracts.Scripting.Connection;
 using Laminar.Contracts.Scripting.Execution;
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Domain.Notification;
+using Laminar.PluginFramework.NodeSystem.Contracts;
 using Laminar.PluginFramework.NodeSystem.Contracts.Connectors;
 using Laminar.PluginFramework.NodeSystem.ExecutionFlags;
 
@@ -101,16 +102,16 @@ public class NodeTree : INodeTree
     private void NodeRemoved(object? sender, ItemRemovedEventArgs<IWrappedNode> e)
     {
         IWrappedNode removedNode = e.Item;
-        foreach (IWrappedNodeRow row in removedNode.Rows)
+        foreach (INodeRow row in removedNode.Rows)
         {
             if (row.InputConnector is not null)
             {
-                _connectorParents.Remove(row.InputConnector.NodeIOConnector);
+                _connectorParents.Remove(row.InputConnector);
             }
 
             if (row.OutputConnector is not null)
             {
-                _connectorParents.Remove(row.OutputConnector.NodeIOConnector);
+                _connectorParents.Remove(row.OutputConnector);
             }
         }
     }
@@ -118,16 +119,16 @@ public class NodeTree : INodeTree
     private void NodeAdded(object? sender, ItemAddedEventArgs<IWrappedNode> e)
     {
         IWrappedNode newNode = e.Item;
-        foreach (IWrappedNodeRow row in newNode.Rows)
+        foreach (INodeRow row in newNode.Rows)
         {
             if (row.InputConnector is not null)
             {
-                _connectorParents.Add(row.InputConnector.NodeIOConnector, newNode);
+                _connectorParents.Add(row.InputConnector, newNode);
             }
 
             if (row.OutputConnector is not null)
             {
-                _connectorParents.Add(row.OutputConnector.NodeIOConnector, newNode);
+                _connectorParents.Add(row.OutputConnector, newNode);
             }
         }
     }

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Laminar.Contracts.Scripting.NodeWrapping;
+using Laminar.PluginFramework.NodeSystem.Contracts;
 using Laminar.PluginFramework.NodeSystem.Contracts.Connectors;
 using Laminar.PluginFramework.NodeSystem.ExecutionFlags;
 
@@ -7,9 +8,9 @@ namespace Laminar.Implementation.Scripting.Execution;
 
 internal class ExecutionOrderFinder
 {
-    List<IWrappedNode> _currentBranchOrder;
-    List<IOutputConnector> _remainingBranchStarters;
-    Dictionary<IOutputConnector, List<IWrappedNode>> _connections;
+    List<IWrappedNode>? _currentBranchOrder;
+    List<IOutputConnector>? _remainingBranchStarters;
+    Dictionary<IOutputConnector, List<IWrappedNode>>? _connections;
 
     public ConditionalExecutionBranch[] FindExecutionPath(IOutputConnector firstConnector, ExecutionFlags flags, Dictionary<IOutputConnector, List<IWrappedNode>> connections)
     {
@@ -35,11 +36,11 @@ internal class ExecutionOrderFinder
         _remainingBranchStarters = new();
 
         _currentBranchOrder = new() { firstNode };
-        foreach (IWrappedNodeRow row in firstNode.Rows)
+        foreach (INodeRow row in firstNode.Rows)
         {
             if (GetConnectionsIfBranchContinues(row, flags) is not null)
             {
-                FindPathFromOutputConnector((IOutputConnector)row.OutputConnector.NodeIOConnector, flags);
+                FindPathFromOutputConnector(row.OutputConnector!, flags);
             }
         }
 
@@ -59,7 +60,7 @@ internal class ExecutionOrderFinder
 
     private void FindPathFromOutputConnector(IOutputConnector currentBranchStarter, ExecutionFlags executionFlags)
     {
-        if (!_connections.TryGetValue(currentBranchStarter, out List<IWrappedNode> currentNodeLevel))
+        if (!_connections!.TryGetValue(currentBranchStarter, out List<IWrappedNode> currentNodeLevel))
         {
             return;
         }
@@ -70,7 +71,7 @@ internal class ExecutionOrderFinder
         {
             foreach (IWrappedNode currentNode in currentNodeLevel)
             {
-                _currentBranchOrder.Remove(currentNode);
+                _currentBranchOrder!.Remove(currentNode);
                 _currentBranchOrder.Add(currentNode);
                 nextNodeLevel.AddRange(GetDependentNodes(currentNode, executionFlags));
             }
@@ -81,7 +82,7 @@ internal class ExecutionOrderFinder
 
     private IEnumerable<IWrappedNode> GetDependentNodes(IWrappedNode node, ExecutionFlags executionFlags)
     {
-        foreach (IWrappedNodeRow row in node.Rows)
+        foreach (INodeRow row in node.Rows)
         {
             if (GetConnectionsIfBranchContinues(row, executionFlags) is List<IWrappedNode> connectedNodes)
             {
@@ -93,10 +94,10 @@ internal class ExecutionOrderFinder
         }
     }
 
-    private List<IWrappedNode> GetConnectionsIfBranchContinues(IWrappedNodeRow row, ExecutionFlags flags)
+    private List<IWrappedNode>? GetConnectionsIfBranchContinues(INodeRow row, ExecutionFlags flags)
     {
-        if (row.OutputConnector?.NodeIOConnector is IOutputConnector outputConnector
-            && _connections.TryGetValue(outputConnector, out List<IWrappedNode> connectedNodes))
+        if (row.OutputConnector is IOutputConnector outputConnector
+            && _connections!.TryGetValue(outputConnector, out List<IWrappedNode> connectedNodes))
         {
             switch (outputConnector.PassUpdate(flags))
             {
@@ -104,7 +105,7 @@ internal class ExecutionOrderFinder
                     return connectedNodes;
                 case PassUpdateOption.CurrentlyPasses:
                 case PassUpdateOption.CurrentlyDoesNotPass:
-                    _remainingBranchStarters.Add(outputConnector);
+                    _remainingBranchStarters!.Add(outputConnector);
                     break;
 
             }

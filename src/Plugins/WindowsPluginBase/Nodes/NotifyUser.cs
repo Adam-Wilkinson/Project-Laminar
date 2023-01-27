@@ -5,7 +5,7 @@ namespace WindowsPluginBase.Nodes;
 
 public class NotifyUser : INode
 {
-    private static readonly ToastNotifier manager = ToastNotificationManager.CreateToastNotifier("LaminarToast");
+    // private static readonly ToastNotifier manager = ToastNotificationManager.CreateToastNotifier("LaminarToast");
 
     //private readonly INodeField _titleField = Constructor.NodeField("Title").WithInput<string>();
     //private readonly INodeField _textField = Constructor.NodeField("Body").WithInput<string>();

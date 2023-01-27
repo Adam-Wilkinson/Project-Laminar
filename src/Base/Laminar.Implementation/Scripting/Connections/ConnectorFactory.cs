@@ -8,34 +8,33 @@ using Laminar.PluginFramework.NodeSystem.Contracts.IO;
 
 namespace Laminar.Implementation.Scripting.Connections;
 
-public class ConnectorViewFactory : IConnectorViewFactory
+public class ConnectorFactory : IConnectorFactory
 {
     readonly IClassInstancer _classInstancer;
 
     readonly List<TypeConnectorInfo> _connectorFactories = new();
 
-    public ConnectorViewFactory(IClassInstancer classInstancer)
+    public ConnectorFactory(IClassInstancer classInstancer)
     {
         _classInstancer = classInstancer;
     }
 
-    public IConnectorView CreateConnector(INodeIO nodeIO)
+    public IIOConnector CreateConnector(INodeIO nodeIO)
     {
         foreach (var factory in _connectorFactories)
         {
             if (factory.IOType.IsAssignableFrom(nodeIO.GetType()))
             {
-                IIOConnector connector = factory.CreateAction(nodeIO);
-                return new ConnectorView(connector);
+                return factory.CreateAction(nodeIO);
             }
         }
 
         throw new ConnectorNotFoundException(nodeIO.GetType());
     }
 
-    public IConnectorView CreateConnector(IInput input) => CreateConnector((INodeIO)input);
+    public IInputConnector CreateConnector(IInput input) => (IInputConnector)CreateConnector((INodeIO)input);
 
-    public IConnectorView CreateConnector(IOutput output) => CreateConnector((INodeIO)output);
+    public IOutputConnector CreateConnector(IOutput output) => (IOutputConnector)CreateConnector((INodeIO)output);
 
     public void RegisterInputConnector<TNodeInput, TConnectorInput>()
         where TNodeInput : IInput

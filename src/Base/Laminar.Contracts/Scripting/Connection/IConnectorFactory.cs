@@ -3,11 +3,11 @@ using Laminar.PluginFramework.NodeSystem.Contracts.IO;
 
 namespace Laminar.Contracts.Scripting.Connection;
 
-public interface IConnectorViewFactory
+public interface IConnectorFactory
 {
-    IConnectorView CreateConnector(IInput input);
+    IInputConnector CreateConnector(IInput input);
 
-    IConnectorView CreateConnector(IOutput output);
+    IOutputConnector CreateConnector(IOutput output);
 
     void RegisterInputConnector<TNodeInput, TConnectorInput>()
         where TNodeInput : IInput

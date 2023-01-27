@@ -20,9 +20,9 @@ public class PluginHost : IPluginHost
     private readonly ITypeInfoStore _typeInfoStore;
     private readonly ILoadedNodeManager _loadedNodeManager;
     private readonly IUserInterfaceStore _userInterfaceStore;
-    private readonly IConnectorViewFactory _connectorFactory;
+    private readonly IConnectorFactory _connectorFactory;
 
-    public PluginHost(IRegisteredPlugin registeredPlugin, ITypeInfoStore typeInfoStore, ILoadedNodeManager loadedNodeManager, IUserInterfaceStore userInterfaceStore, IConnectorViewFactory connectorFactory)
+    public PluginHost(IRegisteredPlugin registeredPlugin, ITypeInfoStore typeInfoStore, ILoadedNodeManager loadedNodeManager, IUserInterfaceStore userInterfaceStore, IConnectorFactory connectorFactory)
     {
         _registeredPlugin = registeredPlugin;
         _typeInfoStore = typeInfoStore;

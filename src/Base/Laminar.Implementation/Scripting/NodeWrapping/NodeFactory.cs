@@ -1,6 +1,7 @@
 ﻿using Laminar.Contracts.Primitives;
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.PluginFramework.NodeSystem;
+using Laminar.PluginFramework.NodeSystem.Contracts;
 using Laminar.PluginFramework.UserInterfaces;
 
 namespace Laminar.Implementation.Scripting.Nodes;
@@ -8,9 +9,9 @@ namespace Laminar.Implementation.Scripting.Nodes;
 public class NodeFactory : INodeFactory
 {
     private readonly INodeRowCollectionFactory _rowCollectionFactory;
-    private readonly INodeRowWrapperFactory _rowFactory;
+    private readonly INodeRowFactory _rowFactory;
 
-    public NodeFactory(INodeRowCollectionFactory rowCollectionFactory, INodeRowWrapperFactory rowFactory)
+    public NodeFactory(INodeRowCollectionFactory rowCollectionFactory, INodeRowFactory rowFactory)
     {
         _rowCollectionFactory = rowCollectionFactory;
         _rowFactory = rowFactory;
@@ -35,8 +36,8 @@ public class NodeFactory : INodeFactory
         return newNode;
     }
 
-    private IWrappedNodeRow CreateNameRowFor(INode node)
+    private INodeRow CreateNameRowFor(INode node)
     {
-        return _rowFactory.CreateNodeRowWrapper(new NodeRow(null, new ValueInput<string>("", node.NodeName) { Editor = new EditableLabel() }, null), null);
+        return _rowFactory.CreateNodeRow(null, new ValueInput<string>("", node.NodeName) { Editor = new EditableLabel() }, null);
     }
 }

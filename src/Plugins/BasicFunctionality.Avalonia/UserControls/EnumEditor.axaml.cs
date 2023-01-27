@@ -6,7 +6,7 @@ namespace BasicFunctionality.Avalonia.UserControls;
 
 public class EnumEditor : UserControl
 {
-    private ComboBox _combobox;
+    private ComboBox? _combobox;
 
     public EnumEditor()
     {
@@ -21,8 +21,8 @@ public class EnumEditor : UserControl
         _combobox.PointerPressed += (o, e) => { e.Handled = true; };
     }
 
-    private void EnumEditor_DataContextChanged(object sender, System.EventArgs e)
+    private void EnumEditor_DataContextChanged(object? sender, EventArgs e)
     {
-        _combobox.Items = (DataContext as IDisplayValue)?.Value.GetType().GetEnumValues();
+        _combobox!.Items = (DataContext as IDisplayValue)?.Value!.GetType().GetEnumValues();
     }
 }

@@ -1,11 +1,10 @@
 ﻿using System;
+using System.ComponentModel;
 
 namespace Laminar.PluginFramework.NodeSystem.Contracts.Connectors;
 
-public interface IIOConnector
+public interface IIOConnector : INotifyPropertyChanged
 {
-    public PassUpdateOption PassUpdate(ExecutionFlags.ExecutionFlags executionFlags);
-
     public Action? PreEvaluateAction { get; }
 
     public string ColorHex { get; }

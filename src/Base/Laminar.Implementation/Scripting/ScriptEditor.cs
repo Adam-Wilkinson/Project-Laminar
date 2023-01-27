@@ -7,6 +7,7 @@ using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Domain.ValueObjects;
 using Laminar.Implementation.Base.ActionSystem;
 using Laminar.Implementation.Scripting.Actions;
+using Laminar.PluginFramework.NodeSystem.Contracts;
 using Laminar.PluginFramework.NodeSystem.Contracts.Connectors;
 
 namespace Laminar.Implementation.Scripting;
@@ -93,10 +94,10 @@ internal class ScriptEditor : IScriptEditor
 
     private static void RemoveConnectionsTo(IEditableScript script, IWrappedNode node)
     {
-        foreach (IWrappedNodeRow row in node.Rows)
+        foreach (INodeRow row in node.Rows)
         {
-            script.Connections.RemoveConnectionsTo(row.InputConnector?.NodeIOConnector);
-            script.Connections.RemoveConnectionsTo(row.OutputConnector?.NodeIOConnector);
+            script.Connections.RemoveConnectionsTo(row.InputConnector);
+            script.Connections.RemoveConnectionsTo(row.OutputConnector);
         }
     }
 

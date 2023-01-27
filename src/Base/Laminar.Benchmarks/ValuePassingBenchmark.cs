@@ -4,6 +4,7 @@ using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Implementation;
 using Laminar.PluginFramework.NodeSystem;
+using Laminar.PluginFramework.NodeSystem.Contracts;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Laminar.Benchmarks;
@@ -11,31 +12,30 @@ namespace Laminar.Benchmarks;
 [MemoryDiagnoser]
 public class ValuePassingBenchmark
 {
-    private IScript _script1;
-    private IScript _script2;
-    private IScriptEditor _scriptEditor;
-    private INodeFactory _nodeWrapperFactory;
+    private IScript? _script1;
+    private IScriptEditor? _scriptEditor;
+    private INodeFactory? _nodeWrapperFactory;
     readonly Instance instance = new(null, PluginFramework.Registration.FrontendDependency.None);
 
     //private ValueAttributeBenchmarkNode _firstNode;
     //private ValueAttributeBenchmarkNode _lastNode;
 
+
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     private ValueIOBenchmarNode _fieldsFirstNode;
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     private ValueIOBenchmarNode _fieldsLastNode;
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
     [GlobalSetup]
     public void Setup()
     {
         _script1 = instance.ServiceProvider.GetService<IScriptFactory>()!.CreateScript();
-        _script2 = instance.ServiceProvider.GetService<IScriptFactory>()!.CreateScript();
         _scriptEditor = instance.ServiceProvider.GetService<IScriptEditor>()!;
         _nodeWrapperFactory = instance.ServiceProvider.GetService<INodeFactory>()!;
 
         SetupScript<ValueIOBenchmarNode>(_script1, 5);
-        //SetupScript<ValueAttributeBenchmarkNode>(_script2, 5);
-
-        //_firstNode = ValueAttributeBenchmarkNode.Instances[1];
-        //_lastNode = ValueAttributeBenchmarkNode.Instances[^1];
 
         _fieldsFirstNode = ValueIOBenchmarNode.Instances[1];
         _fieldsLastNode = ValueIOBenchmarNode.Instances[^1];
@@ -43,21 +43,21 @@ public class ValuePassingBenchmark
 
     private void SetupScript<T>(IScript script, int nodeCount) where T : INode, new()
     {
-        IWrappedNode originalNode = _nodeWrapperFactory.WrapNode<T>();
-        var previousNode = _scriptEditor.AddCopyOfNode(script, originalNode);
+        IWrappedNode originalNode = _nodeWrapperFactory!.WrapNode<T>();
+        IWrappedNode previousNode = _scriptEditor!.AddCopyOfNode(script, originalNode);
         for (int i = 0; i < nodeCount; i++)
         {
-            var nextNode = _scriptEditor.AddCopyOfNode(script, originalNode);
-            _scriptEditor.TryBridgeConnectors(script, previousNode.Rows[1].OutputConnector!.NodeIOConnector, nextNode.Rows[0].InputConnector!.NodeIOConnector);
+            IWrappedNode nextNode = _scriptEditor.AddCopyOfNode(script, originalNode);
+            _scriptEditor.TryBridgeConnectors(script, previousNode.Rows[1].OutputConnector!, nextNode.Rows[0].InputConnector!);
             previousNode = nextNode;
         }
-        script.Nodes[0].Rows[0].Display.Value.Value = 3.0;
+        (script.Nodes[0].Rows[0].CentralDisplay as IValueInfo)!.BoxedValue = 3.0;
         script.ExecutionInstance.IsShownInUI = false;
     }
 
     public static double TestRun()
     {
-        var testInstance = new ValuePassingBenchmark();
+        ValuePassingBenchmark testInstance = new();
         testInstance.Setup();
         return testInstance.PassValueFields(4);
     }

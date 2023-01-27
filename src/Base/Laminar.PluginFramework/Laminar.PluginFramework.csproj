@@ -5,4 +5,10 @@
 	  <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>Laminar.Implementation</_Parameter1>
+    </AssemblyAttribute>
+</ItemGroup>
+
 </Project>

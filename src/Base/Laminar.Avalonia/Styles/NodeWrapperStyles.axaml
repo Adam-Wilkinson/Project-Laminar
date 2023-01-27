@@ -1,10 +1,9 @@
 ﻿<Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 		xmlns:n="clr-namespace:Laminar.Avalonia.NodeDisplaySystem;assembly=Laminar.Avalonia"
-		xmlns:con="clr-namespace:Laminar.Contracts.Scripting.Connection;assembly=Laminar.Contracts"
-		xmlns:nod="clr-namespace:Laminar.Contracts.Scripting.NodeWrapping;assembly=Laminar.Contracts"
-		xmlns:conui="clr-namespace:Laminar.Contracts.Base.UserInterface;assembly=Laminar.Contracts"
-		xmlns:gestures="clr-namespace:Laminar.Avalonia.Controls.ScriptEditor.MouseActions;assembly=Laminar.Avalonia"
+		xmlns:con="clr-namespace:Laminar.PluginFramework.NodeSystem.Contracts.Connectors;assembly=Laminar.PluginFramework"
+		xmlns:nod="clr-namespace:Laminar.PluginFramework.NodeSystem.Contracts;assembly=Laminar.PluginFramework"
+		xmlns:ui="clr-namespace:Laminar.Contracts.Base.UserInterface;assembly=Laminar.Contracts"
 		xmlns:mycontrols="clr-namespace:Laminar.Avalonia.Controls;assembly=Laminar.Avalonia">
 	<Design.PreviewWith>
 		<Border>
@@ -28,30 +27,30 @@
 
 					<Border.DataTemplates>
 
-						<DataTemplate DataType="{x:Type con:IConnectorView}">
+						<DataTemplate DataType="{x:Type con:IIOConnector}">
 							<n:ConnectorControl 
-								Connector="{Binding NodeIOConnector}"
+								Connector="{Binding}"
 								  Width="13"
 								  Height="18"
 								  Data="M 2,0 2,14 12,7 2,0 z"
 								  StrokeThickness="1.5"
 								  Stroke="{DynamicResource ThemeBorderLowBrush}"
-								  Fill="{Binding ColourHex}"/>
+								  Fill="{Binding ColorHex}"/>
 						</DataTemplate>
 
-						<DataTemplate DataType="{x:Type conui:IDisplay}">
+						<DataTemplate DataType="{x:Type ui:IDisplay}">
 							<mycontrols:ChildDataContextController 
 								Padding="5,0"
 								Child="{Binding Interface}"
 								ChildDataContext="{Binding Value}"/>
 						</DataTemplate>
 
-						<DataTemplate DataType="{x:Type nod:IWrappedNodeRow}">
+						<DataTemplate DataType="{x:Type nod:INodeRow}">
 							<Panel>
 								<ContentControl Content="{Binding InputConnector}"
 												HorizontalAlignment="Left"
 												RenderTransform="translate(-15px,0)"/>
-								<ContentControl Content="{Binding Display}"/>
+								<ContentControl Content="{Binding CentralDisplay}"/>
 								<ContentControl Content="{Binding OutputConnector}"
 												HorizontalAlignment="Right"
 												RenderTransform="translate(15px,0)"/>

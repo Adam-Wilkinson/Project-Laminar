@@ -12,7 +12,7 @@ public class CursorPosition : INode
 
     public void Evaluate()
     {
-        Point currentPos = WindowHooks.CurrentCursorPosition();
+        // Point currentPos = WindowHooks.CurrentCursorPosition();
         //_XField.SetOutput(Convert.ToDouble(currentPos.X));
         //_YField.SetOutput(Convert.ToDouble(currentPos.Y));
     }

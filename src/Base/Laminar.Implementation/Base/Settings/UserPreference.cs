@@ -18,7 +18,7 @@ internal class UserPreference<T> : IUserPreference, IUserPreference<T>, INotific
         _defaultValue = defaultValue;
     }
 
-    public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     public IDisplay Display { get; }
 
@@ -32,7 +32,10 @@ internal class UserPreference<T> : IUserPreference, IUserPreference<T>, INotific
 
     public void TriggerNotification()
     {
-        Value = (T)_valueInfo.BoxedValue;
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Value)));
+        if (_valueInfo.BoxedValue is not null)
+        {
+            Value = (T)_valueInfo.BoxedValue;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Value)));
+        }
     }
 }

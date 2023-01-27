@@ -14,9 +14,14 @@ internal class ValueInfo<T> : IValueInfo
     }
 
     public string Name { get; }
+
     public Type ValueType { get; }
+
     public bool IsUserEditable { get; } = true;
-    public IUserInterfaceDefinition Editor { get; }
-    public IUserInterfaceDefinition Viewer { get; }
-    public object BoxedValue { get; set; }
+
+    public IUserInterfaceDefinition? Editor { get; }
+
+    public IUserInterfaceDefinition? Viewer { get; }
+
+    public object? BoxedValue { get; set; }
 }

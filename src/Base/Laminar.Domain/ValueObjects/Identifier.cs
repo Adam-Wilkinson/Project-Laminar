@@ -47,12 +47,7 @@ public class Identifier<T> : IEquatable<Identifier<T>>
 
     public static bool operator ==(Identifier<T> lhs, Identifier<T> rhs)
     {
-        if (lhs is null)
-        {
-            return rhs is null;
-        }
-
-        return lhs.Equals(rhs);
+        return lhs is null ? rhs is null : lhs.Equals(rhs);
     }
 
     public static bool operator !=(Identifier<T> lhs, Identifier<T> rhs) => !(lhs == rhs);

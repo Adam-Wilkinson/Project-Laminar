@@ -4,6 +4,7 @@ using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Domain.Notification;
 using Laminar.Domain.ValueObjects;
 using Laminar.PluginFramework.NodeSystem;
+using Laminar.PluginFramework.NodeSystem.Contracts;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Laminar.Avalonia.NodeDisplaySystem;
@@ -19,9 +20,9 @@ public class TestNodeWrapper : IWrappedNode
 
     public Identifier<IWrappedNode> Id => _coreNode.Id;
 
-    public IWrappedNodeRow NameRow => _coreNode.NameRow;
+    public INodeRow NameRow => _coreNode.NameRow;
 
-    public IReadOnlyObservableCollection<IWrappedNodeRow> Rows => _coreNode.Rows;
+    public IReadOnlyObservableCollection<INodeRow> Rows => _coreNode.Rows;
 
     public ObservableValue<Point> Location => _coreNode.Location;
 

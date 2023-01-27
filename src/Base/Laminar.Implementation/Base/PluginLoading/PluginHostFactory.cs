@@ -12,13 +12,13 @@ internal class PluginHostFactory : IPluginHostFactory
     private readonly ITypeInfoStore _typeInfoStore;
     private readonly ILoadedNodeManager _loadedNodeManager;
     private readonly IUserInterfaceStore _userInterfaceStore;
-    private readonly IConnectorViewFactory _connectorViewFactory;
+    private readonly IConnectorFactory _connectorViewFactory;
 
     public PluginHostFactory(
         ITypeInfoStore typeInfoStore,
         ILoadedNodeManager loadedNodeManager,
         IUserInterfaceStore userInterfaceStore,
-        IConnectorViewFactory connectorViewFactory)
+        IConnectorFactory connectorViewFactory)
     {
         _typeInfoStore = typeInfoStore;
         _loadedNodeManager = loadedNodeManager;

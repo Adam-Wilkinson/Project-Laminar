@@ -6,6 +6,8 @@ using Laminar.Implementation.Scripting;
 using Laminar.Implementation.Scripting.Connections;
 using Laminar.Implementation.Scripting.Execution;
 using Laminar.Implementation.Scripting.Nodes;
+using Laminar.Implementation.Scripting.NodeWrapping;
+using Laminar.PluginFramework.NodeSystem.Contracts;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Laminar.Implementation.Extensions.ServiceInitializers;
@@ -15,7 +17,7 @@ internal static class ScriptingServices
     public static IServiceCollection AddScriptingServices(this IServiceCollection serviceCollection)
     {
         serviceCollection.AddSingleton<INodeFactory, NodeFactory>();
-        serviceCollection.AddSingleton<INodeRowWrapperFactory, NodeRowWrapperFactory>();
+        serviceCollection.AddSingleton<INodeRowFactory, NodeRowFactory>();
         serviceCollection.AddSingleton<INodeRowCollectionFactory, NodeRowCollectionFactory>();
 
         serviceCollection.AddSingleton<IScriptEditor, ScriptEditor>();
@@ -23,8 +25,8 @@ internal static class ScriptingServices
         serviceCollection.AddSingleton<IScriptExecutionManager, ScriptExecutionManager>();
 
         serviceCollection.AddSingleton<IConnectionBridger, DefaultConnectionBridger>();
-        serviceCollection.AddSingleton<IConnectorViewFactory, ConnectorViewFactory>();
-        serviceCollection.AddSingleton<IConnectorViewFactory, ConnectorViewFactory>();
+        serviceCollection.AddSingleton<IConnectorFactory, ConnectorFactory>();
+        serviceCollection.AddSingleton<IConnectorFactory, ConnectorFactory>();
 
         serviceCollection.AddSingleton<ILoadedNodeManager, LoadedNodeManager>();
 

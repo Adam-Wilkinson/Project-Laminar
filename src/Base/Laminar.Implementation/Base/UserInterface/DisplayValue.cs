@@ -7,7 +7,7 @@ namespace Laminar.Implementation.Base.UserInterface;
 internal class DisplayValue : IDisplayValue
 {
     private readonly IValueInfo _valueInfo;
-    private object _value;
+    private object? _value;
 
     public DisplayValue(IValueInfo valueInfo)
     {
@@ -16,7 +16,7 @@ internal class DisplayValue : IDisplayValue
 
     public string Name => _valueInfo.Name;
 
-    public object Value
+    public object? Value
     {
         get => _value;
         set
@@ -26,13 +26,13 @@ internal class DisplayValue : IDisplayValue
         }
     }
 
-    public IUserInterfaceDefinition InterfaceDefinition { get; set; }
+    public required IUserInterfaceDefinition InterfaceDefinition { get; set; }
 
-    public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     public void CheckForValueChange()
     {
-        if (_value != _valueInfo.BoxedValue)
+        if (_value != _valueInfo.BoxedValue && _valueInfo.BoxedValue is not null)
         {
             _value = _valueInfo.BoxedValue;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Value)));

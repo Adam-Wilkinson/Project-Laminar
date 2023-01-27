@@ -2,6 +2,7 @@
 using Laminar.Domain.Notification;
 using Laminar.Domain.ValueObjects;
 using Laminar.PluginFramework.NodeSystem;
+using Laminar.PluginFramework.NodeSystem.Contracts;
 
 namespace Laminar.Contracts.Scripting.NodeWrapping;
 
@@ -9,9 +10,9 @@ public interface IWrappedNode : INotificationClient<LaminarExecutionContext>
 {
     Identifier<IWrappedNode> Id { get; }
 
-    IWrappedNodeRow NameRow { get; }
+    INodeRow NameRow { get; }
 
-    IReadOnlyObservableCollection<IWrappedNodeRow> Rows { get; }
+    IReadOnlyObservableCollection<INodeRow> Rows { get; }
 
     ObservableValue<Point> Location { get; }
 

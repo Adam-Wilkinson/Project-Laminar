@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Laminar.PluginFramework.NodeSystem.Contracts;
 using Laminar.PluginFramework.NodeSystem.Contracts.IO;
 using Laminar.PluginFramework.NodeSystem.ExecutionFlags;
@@ -6,7 +7,7 @@ using Laminar.PluginFramework.UserInterfaces;
 
 namespace Laminar.PluginFramework.NodeSystem;
 
-public class ValueOutput<T> : IValueOutput, IValueProvider<T>
+public class ValueOutput<T> : IValueOutput, IValueProvider<T>, IConvertsToNodeComponent
 {
     public ValueOutput(string name, T initialValue)
     {
@@ -41,6 +42,8 @@ public class ValueOutput<T> : IValueOutput, IValueProvider<T>
     }
 
     public event EventHandler<LaminarExecutionContext>? StartExecution;
+
+    public NodeComponent GetComponent() => NodeComponent.Row(null, this, this);
 
     protected void FireExecutionEvent() => StartExecution?.Invoke(this, new LaminarExecutionContext
     {

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using Laminar.Contracts.Base;
 using Laminar.PluginFramework.NodeSystem.Contracts.Connectors;
 using Laminar.PluginFramework.NodeSystem.Contracts.IO;
@@ -9,32 +10,35 @@ namespace Laminar.Implementation.Scripting.Connections;
 internal class ValueInputConnector : IInputConnector<IValueInput>
 {
     readonly ITypeInfoStore _typeInfoStore;
-    IValueInput? _input;
 
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     public ValueInputConnector(ITypeInfoStore typeInfoStore)
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     {
         _typeInfoStore = typeInfoStore;
     }
 
-    public string ColorHex => _input.ValueType is null ? "#FFFFFF" : _typeInfoStore.GetTypeInfoOrBlank(_input.ValueType).HexColour;
+    public string ColorHex => Input.ValueType is null ? "#FFFFFF" : _typeInfoStore.GetTypeInfoOrBlank(Input.ValueType).HexColour;
 
-    public IValueInput Input => _input;
+    public IValueInput Input { get; private set; }
 
-    public Action PreEvaluateAction => _input.PreEvaluateAction;
+    public Action? PreEvaluateAction => Input.PreEvaluateAction;
 
     public void Init(IValueInput nodeInput)
     {
-        _input = nodeInput;
+        Input = nodeInput;
     }
 
     public void OnDisconnectedFrom(IOutputConnector connector)
     {
-        _input.TrySetValueProvider(null);
+        Input.TrySetValueProvider(null);
     }
 
     public bool TryConnectTo(IOutputConnector connector)
     {
-        return connector is IOutputConnector<IValueOutput> outputConnector && _input.TrySetValueProvider(outputConnector.Output);
+        return connector is IOutputConnector<IValueOutput> outputConnector && Input.TrySetValueProvider(outputConnector.Output);
     }
 
     public PassUpdateOption PassUpdate(ExecutionFlags executionFlags)

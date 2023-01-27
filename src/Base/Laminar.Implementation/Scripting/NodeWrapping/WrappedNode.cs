@@ -6,6 +6,7 @@ using Laminar.Domain.Notification;
 using Laminar.Domain.ValueObjects;
 using Laminar.Implementation.Scripting.Execution;
 using Laminar.PluginFramework.NodeSystem;
+using Laminar.PluginFramework.NodeSystem.Contracts;
 
 namespace Laminar.Implementation.Scripting.Nodes;
 
@@ -16,7 +17,7 @@ public class WrappedNode<T> : IWrappedNode where T : INode, new()
     readonly INodeFactory _factory;
     readonly Action? _preEvaluateAction;
 
-    public WrappedNode(IWrappedNodeRow nameRow, INodeRowCollectionFactory rowCollectionFactory, INotificationClient<LaminarExecutionContext>? userChangedValueNotificationClient, INodeFactory nodeFactory, T node)
+    public WrappedNode(INodeRow nameRow, INodeRowCollectionFactory rowCollectionFactory, INotificationClient<LaminarExecutionContext>? userChangedValueNotificationClient, INodeFactory nodeFactory, T node)
     {
         _factory = nodeFactory;
         _coreNode = node;
@@ -25,23 +26,25 @@ public class WrappedNode<T> : IWrappedNode where T : INode, new()
 
         NameRow = nameRow;
 
-        foreach (var field in Rows)
+        foreach (var row in Rows)
         {
-            if (field.OutputConnector is not null && field.OutputConnector.NodeIOConnector.PreEvaluateAction is Action currentActionO)
+            if (row.OutputConnector?.PreEvaluateAction is Action currentActionO)
             {
                 _preEvaluateAction += currentActionO;
             }
 
-            if (field.InputConnector?.NodeIOConnector.PreEvaluateAction is Action currentActionI)
+            if (row.InputConnector?.PreEvaluateAction is Action currentActionI)
             {
                 _preEvaluateAction += currentActionI;
             }
+
+            row.StartExecution += (o, e) => TriggerNotification(e);
         }
     }
 
-    public IWrappedNodeRow NameRow { get; }
+    public INodeRow NameRow { get; }
 
-    public IReadOnlyObservableCollection<IWrappedNodeRow> Rows { get; set; }
+    public IReadOnlyObservableCollection<INodeRow> Rows { get; set; }
 
     public ObservableValue<Point> Location { get; set; } = new ObservableValue<Point>(new Point { X = 0, Y = 0 });
 
@@ -75,9 +78,12 @@ public class WrappedNode<T> : IWrappedNode where T : INode, new()
 
         if (context.ExecutionFlags.HasUIUpdateFlag())
         {
-            foreach (IWrappedNodeRow field in Rows)
+            foreach (INodeRow field in Rows)
             {
-                field.RefreshDisplay();
+                if (field.CentralDisplay is IRefreshable refreshable)
+                {
+                    refreshable.Refresh();
+                }
             }
         }
     }

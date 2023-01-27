@@ -7,8 +7,8 @@ namespace BasicFunctionality.Avalonia.UserControls;
 public class StringDisplay : UserControl
 {
     readonly TextBlock _mainTextBlock;
-    private IDisplayValue _displayValue;
-    private StringViewer _interfaceDefinition;
+    private IDisplayValue? _displayValue;
+    private StringViewer? _interfaceDefinition;
 
     public StringDisplay()
     {
@@ -24,7 +24,7 @@ public class StringDisplay : UserControl
         DataContextChanged += StringDisplay_DataContextChanged;
     }
 
-    private void StringDisplay_DataContextChanged(object sender, System.EventArgs e)
+    private void StringDisplay_DataContextChanged(object? sender, System.EventArgs e)
     {
         if (DataContext is IDisplayValue displayValue)
         {
@@ -35,13 +35,13 @@ public class StringDisplay : UserControl
         }
     }
 
-    private void DisplayValue_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+    private void DisplayValue_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
         if (e.PropertyName == nameof(IDisplayValue.Value))
         {
-            if (_displayValue.Value.ToString().Length > _interfaceDefinition.MaxStringLength)
+            if (_displayValue!.Value!.ToString()!.Length > _interfaceDefinition!.MaxStringLength)
             {
-                _mainTextBlock.Text = _displayValue.Value.ToString().Substring(0, _interfaceDefinition.MaxStringLength) + "...";
+                _mainTextBlock.Text = _displayValue.Value.ToString()![.._interfaceDefinition.MaxStringLength] + "...";
             }
             else
             {
