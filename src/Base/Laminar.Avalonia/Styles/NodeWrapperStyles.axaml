@@ -41,6 +41,7 @@
 						<DataTemplate DataType="{x:Type ui:IDisplay}">
 							<mycontrols:ChildDataContextController 
 								Padding="5,0"
+								Opacity="{Binding Opacity.Value}"
 								Child="{Binding Interface}"
 								ChildDataContext="{Binding Value}"/>
 						</DataTemplate>

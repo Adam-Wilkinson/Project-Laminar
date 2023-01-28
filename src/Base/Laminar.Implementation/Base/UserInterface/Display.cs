@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using Laminar.Contracts.Base.UserInterface;
+using Laminar.Domain.ValueObjects;
 using Laminar.PluginFramework.NodeSystem.Contracts;
 using Laminar.PluginFramework.UserInterfaces;
 
@@ -24,6 +25,8 @@ internal class Display : IDisplay
     public IDisplayValue Value { get; }
 
     public object Interface => _interface ??= RefreshAndReturnInterface();
+
+    public Opacity Opacity { get; } = new Opacity();
 
     public void Refresh() => RefreshAndReturnInterface();
 
