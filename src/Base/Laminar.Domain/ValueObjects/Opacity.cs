@@ -5,12 +5,21 @@ namespace Laminar.Domain.ValueObjects;
 
 public class Opacity : INotifyPropertyChanged
 {
-    readonly static PropertyChangedEventArgs OpacityPropertyChangedArgs = new(nameof(Opacity));
+    readonly static PropertyChangedEventArgs OpacityPropertyChangedArgs = new(nameof(Opacity.Value));
 
     private double _internalValue = 1.0;
     private double _totalFactorsValue = 1.0;
 
-    public double Value => _internalValue + _totalFactorsValue;
+    public Opacity(double initialValue)
+    {
+        _internalValue = initialValue;
+    }
+
+    public Opacity() : this(1.0)
+    {
+    }
+
+    public double Value => _internalValue * _totalFactorsValue;
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
