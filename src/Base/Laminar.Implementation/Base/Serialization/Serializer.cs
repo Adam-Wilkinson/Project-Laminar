@@ -46,13 +46,13 @@ public class Serializer : ISerializer
     {
         if (Serializers.TryGetValue(toSerialize.GetType(), out object serializer))
         {
-            return typeof(IObjectSerializer<>).MakeGenericType(toSerialize.GetType()).GetMethod(nameof(IObjectSerializer<object>.Serialize)).Invoke(serializer, new object[] { toSerialize, this });
+            return typeof(IObjectSerializer<>).MakeGenericType(toSerialize.GetType()).GetMethod(nameof(IObjectSerializer<object>.Serialize))!.Invoke(serializer, new object[] { toSerialize, this })!;
         }
 
         return toSerialize;
     }
 
-    public object TryDeserializeObject(object serialized, Type requestedType, object deserializationContext)
+    public object TryDeserializeObject(object serialized, Type? requestedType, object? deserializationContext)
     {
         if (requestedType is not null)
         {
@@ -65,7 +65,7 @@ public class Serializer : ISerializer
         Type deserializedType = serialized.GetType().GetInterfaces().Where(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(ISerializedObject<>)).FirstOrDefault()?.GetGenericArguments()[0];
         if (deserializedType is not null && Serializers.TryGetValue(deserializedType, out object serializer))
         {
-            return typeof(IObjectSerializer<>).MakeGenericType(deserializedType).GetMethod(nameof(IObjectSerializer<object>.DeSerialize)).Invoke(serializer, new object[] { serialized, this, deserializationContext });
+            return typeof(IObjectSerializer<>).MakeGenericType(deserializedType).GetMethod(nameof(IObjectSerializer<object>.DeSerialize))!.Invoke(serializer, new object[] { serialized, this, deserializationContext! })!;
         }
 
 
