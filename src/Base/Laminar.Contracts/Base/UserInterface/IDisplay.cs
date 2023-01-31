@@ -11,4 +11,6 @@ public interface IDisplay : IRefreshable
     public IDisplayValue Value { get; }
 
     public object? Interface { get; }
+
+    public void KillInterface();
 }

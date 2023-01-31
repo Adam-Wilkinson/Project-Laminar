@@ -1,5 +1,6 @@
 ﻿using Laminar.Contracts.Primitives;
 using Laminar.Contracts.Scripting.NodeWrapping;
+using Laminar.Domain.Notification;
 using Laminar.PluginFramework.NodeSystem;
 using Laminar.PluginFramework.NodeSystem.Contracts;
 using Laminar.PluginFramework.UserInterfaces;
@@ -10,16 +11,18 @@ public class NodeFactory : INodeFactory
 {
     private readonly INodeRowCollectionFactory _rowCollectionFactory;
     private readonly INodeRowFactory _rowFactory;
+    private readonly INotifyCollectionChangedHelper _collectionHelper;
 
-    public NodeFactory(INodeRowCollectionFactory rowCollectionFactory, INodeRowFactory rowFactory)
+    public NodeFactory(INodeRowCollectionFactory rowCollectionFactory, INodeRowFactory rowFactory, INotifyCollectionChangedHelper collectionHelper)
     {
         _rowCollectionFactory = rowCollectionFactory;
         _rowFactory = rowFactory;
+        _collectionHelper = collectionHelper;
     }
 
     public IWrappedNode WrapNode<T>(T node, INotificationClient<LaminarExecutionContext>? userChangedValueNotificationClient) where T : INode, new()
     {
-        return new WrappedNode<T>(CreateNameRowFor(node), _rowCollectionFactory, userChangedValueNotificationClient, this, node);
+        return new WrappedNode<T>(CreateNameRowFor(node), _rowCollectionFactory, userChangedValueNotificationClient, this, node, _collectionHelper);
     }
 
     public IWrappedNode WrapNode<T>(INotificationClient<LaminarExecutionContext>? userChangedValueNotificationClient) where T : INode, new()

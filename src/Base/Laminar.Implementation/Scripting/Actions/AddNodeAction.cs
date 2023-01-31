@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using Laminar.Contracts.Base.ActionSystem;
+using Laminar.Contracts.Base.UserInterface;
 using Laminar.Contracts.Scripting.NodeWrapping;
+using Laminar.PluginFramework.NodeSystem.Contracts;
 
 namespace Laminar.Implementation.Scripting.Actions;
 
@@ -17,6 +19,10 @@ public class AddNodeAction : IUserAction
 
     public bool Execute()
     {
+        foreach (INodeRow row in _node.Rows)
+        {
+            (row.CentralDisplay as IDisplay)!.KillInterface();
+        }
         _nodeCollection.Add(_node);
         return true;
     }

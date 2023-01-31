@@ -15,30 +15,22 @@ public class WrappedNode<T> : IWrappedNode where T : INode, new()
     readonly T _coreNode;
     readonly INotificationClient<LaminarExecutionContext>? _userChangedValueNotificationClient;
     readonly INodeFactory _factory;
-    readonly Action? _preEvaluateAction;
+    Action? _preEvaluateAction;
 
-    public WrappedNode(INodeRow nameRow, INodeRowCollectionFactory rowCollectionFactory, INotificationClient<LaminarExecutionContext>? userChangedValueNotificationClient, INodeFactory nodeFactory, T node)
+    public WrappedNode(INodeRow nameRow, INodeRowCollectionFactory rowCollectionFactory, INotificationClient<LaminarExecutionContext>? userChangedValueNotificationClient, INodeFactory nodeFactory, T node, INotifyCollectionChangedHelper collectionHelper)
     {
         _factory = nodeFactory;
         _coreNode = node;
         Rows = rowCollectionFactory.CreateNodeRowsForObject(_coreNode, this);
+        collectionHelper.HelperInstance(Rows).ItemAdded += Rows_ItemAdded;
+        collectionHelper.HelperInstance(Rows).ItemRemoved += Rows_ItemRemoved;
         _userChangedValueNotificationClient = userChangedValueNotificationClient;
 
         NameRow = nameRow;
 
         foreach (var row in Rows)
         {
-            if (row.OutputConnector?.PreEvaluateAction is Action currentActionO)
-            {
-                _preEvaluateAction += currentActionO;
-            }
-
-            if (row.InputConnector?.PreEvaluateAction is Action currentActionI)
-            {
-                _preEvaluateAction += currentActionI;
-            }
-
-            row.StartExecution += (o, e) => TriggerNotification(e);
+            RegisterRow(row);
         }
     }
 
@@ -86,5 +78,40 @@ public class WrappedNode<T> : IWrappedNode where T : INode, new()
                 }
             }
         }
+    }
+
+    private void Rows_ItemRemoved(object? sender, ItemRemovedEventArgs<INodeRow> e)
+    {
+        if (e.Item.OutputConnector?.PreEvaluateAction is Action currentActionO)
+        {
+            _preEvaluateAction -= currentActionO;
+        }
+
+        if (e.Item.InputConnector?.PreEvaluateAction is Action currentActionI)
+        {
+            _preEvaluateAction -= currentActionI;
+        }
+
+        e.Item.StartExecution -= (o, e) => TriggerNotification(e);
+    }
+
+    private void Rows_ItemAdded(object? sender, ItemAddedEventArgs<INodeRow> e)
+    {
+        RegisterRow(e.Item);
+    }
+
+    private void RegisterRow(INodeRow row)
+    {
+        if (row.OutputConnector?.PreEvaluateAction is Action currentActionO)
+        {
+            _preEvaluateAction += currentActionO;
+        }
+
+        if (row.InputConnector?.PreEvaluateAction is Action currentActionI)
+        {
+            _preEvaluateAction += currentActionI;
+        }
+
+        row.StartExecution += (o, e) => TriggerNotification(e);
     }
 }

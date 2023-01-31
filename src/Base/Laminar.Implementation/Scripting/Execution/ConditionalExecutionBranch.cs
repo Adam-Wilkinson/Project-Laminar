@@ -9,7 +9,7 @@ namespace Laminar.Implementation.Scripting.Execution;
 public class ConditionalExecutionBranch : IConditionalExecutionBranch
 {
     private readonly IWrappedNode[] _nodes;
-    private readonly IOutputConnector _startingConnector;
+    private readonly IOutputConnector? _startingConnector;
 
     public ConditionalExecutionBranch(IWrappedNode[] nodes)
     {

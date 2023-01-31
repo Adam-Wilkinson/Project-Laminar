@@ -6,7 +6,7 @@ using Laminar.PluginFramework.UserInterfaces;
 
 namespace Laminar.PluginFramework.NodeSystem;
 
-public class ValueInput<T> : IValueInput, IConvertsToNodeComponent
+public class ValueInput<T> : IValueInput, IConvertsToNodeRow
 {
     IValueProvider<T>? _valueProvider;
     protected T _internalValue;
@@ -72,5 +72,5 @@ public class ValueInput<T> : IValueInput, IConvertsToNodeComponent
         ExecutionSource = this,
     });
 
-    public NodeComponent GetComponent() => NodeComponent.Row(this, this, null);
+    public INodeRow GetRow() => Component.Row(this, this, null);
 }

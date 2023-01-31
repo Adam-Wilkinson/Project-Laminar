@@ -7,7 +7,12 @@ namespace Laminar.PluginFramework.NodeSystem;
 
 public sealed class NodeComponent
 {
-    private static INodeRowFactory RowFactory = (INodeRowFactory)PluginServiceProvider.ServiceProvider.GetService(typeof(INodeRowFactory))!;
+    private static readonly INodeRowFactory RowFactory = (INodeRowFactory)PluginServiceProvider.ServiceProvider.GetService(typeof(INodeRowFactory))!;
+
+    private NodeComponent(INodeRow row)
+    {
+        Component = row;
+    }
 
     private NodeComponent(IInput? input, IValueInfo displayValue, IOutput? output)
     {
@@ -21,13 +26,18 @@ public sealed class NodeComponent
         Component = children;
     }
 
+    private NodeComponent(IEnumerable<INodeRow> children)
+    {
+        Component = children;
+    }
+
+    public static NodeComponent Row(INodeRow row) => new(row);
+
     public static NodeComponent Row(IInput? input, IValueInfo displayValue, IOutput? output) => new(input, displayValue, output);
 
     public static NodeComponent Collection(IEnumerable<NodeComponent> children) => new(children);
 
+    public static NodeComponent Collection(IEnumerable<INodeRow> children) => new(children);
+
     public object Component { get; }
-
-    internal INodeRow? SingleRow { get; }
-
-    internal IEnumerable<NodeComponent>? Children { get; }
 }

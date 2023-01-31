@@ -9,10 +9,12 @@ namespace Laminar.Implementation.Scripting.Execution;
 internal class ScriptExecutionInstance : IScriptExecutionInstance
 {
     private readonly IEditableScript _editableScript;
+    private readonly IExecutionOrderFinder _orderFinder;
 
-    public ScriptExecutionInstance(IEditableScript editableScript)
+    public ScriptExecutionInstance(IEditableScript editableScript, IExecutionOrderFinder orderFinder)
     {
         _editableScript = editableScript;
+        _orderFinder = orderFinder;
     }
 
     public ScriptState State { get; private set; } = ScriptState.Active;
@@ -28,20 +30,17 @@ internal class ScriptExecutionInstance : IScriptExecutionInstance
             context = context with { ExecutionFlags = context.ExecutionFlags & UIUpdateExecutionFlag.Value };
         }
 
-        if (context.ExecutionSource is IIOConnector connectorSource)
-        {
-            ReadOnlySpan<IConditionalExecutionBranch> iter = new(_editableScript.NodeTree.GetExecutionBranches(connectorSource, context.ExecutionFlags));
+        ReadOnlySpan<IConditionalExecutionBranch> iter = new(_orderFinder.GetExecutionBranchesFrom(context, _editableScript.NodeTree));
 
-            if (iter.Length == 1)
+        if (iter.Length == 1)
+        {
+            iter[0].Execute(context);
+        }
+        else
+        {
+            for (int i = 0; i < iter.Length; i++)
             {
-                iter[0].Execute(context);
-            }
-            else
-            {
-                for (int i = 0; i < iter.Length; i++)
-                {
-                    iter[i].Execute(context);
-                }
+                iter[i].Execute(context);
             }
         }
     }

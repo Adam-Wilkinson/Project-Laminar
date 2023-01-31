@@ -5,13 +5,13 @@ using Laminar.PluginFramework.NodeSystem.Contracts;
 using Laminar.PluginFramework.UserInterfaces;
 
 namespace Laminar.Implementation.Base.UserInterface;
+
 internal class Display : IDisplay
 {
     readonly IValueInfo _valueInfo;
     readonly IUserInterfaceProvider _userInterfaceProvider;
 
     IUserInterfaceDefinition? _interfaceDefinition;
-    object? _interface;
 
     public Display(IValueInfo valueInfo, IUserInterfaceProvider userInterfaceProvider)
     {
@@ -24,7 +24,7 @@ internal class Display : IDisplay
 
     public IDisplayValue Value { get; }
 
-    public object Interface => _interface ??= RefreshAndReturnInterface();
+    public object Interface => RefreshAndReturnInterface();
 
     public Opacity Opacity { get; } = new Opacity();
 
@@ -38,11 +38,14 @@ internal class Display : IDisplay
         {
             _interfaceDefinition = newDefinition;
             (Value as DisplayValue)!.InterfaceDefinition = _interfaceDefinition;
-            _interface = GetInterface();
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Interface)));
         }
 
-        return _interface!;
+        return GetInterface();
+    }
+
+    public void KillInterface()
+    {
     }
 
     private object GetInterface()

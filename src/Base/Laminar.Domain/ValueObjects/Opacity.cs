@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel;
-using System.Transactions;
 
 namespace Laminar.Domain.ValueObjects;
 

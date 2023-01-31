@@ -7,7 +7,7 @@ using Laminar.PluginFramework.UserInterfaces;
 
 namespace Laminar.PluginFramework.NodeSystem;
 
-public class ValueOutput<T> : IValueOutput, IValueProvider<T>, IConvertsToNodeComponent
+public class ValueOutput<T> : IValueOutput, IValueProvider<T>, IConvertsToNodeRow
 {
     public ValueOutput(string name, T initialValue)
     {
@@ -43,7 +43,7 @@ public class ValueOutput<T> : IValueOutput, IValueProvider<T>, IConvertsToNodeCo
 
     public event EventHandler<LaminarExecutionContext>? StartExecution;
 
-    public NodeComponent GetComponent() => NodeComponent.Row(null, this, this);
+    public INodeRow GetRow() => Component.Row(null, this, this);
 
     protected void FireExecutionEvent() => StartExecution?.Invoke(this, new LaminarExecutionContext
     {

@@ -97,6 +97,6 @@ internal class ConnectionCanvas : Canvas
 
     private void ConnectionGeometryChanged(object sender, EventArgs e) => InvalidateVisual();
 
-    private Point GetTransformBoundsCenter(TransformedBounds? rect)
-        => rect.Value.Bounds.Center.Transform(rect.Value.Transform * this.TransformedBounds.Value.Transform.Invert());// visual.VisualParent.TranslatePoint(visual.Bounds.Center, this).Value;
+    private Point? GetTransformBoundsCenter(TransformedBounds? rect)
+        => rect?.Bounds.Center.Transform(rect.Value.Transform * this.TransformedBounds.Value.Transform.Invert());
 }

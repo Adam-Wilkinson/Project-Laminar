@@ -1,13 +1,14 @@
 ﻿using Laminar.PluginFramework.NodeSystem;
+using Laminar.PluginFramework.NodeSystem.Attributes;
 
 namespace BasicFunctionality.Nodes.Maths.Arithmetic;
 public class NodeDivide : INode
 {
-    public string NodeName => "Divide";
+    [ShowInNode] readonly ValueInput<double> FirstNumber = new("Numerator", 0.0);
+    [ShowInNode] readonly ValueInput<double> SecondNumber = new("Denominator", 1.0);
+    [ShowInNode] readonly ValueOutput<double> ResultNumber = new("Result", 0.0);
 
-    readonly ValueInput<double> FirstNumber = new("Numerator", 0.0);
-    readonly ValueInput<double> SecondNumber = new("Denominator", 1.0);
-    readonly ValueOutput<double> ResultNumber = new("Result", 0.0);
+    public string NodeName => "Divide";
 
     public void Evaluate()
     {

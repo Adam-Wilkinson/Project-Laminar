@@ -3,6 +3,6 @@
 namespace Laminar.PluginFramework.NodeSystem.Attributes;
 
 [AttributeUsage(AttributeTargets.Field)]
-public class RemoveConnectorAttribute : Attribute
+public class ShowInNodeAttribute : Attribute
 {
 }
