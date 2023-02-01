@@ -2,7 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 		xmlns:n="clr-namespace:Laminar.Avalonia.NodeDisplaySystem;assembly=Laminar.Avalonia"
 		xmlns:con="clr-namespace:Laminar.PluginFramework.NodeSystem.Contracts.Connectors;assembly=Laminar.PluginFramework"
-		xmlns:nod="clr-namespace:Laminar.PluginFramework.NodeSystem.Contracts;assembly=Laminar.PluginFramework"
+		xmlns:nod="clr-namespace:Laminar.PluginFramework.NodeSystem.Contracts.Components;assembly=Laminar.PluginFramework"
 		xmlns:ui="clr-namespace:Laminar.Contracts.Base.UserInterface;assembly=Laminar.Contracts"
 		xmlns:mycontrols="clr-namespace:Laminar.Avalonia.Controls;assembly=Laminar.Avalonia">
 	<Design.PreviewWith>
@@ -41,13 +41,13 @@
 						<DataTemplate DataType="{x:Type ui:IDisplay}">
 							<mycontrols:ChildDataContextController 
 								Padding="5,0"
-								Opacity="{Binding Opacity.Value}"
 								Child="{Binding Interface}"
 								ChildDataContext="{Binding Value}"/>
 						</DataTemplate>
 
 						<DataTemplate DataType="{x:Type nod:INodeRow}">
-							<Panel>
+							<Panel
+								Opacity="{Binding Opacity.Value}">
 								<ContentControl Content="{Binding InputConnector}"
 												HorizontalAlignment="Left"
 												RenderTransform="translate(-15px,0)"/>

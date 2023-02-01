@@ -7,6 +7,7 @@ using Laminar.Domain.ValueObjects;
 using Laminar.Implementation.Scripting.Execution;
 using Laminar.PluginFramework.NodeSystem;
 using Laminar.PluginFramework.NodeSystem.Contracts;
+using Laminar.PluginFramework.NodeSystem.Contracts.Components;
 
 namespace Laminar.Implementation.Scripting.Nodes;
 

@@ -6,7 +6,7 @@ using BasicFunctionality.Nodes.Maths.Functions;
 using BasicFunctionality.Nodes.StringOperations;
 using BasicFunctionality.Nodes.Triggers;
 using Laminar.PluginFramework.Registration;
-using Laminar.PluginFramework.UserInterfaces;
+using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
 namespace BasicFunctionality;
 

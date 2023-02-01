@@ -1,10 +1,11 @@
 ﻿using Laminar.Contracts.Base.UserInterface;
 using Laminar.Contracts.Scripting.Connection;
 using Laminar.PluginFramework.NodeSystem.Contracts;
+using Laminar.PluginFramework.NodeSystem.Contracts.Components;
 using Laminar.PluginFramework.NodeSystem.Contracts.Connectors;
 using Laminar.PluginFramework.NodeSystem.Contracts.IO;
 
-namespace Laminar.Implementation.Scripting.NodeWrapping;
+namespace Laminar.Implementation.Scripting.NodeComponents;
 
 internal class NodeRowFactory : INodeRowFactory
 {

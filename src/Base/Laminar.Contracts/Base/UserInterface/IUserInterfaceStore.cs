@@ -1,4 +1,4 @@
-﻿using Laminar.PluginFramework.UserInterfaces;
+﻿using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
 namespace Laminar.Contracts.Base.UserInterface;
 

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace Laminar.PluginFramework.UserInterfaces;
+namespace Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
 public interface IDisplayValue : INotifyPropertyChanged
 {

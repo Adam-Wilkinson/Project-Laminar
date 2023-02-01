@@ -1,4 +1,4 @@
-﻿namespace Laminar.PluginFramework.UserInterfaces;
+﻿namespace Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
 public class NumberEntry : IUserInterfaceDefinition
 {

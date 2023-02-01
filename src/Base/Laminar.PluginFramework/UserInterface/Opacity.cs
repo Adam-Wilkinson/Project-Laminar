@@ -1,10 +1,11 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 
-namespace Laminar.Domain.ValueObjects;
+namespace Laminar.PluginFramework.UserInterface;
 
 public class Opacity : INotifyPropertyChanged
 {
-    readonly static PropertyChangedEventArgs OpacityPropertyChangedArgs = new(nameof(Opacity.Value));
+    readonly static PropertyChangedEventArgs OpacityPropertyChangedArgs = new(nameof(Value));
 
     private double _internalValue = 1.0;
     private double _totalFactorsValue = 1.0;

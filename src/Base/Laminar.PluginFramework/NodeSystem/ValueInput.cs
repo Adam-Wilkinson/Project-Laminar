@@ -1,20 +1,27 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using Laminar.PluginFramework.NodeSystem.Contracts;
+using Laminar.PluginFramework.NodeSystem.Contracts.Components;
 using Laminar.PluginFramework.NodeSystem.Contracts.IO;
 using Laminar.PluginFramework.NodeSystem.ExecutionFlags;
-using Laminar.PluginFramework.UserInterfaces;
+using Laminar.PluginFramework.UserInterface;
+using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
 namespace Laminar.PluginFramework.NodeSystem;
 
-public class ValueInput<T> : IValueInput, IConvertsToNodeRow
+public class ValueInput<T> : IValueInput, INodeComponent
 {
     IValueProvider<T>? _valueProvider;
     protected T _internalValue;
+    INodeRow _asRow;
 
     public ValueInput(string name, T defaultValue)
     {
         Name = name;
         _internalValue = defaultValue;
+        _asRow = Component.Row(this, this, null);
+        _asRow.Opacity.AddFactor(Opacity);
     }
 
     public string Name { get; }
@@ -50,6 +57,8 @@ public class ValueInput<T> : IValueInput, IConvertsToNodeRow
 
     public virtual Action? PreEvaluateAction => null;
 
+    public Opacity Opacity { get; } = new();
+
     public event EventHandler<LaminarExecutionContext>? StartExecution;
 
     public bool TrySetValueProvider(object? provider)
@@ -72,5 +81,10 @@ public class ValueInput<T> : IValueInput, IConvertsToNodeRow
         ExecutionSource = this,
     });
 
-    public INodeRow GetRow() => Component.Row(this, this, null);
+    public IEnumerator<INodeComponent> GetEnumerator()
+    {
+        yield return _asRow;
+    }
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

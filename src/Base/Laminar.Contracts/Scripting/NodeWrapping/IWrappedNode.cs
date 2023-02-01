@@ -2,7 +2,7 @@
 using Laminar.Domain.Notification;
 using Laminar.Domain.ValueObjects;
 using Laminar.PluginFramework.NodeSystem;
-using Laminar.PluginFramework.NodeSystem.Contracts;
+using Laminar.PluginFramework.NodeSystem.Contracts.Components;
 
 namespace Laminar.Contracts.Scripting.NodeWrapping;
 

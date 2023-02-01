@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Laminar.Contracts.Base.UserInterface;
-using Laminar.PluginFramework.UserInterfaces;
+using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
 namespace Laminar.Implementation.Base.UserInterface;
 

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 using Laminar.PluginFramework.NodeSystem.Contracts;
-using Laminar.PluginFramework.UserInterfaces;
+using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
 namespace Laminar.Implementation.Base.UserInterface;
 

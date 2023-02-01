@@ -2,8 +2,8 @@
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Domain.Notification;
 using Laminar.PluginFramework.NodeSystem;
-using Laminar.PluginFramework.NodeSystem.Contracts;
-using Laminar.PluginFramework.UserInterfaces;
+using Laminar.PluginFramework.NodeSystem.Contracts.Components;
+using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
 namespace Laminar.Implementation.Scripting.Nodes;
 

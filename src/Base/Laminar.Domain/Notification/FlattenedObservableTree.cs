@@ -41,17 +41,16 @@ public class FlattenedObservableTree<T> : IReadOnlyObservableCollection<T>
     {
         foreach (object obj in objects)
         {
-            if (obj is IEnumerable enumerableChild)
-            {
-                FlattenedObservableTree<T> subTree = new(enumerableChild, this);
-                _childNodes.Insert(index, subTree);
-                AddFlattenedItemRange(subTree._flattenedItems, GetFlattenedIndex(index));
-            }
-
             if (obj is T correctType)
             {
                 _childNodes.Insert(index, correctType);
                 AddFlattenedItem(correctType, GetFlattenedIndex(index));
+            }
+            else if (obj is IEnumerable enumerableChild)
+            {
+                FlattenedObservableTree<T> subTree = new(enumerableChild, this);
+                _childNodes.Insert(index, subTree);
+                AddFlattenedItemRange(subTree._flattenedItems, GetFlattenedIndex(index));
             }
 
             index++;

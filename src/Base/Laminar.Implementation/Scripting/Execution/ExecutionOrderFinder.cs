@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Laminar.Contracts.Scripting.Execution;
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.PluginFramework.NodeSystem;
-using Laminar.PluginFramework.NodeSystem.Contracts;
+using Laminar.PluginFramework.NodeSystem.Contracts.Components;
 using Laminar.PluginFramework.NodeSystem.Contracts.Connectors;
 using Laminar.PluginFramework.NodeSystem.ExecutionFlags;
 

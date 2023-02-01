@@ -1,18 +1,25 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using Laminar.PluginFramework.NodeSystem.Contracts;
+using Laminar.PluginFramework.NodeSystem.Contracts.Components;
 using Laminar.PluginFramework.NodeSystem.Contracts.IO;
 using Laminar.PluginFramework.NodeSystem.ExecutionFlags;
-using Laminar.PluginFramework.UserInterfaces;
+using Laminar.PluginFramework.UserInterface;
+using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
 namespace Laminar.PluginFramework.NodeSystem;
 
-public class ValueOutput<T> : IValueOutput, IValueProvider<T>, IConvertsToNodeRow
+public class ValueOutput<T> : IValueOutput, IValueProvider<T>, INodeComponent
 {
+    INodeRow _asRow;
+
     public ValueOutput(string name, T initialValue)
     {
         Name = name;
         Value = initialValue;
+        _asRow = Component.Row(null, this, this);
+        _asRow.Opacity.AddFactor(Opacity);
     }
 
     public virtual T Value { get; set; }
@@ -26,6 +33,8 @@ public class ValueOutput<T> : IValueOutput, IValueProvider<T>, IConvertsToNodeRo
     public bool IsUserEditable => false;
 
     public Action? PreEvaluateAction => null;
+
+    public Opacity Opacity { get; } = new();
 
     Type? IValueInfo.ValueType => typeof(T);
 
@@ -43,11 +52,16 @@ public class ValueOutput<T> : IValueOutput, IValueProvider<T>, IConvertsToNodeRo
 
     public event EventHandler<LaminarExecutionContext>? StartExecution;
 
-    public INodeRow GetRow() => Component.Row(null, this, this);
+    public IEnumerator<INodeComponent> GetEnumerator()
+    {
+        yield return _asRow;
+    }
 
     protected void FireExecutionEvent() => StartExecution?.Invoke(this, new LaminarExecutionContext
     {
         ExecutionFlags = ValueExecutionFlag.Value,
         ExecutionSource = this,
     });
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

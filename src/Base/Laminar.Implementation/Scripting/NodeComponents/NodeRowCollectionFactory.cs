@@ -6,9 +6,9 @@ using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Domain.Notification;
 using Laminar.PluginFramework.NodeSystem;
 using Laminar.PluginFramework.NodeSystem.Attributes;
-using Laminar.PluginFramework.NodeSystem.Contracts;
+using Laminar.PluginFramework.NodeSystem.Contracts.Components;
 
-namespace Laminar.Implementation.Scripting.Nodes;
+namespace Laminar.Implementation.Scripting.NodeComponents;
 
 internal class NodeRowCollectionFactory : INodeRowCollectionFactory
 {
@@ -28,18 +28,14 @@ internal class NodeRowCollectionFactory : INodeRowCollectionFactory
         {
             if (field.MemberType == MemberTypes.Field && field.GetCustomAttribute<ShowInNodeAttribute>() is not null)
             {
-                object fieldValue = (((FieldInfo)field).GetValue(toWrap));
-                if (fieldValue is NodeComponent nodeComponent)
+                object fieldValue = ((FieldInfo)field).GetValue(toWrap);
+                if (fieldValue is INodeRow nodeRow)
                 {
-                    output.Add(nodeComponent.Component);
+                    output.Add(nodeRow);
                 }
-                else if (fieldValue is IConvertsToNodeComponent converts)
+                else if (fieldValue is INodeComponent nodeComponent)
                 {
-                    output.Add(converts.GetComponent().Component);
-                }
-                else if (fieldValue is IConvertsToNodeRow convertsRow)
-                {
-                    output.Add(NodeComponent.Row(convertsRow.GetRow()).Component);
+                    output.Add(nodeComponent);
                 }
             }
         }

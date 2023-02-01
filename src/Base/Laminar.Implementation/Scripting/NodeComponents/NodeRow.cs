@@ -1,10 +1,15 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using Laminar.Domain.Extensions;
 using Laminar.PluginFramework.NodeSystem;
 using Laminar.PluginFramework.NodeSystem.Contracts;
+using Laminar.PluginFramework.NodeSystem.Contracts.Components;
 using Laminar.PluginFramework.NodeSystem.Contracts.Connectors;
 using Laminar.PluginFramework.NodeSystem.Contracts.IO;
+using Laminar.PluginFramework.UserInterface;
 
-namespace Laminar.Implementation.Scripting.NodeWrapping;
+namespace Laminar.Implementation.Scripting.NodeComponents;
 
 internal class NodeRow : INodeRow
 {
@@ -23,15 +28,13 @@ internal class NodeRow : INodeRow
 
     public event EventHandler<LaminarExecutionContext>? StartExecution;
 
-    private void Output_StartExecution(object? sender, LaminarExecutionContext e) => StartExecution?.Invoke(sender, e with { ExecutionSource = OutputConnector });
-
-    private void Input_StartExecution(object? sender, LaminarExecutionContext e) => StartExecution?.Invoke(sender, e with { ExecutionSource = InputConnector });
-
     public required IInputConnector? InputConnector { get; init; }
 
     public required IOutputConnector? OutputConnector { get; init; }
 
     public required object CentralDisplay { get; init; }
+
+    public Opacity Opacity { get; } = new Opacity();
 
     public void CopyValueTo(INodeRow nodeRow)
     {
@@ -40,4 +43,12 @@ internal class NodeRow : INodeRow
             copyTo.BoxedValue = copyFrom.BoxedValue;
         }
     }
+
+    private void Output_StartExecution(object? sender, LaminarExecutionContext e) => StartExecution?.Invoke(sender, e with { ExecutionSource = OutputConnector });
+
+    private void Input_StartExecution(object? sender, LaminarExecutionContext e) => StartExecution?.Invoke(sender, e with { ExecutionSource = InputConnector });
+
+    public IEnumerator<INodeComponent> GetEnumerator() => this.Yield().GetEnumerator();
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

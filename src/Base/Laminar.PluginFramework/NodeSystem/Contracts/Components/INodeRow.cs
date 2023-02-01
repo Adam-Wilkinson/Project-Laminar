@@ -1,9 +1,9 @@
 ﻿using System;
 using Laminar.PluginFramework.NodeSystem.Contracts.Connectors;
 
-namespace Laminar.PluginFramework.NodeSystem.Contracts;
+namespace Laminar.PluginFramework.NodeSystem.Contracts.Components;
 
-public interface INodeRow
+public interface INodeRow : INodeComponent
 {
     public IInputConnector? InputConnector { get; }
 
@@ -12,6 +12,4 @@ public interface INodeRow
     public object CentralDisplay { get; }
 
     public void CopyValueTo(INodeRow nodeRow);
-
-    public event EventHandler<LaminarExecutionContext> StartExecution;
 }

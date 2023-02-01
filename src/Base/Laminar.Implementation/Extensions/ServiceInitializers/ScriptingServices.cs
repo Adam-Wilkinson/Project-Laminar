@@ -5,10 +5,9 @@ using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Implementation.Scripting;
 using Laminar.Implementation.Scripting.Connections;
 using Laminar.Implementation.Scripting.Execution;
+using Laminar.Implementation.Scripting.NodeComponents;
 using Laminar.Implementation.Scripting.Nodes;
-using Laminar.Implementation.Scripting.NodeWrapping;
-using Laminar.PluginFramework.NodeSystem;
-using Laminar.PluginFramework.NodeSystem.Contracts;
+using Laminar.PluginFramework.NodeSystem.Contracts.Components;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Laminar.Implementation.Extensions.ServiceInitializers;
@@ -20,7 +19,7 @@ internal static class ScriptingServices
         serviceCollection.AddSingleton<INodeFactory, NodeFactory>();
         serviceCollection.AddSingleton<INodeRowFactory, NodeRowFactory>();
         serviceCollection.AddSingleton<INodeRowCollectionFactory, NodeRowCollectionFactory>();
-        serviceCollection.AddSingleton<INodeRowClonerFactory, NodeRowClonerFactory>();
+        serviceCollection.AddSingleton<INodeComponentClonerFactory, NodeRowClonerFactory>();
 
         serviceCollection.AddSingleton<IScriptEditor, ScriptEditor>();
         serviceCollection.AddSingleton<IScriptFactory, ScriptFactory>();
