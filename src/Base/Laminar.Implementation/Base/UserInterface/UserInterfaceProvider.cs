@@ -1,7 +1,7 @@
 ﻿using System;
 using Laminar.Contracts.Base;
 using Laminar.Contracts.Base.UserInterface;
-using Laminar.PluginFramework.NodeSystem.Contracts;
+using Laminar.PluginFramework.NodeSystem;
 using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
 namespace Laminar.Implementation.Base.UserInterface;

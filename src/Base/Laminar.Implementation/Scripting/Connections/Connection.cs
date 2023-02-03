@@ -1,6 +1,6 @@
 ﻿using System;
 using Laminar.Contracts.Scripting.Connection;
-using Laminar.PluginFramework.NodeSystem.Contracts.Connectors;
+using Laminar.PluginFramework.NodeSystem.Connectors;
 
 namespace Laminar.Implementation.Scripting.Connections;
 

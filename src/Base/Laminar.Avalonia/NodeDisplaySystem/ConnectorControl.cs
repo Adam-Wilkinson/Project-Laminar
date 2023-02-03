@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Avalonia;
 using Avalonia.Controls.Shapes;
-using Laminar.PluginFramework.NodeSystem.Contracts.Connectors;
+using Laminar.PluginFramework.NodeSystem.Connectors;
 
 namespace Laminar.Avalonia.NodeDisplaySystem;
 

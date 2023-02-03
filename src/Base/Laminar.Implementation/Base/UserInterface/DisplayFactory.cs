@@ -1,5 +1,5 @@
 ﻿using Laminar.Contracts.Base.UserInterface;
-using Laminar.PluginFramework.NodeSystem.Contracts;
+using Laminar.PluginFramework.NodeSystem;
 
 namespace Laminar.Implementation.Base.UserInterface;
 

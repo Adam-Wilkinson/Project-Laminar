@@ -1,5 +1,5 @@
 ﻿using Laminar.Implementation.Scripting.Connections;
-using Laminar.PluginFramework.NodeSystem.Contracts.IO;
+using Laminar.PluginFramework.NodeSystem.IO.Value;
 using Laminar.PluginFramework.Registration;
 
 namespace Laminar.Implementation.Base.PluginLoading;

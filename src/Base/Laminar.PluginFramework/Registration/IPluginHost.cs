@@ -1,6 +1,6 @@
 ﻿using Laminar.PluginFramework.NodeSystem;
-using Laminar.PluginFramework.NodeSystem.Contracts.Connectors;
-using Laminar.PluginFramework.NodeSystem.Contracts.IO;
+using Laminar.PluginFramework.NodeSystem.Connectors;
+using Laminar.PluginFramework.NodeSystem.IO;
 using Laminar.PluginFramework.Serialization;
 using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 

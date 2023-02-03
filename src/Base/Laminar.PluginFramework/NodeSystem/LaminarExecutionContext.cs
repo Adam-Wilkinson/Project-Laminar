@@ -3,4 +3,4 @@
 /// <summary>
 /// Context used by nodes to determine what actions should be taken
 /// </summary>
-public readonly record struct LaminarExecutionContext(object? ExecutionSource, ExecutionFlags.ExecutionFlags ExecutionFlags);
+public readonly record struct LaminarExecutionContext(object? ExecutionSource, ExecutionFlags ExecutionFlags);

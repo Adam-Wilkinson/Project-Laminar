@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using Laminar.Contracts.Base;
 using Laminar.Contracts.Scripting.Connection;
 using Laminar.Domain.Exceptions;
-using Laminar.PluginFramework.NodeSystem.Contracts.Connectors;
-using Laminar.PluginFramework.NodeSystem.Contracts.IO;
+using Laminar.PluginFramework.NodeSystem.Connectors;
+using Laminar.PluginFramework.NodeSystem.IO;
 
 namespace Laminar.Implementation.Scripting.Connections;
 

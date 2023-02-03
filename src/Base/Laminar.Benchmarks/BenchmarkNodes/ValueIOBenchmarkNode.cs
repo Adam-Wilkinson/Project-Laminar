@@ -1,4 +1,5 @@
 ﻿using Laminar.PluginFramework.NodeSystem;
+using Laminar.PluginFramework.NodeSystem.IO.Value;
 
 namespace Laminar.Benchmarks.BenchmarkNodes;
 

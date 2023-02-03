@@ -1,13 +1,12 @@
 ﻿using System;
-using System.Collections.ObjectModel;
 using Laminar.Contracts.Primitives;
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Domain.Notification;
 using Laminar.Domain.ValueObjects;
 using Laminar.Implementation.Scripting.Execution;
 using Laminar.PluginFramework.NodeSystem;
-using Laminar.PluginFramework.NodeSystem.Contracts;
-using Laminar.PluginFramework.NodeSystem.Contracts.Components;
+using Laminar.PluginFramework.NodeSystem.Components;
+using Laminar.PluginFramework.UserInterface;
 
 namespace Laminar.Implementation.Scripting.Nodes;
 
@@ -93,7 +92,7 @@ public class WrappedNode<T> : IWrappedNode where T : INode, new()
             _preEvaluateAction -= currentActionI;
         }
 
-        e.Item.StartExecution -= (o, e) => TriggerNotification(e);
+        e.Item.StartExecution -= Row_StartExecution;
     }
 
     private void Rows_ItemAdded(object? sender, ItemAddedEventArgs<INodeRow> e)
@@ -113,6 +112,8 @@ public class WrappedNode<T> : IWrappedNode where T : INode, new()
             _preEvaluateAction += currentActionI;
         }
 
-        row.StartExecution += (o, e) => TriggerNotification(e);
+        row.StartExecution += Row_StartExecution;
     }
+
+    private void Row_StartExecution(object? sender, LaminarExecutionContext e) => TriggerNotification(e);
 }

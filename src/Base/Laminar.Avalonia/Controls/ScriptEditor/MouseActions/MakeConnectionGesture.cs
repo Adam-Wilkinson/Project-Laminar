@@ -5,7 +5,7 @@ using Avalonia.Media;
 using Avalonia.VisualTree;
 using Laminar.Avalonia.NodeDisplaySystem;
 using Laminar.Contracts.Scripting;
-using Laminar.PluginFramework.NodeSystem.Contracts.Connectors;
+using Laminar.PluginFramework.NodeSystem.Connectors;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Laminar.Avalonia.Controls.ScriptEditor.MouseActions;

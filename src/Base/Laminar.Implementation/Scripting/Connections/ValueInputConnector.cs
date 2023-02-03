@@ -1,9 +1,9 @@
 ﻿using System;
 using System.ComponentModel;
 using Laminar.Contracts.Base;
-using Laminar.PluginFramework.NodeSystem.Contracts.Connectors;
-using Laminar.PluginFramework.NodeSystem.Contracts.IO;
-using Laminar.PluginFramework.NodeSystem.ExecutionFlags;
+using Laminar.PluginFramework.NodeSystem;
+using Laminar.PluginFramework.NodeSystem.Connectors;
+using Laminar.PluginFramework.NodeSystem.IO.Value;
 
 namespace Laminar.Implementation.Scripting.Connections;
 

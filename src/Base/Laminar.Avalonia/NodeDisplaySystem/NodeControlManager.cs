@@ -4,7 +4,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.VisualTree;
 using Laminar.Contracts.Scripting.NodeWrapping;
-using Laminar.PluginFramework.NodeSystem.Contracts.Connectors;
+using Laminar.PluginFramework.NodeSystem.Connectors;
 
 namespace Laminar.Avalonia.NodeDisplaySystem;
 

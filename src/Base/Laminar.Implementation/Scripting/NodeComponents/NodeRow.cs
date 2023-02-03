@@ -3,10 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using Laminar.Domain.Extensions;
 using Laminar.PluginFramework.NodeSystem;
-using Laminar.PluginFramework.NodeSystem.Contracts;
-using Laminar.PluginFramework.NodeSystem.Contracts.Components;
-using Laminar.PluginFramework.NodeSystem.Contracts.Connectors;
-using Laminar.PluginFramework.NodeSystem.Contracts.IO;
+using Laminar.PluginFramework.NodeSystem.Components;
+using Laminar.PluginFramework.NodeSystem.Connectors;
+using Laminar.PluginFramework.NodeSystem.IO;
 using Laminar.PluginFramework.UserInterface;
 
 namespace Laminar.Implementation.Scripting.NodeComponents;

@@ -1,8 +1,8 @@
 ﻿<Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 		xmlns:n="clr-namespace:Laminar.Avalonia.NodeDisplaySystem;assembly=Laminar.Avalonia"
-		xmlns:con="clr-namespace:Laminar.PluginFramework.NodeSystem.Contracts.Connectors;assembly=Laminar.PluginFramework"
-		xmlns:nod="clr-namespace:Laminar.PluginFramework.NodeSystem.Contracts.Components;assembly=Laminar.PluginFramework"
+		xmlns:con="clr-namespace:Laminar.PluginFramework.NodeSystem.Connectors;assembly=Laminar.PluginFramework"
+		xmlns:nod="clr-namespace:Laminar.PluginFramework.NodeSystem.Components;assembly=Laminar.PluginFramework"
 		xmlns:ui="clr-namespace:Laminar.Contracts.Base.UserInterface;assembly=Laminar.Contracts"
 		xmlns:mycontrols="clr-namespace:Laminar.Avalonia.Controls;assembly=Laminar.Avalonia">
 	<Design.PreviewWith>

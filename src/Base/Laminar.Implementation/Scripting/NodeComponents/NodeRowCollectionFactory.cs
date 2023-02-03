@@ -6,7 +6,7 @@ using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Domain.Notification;
 using Laminar.PluginFramework.NodeSystem;
 using Laminar.PluginFramework.NodeSystem.Attributes;
-using Laminar.PluginFramework.NodeSystem.Contracts.Components;
+using Laminar.PluginFramework.NodeSystem.Components;
 
 namespace Laminar.Implementation.Scripting.NodeComponents;
 

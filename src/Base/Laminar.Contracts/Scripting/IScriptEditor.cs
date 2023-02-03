@@ -1,7 +1,7 @@
 ﻿using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Domain.ValueObjects;
-using Laminar.PluginFramework.NodeSystem.Contracts.Connectors;
+using Laminar.PluginFramework.NodeSystem.Connectors;
 
 namespace Laminar.Contracts.Scripting;
 

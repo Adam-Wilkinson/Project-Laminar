@@ -2,7 +2,8 @@
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Domain.Notification;
 using Laminar.PluginFramework.NodeSystem;
-using Laminar.PluginFramework.NodeSystem.Contracts.Components;
+using Laminar.PluginFramework.NodeSystem.Components;
+using Laminar.PluginFramework.NodeSystem.IO.Value;
 using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
 namespace Laminar.Implementation.Scripting.Nodes;
@@ -10,10 +11,10 @@ namespace Laminar.Implementation.Scripting.Nodes;
 public class NodeFactory : INodeFactory
 {
     private readonly INodeRowCollectionFactory _rowCollectionFactory;
-    private readonly INodeRowFactory _rowFactory;
+    private readonly INodeComponentFactory _rowFactory;
     private readonly INotifyCollectionChangedHelper _collectionHelper;
 
-    public NodeFactory(INodeRowCollectionFactory rowCollectionFactory, INodeRowFactory rowFactory, INotifyCollectionChangedHelper collectionHelper)
+    public NodeFactory(INodeRowCollectionFactory rowCollectionFactory, INodeComponentFactory rowFactory, INotifyCollectionChangedHelper collectionHelper)
     {
         _rowCollectionFactory = rowCollectionFactory;
         _rowFactory = rowFactory;

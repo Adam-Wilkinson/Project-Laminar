@@ -2,7 +2,7 @@
 using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.Base.UserInterface;
 using Laminar.Contracts.Scripting.NodeWrapping;
-using Laminar.PluginFramework.NodeSystem.Contracts.Components;
+using Laminar.PluginFramework.NodeSystem.Components;
 
 namespace Laminar.Implementation.Scripting.Actions;
 

@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.Scripting.Connection;
 using Laminar.Implementation.Scripting.Actions;
-using Laminar.PluginFramework.NodeSystem.Contracts.Connectors;
+using Laminar.PluginFramework.NodeSystem.Connectors;
 
 namespace Laminar.Implementation.Scripting.Connections;
 

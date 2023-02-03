@@ -1,5 +1,5 @@
 ﻿using Laminar.Contracts.Scripting.NodeWrapping;
-using Laminar.PluginFramework.NodeSystem.Contracts.Connectors;
+using Laminar.PluginFramework.NodeSystem.Connectors;
 
 namespace Laminar.Contracts.Scripting.Execution;
 
