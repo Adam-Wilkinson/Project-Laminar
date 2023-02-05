@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+using Laminar.PluginFramework.NodeSystem.IO;
 using Laminar.PluginFramework.NodeSystem.IO.Value;
 using Laminar.PluginFramework.UserInterface;
 using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
@@ -9,11 +8,11 @@ namespace Laminar.PluginFramework.NodeSystem.Components;
 
 public class ValueInputRow<T> : SingleItemNodeComponent
 {
-    readonly ValueInput<T> _valueInput;
+    readonly IValueInput<T> _valueInput;
 
     public ValueInputRow(string name, T defaultValue)
     {
-        _valueInput = new(name, defaultValue);
+        _valueInput = NodeIO.ValueInput(name, defaultValue);
         ChildComponent = Component.Row(_valueInput, _valueInput, null);
     }
 
@@ -26,13 +25,13 @@ public class ValueInputRow<T> : SingleItemNodeComponent
 
     public IUserInterfaceDefinition? Editor
     {
-        get => _valueInput.Editor;
-        set => _valueInput.Editor = value;
+        get => _valueInput.ValueUserInterface.Editor;
+        set => _valueInput.ValueUserInterface.Editor = value;
     }
 
     public IUserInterfaceDefinition? Display
     {
-        get => _valueInput.Editor;
-        set => _valueInput.Editor = value;
+        get => _valueInput.ValueUserInterface.Editor;
+        set => _valueInput.ValueUserInterface.Editor = value;
     }
 }

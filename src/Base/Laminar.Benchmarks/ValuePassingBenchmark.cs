@@ -5,6 +5,7 @@ using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Implementation;
 using Laminar.PluginFramework.NodeSystem;
 using Laminar.PluginFramework.NodeSystem.Contracts;
+using Laminar.PluginFramework.UserInterface;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Laminar.Benchmarks;
@@ -51,7 +52,7 @@ public class ValuePassingBenchmark
             _scriptEditor.TryBridgeConnectors(script, previousNode.Rows[1].OutputConnector!, nextNode.Rows[0].InputConnector!);
             previousNode = nextNode;
         }
-        (script.Nodes[0].Rows[0].CentralDisplay as IValueInfo)!.BoxedValue = 3.0;
+        (script.Nodes[0].Rows[0].CentralDisplay as ValueInterfaceDefinition)!.BoxedValue = 3.0;
         script.ExecutionInstance.IsShownInUI = false;
     }
 

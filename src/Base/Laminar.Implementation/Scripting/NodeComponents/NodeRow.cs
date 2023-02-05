@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Laminar.Contracts.Base.UserInterface;
 using Laminar.Domain.Extensions;
 using Laminar.PluginFramework.NodeSystem;
 using Laminar.PluginFramework.NodeSystem.Components;
@@ -37,9 +38,9 @@ internal class NodeRow : INodeRow
 
     public void CopyValueTo(INodeRow nodeRow)
     {
-        if (CentralDisplay is IValueInfo copyFrom && nodeRow.CentralDisplay is IValueInfo copyTo)
+        if (CentralDisplay is IDisplay copyFrom && nodeRow.CentralDisplay is IDisplay copyTo)
         {
-            copyTo.BoxedValue = copyFrom.BoxedValue;
+            copyTo.DisplayValue.Value = copyFrom.DisplayValue.Value;
         }
     }
 

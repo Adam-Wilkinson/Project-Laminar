@@ -4,6 +4,7 @@ using Laminar.Domain.Notification;
 using Laminar.PluginFramework.NodeSystem;
 using Laminar.PluginFramework.NodeSystem.Components;
 using Laminar.PluginFramework.NodeSystem.IO.Value;
+using Laminar.PluginFramework.UserInterface;
 using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
 namespace Laminar.Implementation.Scripting.Nodes;
@@ -14,7 +15,10 @@ public class NodeFactory : INodeFactory
     private readonly INodeComponentFactory _rowFactory;
     private readonly INotifyCollectionChangedHelper _collectionHelper;
 
-    public NodeFactory(INodeRowCollectionFactory rowCollectionFactory, INodeComponentFactory rowFactory, INotifyCollectionChangedHelper collectionHelper)
+    public NodeFactory(
+        INodeRowCollectionFactory rowCollectionFactory, 
+        INodeComponentFactory rowFactory, 
+        INotifyCollectionChangedHelper collectionHelper)
     {
         _rowCollectionFactory = rowCollectionFactory;
         _rowFactory = rowFactory;
@@ -42,6 +46,8 @@ public class NodeFactory : INodeFactory
 
     private INodeRow CreateNameRowFor(INode node)
     {
-        return _rowFactory.CreateNodeRow(null, new ValueInput<string>("", node.NodeName) { Editor = new EditableLabel() }, null);
+        IValueInput<string> nameLabel = PluginFramework.NodeSystem.IO.NodeIO.ValueInput("", node.NodeName);
+        nameLabel.ValueUserInterface.Editor = new EditableLabel();
+        return _rowFactory.CreateNodeRow(null, nameLabel, null);
     }
 }

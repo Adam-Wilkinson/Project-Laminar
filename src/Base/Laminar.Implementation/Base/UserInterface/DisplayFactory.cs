@@ -1,5 +1,5 @@
 ﻿using Laminar.Contracts.Base.UserInterface;
-using Laminar.PluginFramework.NodeSystem;
+using Laminar.PluginFramework.UserInterface;
 
 namespace Laminar.Implementation.Base.UserInterface;
 
@@ -12,7 +12,7 @@ internal class DisplayFactory : IDisplayFactory
         _userInterfaceProvider = userInterfaceProvider;
     }
 
-    public IDisplay CreateDisplayForValue(IValueInfo valueInfo)
+    public IDisplay CreateDisplayForValue(IDisplayValue valueInfo)
     {
         return new Display(valueInfo, _userInterfaceProvider);
     }

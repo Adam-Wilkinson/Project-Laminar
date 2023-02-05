@@ -1,10 +1,10 @@
 ﻿using System;
 using Laminar.Contracts.Base.UserInterface;
 using Laminar.Contracts.Scripting.Connection;
-using Laminar.PluginFramework.NodeSystem;
 using Laminar.PluginFramework.NodeSystem.Components;
 using Laminar.PluginFramework.NodeSystem.Connectors;
 using Laminar.PluginFramework.NodeSystem.IO;
+using Laminar.PluginFramework.UserInterface;
 
 namespace Laminar.Implementation.Scripting.NodeComponents;
 
@@ -21,7 +21,7 @@ internal class NodeComponentFactory : INodeComponentFactory
 
     public INodeComponentCloner<T> CreateCloner<T>(Func<T> cloner, int startCount) where T : INodeComponent => new NodeRowCloner<T>(cloner, startCount);
 
-    public INodeRow CreateNodeRow(IInput? input, IValueInfo displayValue, IOutput? output)
+    public INodeRow CreateNodeRow(IInput? input, IDisplayValue displayValue, IOutput? output)
     {
         IOutputConnector? outputConnector = output is not null ? _connectorViewFactory.CreateConnector(output) : null;
         IInputConnector? inputConnector = input is not null ? _connectorViewFactory.CreateConnector(input) : null;

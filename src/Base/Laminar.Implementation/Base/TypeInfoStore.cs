@@ -9,8 +9,8 @@ public class TypeInfoStore : ITypeInfoStore
 {
     readonly Dictionary<Type, TypeInfo> _typeInfoStore = new();
 
-    public TypeInfo GetTypeInfoOrBlank(Type type)
-        => _typeInfoStore.TryGetValue(type, out TypeInfo typeInfo)
+    public TypeInfo GetTypeInfoOrBlank(Type? type)
+        => type is not null && _typeInfoStore.TryGetValue(type, out TypeInfo typeInfo)
             ? typeInfo
             : new TypeInfo("Unknown Type", null, null, "#FFFFFF", default);
 

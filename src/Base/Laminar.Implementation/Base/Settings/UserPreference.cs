@@ -2,17 +2,22 @@
 using Laminar.Contracts.Base.Settings;
 using Laminar.Contracts.Base.UserInterface;
 using Laminar.Contracts.Primitives;
+using Laminar.PluginFramework.UserInterface;
 
 namespace Laminar.Implementation.Base.Settings;
 
 internal class UserPreference<T> : IUserPreference, IUserPreference<T>, INotificationClient
 {
     private readonly T _defaultValue;
-    private readonly ValueInfo<T> _valueInfo;
+    private readonly DisplayValue<T> _valueInfo;
 
-    public UserPreference(IDisplayFactory valueDisplayFactory, T defaultValue, string name)
+    public UserPreference(
+        IDisplayFactory valueDisplayFactory, 
+        IUserInterfaceDefinitionFinder uiFinder,
+        T defaultValue, 
+        string name)
     {
-        _valueInfo = new(name, defaultValue);
+        _valueInfo = new(uiFinder, name, defaultValue);
         Display = valueDisplayFactory.CreateDisplayForValue(_valueInfo);
         Value = defaultValue;
         _defaultValue = defaultValue;
@@ -32,10 +37,6 @@ internal class UserPreference<T> : IUserPreference, IUserPreference<T>, INotific
 
     public void TriggerNotification()
     {
-        if (_valueInfo.BoxedValue is not null)
-        {
-            Value = (T)_valueInfo.BoxedValue;
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Value)));
-        }
+        Display.Refresh();
     }
 }

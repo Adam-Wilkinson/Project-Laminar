@@ -1,8 +1,8 @@
-﻿using Laminar.PluginFramework.NodeSystem;
+﻿using Laminar.PluginFramework.UserInterface;
 
 namespace Laminar.Contracts.Base.UserInterface;
 
 public interface IDisplayFactory
 {
-    public IDisplay CreateDisplayForValue(IValueInfo valueInfo);
+    public IDisplay CreateDisplayForValue(IDisplayValue valueInfo);
 }

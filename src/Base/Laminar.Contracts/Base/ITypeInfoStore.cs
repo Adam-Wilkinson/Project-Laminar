@@ -4,7 +4,7 @@ namespace Laminar.Contracts.Base;
 
 public interface ITypeInfoStore
 {
-    public TypeInfo GetTypeInfoOrBlank(Type type);
+    public TypeInfo GetTypeInfoOrBlank(Type? type);
 
     public bool TryGetTypeInfo(Type type, out TypeInfo info);
 

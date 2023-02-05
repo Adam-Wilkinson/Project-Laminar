@@ -1,27 +1,26 @@
 ﻿using System.ComponentModel;
 using Laminar.Contracts.Base.UserInterface;
-using Laminar.PluginFramework.NodeSystem;
+using Laminar.PluginFramework.UserInterface;
 using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
 namespace Laminar.Implementation.Base.UserInterface;
 
 internal class Display : IDisplay
 {
-    readonly IValueInfo _valueInfo;
     readonly IUserInterfaceProvider _userInterfaceProvider;
 
+    object? _lastDisplayValue;
     IUserInterfaceDefinition? _interfaceDefinition;
 
-    public Display(IValueInfo valueInfo, IUserInterfaceProvider userInterfaceProvider)
+    public Display(IDisplayValue displayValue, IUserInterfaceProvider userInterfaceProvider)
     {
-        _valueInfo = valueInfo;
+        DisplayValue = displayValue;
         _userInterfaceProvider = userInterfaceProvider;
-        Value = new DisplayValue(valueInfo) { InterfaceDefinition = _userInterfaceProvider.FindDefinitionForValueInfo(_valueInfo) };
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    public IDisplayValue Value { get; }
+    public IDisplayValue DisplayValue { get; }
 
     public object Interface => RefreshAndReturnInterface();
 
@@ -29,20 +28,19 @@ internal class Display : IDisplay
 
     private object RefreshAndReturnInterface()
     {
-        (Value as DisplayValue)?.CheckForValueChange();
-        IUserInterfaceDefinition newDefinition = _userInterfaceProvider.FindDefinitionForValueInfo(_valueInfo);
-        if (_interfaceDefinition != newDefinition)
+        if (DisplayValue.Value != _lastDisplayValue)
         {
-            _interfaceDefinition = newDefinition;
-            (Value as DisplayValue)!.InterfaceDefinition = _interfaceDefinition;
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Interface)));
+            DisplayValue.Refresh();
+            _lastDisplayValue = DisplayValue.Value;
         }
 
-        return GetInterface();
-    }
+        IUserInterfaceDefinition newDefinition = DisplayValue.InterfaceDefinition;
+        if (_interfaceDefinition != newDefinition)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Interface)));
+            _interfaceDefinition = DisplayValue.InterfaceDefinition;
+        }
 
-    private object GetInterface()
-    {
-        return _userInterfaceProvider.GetUserInterface(_interfaceDefinition!);
+        return _userInterfaceProvider.GetUserInterface(_interfaceDefinition);
     }
 }

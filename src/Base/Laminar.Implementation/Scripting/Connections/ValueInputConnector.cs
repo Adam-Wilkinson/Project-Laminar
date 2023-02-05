@@ -18,7 +18,7 @@ internal class ValueInputConnector : IInputConnector<IValueInput>
         _typeInfoStore = typeInfoStore;
     }
 
-    public string ColorHex => Input.ValueType is null ? "#FFFFFF" : _typeInfoStore.GetTypeInfoOrBlank(Input.ValueType).HexColour;
+    public string ColorHex => _typeInfoStore.GetTypeInfoOrBlank(Input.ValueUserInterface.ValueType).HexColor;
 
     public IValueInput Input { get; private set; }
 

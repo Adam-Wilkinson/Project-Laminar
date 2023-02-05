@@ -1,6 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
-using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
+using Laminar.PluginFramework.UserInterface;
 
 namespace BasicFunctionality.Avalonia.UserControls;
 

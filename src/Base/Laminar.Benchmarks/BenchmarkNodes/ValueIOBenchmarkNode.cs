@@ -1,5 +1,6 @@
 ﻿using Laminar.PluginFramework.NodeSystem;
-using Laminar.PluginFramework.NodeSystem.IO.Value;
+using Laminar.PluginFramework.NodeSystem.Attributes;
+using Laminar.PluginFramework.NodeSystem.Components;
 
 namespace Laminar.Benchmarks.BenchmarkNodes;
 
@@ -12,9 +13,9 @@ public class ValueIOBenchmarNode : INode
         Instances.Add(this);
     }
 
-    public readonly ValueInput<double> Input = new("input", 0.0);
+    [ShowInNode] readonly ValueInputRow<double> Input = new("input", 0.0);
 
-    public readonly ValueOutput<double> Output = new("output", 0.0);
+    [ShowInNode] readonly ValueOutputRow<double> Output = new("output", 0.0);
 
     public string NodeName { get; } = "Test Node";
 

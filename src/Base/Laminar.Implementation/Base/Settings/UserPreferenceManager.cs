@@ -2,17 +2,22 @@
 using Laminar.Contracts.Base.Settings;
 using Laminar.Contracts.Base.UserInterface;
 using Laminar.Domain;
+using Laminar.PluginFramework.UserInterface;
 
 namespace Laminar.Implementation.Base.Settings;
 
 internal class UserPreferenceManager : IUserPreferenceManager
 {
+    private readonly IUserInterfaceDefinitionFinder _uiFinder;
     private readonly IDisplayFactory _valueDisplayFactory;
     private readonly ItemCatagory<IUserPreference> _userPreferences = new("root");
     private readonly Dictionary<string, IUserPreference> _userPreferencesDictionary = new();
 
-    public UserPreferenceManager(IDisplayFactory valueDisplayFactory)
+    public UserPreferenceManager(
+        IDisplayFactory valueDisplayFactory,
+        IUserInterfaceDefinitionFinder uiFinder)
     {
+        _uiFinder = uiFinder;
         _valueDisplayFactory = valueDisplayFactory;
     }
 
@@ -23,7 +28,7 @@ internal class UserPreferenceManager : IUserPreferenceManager
             return this;
         }
 
-        IUserPreference newPreference = new UserPreference<T>(_valueDisplayFactory, defaultValue, localisationName);
+        IUserPreference newPreference = new UserPreference<T>(_valueDisplayFactory, _uiFinder, defaultValue, localisationName);
         _userPreferences.AddItem(newPreference, path);
         _userPreferencesDictionary.Add(path, newPreference);
         return this;

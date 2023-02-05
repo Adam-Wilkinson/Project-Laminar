@@ -4,6 +4,7 @@ using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Domain.Notification;
 using Laminar.Domain.ValueObjects;
 using Laminar.PluginFramework.NodeSystem;
+using Laminar.PluginFramework.NodeSystem.Attributes;
 using Laminar.PluginFramework.NodeSystem.Components;
 using Laminar.PluginFramework.NodeSystem.IO.Value;
 using Microsoft.Extensions.DependencyInjection;
@@ -37,8 +38,8 @@ public class TestNodeWrapper : IWrappedNode
 
     private class TestNode : INode
     {
-        public readonly ValueInput<string> TestStringInput = new("Test Input", "Example");
-        public readonly ValueOutput<double> TestNumberOutput = new("Test Output", 5);
+        [ShowInNode] readonly ValueInputRow<string> TestStringInput = new("Test Input", "Example");
+        [ShowInNode] readonly ValueOutputRow<double> TestNumberOutput = new("Test Output", 5);
 
         public string NodeName { get; } = "Test";
 

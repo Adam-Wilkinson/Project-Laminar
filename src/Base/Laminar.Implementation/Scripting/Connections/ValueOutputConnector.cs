@@ -20,7 +20,7 @@ internal class ValueOutputConnector : IOutputConnector<IValueOutput>
         _typeInfoStore = typeInfoStore;
     }
 
-    public string ColorHex => _typeInfoStore.GetTypeInfoOrBlank(Output.ValueType!).HexColour;
+    public string ColorHex => _typeInfoStore.GetTypeInfoOrBlank(Output.ValueUserInterface.ValueType).HexColor;
 
     public IValueOutput Output { get; private set; }
 

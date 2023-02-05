@@ -42,7 +42,7 @@
 							<mycontrols:ChildDataContextController 
 								Padding="5,0"
 								Child="{Binding Interface}"
-								ChildDataContext="{Binding Value}"/>
+								ChildDataContext="{Binding DisplayValue}"/>
 						</DataTemplate>
 
 						<DataTemplate DataType="{x:Type nod:INodeRow}">
