@@ -7,7 +7,7 @@ using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
 namespace Laminar.Implementation.Scripting.NodeIO;
 
-internal class ValueInput<T> : IValueInput<T>
+public class ValueInput<T> : IValueInput<T>
 {
     readonly LaminarExecutionContext _contextCache;
     readonly IUserInterfaceDefinitionFinder _uiFinder;

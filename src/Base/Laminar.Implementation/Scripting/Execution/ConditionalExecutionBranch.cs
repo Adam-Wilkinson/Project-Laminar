@@ -26,8 +26,9 @@ public class ConditionalExecutionBranch : IConditionalExecutionBranch
     {
         if (_startingConnector is null || _startingConnector.PassUpdate(context.ExecutionFlags) is PassUpdateOption.AlwaysPasses or PassUpdateOption.CurrentlyPasses)
         {
-            Span<IWrappedNode> nodes = _nodes;
-            for (int i = 0; i < nodes.Length; i++)
+            ReadOnlySpan<IWrappedNode> nodes = _nodes;
+            double length = nodes.Length;
+            for (int i = 0; i < length; i++)
             {
                 nodes[i].Update(context);
             }

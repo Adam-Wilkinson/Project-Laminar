@@ -13,9 +13,9 @@ public class ValueIOBenchmarNode : INode
         Instances.Add(this);
     }
 
-    [ShowInNode] readonly ValueInputRow<double> Input = new("input", 0.0);
+    [ShowInNode] public readonly ValueInputRow<double> Input = new("input", 0.0);
 
-    [ShowInNode] readonly ValueOutputRow<double> Output = new("output", 0.0);
+    [ShowInNode] public readonly ValueOutputRow<double> Output = new("output", 0.0);
 
     public string NodeName { get; } = "Test Node";
 

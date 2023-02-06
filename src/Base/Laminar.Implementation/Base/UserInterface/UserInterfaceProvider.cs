@@ -28,7 +28,7 @@ public class UserInterfaceProvider : IUserInterfaceProvider
             return defaultObj;
         }
 
-        throw new Exception("Could not find interface");
+        return null;
     }
 
     public bool InterfaceImplemented(IUserInterfaceDefinition interfaceDefinition)

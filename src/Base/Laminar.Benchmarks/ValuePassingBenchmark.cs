@@ -1,10 +1,12 @@
 ﻿using BenchmarkDotNet.Attributes;
 using Laminar.Benchmarks.BenchmarkNodes;
+using Laminar.Contracts.Base.UserInterface;
 using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Implementation;
+using Laminar.Implementation.Scripting.NodeIO;
 using Laminar.PluginFramework.NodeSystem;
-using Laminar.PluginFramework.NodeSystem.Contracts;
+using Laminar.PluginFramework.NodeSystem.Components;
 using Laminar.PluginFramework.UserInterface;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -21,7 +23,9 @@ public class ValuePassingBenchmark
     //private ValueAttributeBenchmarkNode _firstNode;
     //private ValueAttributeBenchmarkNode _lastNode;
 
-
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+    private ValueInput<double> _firstInput;
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     private ValueIOBenchmarNode _fieldsFirstNode;
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -36,9 +40,10 @@ public class ValuePassingBenchmark
         _scriptEditor = instance.ServiceProvider.GetService<IScriptEditor>()!;
         _nodeWrapperFactory = instance.ServiceProvider.GetService<INodeFactory>()!;
 
-        SetupScript<ValueIOBenchmarNode>(_script1, 5);
+        SetupScript<ValueIOBenchmarNode>(_script1, 50000);
 
         _fieldsFirstNode = ValueIOBenchmarNode.Instances[1];
+        _firstInput = (((_fieldsFirstNode.Input.First() as INodeRow)!.CentralDisplay as IDisplay)!.DisplayValue as ValueInput<double>)!;
         _fieldsLastNode = ValueIOBenchmarNode.Instances[^1];
     }
 
@@ -52,7 +57,7 @@ public class ValuePassingBenchmark
             _scriptEditor.TryBridgeConnectors(script, previousNode.Rows[1].OutputConnector!, nextNode.Rows[0].InputConnector!);
             previousNode = nextNode;
         }
-        (script.Nodes[0].Rows[0].CentralDisplay as ValueInterfaceDefinition)!.BoxedValue = 3.0;
+        (script.Nodes[0].Rows[0].CentralDisplay as IDisplay)!.DisplayValue.Value = 3.0;
         script.ExecutionInstance.IsShownInUI = false;
     }
 
@@ -67,7 +72,7 @@ public class ValuePassingBenchmark
     [Arguments(4)]
     public double PassValueFields(double value)
     {
-        _fieldsFirstNode.Input.SetInternalValue(value);
+        _firstInput.Value = value;
         return _fieldsLastNode.Output.Value;
     }
 }

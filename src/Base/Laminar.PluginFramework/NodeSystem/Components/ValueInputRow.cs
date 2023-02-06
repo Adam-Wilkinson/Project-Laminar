@@ -29,9 +29,9 @@ public class ValueInputRow<T> : SingleItemNodeComponent
         set => _valueInput.ValueUserInterface.Editor = value;
     }
 
-    public IUserInterfaceDefinition? Display
+    public IUserInterfaceDefinition? Viewer
     {
-        get => _valueInput.ValueUserInterface.Editor;
-        set => _valueInput.ValueUserInterface.Editor = value;
+        get => _valueInput.ValueUserInterface.Viewer;
+        set => _valueInput.ValueUserInterface.Viewer = value;
     }
 }
