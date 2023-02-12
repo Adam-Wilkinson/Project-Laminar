@@ -1,6 +1,9 @@
 ﻿using System;
 using System.ComponentModel;
+using Laminar.Contracts.Base;
+using Laminar.Implementation.Scripting.Connections;
 using Laminar.PluginFramework.NodeSystem;
+using Laminar.PluginFramework.NodeSystem.Connectors;
 using Laminar.PluginFramework.NodeSystem.IO.Value;
 using Laminar.PluginFramework.UserInterface;
 using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
@@ -13,9 +16,11 @@ public class ValueOutput<T> : IValueOutput<T>
 
     public ValueOutput(
         IUserInterfaceDefinitionFinder uiFinder,
+        ITypeInfoStore typeInfoStore,
         string name,
         T initialValue)
     {
+        Connector = new ValueOutputConnector<T>(typeInfoStore, this);
         Name = name;
         _uiFinder = uiFinder;
         Value = initialValue;
@@ -29,7 +34,11 @@ public class ValueOutput<T> : IValueOutput<T>
 
     public string Name { get; }
 
-    public IUserInterfaceDefinition InterfaceDefinition => _uiFinder.GetCurrentDefinitionOf(ValueUserInterface);
+    public IUserInterfaceDefinition? InterfaceDefinition => _uiFinder.GetCurrentDefinitionOf(ValueUserInterface);
+
+    public IOutputConnector Connector { get; }
+
+    public bool AlwaysPassUpdate { get; init; }
 
     object? IDisplayValue.Value
     {

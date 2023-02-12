@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Reflection.Metadata.Ecma335;
 using Laminar.Contracts.Base;
 using Laminar.PluginFramework.NodeSystem;
 using Laminar.PluginFramework.NodeSystem.Connectors;
@@ -7,7 +8,7 @@ using Laminar.PluginFramework.NodeSystem.IO.Value;
 
 namespace Laminar.Implementation.Scripting.Connections;
 
-internal class ValueInputConnector : IInputConnector<IValueInput>
+internal class ValueInputConnector<T> : IInputConnector<IValueInput<T>>
 {
     readonly ITypeInfoStore _typeInfoStore;
 
@@ -20,23 +21,24 @@ internal class ValueInputConnector : IInputConnector<IValueInput>
 
     public string ColorHex => _typeInfoStore.GetTypeInfoOrBlank(Input.ValueUserInterface.ValueType).HexColor;
 
-    public IValueInput Input { get; private set; }
+    public required IValueInput<T> Input { get; init; }
 
     public Action? PreEvaluateAction => Input.PreEvaluateAction;
 
-    public void Init(IValueInput nodeInput)
-    {
-        Input = nodeInput;
-    }
-
     public void OnDisconnectedFrom(IOutputConnector connector)
     {
-        Input.TrySetValueProvider(null);
+        Input.SetValueProvider(null);
     }
 
     public bool TryConnectTo(IOutputConnector connector)
     {
-        return connector is IOutputConnector<IValueOutput> outputConnector && Input.TrySetValueProvider(outputConnector.Output);
+        if (connector is IOutputConnector<IValueOutput<T>> outputConnector)
+        {
+            Input.SetValueProvider(outputConnector.Output);
+            return true;
+        }
+
+        return false;
     }
 
     public PassUpdateOption PassUpdate(ExecutionFlags executionFlags)

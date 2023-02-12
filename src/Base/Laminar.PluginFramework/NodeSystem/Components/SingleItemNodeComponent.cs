@@ -7,13 +7,18 @@ namespace Laminar.PluginFramework.NodeSystem.Components;
 
 public abstract class SingleItemNodeComponent : INodeComponent
 {
-    private INodeComponent _component;
+    private INodeComponent? _component;
 
-    protected INodeComponent ChildComponent
+    protected INodeComponent? ChildComponent
     {
         get => _component;
         set
         {
+            if (value is null)
+            {
+                return;
+            }
+
             _component = value;
             _component.Opacity.AddFactor(Opacity);
             _component.StartExecution += (o, e) => StartExecution?.Invoke(o, e);
@@ -26,7 +31,7 @@ public abstract class SingleItemNodeComponent : INodeComponent
 
     public IEnumerator<INodeComponent> GetEnumerator()
     {
-        yield return _component;
+        yield return _component!;
     }
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

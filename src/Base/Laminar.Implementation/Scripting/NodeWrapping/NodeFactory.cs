@@ -27,7 +27,7 @@ public class NodeFactory : INodeFactory
 
     public IWrappedNode WrapNode<T>(T node, INotificationClient<LaminarExecutionContext>? userChangedValueNotificationClient) where T : INode, new()
     {
-        return new WrappedNode<T>(CreateNameRowFor(node), _rowCollectionFactory, userChangedValueNotificationClient, this, node, _collectionHelper);
+        return new WrappedNode<T>(CreateNameRowFor(node), _rowCollectionFactory, this, node, _collectionHelper) { UserChangedValueNotificationClient = userChangedValueNotificationClient };
     }
 
     public IWrappedNode WrapNode<T>(INotificationClient<LaminarExecutionContext>? userChangedValueNotificationClient) where T : INode, new()
@@ -38,9 +38,10 @@ public class NodeFactory : INodeFactory
 
     public IWrappedNode CloneNode<T>(IWrappedNode nodeToCopy, INotificationClient<LaminarExecutionContext>? userChangedValueNotificationClient) where T : INode, new()
     {
-        IWrappedNode newNode = WrapNode<T>(userChangedValueNotificationClient);
+        WrappedNode<T> newNode = (WrappedNode<T>)WrapNode<T>(null);
         _rowCollectionFactory.CopyNodeRowValues(nodeToCopy, newNode);
         newNode.Location.Value = nodeToCopy.Location.Value;
+        newNode.UserChangedValueNotificationClient = userChangedValueNotificationClient;
         return newNode;
     }
 

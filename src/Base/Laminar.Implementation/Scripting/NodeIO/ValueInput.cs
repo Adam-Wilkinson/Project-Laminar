@@ -1,6 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using Laminar.Contracts.Base;
+using Laminar.Implementation.Scripting.Connections;
 using Laminar.PluginFramework.NodeSystem;
+using Laminar.PluginFramework.NodeSystem.Connectors;
 using Laminar.PluginFramework.NodeSystem.IO.Value;
 using Laminar.PluginFramework.UserInterface;
 using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
@@ -17,16 +21,18 @@ public class ValueInput<T> : IValueInput<T>
 
     internal ValueInput(
         IUserInterfaceDefinitionFinder uiFinder,
+        ITypeInfoStore typeInfoStore,
         string name,
         T defaultValue)
     {
         _uiFinder = uiFinder;
+        Connector = new ValueInputConnector<T>(typeInfoStore) { Input = this };
         Name = name;
         _internalValue = defaultValue;
         _contextCache = new LaminarExecutionContext
         {
             ExecutionFlags = ValueExecutionFlag.Value,
-            ExecutionSource = this,
+            ExecutionSource = Connector,
         };
     }
 
@@ -35,7 +41,7 @@ public class ValueInput<T> : IValueInput<T>
         get => _valueProvider is not null ? _valueProvider.Value : _internalValue;
         set
         {
-            if (_valueProvider is null && !Equals(value, _internalValue))
+            if (_valueProvider is null && !EqualityComparer<T>.Default.Equals(value, _internalValue))
             {
                 _internalValue = value;
                 FireValueChange();
@@ -43,11 +49,7 @@ public class ValueInput<T> : IValueInput<T>
         }
     }
 
-    public void SetInternalValue(T newVal)
-    {
-        _internalValue = newVal;
-        FireValueChange();
-    }
+    public IInputConnector Connector { get; }
 
     public virtual Action? PreEvaluateAction => null;
 
@@ -59,21 +61,16 @@ public class ValueInput<T> : IValueInput<T>
 
     public string Name { get; }
 
-    public IUserInterfaceDefinition InterfaceDefinition => _uiFinder.GetCurrentDefinitionOf(ValueUserInterface);
+    public IUserInterfaceDefinition? InterfaceDefinition => _uiFinder.GetCurrentDefinitionOf(ValueUserInterface);
 
     public event EventHandler<LaminarExecutionContext>? StartExecution;
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    public bool TrySetValueProvider(object? provider)
+    public void SetValueProvider(IValueProvider<T>? provider)
     {
-        if (provider is null or IValueProvider<T>)
-        {
-            _valueProvider = provider as IValueProvider<T>;
-            FireValueChange();
-            return true;
-        }
-
-        return false;
+        _valueProvider = provider;
+        ValueUserInterface.IsUserEditable = _valueProvider is null;
+        FireValueChange();
     }
 
     object? IDisplayValue.Value

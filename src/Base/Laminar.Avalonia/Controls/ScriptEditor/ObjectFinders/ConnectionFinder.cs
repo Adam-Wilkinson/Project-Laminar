@@ -34,16 +34,14 @@ internal class ConnectionFinder : IObjectFinder
         }
     }
 
-    public IAvaloniaObject? GetAtPoint(Point point)
+    public IEnumerable<IAvaloniaObject> GetAtPoint(Point point)
     {
         foreach (var connection in _connectionCanvas.ConnectionGeometries)
         {
             if (connection.StrokeContains(connection.Pen, point))
             {
-                return connection;
+                yield return connection;
             }
         }
-
-        return null;
     }
 }

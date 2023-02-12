@@ -14,18 +14,13 @@ internal class ExecutionOrderFinder : IExecutionOrderFinder
 
     public IConditionalExecutionBranch[] GetExecutionBranchesFrom(LaminarExecutionContext context, INodeTree tree)
     {
-        if (context.ExecutionSource is not IIOConnector connectorSource)
-        {
-            throw new ArgumentException("Execution must come from a connector", nameof(context));
-        }
-
-        if (_calculatedBranches.TryGetValue((connectorSource, context.ExecutionFlags.AsNumber), out OrderFinderInstance instance))
+        if (_calculatedBranches.TryGetValue((context.ExecutionSource, context.ExecutionFlags.AsNumber), out OrderFinderInstance instance))
         {
             return instance.Branches();
         }
 
         OrderFinderInstance newFinder = new(context, tree);
-        _calculatedBranches.Add((connectorSource, context.ExecutionFlags.AsNumber), newFinder);
+        _calculatedBranches.Add((context.ExecutionSource, context.ExecutionFlags.AsNumber), newFinder);
         return newFinder.Branches();
     }
 
@@ -44,7 +39,7 @@ internal class ExecutionOrderFinder : IExecutionOrderFinder
         {
             _tree = tree;
             _flags = context.ExecutionFlags;
-            _sourceConnector = (IIOConnector)context.ExecutionSource!;
+            _sourceConnector = context.ExecutionSource!;
 
             _tree.Changed += (o, e) => _lastCalculation = null;
         }

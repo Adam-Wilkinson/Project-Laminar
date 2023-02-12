@@ -16,6 +16,8 @@ internal class ConnectionCanvas : Canvas
 {
     public static readonly StyledProperty<IReadOnlyObservableCollection<IConnection>> ConnectionsProperty = AvaloniaProperty.Register<ConnectionCanvas, IReadOnlyObservableCollection<IConnection>>(nameof(Connections));
 
+    private readonly Dictionary<IConnection, IDisposable> _inputConnectionObservables = new();
+    private readonly Dictionary<IConnection, IDisposable> _outputConnectionObservables = new();
     private readonly Dictionary<IConnection, ConnectionGeometry> _connections = new();
     private readonly INotifyCollectionChangedHelper _notificationHelper = App.LaminarInstance.ServiceProvider.GetService<INotifyCollectionChangedHelper>();
 
@@ -74,6 +76,10 @@ internal class ConnectionCanvas : Canvas
     {
         _connections[e.Item].Changed -= ConnectionGeometryChanged;
         _connections.Remove(e.Item);
+        _inputConnectionObservables[e.Item].Dispose();
+        _inputConnectionObservables.Remove(e.Item);
+        _outputConnectionObservables[e.Item].Dispose();
+        _outputConnectionObservables.Remove(e.Item);
         InvalidateVisual();
     }
 
@@ -84,11 +90,18 @@ internal class ConnectionCanvas : Canvas
         ConnectionGeometry newConnectionGeometry = new() { CoreConnection = newConnection, Pen = new Pen(new SolidColorBrush(Color.Parse(newConnection.OutputConnector.ColorHex)), 3) };
         _connections.Add(newConnection, newConnectionGeometry);
 
-        Control inputControl = ConnectorControl.FromConnector(newConnection.InputConnector);
-        newConnectionGeometry[!ConnectionGeometry.EndPointProperty] = inputControl.GetObservable(TransformedBoundsProperty).Select(GetTransformBoundsCenter).ToBinding();
 
-        Control outputControl = ConnectorControl.FromConnector(newConnection.OutputConnector);
-        newConnectionGeometry[!ConnectionGeometry.StartPointProperty] = outputControl.GetObservable(TransformedBoundsProperty).Select(GetTransformBoundsCenter).ToBinding();
+        newConnectionGeometry[!ConnectionGeometry.EndPointProperty] = ConnectorControl.FromConnector(newConnection.InputConnector).GetObservable(TransformedBoundsProperty).Select(GetTransformBoundsCenter).ToBinding();
+        _inputConnectionObservables.Add(newConnection, ConnectorControl.FromConnectorObservable(newConnection.InputConnector).Subscribe(connectorControl =>
+        {
+            newConnectionGeometry[!ConnectionGeometry.EndPointProperty] = connectorControl.GetObservable(TransformedBoundsProperty).Select(GetTransformBoundsCenter).ToBinding();
+        }));
+
+        newConnectionGeometry[!ConnectionGeometry.StartPointProperty] = ConnectorControl.FromConnector(newConnection.OutputConnector).GetObservable(TransformedBoundsProperty).Select(GetTransformBoundsCenter).ToBinding();
+        _outputConnectionObservables.Add(newConnection, ConnectorControl.FromConnectorObservable(newConnection.OutputConnector).Subscribe(connectorControl =>
+        {
+            newConnectionGeometry[!ConnectionGeometry.StartPointProperty] = connectorControl.GetObservable(TransformedBoundsProperty).Select(GetTransformBoundsCenter).ToBinding();
+        }));
 
         newConnectionGeometry.Changed += ConnectionGeometryChanged;
 

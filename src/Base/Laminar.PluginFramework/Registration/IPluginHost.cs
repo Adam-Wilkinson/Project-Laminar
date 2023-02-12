@@ -1,6 +1,4 @@
 ﻿using Laminar.PluginFramework.NodeSystem;
-using Laminar.PluginFramework.NodeSystem.Connectors;
-using Laminar.PluginFramework.NodeSystem.IO;
 using Laminar.PluginFramework.Serialization;
 using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
@@ -152,14 +150,6 @@ public interface IPluginHost
     bool RegisterInterface<TInterfaceDefinition, TInterface, TFrontend>()
         where TInterfaceDefinition : IUserInterfaceDefinition
         where TInterface : TFrontend, new();
-
-    bool RegisterInputConnector<TNodeInput, TNodeInputConnector>()
-        where TNodeInput : IInput
-        where TNodeInputConnector : IInputConnector<TNodeInput>;
-
-    bool RegisterOutputConnector<TNodeOutput, TNodeOutputConnector>()
-        where TNodeOutput : IOutput
-        where TNodeOutputConnector : IOutputConnector<TNodeOutput>;
 
     bool RegisterType<T>(string hexColour, string userFriendlyName, T defaultValue, IUserInterfaceDefinition defaultEditor, IUserInterfaceDefinition defaultDisplay, IObjectSerializer<T> serializer);
 }

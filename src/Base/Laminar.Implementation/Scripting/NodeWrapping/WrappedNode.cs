@@ -13,18 +13,16 @@ namespace Laminar.Implementation.Scripting.Nodes;
 public class WrappedNode<T> : IWrappedNode where T : INode, new()
 {
     readonly T _coreNode;
-    readonly INotificationClient<LaminarExecutionContext>? _userChangedValueNotificationClient;
     readonly INodeFactory _factory;
     Action? _preEvaluateAction;
 
-    public WrappedNode(INodeRow nameRow, INodeRowCollectionFactory rowCollectionFactory, INotificationClient<LaminarExecutionContext>? userChangedValueNotificationClient, INodeFactory nodeFactory, T node, INotifyCollectionChangedHelper collectionHelper)
+    public WrappedNode(INodeRow nameRow, INodeRowCollectionFactory collectionFactory, INodeFactory nodeFactory, T node, INotifyCollectionChangedHelper collectionHelper)
     {
         _factory = nodeFactory;
         _coreNode = node;
-        Rows = rowCollectionFactory.CreateNodeRowsForObject(_coreNode, this);
+        Rows = collectionFactory.CreateNodeRowsForObject(node, this);
         collectionHelper.HelperInstance(Rows).ItemAdded += Rows_ItemAdded;
         collectionHelper.HelperInstance(Rows).ItemRemoved += Rows_ItemRemoved;
-        _userChangedValueNotificationClient = userChangedValueNotificationClient;
 
         NameRow = nameRow;
 
@@ -33,6 +31,8 @@ public class WrappedNode<T> : IWrappedNode where T : INode, new()
             RegisterRow(row);
         }
     }
+
+    public INotificationClient<LaminarExecutionContext>? UserChangedValueNotificationClient { get; set; }
 
     public INodeRow NameRow { get; }
 
@@ -49,13 +49,13 @@ public class WrappedNode<T> : IWrappedNode where T : INode, new()
 
     public void TriggerNotification(LaminarExecutionContext context)
     {
-        if (_userChangedValueNotificationClient is null)
+        if (UserChangedValueNotificationClient is null)
         {
             Update(context);
         }
         else
         {
-            _userChangedValueNotificationClient.TriggerNotification(context);
+            UserChangedValueNotificationClient.TriggerNotification(context);
         }
     }
 

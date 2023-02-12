@@ -1,5 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using Laminar.Contracts.Primitives;
+﻿using Laminar.Contracts.Primitives;
 using Laminar.Domain.Notification;
 using Laminar.PluginFramework.NodeSystem;
 using Laminar.PluginFramework.NodeSystem.Components;

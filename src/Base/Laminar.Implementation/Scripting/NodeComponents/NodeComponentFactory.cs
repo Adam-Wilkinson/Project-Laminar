@@ -1,8 +1,6 @@
 ﻿using System;
 using Laminar.Contracts.Base.UserInterface;
-using Laminar.Contracts.Scripting.Connection;
 using Laminar.PluginFramework.NodeSystem.Components;
-using Laminar.PluginFramework.NodeSystem.Connectors;
 using Laminar.PluginFramework.NodeSystem.IO;
 using Laminar.PluginFramework.UserInterface;
 
@@ -10,12 +8,10 @@ namespace Laminar.Implementation.Scripting.NodeComponents;
 
 internal class NodeComponentFactory : INodeComponentFactory
 {
-    private readonly IConnectorFactory _connectorViewFactory;
     private readonly IDisplayFactory _displayFactory;
 
-    public NodeComponentFactory(IConnectorFactory connectorViewFactory, IDisplayFactory displayFactory)
+    public NodeComponentFactory(IDisplayFactory displayFactory)
     {
-        _connectorViewFactory = connectorViewFactory;
         _displayFactory = displayFactory;
     }
 
@@ -23,11 +19,8 @@ internal class NodeComponentFactory : INodeComponentFactory
 
     public INodeRow CreateNodeRow(IInput? input, IDisplayValue displayValue, IOutput? output)
     {
-        IOutputConnector? outputConnector = output is not null ? _connectorViewFactory.CreateConnector(output) : null;
-        IInputConnector? inputConnector = input is not null ? _connectorViewFactory.CreateConnector(input) : null;
         IDisplay display = _displayFactory.CreateDisplayForValue(displayValue);
 
-
-        return new NodeRow(input, output) { CentralDisplay = display, InputConnector = inputConnector, OutputConnector = outputConnector };
+        return new NodeRow(input, output) { CentralDisplay = display, InputConnector = input?.Connector, OutputConnector = output?.Connector };
     }
 }

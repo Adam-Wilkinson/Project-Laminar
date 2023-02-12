@@ -4,5 +4,5 @@ namespace Laminar.PluginFramework.UserInterface;
 
 public interface IUserInterfaceDefinitionFinder
 {
-    public IUserInterfaceDefinition GetCurrentDefinitionOf(ValueInterfaceDefinition valueInterfaceDefinition);
+    public IUserInterfaceDefinition? GetCurrentDefinitionOf(ValueInterfaceDefinition valueInterfaceDefinition);
 }

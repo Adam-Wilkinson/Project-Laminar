@@ -8,7 +8,5 @@ public static class StaticRegistrations
 {
     public static void Register(IPluginHost host)
     {
-        host.RegisterInputConnector<IValueInput, ValueInputConnector>();
-        host.RegisterOutputConnector<IValueOutput, ValueOutputConnector>();
     }
 }

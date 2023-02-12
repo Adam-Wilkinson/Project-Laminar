@@ -1,8 +1,9 @@
-﻿using Laminar.PluginFramework.UserInterface;
+﻿using System.ComponentModel;
+using Laminar.PluginFramework.UserInterface;
 
 namespace Laminar.Contracts.Base.UserInterface;
 
-public interface IDisplay : IRefreshable
+public interface IDisplay : IRefreshable, INotifyPropertyChanged
 {
     public IDisplayValue DisplayValue { get; }
 

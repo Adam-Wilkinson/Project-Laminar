@@ -11,5 +11,5 @@ public interface IDisplayValue : IRefreshable, INotifyPropertyChanged
 
     public object? Value { get; set; }
 
-    public IUserInterfaceDefinition InterfaceDefinition { get; }
+    public IUserInterfaceDefinition? InterfaceDefinition { get; }
 }

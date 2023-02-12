@@ -7,5 +7,5 @@ public interface IUserInterfaceProvider
 {
     bool InterfaceImplemented(IUserInterfaceDefinition interfaceDefinition);
 
-    object GetUserInterface(IUserInterfaceDefinition definition);
+    object GetUserInterface(IUserInterfaceDefinition? definition);
 }

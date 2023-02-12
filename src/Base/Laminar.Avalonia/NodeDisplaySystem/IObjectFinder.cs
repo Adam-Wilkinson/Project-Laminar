@@ -5,7 +5,7 @@ namespace Laminar.Avalonia.NodeDisplaySystem;
 
 internal interface IObjectFinder
 {
-    public IAvaloniaObject? GetAtPoint(Point point);
+    public IEnumerable<IAvaloniaObject> GetAtPoint(Point point);
 
     public IEnumerable<IAvaloniaObject> GetAllWithin(Rect rect);
 

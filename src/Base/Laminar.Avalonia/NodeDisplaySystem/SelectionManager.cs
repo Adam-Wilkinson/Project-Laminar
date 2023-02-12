@@ -27,7 +27,10 @@ internal class SelectionManager
     {
         foreach (var objectFinder in _objectFinders)
         {
-            objectFinder.GetAtPoint(point)?.SetValue(Selection.SelectedProperty, !deselect);
+            foreach (IAvaloniaObject aObject in objectFinder.GetAtPoint(point))
+            {
+                aObject.SetValue(Selection.SelectedProperty, !deselect);
+            }
         }
     }
 

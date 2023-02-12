@@ -30,16 +30,14 @@ internal class CanvasChildFinder : IObjectFinder
         }
     }
 
-    public IAvaloniaObject? GetAtPoint(Point point)
+    public IEnumerable<IAvaloniaObject> GetAtPoint(Point point)
     {
         foreach (var child in _canvas.Children)
         {
             if (child.Bounds.Contains(point))
             {
-                return child;
+                yield return child;
             }
         }
-
-        return null;
     }
 }

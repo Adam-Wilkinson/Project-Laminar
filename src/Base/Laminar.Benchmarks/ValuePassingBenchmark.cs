@@ -40,7 +40,7 @@ public class ValuePassingBenchmark
         _scriptEditor = instance.ServiceProvider.GetService<IScriptEditor>()!;
         _nodeWrapperFactory = instance.ServiceProvider.GetService<INodeFactory>()!;
 
-        SetupScript<ValueIOBenchmarNode>(_script1, 50000);
+        SetupScript<ValueIOBenchmarNode>(_script1, 500);
 
         _fieldsFirstNode = ValueIOBenchmarNode.Instances[1];
         _firstInput = (((_fieldsFirstNode.Input.First() as INodeRow)!.CentralDisplay as IDisplay)!.DisplayValue as ValueInput<double>)!;

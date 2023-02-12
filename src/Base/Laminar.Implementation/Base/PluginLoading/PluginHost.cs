@@ -20,15 +20,13 @@ public class PluginHost : IPluginHost
     private readonly ITypeInfoStore _typeInfoStore;
     private readonly ILoadedNodeManager _loadedNodeManager;
     private readonly IUserInterfaceStore _userInterfaceStore;
-    private readonly IConnectorFactory _connectorFactory;
 
-    public PluginHost(IRegisteredPlugin registeredPlugin, ITypeInfoStore typeInfoStore, ILoadedNodeManager loadedNodeManager, IUserInterfaceStore userInterfaceStore, IConnectorFactory connectorFactory)
+    public PluginHost(IRegisteredPlugin registeredPlugin, ITypeInfoStore typeInfoStore, ILoadedNodeManager loadedNodeManager, IUserInterfaceStore userInterfaceStore)
     {
         _registeredPlugin = registeredPlugin;
         _typeInfoStore = typeInfoStore;
         _loadedNodeManager = loadedNodeManager;
         _userInterfaceStore = userInterfaceStore;
-        _connectorFactory = connectorFactory;
 
         StaticRegistrations.Register(this);
     }
@@ -158,21 +156,5 @@ public class PluginHost : IPluginHost
         AddNodeToMenu<TNode6>(menuItemName, subItemName);
         AddNodeToMenu<TNode7>(menuItemName, subItemName);
         AddNodeToMenu<TNode8>(menuItemName, subItemName);
-    }
-
-    public bool RegisterInputConnector<TNodeInput, TNodeInputConnector>()
-        where TNodeInput : IInput
-        where TNodeInputConnector : IInputConnector<TNodeInput>
-    {
-        _connectorFactory.RegisterInputConnector<TNodeInput, TNodeInputConnector>();
-        return true;
-    }
-
-    public bool RegisterOutputConnector<TNodeOutput, TNodeOutputConnector>()
-        where TNodeOutput : IOutput
-        where TNodeOutputConnector : IOutputConnector<TNodeOutput>
-    {
-        _connectorFactory.RegisterOutputConnector<TNodeOutput, TNodeOutputConnector>();
-        return true;
     }
 }

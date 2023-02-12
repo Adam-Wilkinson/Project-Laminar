@@ -13,20 +13,42 @@ namespace Laminar.Implementation.Scripting.NodeComponents;
 
 internal class NodeRow : INodeRow
 {
+    private readonly IInput? _input;
+    private readonly IOutput? _output;
+
     public NodeRow(IInput? input, IOutput? output)
     {
-        if (input is not null)
-        {
-            input.StartExecution += Input_StartExecution;
-        }
-
-        if (output is not null)
-        {
-            output.StartExecution += Output_StartExecution;
-        }
+        _input = input;
+        _output = output;
     }
 
-    public event EventHandler<LaminarExecutionContext>? StartExecution;
+    public event EventHandler<LaminarExecutionContext>? StartExecution
+    {
+        add
+        {
+            if (_input is not null)
+            {
+                _input.StartExecution += value;
+            }
+
+            if (_output is not null)
+            {
+                _output.StartExecution += value;
+            }
+        }
+        remove
+        {
+            if (_input is not null)
+            {
+                _input.StartExecution -= value;
+            }
+
+            if (_output is not null)
+            {
+                _output.StartExecution -= value;
+            }
+        }
+    }
 
     public required IInputConnector? InputConnector { get; init; }
 
@@ -43,10 +65,6 @@ internal class NodeRow : INodeRow
             copyTo.DisplayValue.Value = copyFrom.DisplayValue.Value;
         }
     }
-
-    private void Output_StartExecution(object? sender, LaminarExecutionContext e) => StartExecution?.Invoke(sender, e with { ExecutionSource = OutputConnector });
-
-    private void Input_StartExecution(object? sender, LaminarExecutionContext e) => StartExecution?.Invoke(sender, e with { ExecutionSource = InputConnector });
 
     public IEnumerator<INodeComponent> GetEnumerator() => this.Yield().GetEnumerator();
 

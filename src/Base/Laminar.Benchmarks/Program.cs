@@ -8,5 +8,5 @@ using Laminar.Benchmarks;
 //Console.ReadLine();
 //Console.WriteLine(test.PassValueFields(4));
 
-// Console.WriteLine(ValuePassingBenchmark.TestRun());
-BenchmarkRunner.Run<ValuePassingBenchmark>();
+Console.WriteLine(ValuePassingBenchmark.TestRun());
+// BenchmarkRunner.Run<ValuePassingBenchmark>();

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using Laminar.Contracts.Base;
 using Laminar.PluginFramework.NodeSystem;
@@ -7,26 +8,26 @@ using Laminar.PluginFramework.NodeSystem.IO.Value;
 
 namespace Laminar.Implementation.Scripting.Connections;
 
-internal class ValueOutputConnector : IOutputConnector<IValueOutput>
+internal class ValueOutputConnector<T> : IOutputConnector<IValueOutput<T>>
 {
     readonly ITypeInfoStore _typeInfoStore;
 
-    public event PropertyChangedEventHandler? PropertyChanged;
+    T _lastValue;
 
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-    public ValueOutputConnector(ITypeInfoStore typeInfoStore)
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+    public ValueOutputConnector(ITypeInfoStore typeInfoStore, IValueOutput<T> output)
     {
         _typeInfoStore = typeInfoStore;
+        Output = output;
+        _lastValue = output.Value;
     }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     public string ColorHex => _typeInfoStore.GetTypeInfoOrBlank(Output.ValueUserInterface.ValueType).HexColor;
 
-    public IValueOutput Output { get; private set; }
+    public IValueOutput<T> Output { get; }
 
     public Action? PreEvaluateAction => Output.PreEvaluateAction;
-
-    public void Init(IValueOutput nodeOutput) => Output = nodeOutput;
 
     public void OnDisconnectedFrom(IInputConnector connector)
     {
@@ -34,14 +35,30 @@ internal class ValueOutputConnector : IOutputConnector<IValueOutput>
 
     public bool TryConnectTo(IInputConnector connector)
     {
-        return connector is IInputConnector<IValueInput> valConnector && valConnector.Input.TrySetValueProvider(Output);
+        if (connector is IInputConnector<IValueInput<T>> inputConnector)
+        {
+            inputConnector.Input.SetValueProvider(Output);
+            return true;
+        }
+
+        return false;
     }
 
     public PassUpdateOption PassUpdate(ExecutionFlags executionFlags)
     {
         if (executionFlags.HasValueFlag())
         {
-            return PassUpdateOption.AlwaysPasses;
+            if (Output.AlwaysPassUpdate)
+            {
+                return PassUpdateOption.AlwaysPasses;
+            }
+            
+            if (!EqualityComparer<T>.Default.Equals(_lastValue, Output.Value))
+            {
+                return PassUpdateOption.CurrentlyPasses;
+            }
+
+            return PassUpdateOption.CurrentlyDoesNotPass;
         }
 
         return PassUpdateOption.NeverPasses;

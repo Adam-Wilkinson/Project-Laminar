@@ -18,7 +18,7 @@ internal class UserInterfaceDefinitionProvider : IUserInterfaceDefinitionFinder
         _uiProvider = uiProvider;
     }
 
-    public IUserInterfaceDefinition GetCurrentDefinitionOf(ValueInterfaceDefinition valueInfo)
+    public IUserInterfaceDefinition? GetCurrentDefinitionOf(ValueInterfaceDefinition valueInfo)
     {
         if (valueInfo.IsUserEditable 
             && valueInfo.Editor is not null 
@@ -50,6 +50,6 @@ internal class UserInterfaceDefinitionProvider : IUserInterfaceDefinitionFinder
             return viewerDefinition;
         }
 
-        return _default;
+        return null;
     }
 }

@@ -13,7 +13,7 @@ public class UserInterfaceProvider : IUserInterfaceProvider
         _store = interfaceStore;
     }
 
-    public object GetUserInterface(IUserInterfaceDefinition definition)
+    public object GetUserInterface(IUserInterfaceDefinition? definition)
     {
         if (definition is not null 
             && _store.TryGetUserInterface(definition.GetType(), out Type userInterface)
@@ -28,7 +28,7 @@ public class UserInterfaceProvider : IUserInterfaceProvider
             return defaultObj;
         }
 
-        return null;
+        throw new Exception("Interface implementation asked for but not found");
     }
 
     public bool InterfaceImplemented(IUserInterfaceDefinition interfaceDefinition)

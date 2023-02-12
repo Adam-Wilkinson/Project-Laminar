@@ -13,9 +13,6 @@ internal class NodeControlManager
     private readonly Dictionary<IWrappedNode, Control> nodes = new();
     private readonly Dictionary<Control, IWrappedNode> controls = new();
 
-    private readonly Dictionary<Control, IIOConnector> connectors = new();
-    private readonly Dictionary<IIOConnector, Control> connectorControls = new();
-
     public event EventHandler<PointerPressedEventArgs> NodeClicked;
 
     public void ForgetNode(IWrappedNode node)
@@ -33,14 +30,6 @@ internal class NodeControlManager
 
         nodes.Add(node, new NodeWrapperDisplay { CoreNode = node });
         nodes[node].PointerPressed += (o, e) => NodeControlManager_PointerPressed(nodes[node], e);
-        foreach (IVisual visual in nodes[node].GetVisualDescendants())
-        {
-            if (visual is ConnectorControl connectorControl)
-            {
-                connectors[connectorControl] = connectorControl.Connector;
-                connectorControls[connectorControl.Connector] = connectorControl;
-            }
-        }
 
         controls.Add(nodes[node], node);
         return nodes[node];
