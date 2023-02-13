@@ -56,6 +56,7 @@ internal class SelectAndMoveGesture : GestureRecogniserBase
     {
         if (e.Pointer == Pointer)
         {
+            _totalMoveDistance = new Point(0, 0);
             if (Selection.IsSelected(_clickedControl) && e.KeyModifiers.HasFlag(KeyModifiers.Shift))
             {
                 _selection.SelectAtPoint(e.GetPosition(_positionCanvas), true);
