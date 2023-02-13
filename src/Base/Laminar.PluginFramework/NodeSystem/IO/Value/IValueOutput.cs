@@ -2,7 +2,9 @@
 
 namespace Laminar.PluginFramework.NodeSystem.IO.Value;
 
-public interface IValueOutput : IOutput, IDisplayValue
+public interface IValueOutput : IOutput
 {
-    public ValueInterfaceDefinition ValueUserInterface { get; }
+    public IValueInterfaceDefinition InterfaceDefinition { get; }
+
+    public IDisplayValue DisplayValue { get; }
 }

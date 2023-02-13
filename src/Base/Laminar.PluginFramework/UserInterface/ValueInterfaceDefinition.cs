@@ -3,13 +3,15 @@ using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
 namespace Laminar.PluginFramework.UserInterface;
 
-public class ValueInterfaceDefinition
+public interface IValueInterfaceDefinition
 {
-    public Type? ValueType { get; init; }
+    public Type? ValueType { get; }
 
-    public required bool IsUserEditable { get; set; }
+    public bool IsUserEditable { get; set; }
 
     public IUserInterfaceDefinition? Editor { get; set; }
 
     public IUserInterfaceDefinition? Viewer { get; set; }
+
+    public IUserInterfaceDefinition? GetCurrentDefinition();
 }

@@ -10,7 +10,12 @@ public class ValueOutputRow<T> : SingleItemNodeComponent
     internal ValueOutputRow(INodeComponentFactory factory, string name, T initialValue)
     {
         _valueOutput = LaminarFactory.NodeIO.ValueOutput(name, initialValue);
-        ChildComponent = factory.CreateSingleRow(null, _valueOutput, _valueOutput);
+        ChildComponent = factory.CreateSingleRow(null, _valueOutput.DisplayValue, _valueOutput);
+    }
+
+    public void StartValueChangedExecution()
+    {
+        _valueOutput.StartExecution();
     }
 
     public T Value
@@ -21,20 +26,20 @@ public class ValueOutputRow<T> : SingleItemNodeComponent
 
     public IUserInterfaceDefinition? Viewer
     {
-        get => _valueOutput.ValueUserInterface.Viewer;
-        set => _valueOutput.ValueUserInterface.Viewer = value;
+        get => _valueOutput.InterfaceDefinition.Viewer;
+        set => _valueOutput.InterfaceDefinition.Viewer = value;
     }
 
     public IUserInterfaceDefinition? Editor
     {
-        get => _valueOutput.ValueUserInterface.Editor;
-        set => _valueOutput.ValueUserInterface.Editor = value;
+        get => _valueOutput.InterfaceDefinition.Editor;
+        set => _valueOutput.InterfaceDefinition.Editor = value;
     }
 
     public bool IsUserEditable
     {
-        get => _valueOutput.ValueUserInterface.IsUserEditable;
-        set => _valueOutput.ValueUserInterface.IsUserEditable = value;
+        get => _valueOutput.InterfaceDefinition.IsUserEditable;
+        set => _valueOutput.InterfaceDefinition.IsUserEditable = value;
     }
 }
 

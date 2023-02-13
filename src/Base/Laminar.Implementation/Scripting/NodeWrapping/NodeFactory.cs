@@ -5,7 +5,6 @@ using Laminar.PluginFramework;
 using Laminar.PluginFramework.NodeSystem;
 using Laminar.PluginFramework.NodeSystem.Components;
 using Laminar.PluginFramework.NodeSystem.IO.Value;
-using Laminar.PluginFramework.UserInterface;
 using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
 namespace Laminar.Implementation.Scripting.Nodes;
@@ -49,7 +48,7 @@ public class NodeFactory : INodeFactory
     private INodeRow CreateNameRowFor(INode node)
     {
         IValueInput<string> nameLabel = LaminarFactory.NodeIO.ValueInput("", node.NodeName);
-        nameLabel.ValueUserInterface.Editor = new EditableLabel();
-        return LaminarFactory.Component.CreateSingleRow(null, nameLabel, null);
+        nameLabel.InterfaceDefinition.Editor = new EditableLabel();
+        return LaminarFactory.Component.CreateSingleRow(null, nameLabel.DisplayValue, null);
     }
 }

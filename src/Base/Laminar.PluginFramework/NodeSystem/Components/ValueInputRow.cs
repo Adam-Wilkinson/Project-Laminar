@@ -10,7 +10,7 @@ public class ValueInputRow<T> : SingleItemNodeComponent
     internal ValueInputRow(INodeComponentFactory componentFactory, string name, T initialValue)
     {
         _valueInput = LaminarFactory.NodeIO.ValueInput(name, initialValue);
-        ChildComponent = componentFactory.CreateSingleRow(_valueInput, _valueInput, null);
+        ChildComponent = componentFactory.CreateSingleRow(_valueInput, _valueInput.DisplayValue, null);
     }
 
     public T Value => _valueInput.Value;
@@ -22,14 +22,14 @@ public class ValueInputRow<T> : SingleItemNodeComponent
 
     public IUserInterfaceDefinition? Editor
     {
-        get => _valueInput.ValueUserInterface.Editor;
-        set => _valueInput.ValueUserInterface.Editor = value;
+        get => _valueInput.InterfaceDefinition.Editor;
+        set => _valueInput.InterfaceDefinition.Editor = value;
     }
 
     public IUserInterfaceDefinition? Viewer
     {
-        get => _valueInput.ValueUserInterface.Viewer;
-        set => _valueInput.ValueUserInterface.Viewer = value;
+        get => _valueInput.InterfaceDefinition.Viewer;
+        set => _valueInput.InterfaceDefinition.Viewer = value;
     }
 }
 

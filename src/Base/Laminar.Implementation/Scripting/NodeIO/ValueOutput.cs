@@ -1,30 +1,28 @@
 ﻿using System;
-using System.ComponentModel;
 using Laminar.Contracts.Base;
+using Laminar.Contracts.Base.UserInterface;
+using Laminar.Contracts.Primitives;
 using Laminar.Implementation.Scripting.Connections;
 using Laminar.PluginFramework.NodeSystem;
 using Laminar.PluginFramework.NodeSystem.Connectors;
 using Laminar.PluginFramework.NodeSystem.IO.Value;
 using Laminar.PluginFramework.UserInterface;
-using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
 namespace Laminar.Implementation.Scripting.NodeIO;
 
-public class ValueOutput<T> : IValueOutput<T>
+public class ValueOutput<T> : IValueOutput<T>, INotificationClient
 {
     readonly LaminarExecutionContext _contextCache;
-    private readonly IUserInterfaceDefinitionFinder _uiFinder;
+    readonly DisplayValue<T> _displayValue;
 
-    public ValueOutput(
-        IUserInterfaceDefinitionFinder uiFinder,
-        ITypeInfoStore typeInfoStore,
-        string name,
-        T initialValue)
+    public ValueOutput(IUserInterfaceProvider uiProvider, ITypeInfoStore typeInfoStore, string name, T initialValue)
     {
+        InterfaceDefinition = new ValueInterfaceDefinition<T>(typeInfoStore, uiProvider);
+
+        _displayValue = new DisplayValue<T>(this, InterfaceDefinition, initialValue) { Name = name };
+
         Connector = new ValueOutputConnector<T>(typeInfoStore, this);
-        Name = name;
-        _uiFinder = uiFinder;
-        Value = initialValue;
+
         _contextCache = new LaminarExecutionContext
         {
             ExecutionFlags = ValueExecutionFlag.Value,
@@ -32,37 +30,33 @@ public class ValueOutput<T> : IValueOutput<T>
         };
     }
 
-    public T Value { get; set; }
+    public T Value
+    {
+        get => _displayValue.TypedValue;
+        set => _displayValue.TypedValue = value;
+    }
 
     public Action? PreEvaluateAction => null;
-
-    public ValueInterfaceDefinition ValueUserInterface { get; } = new() { IsUserEditable = false, ValueType = typeof(T) };
-
-    public string Name { get; }
-
-    public IUserInterfaceDefinition? InterfaceDefinition => _uiFinder.GetCurrentDefinitionOf(ValueUserInterface);
 
     public IOutputConnector Connector { get; }
 
     public bool AlwaysPassUpdate { get; init; }
 
-    object? IDisplayValue.Value
+    public IDisplayValue DisplayValue => _displayValue;
+
+    public IValueInterfaceDefinition InterfaceDefinition { get; }
+
+    public event EventHandler<LaminarExecutionContext>? ExecutionStarted;
+
+    public void StartExecution()
     {
-        get => Value;
-        set 
-        {
-            if (value is T typedValue)
-            {
-                Value = typedValue;
-                FireValueChange();
-            }
-        }
+        FireValueChange();
     }
 
-    public event EventHandler<LaminarExecutionContext>? StartExecution;
-    public event PropertyChangedEventHandler? PropertyChanged;
+    public void TriggerNotification()
+    {
+        FireValueChange();
+    }
 
-    public void Refresh() => PropertyChanged?.Invoke(this, IDisplayValue.ValueChangedEventArgs);
-
-    protected void FireValueChange() => StartExecution?.Invoke(this, _contextCache);
+    protected void FireValueChange() => ExecutionStarted?.Invoke(this, _contextCache);
 }

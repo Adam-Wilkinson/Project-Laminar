@@ -6,5 +6,5 @@ public interface INodeIO
 {
     public Action? PreEvaluateAction { get; }
 
-    public event EventHandler<LaminarExecutionContext> StartExecution;
+    public event EventHandler<LaminarExecutionContext> ExecutionStarted;
 }

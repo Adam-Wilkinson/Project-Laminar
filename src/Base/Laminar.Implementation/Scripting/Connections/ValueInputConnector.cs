@@ -19,7 +19,7 @@ internal class ValueInputConnector<T> : IInputConnector<IValueInput<T>>
         _typeInfoStore = typeInfoStore;
     }
 
-    public string ColorHex => _typeInfoStore.GetTypeInfoOrBlank(Input.ValueUserInterface.ValueType).HexColor;
+    public string ColorHex => _typeInfoStore.GetTypeInfoOrBlank(Input.InterfaceDefinition.ValueType).HexColor;
 
     public required IValueInput<T> Input { get; init; }
 

@@ -1,4 +1,5 @@
 ﻿using Laminar.Contracts.Base;
+using Laminar.Contracts.Base.UserInterface;
 using Laminar.PluginFramework.NodeSystem.IO;
 using Laminar.PluginFramework.NodeSystem.IO.Value;
 using Laminar.PluginFramework.UserInterface;
@@ -8,26 +9,29 @@ namespace Laminar.Implementation.Scripting.NodeIO;
 
 internal class NodeIOFactory : INodeIOFactory
 {
-    private readonly IUserInterfaceDefinitionFinder _uiFinder;
+    private readonly IUserInterfaceProvider _uiProvider;
     private readonly ITypeInfoStore _typeInfoStore;
 
-    public NodeIOFactory(IUserInterfaceDefinitionFinder uiFinder, ITypeInfoStore typeInfoStore)
+    public NodeIOFactory(IUserInterfaceProvider uiProvider, ITypeInfoStore typeInfoStore)
     {
-        _uiFinder = uiFinder;
+        _uiProvider = uiProvider;
         _typeInfoStore = typeInfoStore;
     }
 
-    public IValueInput<T> ValueInput<T>(string valueName, T initialValue, IUserInterfaceDefinition? editor, IUserInterfaceDefinition? viewer) {
-        ValueInput<T> output = new(_uiFinder, _typeInfoStore, valueName, initialValue);
-        output.ValueUserInterface.Editor = editor;
-        output.ValueUserInterface.Viewer = viewer;
+    public IValueInput<T> ValueInput<T>(string valueName, T initialValue, IUserInterfaceDefinition? editor, IUserInterfaceDefinition? viewer) 
+    {
+        ValueInput<T> output = new(_uiProvider, _typeInfoStore, valueName, initialValue);
+        output.InterfaceDefinition.Editor = editor;
+        output.InterfaceDefinition.Viewer = viewer;
         return output;
     }
 
     public IValueOutput<T> ValueOutput<T>(string valueName, T initialValue, IUserInterfaceDefinition? viewer, IUserInterfaceDefinition? editor, bool isUserEditable)
     {
-        ValueOutput<T> output = new(_uiFinder, _typeInfoStore, valueName, initialValue);
-        output.ValueUserInterface.Viewer = viewer;
+        ValueOutput<T> output = new(_uiProvider, _typeInfoStore, valueName, initialValue);
+        output.InterfaceDefinition.Viewer = viewer;
+        output.InterfaceDefinition.Editor = editor;
+        output.InterfaceDefinition.IsUserEditable = isUserEditable;
         return output;
     }
 }

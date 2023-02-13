@@ -13,11 +13,10 @@ internal class UserPreference<T> : IUserPreference, IUserPreference<T>, INotific
 
     public UserPreference(
         IDisplayFactory valueDisplayFactory, 
-        IUserInterfaceDefinitionFinder uiFinder,
         T defaultValue, 
         string name)
     {
-        _valueInfo = new(uiFinder, name, defaultValue);
+        _valueInfo = new(name, defaultValue);
         Display = valueDisplayFactory.CreateDisplayForValue(_valueInfo);
         Value = defaultValue;
         _defaultValue = defaultValue;

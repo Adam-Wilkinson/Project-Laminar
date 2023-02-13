@@ -28,24 +28,24 @@ internal class NodeRow : INodeRow
         {
             if (_input is not null)
             {
-                _input.StartExecution += value;
+                _input.ExecutionStarted += value;
             }
 
             if (_output is not null)
             {
-                _output.StartExecution += value;
+                _output.ExecutionStarted += value;
             }
         }
         remove
         {
             if (_input is not null)
             {
-                _input.StartExecution -= value;
+                _input.ExecutionStarted -= value;
             }
 
             if (_output is not null)
             {
-                _output.StartExecution -= value;
+                _output.ExecutionStarted -= value;
             }
         }
     }

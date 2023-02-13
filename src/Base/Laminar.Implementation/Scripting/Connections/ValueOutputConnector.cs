@@ -23,7 +23,7 @@ internal class ValueOutputConnector<T> : IOutputConnector<IValueOutput<T>>
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    public string ColorHex => _typeInfoStore.GetTypeInfoOrBlank(Output.ValueUserInterface.ValueType).HexColor;
+    public string ColorHex => _typeInfoStore.GetTypeInfoOrBlank(Output.InterfaceDefinition.ValueType).HexColor;
 
     public IValueOutput<T> Output { get; }
 

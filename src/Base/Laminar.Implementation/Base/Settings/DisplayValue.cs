@@ -7,18 +7,11 @@ namespace Laminar.Implementation.Base.Settings;
 
 internal class DisplayValue<T> : IDisplayValue
 {
-    ValueInterfaceDefinition _interfaceDefinition = new()
-    {
-        ValueType = typeof(T),
-        IsUserEditable = true,
-    };
+    IValueInterfaceDefinition _interfaceDefinition;
 
-    public DisplayValue(
-        IUserInterfaceDefinitionFinder uiFinder,
-        string name, 
-        T value)
+    public DisplayValue(string name, T value)
     {
-        InterfaceDefinition = uiFinder.GetCurrentDefinitionOf(_interfaceDefinition);
+        InterfaceDefinition = null;
         Name = name;
         Value = value;
     }

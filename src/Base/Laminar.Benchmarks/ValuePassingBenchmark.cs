@@ -43,7 +43,6 @@ public class ValuePassingBenchmark
         SetupScript<ValueIOBenchmarNode>(_script1, 500);
 
         _fieldsFirstNode = ValueIOBenchmarNode.Instances[1];
-        _firstInput = (((_fieldsFirstNode.Input.First() as INodeRow)!.CentralDisplay as IDisplay)!.DisplayValue as ValueInput<double>)!;
         _fieldsLastNode = ValueIOBenchmarNode.Instances[^1];
     }
 
@@ -72,7 +71,8 @@ public class ValuePassingBenchmark
     [Arguments(4)]
     public double PassValueFields(double value)
     {
-        _firstInput.Value = value;
+        _fieldsFirstNode.Output.Value = value;
+        _fieldsFirstNode.Output.StartValueChangedExecution();
         return _fieldsLastNode.Output.Value;
     }
 }
