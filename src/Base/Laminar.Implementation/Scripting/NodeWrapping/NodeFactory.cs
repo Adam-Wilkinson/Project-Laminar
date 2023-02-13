@@ -1,6 +1,7 @@
 ﻿using Laminar.Contracts.Primitives;
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Domain.Notification;
+using Laminar.PluginFramework;
 using Laminar.PluginFramework.NodeSystem;
 using Laminar.PluginFramework.NodeSystem.Components;
 using Laminar.PluginFramework.NodeSystem.IO.Value;
@@ -47,8 +48,8 @@ public class NodeFactory : INodeFactory
 
     private INodeRow CreateNameRowFor(INode node)
     {
-        IValueInput<string> nameLabel = PluginFramework.NodeSystem.IO.NodeIO.ValueInput("", node.NodeName);
+        IValueInput<string> nameLabel = LaminarFactory.NodeIO.ValueInput("", node.NodeName);
         nameLabel.ValueUserInterface.Editor = new EditableLabel();
-        return _rowFactory.CreateNodeRow(null, nameLabel, null);
+        return LaminarFactory.Component.Row(null, nameLabel, null);
     }
 }

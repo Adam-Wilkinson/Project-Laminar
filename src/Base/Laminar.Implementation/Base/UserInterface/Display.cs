@@ -16,7 +16,7 @@ internal class Display : IDisplay
     {
         DisplayValue = displayValue;
         _userInterfaceProvider = userInterfaceProvider;
-        Refresh();
+        // Refresh();
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -38,7 +38,7 @@ internal class Display : IDisplay
 
     public void Refresh()
     {
-        if (!Equals(_lastDisplayValue, DisplayValue.Value))
+        if (!Equals(_lastDisplayValue, DisplayValue.Value) || true)
         {
             DisplayValue.Refresh();
             _lastDisplayValue = DisplayValue.Value;
@@ -48,8 +48,7 @@ internal class Display : IDisplay
         if (_interfaceDefinition != newDefinition)
         {
             _interfaceDefinition = newDefinition;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Interface)));
         }
-
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Interface)));
     }
 }

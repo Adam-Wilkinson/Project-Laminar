@@ -1,7 +1,4 @@
-﻿using System;
-using Laminar.PluginFramework.NodeSystem.IO;
-using Laminar.PluginFramework.NodeSystem.IO.Value;
-using Laminar.PluginFramework.UserInterface;
+﻿using Laminar.PluginFramework.NodeSystem.IO.Value;
 using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
 namespace Laminar.PluginFramework.NodeSystem.Components;
@@ -10,10 +7,10 @@ public class ValueInputRow<T> : SingleItemNodeComponent
 {
     readonly IValueInput<T> _valueInput;
 
-    public ValueInputRow(string name, T defaultValue)
+    internal ValueInputRow(INodeComponentFactory componentFactory, string name, T initialValue)
     {
-        _valueInput = NodeIO.ValueInput(name, defaultValue);
-        ChildComponent = Component.Row(_valueInput, _valueInput, null);
+        _valueInput = LaminarFactory.NodeIO.ValueInput(name, initialValue);
+        ChildComponent = componentFactory.Row(_valueInput, _valueInput, null);
     }
 
     public T Value => _valueInput.Value;
@@ -34,4 +31,9 @@ public class ValueInputRow<T> : SingleItemNodeComponent
         get => _valueInput.ValueUserInterface.Viewer;
         set => _valueInput.ValueUserInterface.Viewer = value;
     }
+}
+
+public static class ValueInputFactoryExtension
+{
+    public static ValueInputRow<T> ValueInput<T>(this INodeComponentFactory componentFactory, string name, T defaultValue, IUserInterfaceDefinition? editor = null, IUserInterfaceDefinition? viewer = null) => new(componentFactory, name, defaultValue) { Editor = editor, Viewer = viewer };
 }

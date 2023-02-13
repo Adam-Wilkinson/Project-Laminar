@@ -15,7 +15,7 @@ public class Instance
 
     public Instance(SynchronizationContext? uiContext, FrontendDependency supportedDependencies, [CallerFilePath] string path = "")
     {
-        PluginFramework.PluginServiceProvider.ServiceProvider = ServiceProvider;
+        PluginFramework.LaminarFactory.ServiceProvider = ServiceProvider;
         _pluginLoader = new PluginLoader(path, supportedDependencies, ServiceProvider.GetService<IPluginHostFactory>()!);
         // _isLoading = true;
         //foreach (var serializedScript in UserData.LoadAllFromFolder<ISerializedObject<IAdvancedScript>>("Scripts", "las"))

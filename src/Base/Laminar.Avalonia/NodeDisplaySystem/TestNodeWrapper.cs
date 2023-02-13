@@ -8,6 +8,7 @@ using Laminar.PluginFramework.NodeSystem.Attributes;
 using Laminar.PluginFramework.NodeSystem.Components;
 using Laminar.PluginFramework.NodeSystem.IO.Value;
 using Microsoft.Extensions.DependencyInjection;
+using static Laminar.PluginFramework.LaminarFactory;
 
 namespace Laminar.Avalonia.NodeDisplaySystem;
 
@@ -38,8 +39,8 @@ public class TestNodeWrapper : IWrappedNode
 
     private class TestNode : INode
     {
-        [ShowInNode] readonly ValueInputRow<string> TestStringInput = new("Test Input", "Example");
-        [ShowInNode] readonly ValueOutputRow<double> TestNumberOutput = new("Test Output", 5);
+        [ShowInNode] readonly ValueInputRow<string> TestStringInput = Component.ValueInput("Test Input", "Example");
+        [ShowInNode] readonly ValueOutputRow<double> TestNumberOutput = Component.ValueOutput("Test Output", 5.0);
 
         public string NodeName { get; } = "Test";
 

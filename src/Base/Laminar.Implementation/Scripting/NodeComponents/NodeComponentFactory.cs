@@ -15,9 +15,9 @@ internal class NodeComponentFactory : INodeComponentFactory
         _displayFactory = displayFactory;
     }
 
-    public INodeComponentCloner<T> CreateCloner<T>(Func<T> cloner, int startCount) where T : INodeComponent => new NodeRowCloner<T>(cloner, startCount);
+    public INodeComponentCloner<T> Cloner<T>(Func<T> cloner, int startCount) where T : INodeComponent => new NodeRowCloner<T>(cloner, startCount);
 
-    public INodeRow CreateNodeRow(IInput? input, IDisplayValue displayValue, IOutput? output)
+    public INodeRow Row(IInput? input, IDisplayValue displayValue, IOutput? output)
     {
         IDisplay display = _displayFactory.CreateDisplayForValue(displayValue);
 
