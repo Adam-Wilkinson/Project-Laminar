@@ -50,6 +50,6 @@ public class NodeFactory : INodeFactory
     {
         IValueInput<string> nameLabel = LaminarFactory.NodeIO.ValueInput("", node.NodeName);
         nameLabel.ValueUserInterface.Editor = new EditableLabel();
-        return LaminarFactory.Component.Row(null, nameLabel, null);
+        return LaminarFactory.Component.CreateSingleRow(null, nameLabel, null);
     }
 }

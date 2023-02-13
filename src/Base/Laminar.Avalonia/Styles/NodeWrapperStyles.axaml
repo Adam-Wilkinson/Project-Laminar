@@ -28,18 +28,28 @@
 					<Border.DataTemplates>
 
 						<DataTemplate DataType="{x:Type con:IIOConnector}">
-							<n:ConnectorControl 
+							<n:ConnectorControl
 								Connector="{Binding}"
-								  Width="13"
-								  Height="18"
+								  Width="15"
+								  Height="20"
+								  Stretch="Fill"
 								  Data="M 2,0 2,14 12,7 2,0 z"
-								  StrokeThickness="1.5"
-								  Stroke="{DynamicResource ThemeBorderLowBrush}"
-								  Fill="{Binding ColorHex}"/>
+								  StrokeThickness="2"
+								  Stroke="{DynamicResource ThemeBorderHighBrush}"
+								  Fill="{Binding ColorHex}"
+								  VerticalAlignment="Center">
+								<n:ConnectorControl.Transitions>
+									<Transitions>
+										<DoubleTransition Property="Opacity" Duration="0:0:0.1"/>
+										<TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.1"/>
+									</Transitions>
+								</n:ConnectorControl.Transitions>
+							</n:ConnectorControl>
 						</DataTemplate>
 
 						<DataTemplate DataType="{x:Type ui:IDisplay}">
 							<mycontrols:ChildDataContextController 
+								VerticalAlignment="Center"
 								Padding="5,0"
 								Child="{Binding Interface}"
 								ChildDataContext="{Binding DisplayValue}"/>
@@ -48,13 +58,27 @@
 						<DataTemplate DataType="{x:Type nod:INodeRow}">
 							<Panel
 								Opacity="{Binding Opacity.Value}">
-								<ContentControl Content="{Binding InputConnector}"
-												HorizontalAlignment="Left"
-												RenderTransform="translate(-15px,0)"/>
-								<ContentControl Content="{Binding CentralDisplay}"/>
-								<ContentControl Content="{Binding OutputConnector}"
-												HorizontalAlignment="Right"
-												RenderTransform="translate(15px,0)"/>
+								<ContentControl Name="Input"
+												Content="{Binding InputConnector}"
+												HorizontalAlignment="Left">
+									<ContentControl.Transitions>
+										<Transitions>
+											<TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.1"/>
+										</Transitions>
+									</ContentControl.Transitions>
+								</ContentControl>
+								<ContentControl Content="{Binding CentralDisplay}"
+												VerticalContentAlignment="Center"
+												VerticalAlignment="Center"/>
+								<ContentControl Name="Output"
+												Content="{Binding OutputConnector}"
+												HorizontalAlignment="Right">
+									<ContentControl.Transitions>
+										<Transitions>
+											<TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.1"/>
+										</Transitions>
+									</ContentControl.Transitions>
+								</ContentControl>
 							</Panel>
 						</DataTemplate>
 					</Border.DataTemplates>
@@ -67,7 +91,7 @@
 								   ZIndex="-10">
 							<Rectangle.Transitions>
 								<Transitions>
-									<DoubleTransition Property="Opacity" Duration="0:0:0.05"/>
+									<DoubleTransition Property="Opacity" Duration="0:0:0.1"/>
 								</Transitions>
 							</Rectangle.Transitions>
 						</Rectangle>
@@ -96,6 +120,30 @@
 		</Setter>
 	</Style>
 
+	<Style Selector="n|ConnectorControl:pointerover">
+		<Setter Property="Opacity" Value="1.0"/>
+	</Style>
+
+	<Style Selector="n|ConnectorControl:not(:pointerover)">
+		<Setter Property="Opacity" Value="0.7"/>
+	</Style>
+
+	<Style Selector=":is(Control)#Input:not(:pointerover)">
+		<Setter Property="RenderTransform" Value="translate(-15px,0)"/>
+	</Style>
+	
+	<Style Selector=":is(Control)#Input:pointerover">
+		<Setter Property="RenderTransform" Value="translate(-16px,0)"/>
+	</Style>
+
+	<Style Selector=":is(Control)#Output:not(:pointerover)">
+		<Setter Property="RenderTransform" Value="translate(15px,0)"/>
+	</Style>
+
+	<Style Selector=":is(Control)#Output:pointerover">
+		<Setter Property="RenderTransform" Value="translate(16px,0)"/>
+	</Style>
+	
 	<Style Selector="n|NodeWrapperDisplay:not(:pointerover) :is(Control).Highlight">
 		<Setter Property="Opacity" Value="0"/>
 	</Style>

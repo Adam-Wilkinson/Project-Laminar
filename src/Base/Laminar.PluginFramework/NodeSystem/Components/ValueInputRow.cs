@@ -10,7 +10,7 @@ public class ValueInputRow<T> : SingleItemNodeComponent
     internal ValueInputRow(INodeComponentFactory componentFactory, string name, T initialValue)
     {
         _valueInput = LaminarFactory.NodeIO.ValueInput(name, initialValue);
-        ChildComponent = componentFactory.Row(_valueInput, _valueInput, null);
+        ChildComponent = componentFactory.CreateSingleRow(_valueInput, _valueInput, null);
     }
 
     public T Value => _valueInput.Value;

@@ -10,7 +10,7 @@ public class ValueOutputRow<T> : SingleItemNodeComponent
     internal ValueOutputRow(INodeComponentFactory factory, string name, T initialValue)
     {
         _valueOutput = LaminarFactory.NodeIO.ValueOutput(name, initialValue);
-        ChildComponent = factory.Row(null, _valueOutput, _valueOutput);
+        ChildComponent = factory.CreateSingleRow(null, _valueOutput, _valueOutput);
     }
 
     public T Value
@@ -24,9 +24,21 @@ public class ValueOutputRow<T> : SingleItemNodeComponent
         get => _valueOutput.ValueUserInterface.Viewer;
         set => _valueOutput.ValueUserInterface.Viewer = value;
     }
+
+    public IUserInterfaceDefinition? Editor
+    {
+        get => _valueOutput.ValueUserInterface.Editor;
+        set => _valueOutput.ValueUserInterface.Editor = value;
+    }
+
+    public bool IsUserEditable
+    {
+        get => _valueOutput.ValueUserInterface.IsUserEditable;
+        set => _valueOutput.ValueUserInterface.IsUserEditable = value;
+    }
 }
 
 public static class ValueOutputFactoryExtension
 {
-    public static ValueOutputRow<T> ValueOutput<T>(this INodeComponentFactory componentFactory, string name, T defaultValue, IUserInterfaceDefinition? viewer = null) => new(componentFactory, name, defaultValue) { Viewer = viewer };
+    public static ValueOutputRow<T> ValueOutput<T>(this INodeComponentFactory componentFactory, string name, T defaultValue, IUserInterfaceDefinition? viewer = null, IUserInterfaceDefinition? editor = null, bool isUserEditable = false) => new(componentFactory, name, defaultValue) { Viewer = viewer, Editor = editor, IsUserEditable = isUserEditable };
 }

@@ -12,6 +12,7 @@ namespace Laminar.Implementation.Scripting.NodeIO;
 
 public class ValueOutput<T> : IValueOutput<T>
 {
+    readonly LaminarExecutionContext _contextCache;
     private readonly IUserInterfaceDefinitionFinder _uiFinder;
 
     public ValueOutput(
@@ -24,9 +25,14 @@ public class ValueOutput<T> : IValueOutput<T>
         Name = name;
         _uiFinder = uiFinder;
         Value = initialValue;
+        _contextCache = new LaminarExecutionContext
+        {
+            ExecutionFlags = ValueExecutionFlag.Value,
+            ExecutionSource = Connector,
+        };
     }
 
-    public virtual T Value { get; set; }
+    public T Value { get; set; }
 
     public Action? PreEvaluateAction => null;
 
@@ -43,11 +49,20 @@ public class ValueOutput<T> : IValueOutput<T>
     object? IDisplayValue.Value
     {
         get => Value;
-        set { }
+        set 
+        {
+            if (value is T typedValue)
+            {
+                Value = typedValue;
+                FireValueChange();
+            }
+        }
     }
 
     public event EventHandler<LaminarExecutionContext>? StartExecution;
     public event PropertyChangedEventHandler? PropertyChanged;
 
     public void Refresh() => PropertyChanged?.Invoke(this, IDisplayValue.ValueChangedEventArgs);
+
+    protected void FireValueChange() => StartExecution?.Invoke(this, _contextCache);
 }
