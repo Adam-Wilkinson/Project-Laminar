@@ -8,4 +8,10 @@
 		  <ExcludeAssets>runtime</ExcludeAssets>
 	  </ProjectReference>
   </ItemGroup>
+	
+	<ItemGroup>
+		<ProjectReference Include="..\..\Base\Laminar.PluginSourceGeneration\Laminar.PluginSourceGeneration.csproj"
+						  OutputItemType="Analyzer"
+						  ReferenceOutputAssembly="false" />
+	</ItemGroup>
 </Project>
