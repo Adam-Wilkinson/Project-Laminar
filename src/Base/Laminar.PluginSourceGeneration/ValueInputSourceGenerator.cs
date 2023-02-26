@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Linq;
+using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Text;
 
 namespace Laminar.PluginSourceGeneration
 {
@@ -24,71 +26,65 @@ namespace Laminar.PluginFramework.NodeSystem.Attributes
     }
 }";
 
-        const char DotChar = '.';
-
         public void Initialize(IncrementalGeneratorInitializationContext context)
         {
-            context.RegisterPostInitializationOutput(i => i.AddSource("InputAttribute.g.cs", InputAttribute));
+            context.RegisterPostInitializationOutput(postInitializationContext => postInitializationContext.AddSource("InputAttribute.g.cs", SourceText.From(InputAttribute, Encoding.UTF8)));
 
-            IncrementalValuesProvider<(FieldDeclarationSyntax field, AttributeSyntax attribute)> inputFields =  context.SyntaxProvider.CreateSyntaxProvider((node, token) => { return node is FieldDeclarationSyntax fieldSyntax && fieldSyntax.AttributeLists.Count > 0 && fieldSyntax.AttributeLists.Any(listSyntax => listSyntax.Attributes.Any(x => BuildName(x.Name, false) == "Input" && x.ArgumentList.Arguments.Count >= 1)); }, (genContext, token) => { return (genContext.Node as FieldDeclarationSyntax, GetInputAttribute(genContext.Node as FieldDeclarationSyntax)); });
+            IncrementalValuesProvider<(FieldDeclarationSyntax field, AttributeSyntax attribute)> fieldsWithInputAttribute = context.SyntaxProvider.CreateSyntaxProvider(
+                predicate: (node, _) => IsFieldSyntaxWithAttributeCalledInput(node),
+                transform: (genContext, _) => GetFieldWithInputAttributeNode(genContext))
+                .Where(m => m.Item1 != null && m.Item2 != null);
 
-            context.RegisterSourceOutput(inputFields, (sgc, fieldAndAttribute) =>
+            context.RegisterSourceOutput(fieldsWithInputAttribute, (sgc, fieldAndAttribute) =>
             {
                 sgc.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("ad05", "This is an input", "Wow how exciting it is an input called " + fieldAndAttribute.attribute.ArgumentList.Arguments.First().ToFullString(), "fancies", DiagnosticSeverity.Warning, true),
                                                         fieldAndAttribute.field.GetLocation()));
             });
         }
 
-
-
-        private static string BuildName(NameSyntax nameSyntax, bool includeAlias)
+        private static bool IsFieldSyntaxWithAttributeCalledInput(SyntaxNode node)
         {
-            if (nameSyntax.IsKind(SyntaxKind.IdentifierName))
-            {
-                var identifierNameSyntax = (IdentifierNameSyntax)nameSyntax;
-                return identifierNameSyntax.Identifier.ValueText;
-            }
-
-            if (nameSyntax.IsKind(SyntaxKind.QualifiedName))
-            {
-                var qualifiedNameSyntax = (QualifiedNameSyntax)nameSyntax;
-                return BuildName(qualifiedNameSyntax.Left, includeAlias) + DotChar + BuildName(qualifiedNameSyntax.Right, includeAlias);
-            }
-
-            else if (nameSyntax.IsKind(SyntaxKind.GenericName))
-            {
-                var genericNameSyntax = (GenericNameSyntax)nameSyntax;
-                return genericNameSyntax.Identifier.ValueText + genericNameSyntax.TypeArgumentList.ToString();
-            }
-
-            else if (nameSyntax.IsKind(SyntaxKind.AliasQualifiedName))
-            {
-                var aliasQualifiedNameSyntax = (AliasQualifiedNameSyntax)nameSyntax;
-                if (includeAlias)
-                {
-                    return aliasQualifiedNameSyntax.Alias.Identifier.ValueText + "::" + aliasQualifiedNameSyntax.Name.Identifier.ValueText;
-                }
-
-                return aliasQualifiedNameSyntax.Name.Identifier.ValueText;
-            }
-
-            throw new NotImplementedException();
+            return node is FieldDeclarationSyntax fieldSyntax && fieldSyntax.AttributeLists.Count > 0 && fieldSyntax.AttributeLists.Any(attributeListSyntax => attributeListSyntax.Attributes.Any(x => GetSimpleName(x.Name) == "Input" && x.ArgumentList.Arguments.Count >= 1));
         }
 
-        private static AttributeSyntax GetInputAttribute(FieldDeclarationSyntax fieldSyntax)
+        private static (FieldDeclarationSyntax, AttributeSyntax) GetFieldWithInputAttributeNode(GeneratorSyntaxContext genContext)
         {
-            foreach (var attributeList in fieldSyntax.AttributeLists)
+            FieldDeclarationSyntax fieldNode = (FieldDeclarationSyntax)genContext.Node;
+
+            foreach (AttributeListSyntax attributeList in fieldNode.AttributeLists)
             {
-                foreach (var attribute in attributeList.Attributes)
+                foreach (AttributeSyntax attribute in attributeList.Attributes)
                 {
-                    if (BuildName(attribute.Name, false) == "Input")
+                    if (genContext.SemanticModel.GetSymbolInfo(attribute).Symbol is IMethodSymbol attributeConstructorSymbol)
                     {
-                        return attribute;
+                        INamedTypeSymbol attributeTypeSymbol = attributeConstructorSymbol.ContainingType;
+
+                        if (attributeTypeSymbol.ToDisplayString() == "Laminar.PluginFramework.NodeSystem.Attributes.InputAttribute")
+                        {
+                            return (fieldNode, attribute);
+                        }
                     }
                 }
             }
 
-            throw new Exception();
+            // Could not find field and correctly typed attribute
+            return (null, null);
+        }
+
+        private static string GetSimpleName(NameSyntax nameSyntax)
+        {
+            switch (nameSyntax.Kind())
+            {
+                case SyntaxKind.IdentifierName:
+                case SyntaxKind.GenericName:
+                    return ((SimpleNameSyntax)nameSyntax).Identifier.ValueText;
+                case SyntaxKind.QualifiedName:
+                    return GetSimpleName(((QualifiedNameSyntax)nameSyntax).Right);
+                case SyntaxKind.AliasQualifiedName:
+                    return ((AliasQualifiedNameSyntax)nameSyntax).Name.Identifier.ValueText;
+                default:
+                    throw new ArgumentException(nameof(nameSyntax));
+            }
         }
     }
 }

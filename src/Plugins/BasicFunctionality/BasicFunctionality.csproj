@@ -12,6 +12,6 @@
 	<ItemGroup>
 		<ProjectReference Include="..\..\Base\Laminar.PluginSourceGeneration\Laminar.PluginSourceGeneration.csproj"
 						  OutputItemType="Analyzer"
-						  ReferenceOutputAssembly="false" />
+						  ReferenceOutputAssembly="false"/>
 	</ItemGroup>
 </Project>
