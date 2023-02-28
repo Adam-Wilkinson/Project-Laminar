@@ -5,18 +5,21 @@ using static Laminar.PluginFramework.LaminarFactory;
 
 namespace BasicFunctionality.Nodes.Maths.Arithmetic;
 
-public class NodeAdd : INode
+public partial class NodeAdd : INode
 {
     [ShowInNode] readonly INodeComponentCloner<ValueInputRow<double>> AddInputs = Component.Cloner(() => Component.ValueInput("Add input", 0.0), 1);
     [ShowInNode] readonly ValueOutputRow<double> Output = Component.ValueOutput("Sum", 0.0);
 
-    [Input("Test Input Called")] int ThisIsATestInput = 0;
+    [Input("This is an input")] int ThisIsATestInput = 0;
+
+    [Input("Another input")] double OooAnotherOne = 1.0;
 
     public string NodeName { get; } = "Add";
 
     public void Evaluate()
     {
-        ThisIsATestInput = 4;
+        NameOfInputOooAnotherOne();
+        NameOfInputThisIsATestInput();
         double total = 0;
 
         foreach (var row in AddInputs)

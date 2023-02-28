@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
@@ -26,19 +27,35 @@ namespace Laminar.PluginFramework.NodeSystem.Attributes
     }
 }";
 
+        readonly DiagnosticDescriptor ObjectNotPartialError = new("PL001", "Partial Error", "Use of the attribute {0} on line {1} requires this to be marked as partial for source generation", "Usage", DiagnosticSeverity.Error, true);
+        readonly DiagnosticDescriptor ClassIsSubclassError = new("PL001", "Subclass Error", "Use of the attribute {0} on line {1} requires this class to not be defined as a subclass", "Usage", DiagnosticSeverity.Error, true);
+
         public void Initialize(IncrementalGeneratorInitializationContext context)
         {
             context.RegisterPostInitializationOutput(postInitializationContext => postInitializationContext.AddSource("InputAttribute.g.cs", SourceText.From(InputAttribute, Encoding.UTF8)));
 
             IncrementalValuesProvider<(FieldDeclarationSyntax field, AttributeSyntax attribute)> fieldsWithInputAttribute = context.SyntaxProvider.CreateSyntaxProvider(
-                predicate: (node, _) => IsFieldSyntaxWithAttributeCalledInput(node),
-                transform: (genContext, _) => GetFieldWithInputAttributeNode(genContext))
-                .Where(m => m.Item1 != null && m.Item2 != null);
+                predicate: static (node, _) => IsFieldSyntaxWithAttributeCalledInput(node),
+                transform: static (genContext, _) => GetFieldWithInputAttributeNode(genContext))
+                .Where(static m => m is not (null, null));
 
             context.RegisterSourceOutput(fieldsWithInputAttribute, (sgc, fieldAndAttribute) =>
             {
-                sgc.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("ad05", "This is an input", "Wow how exciting it is an input called " + fieldAndAttribute.attribute.ArgumentList.Arguments.First().ToFullString(), "fancies", DiagnosticSeverity.Warning, true),
-                                                        fieldAndAttribute.field.GetLocation()));
+                ClassDeclarationSyntax parentClassSyntax = (ClassDeclarationSyntax)fieldAndAttribute.field.Parent;
+
+                if (!SyntaxTokenListContainsPartial(parentClassSyntax.Modifiers))
+                {
+                    sgc.ReportDiagnostic(Diagnostic.Create(ObjectNotPartialError, parentClassSyntax.Identifier.GetLocation(), "\"Input\"", GetLineOf(fieldAndAttribute.field)));
+                    return;
+                }
+
+                if (parentClassSyntax.Parent is not BaseNamespaceDeclarationSyntax)
+                {
+                    sgc.ReportDiagnostic(Diagnostic.Create(ClassIsSubclassError, parentClassSyntax.Identifier.GetLocation(), "\"Input\"", GetLineOf(fieldAndAttribute.field)));
+                    return;
+                }
+
+                sgc.AddSource($"{parentClassSyntax.Identifier.Text}.{fieldAndAttribute.field.Declaration.Variables[0].Identifier.Text}.g.cs", GenerateInputPropertySyntaxNode(parentClassSyntax, fieldAndAttribute.field, fieldAndAttribute.attribute).GetText(Encoding.UTF8));
             });
         }
 
@@ -50,6 +67,11 @@ namespace Laminar.PluginFramework.NodeSystem.Attributes
         private static (FieldDeclarationSyntax, AttributeSyntax) GetFieldWithInputAttributeNode(GeneratorSyntaxContext genContext)
         {
             FieldDeclarationSyntax fieldNode = (FieldDeclarationSyntax)genContext.Node;
+
+            if (fieldNode.Parent is not ClassDeclarationSyntax)
+            {
+                return (null, null);
+            }
 
             foreach (AttributeListSyntax attributeList in fieldNode.AttributeLists)
             {
@@ -85,6 +107,57 @@ namespace Laminar.PluginFramework.NodeSystem.Attributes
                 default:
                     throw new ArgumentException(nameof(nameSyntax));
             }
+        }
+
+        private static bool SyntaxTokenListContainsPartial(SyntaxTokenList syntaxTokens)
+        {
+            foreach (SyntaxToken token in syntaxTokens)
+            {
+                if (token.Text == "partial")
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static SyntaxNode GenerateInputPropertySyntaxNode(ClassDeclarationSyntax parentClass, FieldDeclarationSyntax fieldNeedingProperty, AttributeSyntax inputAttribute)
+        {
+            CompilationUnitSyntax originalRoot = parentClass.SyntaxTree.GetCompilationUnitRoot();
+
+            int fieldIndex = 0;
+            foreach (SyntaxNode node in parentClass.ChildNodes())
+            {
+                if (node == fieldNeedingProperty)
+                {
+                    break;
+                }
+
+                if (node is FieldDeclarationSyntax fieldDeclarationSyntax)
+                {
+                    fieldIndex++;
+                }
+            }
+
+            CompilationUnitSyntax newCompilationUnit = SyntaxFactory.CompilationUnit(originalRoot.Externs, originalRoot.Usings, originalRoot.AttributeLists, new SyntaxList<MemberDeclarationSyntax>(
+                (parentClass.Parent as BaseNamespaceDeclarationSyntax)
+                    .RemoveNodes(parentClass.Parent.ChildNodes().Where(x => x is not NameSyntax), SyntaxRemoveOptions.KeepNoTrivia)
+                    .AddMembers(SyntaxFactory.ParseMemberDeclaration($@"
+{parentClass.Modifiers} class {parentClass.Identifier.ToFullString()}
+{{
+    public string NameOfInput{fieldNeedingProperty.Declaration.Variables[0].Identifier.Text}()
+    {{
+        return {inputAttribute.ArgumentList.Arguments[0].GetText()} + "" is at field position {fieldIndex} and has value "" + {fieldNeedingProperty.Declaration.Variables[0].Identifier.Text}.ToString();
+    }}
+}}
+"))));
+            return newCompilationUnit;
+        }
+
+        private static int GetLineOf(SyntaxNode node)
+        {
+            return node.SyntaxTree.GetLineSpan(node.GetLocation().SourceSpan).EndLinePosition.Line + 1;
         }
     }
 }
