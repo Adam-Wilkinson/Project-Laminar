@@ -39,7 +39,7 @@ public class ValueInput<T> : IValueInput<T>, INotificationClient
 
     public IInputConnector Connector { get; }
 
-    public virtual Action? PreEvaluateAction => null;
+    public virtual Action? PreEvaluateAction { get; set; }
 
     public IValueInterfaceDefinition InterfaceDefinition { get; }
 

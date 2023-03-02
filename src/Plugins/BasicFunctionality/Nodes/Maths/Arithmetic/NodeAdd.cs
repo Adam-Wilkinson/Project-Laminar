@@ -1,4 +1,6 @@
-﻿using Laminar.PluginFramework.NodeSystem;
+﻿using System.Collections;
+using System.Collections.Generic;
+using Laminar.PluginFramework.NodeSystem;
 using Laminar.PluginFramework.NodeSystem.Attributes;
 using Laminar.PluginFramework.NodeSystem.Components;
 using static Laminar.PluginFramework.LaminarFactory;
@@ -12,14 +14,14 @@ public partial class NodeAdd : INode
 
     [Input("This is an input")] int ThisIsATestInput = 0;
 
-    [Input("Another input")] double OooAnotherOne = 1.0;
+    [Input("Another input")] string OooAnotherOne = "Initial value";
+
+    [Input("Wonder what these do")] double TestOne = 3, TestTwo = 5;
 
     public string NodeName { get; } = "Add";
 
     public void Evaluate()
     {
-        NameOfInputOooAnotherOne();
-        NameOfInputThisIsATestInput();
         double total = 0;
 
         foreach (var row in AddInputs)

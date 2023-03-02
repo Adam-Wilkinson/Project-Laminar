@@ -1,4 +1,5 @@
-﻿using Laminar.Contracts.Base;
+﻿using System;
+using Laminar.Contracts.Base;
 using Laminar.Contracts.Base.UserInterface;
 using Laminar.PluginFramework.NodeSystem.IO;
 using Laminar.PluginFramework.NodeSystem.IO.Value;
@@ -18,11 +19,17 @@ internal class NodeIOFactory : INodeIOFactory
         _typeInfoStore = typeInfoStore;
     }
 
-    public IValueInput<T> ValueInput<T>(string valueName, T initialValue, IUserInterfaceDefinition? editor, IUserInterfaceDefinition? viewer) 
+    public IValueInput<T> ValueInput<T>(string valueName, T initialValue, IUserInterfaceDefinition? editor, IUserInterfaceDefinition? viewer, Action<T>? valueSetter)
     {
         ValueInput<T> output = new(_uiProvider, _typeInfoStore, valueName, initialValue);
         output.InterfaceDefinition.Editor = editor;
         output.InterfaceDefinition.Viewer = viewer;
+
+        if (valueSetter is not null)
+        {
+            output.PreEvaluateAction = () => { valueSetter(output.Value); };
+        }
+
         return output;
     }
 

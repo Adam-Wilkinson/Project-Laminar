@@ -10,4 +10,8 @@
       <_Parameter1>Laminar.Implementation</_Parameter1>
     </AssemblyAttribute>
 </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="NodeSystem\Attributes\" />
+  </ItemGroup>
 </Project>

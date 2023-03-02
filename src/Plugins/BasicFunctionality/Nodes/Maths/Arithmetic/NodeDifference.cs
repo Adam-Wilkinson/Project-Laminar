@@ -4,7 +4,7 @@ using Laminar.PluginFramework.NodeSystem.Components;
 using static Laminar.PluginFramework.LaminarFactory;
 
 namespace BasicFunctionality.Nodes.Maths.Arithmetic;
-public class NodeDifference : INode
+public partial class NodeDifference : INode
 {
     [ShowInNode] readonly ValueInputRow<double> FirstNumber = Component.ValueInput("First Number", 0.0);
     [ShowInNode] readonly ValueInputRow<double> SecondNumber = Component.ValueInput("Second Number", 0.0);
