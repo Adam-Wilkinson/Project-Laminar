@@ -17,13 +17,11 @@ public partial class AddNode : INode
 
     public void Evaluate()
     {
-        double total = 0;
+        Output = 0;
 
         foreach (ValueInputRow<double> row in AddInputs)
         {
-            total += row;
+            Output += row;
         }
-
-        Output = total;
     }
 }
