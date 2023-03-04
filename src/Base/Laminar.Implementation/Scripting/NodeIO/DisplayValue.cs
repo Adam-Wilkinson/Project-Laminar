@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using Laminar.Contracts.Primitives;
 using Laminar.PluginFramework.NodeSystem;
@@ -20,6 +21,7 @@ internal class DisplayValue<T> : IDisplayValue
         _valueChangedByuserNotificationClient = valueChangedByUserNotificationClient;
         _valueInterfaceDefinition = valueInterfaceDefinition;
         _internalValue = initialValue;
+        GetterOverride = () => ValueProvider is null ? _internalValue : ValueProvider.Value;
     }
 
     public IValueProvider<T>? ValueProvider { get; set; }
@@ -28,9 +30,11 @@ internal class DisplayValue<T> : IDisplayValue
 
     public T TypedValue
     {
-        get => ValueProvider is null ? _internalValue : ValueProvider.Value;
+        get => GetterOverride();
         set => _internalValue = value;
     }
+
+    public Func<T> GetterOverride { get; set; }
 
     public IUserInterfaceDefinition? InterfaceDefinition => _valueInterfaceDefinition.GetCurrentDefinition();
 

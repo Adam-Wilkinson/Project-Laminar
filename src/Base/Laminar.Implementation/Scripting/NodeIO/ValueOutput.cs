@@ -21,8 +21,6 @@ public class ValueOutput<T> : IValueOutput<T>, INotificationClient
 
         _displayValue = new DisplayValue<T>(this, InterfaceDefinition, initialValue) { Name = name };
 
-        GetterOverride = () => _displayValue.TypedValue;
-
         Connector = new ValueOutputConnector<T>(typeInfoStore, this);
 
         _contextCache = new LaminarExecutionContext
@@ -34,11 +32,11 @@ public class ValueOutput<T> : IValueOutput<T>, INotificationClient
 
     public T Value
     {
-        get => GetterOverride();
+        get => _displayValue.TypedValue;
         set => _displayValue.TypedValue = value;
     }
 
-    public Func<T> GetterOverride { get; set; }
+    public Func<T> GetterOverride { get => _displayValue.GetterOverride; set => _displayValue.GetterOverride = value; }
 
     public Action? PreEvaluateAction => null;
 
