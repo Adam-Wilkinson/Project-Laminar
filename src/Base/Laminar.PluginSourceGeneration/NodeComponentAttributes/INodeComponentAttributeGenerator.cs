@@ -8,9 +8,7 @@ internal interface INodeComponentAttributeGenerator
 {
     public string Name { get; }
 
-    public string AQN { get; }
-
-    public string AttributeSourceString { get; }
+    public string AttributeSourceString(string attributeNamespace);
 
     public NodeImplementationGenerator.ComponentGenerationInfo GenerateComponentInfo(FieldDeclarationSyntax fieldDeclaration, AttributeSyntax attribute, GeneratorSyntaxContext context);
 }

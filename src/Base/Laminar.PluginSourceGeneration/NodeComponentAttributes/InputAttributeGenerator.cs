@@ -1,26 +1,31 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Laminar.PluginSourceGeneration.Generators;
 using Laminar.PluginSourceGeneration.Helpers;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Laminar.PluginSourceGeneration.NodeComponentAttributes;
-
-internal class ShowInNodeAttributeGenerator : INodeComponentAttributeGenerator
+internal class InputAttributeGenerator : INodeComponentAttributeGenerator
 {
-    public string Name => "ShowInNode";
+    public string Name { get; } = "Input";
 
-    public string AttributeSourceString(string attributeNamespace) => 
-@$"using System;
+    public string AttributeSourceString(string attributeNamespace) =>
+$@"using System;
 
 namespace {attributeNamespace}
 {{
     [AttributeUsage(AttributeTargets.Field)]
     internal class {Name}Attribute : Attribute
     {{
+        public {Name}Attribute(string inputName) 
+        {{
+            InputName = inputName;
+        }}
+
+        public string InputName {{ get; }}
     }}
 }}";
 
@@ -30,16 +35,23 @@ namespace {attributeNamespace}
 
         bool isSuccessful = !diagnostics.Any(x => x.Severity == DiagnosticSeverity.Error);
 
-        return new NodeImplementationGenerator.ComponentGenerationInfo(null, fieldDeclaration.Declaration.Variables[0].Identifier.Text, GetDiagnostics(context, fieldDeclaration)) { IsSuccessful = isSuccessful };
+        VariableDeclaratorSyntax variableDeclaration = fieldDeclaration.Declaration.Variables[0];
+
+        string fieldName = variableDeclaration.Identifier.Text;
+
+        string ComponentName = $"{fieldName}NodeComponent";
+
+        string FieldDeclarationType = fieldDeclaration.Declaration.Type.ToString();
+
+        string initialValue = variableDeclaration.Initializer!.Value.ToString();
+
+        MemberDeclarationSyntax memberDeclaration = SyntaxFactory.ParseMemberDeclaration($"private ValueInputRow<{FieldDeclarationType}> {ComponentName};");
+
+        return new NodeImplementationGenerator.ComponentGenerationInfo(memberDeclaration, $"{ComponentName} ??= Component.ValueInput<{FieldDeclarationType}>({attribute.ArgumentList!.Arguments[0].GetText()}, {initialValue}, valueAutoSetter: (value) => {fieldName} = value)", GetDiagnostics(context, fieldDeclaration)) { IsSuccessful = isSuccessful };
     }
 
     private IEnumerable<Diagnostic> GetDiagnostics(GeneratorSyntaxContext context, FieldDeclarationSyntax fieldDeclaration)
     {
-        if (!(context.SemanticModel.GetSymbolInfo(fieldDeclaration.Declaration.Type).Symbol as INamedTypeSymbol)!.AllInterfaces.Any(x => x.ToString() == "Laminar.PluginFramework.NodeSystem.Components.INodeComponent"))
-        {
-            yield return LaminarDiagnostics.TypeDoesNotInheritError(Name, "INodeComponent", fieldDeclaration.GetLocation());
-        }
-
         ClassDeclarationSyntax parentClassSyntax = (ClassDeclarationSyntax)fieldDeclaration.Parent;
 
         if (!SyntaxHelpers.SyntaxTokenListContains(parentClassSyntax!.Modifiers, "partial"))

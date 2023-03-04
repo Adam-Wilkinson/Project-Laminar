@@ -21,24 +21,30 @@ internal class NodeIOFactory : INodeIOFactory
 
     public IValueInput<T> ValueInput<T>(string valueName, T initialValue, IUserInterfaceDefinition? editor, IUserInterfaceDefinition? viewer, Action<T>? valueSetter)
     {
-        ValueInput<T> output = new(_uiProvider, _typeInfoStore, valueName, initialValue);
-        output.InterfaceDefinition.Editor = editor;
-        output.InterfaceDefinition.Viewer = viewer;
+        ValueInput<T> newInput = new(_uiProvider, _typeInfoStore, valueName, initialValue);
+        newInput.InterfaceDefinition.Editor = editor;
+        newInput.InterfaceDefinition.Viewer = viewer;
 
         if (valueSetter is not null)
         {
-            output.PreEvaluateAction = () => { valueSetter(output.Value); };
+            newInput.PreEvaluateAction = () => { valueSetter(newInput.Value); };
         }
 
-        return output;
+        return newInput;
     }
 
-    public IValueOutput<T> ValueOutput<T>(string valueName, T initialValue, IUserInterfaceDefinition? viewer, IUserInterfaceDefinition? editor, bool isUserEditable)
+    public IValueOutput<T> ValueOutput<T>(string valueName, T initialValue, IUserInterfaceDefinition? viewer, IUserInterfaceDefinition? editor, bool isUserEditable, Func<T>? getter)
     {
-        ValueOutput<T> output = new(_uiProvider, _typeInfoStore, valueName, initialValue);
-        output.InterfaceDefinition.Viewer = viewer;
-        output.InterfaceDefinition.Editor = editor;
-        output.InterfaceDefinition.IsUserEditable = isUserEditable;
-        return output;
+        ValueOutput<T> newOutput = new(_uiProvider, _typeInfoStore, valueName, initialValue);
+        newOutput.InterfaceDefinition.Viewer = viewer;
+        newOutput.InterfaceDefinition.Editor = editor;
+        newOutput.InterfaceDefinition.IsUserEditable = isUserEditable;
+
+        if (getter is not null)
+        {
+            newOutput.
+        }
+
+        return newOutput;
     }
 }

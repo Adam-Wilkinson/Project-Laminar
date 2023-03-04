@@ -15,11 +15,20 @@ namespace Laminar.PluginSourceGeneration.Generators;
 [Generator(LanguageNames.CSharp)]
 public class NodeImplementationGenerator : IIncrementalGenerator
 {
+    private static readonly UsingDirectiveSyntax[] RequiredUsings =
+    {
+        SyntaxFactory.UsingDirective(SyntaxFactory.ParseName(" System.Collections.Generic")),
+        SyntaxFactory.UsingDirective(SyntaxFactory.ParseName(" Laminar.PluginFramework.NodeSystem.Components")),
+        SyntaxFactory.UsingDirective(SyntaxFactory.ParseToken(" static"), null, SyntaxFactory.ParseName(" Laminar.PluginFramework.LaminarFactory")),
+    };
+
+    private const string AttributeNamespace = "Laminar.PluginFramework.NodeSystem.Attributes";
+
     private static readonly Dictionary<string, INodeComponentAttributeGenerator> componentAttributeGenerators = 
         Assembly.GetExecutingAssembly().GetTypes()
             .Where(x => typeof(INodeComponentAttributeGenerator).IsAssignableFrom(x) && x.IsClass)
             .Select(x => (INodeComponentAttributeGenerator)Activator.CreateInstance(x))
-            .ToDictionary(x => x.AQN);
+            .ToDictionary(x => $"{AttributeNamespace}.{x.Name}Attribute");
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
@@ -27,7 +36,7 @@ public class NodeImplementationGenerator : IIncrementalGenerator
         {
             foreach (INodeComponentAttributeGenerator attributeGenerator in componentAttributeGenerators.Values)
             {
-                postInitializationContext.AddSource($"{attributeGenerator.Name}.g.cs", SourceText.From(attributeGenerator.AttributeSourceString, Encoding.UTF8));
+                postInitializationContext.AddSource($"{attributeGenerator.Name}.g.cs", SourceText.From(attributeGenerator.AttributeSourceString(AttributeNamespace), Encoding.UTF8));
             }
         });
 
@@ -43,10 +52,6 @@ public class NodeImplementationGenerator : IIncrementalGenerator
                 foreach (Diagnostic diagnostic in componentInfo.Diagnostics)
                 {
                     spc.ReportDiagnostic(diagnostic);
-                    if (diagnostic.Severity == DiagnosticSeverity.Error)
-                    {
-                        componentInfo.IsSuccessful = false;
-                    }
                 }
             }
 
@@ -74,7 +79,7 @@ public class NodeImplementationGenerator : IIncrementalGenerator
         {
             StringBuilder newMemberSB = new();
             newMemberSB.Append(@"
-public System.Collections.Generic.IEnumerable<Laminar.PluginFramework.NodeSystem.Components.INodeComponent> Components
+public IEnumerable<INodeComponent> Components
 {
     get
     {");
@@ -102,7 +107,7 @@ public System.Collections.Generic.IEnumerable<Laminar.PluginFramework.NodeSystem
 
         baseNamespaceDeclaration = baseNamespaceDeclaration.AddMembers(newClassPart);
 
-        return SyntaxFactory.CompilationUnit(originalRoot.Externs, originalRoot.Usings, originalRoot.AttributeLists, new SyntaxList<MemberDeclarationSyntax>(baseNamespaceDeclaration)).NormalizeWhitespace();
+        return SyntaxFactory.CompilationUnit(originalRoot.Externs, SyntaxHelpers.EnsureUsingsContains(originalRoot.Usings, RequiredUsings), originalRoot.AttributeLists, new SyntaxList<MemberDeclarationSyntax>(baseNamespaceDeclaration)).NormalizeWhitespace();
     }
 
     private static bool SyntaxIsProbablyINodeImplementation(SyntaxNode node)
@@ -144,7 +149,7 @@ public System.Collections.Generic.IEnumerable<Laminar.PluginFramework.NodeSystem
 
         foreach (MemberDeclarationSyntax member in classDeclarationSyntax.Members)
         {
-            if (member is FieldDeclarationSyntax fieldDeclarationSyntax && fieldDeclarationSyntax.Declaration.Variables[0].Identifier.Text.ToString() == "Fields")
+            if (member is PropertyDeclarationSyntax propertyDeclarationSyntax && propertyDeclarationSyntax.Identifier.Text.ToString() == "Components")
             {
                 needsFieldsAdding = false;
                 break;
