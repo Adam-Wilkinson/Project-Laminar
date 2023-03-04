@@ -3,7 +3,7 @@ using Laminar.PluginFramework.NodeSystem.Attributes;
 
 namespace BasicFunctionality.Nodes.Maths.Arithmetic;
 
-public partial class NodeDifference : INode
+public partial class DifferenceNode : INode
 {
     [Input("First Number")] double FirstNumber = 0.0;
     [Input("Second Number")] double SecondNumber = 0.0;

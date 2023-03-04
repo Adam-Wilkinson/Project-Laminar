@@ -3,7 +3,7 @@ using Laminar.PluginFramework.NodeSystem;
 
 namespace BasicFunctionality.Nodes.Flow;
 
-public class WaitForTrigger : INode
+public partial class WaitForTriggerNode : INode
 {
     //private readonly Timer resetTimer = new() { AutoReset = false };
     //private readonly bool isWaiting = false;

@@ -5,7 +5,7 @@ using static Laminar.PluginFramework.LaminarFactory;
 
 namespace BasicFunctionality.Nodes.Maths.Arithmetic;
 
-public partial class NodeAdd : INode
+public partial class AddNode : INode
 {
     [ShowInNode] readonly INodeComponentCloner<ValueInputRow<double>> AddInputs = Component.Cloner(() => Component.ValueInput("Add input", 0.0), 1);
     [ShowInNode] readonly ValueOutputRow<double> Output = Component.ValueOutput("Sum", 0.0);
@@ -14,7 +14,7 @@ public partial class NodeAdd : INode
 
     [Input("Another input")] string OooAnotherOne = "Initial value";
 
-    [Input("Wonder what these do")] double TestOne = 3, TestTwo = 5;
+    [Input("Wonder what these do")] double TestOne = 3;
 
     public string NodeName { get; } = "Add";
 

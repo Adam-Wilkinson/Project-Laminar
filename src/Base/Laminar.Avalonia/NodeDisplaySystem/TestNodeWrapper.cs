@@ -1,10 +1,10 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using Laminar.Contracts.Primitives;
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Domain.Notification;
 using Laminar.Domain.ValueObjects;
 using Laminar.PluginFramework.NodeSystem;
-using Laminar.PluginFramework.NodeSystem.Attributes;
 using Laminar.PluginFramework.NodeSystem.Components;
 using Laminar.PluginFramework.NodeSystem.IO.Value;
 using Microsoft.Extensions.DependencyInjection;
@@ -39,10 +39,19 @@ public class TestNodeWrapper : IWrappedNode
 
     private class TestNode : INode
     {
-        [ShowInNode] readonly ValueInputRow<string> TestStringInput = Component.ValueInput("Test Input", "Example");
-        [ShowInNode] readonly ValueOutputRow<double> TestNumberOutput = Component.ValueOutput("Test Output", 5.0);
+        readonly ValueInputRow<string> TestStringInput = Component.ValueInput("Test Input", "Example");
+        readonly ValueOutputRow<double> TestNumberOutput = Component.ValueOutput("Test Output", 5.0);
 
         public string NodeName { get; } = "Test";
+
+        public IEnumerable<INodeComponent> Components
+        {
+            get
+            {
+                yield return TestStringInput;
+                yield return TestNumberOutput;
+            }
+        }
 
         public void Evaluate()
         {

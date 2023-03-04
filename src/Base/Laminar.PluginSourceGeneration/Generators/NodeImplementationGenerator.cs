@@ -41,7 +41,7 @@ public class NodeImplementationGenerator : IIncrementalGenerator
         });
 
         IncrementalValuesProvider<NodeGenerationInfo> componentsOfNodeClassPipeline = context.SyntaxProvider.CreateSyntaxProvider(
-            static (node, _) => SyntaxIsProbablyINodeImplementation(node),
+            static (node, _) => SyntaxNodeIsProbablyGenerationCandidate(node),
             static (genContext, _) => CreateGenerationInfo(genContext))
             .Where(static m => m is not null)!;
 
@@ -110,7 +110,7 @@ public IEnumerable<INodeComponent> Components
         return SyntaxFactory.CompilationUnit(originalRoot.Externs, SyntaxHelpers.EnsureUsingsContains(originalRoot.Usings, RequiredUsings), originalRoot.AttributeLists, new SyntaxList<MemberDeclarationSyntax>(baseNamespaceDeclaration)).NormalizeWhitespace();
     }
 
-    private static bool SyntaxIsProbablyINodeImplementation(SyntaxNode node)
+    private static bool SyntaxNodeIsProbablyGenerationCandidate(SyntaxNode node)
     {
         if (node is not ClassDeclarationSyntax classDeclarationSyntax)
         {
@@ -118,6 +118,11 @@ public IEnumerable<INodeComponent> Components
         }
 
         if (classDeclarationSyntax.BaseList is not BaseListSyntax baseClasses)
+        {
+            return false;
+        }
+
+        if (!SyntaxHelpers.SyntaxTokenListContains(classDeclarationSyntax.Modifiers, "partial"))
         {
             return false;
         }

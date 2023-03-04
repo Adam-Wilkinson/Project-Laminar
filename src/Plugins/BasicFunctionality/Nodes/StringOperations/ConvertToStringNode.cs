@@ -2,7 +2,7 @@
 
 namespace BasicFunctionality.Nodes.StringOperations;
 
-public class Node_Convert_To_String : INode
+public partial class ConvertToStringNode : INode
 {
     public string NodeName => "Convert to Text";
 

@@ -19,7 +19,6 @@ internal static class ScriptingServices
     public static IServiceCollection AddScriptingServices(this IServiceCollection serviceCollection)
     {
         serviceCollection.AddSingleton<INodeFactory, NodeFactory>();
-        serviceCollection.AddSingleton<INodeRowCollectionFactory, NodeRowCollectionFactory>();
         serviceCollection.AddSingleton<INodeComponentFactory, NodeComponentFactory>();
         serviceCollection.AddSingleton<INodeIOFactory, NodeIOFactory>();
 

@@ -2,7 +2,7 @@
 
 namespace BasicFunctionality.Nodes.Maths.Arithmetic;
 
-public class NodeMultiply : INode
+public partial class MultiplyNode : INode
 {
     public string NodeName => "Multiply";
 

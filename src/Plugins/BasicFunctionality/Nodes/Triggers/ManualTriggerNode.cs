@@ -3,11 +3,11 @@ using Laminar.PluginFramework.NodeSystem;
 
 namespace BasicFunctionality.Nodes.Triggers;
 
-public class ManualTriggerNode : INode
+public partial class ManualTriggerNode : INode
 {
     public string NodeName => "Manual Trigger";
 
-    public event EventHandler Trigger;
+    // public event EventHandler Trigger;
 
     //public void RemoveTriggers()
     //{

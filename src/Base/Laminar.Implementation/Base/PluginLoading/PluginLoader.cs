@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Laminar.Contracts.Base.PluginLoading;
@@ -25,18 +26,24 @@ public class PluginLoader
             Assembly pluginAssembly = pluginContext.LoadFromAssemblyPath(pluginPath);
             foreach (Module module in pluginAssembly.Modules)
             {
-                if (LoadModule(module) is RegisteredPlugin plugin)
+                try
                 {
-                    registeredPlugins.Add(plugin);
+                    if (LoadModule(module) is RegisteredPlugin plugin)
+                    {
+                        registeredPlugins.Add(plugin);
+                    }
                 }
-
+                catch (Exception e)
+                {
+                    Debug.WriteLine($"Error loading module {module.Name}: {e}");
+                }
             }
         }
 
         RegisteredPlugins = registeredPlugins.ToArray();
     }
 
-    private RegisteredPlugin LoadModule(Module module)
+    private RegisteredPlugin? LoadModule(Module module)
     {
         if (module.GetCustomAttribute<HasFrontendDependencyAttribute>() is HasFrontendDependencyAttribute attr && attr.FrontendDependency != _frontend)
         {
@@ -45,9 +52,8 @@ public class PluginLoader
 
         foreach (Type type in module.GetTypes())
         {
-            if (typeof(IPlugin).IsAssignableFrom(type) && !type.IsInterface)
+            if (typeof(IPlugin).IsAssignableFrom(type) && !type.IsInterface && Activator.CreateInstance(type) is IPlugin plugin)
             {
-                IPlugin plugin = (IPlugin)Activator.CreateInstance(type);
                 RegisteredPlugin registeredPlugin = new(plugin, _pluginHostFactory);
                 if (AutoLoadPlugins.Contains(registeredPlugin.PluginName))
                 {

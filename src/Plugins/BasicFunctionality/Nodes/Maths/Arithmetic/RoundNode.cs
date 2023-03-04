@@ -2,7 +2,7 @@
 
 namespace BasicFunctionality.Nodes.Maths.Arithmetic;
 
-public class Round : INode
+public partial class RoundNode : INode
 {
 
     public string NodeName { get; } = "Round";

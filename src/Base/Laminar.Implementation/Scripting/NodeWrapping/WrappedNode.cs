@@ -16,11 +16,11 @@ public class WrappedNode<T> : IWrappedNode where T : INode, new()
     readonly INodeFactory _factory;
     Action? _preEvaluateAction;
 
-    public WrappedNode(INodeRow nameRow, INodeRowCollectionFactory collectionFactory, INodeFactory nodeFactory, T node, INotifyCollectionChangedHelper collectionHelper)
+    public WrappedNode(INodeRow nameRow, INodeFactory nodeFactory, T node, INotifyCollectionChangedHelper collectionHelper)
     {
         _factory = nodeFactory;
         _coreNode = node;
-        Rows = collectionFactory.CreateNodeRowsForObject(node, this);
+        Rows = new FlattenedObservableTree<INodeRow>(node.Components);
         collectionHelper.HelperInstance(Rows).ItemAdded += Rows_ItemAdded;
         collectionHelper.HelperInstance(Rows).ItemRemoved += Rows_ItemRemoved;
 

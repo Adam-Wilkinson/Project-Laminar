@@ -5,7 +5,7 @@ using Laminar.PluginFramework.NodeSystem.IO.Value;
 
 namespace BasicFunctionality.Nodes.Maths.Comparisons;
 
-public class Equal : INode
+public partial class EqualsNode : INode
 {
     //[ShowInNode] readonly ValueInputRow<double> inputOne = new("First Input", 0.0);
     //[ShowInNode] readonly ValueInputRow<double> inputTwo = new("First Output", 0.0);

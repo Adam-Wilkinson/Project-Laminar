@@ -42,7 +42,7 @@ internal class NodeIOFactory : INodeIOFactory
 
         if (getter is not null)
         {
-            newOutput.
+            newOutput.GetterOverride = getter;
         }
 
         return newOutput;

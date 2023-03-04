@@ -5,7 +5,7 @@ using static Laminar.PluginFramework.LaminarFactory;
 
 namespace BasicFunctionality.Nodes.Maths.Arithmetic;
 
-public partial class NodeDivide : INode
+public partial class DivideNode : INode
 {
     [ShowInNode] readonly ValueInputRow<double> FirstNumber = Component.ValueInput("Numerator", 0.0);
     [ShowInNode] readonly ValueInputRow<double> SecondNumber = Component.ValueInput("Denominator", 1.0);

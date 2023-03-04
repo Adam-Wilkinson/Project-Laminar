@@ -1,7 +1,7 @@
 ﻿using Laminar.PluginFramework.NodeSystem;
 
 namespace BasicFunctionality.Nodes.StringOperations;
-public class Node_Join_Strings : INode
+public partial class JoinStringsNode : INode
 {
     public string NodeName => "Join Strings";
 

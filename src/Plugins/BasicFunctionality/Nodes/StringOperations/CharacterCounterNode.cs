@@ -3,7 +3,7 @@ using Laminar.PluginFramework.NodeSystem.Components;
 
 namespace BasicFunctionality.Nodes.StringOperations;
 
-public class CharacterCounter : INode
+public partial class CharacterCounterNode : INode
 {
     //private readonly ValueInputRow<string> input = new("String", "");
     //private readonly ValueOutputRow<double> output = new("Character Count", 0.0);

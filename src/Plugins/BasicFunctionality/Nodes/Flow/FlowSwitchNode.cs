@@ -1,7 +1,7 @@
 ﻿namespace BasicFunctionality.Nodes.Flow;
 using Laminar.PluginFramework.NodeSystem;
 
-public class FlowSwitch : INode
+public partial class FlowSwitchNode : INode
 {
     public string NodeName => "Switch";
 

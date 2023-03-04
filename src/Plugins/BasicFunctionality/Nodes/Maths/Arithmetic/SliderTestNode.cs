@@ -8,7 +8,7 @@ using static Laminar.PluginFramework.LaminarFactory;
 
 namespace BasicFunctionality.Nodes.Maths.Arithmetic;
 
-public partial class SliderTest : INode
+public partial class SliderTestNode : INode
 {
     [ShowInNode] readonly ManualNodeRow<None, IDisplayValue, IValueOutput<double>> SliderRow = Component.ManualOutputRow(NodeIO.ValueInput("Test Slider", 2.0, new Slider(0, 4)).DisplayValue, NodeIO.ValueOutput("Test Slider Output", 0.0));
 
