@@ -6,7 +6,7 @@ namespace Laminar.PluginFramework.NodeSystem.Components;
 
 public interface INodeComponentFactory
 {
-    public INodeComponentCloner<T> Cloner<T>(Func<T> cloner, int startCount) where T : INodeComponent;
+    public INodeComponentCloner<T> Cloner<T>(Func<T> componentGenerator, int initialComponentCount) where T : INodeComponent;
 
     public INodeRow CreateSingleRow(IInput? input, IDisplayValue displayValue, IOutput? output);
 }

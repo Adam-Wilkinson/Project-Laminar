@@ -1,6 +1,7 @@
 ﻿using System;
 using Laminar.Contracts.Base;
 using Laminar.Contracts.Base.UserInterface;
+using Laminar.Domain;
 using Laminar.PluginFramework.NodeSystem.IO;
 using Laminar.PluginFramework.NodeSystem.IO.Value;
 using Laminar.PluginFramework.UserInterface;
@@ -19,9 +20,14 @@ internal class NodeIOFactory : INodeIOFactory
         _typeInfoStore = typeInfoStore;
     }
 
-    public IValueInput<T> ValueInput<T>(string valueName, T initialValue, IUserInterfaceDefinition? editor, IUserInterfaceDefinition? viewer, Action<T>? valueSetter)
+    public IValueInput<T> ValueInput<T>(string valueName, T? initialValue, IUserInterfaceDefinition? editor, IUserInterfaceDefinition? viewer, Action<T>? valueSetter)
     {
-        ValueInput<T> newInput = new(_uiProvider, _typeInfoStore, valueName, initialValue);
+        if (initialValue is null && _typeInfoStore.TryGetTypeInfo(typeof(T), out TypeInfo typeInfo))
+        {
+            initialValue = (T)typeInfo.DefaultValue!;
+        }
+
+        ValueInput<T> newInput = new(_uiProvider, _typeInfoStore, valueName, initialValue!);
         newInput.InterfaceDefinition.Editor = editor;
         newInput.InterfaceDefinition.Viewer = viewer;
 
@@ -33,9 +39,14 @@ internal class NodeIOFactory : INodeIOFactory
         return newInput;
     }
 
-    public IValueOutput<T> ValueOutput<T>(string valueName, T initialValue, IUserInterfaceDefinition? viewer, IUserInterfaceDefinition? editor, bool isUserEditable, Func<T>? getter)
+    public IValueOutput<T> ValueOutput<T>(string valueName, T? initialValue, IUserInterfaceDefinition? viewer, IUserInterfaceDefinition? editor, bool isUserEditable, Func<T>? getter)
     {
-        ValueOutput<T> newOutput = new(_uiProvider, _typeInfoStore, valueName, initialValue);
+        if (initialValue is null && _typeInfoStore.TryGetTypeInfo(typeof(T), out TypeInfo typeInfo))
+        {
+            initialValue = (T)typeInfo.DefaultValue!;
+        }
+
+        ValueOutput<T> newOutput = new(_uiProvider, _typeInfoStore, valueName, initialValue!);
         newOutput.InterfaceDefinition.Viewer = viewer;
         newOutput.InterfaceDefinition.Editor = editor;
         newOutput.InterfaceDefinition.IsUserEditable = isUserEditable;

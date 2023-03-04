@@ -7,14 +7,11 @@ namespace BasicFunctionality.Nodes.Maths.Arithmetic;
 
 public partial class AddNode : INode
 {
-    [ShowInNode] readonly INodeComponentCloner<ValueInputRow<double>> AddInputs = Component.Cloner(() => Component.ValueInput("Add input", 0.0), 1);
-    [ShowInNode] readonly ValueOutputRow<double> Output = Component.ValueOutput("Sum", 0.0);
+    [ShowInNode] readonly INodeComponentCloner<ValueInputRow<double>> AddInputs = Component.Cloner(
+        componentGenerator: () => Component.ValueInput("Add input", 0.0), 
+        initialComponentCount: 1);
 
-    [Input("This is an input")] int ThisIsATestInput = 0;
-
-    [Input("Another input")] string OooAnotherOne = "Initial value";
-
-    [Input("Wonder what these do")] double TestOne = 3;
+    [Output("Sum")] double Output;
 
     public string NodeName { get; } = "Add";
 
@@ -22,11 +19,11 @@ public partial class AddNode : INode
     {
         double total = 0;
 
-        foreach (var row in AddInputs)
+        foreach (ValueInputRow<double> row in AddInputs)
         {
             total += row;
         }
 
-        Output.Value = total;
+        Output = total;
     }
 }

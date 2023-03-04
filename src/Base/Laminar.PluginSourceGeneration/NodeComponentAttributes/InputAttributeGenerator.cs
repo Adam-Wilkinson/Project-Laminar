@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Laminar.PluginSourceGeneration.Generators;
 using Laminar.PluginSourceGeneration.Helpers;
 using Microsoft.CodeAnalysis;
@@ -43,11 +44,19 @@ namespace {attributeNamespace}
 
         string FieldDeclarationType = fieldDeclaration.Declaration.Type.ToString();
 
-        string initialValue = variableDeclaration.Initializer!.Value.ToString();
-
         MemberDeclarationSyntax memberDeclaration = SyntaxFactory.ParseMemberDeclaration($"private ValueInputRow<{FieldDeclarationType}> {ComponentName};");
 
-        return new NodeImplementationGenerator.ComponentGenerationInfo(memberDeclaration, $"{ComponentName} ??= Component.ValueInput<{FieldDeclarationType}>({attribute.ArgumentList!.Arguments[0].GetText()}, {initialValue}, valueAutoSetter: (value) => {fieldName} = value)", GetDiagnostics(context, fieldDeclaration)) { IsSuccessful = isSuccessful };
+        StringBuilder componentStringBuilder = new();
+        componentStringBuilder.Append($"{ComponentName} ??= Component.ValueInput<{FieldDeclarationType}>({attribute.ArgumentList!.Arguments[0].GetText()}");
+
+        if (variableDeclaration.Initializer is not null)
+        {
+            componentStringBuilder.Append($", initialValue: {variableDeclaration.Initializer.Value}");
+        }
+
+        componentStringBuilder.Append($", valueAutoSetter: (value) => {fieldName} = value)");
+
+        return new NodeImplementationGenerator.ComponentGenerationInfo(memberDeclaration, componentStringBuilder.ToString(), GetDiagnostics(context, fieldDeclaration)) { IsSuccessful = isSuccessful };
     }
 
     private IEnumerable<Diagnostic> GetDiagnostics(GeneratorSyntaxContext context, FieldDeclarationSyntax fieldDeclaration)

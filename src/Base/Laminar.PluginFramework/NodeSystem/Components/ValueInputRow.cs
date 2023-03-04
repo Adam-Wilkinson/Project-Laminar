@@ -8,9 +8,9 @@ public class ValueInputRow<T> : SingleItemNodeComponent
 {
     readonly IValueInput<T> _valueInput;
 
-    internal ValueInputRow(INodeComponentFactory componentFactory, string name, T initialValue, Action<T>? valueSetter = null)
+    internal ValueInputRow(INodeComponentFactory componentFactory, string name, T? initialValue, Action<T>? valueSetter = null)
     {
-        _valueInput = LaminarFactory.NodeIO.ValueInput(name, initialValue, setter : valueSetter);
+        _valueInput = LaminarFactory.NodeIO.ValueInput(name, initialValue: initialValue, setter : valueSetter);
         ChildComponent = componentFactory.CreateSingleRow(_valueInput, _valueInput.DisplayValue, null);
     }
 
@@ -36,5 +36,5 @@ public class ValueInputRow<T> : SingleItemNodeComponent
 
 public static class ValueInputFactoryExtension
 {
-    public static ValueInputRow<T> ValueInput<T>(this INodeComponentFactory componentFactory, string name, T defaultValue, IUserInterfaceDefinition? editor = null, IUserInterfaceDefinition? viewer = null, Action<T>? valueAutoSetter = null) => new(componentFactory, name, defaultValue, valueAutoSetter) { Editor = editor, Viewer = viewer };
+    public static ValueInputRow<T> ValueInput<T>(this INodeComponentFactory componentFactory, string name, T? initialValue, IUserInterfaceDefinition? editor = null, IUserInterfaceDefinition? viewer = null, Action<T>? valueAutoSetter = null) => new(componentFactory, name, initialValue, valueAutoSetter) { Editor = editor, Viewer = viewer };
 }
