@@ -16,7 +16,6 @@ public partial class SliderTest : INode
 
     public void Evaluate()
     {
-        Components
         SliderRow.Output.Value = (double)SliderRow.Display.Value;
     }
 }
