@@ -26,7 +26,7 @@ public class WrappedNode<T> : IWrappedNode where T : INode, new()
 
         NameRow = nameRow;
 
-        foreach (var row in Rows)
+        foreach (INodeRow row in Rows)
         {
             RegisterRow(row);
         }
@@ -49,6 +49,11 @@ public class WrappedNode<T> : IWrappedNode where T : INode, new()
 
     public void TriggerNotification(LaminarExecutionContext context)
     {
+        if (context.ExecutionSource is null)
+        {
+            context = context with { ExecutionSource = this };
+        }
+
         if (UserChangedValueNotificationClient is null)
         {
             Update(context);

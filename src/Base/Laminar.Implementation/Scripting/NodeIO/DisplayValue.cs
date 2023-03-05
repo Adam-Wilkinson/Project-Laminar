@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using Laminar.Contracts.Primitives;
 using Laminar.PluginFramework.NodeSystem;
+using Laminar.PluginFramework.NodeSystem.IO.Value;
 using Laminar.PluginFramework.UserInterface;
 using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
@@ -48,11 +49,13 @@ internal class DisplayValue<T> : IDisplayValue
                 TypedValue = typedValue;
                 PropertyChanged?.Invoke(this, IDisplayValue.ValueChangedEventArgs);
                 _valueChangedByuserNotificationClient.TriggerNotification();
+                ExecutionStarted?.Invoke(this, new LaminarExecutionContext(null, ValueExecutionFlag.Value));
             }
         }
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
+    public event EventHandler<LaminarExecutionContext>? ExecutionStarted;
 
     public void Refresh()
     {

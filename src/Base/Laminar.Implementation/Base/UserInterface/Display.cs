@@ -1,5 +1,7 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using Laminar.Contracts.Base.UserInterface;
+using Laminar.PluginFramework.NodeSystem;
 using Laminar.PluginFramework.UserInterface;
 using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
@@ -16,10 +18,15 @@ internal class Display : IDisplay
     {
         DisplayValue = displayValue;
         _userInterfaceProvider = userInterfaceProvider;
-        // Refresh();
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
+
+    public event EventHandler<LaminarExecutionContext>? ExecutionStarted
+    {
+        add { DisplayValue.ExecutionStarted += value; }
+        remove { DisplayValue.ExecutionStarted -= value; }
+    }
 
     public IDisplayValue DisplayValue { get; }
 
@@ -38,7 +45,7 @@ internal class Display : IDisplay
 
     public void Refresh()
     {
-        if (!Equals(_lastDisplayValue, DisplayValue.Value) || true)
+        if (!Equals(_lastDisplayValue, DisplayValue.Value))
         {
             DisplayValue.Refresh();
             _lastDisplayValue = DisplayValue.Value;

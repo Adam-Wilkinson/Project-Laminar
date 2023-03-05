@@ -5,7 +5,7 @@ using Laminar.PluginFramework.UserInterface;
 
 namespace Laminar.PluginFramework.NodeSystem.Components;
 
-internal abstract class SingleItemNodeComponent : INodeComponent
+public abstract class SingleItemNodeComponent : INodeComponent
 {
     private INodeComponent? _component;
 

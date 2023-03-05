@@ -10,10 +10,12 @@ namespace Laminar.Implementation.Scripting.Execution;
 
 internal class ExecutionOrderFinder : IExecutionOrderFinder
 {
-    private readonly Dictionary<(IIOConnector, int), OrderFinderInstance> _calculatedBranches = new();
+    private readonly Dictionary<(object, int), OrderFinderInstance> _calculatedBranches = new();
 
     public IConditionalExecutionBranch[] GetExecutionBranchesFrom(LaminarExecutionContext context, INodeTree tree)
     {
+        ArgumentNullException.ThrowIfNull(context.ExecutionSource);
+
         if (_calculatedBranches.TryGetValue((context.ExecutionSource, context.ExecutionFlags.AsNumber), out OrderFinderInstance instance))
         {
             return instance.Branches();
@@ -27,7 +29,7 @@ internal class ExecutionOrderFinder : IExecutionOrderFinder
     private class OrderFinderInstance
     {
         readonly INodeTree _tree;
-        readonly IIOConnector _sourceConnector;
+        readonly object _source;
         readonly ExecutionFlags _flags;
         readonly object _lockObject = new();
 
@@ -39,31 +41,31 @@ internal class ExecutionOrderFinder : IExecutionOrderFinder
         {
             _tree = tree;
             _flags = context.ExecutionFlags;
-            _sourceConnector = context.ExecutionSource!;
+            _source = context.ExecutionSource!;
 
             _tree.Changed += (o, e) => _lastCalculation = null;
         }
 
         public IConditionalExecutionBranch[] Branches()
         {
-            return _lastCalculation ??= FindExecutionPath(_sourceConnector, _flags);
+            return _lastCalculation ??= FindExecutionPath(_source, _flags);
         }
 
-        public IConditionalExecutionBranch[] FindExecutionPath(IIOConnector connector, ExecutionFlags flags)
+        public IConditionalExecutionBranch[] FindExecutionPath(object source, ExecutionFlags flags)
         {
             lock (_lockObject)
             {
-                if (connector is IInputConnector inputConnector)
+                if (source is IWrappedNode nodeSource)
                 {
-                    return FindExecutionPathFromNode(_tree.GetParentNode(connector), flags);
+                    return FindExecutionPathFromNode(nodeSource, flags);
                 }
 
-                if (connector is IOutputConnector outputConnector)
+                if (source is IOutputConnector outputConnector)
                 {
                     return FindExecutionPathFromOutput(outputConnector, flags);
                 }
 
-                throw new Exception("Could not make execution path");
+                throw new Exception($"Could not make execution path from source {source}");
             }
         }
 

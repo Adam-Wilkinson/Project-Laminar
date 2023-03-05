@@ -2,9 +2,7 @@
 
 namespace Laminar.PluginFramework.NodeSystem.IO;
 
-public interface INodeIO
+public interface INodeIO : ILaminarExecutionSource
 {
     public Action? PreEvaluateAction { get; }
-
-    public event EventHandler<LaminarExecutionContext> ExecutionStarted;
 }

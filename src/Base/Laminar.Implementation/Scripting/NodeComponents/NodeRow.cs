@@ -35,6 +35,11 @@ internal class NodeRow : INodeRow
             {
                 _output.ExecutionStarted += value;
             }
+
+            if (CentralDisplay is ILaminarExecutionSource displaySouce)
+            {
+                displaySouce.ExecutionStarted += value;
+            }
         }
         remove
         {
@@ -46,6 +51,11 @@ internal class NodeRow : INodeRow
             if (_output is not null)
             {
                 _output.ExecutionStarted -= value;
+            }
+
+            if (CentralDisplay is ILaminarExecutionSource displaySource)
+            {
+                displaySource.ExecutionStarted -= value;
             }
         }
     }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using Laminar.PluginFramework.NodeSystem;
 using Laminar.PluginFramework.UserInterface;
 using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
@@ -23,6 +24,7 @@ internal class DisplayValue<T> : IDisplayValue
     public IUserInterfaceDefinition InterfaceDefinition { get; }
 
     public event PropertyChangedEventHandler? PropertyChanged;
+    public event EventHandler<LaminarExecutionContext>? ExecutionStarted;
 
     public void Refresh() => PropertyChanged?.Invoke(this, IDisplayValue.ValueChangedEventArgs);
 }

@@ -27,7 +27,7 @@ public class ValueInput<T> : IValueInput<T>, INotificationClient
         _contextCache = new LaminarExecutionContext
         {
             ExecutionFlags = ValueExecutionFlag.Value,
-            ExecutionSource = Connector,
+            ExecutionSource = null,
         };
     }
 
