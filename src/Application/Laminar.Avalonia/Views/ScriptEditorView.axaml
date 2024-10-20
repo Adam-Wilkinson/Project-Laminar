@@ -1,0 +1,35 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
+			 xmlns:dd="clr-namespace:Laminar.Avalonia.DragDrop;assembly=Laminar.Avalonia"
+			 xmlns:conv="clr-namespace:Laminar.Avalonia.Converters;assembly=Laminar.Avalonia"
+			 xmlns:dt="clr-namespace:Laminar.Avalonia.DataTemplates;assembly=Laminar.Avalonia"
+			 xmlns:sam="clr-namespace:Laminar.Avalonia.SelectAndMove;assembly=Laminar.Avalonia.SelectAndMove"
+			 xmlns:nodes="clr-namespace:Laminar.Avalonia.NodeDisplaySystem;assembly=Laminar.Avalonia"
+			 xmlns:additions ="clr-namespace:Laminar.Avalonia.ToolbarPanelSystem;assembly=Laminar.Avalonia"
+			 xmlns:lc="clr-namespace:Laminar.Avalonia.Controls;assembly=Laminar.Avalonia"
+			 xmlns:v="clr-namespace:Laminar.Avalonia.Views;assembly=Laminar.Avalonia"
+             x:Class="Laminar.Avalonia.Views.ScriptEditorView">
+
+	<UserControl.DataTemplates>
+		<dt:DataTemplateInclude Source="/DataTemplates/NodeWrapperDataTemplate.axaml"/>
+	</UserControl.DataTemplates>
+	
+	<DockPanel>
+		<DockPanel Background="#151515" HorizontalAlignment="Stretch" DockPanel.Dock="Top" LastChildFill="False">
+			<TextBlock DockPanel.Dock="Left" FontSize="15" FontWeight="Medium" Padding="25,5,15,5" Text="Currently Editing:" VerticalAlignment="Center"/>
+			<TextBox VerticalContentAlignment="Center" FontSize="15" DockPanel.Dock="Left" Margin="6" Padding="10,5" Text="{Binding Name}"/>
+			<Button Margin="25,5,15,5" Width="60" Background="{DynamicResource ThemeBackgroundBrush}" CornerRadius="15" DockPanel.Dock="Right" Command="{Binding $parent[Window].DataContext.ShowHomepage}">Exit</Button>
+		</DockPanel>
+
+		<additions:ToolbarPanel DefaultWidth="250">
+			<lc:NodePicker additions:ToolbarPanel.DockDirection ="Top" additions:ToolbarPanel.CloneCommand="{Binding DuplicateNodePicker}"/>
+			<nodes:AdvancedScriptInputsDisplay additions:ToolbarPanel.DockDirection="Left"/>
+			<sam:SelectAndMove dd:DragDrop.DragEndCommand="{Binding AddNode}">
+				<sam:BackgroundGridLines LineBrush="#1A1A1A"/>
+			</sam:SelectAndMove>
+		</additions:ToolbarPanel>
+	</DockPanel>
+</UserControl>

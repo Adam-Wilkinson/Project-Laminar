@@ -1,0 +1,105 @@
+﻿<DataTemplates xmlns="https://github.com/avaloniaui"
+			   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			   xmlns:xi="clr-namespace:Laminar.Contracts.Scripting.NodeWrapping;assembly=Laminar.Contracts"
+			   xmlns:n="clr-namespace:Laminar.Avalonia.NodeDisplaySystem;assembly=Laminar.Avalonia"
+			   xmlns:m="clr-namespace:Laminar.Avalonia.Models;assembly=Laminar.Avalonia"
+			   xmlns:con="clr-namespace:Laminar.PluginFramework.NodeSystem.Connectors;assembly=Laminar.PluginFramework"
+			   xmlns:nod="clr-namespace:Laminar.PluginFramework.NodeSystem.Components;assembly=Laminar.PluginFramework"
+			   xmlns:ui="clr-namespace:Laminar.Contracts.Base.UserInterface;assembly=Laminar.Contracts"
+			   xmlns:mycontrols="clr-namespace:Laminar.Avalonia.Controls;assembly=Laminar.Avalonia">
+
+	<DataTemplate DataType="con:IIOConnector">
+		<n:ConnectorControl
+			Connector="{Binding}"
+			  Width="15"
+			  Height="20"
+			  Stretch="Fill"
+			  Data="M 2,0 2,14 12,7 2,0 z"
+			  StrokeThickness="2"
+			  Stroke="{DynamicResource ThemeBorderHighBrush}"
+			  Fill="{Binding ColorHex}"
+			  VerticalAlignment="Center">
+			<n:ConnectorControl.Transitions>
+				<Transitions>
+					<DoubleTransition Property="Opacity" Duration="0:0:0.1"/>
+					<TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.1"/>
+				</Transitions>
+			</n:ConnectorControl.Transitions>
+		</n:ConnectorControl>
+	</DataTemplate>
+
+	<DataTemplate DataType="ui:IDisplay">
+		<mycontrols:ChildDataContextController
+			VerticalAlignment="Center"
+			Padding="5,0"
+			Child="{Binding Interface}"
+			ChildDataContext="{Binding DisplayValue}"/>
+	</DataTemplate>
+
+	<DataTemplate DataType="nod:INodeRow">
+		<Panel
+			Opacity="{Binding Opacity.Value}">
+			<ContentControl Name="Input"
+							Content="{Binding InputConnector}"
+							HorizontalAlignment="Left">
+				<ContentControl.Transitions>
+					<Transitions>
+						<TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.1"/>
+					</Transitions>
+				</ContentControl.Transitions>
+			</ContentControl>
+			<ContentControl Content="{Binding CentralDisplay}"
+							VerticalContentAlignment="Center"
+							VerticalAlignment="Center"/>
+			<ContentControl Name="Output"
+							Content="{Binding OutputConnector}"
+							HorizontalAlignment="Right">
+				<ContentControl.Transitions>
+					<Transitions>
+						<TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.1"/>
+					</Transitions>
+				</ContentControl.Transitions>
+			</ContentControl>
+		</Panel>
+	</DataTemplate>
+
+	<DataTemplate DataType="xi:IWrappedNode">
+		<Border Name="OuterBorder"
+						ZIndex="0"
+						BorderThickness="1"
+						Background="{DynamicResource HeaderColour}"
+						ClipToBounds="False">
+			<Panel>
+				<Rectangle Classes="Highlight"
+						   HorizontalAlignment="Stretch"
+						   VerticalAlignment="Stretch"
+						   ZIndex="-10">
+					<Rectangle.Transitions>
+						<Transitions>
+							<DoubleTransition Property="Opacity" Duration="0:0:0.1"/>
+						</Transitions>
+					</Rectangle.Transitions>
+				</Rectangle>
+
+				<StackPanel ClipToBounds="False" Opacity="1">
+					<ContentControl Padding="12,6"
+									Content="{Binding NameRow}"/>
+					<Border Background="#3e3e3e"
+							MinWidth="150"
+							ClipToBounds="False"
+							Padding="10"
+							Margin="0,3">
+						<ItemsPresenter Classes="NodeDisplay"
+										Items="{Binding Rows}">
+							<ItemsPresenter.ItemsPanel>
+								<ItemsPanelTemplate>
+									<StackPanel Spacing="10"/>
+								</ItemsPanelTemplate>
+							</ItemsPresenter.ItemsPanel>
+						</ItemsPresenter>
+					</Border>
+				</StackPanel>
+			</Panel>
+		</Border>
+	</DataTemplate>
+</DataTemplates>
