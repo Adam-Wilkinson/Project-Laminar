@@ -1,0 +1,82 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:nc="clr-namespace:Laminar.Contracts.Scripting.NodeWrapping;assembly=Laminar.Contracts"
+			 xmlns:nds="clr-namespace:Laminar.Avalonia.NodeDisplaySystem;assembly=Laminar.Avalonia"
+			 xmlns:m="clr-namespace:Laminar.Avalonia.Models;assembly=Laminar.Avalonia"
+			 xmlns:dt="clr-namespace:Laminar.Avalonia.DataTemplates;assembly=Laminar.Avalonia"
+			 xmlns:conv="clr-namespace:Laminar.Avalonia.Converters;assembly=Laminar.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="Laminar.Avalonia.Views.HomepageView">
+
+	<UserControl.Styles>
+		<Style Selector=":is(Button).AddScriptButton">
+			<Setter Property="Margin" Value="150,0"/>
+			<Setter Property="Padding" Value="10"/>
+			<Setter Property="FontSize" Value="20"/>
+			<Setter Property="FontFamily" Value="Lucida Sans"/>
+			<Setter Property="FontWeight" Value="Bold"/>
+			<Setter Property="Cursor" Value="Hand"/>
+		</Style>
+
+		<Style Selector=":is(Button).AddScriptButton /template/ ContentPresenter">
+			<Setter Property="CornerRadius" Value="30"/>
+			<Setter Property="Background" Value="{DynamicResource HeaderColour}"/>
+		</Style>
+		<Style Selector=":is(Button).AddScriptButton:pressed /template/ ContentPresenter">
+			<Setter Property="Background" Value="#23232B"/>
+		</Style>
+	</UserControl.Styles>
+
+	<StackPanel>
+		<StackPanel.DataTemplates>
+			<dt:DataTemplateInclude Source="/DataTemplates/NodeWrapperDataTemplate.axaml"/>
+		</StackPanel.DataTemplates>
+
+		<ItemsPresenter Items="{Binding AllScripts}">
+			<ItemsPresenter.ItemsPanel>
+				<ItemsPanelTemplate>
+					<UniformGrid Columns="3" />
+				</ItemsPanelTemplate>
+			</ItemsPresenter.ItemsPanel>
+		</ItemsPresenter>
+		<Panel Margin="35">
+			<Button Classes="AddScriptButton" 
+					Command="{Binding $parent[Window].DataContext.AddScript}" 
+					Content="Add Script" 
+					IsVisible="{Binding !AllScript.Count}"/>
+			<ToggleButton Name="PART_AddScriptButton"
+						  Classes="AddScriptButton"
+						  Content="Add Script"
+						  IsVisible="{Binding AllScripts.Count}"/>
+			<Popup IsOpen="{Binding #PART_AddScriptButton.IsChecked, Mode=TwoWay}"
+				   WindowManagerAddShadowHint="True"
+				   PlacementAnchor="Bottom"
+				   PlacementGravity="Bottom"
+				   PlacementMode="AnchorAndGravity"
+				   IsLightDismissEnabled="True">
+				<Border>
+					<StackPanel>
+						<StackPanel.Styles>
+							<Style Selector="Button">
+								<Setter Property="FontSize" Value="20"/>
+								<Setter Property="Padding" Value="20,7"/>
+							</Style>
+						</StackPanel.Styles>
+						<!--<ItemsPresenter Items="{Binding}">
+							<ItemsPresenter.ItemTemplate>
+								<DataTemplate>
+									<Button Content="{Binding Name.Value}"
+											Command="{Binding $parent[w:MainWindow].AddScriptInstance}"
+											CommandParameter="{Binding}"/>
+								</DataTemplate>
+							</ItemsPresenter.ItemTemplate>
+						</ItemsPresenter>-->
+						<Button Command="{Binding $parent[Window].DataContext.AddScript}">New Script</Button>
+					</StackPanel>
+				</Border>
+			</Popup>
+		</Panel>
+	</StackPanel>
+</UserControl>

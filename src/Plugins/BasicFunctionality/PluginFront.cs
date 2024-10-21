@@ -26,10 +26,10 @@ public class PluginFront : IPlugin
         host.RegisterType<Action>("00FF00", "Button", null, new DefaultViewer(), new DefaultViewer(), null);
 
         host.AddNodeToMenu<ManualTriggerNode>("Triggers");
-        host.AddNodeToMenu<NodeAdd, NodeDifference, NodeMultiply, NodeDivide, Round, SliderTest>("Number", "Arithmetic");
-        host.AddNodeToMenu<NodeSine>("Number", "Functions");
-        host.AddNodeToMenu<Equal>("Number", "Comparisons");
-        host.AddNodeToMenu<Node_Join_Strings, CharacterCounter>("Text");
-        host.AddNodeToMenu<FlowSwitch, WaitForTrigger>("Flow Control");
+        host.AddNodeToMenu<AddNode, DifferenceNode, MultiplyNode, DivideNode, RoundNode, SliderTestNode>("Number", "Arithmetic");
+        host.AddNodeToMenu<SineNode>("Number", "Functions");
+        host.AddNodeToMenu<EqualsNode>("Number", "Comparisons");
+        host.AddNodeToMenu<JoinStringsNode, CharacterCounterNode>("Text");
+        host.AddNodeToMenu<FlowSwitchNode, WaitForTriggerNode>("Flow Control");
     }
 }

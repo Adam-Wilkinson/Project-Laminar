@@ -1,0 +1,81 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:dd="clr-namespace:Laminar.Avalonia.DragDrop;assembly=Laminar.Avalonia"
+			 xmlns:tbp="clr-namespace:Laminar.Avalonia.ToolbarPanelSystem;assembly=Laminar.Avalonia"
+			 xmlns:cont="clr-namespace:Laminar.Avalonia.Controls;assembly=Laminar.Avalonia"
+			 xmlns:conv="clr-namespace:Laminar.Avalonia.Converters;assembly=Laminar.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="Laminar.Avalonia.Controls.NodePicker">
+
+	<UserControl.Resources>
+		<conv:PropertySetterCommandConverter x:Key="PropertySetterCommandConverter"/>
+	</UserControl.Resources>
+
+	<StackPanel Name="MenuRoot">
+		<Menu HorizontalAlignment="Stretch"
+			  Classes="BigMenu"
+			  Items="{Binding AllLoadedNodes}">
+			<Menu.Styles>
+				<Style Selector="MenuItem">
+					<Setter Property="Header" Value="{Binding CatagoryName}"/>
+					<Setter Property="Items" Value="{Binding SubCatagories}"/>
+					<Setter Property="Command" Value="{Binding $parent[StackPanel], Converter={StaticResource PropertySetterCommandConverter}, ConverterParameter={x:Static Control.TagProperty}}"/>
+					<Setter Property="CommandParameter" Value="{Binding Items}"/>
+					<Setter Property="FontWeight" Value="Medium"/>
+					<Setter Property="FontSize" Value="20"/>
+					<Setter Property="HorizontalAlignment" Value="Center"/>
+					<Setter Property="Padding" Value="10"/>
+					<Setter Property="Transitions">
+						<Setter.Value>
+							<Transitions>
+								<BrushTransition Property="Background" Duration="0:0:1"/>
+							</Transitions>
+						</Setter.Value>
+					</Setter>
+				</Style>
+			</Menu.Styles>
+		</Menu>
+
+		<ItemsControl Items="{Binding $parent[StackPanel].Tag, FallbackValue={Binding AllLoadedNodes[0].Items}}">
+			<ItemsControl.ItemsPanel>
+				<ItemsPanelTemplate>
+					<StackPanel Orientation="{Binding $self.(tbp:ToolbarPanel.ToolbarOrientation), Mode=OneWay}"
+								Spacing="30"
+								Margin="10"/>
+				</ItemsPanelTemplate>
+			</ItemsControl.ItemsPanel>
+			<ItemsControl.ItemTemplate>
+				<DataTemplate>
+					<Panel Classes="DisplayedNode"
+						   IsHitTestVisible="True"
+						   Background="#00000000"
+						   VerticalAlignment="Top"
+						   Cursor="Hand"
+						   dd:DragDrop.DragSourceControl="{Binding}"
+						   Tag="{Binding}">
+						<ContentControl
+							Name="PART_NodeDisplay"
+							Margin="4"
+							Content="{Binding}"
+							VerticalAlignment="Top"
+							IsHitTestVisible="False"/>
+						<Rectangle Classes="Highlighter"
+								   HorizontalAlignment="Stretch"
+								   VerticalAlignment="Stretch"
+								   IsHitTestVisible="False"
+								   Fill="#FFFFFF"/>
+					</Panel>
+				</DataTemplate>
+			</ItemsControl.ItemTemplate>
+		</ItemsControl>
+	</StackPanel>
+
+	<UserControl.Styles>
+		<Style Selector="MenuItem:pointerover">
+			<Setter Property="IsSubMenuOpen" Value="True"/>
+			<Setter Property="IsSelected" Value="True"/>
+		</Style>
+	</UserControl.Styles>
+</UserControl>

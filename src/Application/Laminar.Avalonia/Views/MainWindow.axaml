@@ -1,0 +1,26 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:titlebars="clr-namespace:Laminar.Avalonia.Views.CustomTitleBars;assembly=Laminar.Avalonia"
+        xmlns:vm="clr-namespace:Laminar.Avalonia.ViewModels;assembly=Laminar.Avalonia"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        UseLayoutRounding="True"
+        mc:Ignorable="d" Width="1920" Height="1080"
+        x:Class="Laminar.Avalonia.Views.MainWindow"
+        Icon="/Assets/ProjectLaminarLogo.png"
+        Title="Project: Laminar"
+		ExtendClientAreaToDecorationsHint="True"
+		ExtendClientAreaChromeHints="NoChrome"
+		ExtendClientAreaTitleBarHeightHint="50"
+        DataContext="MainWindowViewModel">
+	<DockPanel Name="ContentWrapper"
+		       HorizontalAlignment="Stretch"
+			   VerticalAlignment="Stretch">
+		<titlebars:WindowsTitleBar IsSeamless="True"/>
+		<titlebars:MacosTitleBar IsSeamless="False"/>
+		<ContentControl Content="{Binding Content}"/>
+		<!--<vm:MainWindowViewModel/>-->
+		<!--<ContentControl Content="{Binding MainControl, Mode=OneWay}" Background="#2B2B2B"/>-->
+	</DockPanel>
+
+</Window>

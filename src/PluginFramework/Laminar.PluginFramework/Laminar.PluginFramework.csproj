@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+	  <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>Laminar.Implementation</_Parameter1>
+    </AssemblyAttribute>
+</ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="NodeSystem\Attributes\" />
+  </ItemGroup>
+</Project>
