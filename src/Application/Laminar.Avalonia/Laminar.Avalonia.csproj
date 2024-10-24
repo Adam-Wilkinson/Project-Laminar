@@ -2,6 +2,7 @@
   <PropertyGroup>
     <OutputType>exe</OutputType>
     <TargetFrameworks>net7.0</TargetFrameworks>
+	<Nullable>enable</Nullable>
     <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
 	<EnablePreviewFeatures>true</EnablePreviewFeatures>
   </PropertyGroup>

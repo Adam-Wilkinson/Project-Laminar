@@ -8,8 +8,6 @@ namespace Laminar.Implementation.Base.Settings;
 
 internal class DisplayValue<T> : IDisplayValue
 {
-    IValueInterfaceDefinition _interfaceDefinition;
-
     public DisplayValue(string name, T value)
     {
         InterfaceDefinition = null;
@@ -21,7 +19,7 @@ internal class DisplayValue<T> : IDisplayValue
 
     public object? Value { get; set; }
 
-    public IUserInterfaceDefinition InterfaceDefinition { get; }
+    public IUserInterfaceDefinition? InterfaceDefinition { get; }
 
     public event PropertyChangedEventHandler? PropertyChanged;
     public event EventHandler<LaminarExecutionContext>? ExecutionStarted;

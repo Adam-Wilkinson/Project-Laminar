@@ -40,7 +40,7 @@ internal class ValueInputConnector<T> : IInputConnector<IValueInput<T>>
         return false;
     }
 
-    public PassUpdateOption PassUpdate(ExecutionFlags executionFlags)
+    public static PassUpdateOption PassUpdate(ExecutionFlags executionFlags)
     {
         return executionFlags.HasValueFlag() ? PassUpdateOption.AlwaysPasses : PassUpdateOption.NeverPasses;
     }

@@ -18,14 +18,14 @@ public class AdvancedScriptInputsDisplay : TemplatedControl
     public static readonly StyledProperty<Orientation> OrientationProperty = AvaloniaProperty.Register<AdvancedScriptInputsDisplay, Orientation>(nameof(Orientation), Orientation.Vertical);
     public static readonly StyledProperty<IEnumerable<TypeInfo>> AllTypeInfoProperty = AvaloniaProperty.Register<AdvancedScriptInputsDisplay, IEnumerable<TypeInfo>>(nameof(AllTypeInfo));
 
-    private readonly INodeFactory _nodeFactory;
+    //private readonly INodeFactory _nodeFactory;
 
-    private ToggleButton _toggleAddMenuButton;
-    private readonly Vector _dragOffset;
+    private ToggleButton? _toggleAddMenuButton;
+    //private readonly Vector _dragOffset;
 
     public AdvancedScriptInputsDisplay()
     {
-        _nodeFactory = App.LaminarInstance.ServiceProvider.GetService<INodeFactory>();
+        //_nodeFactory = App.LaminarInstance.ServiceProvider.GetService<INodeFactory>()!;
         InputNodes = new();
         DataContextChanged += NodeTreeInputDisplay_DataContextChanged;
 
@@ -50,9 +50,14 @@ public class AdvancedScriptInputsDisplay : TemplatedControl
         set => SetValue(OrientationProperty, value);
     }
 
-    public void AddInputOfType(Type type)
+    public void AddInputOfType()
     {
         // (DataContext as IAdvancedScriptInputs).Add(type);
+        if (_toggleAddMenuButton is null)
+        {
+            return;
+        }
+
         _toggleAddMenuButton.IsChecked = false;
     }
 
@@ -62,17 +67,17 @@ public class AdvancedScriptInputsDisplay : TemplatedControl
         _toggleAddMenuButton = e.NameScope.Find<ToggleButton>("PART_AddNodeButton");
     }
 
-    private void RemoveNode(object sender, INode item)
-    {
-    }
+    //private void RemoveNode(object sender, INode item)
+    //{
+    //}
 
-    private void AddNode(object sender, INode inputNode)
-    {
-        //INodeWrapper nodeContainer = _nodeFactory.WrapNode(inputNode, null);
-        //InputNodes.Add(nodeContainer);
-    }
+    //private void AddNode(object sender, INode inputNode)
+    //{
+    //    //INodeWrapper nodeContainer = _nodeFactory.WrapNode(inputNode, null);
+    //    //InputNodes.Add(nodeContainer);
+    //}
 
-    private void NodeTreeInputDisplay_DataContextChanged(object sender, EventArgs e)
+    private void NodeTreeInputDisplay_DataContextChanged(object? sender, EventArgs e)
     {
         //if (DataContext is IAdvancedScriptInputs inputs)
         //{

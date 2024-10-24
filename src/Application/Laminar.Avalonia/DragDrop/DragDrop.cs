@@ -60,9 +60,9 @@ public class DragDrop : AvaloniaObject
         inputElementSender.AddHandler(InputElement.PointerMovedEvent, InputElementSender_PointerMoved);
     }
 
-    private static void InputElementSender_PointerMoved(object sender, PointerEventArgs e)
+    private static void InputElementSender_PointerMoved(object? sender, PointerEventArgs e)
     {
-        if (_currentDragObject is null || sender is not IVisual senderVisual)
+        if (_currentDragObject is null || sender is not IVisual senderVisual || !_clickOffset.HasValue)
         {
             return;
         }
@@ -72,7 +72,7 @@ public class DragDrop : AvaloniaObject
         Canvas.SetTop(_currentDragControl, newLocation.Y - _clickOffset.Value.Y);
     }
 
-    private static void InputElementSender_PointerPressed(object sender, PointerPressedEventArgs e)
+    private static void InputElementSender_PointerPressed(object? sender, PointerPressedEventArgs e)
     {
         if (sender is not Control senderControl || !e.GetCurrentPoint(senderControl).Properties.IsLeftButtonPressed || senderControl.GetValue(DragSourceControlProperty) is not object dragControl)
         {
@@ -97,14 +97,12 @@ public class DragDrop : AvaloniaObject
         e.Handled = true;
     }
 
-    private static void InputElementSender_PointerReleased(object sender, PointerReleasedEventArgs e)
+    private static void InputElementSender_PointerReleased(object? sender, PointerReleasedEventArgs e)
     {
-        if (_currentDragObject is null || sender is not IVisual senderVisual)
+        if (_currentDragObject is null || sender is not IVisual senderVisual || senderVisual.VisualRoot is not IRenderRoot root)
         {
             return;
         }
-
-        IRenderRoot root = senderVisual.VisualRoot;
 
         foreach (IVisual visual in root.Renderer.HitTest(e.GetPosition(root), root, x => true))
         {
@@ -114,7 +112,7 @@ public class DragDrop : AvaloniaObject
             }
         }
 
-        AdornerLayer.GetAdornerLayer(senderVisual).Children.Remove(_adornerDrawingCanvas);
+        AdornerLayer.GetAdornerLayer(senderVisual)?.Children.Remove(_adornerDrawingCanvas);
         _currentDragObject = null;
     }
 }

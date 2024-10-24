@@ -12,13 +12,10 @@ internal class ValueOutputConnector<T> : IOutputConnector<IValueOutput<T>>
 {
     readonly ITypeInfoStore _typeInfoStore;
 
-    T _lastValue;
-
     public ValueOutputConnector(ITypeInfoStore typeInfoStore, IValueOutput<T> output)
     {
         _typeInfoStore = typeInfoStore;
         Output = output;
-        _lastValue = output.Value;
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -51,11 +48,6 @@ internal class ValueOutputConnector<T> : IOutputConnector<IValueOutput<T>>
             if (Output.AlwaysPassUpdate)
             {
                 return PassUpdateOption.AlwaysPasses;
-            }
-            
-            if (!EqualityComparer<T>.Default.Equals(_lastValue, Output.Value))
-            {
-                return PassUpdateOption.CurrentlyPasses;
             }
 
             return PassUpdateOption.CurrentlyDoesNotPass;
