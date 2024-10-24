@@ -10,17 +10,29 @@ static class InbuiltPluginFinder
 
     public static IEnumerable<string> GetInbuiltPlugins(string path)
     {
-        string InbuiltPluginsFolder = Path.Combine(GetSolutionFileFolder(path).FullName, RelativePluginsPath);
-        foreach (string projectPath in Directory.EnumerateDirectories(InbuiltPluginsFolder))
+        DirectoryInfo? solutionFileFolder = GetSolutionFileFolder(path);
+
+        if (solutionFileFolder is not null)
         {
-            foreach (string dllPath in Directory.EnumerateFiles(GetOutputFromProjectFolder(projectPath), "*.dll"))
+            string InbuiltPluginsFolder = Path.Combine(solutionFileFolder.FullName, RelativePluginsPath);
+            foreach (string projectPath in Directory.EnumerateDirectories(InbuiltPluginsFolder))
             {
-                yield return dllPath;
+                string? outputFromProjectFolder = GetOutputFromProjectFolder(projectPath);
+
+                if (outputFromProjectFolder is null)
+                {
+                    continue;
+                }
+
+                foreach (string dllPath in Directory.EnumerateFiles(outputFromProjectFolder, "*.dll"))
+                {
+                    yield return dllPath;
+                }
             }
         }
     }
 
-    private static string GetOutputFromProjectFolder(string projectFolder)
+    private static string? GetOutputFromProjectFolder(string projectFolder)
     {
         string debugs = Path.Combine(projectFolder, @"bin\Debug");
 
@@ -37,10 +49,10 @@ static class InbuiltPluginFinder
         return null;
     }
 
-    private static DirectoryInfo GetSolutionFileFolder(string rootPath)
+    private static DirectoryInfo? GetSolutionFileFolder(string rootPath)
     {
-        DirectoryInfo directory = new FileInfo(rootPath).Directory;
-        while (directory != null && !directory.GetFiles("*.sln").Any())
+        DirectoryInfo? directory = new FileInfo(rootPath).Directory;
+        while (directory is not null && !directory.GetFiles("*.sln").Any())
         {
             directory = directory.Parent;
         }

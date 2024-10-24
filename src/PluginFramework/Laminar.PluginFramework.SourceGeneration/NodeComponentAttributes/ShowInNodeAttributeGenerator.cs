@@ -1,19 +1,17 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using Laminar.PluginSourceGeneration.Generators;
+using Laminar.PluginFramework.SourceGeneration.Generators;
 using Laminar.PluginSourceGeneration.Helpers;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace Laminar.PluginSourceGeneration.NodeComponentAttributes;
+namespace Laminar.PluginFramework.SourceGeneration.NodeComponentAttributes;
 
 internal class ShowInNodeAttributeGenerator : INodeComponentAttributeGenerator
 {
     public string Name => "ShowInNode";
 
-    public string AttributeSourceString(string attributeNamespace) => 
+    public string AttributeSourceString(string attributeNamespace) =>
 @$"using System;
 
 namespace {attributeNamespace}

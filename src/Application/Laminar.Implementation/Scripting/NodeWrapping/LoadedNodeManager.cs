@@ -2,7 +2,7 @@
 using Laminar.Domain;
 using Laminar.PluginFramework.NodeSystem;
 
-namespace Laminar.Implementation.Scripting.Nodes;
+namespace Laminar.Implementation.Scripting.NodeWrapping;
 
 public class LoadedNodeManager : ILoadedNodeManager
 {

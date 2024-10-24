@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Laminar.PluginSourceGeneration.Generators;
+using Laminar.PluginFramework.SourceGeneration.Generators;
 using Laminar.PluginSourceGeneration.Helpers;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace Laminar.PluginSourceGeneration.NodeComponentAttributes;
+namespace Laminar.PluginFramework.SourceGeneration.NodeComponentAttributes;
 internal class InputAttributeGenerator : INodeComponentAttributeGenerator
 {
     public string Name { get; } = "Input";
@@ -32,7 +31,7 @@ namespace {attributeNamespace}
 
     public NodeImplementationGenerator.ComponentGenerationInfo GenerateComponentInfo(FieldDeclarationSyntax fieldDeclaration, AttributeSyntax attribute, GeneratorSyntaxContext context)
     {
-        IEnumerable<Diagnostic> diagnostics = GetDiagnostics(context, fieldDeclaration);
+        IEnumerable<Diagnostic> diagnostics = GetDiagnostics(fieldDeclaration);
 
         bool isSuccessful = !diagnostics.Any(x => x.Severity == DiagnosticSeverity.Error);
 
@@ -56,10 +55,10 @@ namespace {attributeNamespace}
 
         componentStringBuilder.Append($", valueAutoSetter: (value) => {fieldName} = value)");
 
-        return new NodeImplementationGenerator.ComponentGenerationInfo(memberDeclaration, componentStringBuilder.ToString(), GetDiagnostics(context, fieldDeclaration)) { IsSuccessful = isSuccessful };
+        return new NodeImplementationGenerator.ComponentGenerationInfo(memberDeclaration, componentStringBuilder.ToString(), GetDiagnostics(fieldDeclaration)) { IsSuccessful = isSuccessful };
     }
 
-    private IEnumerable<Diagnostic> GetDiagnostics(GeneratorSyntaxContext context, FieldDeclarationSyntax fieldDeclaration)
+    private IEnumerable<Diagnostic> GetDiagnostics(FieldDeclarationSyntax fieldDeclaration)
     {
         ClassDeclarationSyntax parentClassSyntax = (ClassDeclarationSyntax)fieldDeclaration.Parent;
 

@@ -1,15 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-	  <ProjectReference Include="..\..\PluginFramework\Laminar.PluginFramework\Laminar.PluginFramework.csproj">
-		  <Private>false</Private>
-		  <ExcludeAssets>runtime</ExcludeAssets>
-	  </ProjectReference>
+    <PackageReference Include="Laminar.PluginFramework" Version="1.0.0" />
   </ItemGroup>
-	
-	<ItemGroup>
-		<ProjectReference Include="..\..\PluginFramework\Laminar.PluginFramework.SourceGeneration\Laminar.PluginFramework.SourceGeneration.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-	</ItemGroup>
 </Project>

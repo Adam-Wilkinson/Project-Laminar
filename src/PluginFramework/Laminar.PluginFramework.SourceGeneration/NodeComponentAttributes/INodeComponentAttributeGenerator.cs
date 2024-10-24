@@ -1,8 +1,8 @@
-﻿using Laminar.PluginSourceGeneration.Generators;
+﻿using Laminar.PluginFramework.SourceGeneration.Generators;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace Laminar.PluginSourceGeneration.NodeComponentAttributes;
+namespace Laminar.PluginFramework.SourceGeneration.NodeComponentAttributes;
 
 internal interface INodeComponentAttributeGenerator
 {

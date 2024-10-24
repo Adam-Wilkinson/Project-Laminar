@@ -3,31 +3,31 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using Laminar.PluginFramework.SourceGeneration.NodeComponentAttributes;
 using Laminar.PluginSourceGeneration.Helpers;
-using Laminar.PluginSourceGeneration.NodeComponentAttributes;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 
-namespace Laminar.PluginSourceGeneration.Generators;
+namespace Laminar.PluginFramework.SourceGeneration.Generators;
 
 [Generator(LanguageNames.CSharp)]
 public class NodeImplementationGenerator : IIncrementalGenerator
 {
     private static readonly UsingDirectiveSyntax[] RequiredUsings =
-    {
+    [
         SyntaxFactory.UsingDirective(SyntaxFactory.ParseName(" System.Collections.Generic")),
         SyntaxFactory.UsingDirective(SyntaxFactory.ParseName(" Laminar.PluginFramework.NodeSystem.Components")),
         SyntaxFactory.UsingDirective(SyntaxFactory.ParseToken(" static"), null, SyntaxFactory.ParseName(" Laminar.PluginFramework.LaminarFactory")),
-    };
+    ];
 
     private const string AttributeNamespace = "Laminar.PluginFramework.NodeSystem.Attributes";
 
-    private static readonly Dictionary<string, INodeComponentAttributeGenerator> componentAttributeGenerators = 
+    private static readonly Dictionary<string, INodeComponentAttributeGenerator> componentAttributeGenerators =
         Assembly.GetExecutingAssembly().GetTypes()
             .Where(x => typeof(INodeComponentAttributeGenerator).IsAssignableFrom(x) && x.IsClass)
-            .Select(x => (INodeComponentAttributeGenerator)Activator.CreateInstance(x))
+            .Select(x => ((INodeComponentAttributeGenerator)Activator.CreateInstance(x))!)
             .ToDictionary(x => $"{AttributeNamespace}.{x.Name}Attribute");
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
@@ -181,7 +181,7 @@ public IEnumerable<INodeComponent> Components
                     {
                         INamedTypeSymbol attributeTypeSymbol = attributeConstructorSymbol.ContainingType;
 
-                        if (componentAttributeGenerators.TryGetValue(attributeTypeSymbol.ToString(), out INodeComponentAttributeGenerator generator))
+                        if (attributeTypeSymbol.ToString() is string attributeTypeString && componentAttributeGenerators.TryGetValue(attributeTypeString, out INodeComponentAttributeGenerator generator))
                         {
                             yield return generator.GenerateComponentInfo(fieldDeclaration, attribute, generatorSyntaxContext);
                         }

@@ -13,12 +13,10 @@ namespace Laminar.Implementation;
 
 public class Instance
 {
-    private readonly PluginLoader _pluginLoader;
-
     public Instance(SynchronizationContext? uiContext, FrontendDependency supportedDependencies, [CallerFilePath] string path = "")
     {
         PluginFramework.LaminarFactory.ServiceProvider = ServiceProvider;
-        _pluginLoader = new PluginLoader(path, supportedDependencies, ServiceProvider.GetService<IPluginHostFactory>()!);
+        _ = new PluginLoader(path, supportedDependencies, ServiceProvider.GetService<IPluginHostFactory>()!);
         // _isLoading = true;
         //foreach (var serializedScript in UserData.LoadAllFromFolder<ISerializedObject<IAdvancedScript>>("Scripts", "las"))
         //{

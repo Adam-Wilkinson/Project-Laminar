@@ -1,8 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
-	  <Nullable>enable</Nullable>
+	<TargetFramework>net7.0</TargetFramework>
+	<Nullable>enable</Nullable>
+	<ImplicitUsings>enable</ImplicitUsings>
+	<Nullable>enable</Nullable>
+	<Title>Project: Laminar Plugin Framework</Title>
+	<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+	<Version>$(VersionPrefix)</Version>
+	<Authors>Adam Wilkinson</Authors>
+	<RepositoryUrl>https://github.com/Adam-Wilkinson/Project-Laminar</RepositoryUrl>
+	<RepositoryType>git</RepositoryType>
+	<PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
+	<PackageLicenseFile>COPYING.txt</PackageLicenseFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,6 +22,13 @@
 </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="NodeSystem\Attributes\" />
+    <None Include="..\..\..\COPYING.txt">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Laminar.PluginFramework.SourceGeneration" Version="1.0.0" />
   </ItemGroup>
 </Project>

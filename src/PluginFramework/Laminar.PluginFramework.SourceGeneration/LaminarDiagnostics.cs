@@ -1,6 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 
-namespace Laminar.PluginSourceGeneration;
+namespace Laminar.PluginFramework.SourceGeneration;
 
 internal static class LaminarDiagnostics
 {
