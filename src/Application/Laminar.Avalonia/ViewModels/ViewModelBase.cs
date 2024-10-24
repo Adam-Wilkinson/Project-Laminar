@@ -1,7 +1,6 @@
-﻿using ReactiveUI;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Laminar.Avalonia.ViewModels;
-
-public class ViewModelBase : ReactiveObject
+public class ViewModelBase : ObservableObject
 {
 }

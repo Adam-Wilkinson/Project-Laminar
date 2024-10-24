@@ -2,92 +2,197 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:local="using:Laminar.Avalonia.ViewModels"
+			 xmlns:localshapes="using:Laminar.Avalonia.Shapes"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Laminar.Avalonia.Views.CustomTitleBars.WindowsTitleBar"
              DockPanel.Dock="Top">
   <StackPanel>
-    <Grid Height="50">
-      <DockPanel Background="{DynamicResource HeaderColour}"
-                 IsHitTestVisible="False"
-                 Name="TitleBarBackground"></DockPanel>
-      <DockPanel Name="TitleBar">
-        <StackPanel Orientation="Horizontal"
-                    DockPanel.Dock="Left"
-                    Spacing="6">
-          <Image Source="/Assets/ProjectLaminarLogo.png"
-                 Height="35"
-                 Width="35"
-				 IsHitTestVisible="False"
-                 VerticalAlignment="Center"
-                 Margin="14,0,2,0"
-                 Name="WindowIcon"/>
-          <TextBlock Text="Project:"
-                     FontSize="20"
-					 FontFamily="Lucida Sans"
-					 FontWeight="UltraBold"
-                     VerticalAlignment="Center"
-                     IsHitTestVisible="False"
-                     Name="SystemChromeTitle"/>
-    	  <TextBlock Text="Laminar"
-		             FontSize="20"
- 			 	     FontFamily="Lucida Sans"
-				     FontWeight="Light"
-		             VerticalAlignment="Center"
-		             IsHitTestVisible="False"/>
-        </StackPanel>
-        <StackPanel HorizontalAlignment="Right"
-                    Orientation="Horizontal">
+	  <Grid Height="40">
+		  <DockPanel IsHitTestVisible="False"
+					Name="TitleBarBackground">
+			  <DockPanel.Background>
+				  <LinearGradientBrush StartPoint="0,0" EndPoint="0,200">
+					  <GradientStop Offset="0" Color="{DynamicResource LaminarColorMain}"/>
+					  <GradientStop Offset="1" Color="{DynamicResource ThemeBackgroundBrush}"/>
+				  </LinearGradientBrush>
+			  </DockPanel.Background>
+			  <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Spacing="5">
+				  <TextBlock Name="ProjectText"
+							 Text="Project:"
+							 FontSize="20"
+							 FontFamily="Lucida Sans"
+							 FontWeight="UltraBold"
+							 VerticalAlignment="Center"
+							 IsHitTestVisible="False"/>
+				  <TextBlock Text="Laminar"
+							 FontSize="20"
+							 FontFamily="{StaticResource AreaKilometer50}"
+							 FontWeight="Light"
+							 VerticalAlignment="Center"
+							 IsHitTestVisible="False"/>
+			  </StackPanel>
+		  </DockPanel>
+		  <DockPanel>
+			<StackPanel Orientation="Horizontal"
+						VerticalAlignment="Stretch"
+						DockPanel.Dock="Left">
+				<Button VerticalAlignment="Center" Margin="7,2,0,0" Background="#00000000">
+					<Button.Content>
+						<Image Source="/Assets/ProjectLaminarLogo.png"
+							   Height="25"
+							   Width="25"
+							   IsHitTestVisible="False"
+							   VerticalAlignment="Center"
+							   Name="WindowIcon"/>
+					</Button.Content>
+				</Button>
+				<Menu VerticalAlignment="Stretch">
+					<Menu.Styles>
+						<Style Selector=":is(MenuItem)">
+							<Setter Property="FontFamily" Value="Lucida Sans"/>
+							<Setter Property="FontSize" Value="15"/>
+							<Setter Property="FontWeight" Value="DemiBold"/>
+							<Setter Property="VerticalAlignment" Value="Stretch"/>
+						</Style>
+					</Menu.Styles>
+					<MenuItem Header="File"/>
+					<MenuItem Header="Edit"/>
+					<MenuItem Header="View"/>
+				</Menu>
+			</StackPanel>
+			  
+			<StackPanel HorizontalAlignment="Right"
+						DockPanel.Dock="Right"
+						Orientation="Horizontal">
 			
-			<StackPanel.Styles>
-				<Style Selector="Button">
-					<Setter Property="Padding" Value="5"/>
-					<Setter Property="Width" Value="46"/>
-					<Setter Property="BorderThickness" Value="0"/>
-				</Style>
-				<Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-					<Setter Property="Background" Value="#44AAAAAA"/>
-				</Style>
-				<Style Selector="Button:not(:pointerover) /template/ ContentPresenter#PART_ContentPresenter">
-					<Setter Property="Background" Value="Transparent"/>
-				</Style>
-				<Style Selector="Path">
-					<Setter Property="Stretch" Value="Uniform"/>
-					<Setter Property="Margin" Value="10"/>
-					<Setter Property="Stroke" Value="#DDDDDD"/>
-					<Setter Property="StrokeThickness" Value="2"/>
-				</Style>
-			</StackPanel.Styles>
+				<StackPanel.Styles>
+					<Style Selector="Button">
+						<Setter Property="VerticalAlignment" Value="Stretch"/>
+						<Setter Property="VerticalContentAlignment" Value="Center"/>
+						<Setter Property="Padding" Value="5"/>
+						<Setter Property="Width" Value="46"/>
+						<Setter Property="BorderThickness" Value="0"/>
+					</Style>
+					<Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+						<Setter Property="Background" Value="#44AAAAAA"/>
+					</Style>
+					<Style Selector="Button:not(:pointerover) /template/ ContentPresenter#PART_ContentPresenter">
+						<Setter Property="Background" Value="Transparent"/>
+					</Style>
+					<Style Selector="Path">
+						<Setter Property="Stretch" Value="Uniform"/>
+						<Setter Property="Margin" Value="10"/>
+						<Setter Property="Stroke" Value="{Binding #ProjectText.Foreground}"/>
+						<Setter Property="StrokeThickness" Value="2"/>
+					</Style>
+				</StackPanel.Styles>
+
+				<ToggleButton Name="SettingsButton"
+					    IsChecked="{Binding SettingsOpen, Mode=TwoWay, DataType={x:Type local:MainWindowViewModel}}"
+						Classes="SettingsButton"
+						ToolTip.Tip="Settings"
+						HorizontalContentAlignment="Center"
+						VerticalContentAlignment="Center"
+						VerticalAlignment="Stretch"
+						Margin="0,0,20,0">
+					<Panel>
+						<localshapes:SettingsCog Classes="SettingsCog" Width="19" Height="19" SpokeDepth="4" SpokeCount="8" Stroke="{Binding #ProjectText.Foreground}" StrokeThickness="1.5"/>
+						<Border Classes="SettingsArrowRotater">
+							<Path Classes="SettingsArrow" Data="M 0 0 L 3 1 L 6 0" Height="20" Width="17" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" StrokeThickness="1.5"/>
+						</Border>
+					</Panel>
+				</ToggleButton>
+				
+				<Button Name="SystemTrayButton"
+						ToolTip.Tip="Minimize to System Tray">
+					<Path Data="M-1,0 v2 h-4 M-2,0"/>
+				</Button>
 			
-			<Button Name="SysTrayButton"
-					ToolTip.Tip="Minimize to System Tray">
-				<Path Data="M-1,1 v1 h-1.7 M-3,0"/>
-			</Button>
-			
-            <Button Name="MinimizeButton"
-                    ToolTip.Tip="Minimize">
-              <Path Data="M0,1 h-2 v0.065 h2 z"/>
-            </Button>
+				<Button Name="MinimizeButton"
+						ToolTip.Tip="Minimize">
+				  <Path Data="M0,1 h-2 v0.065 h2 z"/>
+				</Button>
 
-            <Button Name="MaximizeButton">
-              <ToolTip.Tip>
-                <ToolTip Content="Maximize"
-                         Name="MaximizeToolTip"/>
-              </ToolTip.Tip>
-              <Path Name="MaximizeIcon"/>
-            </Button>
+				<Button Name="MaximizeButton">
+				  <ToolTip.Tip>
+					<ToolTip Content="Maximize"
+							 Name="MaximizeToolTip"/>
+				  </ToolTip.Tip>
+				  <Path Name="MaximizeIcon"/>
+				</Button>
 
-          <Button Name="CloseButton"
-                  ToolTip.Tip="Close">
-            <Button.Styles>
-              <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-                <Setter Property="Background" Value="Red"/>
-              </Style>
-            </Button.Styles>
-            <Path Data="M1,1 L-1,-1 M-1,1 L1,-1"></Path>
-          </Button>
+			  <Button Name="CloseButton"
+					  ToolTip.Tip="Close">
+				<Button.Styles>
+				  <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+					<Setter Property="Background" Value="Red"/>
+				  </Style>
+				</Button.Styles>
+				<Path Data="M1,1 L-1,-1 M-1,1 L1,-1"></Path>
+			  </Button>
 
-        </StackPanel>
-      </DockPanel>
-    </Grid>
+			</StackPanel>
+		  </DockPanel>
+	  </Grid>
+	  <StackPanel.Styles>
+		  <Style Selector="ToggleButton.SettingsButton">
+			  <Setter Property="Background" Value="Transparent"/>
+			  <Style Selector="^ :is(Shape).SettingsCog">
+				  <Setter Property="Fill" Value="Transparent"/>
+				  <Setter Property="RenderTransform" Value="rotate(0)"/>
+				  <Setter Property="Transitions">
+					  <Transitions>
+						  <TransformOperationsTransition Duration="0:0:0.2" Property="RenderTransform"/>
+						  <BrushTransition Duration="0:0:0.2" Property="Fill"/>
+					  </Transitions>
+				  </Setter>
+			  </Style>
+			  <Style Selector="^ :is(Control).SettingsArrow">
+				  <Setter Property="Opacity" Value="0"/>
+				  <Setter Property="RenderTransform" Value="translatey(20px)"/>
+				  <Setter Property="Transitions">
+					  <Transitions>
+						  <TransformOperationsTransition Duration="0:0:0.2" Property="RenderTransform"/>
+						  <DoubleTransition Duration="0:0:0.2" Property="Opacity"/>
+					  </Transitions>
+				  </Setter>
+			  </Style>
+			  <Style Selector="^ :is(Control).SettingsArrowRotater">
+				  <Setter Property="RenderTransform" Value="rotate(0deg)"/>
+				  <Setter Property="Transitions">
+					  <Transitions>
+						  <TransformOperationsTransition Duration="0:0:0.2" Property="RenderTransform"/>
+					  </Transitions>
+				  </Setter>				  
+			  </Style>
+
+			  <Style Selector="^:pointerover">
+				  <Setter Property="Background" Value="Transparent"/>
+				  <Style Selector="^ :is(Shape).SettingsCog">
+					  <Setter Property="Fill" Value="{Binding $self.Stroke}"/>
+				  </Style>
+
+				  <Style Selector="^ :is(Control).SettingsArrow">
+					  <Setter Property="Opacity" Value="1"/>
+					  <Setter Property="RenderTransform" Value="translatey(22px)"/>
+				  </Style>
+			  </Style>
+			  
+			  <Style Selector="^:checked">
+				  <Style Selector="^ :is(Shape).SettingsCog">
+					  <Setter Property="Fill" Value="{Binding $self.Stroke}"/>
+					  <Setter Property="RenderTransform" Value="rotate(90deg)"/>
+				  </Style>
+				  <Style Selector="^ :is(Control).SettingsArrow">
+					  <Setter Property="Opacity" Value="1"/>
+					  <Setter Property="RenderTransform" Value="translatey(22px)"/>
+				  </Style>
+				  <Style Selector="^ :is(Control).SettingsArrowRotater">
+					  <Setter Property="RenderTransform" Value="rotate(180deg)"/>
+				  </Style>
+			  </Style>
+		  </Style>
+	  </StackPanel.Styles>
   </StackPanel>
 </UserControl>

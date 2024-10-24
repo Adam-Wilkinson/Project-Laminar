@@ -1,73 +1,51 @@
-﻿using System;
-using System.Runtime.InteropServices;
-using System.Threading.Tasks;
+﻿using System.Runtime.InteropServices;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
-using Avalonia.Markup.Xaml;
+using Avalonia.Reactive;
 
 namespace Laminar.Avalonia.Views.CustomTitleBars;
 
-public class MacosTitleBar : UserControl
+public partial class MacosTitleBar : UserControl
 {
-    private readonly Button closeButton;
-    private readonly Button minimizeButton;
-    private readonly Button zoomButton;
-
-    private readonly DockPanel titleBarBackground;
-    private readonly StackPanel titleAndWindowIconWrapper;
-
-    public static readonly StyledProperty<bool> IsSeamlessProperty =
-    AvaloniaProperty.Register<MacosTitleBar, bool>(nameof(IsSeamless));
-
-    public bool IsSeamless
-    {
-        get { return GetValue(IsSeamlessProperty); }
-        set
-        {
-            SetValue(IsSeamlessProperty, value);
-            if (titleBarBackground != null && titleAndWindowIconWrapper != null)
-            {
-                titleBarBackground.IsVisible = !IsSeamless;
-                titleAndWindowIconWrapper.IsVisible = !IsSeamless;
-            }
-        }
-    }
-
     public MacosTitleBar()
     {
         InitializeComponent();
+        IsVisible = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
 
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) == false)
-        {
-            IsVisible = false;
-        }
-        else
-        {
-            minimizeButton = this.FindControl<Button>("MinimizeButton");
-            zoomButton = this.FindControl<Button>("ZoomButton");
-            closeButton = this.FindControl<Button>("CloseButton");
-
-            minimizeButton.Click += MinimizeWindow;
-            zoomButton.Click += MaximizeWindow;
-            closeButton.Click += CloseWindow;
-
-            titleBarBackground = this.FindControl<DockPanel>("TitleBarBackground");
-            titleAndWindowIconWrapper = this.FindControl<StackPanel>("TitleAndWindowIconWrapper");
-
-            SubscribeToWindowState();
-        }
+        MinimizeButton.Click += MinimizeWindow;
+        ZoomButton.Click += MaximizeWindow;
+        CloseButton.Click += CloseWindow;
     }
 
-    private void CloseWindow(object sender, RoutedEventArgs e)
+    protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
     {
-        Window hostWindow = (Window)VisualRoot;
-        hostWindow.Close();
+        if (VisualRoot is not Window hostWindow)
+        {
+            return;
+        }
+
+        hostWindow.ExtendClientAreaTitleBarHeightHint = 44;
+        hostWindow.GetObservable(Window.WindowStateProperty).Subscribe(new AnonymousObserver<WindowState>(s => 
+            hostWindow.Padding = s switch
+            {
+                WindowState.Maximized => new Thickness(7, 7, 7, 7),
+                _ => new Thickness(0, 0, 0, 0)
+            }
+        ));
     }
 
-    private void MaximizeWindow(object sender, RoutedEventArgs e)
+    private void CloseWindow(object? sender, RoutedEventArgs e)
     {
-        Window hostWindow = (Window)VisualRoot;
+        ((Window)VisualRoot)?.Close();
+    }
+
+    private void MaximizeWindow(object? sender, RoutedEventArgs e)
+    {
+        if (VisualRoot is not Window hostWindow)
+        {
+            return;
+        }
 
         if (hostWindow.WindowState == WindowState.Normal)
         {
@@ -79,45 +57,11 @@ public class MacosTitleBar : UserControl
         }
     }
 
-    private void MinimizeWindow(object sender, RoutedEventArgs e)
+    private void MinimizeWindow(object? sender, RoutedEventArgs e)
     {
-        Window hostWindow = (Window)VisualRoot;
-        hostWindow.WindowState = WindowState.Minimized;
-    }
-
-    private async void SubscribeToWindowState()
-    {
-        Window hostWindow = (Window)VisualRoot;
-
-        while (hostWindow == null)
+        if (VisualRoot is Window hostWindow)
         {
-            hostWindow = (Window)VisualRoot;
-            await Task.Delay(50);
+            hostWindow.WindowState |= WindowState.Minimized;
         }
-
-        hostWindow.ExtendClientAreaTitleBarHeightHint = 44;
-        hostWindow.GetObservable(Window.WindowStateProperty).Subscribe(s =>
-        {
-            if (s is not WindowState.Maximized)
-            {
-                hostWindow.Padding = new Thickness(0, 0, 0, 0);
-            }
-            if (s is WindowState.Maximized)
-            {
-                hostWindow.Padding = new Thickness(7, 7, 7, 7);
-
-                // This should be a more universal approach in both cases, but I found it to be less reliable, when for example double-clicking the title bar.
-                /*hostWindow.Padding = new Thickness(
-                        hostWindow.OffScreenMargin.Left,
-                        hostWindow.OffScreenMargin.Top,
-                        hostWindow.OffScreenMargin.Right,
-                        hostWindow.OffScreenMargin.Bottom);*/
-            }
-        });
-    }
-
-    private void InitializeComponent()
-    {
-        AvaloniaXamlLoader.Load(this);
     }
 }

@@ -1,0 +1,68 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>exe</OutputType>
+    <TargetFrameworks>net7.0</TargetFrameworks>
+	<Nullable>enable</Nullable>
+    <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
+	<EnablePreviewFeatures>true</EnablePreviewFeatures>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <NoWarn>NU1605</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Update="**\*.xaml.cs">
+      <DependentUpon>%(Filename)</DependentUpon>
+    </Compile>
+    <AvaloniaResource Include="**\*.xaml">
+      <SubType>Designer</SubType>
+    </AvaloniaResource>
+    <AvaloniaResource Include="Assets\**" />
+	<AvaloniaResource Include="Assets\Fonts\**" />
+    <AvaloniaResource Include="Styles\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <AvaloniaResource Remove="Styles\NodeWrapperStyles.axaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="Styles\NodeTreeInputStyles.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Assets\Configs.xml" />
+    <Content Include="Assets\InbuiltNodePaths.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="0.10.18" />
+    <PackageReference Include="Avalonia.Desktop" Version="0.10.18" />
+    <PackageReference Include="Avalonia.Markup.Xaml.Loader" Version="0.10.18" />
+    <PackageReference Include="Avalonia.ReactiveUI" Version="0.10.18" />
+    <PackageReference Include="Laminar.Avalonia.SelectAndMove" Version="1.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Laminar.Implementation\Laminar.Implementation.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Styles\NodePickerStyles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <AvaloniaResource Update="Styles\NodeTreeInputStyles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </AvaloniaResource>
+    <AvaloniaXaml Update="Styles\NodeWrapperStyles.axaml">
+      <SubType>Designer</SubType>
+    </AvaloniaXaml>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Views\MainWindow.axaml.cs">
+      <DependentUpon>MainWindow.axaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+	<ItemGroup>
+		<AvaloniaResource Include="DataTemplates\**" />
+		<AvaloniaResource Include="DataTemplates\NodeWrapperDataTemplate.axaml" />
+	</ItemGroup>
+	
+</Project>

@@ -1,0 +1,31 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Laminar.Avalonia.App"
+             xmlns:local="using:Laminar.Avalonia"
+             RequestedThemeVariant="Default">
+             <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+
+    <Application.DataTemplates>
+        <local:ViewLocator/>
+    </Application.DataTemplates>
+  
+    <Application.Styles>
+        <FluentTheme />
+    </Application.Styles>
+
+	<Application.Resources>
+		<ResourceDictionary>
+			<FontFamily x:Key="LaminarIcons">avares://Laminar.Avalonia/Assets/IconWorksRegular</FontFamily>
+			<FontFamily x:Key="AreaKilometer">avares://Laminar.Avalonia/Assets/AreaKilometer50</FontFamily>
+			
+			<ResourceDictionary.ThemeDictionaries>
+				<ResourceDictionary x:Key='Light'>
+					<Color x:Key='LaminarColorMain'>#1949F5</Color>
+				</ResourceDictionary>
+				<ResourceDictionary x:Key='Dark'>
+					<Color x:Key='LaminarColorMain'>#090935</Color>
+				</ResourceDictionary>
+			</ResourceDictionary.ThemeDictionaries>
+		</ResourceDictionary>
+	</Application.Resources>
+</Application>

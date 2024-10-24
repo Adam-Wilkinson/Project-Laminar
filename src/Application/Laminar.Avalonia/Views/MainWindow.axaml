@@ -1,26 +1,39 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Laminar.Avalonia.ViewModels"
 		xmlns:titlebars="clr-namespace:Laminar.Avalonia.Views.CustomTitleBars;assembly=Laminar.Avalonia"
-        xmlns:vm="clr-namespace:Laminar.Avalonia.ViewModels;assembly=Laminar.Avalonia"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        UseLayoutRounding="True"
-        mc:Ignorable="d" Width="1920" Height="1080"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="Laminar.Avalonia.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/ProjectLaminarLogo.png"
         Title="Project: Laminar"
 		ExtendClientAreaToDecorationsHint="True"
 		ExtendClientAreaChromeHints="NoChrome"
-		ExtendClientAreaTitleBarHeightHint="50"
-        DataContext="MainWindowViewModel">
-	<DockPanel Name="ContentWrapper"
-		       HorizontalAlignment="Stretch"
-			   VerticalAlignment="Stretch">
-		<titlebars:WindowsTitleBar IsSeamless="True"/>
-		<titlebars:MacosTitleBar IsSeamless="False"/>
-		<ContentControl Content="{Binding Content}"/>
-		<!--<vm:MainWindowViewModel/>-->
-		<!--<ContentControl Content="{Binding MainControl, Mode=OneWay}" Background="#2B2B2B"/>-->
+		ExtendClientAreaTitleBarHeightHint="40">
+
+    <Design.DataContext>
+        <!-- This only sets the DataContext for the previewer in an IDE,
+             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+
+	<DockPanel VerticalAlignment="Stretch">
+		<titlebars:WindowsTitleBar DockPanel.Dock="Top"/>
+		<titlebars:MacosTitleBar DockPanel.Dock="Top"/>
+		<TransitioningContentControl IsTransitionReversed="{Binding !SettingsOpen}" 
+									 VerticalAlignment="Stretch" 
+									 VerticalContentAlignment="Stretch" 
+									 Content="{Binding WindowCentralControl}">
+			<TransitioningContentControl.PageTransition>
+				<CompositePageTransition>
+					<CrossFade Duration="0:0:0.2"/>
+					<PageSlide Duration="0:0:0.2" Orientation="Vertical"/>
+				</CompositePageTransition>
+			</TransitioningContentControl.PageTransition>
+		</TransitioningContentControl>
 	</DockPanel>
+
 
 </Window>

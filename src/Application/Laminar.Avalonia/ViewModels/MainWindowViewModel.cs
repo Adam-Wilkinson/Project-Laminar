@@ -1,53 +1,37 @@
-﻿using ReactiveUI;
-using System.Threading;
-using Laminar.Contracts.Scripting;
-using Laminar.Implementation;
-using Laminar.PluginFramework.Registration;
-using Microsoft.Extensions.DependencyInjection;
-using Laminar.Contracts.Scripting.NodeWrapping;
+﻿using System.Diagnostics;
+using Avalonia.Controls;
+using Avalonia.Layout;
 
 namespace Laminar.Avalonia.ViewModels;
 
-public class MainWindowViewModel : ViewModelBase
+public partial class MainWindowViewModel : ViewModelBase
 {
-    private readonly IScriptFactory _scriptFactory;
-
-    private ViewModelBase _content;
+    private bool _settingsOpen;
+    private readonly SettingsOverlay _settingsOverlay = new();
+    private readonly Control _laminarEditor = new TextBlock { Text = "This will be Project: Laminar", HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
 
     public MainWindowViewModel()
     {
-        _scriptFactory = LaminarInstance.ServiceProvider.GetService<IScriptFactory>();
-        ShowHomepage();
+        WindowCentralControl = _laminarEditor;
     }
 
-    public Instance LaminarInstance { get; } = new Instance(SynchronizationContext.Current, FrontendDependency.Avalonia);
+    public Control WindowCentralControl { get; set; }
 
-    public HomepageViewModel HomepageViewModel { get; }
-
-    public ViewModelBase Content
+    public bool SettingsOpen
     {
-        get => _content;
-        set => this.RaiseAndSetIfChanged(ref _content, value);
-    }
-
-    public void AddScript()
-    {
-        IScript newScript = _scriptFactory.CreateScript();
-        newScript.Name = "Untitled Script";
-        LaminarInstance.AllScripts.Add(newScript);
-        OpenScriptEditor(newScript);
-    }
-
-    public void OpenScriptEditor(IScript script)
-    {
-        Content = new ScriptEditorViewModel(script, LaminarInstance.ServiceProvider.GetService<ILoadedNodeManager>());
-    }
-
-    public void ShowHomepage()
-    {
-        Content = new HomepageViewModel
+        get
         {
-            AllScripts = LaminarInstance.AllScripts,
-        };
+            return _settingsOpen;
+        }
+        set
+        {
+            if (_settingsOpen != value)
+            {
+                WindowCentralControl = _settingsOpen ? _laminarEditor : _settingsOverlay;
+                OnPropertyChanged(nameof(WindowCentralControl));
+                OnPropertyChanged();
+                _settingsOpen = value;
+            }
+        }
     }
 }
