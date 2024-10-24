@@ -1,7 +1,8 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:Laminar.Avalonia.ViewModels"
-		xmlns:titlebars="clr-namespace:Laminar.Avalonia.Views.CustomTitleBars;assembly=Laminar.Avalonia"
+		xmlns:titlebars="using:Laminar.Avalonia.Views.CustomTitleBars"
+		xmlns:pagetransitions="using:Laminar.Avalonia.PageTransitions"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
@@ -9,6 +10,8 @@
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/ProjectLaminarLogo.png"
         Title="Project: Laminar"
+		Background="{DynamicResource LaminarBackground}"
+		Foreground="{DynamicResource LaminarForeground}"
 		ExtendClientAreaToDecorationsHint="True"
 		ExtendClientAreaChromeHints="NoChrome"
 		ExtendClientAreaTitleBarHeightHint="40">
@@ -22,15 +25,12 @@
 	<DockPanel VerticalAlignment="Stretch">
 		<titlebars:WindowsTitleBar DockPanel.Dock="Top"/>
 		<titlebars:MacosTitleBar DockPanel.Dock="Top"/>
-		<TransitioningContentControl IsTransitionReversed="{Binding !SettingsOpen}" 
+		<TransitioningContentControl IsTransitionReversed="{Binding SettingsOpen}" 
 									 VerticalAlignment="Stretch" 
 									 VerticalContentAlignment="Stretch" 
 									 Content="{Binding WindowCentralControl}">
 			<TransitioningContentControl.PageTransition>
-				<CompositePageTransition>
-					<CrossFade Duration="0:0:0.2"/>
-					<PageSlide Duration="0:0:0.2" Orientation="Vertical"/>
-				</CompositePageTransition>
+				<pagetransitions:SettingsPageTransition Duration="0:0:0.2"/>
 			</TransitioningContentControl.PageTransition>
 		</TransitioningContentControl>
 	</DockPanel>

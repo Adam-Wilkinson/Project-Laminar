@@ -19,11 +19,19 @@
 			<FontFamily x:Key="AreaKilometer">avares://Laminar.Avalonia/Assets/AreaKilometer50</FontFamily>
 			
 			<ResourceDictionary.ThemeDictionaries>
-				<ResourceDictionary x:Key='Light'>
-					<Color x:Key='LaminarColorMain'>#1949F5</Color>
-				</ResourceDictionary>
 				<ResourceDictionary x:Key='Dark'>
-					<Color x:Key='LaminarColorMain'>#090935</Color>
+					<Color x:Key='LaminarForeground'>#dbe5ff</Color>
+					<Color x:Key='LaminarBackground'>#000005</Color>
+					<Color x:Key='LaminarPrimary'>#242ee0</Color>
+					<Color x:Key='LaminarSecondary'>#000c2e</Color>
+					<Color x:Key='LaminarAccent'>#4c1867</Color>
+				</ResourceDictionary>
+				<ResourceDictionary x:Key='Light'>
+					<Color x:Key='LaminarForeground'>#000a24</Color>
+					<Color x:Key='LaminarBackground'>#fafaff</Color>
+					<Color x:Key='LaminarPrimary'>#1f29db</Color>
+					<Color x:Key='LaminarSecondary'>#d1ddff</Color>
+					<Color x:Key='LaminarAccent'>#ab98e7</Color>
 				</ResourceDictionary>
 			</ResourceDictionary.ThemeDictionaries>
 		</ResourceDictionary>

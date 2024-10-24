@@ -12,9 +12,9 @@
 		  <DockPanel IsHitTestVisible="False"
 					Name="TitleBarBackground">
 			  <DockPanel.Background>
-				  <LinearGradientBrush StartPoint="0,0" EndPoint="0,200">
-					  <GradientStop Offset="0" Color="{DynamicResource LaminarColorMain}"/>
-					  <GradientStop Offset="1" Color="{DynamicResource ThemeBackgroundBrush}"/>
+				  <LinearGradientBrush StartPoint="0,0" EndPoint="0,180">
+					  <GradientStop Offset="0" Color="{DynamicResource LaminarSecondary}"/>
+					  <GradientStop Offset="5" Color="{DynamicResource LaminarAccent}"/>
 				  </LinearGradientBrush>
 			  </DockPanel.Background>
 			  <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Spacing="5">
@@ -180,9 +180,12 @@
 			  </Style>
 			  
 			  <Style Selector="^:checked">
+				  <Style Selector="^ /template/ ContentPresenter#PART_ContentPresenter">
+					  <Setter Property="Background" Value="{DynamicResource LaminarAccent}"/>
+				  </Style>
 				  <Style Selector="^ :is(Shape).SettingsCog">
 					  <Setter Property="Fill" Value="{Binding $self.Stroke}"/>
-					  <Setter Property="RenderTransform" Value="rotate(90deg)"/>
+					  <Setter Property="RenderTransform" Value="rotate(45deg)"/>
 				  </Style>
 				  <Style Selector="^ :is(Control).SettingsArrow">
 					  <Setter Property="Opacity" Value="1"/>
