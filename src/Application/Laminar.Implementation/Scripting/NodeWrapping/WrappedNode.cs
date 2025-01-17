@@ -17,15 +17,17 @@ public class WrappedNode<T> : IWrappedNode where T : INode, new()
 
     Action? _preEvaluateAction;
 
-    public WrappedNode(INodeRow nameRow, INodeFactory nodeFactory, T node, INotifyCollectionChangedHelper collectionHelper)
+    public WrappedNode(INodeRow nameRow, INodeFactory nodeFactory, T node)
     {
         _factory = nodeFactory;
         _coreNode = node;
         NameRow = nameRow;
 
         Rows = new FlattenedObservableTree<INodeRow>(node.Components);
-        collectionHelper.HelperInstance(Rows).ItemAdded += Rows_ItemAdded;
-        collectionHelper.HelperInstance(Rows).ItemRemoved += Rows_ItemRemoved;
+        Rows.HelperInstance().ItemAdded += Rows_ItemAdded;
+        Rows.HelperInstance().ItemRemoved += Rows_ItemRemoved;
+        // collectionHelper.HelperInstance(Rows).ItemAdded += Rows_ItemAdded;
+        // collectionHelper.HelperInstance(Rows).ItemRemoved += Rows_ItemRemoved;
 
         foreach (INodeRow row in Rows)
         {

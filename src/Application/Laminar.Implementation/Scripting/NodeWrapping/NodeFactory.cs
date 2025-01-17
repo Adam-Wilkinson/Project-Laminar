@@ -13,17 +13,9 @@ namespace Laminar.Implementation.Scripting.Nodes;
 
 public class NodeFactory : INodeFactory
 {
-    private readonly INotifyCollectionChangedHelper _collectionHelper;
-
-    public NodeFactory(
-        INotifyCollectionChangedHelper collectionHelper)
-    {
-        _collectionHelper = collectionHelper;
-    }
-
     public IWrappedNode WrapNode<T>(T node, INotificationClient<LaminarExecutionContext>? userChangedValueNotificationClient) where T : INode, new()
     {
-        return new WrappedNode<T>(CreateNameRowFor(node), this, node, _collectionHelper) { UserChangedValueNotificationClient = userChangedValueNotificationClient };
+        return new WrappedNode<T>(CreateNameRowFor(node), this, node) { UserChangedValueNotificationClient = userChangedValueNotificationClient };
     }
 
     public IWrappedNode WrapNode<T>(INotificationClient<LaminarExecutionContext>? userChangedValueNotificationClient) where T : INode, new()

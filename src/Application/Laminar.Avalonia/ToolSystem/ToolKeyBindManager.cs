@@ -67,6 +67,7 @@ public class ToolKeyBindManager(TopLevel topLevel) : IAfterApplicationBuiltTarge
             if (_toolInstanceCache is not null && _toolInstanceCache.Command.CanExecute(parameter))
             {
                 _toolInstanceCache.Command.Execute(parameter);
+                _toolInstanceCache = null;
                 keyBindManager._keyChordHandled = true;
                 return;
             }

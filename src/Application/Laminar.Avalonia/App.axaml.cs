@@ -7,7 +7,9 @@ using Laminar.Avalonia.InitializationTargets;
 using Laminar.Avalonia.ViewModels;
 using Laminar.Avalonia.Views;
 using Laminar.Contracts.Base.UserInterface;
+using Laminar.Implementation.Extensions;
 using Laminar.Implementation.Extensions.ServiceInitializers;
+using Laminar.PluginFramework.Registration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Laminar.Avalonia;
@@ -36,6 +38,7 @@ public partial class App : Application
                 .AddSingleton<TopLevel>(desktop.MainWindow)
                 .BuildServiceProvider();
 
+            services.InitializeLaminar(FrontendDependency.Avalonia);
             DataTemplates.Add(new DataInterfaceTemplate(services.GetRequiredService<IDataInterfaceFactory>()));
             
             services.GetServices<IBeforeApplicationBuiltTarget>().Initialize();
