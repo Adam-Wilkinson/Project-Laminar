@@ -11,7 +11,7 @@ namespace Laminar.Implementation.Base.PluginLoading;
 
 public class PluginLoader
 {
-    private static readonly string[] AutoLoadPlugins = { "Basic Functionality UI", "Base plugin functionality" };//, "Keyboard and Mouse interface", "Windows Base" };
+    private static readonly string[] AutoLoadPlugins = ["Basic Functionality UI", "Base plugin functionality"];//, "Keyboard and Mouse interface", "Windows Base" };
     private readonly FrontendDependency _frontend;
     private readonly IPluginHostFactory _pluginHostFactory;
 
@@ -19,7 +19,7 @@ public class PluginLoader
     {
         _frontend = frontend;
         _pluginHostFactory = pluginHostFactory;
-        List<IRegisteredPlugin> registeredPlugins = new();
+        List<IRegisteredPlugin> registeredPlugins = [];
         foreach (var pluginPath in InbuiltPluginFinder.GetInbuiltPlugins(path))
         {
             PluginLoadContext pluginContext = new(pluginPath);

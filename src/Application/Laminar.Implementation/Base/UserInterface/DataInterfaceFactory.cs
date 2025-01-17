@@ -10,7 +10,7 @@ namespace Laminar.Implementation.Base.UserInterface;
 
 public class DataInterfaceFactory(ITypeInfoStore typeInfoStore) : IDataInterfaceFactory
 {
-    private readonly Dictionary<(Type definitionType, Type valueType), Func<IInterfaceData, IInterfaceData?>> _interfaceFactories = [];
+    private readonly Dictionary<(Type definitionType, Type valueType), Func<IInterfaceData, IUserInterfaceDefinition, IInterfaceData?>> _interfaceFactories = [];
     private readonly Dictionary<Type, List<Type>?> _frontendImplementations = [];
     
     public void RegisterInterface<TInterfaceDefinition, TValue, TInterface>()
@@ -29,7 +29,7 @@ public class DataInterfaceFactory(ITypeInfoStore typeInfoStore) : IDataInterface
         where TFrontend : class, new()
     {
         if (_interfaceFactories.TryGetValue((interfaceData.Definition.GetType(), interfaceData.Value.GetType()), out var genericInterfaceDataFactory) 
-            && genericInterfaceDataFactory(interfaceData) is { } genericInterfaceData 
+            && genericInterfaceDataFactory(interfaceData, interfaceData.Definition) is { } genericInterfaceData 
             && GetFrontendFromData<TFrontend>(genericInterfaceData) is { } preferredFrontend)
         {
             return (preferredFrontend, genericInterfaceData);
@@ -39,26 +39,31 @@ public class DataInterfaceFactory(ITypeInfoStore typeInfoStore) : IDataInterface
         {
             var requestedDefinition = interfaceData.IsUserEditable ? interfaceDataTypeInfo.EditorDefinition : interfaceDataTypeInfo.ViewerDefinition;
             if (requestedDefinition is IUserInterfaceDefinition requestedInterfaceDefinition && _interfaceFactories.TryGetValue((requestedInterfaceDefinition.GetType(), interfaceData.Value.GetType()), out var typeInterfaceDataFactory)
-                && typeInterfaceDataFactory(interfaceData) is { } typeInterfaceData
+                && typeInterfaceDataFactory(interfaceData, requestedInterfaceDefinition) is { } typeInterfaceData
                 && GetFrontendFromData<TFrontend>(typeInterfaceData) is { } typeInterfaceFrontend)
             {
                 return (typeInterfaceFrontend, typeInterfaceData);
             }
         }
         
-        var defaultViewerData = new InterfaceDataGenericWrapper<DefaultViewer, object>(interfaceData);
+        var defaultViewerData = new InterfaceDataGenericWrapper<DefaultViewer, object>(interfaceData, new DefaultViewer());
         if (GetFrontendFromData<TFrontend>(defaultViewerData) is { } defaultFrontend)
         {
             return (defaultFrontend, defaultViewerData);
         }
 
-        throw new Exception();
+        throw new Exception($"No default viewer found for frontend of type {typeof(TFrontend)}");
     }
 
     private TFrontend? GetFrontendFromData<TFrontend>(IInterfaceData interfaceData) 
         where TFrontend : class, new()
     {
-        foreach (var frontendType in _frontendImplementations[interfaceData.Definition.GetType()]!)
+        if (!_frontendImplementations.TryGetValue(interfaceData.Definition.GetType(), out var frontendTypes) || frontendTypes is null)
+        {
+            return null;
+        }
+        
+        foreach (var frontendType in frontendTypes)
         {
             if (typeof(TFrontend).IsAssignableFrom(frontendType) && Activator.CreateInstance(frontendType) is TFrontend frontend)
             {
@@ -69,12 +74,12 @@ public class DataInterfaceFactory(ITypeInfoStore typeInfoStore) : IDataInterface
         return null;
     }
     
-    private static Func<IInterfaceData, IInterfaceData?> CreateGenericInterfaceDataFactory<TInterfaceDefinition, TValue>() 
+    private static Func<IInterfaceData, IUserInterfaceDefinition, IInterfaceData?> CreateGenericInterfaceDataFactory<TInterfaceDefinition, TValue>() 
         where TInterfaceDefinition : IUserInterfaceDefinition, new() where TValue : notnull
-        => interfaceData => interfaceData switch {
+        => (interfaceData, interfaceDefinition) => interfaceData switch {
             IInterfaceData<TInterfaceDefinition, TValue> genericInterfaceData => genericInterfaceData,
-            IInterfaceData<TValue> genericValueInterfaceData => new InterfaceDataGenericWrapper<TInterfaceDefinition, TValue>(genericValueInterfaceData),
-            not null => new InterfaceDataGenericWrapper<TInterfaceDefinition, TValue>(interfaceData),
+            IInterfaceData<TValue> genericValueInterfaceData => new InterfaceDataGenericWrapper<TInterfaceDefinition, TValue>(genericValueInterfaceData, (TInterfaceDefinition)interfaceDefinition),
+            not null => new InterfaceDataGenericWrapper<TInterfaceDefinition, TValue>(interfaceData, (TInterfaceDefinition)interfaceDefinition),
             _ => null,
         };
 }
@@ -86,15 +91,16 @@ public class InterfaceDataGenericWrapper<TInterfaceDefinition, TValue> : IInterf
     private readonly IInterfaceData _internal;
     private readonly IInterfaceData<TValue>? _genericDataInternal;
     
-    public InterfaceDataGenericWrapper(IInterfaceData<TValue> interfaceDefinition) : this((IInterfaceData)interfaceDefinition)
+    public InterfaceDataGenericWrapper(IInterfaceData<TValue> interfaceData, TInterfaceDefinition interfaceDefinition) : this((IInterfaceData)interfaceData, interfaceDefinition)
     {
-        _genericDataInternal = interfaceDefinition;
+        _genericDataInternal = interfaceData;
     }
 
-    public InterfaceDataGenericWrapper(IInterfaceData interfaceDefinition)
+    public InterfaceDataGenericWrapper(IInterfaceData interfaceData, TInterfaceDefinition interfaceDefinition)
     {
-        _internal = interfaceDefinition;
+        _internal = interfaceData;
         _internal.PropertyChanged += InterfaceDefinition_PropertyChanged;
+        Definition = interfaceDefinition;
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -118,6 +124,6 @@ public class InterfaceDataGenericWrapper<TInterfaceDefinition, TValue> : IInterf
         if (e.PropertyName == nameof(IInterfaceData.Definition)) return;
         PropertyChanged?.Invoke(this, e);
     }
-    
-    public TInterfaceDefinition Definition => (TInterfaceDefinition)_internal.Definition;
+
+    public TInterfaceDefinition Definition { get; }
 }
