@@ -6,7 +6,7 @@ namespace Laminar.PluginFramework.NodeSystem.Components;
 
 public class ValueInputRow<T> : SingleItemNodeComponent
 {
-    readonly IValueInput<T> _valueInput;
+    private readonly IValueInput<T> _valueInput;
 
     internal ValueInputRow(INodeComponentFactory componentFactory, string name, T? initialValue, Action<T>? valueSetter = null)
     {

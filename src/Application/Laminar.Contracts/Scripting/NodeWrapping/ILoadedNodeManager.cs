@@ -5,7 +5,7 @@ namespace Laminar.Contracts.Scripting.NodeWrapping;
 
 public interface ILoadedNodeManager
 {
-    public ItemCatagory<IWrappedNode> LoadedNodes { get; }
+    public ItemCategory<IWrappedNode> LoadedNodes { get; }
 
     public void AddNodeToCatagory<TNode>(TNode newNode, string catagoryPath) where TNode : INode, new();
 }

@@ -9,7 +9,6 @@ using Laminar.Implementation.Base;
 using Laminar.Implementation.Base.ActionSystem;
 using Laminar.Implementation.Base.PluginLoading;
 using Laminar.Implementation.Base.UserInterface;
-using Laminar.Implementation.Scripting.Nodes;
 using Laminar.Implementation.Scripting.NodeWrapping;
 using Laminar.Implementation.UserData;
 using Laminar.Implementation.UserData.FileNavigation;

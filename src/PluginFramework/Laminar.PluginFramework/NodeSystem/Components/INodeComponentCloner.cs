@@ -5,7 +5,7 @@ using System.ComponentModel;
 
 namespace Laminar.PluginFramework.NodeSystem.Components;
 
-public interface INodeComponentCloner<T> : INodeComponent, INotifyCollectionChanged
+public interface INodeComponentCloner<out T> : INodeComponent, INotifyCollectionChanged
     where T : INodeComponent
 {
     public new IEnumerator<T> GetEnumerator();

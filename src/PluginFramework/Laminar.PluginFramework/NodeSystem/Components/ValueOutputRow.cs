@@ -6,11 +6,11 @@ namespace Laminar.PluginFramework.NodeSystem.Components;
 
 public class ValueOutputRow<T> : SingleItemNodeComponent
 {
-    readonly IValueOutput<T> _valueOutput;
+    private readonly IValueOutput<T> _valueOutput;
 
     internal ValueOutputRow(INodeComponentFactory factory, string name, T? initialValue, Func<T>? manualValueGetter)
     {
-        _valueOutput = LaminarFactory.NodeIO.ValueOutput<T>(name, initialValue: initialValue, getter: manualValueGetter);
+        _valueOutput = LaminarFactory.NodeIO.ValueOutput(name, initialValue: initialValue, getter: manualValueGetter);
         ChildComponent = factory.CreateSingleRow(null, _valueOutput.DisplayValue, _valueOutput);
     }
 
@@ -46,5 +46,13 @@ public class ValueOutputRow<T> : SingleItemNodeComponent
 
 public static class ValueOutputFactoryExtension
 {
-    public static ValueOutputRow<T> ValueOutput<T>(this INodeComponentFactory componentFactory, string name, T? initialValue = default, IUserInterfaceDefinition? viewer = null, IUserInterfaceDefinition? editor = null, bool isUserEditable = false, Func<T>? manualValueGetter = null) => new(componentFactory, name, initialValue, manualValueGetter) { Viewer = viewer, Editor = editor, IsUserEditable = isUserEditable };
+    public static ValueOutputRow<T> ValueOutput<T>(this INodeComponentFactory componentFactory, string name,
+        T? initialValue = default, IUserInterfaceDefinition? viewer = null, IUserInterfaceDefinition? editor = null,
+        bool isUserEditable = false, Func<T>? manualValueGetter = null) 
+        => new(componentFactory, name, initialValue, manualValueGetter)
+        {
+            Viewer = viewer, 
+            Editor = editor, 
+            IsUserEditable = isUserEditable
+        };
 }

@@ -1,15 +1,12 @@
 ﻿using System.Linq;
 using Laminar.Contracts.Notification;
 using Laminar.Contracts.Scripting.NodeWrapping;
-using Laminar.Domain.Notification;
 using Laminar.PluginFramework;
 using Laminar.PluginFramework.NodeSystem;
 using Laminar.PluginFramework.NodeSystem.Components;
-using Laminar.PluginFramework.NodeSystem.IO.Value;
-using Laminar.PluginFramework.UserInterface;
 using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
-namespace Laminar.Implementation.Scripting.Nodes;
+namespace Laminar.Implementation.Scripting.NodeWrapping;
 
 public class NodeFactory : INodeFactory
 {
@@ -26,9 +23,9 @@ public class NodeFactory : INodeFactory
 
     public IWrappedNode CloneNode<T>(IWrappedNode nodeToCopy, INotificationClient<LaminarExecutionContext>? userChangedValueNotificationClient) where T : INode, new()
     {
-        WrappedNode<T> newNode = (WrappedNode<T>)WrapNode<T>(null);
+        var newNode = (WrappedNode<T>)WrapNode<T>(null);
 
-        foreach ((INodeRow copyFrom, INodeRow copyTo) in nodeToCopy.Rows.Zip(newNode.Rows))
+        foreach (var (copyFrom, copyTo) in nodeToCopy.Rows.Zip(newNode.Rows))
         {
             copyFrom.CopyValueTo(copyTo);
         }
@@ -38,9 +35,9 @@ public class NodeFactory : INodeFactory
         return newNode;
     }
 
-    private INodeRow CreateNameRowFor(INode node)
+    private static INodeRow CreateNameRowFor(INode node)
     {
-        IValueInput<string> nameLabel = LaminarFactory.NodeIO.ValueInput("", node.NodeName);
+        var nameLabel = LaminarFactory.NodeIO.ValueInput("", node.NodeName);
         nameLabel.InterfaceDefinition.Editor = new EditableLabel();
         return LaminarFactory.Component.CreateSingleRow(null, nameLabel.DisplayValue, null);
     }

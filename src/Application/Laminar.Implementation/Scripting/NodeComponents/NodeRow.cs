@@ -11,46 +11,37 @@ using Laminar.PluginFramework.UserInterface;
 
 namespace Laminar.Implementation.Scripting.NodeComponents;
 
-internal class NodeRow : INodeRow
+internal class NodeRow(IInput? input, IOutput? output) : INodeRow
 {
-    private readonly IInput? _input;
-    private readonly IOutput? _output;
-
-    public NodeRow(IInput? input, IOutput? output)
-    {
-        _input = input;
-        _output = output;
-    }
-
     public event EventHandler<LaminarExecutionContext>? StartExecution
     {
         add
         {
-            if (_input is not null)
+            if (input is not null)
             {
-                _input.ExecutionStarted += value;
+                input.ExecutionStarted += value;
             }
 
-            if (_output is not null)
+            if (output is not null)
             {
-                _output.ExecutionStarted += value;
+                output.ExecutionStarted += value;
             }
 
-            if (CentralDisplay is ILaminarExecutionSource displaySouce)
+            if (CentralDisplay is ILaminarExecutionSource displaySource)
             {
-                displaySouce.ExecutionStarted += value;
+                displaySource.ExecutionStarted += value;
             }
         }
         remove
         {
-            if (_input is not null)
+            if (input is not null)
             {
-                _input.ExecutionStarted -= value;
+                input.ExecutionStarted -= value;
             }
 
-            if (_output is not null)
+            if (output is not null)
             {
-                _output.ExecutionStarted -= value;
+                output.ExecutionStarted -= value;
             }
 
             if (CentralDisplay is ILaminarExecutionSource displaySource)
@@ -66,7 +57,7 @@ internal class NodeRow : INodeRow
 
     public required object CentralDisplay { get; init; }
 
-    public Opacity Opacity { get; } = new Opacity();
+    public Opacity Opacity { get; } = new();
 
     public void CopyValueTo(INodeRow nodeRow)
     {

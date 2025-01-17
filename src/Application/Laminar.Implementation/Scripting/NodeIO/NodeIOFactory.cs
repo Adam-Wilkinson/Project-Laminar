@@ -9,25 +9,16 @@ using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
 namespace Laminar.Implementation.Scripting.NodeIO;
 
-internal class NodeIOFactory : INodeIOFactory
+internal class NodeIOFactory(IUserInterfaceProvider uiProvider, ITypeInfoStore typeInfoStore) : INodeIOFactory
 {
-    private readonly IUserInterfaceProvider _uiProvider;
-    private readonly ITypeInfoStore _typeInfoStore;
-
-    public NodeIOFactory(IUserInterfaceProvider uiProvider, ITypeInfoStore typeInfoStore)
-    {
-        _uiProvider = uiProvider;
-        _typeInfoStore = typeInfoStore;
-    }
-
     public IValueInput<T> ValueInput<T>(string valueName, T? initialValue, IUserInterfaceDefinition? editor, IUserInterfaceDefinition? viewer, Action<T>? valueSetter)
     {
-        if (initialValue is null && _typeInfoStore.TryGetTypeInfo(typeof(T), out TypeInfo typeInfo))
+        if (initialValue is null && typeInfoStore.TryGetTypeInfo(typeof(T), out var typeInfo) && typeInfo.DefaultValue is T defaultValue)
         {
-            initialValue = (T)typeInfo.DefaultValue!;
+            initialValue = defaultValue;
         }
 
-        ValueInput<T> newInput = new(_uiProvider, _typeInfoStore, valueName, initialValue!);
+        ValueInput<T> newInput = new(uiProvider, typeInfoStore, valueName, initialValue!);
         newInput.InterfaceDefinition.Editor = editor;
         newInput.InterfaceDefinition.Viewer = viewer;
 
@@ -41,12 +32,12 @@ internal class NodeIOFactory : INodeIOFactory
 
     public IValueOutput<T> ValueOutput<T>(string valueName, T? initialValue, IUserInterfaceDefinition? viewer, IUserInterfaceDefinition? editor, bool isUserEditable, Func<T>? getter)
     {
-        if (initialValue is null && _typeInfoStore.TryGetTypeInfo(typeof(T), out TypeInfo typeInfo))
+        if (initialValue is null && typeInfoStore.TryGetTypeInfo(typeof(T), out var typeInfo) && typeInfo.DefaultValue is T defaultValue)
         {
-            initialValue = (T)typeInfo.DefaultValue!;
+            initialValue = defaultValue;
         }
 
-        ValueOutput<T> newOutput = new(_uiProvider, _typeInfoStore, valueName, initialValue!);
+        ValueOutput<T> newOutput = new(uiProvider, typeInfoStore, valueName, initialValue!);
         newOutput.InterfaceDefinition.Viewer = viewer;
         newOutput.InterfaceDefinition.Editor = editor;
         newOutput.InterfaceDefinition.IsUserEditable = isUserEditable;

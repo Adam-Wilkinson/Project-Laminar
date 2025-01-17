@@ -7,7 +7,6 @@ using Laminar.Implementation.Scripting.Connections;
 using Laminar.Implementation.Scripting.Execution;
 using Laminar.Implementation.Scripting.NodeComponents;
 using Laminar.Implementation.Scripting.NodeIO;
-using Laminar.Implementation.Scripting.Nodes;
 using Laminar.Implementation.Scripting.NodeWrapping;
 using Laminar.PluginFramework.NodeSystem.Components;
 using Laminar.PluginFramework.NodeSystem.IO;

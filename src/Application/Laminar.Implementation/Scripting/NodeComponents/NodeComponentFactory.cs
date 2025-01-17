@@ -6,21 +6,15 @@ using Laminar.PluginFramework.UserInterface;
 
 namespace Laminar.Implementation.Scripting.NodeComponents;
 
-internal class NodeComponentFactory : INodeComponentFactory
+internal class NodeComponentFactory(IDisplayFactory displayFactory) : INodeComponentFactory
 {
-    private readonly IDisplayFactory _displayFactory;
-
-    public NodeComponentFactory(IDisplayFactory displayFactory)
-    {
-        _displayFactory = displayFactory;
-    }
-
     public INodeComponentCloner<T> Cloner<T>(Func<T> cloner, int startCount) where T : INodeComponent => new NodeRowCloner<T>(cloner, startCount);
 
-    public INodeRow CreateSingleRow(IInput? input, IDisplayValue displayValue, IOutput? output)
-    {
-        IDisplay display = _displayFactory.CreateDisplayForValue(displayValue);
-
-        return new NodeRow(input, output) { CentralDisplay = display, InputConnector = input?.Connector, OutputConnector = output?.Connector };
-    }
+    public INodeRow CreateSingleRow(IInput? input, IDisplayValue displayValue, IOutput? output) =>
+        new NodeRow(input, output)
+        {
+            CentralDisplay = displayFactory.CreateDisplayForValue(displayValue), 
+            InputConnector = input?.Connector, 
+            OutputConnector = output?.Connector
+        };
 }

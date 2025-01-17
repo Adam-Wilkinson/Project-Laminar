@@ -8,7 +8,7 @@ namespace Laminar.Implementation.UserData.Settings;
 internal class UserPreferenceManager : IUserPreferenceManager
 {
     private readonly IDisplayFactory _valueDisplayFactory;
-    private readonly ItemCatagory<IUserPreference> _userPreferences = new("root");
+    private readonly ItemCategory<IUserPreference> _userPreferences = new("root");
     private readonly Dictionary<string, IUserPreference> _userPreferencesDictionary = new();
 
     public UserPreferenceManager(IDisplayFactory valueDisplayFactory)
@@ -29,7 +29,7 @@ internal class UserPreferenceManager : IUserPreferenceManager
         return this;
     }
 
-    public IReadOnlyItemCatagory<IUserPreference> Preferences => _userPreferences;
+    public IReadOnlyItemCategory<IUserPreference> Preferences => _userPreferences;
 
     public IUserPreference<T>? GetPreference<T>(string key) => _userPreferencesDictionary[key] as IUserPreference<T>;
 }

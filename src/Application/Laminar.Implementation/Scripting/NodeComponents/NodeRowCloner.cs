@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Linq;
 using Laminar.PluginFramework.NodeSystem;
 using Laminar.PluginFramework.NodeSystem.Components;
 using Laminar.PluginFramework.UserInterface;
@@ -12,15 +13,13 @@ namespace Laminar.Implementation.Scripting.NodeComponents;
 internal class NodeRowCloner<T> : INodeComponentCloner<T> where T : INodeComponent
 {
     private readonly Func<T> _generator;
-
-    private readonly List<T> _coreList = new();
-    private readonly ObservableCollection<T> _components = new();
+    private readonly ObservableCollection<T> _components = [];
 
     public NodeRowCloner(Func<T> generator, int startCount)
     {
         _generator = generator;
 
-        for (int i = 0; i < startCount + 1; i++)
+        for (var i = 0; i < startCount + 1; i++)
         {
             AddNewRow();
         }
@@ -44,7 +43,6 @@ internal class NodeRowCloner<T> : INodeComponentCloner<T> where T : INodeCompone
 
     public void RemoveRowAt(int index)
     {
-        _coreList.RemoveAt(index);
         _components.RemoveAt(index);
     }
 
@@ -58,7 +56,7 @@ internal class NodeRowCloner<T> : INodeComponentCloner<T> where T : INodeCompone
             _components[^1].Opacity.SetInternalValue(1.0);
         }
 
-        T leadingItem = _generator();
+        var leadingItem = _generator();
         leadingItem.Opacity.AddFactor(Opacity);
         leadingItem.Opacity.SetInternalValue(0.5);
         leadingItem.StartExecution += LeadingRow_StartExecution;
@@ -67,11 +65,5 @@ internal class NodeRowCloner<T> : INodeComponentCloner<T> where T : INodeCompone
         _components.Add(leadingItem);
     }
 
-    IEnumerator<INodeComponent> IEnumerable<INodeComponent>.GetEnumerator()
-    {
-        foreach (T component in _components)
-        {
-            yield return component;
-        }
-    }
+    IEnumerator<INodeComponent> IEnumerable<INodeComponent>.GetEnumerator() => _components.Cast<INodeComponent>().GetEnumerator();
 }

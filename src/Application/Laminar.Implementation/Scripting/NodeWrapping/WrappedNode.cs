@@ -8,14 +8,14 @@ using Laminar.PluginFramework.NodeSystem;
 using Laminar.PluginFramework.NodeSystem.Components;
 using Laminar.PluginFramework.UserInterface;
 
-namespace Laminar.Implementation.Scripting.Nodes;
+namespace Laminar.Implementation.Scripting.NodeWrapping;
 
 public class WrappedNode<T> : IWrappedNode where T : INode, new()
 {
-    readonly T _coreNode;
-    readonly INodeFactory _factory;
+    private readonly T _coreNode;
+    private readonly INodeFactory _factory;
 
-    Action? _preEvaluateAction;
+    private Action? _preEvaluateAction;
 
     public WrappedNode(INodeRow nameRow, INodeFactory nodeFactory, T node)
     {
@@ -26,10 +26,8 @@ public class WrappedNode<T> : IWrappedNode where T : INode, new()
         Rows = new FlattenedObservableTree<INodeRow>(node.Components);
         Rows.HelperInstance().ItemAdded += Rows_ItemAdded;
         Rows.HelperInstance().ItemRemoved += Rows_ItemRemoved;
-        // collectionHelper.HelperInstance(Rows).ItemAdded += Rows_ItemAdded;
-        // collectionHelper.HelperInstance(Rows).ItemRemoved += Rows_ItemRemoved;
 
-        foreach (INodeRow row in Rows)
+        foreach (var row in Rows)
         {
             RegisterRow(row);
         }
@@ -69,33 +67,29 @@ public class WrappedNode<T> : IWrappedNode where T : INode, new()
 
     public void Update(LaminarExecutionContext context)
     {
-        if (_preEvaluateAction is not null)
-        {
-            _preEvaluateAction();
-        }
+        _preEvaluateAction?.Invoke();
 
         _coreNode.Evaluate();
 
-        if (context.ExecutionFlags.HasUIUpdateFlag())
+        if (!context.ExecutionFlags.HasUIUpdateFlag()) return;
+        
+        foreach (var field in Rows)
         {
-            foreach (INodeRow field in Rows)
+            if (field.CentralDisplay is IRefreshable refreshable)
             {
-                if (field.CentralDisplay is IRefreshable refreshable)
-                {
-                    refreshable.Refresh();
-                }
+                refreshable.Refresh();
             }
         }
     }
 
     private void Rows_ItemRemoved(object? sender, ItemRemovedEventArgs<INodeRow> e)
     {
-        if (e.Item.OutputConnector?.PreEvaluateAction is Action outputPreevaluate)
+        if (e.Item.OutputConnector?.PreEvaluateAction is { } outputPreevaluate)
         {
             _preEvaluateAction -= outputPreevaluate;
         }
 
-        if (e.Item.InputConnector?.PreEvaluateAction is Action inputPreevaluate)
+        if (e.Item.InputConnector?.PreEvaluateAction is { } inputPreevaluate)
         {
             _preEvaluateAction -= inputPreevaluate;
         }
@@ -110,12 +104,12 @@ public class WrappedNode<T> : IWrappedNode where T : INode, new()
 
     private void RegisterRow(INodeRow row)
     {
-        if (row.OutputConnector?.PreEvaluateAction is Action outputPreevaluate)
+        if (row.OutputConnector?.PreEvaluateAction is { } outputPreevaluate)
         {
             _preEvaluateAction += outputPreevaluate;
         }
 
-        if (row.InputConnector?.PreEvaluateAction is Action inputPreevaluate)
+        if (row.InputConnector?.PreEvaluateAction is { } inputPreevaluate)
         {
             _preEvaluateAction += inputPreevaluate;
         }
