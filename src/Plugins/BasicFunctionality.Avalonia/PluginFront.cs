@@ -23,16 +23,16 @@ public class PluginFront : IPlugin
         host.RegisterInterface<NumberEntry, NumberEditor, Control>();
         host.RegisterInterface<DefaultViewer, DefaultDisplay, Control>();
         host.RegisterInterface<StringViewer, StringDisplay, Control>();
-        host.RegisterInterface<Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions.StringEditor, UserControls.StringEditor, Control>();
+        host.RegisterInterface<StringEditor, UserControls.StringEditor, Control>();
         host.RegisterInterface<EnumDropdown, EnumEditor, Control>();
-        host.RegisterInterface<Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions.Slider, SliderEditor, Control>();
-        host.RegisterInterface<Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions.ToggleSwitch, UserControls.ToggleSwitch, Control>();
+        host.RegisterInterface<Slider, SliderEditor, Control>();
+        host.RegisterInterface<ToggleSwitch, UserControls.ToggleSwitch, Control>();
         host.RegisterInterface<Checkbox, UserControls.CheckBox, Control>();
         host.RegisterInterface<EditableLabel, AvaloniaEditableLabel, Control>();
 
         host.RegisterDataInterface<NumberEntry, double, NumberEditor>();
         host.RegisterDataInterface<DefaultViewer, object, DefaultDisplay>();
-        host.RegisterDataInterface<StringViewer, string, StringDisplay>();
+        host.RegisterDataInterface<StringViewer, object, StringDisplay>();
         host.RegisterDataInterface<StringEditor, string, UserControls.StringEditor>();
         host.RegisterDataInterface<EnumDropdown, object, EnumEditor>();
         host.RegisterDataInterface<Slider, double, SliderEditor>();

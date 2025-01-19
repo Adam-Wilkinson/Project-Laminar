@@ -5,7 +5,7 @@
              xmlns:uid="using:Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions"
              xmlns:local="using:BasicFunctionality.Avalonia"
              mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="40" d:DataContext="{x:Static uid:NumberEntry.DesignInstance}"
-             x:DataType="uid:NumberEntry+UITarget"
+             x:DataType="uid:NumberEntry+IXamlTarget"
              x:Class="BasicFunctionality.Avalonia.UserControls.NumberEditor">
 	<UserControl.Resources>
       <StreamGeometry x:Key="ButtonSpinnerIncreaseButtonIcon">M0,9 L10,0 20,9 19,10 10,2 1,10 z</StreamGeometry>

@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:uid="using:Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:DataType="uid:EditableLabel+UITarget"
+             x:DataType="uid:EditableLabel+IXamlTarget"
              x:Class="BasicFunctionality.Avalonia.UserControls.AvaloniaEditableLabel">
 	<Panel>
 		<TextBlock Name="Display"

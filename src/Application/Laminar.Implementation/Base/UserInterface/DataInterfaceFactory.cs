@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using Laminar.Contracts.Base;
 using Laminar.Contracts.Base.UserInterface;
+using Laminar.PluginFramework;
 using Laminar.PluginFramework.UserInterface;
 using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
@@ -18,8 +19,12 @@ public class DataInterfaceFactory(ITypeInfoStore typeInfoStore) : IDataInterface
         where TValue : notnull
     {
         _interfaceFactories[(typeof(TInterfaceDefinition), typeof(TValue))] = CreateGenericInterfaceDataFactory<TInterfaceDefinition, TValue>();
-         _frontendImplementations[typeof(TInterfaceDefinition)] ??= [];
-         _frontendImplementations[typeof(TInterfaceDefinition)]!.Add(typeof(TInterface));
+        if (!_frontendImplementations.ContainsKey(typeof(TInterfaceDefinition)))
+        {
+            _frontendImplementations.Add(typeof(TInterfaceDefinition), []);
+        }
+        
+        _frontendImplementations[typeof(TInterfaceDefinition)]!.Add(typeof(TInterface));
     }
 
     public IDataInterface<TFrontend> GetDataInterface<TFrontend>(IInterfaceData interfaceData)
@@ -28,7 +33,7 @@ public class DataInterfaceFactory(ITypeInfoStore typeInfoStore) : IDataInterface
     public (TFrontend, IInterfaceData) GetFrontendAndData<TFrontend>(IInterfaceData interfaceData)
         where TFrontend : class, new()
     {
-        if (_interfaceFactories.TryGetValue((interfaceData.Definition.GetType(), interfaceData.Value.GetType()), out var genericInterfaceDataFactory) 
+        if (interfaceData.Definition is not null && _interfaceFactories.TryGetValue((interfaceData.Definition.GetType(), interfaceData.Value.GetType()), out var genericInterfaceDataFactory) 
             && genericInterfaceDataFactory(interfaceData, interfaceData.Definition) is { } genericInterfaceData 
             && GetFrontendFromData<TFrontend>(genericInterfaceData) is { } preferredFrontend)
         {
@@ -46,7 +51,7 @@ public class DataInterfaceFactory(ITypeInfoStore typeInfoStore) : IDataInterface
             }
         }
         
-        var defaultViewerData = new InterfaceDataGenericWrapper<DefaultViewer, object>(interfaceData, new DefaultViewer());
+        var defaultViewerData = new InterfaceDataGenericWrapper<DefaultViewer, None>(interfaceData, new DefaultViewer());
         if (GetFrontendFromData<TFrontend>(defaultViewerData) is { } defaultFrontend)
         {
             return (defaultFrontend, defaultViewerData);
@@ -58,7 +63,7 @@ public class DataInterfaceFactory(ITypeInfoStore typeInfoStore) : IDataInterface
     private TFrontend? GetFrontendFromData<TFrontend>(IInterfaceData interfaceData) 
         where TFrontend : class, new()
     {
-        if (!_frontendImplementations.TryGetValue(interfaceData.Definition.GetType(), out var frontendTypes) || frontendTypes is null)
+        if (interfaceData.Definition is null || !_frontendImplementations.TryGetValue(interfaceData.Definition.GetType(), out var frontendTypes) || frontendTypes is null)
         {
             return null;
         }

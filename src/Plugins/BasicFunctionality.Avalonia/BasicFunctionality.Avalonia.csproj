@@ -12,14 +12,8 @@
     <PackageReference Include="Avalonia" Version="11.2.3">
       <ExcludeAssets>runtime</ExcludeAssets>
     </PackageReference>
+    <PackageReference Include="Laminar.PluginFramework" Version="0.0.2" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.12.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-	  <ProjectReference Include="..\..\PluginFramework\Laminar.PluginFramework\Laminar.PluginFramework.csproj">
-		  <Private>false</Private>
-		  <ExcludeAssets>runtime</ExcludeAssets>
-	  </ProjectReference>
   </ItemGroup>
 
   <ItemGroup>

@@ -2,9 +2,7 @@
 
 public class DefaultViewer : IUserInterfaceDefinition
 {
-    public static readonly UITarget DesignInstance = new() { Name = "Default Name", Value = None.Instance};
+    public static readonly InterfaceData<DefaultViewer, None> DesignInstance = new() { Name = "Default Name", Value = None.Instance};
     
-    public class UITarget : InterfaceData<DefaultViewer, None>
-    {
-    }
+    public interface IXamlTarget : IInterfaceData<DefaultViewer, None>;
 }

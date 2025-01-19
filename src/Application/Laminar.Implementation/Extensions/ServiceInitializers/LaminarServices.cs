@@ -9,9 +9,11 @@ using Laminar.Implementation.Base;
 using Laminar.Implementation.Base.ActionSystem;
 using Laminar.Implementation.Base.PluginLoading;
 using Laminar.Implementation.Base.UserInterface;
+using Laminar.Implementation.Scripting.NodeIO;
 using Laminar.Implementation.Scripting.NodeWrapping;
 using Laminar.Implementation.UserData;
 using Laminar.Implementation.UserData.FileNavigation;
+using Laminar.PluginFramework.NodeSystem.IO;
 using Laminar.PluginFramework.Serialization;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -26,8 +28,7 @@ public static class LaminarServices
             .AddSingleton<IDataInterfaceFactory, DataInterfaceFactory>()
             .AddSingleton<ITypeInfoStore, TypeInfoStore>()
             .AddSingleton<IPluginHostFactory, PluginHostFactory>()
-            .AddSingleton<ILoadedNodeManager, LoadedNodeManager>()
-            .AddSingleton<IUserInterfaceStore, UserInterfaceStore>()
-            .AddSingleton<INodeFactory, NodeFactory>()
-            .AddSingleton<ILaminarStorageItemFactory, LaminarStorageItemFactory>();
+            .AddSingleton<ILaminarStorageItemFactory, LaminarStorageItemFactory>()
+            .AddUserInterfaceServices()
+            .AddScriptingServices();
 }

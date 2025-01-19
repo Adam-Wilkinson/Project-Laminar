@@ -29,7 +29,7 @@ public partial class StringDisplay : UserControl
             _interface.PropertyChanged += DisplayValue_PropertyChanged;
         }
         
-        DisplayValue_PropertyChanged(this, new PropertyChangedEventArgs(nameof(StringViewer.UITarget.Value)));
+        DisplayValue_PropertyChanged(this, new PropertyChangedEventArgs(nameof(StringViewer.IXamlTarget.Value)));
     }
 
     private void DisplayValue_PropertyChanged(object? sender, PropertyChangedEventArgs e)

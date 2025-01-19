@@ -3,6 +3,6 @@
     <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Laminar.PluginFramework" Version="1.0.0" />
+    <PackageReference Include="Laminar.PluginFramework" Version="0.0.2" />
   </ItemGroup>
 </Project>

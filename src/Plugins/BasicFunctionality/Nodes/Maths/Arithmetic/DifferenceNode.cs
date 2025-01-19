@@ -5,8 +5,8 @@ namespace BasicFunctionality.Nodes.Maths.Arithmetic;
 
 public partial class DifferenceNode : INode
 {
-    [Input("First Number")] double FirstNumber;
-    [Input("Second Number")] double SecondNumber;
+    [Input("First Number")] double FirstNumber = 1.0;
+    [Input("Second Number")] double SecondNumber = 1.0;
     [Output("Difference")] double Difference;
 
     public string NodeName => "Difference";

@@ -35,8 +35,7 @@ internal static class InbuiltPluginFinder
             }
         }
     }
-
-
+    
     private static DirectoryInfo? GetSolutionFileFolder(string rootPath)
     {
         var directory = new FileInfo(rootPath).Directory;

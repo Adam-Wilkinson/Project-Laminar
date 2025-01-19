@@ -7,13 +7,14 @@
 	<Nullable>enable</Nullable>
 	<Title>Project: Laminar Plugin Framework</Title>
 	<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-	<Version>$(VersionPrefix)</Version>
+	<Version>0.0.2</Version>
 	<Authors>Adam Wilkinson</Authors>
 	<RepositoryUrl>https://github.com/Adam-Wilkinson/Project-Laminar</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
 	<PackageLicenseFile>COPYING.txt</PackageLicenseFile>
 	<LangVersion>default</LangVersion>
+	<PackageReleaseNotes>Updated the data interface system</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>

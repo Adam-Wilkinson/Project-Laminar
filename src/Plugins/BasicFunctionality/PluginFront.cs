@@ -22,7 +22,7 @@ public class PluginFront : IPlugin
     {
         host.RegisterType<double>("#FF0000", "Number", 0.0, new NumberEntry(), new StringViewer { MaxStringLength = 6 }, null);
         host.RegisterType<string>("#0000FF", "Text", "", new StringEditor(), new StringViewer(), null);
-        host.RegisterType<bool>("#00FFFF", "Condition", false, new ToggleSwitch(), new StringViewer(), null);
+        host.RegisterType<bool>("#00FFFF", "Condition", false, new BoolTwoButton(), new StringViewer(), null);
         host.RegisterType<Action>("00FF00", "Button", null, new DefaultViewer(), new DefaultViewer(), null);
 
         host.AddNodeToMenu<ManualTriggerNode>("Triggers");

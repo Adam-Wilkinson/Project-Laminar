@@ -30,5 +30,5 @@ public interface IInterfaceData : INotifyPropertyChanged
 
     public bool IsUserEditable { get; }
     
-    public IUserInterfaceDefinition Definition { get; }
+    public IUserInterfaceDefinition? Definition { get; }
 }

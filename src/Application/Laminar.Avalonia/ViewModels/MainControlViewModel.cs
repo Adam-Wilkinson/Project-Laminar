@@ -26,8 +26,8 @@ public partial class MainControlViewModel : ViewModelBase
     public IInterfaceData TestDataInterface { get; } = new InterfaceDataTest
     {
         Name = "Test interface",
-        Value = (double)2.0,
-        Definition = new Slider { Min = 0.0, Max = 1.0 },
+        Value = false,
+        IsUserEditable = true,
     };
 
     partial void OnSidebarExpandedChanged(bool value)
@@ -48,9 +48,20 @@ public partial class MainControlViewModel : ViewModelBase
 
 public class InterfaceDataTest : IInterfaceData
 {
+    private object? _value;
+    
     public event PropertyChangedEventHandler? PropertyChanged;
     public required string Name { get; init; }
-    public required object Value { get; set; }
+
+    public required object Value
+    {
+        get => _value!;
+        set
+        {
+            _value = value;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Value)));
+        }
+    }
     public bool IsUserEditable { get; init; }
-    public required IUserInterfaceDefinition Definition { get; init; }
+    public IUserInterfaceDefinition? Definition { get; init; }
 }

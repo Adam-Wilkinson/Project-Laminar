@@ -93,8 +93,8 @@
 			        Name="MainSlider"
 			        local:ValueEditorPanel.Position="SpansWhenCompact"
 			        VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-			        Maximum="{Binding Definition.Max, FallbackValue=100}"
-			        Minimum="{Binding Definition.Min, FallbackValue=0}"
+			        Maximum="{Binding Definition.Max}"
+			        Minimum="{Binding Definition.Min}"
 			        CornerRadius="7"
 			        Theme="{StaticResource ValueEditorSlider}"/>
 			<TextBlock IsHitTestVisible="False" local:ValueEditorPanel.Position="Nameplate" 
@@ -104,14 +104,14 @@
 				<TextBlock IsHitTestVisible="False" 
 				           HorizontalAlignment="Center" 
 				           VerticalAlignment="Center" 
-				           Text="{Binding Value, StringFormat=\{0:0\}}"
+				           Text="{Binding Value, StringFormat='{}{0:0}'}"
 				           Name="NumberDisplay"/>
 				<NumericUpDown ShowButtonSpinner="False"
 				               IsVisible="False"
 				               Name="NumberEntry"
+				               FormatString="{Binding Definition.FormatString}"
 				               Maximum="{Binding Definition.Max}" 
 				               Minimum="{Binding Definition.Min}"
-				               FormatString="{}{0:0}"
 				               HorizontalContentAlignment="Center"/>
 			</Panel>
 		</local:ValueEditorPanel>

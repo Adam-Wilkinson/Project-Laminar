@@ -2,9 +2,7 @@
 
 public class Checkbox : IUserInterfaceDefinition
 {
-    public static readonly UITarget DesignInstance = new() { Value = true, Name = "Test Checkbox" };
+    public static readonly InterfaceData<Checkbox, bool> DesignInstance = new() { Value = true, Name = "Test Checkbox" };
     
-    public class UITarget : InterfaceData<Checkbox, bool>
-    {
-    }
+    public interface IXamlTarget : IInterfaceData<Checkbox, bool>;
 }

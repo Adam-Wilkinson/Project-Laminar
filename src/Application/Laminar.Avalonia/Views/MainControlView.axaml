@@ -15,7 +15,7 @@
                             Content="{Binding FileNavigator}" 
                             asp:ResizeWidget.TargetSize="{Binding CurrentSidebarWidth, Mode=TwoWay}"/>
         </asp:AdjustableStackPanel>
-        <ContentControl Content="{Binding TestDataInterface}"/>
+        <ContentControl BorderBrush="Red" BorderThickness="3" Width="400" Content="{Binding TestDataInterface}"/>
         <TextBlock Classes="h2" HorizontalAlignment="Center" VerticalAlignment="Center">The script editor</TextBlock>
         <DockPanel.Resources>
             <ControlTheme x:Key="{x:Type asp:ResizeWidget}" TargetType="{x:Type asp:ResizeWidget}">

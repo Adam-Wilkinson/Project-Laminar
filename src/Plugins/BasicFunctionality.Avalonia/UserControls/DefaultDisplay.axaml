@@ -5,7 +5,7 @@
              xmlns:uid="using:Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions"
              xmlns:local="using:BasicFunctionality.Avalonia"
              mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="40" d:DataContext="{x:Static uid:DefaultViewer.DesignInstance}"
-             x:DataType="uid:DefaultViewer+UITarget"
+             x:DataType="uid:DefaultViewer+IXamlTarget"
              x:Class="BasicFunctionality.Avalonia.UserControls.DefaultDisplay">
 	<local:ValueEditorPanel>
 		<TextBlock local:ValueEditorPanel.Position="Nameplate" 
