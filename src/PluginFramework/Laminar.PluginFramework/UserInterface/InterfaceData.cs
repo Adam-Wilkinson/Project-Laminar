@@ -4,7 +4,7 @@ using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
 namespace Laminar.PluginFramework.UserInterface;
 
-public class InterfaceData<TInterfaceDefinition, TValue> : IInterfaceData<TInterfaceDefinition, TValue>
+public sealed class InterfaceData<TInterfaceDefinition, TValue> : IInterfaceData<TInterfaceDefinition, TValue>
     where TInterfaceDefinition : IUserInterfaceDefinition, new()
     where TValue : notnull
 {
@@ -29,12 +29,12 @@ public class InterfaceData<TInterfaceDefinition, TValue> : IInterfaceData<TInter
     
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
-    protected bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
+    private bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
     {
         if (EqualityComparer<T>.Default.Equals(field, value)) return false;
         field = value;

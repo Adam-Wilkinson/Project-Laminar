@@ -6,5 +6,7 @@ public class StringViewer : IUserInterfaceDefinition
     
     public interface IXamlTarget : IInterfaceData<StringViewer, object>;
 
+    public Func<object, string> ToStringFunction { get; init; } = obj => obj.ToString() ?? string.Empty;
+
     public int MaxStringLength { get; set; } = 20;
 }

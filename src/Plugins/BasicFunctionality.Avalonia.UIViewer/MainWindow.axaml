@@ -75,7 +75,7 @@
         
         <bfa:StringDisplay>
             <bfa:StringDisplay.DataContext>
-                <ui:InterfaceData x:TypeArguments="uid:StringViewer, x:String" Value="Default String" Name="Default Name"/>
+                <ui:InterfaceData x:TypeArguments="uid:StringViewer, x:Double" Value="15" Name="Default Name"/>
             </bfa:StringDisplay.DataContext>
         </bfa:StringDisplay>
         

@@ -26,8 +26,7 @@ public partial class MainControlViewModel : ViewModelBase
     public IInterfaceData TestDataInterface { get; } = new InterfaceDataTest
     {
         Name = "Test interface",
-        Value = false,
-        IsUserEditable = true,
+        Value = 5.0,
     };
 
     partial void OnSidebarExpandedChanged(bool value)
