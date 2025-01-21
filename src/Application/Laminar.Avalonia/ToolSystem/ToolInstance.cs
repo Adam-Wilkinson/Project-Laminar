@@ -5,14 +5,11 @@ using System.Linq;
 using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
-using CommunityToolkit.Mvvm.Input;
 
 namespace Laminar.Avalonia.ToolSystem;
 
 public class ToolInstance : StyledElement, IEnumerable<ToolInstance>
 {
-    public static readonly string TestString = "";
-    
     public static readonly StyledProperty<ICommand> CommandProperty = AvaloniaProperty.Register<ToolInstance, ICommand>(nameof(Command), defaultValue: DefaultCommand.Instance);
     
     public static readonly StyledProperty<string> DescriptionProperty = AvaloniaProperty.Register<ToolInstance, string>(nameof(Description));

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using Laminar.Contracts.Base;
 using Laminar.Contracts.Base.UserInterface;
 using Laminar.PluginFramework;
@@ -50,16 +51,21 @@ public class DataInterfaceFactory(ITypeInfoStore typeInfoStore) : IDataInterface
         {
             var requestedDefinition = interfaceData.IsUserEditable ? interfaceDataTypeInfo.EditorDefinition : interfaceDataTypeInfo.ViewerDefinition;
             if (requestedDefinition is IUserInterfaceDefinition requestedInterfaceDefinition 
-                && TryGetFrontendAndData<TFrontend>(interfaceData, requestedInterfaceDefinition) is { } typeDefault)
+                && TryGetFrontendAndData<TFrontend>(interfaceData, requestedInterfaceDefinition) is { } typeDefaultResult)
             {
-                return typeDefault;
+                return typeDefaultResult;
             }
         }
-        
-        var defaultViewerData = new InterfaceDataGenericWrapper<DefaultViewer, None>(interfaceData, new DefaultViewer());
-        if (GetFrontendFromData<TFrontend>(defaultViewerData) is { } defaultFrontend)
+
+        if (interfaceData.Value.GetType().IsEnum && TryGetFrontendAndData<TFrontend>(interfaceData, new EnumDropdown()) is { } enumResult)
         {
-            return (defaultFrontend, defaultViewerData);
+            return enumResult;
+        }
+
+        var defaultViewerData = new InterfaceDataGenericWrapper<DefaultViewer, None>(interfaceData, new DefaultViewer());
+        if (GetFrontendFromData<TFrontend>(defaultViewerData) is { } defaultResult)
+        {
+            return (defaultResult, defaultViewerData);
         }
 
         throw new Exception($"No default viewer found for frontend of type {typeof(TFrontend)}");
@@ -86,13 +92,22 @@ public class DataInterfaceFactory(ITypeInfoStore typeInfoStore) : IDataInterface
         return null;
     }
 
-    private static bool ValueTypeIsCompatible(IInterfaceData interfaceData, Type valueType) =>
-        interfaceData.IsUserEditable switch
+    private static bool ValueTypeIsCompatible(IInterfaceData interfaceData, Type valueType)
+    {
+        if (interfaceData.GetType().GetInterfaces().Any(x =>
+                x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IInterfaceData<,>) &&
+                x.GetGenericArguments()[1] == valueType))
+        {
+            return true;
+        }
+        
+        return interfaceData.IsUserEditable switch
         {
             true => interfaceData.Value.GetType() == valueType,
             false => valueType.IsInstanceOfType(interfaceData.Value)
         };
-    
+    }
+
     private TFrontend? GetFrontendFromData<TFrontend>(IInterfaceData interfaceData) 
         where TFrontend : class, new()
     {

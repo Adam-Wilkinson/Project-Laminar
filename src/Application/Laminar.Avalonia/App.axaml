@@ -1,11 +1,9 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="Laminar.Avalonia.App"
-             xmlns:local="using:Laminar.Avalonia"
              xmlns:vms="using:Laminar.Avalonia.ViewModels.Services"
              xmlns:t="using:Laminar.Avalonia.ToolSystem"
-             xmlns:conv="using:Laminar.Avalonia.Converters"
-             RequestedThemeVariant="Default">
+             xmlns:conv="using:Laminar.Avalonia.Converters">
 
     <Application.DataTemplates>
         <vms:ViewLocator/>
@@ -36,6 +34,7 @@
 			<conv:NullOrEmptyConverter x:Key="NullOrEmptyConverter"/>
 			<conv:ToolInstancingConverter x:Key="ToolInstancer"/>
 			<conv:ToStringConverter x:Key="ToStringConverter"/>
+			<conv:GetSettingValueConverter x:Key="TestConverter"/>
 		</ResourceDictionary>
 	</Application.Resources>
 </Application>

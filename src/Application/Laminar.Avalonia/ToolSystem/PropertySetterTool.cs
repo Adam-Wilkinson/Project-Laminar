@@ -2,6 +2,8 @@ using System;
 using System.Globalization;
 using System.Windows.Input;
 using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Data;
 using Avalonia.Data.Converters;
 
@@ -111,7 +113,14 @@ public class PropertySetterCommand : ICommand
         if (_boundPropertyContainer.BoundValue is bool booleanValue)
         {
             _boundPropertyContainer.BoundValue = !booleanValue;
+            return;
         }
+
+        var test = TopLevel.GetTopLevel(null)!;
+        
+        FlyoutBase.SetAttachedFlyout(TopLevel.GetTopLevel(null)!, new Flyout { Content = new TextBlock { Text = "Hello?" }});
+        
+        FlyoutBase.ShowAttachedFlyout(TopLevel.GetTopLevel(null)!);
     }
 
     public event EventHandler? CanExecuteChanged;

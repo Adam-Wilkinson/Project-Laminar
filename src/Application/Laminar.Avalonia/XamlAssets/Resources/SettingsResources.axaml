@@ -1,6 +1,28 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:s="using:System">
+                    xmlns:s="using:System"
+                    xmlns:l="using:Laminar.Avalonia"
+                    xmlns:d="using:Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions">
+	
+	<l:OptionsSetting x:Key="SettingsRoot.InterfaceSettings.ThemeVariant" x:TypeArguments="ThemeVariant" Name="Theme" ValueIndex="0">
+		<l:SettingsOption x:TypeArguments="ThemeVariant" Name="System Default" Value="{x:Static ThemeVariant.Default}"/>
+		<l:SettingsOption x:TypeArguments="ThemeVariant" Name="Light" Value="{x:Static ThemeVariant.Light}"/>
+		<l:SettingsOption x:TypeArguments="ThemeVariant" Name="Dark" Value="{x:Static ThemeVariant.Dark}"/>
+	</l:OptionsSetting>
+	
+	<l:DoubleSetting x:Key="SettingsRoot.InterfaceSettings.Test" Value="5" Name="Test Setting">
+		<l:DoubleSetting.Definition>
+			<d:Slider Min="0" Max="100"/>
+		</l:DoubleSetting.Definition>
+	</l:DoubleSetting>
+
+	<l:SettingsCategory x:Key="SettingsRoot" Name="Settings Root">
+		<l:SettingsCategory Name="Interface Settings">
+			<l:Setting x:TypeArguments="s:TimeSpan" Name="Animation Duration" Value="0:0:0.2"/>
+			<StaticResource ResourceKey="SettingsRoot.InterfaceSettings.ThemeVariant"/>
+			<StaticResource ResourceKey="SettingsRoot.InterfaceSettings.Test"/>
+		</l:SettingsCategory>
+	</l:SettingsCategory>
 	
 	<s:Double x:Key="H1FontSize">34</s:Double>
     <s:Double x:Key="H2FontSize">24</s:Double>
