@@ -4,6 +4,7 @@
                     xmlns:vms="using:Laminar.Avalonia.ViewModels.Services"
                     xmlns:t="using:Laminar.Avalonia.ToolSystem"
                     xmlns:fi="using:Laminar.Implementation.UserData.FileNavigation"
+                    xmlns:s="using:Laminar.Avalonia.Settings"
                     xmlns:shapes="using:Laminar.Avalonia.Shapes">
     
     <!-- Edit Menu Tool -->
@@ -102,15 +103,15 @@
 							    <Setter Property="RenderTransform" Value="translatex(-5px)"/>
 							    <Setter Property="Transitions">
 								    <Transitions>
-									    <TransformOperationsTransition Property="RenderTransform" Duration="{DynamicResource AnimationDuration}" Easing="{DynamicResource AnimationEasing}"/>
+									    <TransformOperationsTransition Property="RenderTransform" Duration="{s:Setting InterfaceSettings.AnimationDuration}" Easing="{DynamicResource AnimationEasing}"/>
 								    </Transitions>
 							    </Setter>
 						    </Style>
 					        <Style Selector="^ Path">
 							    <Setter Property="Transitions">
 								    <Transitions>
-  									    <DoubleTransition Property="Opacity" Duration="{DynamicResource AnimationDuration}" Easing="{DynamicResource AnimationEasing}"/>
-									    <TransformOperationsTransition Property="RenderTransform" Duration="{DynamicResource AnimationDuration}" Easing="{DynamicResource AnimationEasing}"/>
+  									    <DoubleTransition Property="Opacity" Duration="{s:Setting InterfaceSettings.AnimationDuration}" Easing="{DynamicResource AnimationEasing}"/>
+									    <TransformOperationsTransition Property="RenderTransform" Duration="{s:Setting InterfaceSettings.AnimationDuration}" Easing="{DynamicResource AnimationEasing}"/>
 								    </Transitions>
 							    </Setter>
 						        <Style Selector="^#ExpandSidebarHint">
@@ -181,8 +182,8 @@
 							    <Setter Property="RenderTransform" Value="rotate(0) scale(1.1)"/>
 							    <Setter Property="Transitions">
 								    <Transitions>
-									    <TransformOperationsTransition Easing="{DynamicResource AnimationEasing}" Duration="{DynamicResource AnimationDuration}" Property="RenderTransform"/>
-									    <BrushTransition Easing="{DynamicResource AnimationEasing}" Duration="{DynamicResource AnimationDuration}" Property="Fill"/>
+									    <TransformOperationsTransition Easing="{DynamicResource AnimationEasing}" Duration="{s:Setting InterfaceSettings.AnimationDuration}" Property="RenderTransform"/>
+									    <BrushTransition Easing="{DynamicResource AnimationEasing}" Duration="{s:Setting InterfaceSettings.AnimationDuration}" Property="Fill"/>
 								    </Transitions>
 							    </Setter>
 						    </Style>
@@ -192,8 +193,8 @@
 							    <Setter Property="Stretch" Value="Uniform"/>
 							    <Setter Property="Transitions">
 								    <Transitions>
-									    <TransformOperationsTransition Easing="{DynamicResource AnimationEasing}" Duration="{DynamicResource AnimationDuration}" Property="RenderTransform"/>
-									    <DoubleTransition Easing="{DynamicResource AnimationEasing}" Duration="{DynamicResource AnimationDuration}" Property="Opacity"/>
+									    <TransformOperationsTransition Easing="{DynamicResource AnimationEasing}" Duration="{s:Setting InterfaceSettings.AnimationDuration}" Property="RenderTransform"/>
+									    <DoubleTransition Easing="{DynamicResource AnimationEasing}" Duration="{s:Setting InterfaceSettings.AnimationDuration}" Property="Opacity"/>
 								    </Transitions>
 							    </Setter>
 						    </Style>
@@ -201,7 +202,7 @@
 							    <Setter Property="RenderTransform" Value="rotate(0deg)"/>
 							    <Setter Property="Transitions">
 								    <Transitions>
-									    <TransformOperationsTransition Easing="{DynamicResource AnimationEasing}" Duration="{DynamicResource AnimationDuration}" Property="RenderTransform"/>
+									    <TransformOperationsTransition Easing="{DynamicResource AnimationEasing}" Duration="{s:Setting InterfaceSettings.AnimationDuration}" Property="RenderTransform"/>
 								    </Transitions>
 							    </Setter>				
 						    </Style>

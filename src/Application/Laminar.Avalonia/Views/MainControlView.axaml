@@ -5,17 +5,17 @@
              xmlns:vm="using:Laminar.Avalonia.ViewModels"
              xmlns:dvm="using:Laminar.Avalonia.ViewModels.Design"
              xmlns:asp="using:Laminar.Avalonia.AdjustableStackPanel"
+             xmlns:s="using:Laminar.Avalonia.Settings"
              HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450" d:DataContext="{x:Static dvm:DesignViewModel.MainControl}"
              x:DataType="vm:MainControlViewModel"
              x:Class="Laminar.Avalonia.Views.MainControlView">
     <DockPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-        <asp:AdjustableStackPanel DockPanel.Dock="Left" HorizontalAlignment="Left" VerticalAlignment="Stretch" Orientation="Horizontal" Name="SidebarStackPanel" TransitionDuration="{DynamicResource AnimationDuration}" TransitionEasing="{DynamicResource AnimationEasing}">
+        <asp:AdjustableStackPanel DockPanel.Dock="Left" HorizontalAlignment="Left" VerticalAlignment="Stretch" Orientation="Horizontal" Name="SidebarStackPanel" TransitionDuration="{s:Setting InterfaceSettings.AnimationDuration}" TransitionEasing="{DynamicResource AnimationEasing}">
             <ContentControl Name="FileNavigator" 
                             Content="{Binding FileNavigator}" 
                             asp:ResizeWidget.TargetSize="{Binding CurrentSidebarWidth, Mode=TwoWay}"/>
         </asp:AdjustableStackPanel>
-        <TextBlock Text="{Binding Source={StaticResource SettingsRoot.InterfaceSettings.Test}, Converter={StaticResource TestConverter}}"/>
         <TextBlock Classes="h2" HorizontalAlignment="Center" VerticalAlignment="Center">The script editor</TextBlock>
         <DockPanel.Resources>
             <ControlTheme x:Key="{x:Type asp:ResizeWidget}" TargetType="{x:Type asp:ResizeWidget}">

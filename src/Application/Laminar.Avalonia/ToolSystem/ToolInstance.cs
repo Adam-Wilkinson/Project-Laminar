@@ -14,13 +14,13 @@ public class ToolInstance : StyledElement, IEnumerable<ToolInstance>
     
     public static readonly StyledProperty<string> DescriptionProperty = AvaloniaProperty.Register<ToolInstance, string>(nameof(Description));
     
-    public static readonly StyledProperty<Tool> ToolTemplateProperty = AvaloniaProperty.Register<ToolInstance, Tool>(nameof(Tool));
+    public static readonly StyledProperty<Tool> ToolProperty = AvaloniaProperty.Register<ToolInstance, Tool>(nameof(Tool));
 
     public static readonly StyledProperty<List<ToolInstance>> ChildToolsProperty = AvaloniaProperty.Register<ToolInstance, List<ToolInstance>>(nameof(ChildTools), defaultValue: []);
     
     static ToolInstance()
     {
-        ToolTemplateProperty.Changed.AddClassHandler<ToolInstance>((o, e) => o.TemplateChanged(e));
+        ToolProperty.Changed.AddClassHandler<ToolInstance>((o, e) => o.TemplateChanged(e));
     }
 
     private void TemplateChanged(AvaloniaPropertyChangedEventArgs _)
@@ -53,8 +53,8 @@ public class ToolInstance : StyledElement, IEnumerable<ToolInstance>
     
     public Tool Tool
     {
-        get => GetValue(ToolTemplateProperty);
-        set => SetValue(ToolTemplateProperty, value);
+        get => GetValue(ToolProperty);
+        set => SetValue(ToolProperty, value);
     }
 
     public IEnumerator<ToolInstance> GetEnumerator() => ChildTools.GetEnumerator();

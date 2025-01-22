@@ -1,6 +1,7 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:t="using:Laminar.Avalonia.ToolSystem">
+                    xmlns:t="using:Laminar.Avalonia.ToolSystem"
+                    xmlns:s="using:Laminar.Avalonia.Settings">
     <ControlTheme x:Key="{x:Type t:SwitchIcon}" TargetType="t:SwitchIcon">
         <Setter Property="Template">
             <ControlTemplate>
@@ -17,7 +18,7 @@
                                 <Setter Property="Fill" Value="Red"/>
                                 <Setter Property="Transitions">
                                     <Transitions>
-                                        <BrushTransition Property="Fill" Duration="{DynamicResource AnimationDuration}" Easing="{DynamicResource AnimationEasing}"/>
+                                        <BrushTransition Property="Fill" Duration="{s:Setting InterfaceSettings.AnimationDuration}" Easing="{DynamicResource AnimationEasing}"/>
                                     </Transitions>
                                 </Setter>
                                 <Style Selector="^.Show">

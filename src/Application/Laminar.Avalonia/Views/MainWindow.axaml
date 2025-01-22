@@ -10,9 +10,11 @@
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/ProjectLaminarLogo.png"
         Title="Project: Laminar"
+        xmlns:s="using:Laminar.Avalonia.Settings"
+        RequestedThemeVariant="{s:Setting InterfaceSettings.ThemeVariant}"
 		ExtendClientAreaToDecorationsHint="True"
 		ExtendClientAreaChromeHints="NoChrome"
-		ExtendClientAreaTitleBarHeightHint="40">
+		ExtendClientAreaTitleBarHeightHint="40">	
 	<DockPanel VerticalAlignment="Stretch">
 		<ContentControl DockPanel.Dock="Top" Name="TitleBar" Content="{Binding TitleBar}" ZIndex="1000"/>
 		<Panel>
@@ -30,7 +32,7 @@
 				<Setter Property="RenderTransform" Value="{Binding $parent[v:MainWindow].HiddenSettingsRenderTransform}"/>
 				<Setter Property="Transitions">
 					<Transitions>
-						<TransformOperationsTransition Property="RenderTransform" Duration="{DynamicResource AnimationDuration}" Easing="{DynamicResource AnimationEasing}"/>
+						<TransformOperationsTransition Property="RenderTransform" Duration="{s:Setting InterfaceSettings.AnimationDuration}" Easing="{DynamicResource AnimationEasing}"/>
 					</Transitions>
 				</Setter>
 				<Style Selector="^.IsOpen">
@@ -47,7 +49,7 @@
 				<Setter Property="Opacity" Value="1.0"/>
 				<Setter Property="Transitions">
 					<Transitions>
-						<DoubleTransition Property="Opacity" Duration="{DynamicResource AnimationDuration}" Easing="{DynamicResource AnimationEasing}"/>
+						<DoubleTransition Property="Opacity" Duration="{s:Setting InterfaceSettings.AnimationDuration}" Easing="{DynamicResource AnimationEasing}"/>
 					</Transitions>
 				</Setter>
 				<Style Selector="^.IsFaded">
