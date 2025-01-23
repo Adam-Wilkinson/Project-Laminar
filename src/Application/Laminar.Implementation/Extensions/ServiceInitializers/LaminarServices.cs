@@ -29,6 +29,7 @@ public static class LaminarServices
             .AddSingleton<ITypeInfoStore, TypeInfoStore>()
             .AddSingleton<IPluginHostFactory, PluginHostFactory>()
             .AddSingleton<ILaminarStorageItemFactory, LaminarStorageItemFactory>()
+            .AddSingleton<IFileSystem, FileSystem>()
             .AddUserInterfaceServices()
             .AddScriptingServices();
 }

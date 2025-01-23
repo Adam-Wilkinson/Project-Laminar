@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using Laminar.Contracts.UserData;
 using Laminar.Domain.DataManagement;
 using Laminar.PluginFramework.Serialization;
@@ -11,24 +10,21 @@ public class PersistentDataStore : IPersistentDataStore
 {
     private readonly ISerializer _serializer;
     private readonly IPersistentDataTranscoder _persistentDataTranscoder;
+    private readonly IFileSystem _fileSystem;
     
     private Dictionary<string, IPersistentDataValue> _serializedDataCache = [];
     private bool _fileIsDirty;
     
-    public PersistentDataStore(ISerializer serializer, IPersistentDataTranscoder persistentDataTranscoder, string dataPath)
+    public PersistentDataStore(IFileSystem fileSystem, ISerializer serializer, IPersistentDataTranscoder persistentDataTranscoder, string dataPath)
     {
         _serializer = serializer;
         _persistentDataTranscoder = persistentDataTranscoder;
+        _fileSystem = fileSystem;
         FilePath = dataPath + _persistentDataTranscoder.FileExtension;
 
-        if (Directory.GetParent(FilePath) is not { Exists: true })
+        if (fileSystem.GetParent(FilePath) is not { Exists: true })
         {
-            Directory.CreateDirectory(Directory.GetParent(FilePath)!.FullName);
-        }
-        
-        if (!File.Exists(FilePath))
-        {
-            File.Create(FilePath).Close();
+            fileSystem.CreateDirectory(fileSystem.GetParent(FilePath)!.FullName);
         }
     }
     
@@ -108,7 +104,12 @@ public class PersistentDataStore : IPersistentDataStore
     {
         try
         {
-            var rawFile = File.ReadAllText(FilePath);
+            if (!_fileSystem.Exists(FilePath))
+            {
+                return new DataSaveResult(DataIoStatus.DataNotFound);
+            }
+            
+            var rawFile = _fileSystem.ReadTextFile(FilePath);
             if (rawFile is null or "")
             {
                 return new DataSaveResult();
@@ -132,7 +133,7 @@ public class PersistentDataStore : IPersistentDataStore
         try
         {
             var result = _persistentDataTranscoder.Encode(_serializedDataCache);
-            using var stream = File.CreateText(FilePath);
+            using var stream = _fileSystem.CreateTextFile(FilePath);
             stream.Write(result);
             return new DataSaveResult(DataIoStatus.Success);
         }

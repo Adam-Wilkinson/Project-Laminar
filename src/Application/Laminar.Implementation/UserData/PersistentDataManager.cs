@@ -8,7 +8,7 @@ using Laminar.PluginFramework.Serialization;
 
 namespace Laminar.Implementation.UserData;
 
-public class PersistentDataManager(ISerializer serializer) : IPersistentDataManager
+public class PersistentDataManager(ISerializer serializer, IFileSystem fileSystem) : IPersistentDataManager
 {
     private static readonly string StaticPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Project Laminar");
     private readonly ISerializer _serializer = serializer;
@@ -32,6 +32,7 @@ public class PersistentDataManager(ISerializer serializer) : IPersistentDataMana
         }
 
         var newDataStore = new PersistentDataStore(
+            fileSystem,
             _serializer, 
             dataStoreKey.DataType switch
             {
