@@ -47,8 +47,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Application", "Application"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PluginFramework", "PluginFramework", "{302014D7-A8B1-4553-A553-E8D9D0EA664D}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugins", "Plugins", "{C4F995AC-2AB1-421F-89B3-B32A20481AAB}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Laminar.PluginFramework.UnitTests", "tests\PluginFramework\Laminar.PluginFramework.UnitTests\Laminar.PluginFramework.UnitTests.csproj", "{052DB618-7413-499B-B9DF-E96A74397187}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Laminar.Avalonia", "src\Application\Laminar.Avalonia\Laminar.Avalonia.csproj", "{EF131F31-DCCC-4527-8FB9-28A96BCE7EDD}"
@@ -56,6 +54,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Laminar.Avalonia_old", "src\Application\Laminar.Avalonia_old\Laminar.Avalonia_old.csproj", "{78D67618-A514-4F9E-8B3A-B4A98011B29E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BasicFunctionality.Avalonia.UIViewer", "src\Plugins\BasicFunctionality.Avalonia.UIViewer\BasicFunctionality.Avalonia.UIViewer.csproj", "{467D70CB-B9DC-419C-8D76-24491D67D817}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Laminar.Implementation.UnitTests", "tests\Application\Laminar.Implementation.UnitTests\Laminar.Implementation.UnitTests.csproj", "{EACEFCDD-7658-4627-9FC5-AEBE0CAFADD8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -247,6 +247,18 @@ Global
 		{467D70CB-B9DC-419C-8D76-24491D67D817}.Release|x64.Build.0 = Release|Any CPU
 		{467D70CB-B9DC-419C-8D76-24491D67D817}.Release|x86.ActiveCfg = Release|Any CPU
 		{467D70CB-B9DC-419C-8D76-24491D67D817}.Release|x86.Build.0 = Release|Any CPU
+		{EACEFCDD-7658-4627-9FC5-AEBE0CAFADD8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EACEFCDD-7658-4627-9FC5-AEBE0CAFADD8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EACEFCDD-7658-4627-9FC5-AEBE0CAFADD8}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{EACEFCDD-7658-4627-9FC5-AEBE0CAFADD8}.Debug|x64.Build.0 = Debug|Any CPU
+		{EACEFCDD-7658-4627-9FC5-AEBE0CAFADD8}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{EACEFCDD-7658-4627-9FC5-AEBE0CAFADD8}.Debug|x86.Build.0 = Debug|Any CPU
+		{EACEFCDD-7658-4627-9FC5-AEBE0CAFADD8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EACEFCDD-7658-4627-9FC5-AEBE0CAFADD8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EACEFCDD-7658-4627-9FC5-AEBE0CAFADD8}.Release|x64.ActiveCfg = Release|Any CPU
+		{EACEFCDD-7658-4627-9FC5-AEBE0CAFADD8}.Release|x64.Build.0 = Release|Any CPU
+		{EACEFCDD-7658-4627-9FC5-AEBE0CAFADD8}.Release|x86.ActiveCfg = Release|Any CPU
+		{EACEFCDD-7658-4627-9FC5-AEBE0CAFADD8}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -268,11 +280,11 @@ Global
 		{311D6DF8-9FA3-4EA8-940A-75C1B52C08F6} = {B6015095-D28C-4D9E-82FB-7166934E8AA5}
 		{C85116F3-5088-4FC6-9C51-53ABCD56BCF2} = {3B478EA0-F31D-4067-B313-2EC16EDDDEA3}
 		{302014D7-A8B1-4553-A553-E8D9D0EA664D} = {3B478EA0-F31D-4067-B313-2EC16EDDDEA3}
-		{C4F995AC-2AB1-421F-89B3-B32A20481AAB} = {3B478EA0-F31D-4067-B313-2EC16EDDDEA3}
 		{052DB618-7413-499B-B9DF-E96A74397187} = {302014D7-A8B1-4553-A553-E8D9D0EA664D}
 		{EF131F31-DCCC-4527-8FB9-28A96BCE7EDD} = {B6015095-D28C-4D9E-82FB-7166934E8AA5}
 		{78D67618-A514-4F9E-8B3A-B4A98011B29E} = {B6015095-D28C-4D9E-82FB-7166934E8AA5}
 		{467D70CB-B9DC-419C-8D76-24491D67D817} = {DD409C11-D6B5-47ED-9FD2-FDECE50FC4FA}
+		{EACEFCDD-7658-4627-9FC5-AEBE0CAFADD8} = {C85116F3-5088-4FC6-9C51-53ABCD56BCF2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4A37BCC4-6E76-48E6-88C7-10E68EC6215F}
