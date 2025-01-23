@@ -7,7 +7,7 @@ namespace Laminar.Benchmarks.BenchmarkNodes;
 
 public partial class ValueIoBenchmarkNode : INode
 {
-    public static readonly List<ValueIoBenchmarkNode> Instances = new();
+    public static readonly List<ValueIoBenchmarkNode> Instances = [];
 
     public ValueIoBenchmarkNode()
     {
@@ -18,7 +18,7 @@ public partial class ValueIoBenchmarkNode : INode
 
     [ShowInNode] public readonly ValueOutputRow<double> Output = Component.ValueOutput("output", 0.0);
 
-    public string NodeName { get; } = "Test Node";
+    public string NodeName => "Test Node";
 
     public void Evaluate()
     {

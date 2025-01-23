@@ -18,27 +18,19 @@ public class ValuePassingBenchmark
     private IScript? _script1;
     private IScriptEditor? _scriptEditor;
     private INodeFactory? _nodeWrapperFactory;
-    readonly Instance instance = new(null, PluginFramework.Registration.FrontendDependency.None);
+    private readonly Instance _instance = new(null, PluginFramework.Registration.FrontendDependency.None);
 
-    //private ValueAttributeBenchmarkNode _firstNode;
-    //private ValueAttributeBenchmarkNode _lastNode;
-
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-    private ValueInput<double> _firstInput;
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     private ValueIoBenchmarkNode _fieldsFirstNode;
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     private ValueIoBenchmarkNode _fieldsLastNode;
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
     [GlobalSetup]
     public void Setup()
     {
-        _script1 = instance.ServiceProvider.GetService<IScriptFactory>()!.CreateScript();
-        _scriptEditor = instance.ServiceProvider.GetService<IScriptEditor>()!;
-        _nodeWrapperFactory = instance.ServiceProvider.GetService<INodeFactory>()!;
+        _script1 = _instance.ServiceProvider.GetService<IScriptFactory>()!.CreateScript();
+        _scriptEditor = _instance.ServiceProvider.GetService<IScriptEditor>()!;
+        _nodeWrapperFactory = _instance.ServiceProvider.GetService<INodeFactory>()!;
 
         SetupScript<ValueIoBenchmarkNode>(_script1, 500);
 
@@ -48,23 +40,16 @@ public class ValuePassingBenchmark
 
     private void SetupScript<T>(IScript script, int nodeCount) where T : INode, new()
     {
-        IWrappedNode originalNode = _nodeWrapperFactory!.WrapNode<T>();
-        IWrappedNode previousNode = _scriptEditor!.AddCopyOfNode(script, originalNode);
-        for (int i = 0; i < nodeCount; i++)
+        var originalNode = _nodeWrapperFactory!.WrapNode<T>();
+        var previousNode = _scriptEditor!.AddCopyOfNode(script, originalNode);
+        for (var i = 0; i < nodeCount; i++)
         {
-            IWrappedNode nextNode = _scriptEditor.AddCopyOfNode(script, originalNode);
+            var nextNode = _scriptEditor.AddCopyOfNode(script, originalNode);
             _scriptEditor.TryBridgeConnectors(script, previousNode.Rows[1].OutputConnector!, nextNode.Rows[0].InputConnector!);
             previousNode = nextNode;
         }
         (script.Nodes[0].Rows[0].CentralDisplay as IDisplay)!.DisplayValue.Value = 3.0;
         script.ExecutionInstance.IsShownInUI = false;
-    }
-
-    public static double TestRun()
-    {
-        ValuePassingBenchmark testInstance = new();
-        testInstance.Setup();
-        return testInstance.PassValueFields(4);
     }
 
     [Benchmark]
