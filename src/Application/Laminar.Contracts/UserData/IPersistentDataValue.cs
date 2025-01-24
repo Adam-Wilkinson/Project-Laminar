@@ -13,4 +13,6 @@ public interface IPersistentDataValue
     public Type SerializedType { get; }
 
     public void ResetToDefault();
+    
+    
 }

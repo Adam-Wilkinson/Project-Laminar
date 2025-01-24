@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Laminar.Contracts.UserData;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -24,14 +25,14 @@ public class JsonPersistentDataTranscoder : IPersistentDataTranscoder
     
     public string FileExtension => ".json";
     
-    public string Encode(Dictionary<string, IPersistentDataValue> objectToSave) 
-        => JsonSerializer.Serialize(objectToSave, _jsonOptions);
+    public byte[] Encode(Dictionary<string, IPersistentDataValue> objectToSave) 
+        => Encoding.UTF8.GetBytes(JsonSerializer.Serialize(objectToSave, _jsonOptions));
 
-    public Dictionary<string, IPersistentDataValue> Decode(string data,
+    public Dictionary<string, IPersistentDataValue> Decode(byte[] data,
         Dictionary<string, IPersistentDataValue> typeHints)
     {
         _persistentDataConverter.TypeHints = typeHints;
-        return JsonSerializer.Deserialize<Dictionary<string, IPersistentDataValue>>(data, _jsonOptions) ?? [];
+        return JsonSerializer.Deserialize<Dictionary<string, IPersistentDataValue>>(Encoding.UTF8.GetString(data), _jsonOptions) ?? [];
     } 
     
     private class PersistentDataValueConverter : JsonConverter<Dictionary<string, IPersistentDataValue>>

@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using Laminar.Contracts;
 using Laminar.Contracts.UserData;
 using Laminar.Domain.DataManagement;
 using Laminar.PluginFramework.Serialization;
@@ -10,25 +12,25 @@ public class PersistentDataStore : IPersistentDataStore
 {
     private readonly ISerializer _serializer;
     private readonly IPersistentDataTranscoder _persistentDataTranscoder;
-    private readonly IFileSystem _fileSystem;
+    private readonly IFile _file;
     
     private Dictionary<string, IPersistentDataValue> _serializedDataCache = [];
     private bool _fileIsDirty;
     
-    public PersistentDataStore(IFileSystem fileSystem, ISerializer serializer, IPersistentDataTranscoder persistentDataTranscoder, string dataPath)
+    public PersistentDataStore(IFile file, ISerializer serializer, IPersistentDataTranscoder persistentDataTranscoder)
     {
         _serializer = serializer;
         _persistentDataTranscoder = persistentDataTranscoder;
-        _fileSystem = fileSystem;
-        FilePath = dataPath + _persistentDataTranscoder.FileExtension;
-
-        if (fileSystem.GetParent(FilePath) is not { Exists: true })
-        {
-            fileSystem.CreateDirectory(fileSystem.GetParent(FilePath)!.FullName);
-        }
+        _file = file;
+        _file.ContentsChanged += FileChanged;
     }
-    
-    public string FilePath { get; }
+
+    private void FileChanged(object? sender, EventArgs e)
+    {
+        Debug.WriteLine("The file was changed!");
+    }
+
+    public string FilePath => _file.Path;
 
     public DataReadResult<T> GetItem<T>(string key)
         where T : notnull
@@ -104,18 +106,7 @@ public class PersistentDataStore : IPersistentDataStore
     {
         try
         {
-            if (!_fileSystem.Exists(FilePath))
-            {
-                return new DataSaveResult(DataIoStatus.DataNotFound);
-            }
-            
-            var rawFile = _fileSystem.ReadTextFile(FilePath);
-            if (rawFile is null or "")
-            {
-                return new DataSaveResult();
-            }
-            
-            if (_persistentDataTranscoder.Decode(rawFile, _serializedDataCache) is not { } decodeResult)
+            if (_persistentDataTranscoder.Decode(_file.Contents, _serializedDataCache) is not { } decodeResult)
             {
                 return new DataSaveResult(DataIoStatus.UnknownError);
             }
@@ -132,9 +123,7 @@ public class PersistentDataStore : IPersistentDataStore
     {
         try
         {
-            var result = _persistentDataTranscoder.Encode(_serializedDataCache);
-            using var stream = _fileSystem.CreateTextFile(FilePath);
-            stream.Write(result);
+            _file.Contents = _persistentDataTranscoder.Encode(_serializedDataCache);
             return new DataSaveResult(DataIoStatus.Success);
         }
         catch (Exception ex)

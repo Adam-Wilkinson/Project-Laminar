@@ -11,7 +11,6 @@ namespace Laminar.Implementation.UserData;
 public class PersistentDataManager(ISerializer serializer, IFileSystem fileSystem) : IPersistentDataManager
 {
     private static readonly string StaticPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Project Laminar");
-    private readonly ISerializer _serializer = serializer;
     private readonly Dictionary<DataStoreKey, IPersistentDataStore> _dataStores = new();
     
     static PersistentDataManager()
@@ -31,15 +30,16 @@ public class PersistentDataManager(ISerializer serializer, IFileSystem fileSyste
             return dataStore;
         }
 
+        var transcoder = dataStoreKey.DataType switch
+        {
+            PersistentDataType.Json => new JsonPersistentDataTranscoder(),
+            var unknown => throw new UnknownDataTypeException(unknown),
+        };
+        
         var newDataStore = new PersistentDataStore(
-            fileSystem,
-            _serializer, 
-            dataStoreKey.DataType switch
-            {
-                PersistentDataType.Json => new JsonPersistentDataTranscoder(),
-                var unknown => throw new UnknownDataTypeException(unknown),
-            }, 
-            System.IO.Path.Combine(Path, dataStoreKey.Name));
+            fileSystem.GetFile(System.IO.Path.Combine(Path, dataStoreKey.Name + transcoder.FileExtension)),
+            serializer, 
+            transcoder);
         
         _dataStores[dataStoreKey] = newDataStore;
         return newDataStore;

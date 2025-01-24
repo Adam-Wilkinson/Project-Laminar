@@ -37,7 +37,7 @@ public class Configs
         _state = State.Unknown;
         try
         {
-            if (!File.Exists(_xmlDocPath))
+            if (!System.IO.File.Exists(_xmlDocPath))
             {
                 _state = State.InvalidPath;
             }

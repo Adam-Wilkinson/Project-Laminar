@@ -7,7 +7,7 @@ namespace Laminar.Implementation.UserData.FileNavigation;
 public class LaminarStorageItemFactory : ILaminarStorageItemFactory
 {
     public ILaminarStorageItem FromPath(string path, ILaminarStorageFolder? folder)
-        => (File.GetAttributes(path) & FileAttributes.Directory) == FileAttributes.Directory
+        => (System.IO.File.GetAttributes(path) & FileAttributes.Directory) == FileAttributes.Directory
             ? new LaminarStorageFolder(path, this, folder)
             : new LaminarStorageFile(path, folder ?? new LaminarStorageFolder(new DirectoryInfo(path).Parent!, this));
 

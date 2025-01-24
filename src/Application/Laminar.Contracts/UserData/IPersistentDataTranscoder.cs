@@ -6,7 +6,7 @@ public interface IPersistentDataTranscoder
 {
     public string FileExtension { get; }
 
-    public string Encode(Dictionary<string, IPersistentDataValue> toEncode);
+    public byte[] Encode(Dictionary<string, IPersistentDataValue> toEncode);
     
-    public Dictionary<string, IPersistentDataValue> Decode(string data, Dictionary<string, IPersistentDataValue> typeHints);
+    public Dictionary<string, IPersistentDataValue> Decode(byte[] data, Dictionary<string, IPersistentDataValue> typeHints);
 }
