@@ -15,6 +15,7 @@ public class File : IFile
     private readonly IFileWatcher _fileWatcher;
     
     private byte[] _contents = [];
+    private bool _readNextFileChange = true;
     
     public File(IFileSystem fileSystem, string filePath)
     {
@@ -22,7 +23,7 @@ public class File : IFile
         Path = filePath;
         InitiateReadAttempt().Wait();
         
-        _fileWatcher = fileSystem.CreateFileWatcher(_fileSystem.GetParent(Path)!.FullName);
+        _fileWatcher = fileSystem.CreateFileWatcher(_fileSystem.GetParent(Path)!.FullName, _fileSystem.GetFileName(Path));
         _fileWatcher.NotifyFilter = NotifyFilters.LastWrite;
         _fileWatcher.EnableRaisingEvents = true;
         _fileWatcher.Changed += FileChanged;
@@ -30,6 +31,17 @@ public class File : IFile
 
     public void FileChanged(object? sender, FileSystemEventArgs e)
     {
+        if (e.FullPath != Path)
+        {
+            return;
+        }
+        
+        if (!_readNextFileChange)
+        {
+            _readNextFileChange = true;
+            return;
+        }
+        
         InitiateReadAttempt();
     }
     
@@ -62,6 +74,7 @@ public class File : IFile
         {
             try
             {
+                _readNextFileChange = false;
                 _fileSystem.WriteBytesAsync(Path, _contents, cancellationToken);
                 success = true;
             }
