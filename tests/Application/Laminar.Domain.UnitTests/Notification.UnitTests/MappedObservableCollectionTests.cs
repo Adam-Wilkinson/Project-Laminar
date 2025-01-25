@@ -1,8 +1,8 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using static Laminar.Domain.UnitTests.TestUtils;
 using Laminar.Domain.Notification;
-using Moq;
+using NSubstitute;
+using static Laminar.Domain.UnitTests.TestUtils;
 
 namespace Laminar.Domain.UnitTests.Notification.UnitTests;
 
@@ -46,16 +46,19 @@ public class MappedObservableCollectionTests
     [Fact]
     public void MOC_ShouldRaiseCorrectEvent_WhenItemsAdded()
     {
-        var mock = new Mock<IReadOnlyObservableCollection<int>>();
+        var mock = Substitute.For<IReadOnlyObservableCollection<int>>();
         using var sourceEnumerator = _source.GetEnumerator();
-        mock.Setup(collection => collection.GetEnumerator()).Returns(sourceEnumerator);
-        var sut = new MappedObservableCollection<int, string>(mock.Object, number => number.ToString());
+        using var mockEnumerator = mock.GetEnumerator();
+        mockEnumerator.Returns(sourceEnumerator);
+        var sut = new MappedObservableCollection<int, string>(mock, number => number.ToString());
         
         using var monitor = sut.Monitor();
-        mock.Raise(x => x.CollectionChanged += null, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, new List<int> { 10, 11, 12 }, 3));
+        mock.CollectionChanged +=
+            Raise.Event<NotifyCollectionChangedEventHandler>(mock,
+                new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, new List<int> { 10, 11, 12 }, 3));
         
         monitor.Should().Raise(nameof(INotifyCollectionChanged.CollectionChanged))
-            .WithSender(mock.Object)
+            .WithSender(mock)
             .WithArgs<NotifyCollectionChangedEventArgs>(args => 
                 args.Action == NotifyCollectionChangedAction.Add && 
                 SequenceEquals(args.NewItems, new List<string> {"10", "11", "12"}) &&
@@ -65,12 +68,15 @@ public class MappedObservableCollectionTests
     [Fact]
     public void MOC_ShouldBeCorrect_WhenItemsAdded()
     {
-        var mock = new Mock<IReadOnlyObservableCollection<int>>();
+        var mock = Substitute.For<IReadOnlyObservableCollection<int>>();
         using var sourceEnumerator = _source.GetEnumerator();
-        mock.Setup(collection => collection.GetEnumerator()).Returns(sourceEnumerator);
-        var sut = new MappedObservableCollection<int, string>(mock.Object, number => number.ToString());
+        using var mockEnumerator = mock.GetEnumerator();
+        mockEnumerator.Returns(sourceEnumerator);
+        var sut = new MappedObservableCollection<int, string>(mock, number => number.ToString());
         
-        mock.Raise(x => x.CollectionChanged += null, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, new List<int> { 10, 11, 12 }, 3));
+        mock.CollectionChanged +=
+            Raise.Event<NotifyCollectionChangedEventHandler>(mock,
+                new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, new List<int> { 10, 11, 12 }, 3));
 
         sut.Should().Equal("1", "2", "3", "10", "11", "12", "4", "5", "6");
     }
@@ -102,16 +108,20 @@ public class MappedObservableCollectionTests
     [Fact]
     public void MOC_ShouldRaiseCorrectEvent_WhenItemsRemoved()
     {
-        var mock = new Mock<IReadOnlyObservableCollection<int>>();
+        var mock = Substitute.For<IReadOnlyObservableCollection<int>>();
         using var sourceEnumerator = _source.GetEnumerator();
-        mock.Setup(collection => collection.GetEnumerator()).Returns(sourceEnumerator);
-        var sut = new MappedObservableCollection<int, string>(mock.Object, number => number.ToString());
+        using var mockEnumerator = mock.GetEnumerator();
+        mockEnumerator.Returns(sourceEnumerator);
+        var sut = new MappedObservableCollection<int, string>(mock, number => number.ToString());
         
         using var monitor = sut.Monitor();
-        mock.Raise(x => x.CollectionChanged += null, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, new List<int> { 2, 3, 4 }, 1));
+        
+        mock.CollectionChanged +=
+            Raise.Event<NotifyCollectionChangedEventHandler>(mock,
+                new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, new List<int> { 2, 3, 4 }, 1));
         
         monitor.Should().Raise(nameof(INotifyCollectionChanged.CollectionChanged))
-            .WithSender(mock.Object)
+            .WithSender(mock)
             .WithArgs<NotifyCollectionChangedEventArgs>(args => 
                 args.Action == NotifyCollectionChangedAction.Remove && 
                 SequenceEquals(args.OldItems, new List<string> { "2", "3", "4" }) &&
@@ -121,12 +131,15 @@ public class MappedObservableCollectionTests
     [Fact]
     public void MOC_ShouldBeCorrect_WhenItemsRemoved()
     {
-        var mock = new Mock<IReadOnlyObservableCollection<int>>();
+        var mock = Substitute.For<IReadOnlyObservableCollection<int>>();
         using var sourceEnumerator = _source.GetEnumerator();
-        mock.Setup(collection => collection.GetEnumerator()).Returns(sourceEnumerator);
-        var sut = new MappedObservableCollection<int, string>(mock.Object, number => number.ToString());
+        using var mockEnumerator = mock.GetEnumerator();
+        mockEnumerator.Returns(sourceEnumerator);
+        var sut = new MappedObservableCollection<int, string>(mock, number => number.ToString());
         
-        mock.Raise(x => x.CollectionChanged += null, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, new List<int> { 2, 3, 4 }, 1));
+        mock.CollectionChanged +=
+            Raise.Event<NotifyCollectionChangedEventHandler>(mock,
+                new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, new List<int> { 2, 3, 4 }, 1));
 
         sut.Should().Equal("1", "5", "6");
     }
@@ -138,17 +151,20 @@ public class MappedObservableCollectionTests
         const int newItem = 10;
         int replacedItem = _source[replaceIndex];
         
-        var mock = new Mock<IReadOnlyObservableCollection<int>>();
+        var mock = Substitute.For<IReadOnlyObservableCollection<int>>();
         using var sourceEnumerator = _source.GetEnumerator();
-        mock.Setup(collection => collection.GetEnumerator()).Returns(sourceEnumerator);
-        var sut = new MappedObservableCollection<int, string>(mock.Object, number => number.ToString());
+        using var mockEnumerator = mock.GetEnumerator();
+        mockEnumerator.Returns(sourceEnumerator);
+        var sut = new MappedObservableCollection<int, string>(mock, number => number.ToString());
         using var mon = sut.Monitor();
         
         var oldItemReference = sut[replaceIndex];
-        mock.Raise(x => x.CollectionChanged += null, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, (object)newItem, (object)replacedItem, replaceIndex));
+        var collectionChangedArgs = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, (object)newItem, (object)replacedItem, replaceIndex);
 
+        mock.CollectionChanged += Raise.Event<NotifyCollectionChangedEventHandler>(mock, collectionChangedArgs);
+        
         mon.Should().Raise(nameof(INotifyCollectionChanged.CollectionChanged))
-            .WithSender(mock.Object)
+            .WithSender(mock)
             .WithArgs<NotifyCollectionChangedEventArgs>(args => 
                 args.Action == NotifyCollectionChangedAction.Replace && 
                 ReferenceEquals(oldItemReference, args.OldItems![0]) &&
@@ -163,13 +179,15 @@ public class MappedObservableCollectionTests
         const int newItem = 10;
         int replacedItem = _source[replaceIndex];
         
-        var mock = new Mock<IReadOnlyObservableCollection<int>>();
+        var mock = Substitute.For<IReadOnlyObservableCollection<int>>();
         using var sourceEnumerator = _source.GetEnumerator();
-        mock.Setup(collection => collection.GetEnumerator()).Returns(sourceEnumerator);
-        var sut = new MappedObservableCollection<int, string>(mock.Object, number => number.ToString());
-        
-        mock.Raise(x => x.CollectionChanged += null, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, (object)newItem, (object)replacedItem, replaceIndex));
+        using var mockEnumerator = mock.GetEnumerator();
+        mockEnumerator.Returns(sourceEnumerator);
+        var sut = new MappedObservableCollection<int, string>(mock, number => number.ToString());
 
+        var collectionChangedArgs = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, (object)newItem, (object)replacedItem, replaceIndex);
+        mock.CollectionChanged += Raise.Event<NotifyCollectionChangedEventHandler>(mock, collectionChangedArgs);
+        
         sut.Should().Equal("1", "2", "10", "4", "5", "6");
     }
 
@@ -180,17 +198,20 @@ public class MappedObservableCollectionTests
         int[] newItems = [10, 11, 12, 13, 14];
         int[] replacedItems = [_source[replaceIndex], _source[replaceIndex + 1], _source[replaceIndex + 2], _source[replaceIndex + 3]];
         
-        var mock = new Mock<IReadOnlyObservableCollection<int>>();
+        var mock = Substitute.For<IReadOnlyObservableCollection<int>>();
         using var sourceEnumerator = _source.GetEnumerator();
-        mock.Setup(collection => collection.GetEnumerator()).Returns(sourceEnumerator);
-        var sut = new MappedObservableCollection<int, string>(mock.Object, number => number.ToString());
+        using var mockEnumerator = mock.GetEnumerator();
+        mockEnumerator.Returns(sourceEnumerator);
+        var sut = new MappedObservableCollection<int, string>(mock, number => number.ToString());
         using var mon = sut.Monitor();
         
         string[] oldItems = [sut[replaceIndex], sut[replaceIndex + 1], sut[replaceIndex + 2], sut[replaceIndex + 3]];
-        mock.Raise(x => x.CollectionChanged += null, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, newItems, replacedItems, replaceIndex));
+
+        var collectionChangedArgs = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, newItems, replacedItems, replaceIndex);
+        mock.CollectionChanged += Raise.Event<NotifyCollectionChangedEventHandler>(mock, collectionChangedArgs);      
         
         mon.Should().Raise(nameof(INotifyCollectionChanged.CollectionChanged))
-            .WithSender(mock.Object)
+            .WithSender(mock)
             .WithArgs<NotifyCollectionChangedEventArgs>(args => 
                 args.Action == NotifyCollectionChangedAction.Replace && 
                 SequenceReferenceEquals(oldItems, args.OldItems) &&
@@ -205,13 +226,15 @@ public class MappedObservableCollectionTests
         int[] newItems = [10, 11, 12, 13, 14];
         int[] replacedItems = [_source[replaceIndex], _source[replaceIndex + 1], _source[replaceIndex + 2]];
         
-        var mock = new Mock<IReadOnlyObservableCollection<int>>();
+        var mock = Substitute.For<IReadOnlyObservableCollection<int>>();
         using var sourceEnumerator = _source.GetEnumerator();
-        mock.Setup(collection => collection.GetEnumerator()).Returns(sourceEnumerator);
-        var sut = new MappedObservableCollection<int, string>(mock.Object, number => number.ToString());
-        
-        mock.Raise(x => x.CollectionChanged += null, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, newItems, replacedItems, replaceIndex));
+        using var mockEnumerator = mock.GetEnumerator();
+        mockEnumerator.Returns(sourceEnumerator);
+        var sut = new MappedObservableCollection<int, string>(mock, number => number.ToString());
 
+        var collectionChangedArgs = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, newItems, replacedItems, replaceIndex);
+        mock.CollectionChanged += Raise.Event<NotifyCollectionChangedEventHandler>(mock, collectionChangedArgs);
+        
         sut.Should().Equal("1", "2", "10", "11", "12", "13", "14", "6");
     }
 
@@ -256,18 +279,21 @@ public class MappedObservableCollectionTests
         const int moveFromIndex = 2;
         const int moveToIndex = 3;
         
-        var mock = new Mock<IReadOnlyObservableCollection<int>>();
+        var mock = Substitute.For<IReadOnlyObservableCollection<int>>();
         using var sourceEnumerator = _source.GetEnumerator();
-        mock.Setup(collection => collection.GetEnumerator()).Returns(sourceEnumerator);
-        var sut = new MappedObservableCollection<int, string>(mock.Object, number => number.ToString());
+        using var mockEnumerator = mock.GetEnumerator();
+        mockEnumerator.Returns(sourceEnumerator);
+        var sut = new MappedObservableCollection<int, string>(mock, number => number.ToString());
         using var mon = sut.Monitor();
         
         string[] sutOldItems = [sut[moveFromIndex], sut[moveFromIndex + 1]];
         int[] sourceOldItems = [_source[moveFromIndex], _source[moveFromIndex + 1]];
-        mock.Raise(x => x.CollectionChanged += null, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, sourceOldItems, moveToIndex, moveFromIndex));
+        var collectionChangedArgs = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move,
+            sourceOldItems, moveToIndex, moveFromIndex);
+        mock.CollectionChanged += Raise.Event<NotifyCollectionChangedEventHandler>(mock, collectionChangedArgs);
         
         mon.Should().Raise(nameof(INotifyCollectionChanged.CollectionChanged))
-            .WithSender(mock.Object)
+            .WithSender(mock)
             .WithArgs<NotifyCollectionChangedEventArgs>(args => 
                 args.Action == NotifyCollectionChangedAction.Move &&
                 args.OldStartingIndex == moveFromIndex &&
@@ -281,15 +307,17 @@ public class MappedObservableCollectionTests
         const int moveFromIndex = 2;
         const int moveToIndex = 3;
         
-        var mock = new Mock<IReadOnlyObservableCollection<int>>();
+        var mock = Substitute.For<IReadOnlyObservableCollection<int>>();
         using var sourceEnumerator = _source.GetEnumerator();
-        mock.Setup(collection => collection.GetEnumerator()).Returns(sourceEnumerator);
-        var sut = new MappedObservableCollection<int, string>(mock.Object, number => number.ToString());
+        using var mockEnumerator = mock.GetEnumerator();
+        mockEnumerator.Returns(sourceEnumerator);
+        var sut = new MappedObservableCollection<int, string>(mock, number => number.ToString());
         using var mon = sut.Monitor();
         
         string[] sutOldItems = [sut[moveFromIndex], sut[moveFromIndex + 1]];
         int[] sourceOldItems = [_source[moveFromIndex], _source[moveFromIndex + 1]];
-        mock.Raise(x => x.CollectionChanged += null, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, sourceOldItems, moveToIndex, moveFromIndex));
+        var collectionChangedArgs = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, sourceOldItems, moveToIndex, moveFromIndex);
+        mock.CollectionChanged += Raise.Event<NotifyCollectionChangedEventHandler>(mock, collectionChangedArgs);
 
         sut.Should().Equal("1", "2", "5", "3", "4", "6");
     }

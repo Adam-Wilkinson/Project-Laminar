@@ -13,13 +13,20 @@ public class JsonPersistentDataTranscoder : IPersistentDataTranscoder
 {
     private readonly PersistentDataValueConverter _persistentDataConverter = new();
 
-    private readonly JsonSerializerOptions _jsonOptions = new()
-    {
-        WriteIndented = true,
-    };
+    private readonly JsonSerializerOptions _jsonOptions;
 
-    public JsonPersistentDataTranscoder()
+    public JsonPersistentDataTranscoder() : this(new JsonSerializerOptions { WriteIndented = true })
     {
+    }
+
+    public JsonPersistentDataTranscoder(JsonSerializerOptions jsonOptions)
+    {
+        _jsonOptions = new JsonSerializerOptions
+        {
+            WriteIndented = jsonOptions.WriteIndented,
+            
+        };
+        
         _jsonOptions.Converters.Add(_persistentDataConverter);
     }
     

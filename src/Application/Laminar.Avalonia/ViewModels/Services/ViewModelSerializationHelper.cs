@@ -8,7 +8,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Laminar.Avalonia.InitializationTargets;
 using Laminar.Contracts.UserData;
 using Laminar.Domain.DataManagement;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Laminar.Avalonia.ViewModels.Services;
 
@@ -63,7 +62,7 @@ public class ViewModelSerializationHelper(
         };
     }
     
-    private Dictionary<string, ISerializedPropertyInfo> GetSerializedPropertyInfos(Type type, object? defaultInstance)
+    private Dictionary<string, ISerializedPropertyInfo> GetSerializedPropertyInfos(Type type, object defaultInstance)
     {
         if (_serializedPropertyInfos.TryGetValue(type, out var serializedPropertyInfos))
         {
@@ -72,7 +71,6 @@ public class ViewModelSerializationHelper(
 
         HashSet<string> fieldPropertyNames = [];
         List<ISerializedPropertyInfo> serializedPropertyList = [];
-        defaultInstance ??= ActivatorUtilities.CreateInstance(_serviceProvider, type);
 
         foreach (var fieldInfo in type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
                      .Where(field => field.CustomAttributes.Any(x => x.AttributeType == typeof(SerializeAttribute)) 
