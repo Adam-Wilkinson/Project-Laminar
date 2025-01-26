@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.Json;
+using Laminar.Contracts;
 using Laminar.Contracts.UserData;
 using Laminar.Domain.DataManagement;
 using Laminar.Domain.Exceptions;
@@ -35,11 +37,14 @@ public class PersistentDataManager(ISerializer serializer, IFileSystem fileSyste
             PersistentDataType.Json => new JsonPersistentDataTranscoder(),
             var unknown => throw new UnknownDataTypeException(unknown),
         };
-        
-        var newDataStore = new PersistentDataStore(
-            fileSystem.GetFile(System.IO.Path.Combine(Path, dataStoreKey.Name + transcoder.FileExtension)),
-            serializer, 
-            transcoder);
+
+        var file = fileSystem.GetFile(System.IO.Path.Combine(Path, dataStoreKey.Name + transcoder.FileExtension));
+
+        var newDataStore = dataStoreKey.DataType switch
+        {
+            PersistentDataType.Json => new PersistentDataStore<JsonElement>(file, serializer, new JsonPersistentDataTranscoder()),
+            var unknown => throw new UnknownDataTypeException(unknown),
+        };
         
         _dataStores[dataStoreKey] = newDataStore;
         return newDataStore;

@@ -1,33 +1,44 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using Laminar.Contracts;
 using Laminar.Contracts.UserData;
 using Laminar.Domain.DataManagement;
+using Laminar.Domain.ValueObjects;
 using Laminar.PluginFramework.Serialization;
 
 namespace Laminar.Implementation.UserData;
 
-public class PersistentDataStore : IPersistentDataStore
+public class PersistentDataStore<TEncodedValue> : IPersistentDataStore where TEncodedValue : notnull
 {
     private readonly ISerializer _serializer;
-    private readonly IPersistentDataTranscoder _persistentDataTranscoder;
+    private readonly IPersistentDataTranscoder<TEncodedValue> _persistentDataTranscoder;
     private readonly IFile _file;
     
-    private Dictionary<string, IPersistentDataValue> _serializedDataCache = [];
-    private bool _fileIsDirty;
+    private Dictionary<string, PersistentDataValue> _serializedDataCache = [];
     
-    public PersistentDataStore(IFile file, ISerializer serializer, IPersistentDataTranscoder persistentDataTranscoder)
+    public PersistentDataStore(IFile file, ISerializer serializer, IPersistentDataTranscoder<TEncodedValue> persistentDataTranscoder)
     {
         _serializer = serializer;
         _persistentDataTranscoder = persistentDataTranscoder;
         _file = file;
         _file.ContentsChanged += FileChanged;
+        FileChanged(null, EventArgs.Empty);
     }
 
     private void FileChanged(object? sender, EventArgs e)
     {
-        Debug.WriteLine("The file was changed!");
+        _persistentDataTranscoder.DecodeByteArray(_file.Contents, (name, encodedValue) =>
+        {
+            if (!_serializedDataCache.TryGetValue(name, out var value))
+            {
+                value = new PersistentDataValue(_serializer, _persistentDataTranscoder);
+                _serializedDataCache[name] = value;
+            }
+
+            value.EncodedValue = encodedValue;
+        });
     }
 
     public string FilePath => _file.Path;
@@ -41,21 +52,14 @@ public class PersistentDataStore : IPersistentDataStore
 
     public DataReadResult<object> GetItem(string key, Type type)
     {
-        if (_fileIsDirty)
-        {
-            LoadFromFile();
-            SyncToFile();
-            _fileIsDirty = false;
-        }
-        
         if (!_serializedDataCache.TryGetValue(key, out var persistentData))
         {
-            return new DataReadResult<object>(default, DataIoStatus.DataNotFound);
+            return new DataReadResult<object>(null, DataIoStatus.DataNotFound);
         }
 
         if (persistentData.ValueType != type)
         {
-            return new DataReadResult<object>(default, DataIoStatus.UnknownError);
+            return new DataReadResult<object>(null, DataIoStatus.UnknownError);
         }
         
         return new DataReadResult<object>(persistentData.Value);
@@ -73,7 +77,8 @@ public class PersistentDataStore : IPersistentDataStore
         }
         
         persistentValue.Value = value;
-        return SyncToFile();
+        SyncToFile();
+        return new DataSaveResult();
     }
 
     public DataSaveResult ResetToDefault(string key)
@@ -84,51 +89,125 @@ public class PersistentDataStore : IPersistentDataStore
         }
         
         persistentValue.ResetToDefault();
-        return SyncToFile();
+        SyncToFile();
+        return new DataSaveResult();
     }
     
-    public IPersistentDataStore InitializeDefaultValue<T>(string key, T value, object? deserializationContext = null)
-        where T : notnull
-    {
-        _serializedDataCache[key] = new PersistentValue(_serializer, value, deserializationContext);
-        _fileIsDirty = true;
-        return this;
-    }
+    public IPersistentDataStore InitializeDefaultValue<T>(string key, T value, object? deserializationContext = null) where T : notnull 
+        => InitializeDefaultValue(key, value, typeof(T), deserializationContext);
 
     public IPersistentDataStore InitializeDefaultValue(string key, object value, Type type, object? deserializationContext = null)
     {
-        _serializedDataCache[key] = new PersistentValue(_serializer, value, deserializationContext);
-        _fileIsDirty = true;
+        if (!_serializedDataCache.TryGetValue(key, out var persistentValue))
+        {
+            persistentValue = new PersistentDataValue(_serializer, _persistentDataTranscoder);
+            _serializedDataCache[key] = persistentValue;
+        }
+        
+        persistentValue.Initialize(value, type, deserializationContext);
         return this;
     }
 
-    private DataSaveResult LoadFromFile()
+    private void SyncToFile()
     {
-        try
-        {
-            if (_persistentDataTranscoder.Decode(_file.Contents, _serializedDataCache) is not { } decodeResult)
-            {
-                return new DataSaveResult(DataIoStatus.UnknownError);
-            }
-            _serializedDataCache = decodeResult;
-            return new DataSaveResult();
-        }
-        catch (Exception ex)
-        {
-            return new DataSaveResult(DataIoStatus.UnknownError, ex);
-        }
+        _file.Contents = _persistentDataTranscoder.EncodeDictionary(_serializedDataCache, eachValue => eachValue.EncodedValue);
     }
     
-    private DataSaveResult SyncToFile()
+    private class ValueNotInitializedException() : Exception("Value has not been initialized");
+    
+    private class PersistentDataValue(ISerializer serializer, IPersistentDataTranscoder<TEncodedValue> transcoder) : IObservableValue<object>
     {
-        try
+        private static readonly PropertyChangedEventArgs ValueChangedArgs = new(nameof(Value));
+        
+        private TEncodedValue _encodedValue = default!;
+        private bool _hasEncodedValue = false;
+        private object? _defaultValue;
+        private object? _value;
+        private object? _deserializationContext;
+        private Type? _valueType;
+        
+        public event PropertyChangedEventHandler? PropertyChanged;
+        
+        public event EventHandler<object>? ValueChanged;
+        
+        public Type ValueType => _valueType ?? throw new ValueNotInitializedException();
+
+        public TEncodedValue EncodedValue
         {
-            _file.Contents = _persistentDataTranscoder.Encode(_serializedDataCache);
-            return new DataSaveResult(DataIoStatus.Success);
+            get => _hasEncodedValue ? _encodedValue : throw new ValueNotInitializedException();
+            set
+            {
+                if (value.Equals(_encodedValue))
+                {
+                    return;
+                }
+                
+                _encodedValue = value;
+                _hasEncodedValue = true;
+                
+                if (_valueType is null)
+                {
+                    return;
+                }
+
+                SetValueFromEncodedValue();
+            }
         }
-        catch (Exception ex)
+
+        private void SetValueFromEncodedValue()
         {
-            return new DataSaveResult(DataIoStatus.UnknownError, ex);
+            var serializedValue = transcoder.DecodeValue(EncodedValue, serializer.GetSerializedType(ValueType));
+            _value = serializer.DeserializeObject(serializedValue, ValueType, _deserializationContext);
+            PropertyChanged?.Invoke(this, ValueChangedArgs);
+            ValueChanged?.Invoke(this, _value);
+        }
+
+        public object Value
+        {
+            get => _value ?? throw new ValueNotInitializedException();
+            set
+            {
+                if (_value == value)
+                {
+                    return;
+                }
+
+                if (_valueType is null)
+                {
+                    throw new ValueNotInitializedException();
+                }
+
+                if (!_valueType.IsInstanceOfType(value))
+                {
+                    throw new ArgumentException();
+                }
+                
+                _value = value;
+                var serialized = serializer.SerializeObject(_value, ValueType);
+                _encodedValue = transcoder.EncodeValue(serialized);
+                PropertyChanged?.Invoke(this, ValueChangedArgs);
+                ValueChanged?.Invoke(this, _value);
+            }
+        }
+
+        public void Initialize(object defaultValue, Type? valueType = null, object? deserializationContext = null)
+        {
+            _defaultValue = defaultValue;
+            _valueType = valueType ?? _defaultValue.GetType();
+            _deserializationContext = deserializationContext;
+            if (_hasEncodedValue)
+            {
+                SetValueFromEncodedValue();
+            }
+            else
+            {
+                Value = _defaultValue;
+            }
+        }
+
+        public void ResetToDefault()
+        {
+            Value = _defaultValue ?? throw new ValueNotInitializedException();
         }
     }
 }

@@ -34,7 +34,7 @@ public class PersistentDataStoreTests
             serializerMock.GetSerializedType(typeof(double)).Returns(typeof(double));
             serializerMock.SerializeObject(testValue).Returns(testValue);
 
-            var sut = new PersistentDataStore(fileMock, serializerMock, new JsonPersistentDataTranscoder(JsonOptions));
+            var sut = new PersistentDataStore<JsonElement>(fileMock, serializerMock, new JsonPersistentDataTranscoder(JsonOptions));
             sut.InitializeDefaultValue(testValueKey, testValue);
 
             Assert.Equal(testValue, sut.GetItem<double>(testValueKey).Result);
@@ -57,7 +57,7 @@ public class PersistentDataStoreTests
             serializerMock.SerializeObject(Arg.Any<double>()).Returns(ci => ci.Arg<double>());
             serializerMock.DeserializeObject(Arg.Any<double>(), typeof(double)).Returns(ci => ci.Arg<double>());
 
-            var sut = new PersistentDataStore(fileMock, serializerMock, new JsonPersistentDataTranscoder(JsonOptions));
+            var sut = new PersistentDataStore<JsonElement>(fileMock, serializerMock, new JsonPersistentDataTranscoder(JsonOptions));
             sut.InitializeDefaultValue(testValueKey, defaultValue);
 
             Assert.Equal(savedValue, sut.GetItem<double>(testValueKey).Result);
@@ -81,7 +81,7 @@ public class PersistentDataStoreTests
             serializerMock.SerializeObject(Arg.Any<double>()).Returns(ci => ci.Arg<double>());
             serializerMock.DeserializeObject(Arg.Any<double>(), typeof(double)).Returns(ci => ci.Arg<double>());
             
-            var sut = new PersistentDataStore(fileMock, serializerMock, new JsonPersistentDataTranscoder(JsonOptions));
+            var sut = new PersistentDataStore<JsonElement>(fileMock, serializerMock, new JsonPersistentDataTranscoder(JsonOptions));
             sut.InitializeDefaultValue(testValueKey, initialValue);
 
             sut.SetItem(testValueKey, newValue);
@@ -102,9 +102,10 @@ public class PersistentDataStoreTests
             var serializerMock = Substitute.For<ISerializer>();
             serializerMock.GetSerializedType(typeof(double)).Returns(typeof(double));
             serializerMock.SerializeObject(Arg.Any<double>()).Returns(ci => ci.Arg<double>());
+            serializerMock.SerializeObject(Arg.Any<double>(), typeof(double)).Returns(ci => ci.Arg<double>());
             serializerMock.DeserializeObject(Arg.Any<double>(), typeof(double)).Returns(ci => ci.Arg<double>());
             
-            var sut = new PersistentDataStore(fileMock, serializerMock, new JsonPersistentDataTranscoder(JsonOptions));
+            var sut = new PersistentDataStore<JsonElement>(fileMock, serializerMock, new JsonPersistentDataTranscoder(JsonOptions));
             sut.InitializeDefaultValue(testValueKey, initialValue);
 
             sut.SetItem(testValueKey, newValue);
@@ -128,7 +129,7 @@ public class PersistentDataStoreTests
             serializerMock.GetSerializedType(typeof(double)).Returns(typeof(double));
             serializerMock.SerializeObject(testValue).Returns(testValue);
             
-            var sut = new PersistentDataStore(fileMock, serializerMock, new JsonPersistentDataTranscoder(JsonOptions));
+            var sut = new PersistentDataStore<JsonElement>(fileMock, serializerMock, new JsonPersistentDataTranscoder(JsonOptions));
             
             Assert.Equal(DataIoStatus.DataNotFound, sut.SetItem(testValueKey, testValue).Status);
         }
