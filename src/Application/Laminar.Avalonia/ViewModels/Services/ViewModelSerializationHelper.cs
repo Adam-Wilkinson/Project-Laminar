@@ -47,7 +47,11 @@ public class ViewModelSerializationHelper(
         var serializedPropertyInfos = GetSerializedPropertyInfos(viewModel.GetType(), viewModel);
         foreach (var property in serializedPropertyInfos.Values)
         {
-            property.InitializeTo(prefix, viewModel, dataStore);
+            property.InitializeToDataStore(prefix, viewModel, dataStore);
+            dataStore.GetObservable(property.ValueKey(prefix)).ValueChanged += (_, _) =>
+            {
+                property.DataStoreToProperty(prefix, viewModel, dataStore);
+            };
         }
         
         foreach (var property in serializedPropertyInfos.Values)
@@ -117,7 +121,9 @@ public interface ISerializedPropertyInfo
 
     public string PropertyName { get; }
 
-    public void InitializeTo(string prefix, ViewModelBase deserializationContext, IPersistentDataStore dataStore);
+    public string ValueKey(string prefix);
+    
+    public void InitializeToDataStore(string prefix, ViewModelBase deserializationContext, IPersistentDataStore dataStore);
 
     public void DataStoreToProperty(string prefix, ViewModelBase target, IPersistentDataStore dataStore);
     
@@ -136,10 +142,12 @@ public interface ISerializedPropertyInfo
             ConstructGetter(pi))
         {
         }
+
+        public string ValueKey(string prefix) => prefix + "." + PropertyName;
         
-        public void InitializeTo(string prefix, ViewModelBase deserializationContext, IPersistentDataStore dataStore)
+        public void InitializeToDataStore(string prefix, ViewModelBase deserializationContext, IPersistentDataStore dataStore)
         {
-            dataStore.InitializeDefaultValue(prefix + "." + PropertyName, DefaultValue, deserializationContext);
+            dataStore.InitializeDefaultValue(ValueKey(prefix), DefaultValue, deserializationContext);
         }
 
         public void DataStoreToProperty(string prefix, ViewModelBase target, IPersistentDataStore dataStore)
@@ -147,15 +155,13 @@ public interface ISerializedPropertyInfo
             if (target is not TTarget typedTarget)
                 throw new ArgumentException("Target is not of type " + typeof(TTarget).FullName);
             
-            var readResult = dataStore.GetItem<TValue>(prefix + "." + PropertyName); 
+            var readResult = dataStore.GetItem<TValue>(ValueKey(prefix)); 
             if (readResult.Result is not { } dataStoreValue)
             {
                 throw new Exception("Error reading value for " + PropertyName + " with status " + readResult.Status, readResult.Exception);
             }
-            else
-            {
-                Setter(typedTarget, dataStoreValue);
-            }
+
+            Setter(typedTarget, dataStoreValue);
         }
 
         public void PropertyToDataStore(string prefix, ViewModelBase target, IPersistentDataStore dataStore)
@@ -163,7 +169,7 @@ public interface ISerializedPropertyInfo
             if (target is not TTarget typedTarget)
                 throw new ArgumentException("Target is not of type " + typeof(TTarget).FullName);
             
-            dataStore.SetItem(prefix + "." + PropertyName, Getter(typedTarget));
+            dataStore.SetItem(ValueKey(prefix), Getter(typedTarget));
         }
         
         private static Func<TTarget, TValue> ConstructGetter(PropertyInfo propertyInfo)

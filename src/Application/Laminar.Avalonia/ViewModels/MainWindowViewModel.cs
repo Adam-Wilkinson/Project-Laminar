@@ -1,7 +1,10 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System.Windows.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using Laminar.Avalonia.ViewModels.Services;
 
 namespace Laminar.Avalonia.ViewModels;
-public partial class MainWindowViewModel : ViewModelBase
+public partial class MainWindowViewModel : ViewModelBase, IUndoTarget
 {
     [ObservableProperty] private bool _settingsOpen;
     [ObservableProperty] private bool _sidebarExpanded;
@@ -34,4 +37,12 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         MainControl.SidebarExpanded = value;
     }
+
+    [RelayCommand]
+    public void Undo() 
+    {
+        
+    }
+
+    ICommand IUndoTarget.UndoCommand => UndoCommand;
 }

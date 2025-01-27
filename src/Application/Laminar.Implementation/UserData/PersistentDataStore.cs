@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using Laminar.Contracts;
 using Laminar.Contracts.UserData;
 using Laminar.Domain.DataManagement;
@@ -16,7 +15,7 @@ public class PersistentDataStore<TEncodedValue> : IPersistentDataStore where TEn
     private readonly IPersistentDataTranscoder<TEncodedValue> _persistentDataTranscoder;
     private readonly IFile _file;
     
-    private Dictionary<string, PersistentDataValue> _serializedDataCache = [];
+    private readonly Dictionary<string, PersistentDataValue> _serializedDataCache = [];
     
     public PersistentDataStore(IFile file, ISerializer serializer, IPersistentDataTranscoder<TEncodedValue> persistentDataTranscoder)
     {
@@ -64,6 +63,8 @@ public class PersistentDataStore<TEncodedValue> : IPersistentDataStore where TEn
         
         return new DataReadResult<object>(persistentData.Value);
     }
+
+    public IObservableValue<object> GetObservable(string key) => _serializedDataCache[key];
 
     public DataSaveResult SetItem<T>(string key, T value)
         where T : notnull
@@ -117,10 +118,8 @@ public class PersistentDataStore<TEncodedValue> : IPersistentDataStore where TEn
     
     private class PersistentDataValue(ISerializer serializer, IPersistentDataTranscoder<TEncodedValue> transcoder) : IObservableValue<object>
     {
-        private static readonly PropertyChangedEventArgs ValueChangedArgs = new(nameof(Value));
-        
         private TEncodedValue _encodedValue = default!;
-        private bool _hasEncodedValue = false;
+        private bool _hasEncodedValue;
         private object? _defaultValue;
         private object? _value;
         private object? _deserializationContext;
@@ -158,7 +157,7 @@ public class PersistentDataStore<TEncodedValue> : IPersistentDataStore where TEn
         {
             var serializedValue = transcoder.DecodeValue(EncodedValue, serializer.GetSerializedType(ValueType));
             _value = serializer.DeserializeObject(serializedValue, ValueType, _deserializationContext);
-            PropertyChanged?.Invoke(this, ValueChangedArgs);
+            PropertyChanged?.Invoke(this, IObservableValueBase.ValueChangedEventArgs);
             ValueChanged?.Invoke(this, _value);
         }
 
@@ -185,7 +184,7 @@ public class PersistentDataStore<TEncodedValue> : IPersistentDataStore where TEn
                 _value = value;
                 var serialized = serializer.SerializeObject(_value, ValueType);
                 _encodedValue = transcoder.EncodeValue(serialized);
-                PropertyChanged?.Invoke(this, ValueChangedArgs);
+                PropertyChanged?.Invoke(this, IObservableValueBase.ValueChangedEventArgs);
                 ValueChanged?.Invoke(this, _value);
             }
         }

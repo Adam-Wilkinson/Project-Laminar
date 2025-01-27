@@ -3,8 +3,6 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:titlebars="using:Laminar.Avalonia.Views.CustomTitleBars"
-             xmlns:t="using:Laminar.Avalonia.ToolSystem"
-			 xmlns:localshapes="using:Laminar.Avalonia.Shapes"
              xmlns:vm="using:Laminar.Avalonia.ViewModels"
              xmlns:vmd="using:Laminar.Avalonia.ViewModels.Design"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450" d:DataContext="{x:Static vmd:DesignViewModel.TitleBar}"
@@ -52,7 +50,7 @@
 						</Style>
 					</Menu.Styles>
 					<MenuItem Header="File"/>
-					<MenuItem Header="Edit"/>
+					<MenuItem Header="Edit" ItemContainerTheme="{StaticResource ToolMenuItemTheme}" ItemsSource="{Binding MainWindow, Converter={StaticResource ToolInstancer}, ConverterParameter={StaticResource Tools.Edit}}"/>
 					<MenuItem Header="View"/>
 				</Menu>
 			</StackPanel>

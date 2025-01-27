@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Laminar.Contracts.UserData;
 using Laminar.Domain.DataManagement;
+using Laminar.Domain.ValueObjects;
 
 namespace Laminar.Avalonia.ViewModels.Design;
 
@@ -31,6 +32,11 @@ public class MockDataManager : IPersistentDataManager
         public DataReadResult<object> GetItem(string key, Type type)
         {
             return _dataStore.TryGetValue(key, out var result) && result.GetType() == type ? new DataReadResult<object>(result) : default;
+        }
+
+        public IObservableValue<object> GetObservable(string key)
+        {
+            return new ObservableValue<object>(_dataStore[key]);
         }
 
         public DataSaveResult SetItem<T>(string key, T value) where T : notnull

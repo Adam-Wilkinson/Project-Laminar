@@ -2,7 +2,7 @@ using System.ComponentModel;
 
 namespace Laminar.Domain.ValueObjects;
 
-public interface IObservableValue<T> : INotifyPropertyChanged
+public interface IObservableValue<T> : IObservableValueBase
 {
     public T Value { get; }
 
@@ -24,4 +24,9 @@ public interface IObservableValue<T> : INotifyPropertyChanged
             valueChangedHandler.Invoke(observableValue, observableValue.Value);
         }
     }
+}
+
+public interface IObservableValueBase : INotifyPropertyChanged
+{
+    public static readonly PropertyChangedEventArgs ValueChangedEventArgs = new(nameof(IObservableValue<object>.Value));
 }
