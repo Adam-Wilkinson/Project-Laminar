@@ -8,9 +8,8 @@
 	  <LangVersion>latestmajor</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.1" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.1" />
+    <PackageReference Include="CommunityToolkit.Mvvm"/>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection"/>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Laminar.Contracts\Laminar.Contracts.csproj" />
