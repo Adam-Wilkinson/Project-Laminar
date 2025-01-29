@@ -1,3 +1,5 @@
+using System;
+using System.IO;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -9,12 +11,17 @@ using Laminar.Avalonia.Views;
 using Laminar.Contracts.Base.UserInterface;
 using Laminar.Implementation.Extensions;
 using Laminar.Implementation.Extensions.ServiceInitializers;
+using Laminar.Implementation.UserData;
 using Laminar.PluginFramework.Registration;
 using Microsoft.Extensions.DependencyInjection;
+using Serilog;
+using Serilog.Core;
 
 namespace Laminar.Avalonia;
 public partial class App : Application
 {
+    private static readonly string LocalFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Project Laminar");
+    
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
@@ -36,8 +43,14 @@ public partial class App : Application
                 .AddDescendantsSingleton<IAfterApplicationBuiltTarget>()
                 .AddSingleton(desktop.MainWindow.StorageProvider)
                 .AddSingleton<TopLevel>(desktop.MainWindow)
+                .AddLogging(builder => builder.AddSerilog(
+                    new LoggerConfiguration()
+                        .MinimumLevel.Verbose()
+                        .WriteTo.Console()
+                        .WriteTo.File(Path.Combine(LocalFolder, "logs.txt"))
+                        .CreateLogger()))
                 .BuildServiceProvider();
-
+            
             services.InitializeLaminar(FrontendDependency.Avalonia);
             DataTemplates.Add(new DataInterfaceTemplate(services.GetRequiredService<IDataInterfaceFactory>()));
             
