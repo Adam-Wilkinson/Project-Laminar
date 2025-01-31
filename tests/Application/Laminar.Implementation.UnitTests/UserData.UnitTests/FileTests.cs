@@ -1,6 +1,7 @@
 using FluentAssertions;
 using Laminar.Contracts;
 using Laminar.Contracts.UserData;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 using File = Laminar.Implementation.UserData.File;
 
@@ -11,6 +12,8 @@ public class FileTests
     private const string FileDirectory = "TestDirectory";
     private const string FileName = "TestContents.extension";
     private const string FilePath = FileDirectory + "\\" + FileName; 
+    
+    private readonly ILogger<File> _logger = Substitute.For<ILogger<File>>();
     
     [Fact]
     public void ShouldUpdateContents_WhenContentsSet()
@@ -24,7 +27,7 @@ public class FileTests
         mockFileSystem.CreateFileWatcher(Arg.Any<string>(), Arg.Any<string>()).Returns(mockFileWatcher);
         mockFileSystem.GetParent(FilePath).Returns(new DirectoryInfo(FileDirectory));
         
-        var sut = new File(mockFileSystem, FilePath);
+        var sut = new File(mockFileSystem, FilePath, _logger);
         using var mon = sut.Monitor();
 
         sut.Contents = newFileContents;
@@ -48,7 +51,7 @@ public class FileTests
         mockFileSystem.GetParent(FilePath).Returns(new DirectoryInfo(FileDirectory));
         mockFileSystem.GetFileName(FilePath).Returns(FileName);
         
-        var sut = new File(mockFileSystem, FilePath);
+        var sut = new File(mockFileSystem, FilePath, _logger);
         using var mon = sut.Monitor();
 
         sut.Contents = newFileContents;
@@ -71,7 +74,7 @@ public class FileTests
         mockFileSystem.GetParent(FilePath).Returns(new DirectoryInfo(FileDirectory));
         mockFileSystem.GetFileName(FilePath).Returns(FileName);
     
-        var sut = new File(mockFileSystem, FilePath);
+        var sut = new File(mockFileSystem, FilePath, _logger);
         using var mon = sut.Monitor();
         
         mockFileSystem.ReadBytes(FilePath).Returns(newFileContents);
@@ -95,7 +98,7 @@ public class FileTests
         mockFileSystem.GetParent(FilePath).Returns(new DirectoryInfo(FileDirectory));
         mockFileSystem.GetFileName(FilePath).Returns(FileName);
     
-        var sut = new File(mockFileSystem, FilePath);
+        var sut = new File(mockFileSystem, FilePath, _logger);
         using var mon = sut.Monitor();
         
         mockFileSystem.ReadBytes(FilePath).Returns(newFileContents);

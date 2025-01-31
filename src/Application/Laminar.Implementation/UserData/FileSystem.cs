@@ -2,10 +2,11 @@ using System.IO;
 using System.Threading;
 using Laminar.Contracts;
 using Laminar.Contracts.UserData;
+using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.UserData;
 
-public class FileSystem : IFileSystem
+public class FileSystem(ILogger<File> fileLogger) : IFileSystem
 {
     public bool Exists(string path) => Directory.Exists(path);
     
@@ -25,5 +26,5 @@ public class FileSystem : IFileSystem
     
     public string GetFileName(string path) => Path.GetFileName(path);
     
-    public IFile GetFile(string path) => new File(this, path);
+    public IFile GetFile(string path) => new File(this, path, fileLogger);
 }
