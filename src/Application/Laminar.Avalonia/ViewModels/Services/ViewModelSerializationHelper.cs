@@ -11,13 +11,8 @@ using Laminar.Domain.DataManagement;
 
 namespace Laminar.Avalonia.ViewModels.Services;
 
-public class ViewModelSerializationHelper(
-    IServiceProvider serviceProvider, 
-    TopLevel topLevel, 
-    IPersistentDataManager dataManager) 
-    : IAfterApplicationBuiltTarget
+public class ViewModelSerializationHelper(TopLevel topLevel, IPersistentDataManager dataManager) : IAfterApplicationBuiltTarget
 {
-    private readonly IServiceProvider _serviceProvider = serviceProvider;
     private readonly HashSet<ViewModelBase> _registeredViewModels = [];
     private readonly Dictionary<Type, Dictionary<string, ISerializedPropertyInfo>> _serializedPropertyInfos = [];
     private readonly IPersistentDataStore _dataStore = dataManager.GetDataStore(DataStoreKey.PersistentData);
@@ -40,7 +35,7 @@ public class ViewModelSerializationHelper(
                 && propertyInfo.GetMethod.Invoke(viewModel, []) is ViewModelBase childViewModel
                 && !_registeredViewModels.Contains(childViewModel))
             {
-                SerializeObservableProperties(childViewModel, dataStore, prefix + "." + propertyInfo.Name);
+                SerializeObservableProperties(childViewModel, dataStore, string.IsNullOrEmpty(prefix) ? prefix + "." + propertyInfo.Name : propertyInfo.Name);
             }
         }
 
