@@ -34,6 +34,7 @@
 			<conv:NullOrEmptyConverter x:Key="NullOrEmptyConverter"/>
 			<conv:ToolInstancingConverter x:Key="ToolInstancer"/>
 			<conv:ToStringConverter x:Key="ToStringConverter"/>
+			<conv:MillisecondsFromTimespanConverter x:Key="MillisecondsFromTimespanConverter"/>
 		</ResourceDictionary>
 	</Application.Resources>
 </Application>

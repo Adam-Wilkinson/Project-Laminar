@@ -1,6 +1,7 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:sys="using:System"
+                    xmlns:d="using:Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions"
                     xmlns:s="using:Laminar.Avalonia.Settings">
 	
 	<s:OptionsSetting x:Key="SettingsRoot.InterfaceSettings.ThemeVariant" Name="Theme" ValueIndex="0">
@@ -9,13 +10,17 @@
 		<s:OptionsSettingValue Name="Dark" Value="{x:Static ThemeVariant.Dark}"/>
 	</s:OptionsSetting>
 	
-	<s:TimeSpanSetting x:Key="SettingsRoot.InterfaceSettings.AnimationDuration" Name="Animation Duration" Value="0:0:0.2"/>
+	<s:TimeSpanSetting x:Key="SettingsRoot.InterfaceSettings.AnimationDuration" 
+	                   Name="Animation Duration" 
+	                   Value="0:0:0.2" 
+	                   DisplayValueConverter="{StaticResource MillisecondsFromTimespanConverter}">
+		<d:Slider Min="0" Max="300" FormatString="{}{0} ms"/>
+	</s:TimeSpanSetting>
 
 	<s:SettingsCategory x:Key="SettingsRoot" Name="Settings Root">
 		<s:SettingsCategory Name="Interface Settings">
 			<StaticResource ResourceKey="SettingsRoot.InterfaceSettings.AnimationDuration"/>
 			<StaticResource ResourceKey="SettingsRoot.InterfaceSettings.ThemeVariant"/>
-			<s:DoubleSetting Value="5.0" Name="Test Setting"/>
 		</s:SettingsCategory>
 	</s:SettingsCategory>
 	
