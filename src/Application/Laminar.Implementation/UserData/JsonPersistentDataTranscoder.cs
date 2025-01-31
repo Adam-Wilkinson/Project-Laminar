@@ -78,7 +78,7 @@ public class JsonPersistentDataTranscoder(JsonSerializerOptions jsonOptions) : I
 
     public JsonElement EncodeValue(object value) => JsonSerializer.SerializeToElement(value, jsonOptions);
 
-    public object DecodeValue(JsonElement element, Type targetType) => element.Deserialize(targetType)!;
+    public object? DecodeValue(JsonElement element, Type targetType) => element.Deserialize(targetType)!;
     
     public string FileExtension => ".json";
 }

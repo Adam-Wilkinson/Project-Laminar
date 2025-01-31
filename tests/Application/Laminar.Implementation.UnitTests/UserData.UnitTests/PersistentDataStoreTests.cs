@@ -1,9 +1,11 @@
 using System.Text;
 using System.Text.Json;
 using Laminar.Contracts;
+using Laminar.Contracts.UserData;
 using Laminar.Domain.DataManagement;
 using Laminar.Implementation.UserData;
 using Laminar.PluginFramework.Serialization;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 
 namespace Laminar.Implementation.UnitTests.UserData.UnitTests;
@@ -11,6 +13,7 @@ namespace Laminar.Implementation.UnitTests.UserData.UnitTests;
 public class PersistentDataStoreTests
 {
     private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
+    private static readonly ILogger<IPersistentDataStore> Logger = Substitute.For<ILogger<IPersistentDataStore>>();
     
     public class InitializeDefault
     {
@@ -34,7 +37,7 @@ public class PersistentDataStoreTests
             serializerMock.GetSerializedType(typeof(double)).Returns(typeof(double));
             serializerMock.SerializeObject(testValue).Returns(testValue);
 
-            var sut = new PersistentDataStore<JsonElement>(fileMock, serializerMock, new JsonPersistentDataTranscoder(JsonOptions));
+            var sut = new PersistentDataStore<JsonElement>(fileMock, serializerMock, new JsonPersistentDataTranscoder(JsonOptions), Logger);
             sut.InitializeDefaultValue(testValueKey, testValue);
 
             Assert.Equal(testValue, sut.GetItem<double>(testValueKey).Result);
@@ -57,7 +60,7 @@ public class PersistentDataStoreTests
             serializerMock.SerializeObject(Arg.Any<double>()).Returns(ci => ci.Arg<double>());
             serializerMock.DeserializeObject(Arg.Any<double>(), typeof(double)).Returns(ci => ci.Arg<double>());
 
-            var sut = new PersistentDataStore<JsonElement>(fileMock, serializerMock, new JsonPersistentDataTranscoder(JsonOptions));
+            var sut = new PersistentDataStore<JsonElement>(fileMock, serializerMock, new JsonPersistentDataTranscoder(JsonOptions), Logger);
             sut.InitializeDefaultValue(testValueKey, defaultValue);
 
             Assert.Equal(savedValue, sut.GetItem<double>(testValueKey).Result);
@@ -81,7 +84,7 @@ public class PersistentDataStoreTests
             serializerMock.SerializeObject(Arg.Any<double>()).Returns(ci => ci.Arg<double>());
             serializerMock.DeserializeObject(Arg.Any<double>(), typeof(double)).Returns(ci => ci.Arg<double>());
             
-            var sut = new PersistentDataStore<JsonElement>(fileMock, serializerMock, new JsonPersistentDataTranscoder(JsonOptions));
+            var sut = new PersistentDataStore<JsonElement>(fileMock, serializerMock, new JsonPersistentDataTranscoder(JsonOptions), Logger);
             sut.InitializeDefaultValue(testValueKey, initialValue);
 
             sut.SetItem(testValueKey, newValue);
@@ -105,7 +108,7 @@ public class PersistentDataStoreTests
             serializerMock.SerializeObject(Arg.Any<double>(), typeof(double)).Returns(ci => ci.Arg<double>());
             serializerMock.DeserializeObject(Arg.Any<double>(), typeof(double)).Returns(ci => ci.Arg<double>());
             
-            var sut = new PersistentDataStore<JsonElement>(fileMock, serializerMock, new JsonPersistentDataTranscoder(JsonOptions));
+            var sut = new PersistentDataStore<JsonElement>(fileMock, serializerMock, new JsonPersistentDataTranscoder(JsonOptions), Logger);
             sut.InitializeDefaultValue(testValueKey, initialValue);
 
             sut.SetItem(testValueKey, newValue);
@@ -129,7 +132,7 @@ public class PersistentDataStoreTests
             serializerMock.GetSerializedType(typeof(double)).Returns(typeof(double));
             serializerMock.SerializeObject(testValue).Returns(testValue);
             
-            var sut = new PersistentDataStore<JsonElement>(fileMock, serializerMock, new JsonPersistentDataTranscoder(JsonOptions));
+            var sut = new PersistentDataStore<JsonElement>(fileMock, serializerMock, new JsonPersistentDataTranscoder(JsonOptions), Logger);
             
             Assert.Equal(DataIoStatus.DataNotFound, sut.SetItem(testValueKey, testValue).Status);
         }

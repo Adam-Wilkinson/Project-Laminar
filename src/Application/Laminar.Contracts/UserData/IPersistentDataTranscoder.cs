@@ -12,5 +12,5 @@ public interface IPersistentDataTranscoder<TEncodedValue>
 
     public TEncodedValue EncodeValue(object value);
 
-    public object DecodeValue(TEncodedValue element, Type targetType);
+    public object? DecodeValue(TEncodedValue element, Type targetType);
 }
