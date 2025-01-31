@@ -28,7 +28,15 @@ public class File : IFile
         _logger = logger;
         _fileSystem = fileSystem;
         Path = filePath;
-        InitiateReadAttempt().Wait();
+
+        if (!_fileSystem.Exists(Path))
+        {
+            _fileSystem.CreateFile(Path);
+        }
+        else
+        {
+            InitiateReadAttempt().Wait();   
+        }
         
         _fileWatcher = fileSystem.CreateFileWatcher(_fileSystem.GetParent(Path)!.FullName, _fileSystem.GetFileName(Path));
         _fileWatcher.NotifyFilter = NotifyFilters.LastWrite;

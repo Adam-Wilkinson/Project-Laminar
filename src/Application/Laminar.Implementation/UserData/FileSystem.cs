@@ -11,11 +11,13 @@ public class FileSystem(ILogger<File> fileLogger) : IFileSystem
     public bool Exists(string path) => Directory.Exists(path);
     
     public DirectoryInfo? GetParent(string path) => Directory.GetParent(path);
+    
     public IFileWatcher CreateFileWatcher(string path, string filter = "") => string.IsNullOrEmpty(filter) ? new FileWatcher(path) : new FileWatcher(path, filter); 
 
     public FileStream CreateFile(string path) => System.IO.File.Create(path);
     
     public StreamWriter SetFileText(string path) => System.IO.File.CreateText(path);
+    
     public void WriteBytesAsync(string path, byte[] bytes, CancellationToken cancellationToken = default) => System.IO.File.WriteAllBytesAsync(path, bytes, cancellationToken);
 
     public byte[] ReadBytes(string path) => System.IO.File.ReadAllBytes(path);

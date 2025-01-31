@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Threading;
 using Laminar.Contracts;
 using Laminar.Contracts.UserData;
 using Laminar.Domain.DataManagement;
@@ -18,6 +19,7 @@ public class PersistentDataStore<TEncodedValue> : IPersistentDataStore where TEn
     private readonly ILogger<IPersistentDataStore> _logger;
     
     private readonly Dictionary<string, PersistentDataValue> _serializedDataCache = [];
+    private DateTime? _lastWrite;
     
     public PersistentDataStore(
         IFile file, 
@@ -35,6 +37,9 @@ public class PersistentDataStore<TEncodedValue> : IPersistentDataStore where TEn
 
     private void FileChanged(object? sender, EventArgs e)
     {
+        // Don't read our own writes, makes usage awful
+        if (_lastWrite.HasValue && DateTime.Now - _lastWrite.Value < TimeSpan.FromMilliseconds(200)) return;
+        
         _persistentDataTranscoder.DecodeByteArray(_file.Contents, (name, encodedValue) =>
         {
             if (!_serializedDataCache.TryGetValue(name, out var value))
@@ -119,6 +124,7 @@ public class PersistentDataStore<TEncodedValue> : IPersistentDataStore where TEn
     private void SyncToFile()
     {
         _file.Contents = _persistentDataTranscoder.EncodeDictionary(_serializedDataCache, eachValue => eachValue.EncodedValue);
+        _lastWrite = DateTime.Now;
     }
     
     private class ValueNotInitializedException(string valueName) : Exception($"Value {valueName} has not been initialized");
@@ -199,6 +205,7 @@ public class PersistentDataStore<TEncodedValue> : IPersistentDataStore where TEn
             else
             {
                 Value = _defaultValue;
+                _hasEncodedValue = true;
             }
         }
 
