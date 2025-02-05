@@ -37,7 +37,7 @@ public class DefaultSerializer<T> : TypeSerializer<T, Dictionary<string, object>
     public DefaultSerializer(ISerializer serializer)
     {
         _properties = typeof(T).GetProperties(BindingFlags.Public)
-            .Where(propertyInfo => propertyInfo is {SetMethod: { } setter, GetMethod: { } getter})
+            .Where(propertyInfo => propertyInfo is { SetMethod: { } setter, GetMethod: { } getter, PropertyType: not T })
             .Select(propertyInfo => new SerializablePropertyInfo(
                 propertyInfo.Name, 
                 serializer.GetSerializedType(typeof(T)),

@@ -18,10 +18,8 @@
 	</s:TimeSpanSetting>
 
 	<s:SettingsCategory x:Key="SettingsRoot" Name="Settings Root">
-		<s:SettingsCategory Name="Interface Settings">
-			<StaticResource ResourceKey="SettingsRoot.InterfaceSettings.AnimationDuration"/>
-			<StaticResource ResourceKey="SettingsRoot.InterfaceSettings.ThemeVariant"/>
-		</s:SettingsCategory>
+		<StaticResource ResourceKey="SettingsRoot.InterfaceSettings.AnimationDuration"/>
+		<StaticResource ResourceKey="SettingsRoot.InterfaceSettings.ThemeVariant"/>
 	</s:SettingsCategory>
 	
 	<sys:Double x:Key="H1FontSize">34</sys:Double>

@@ -151,7 +151,7 @@ public class PersistentDataStore<TEncodedValue> : IPersistentDataStore where TEn
             get => _hasEncodedValue ? _encodedValue : throw new ValueNotInitializedException(ValueName);
             set
             {
-                if (value.Equals(_encodedValue))
+                if (EqualityComparer<TEncodedValue>.Default.Equals(value, _encodedValue))
                 {
                     return;
                 }

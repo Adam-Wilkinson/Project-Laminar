@@ -1,3 +1,4 @@
+using System.Linq;
 using Avalonia;
 using Avalonia.Collections;
 using Avalonia.Metadata;
@@ -17,6 +18,10 @@ public class OptionsSetting : Setting, IInterfaceData<EnumDropdown, object>
         SelectedOptionProperty.Changed.AddClassHandler<OptionsSetting>((setting, args) =>
         {
             setting.Value = args.GetNewValue<OptionsSettingValue>().Value!;
+        });
+        ValueProperty.Changed.AddClassHandler<OptionsSetting>((setting, args) =>
+        {
+            ((IInterfaceData<object>)setting).Value = setting.Options.FirstOrDefault(x => x.Value == args.GetNewValue<object>())!;
         });
     }
     

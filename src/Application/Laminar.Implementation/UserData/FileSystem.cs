@@ -8,7 +8,7 @@ namespace Laminar.Implementation.UserData;
 
 public class FileSystem(ILogger<File> fileLogger) : IFileSystem
 {
-    public bool Exists(string path) => Directory.Exists(path);
+    public bool Exists(string path) => Directory.Exists(path) || System.IO.File.Exists(path);
     
     public DirectoryInfo? GetParent(string path) => Directory.GetParent(path);
     

@@ -13,7 +13,11 @@ public class DataInterfaceTemplate(TopLevel topLevel, IDataInterfaceFactory data
         if (param is not IInterfaceData interfaceData) return null;
         
         var result = dataInterfaceFactory.GetDataInterface<Control>(interfaceData);
+        
+        // Caching the value is required because sometimes Avalonia data coercion changes the value before data validation is fully initialized
+        var valueCache = result.InterfaceData.Value;
         result.InterfaceFrontend.DataContext = result.InterfaceData;
+        (result.InterfaceFrontend.DataContext as IInterfaceData)!.Value = valueCache;
         return result.InterfaceFrontend;
     }
 

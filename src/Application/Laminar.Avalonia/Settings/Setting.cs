@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.Globalization;
 using Avalonia;
 using Avalonia.Data.Converters;

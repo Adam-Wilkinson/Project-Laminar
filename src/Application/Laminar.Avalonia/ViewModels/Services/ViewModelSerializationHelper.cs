@@ -29,7 +29,6 @@ public class ViewModelSerializationHelper(TopLevel topLevel, IPersistentDataMana
     public void SerializeObservableProperties(ViewModelBase viewModel, IPersistentDataStore dataStore, string prefix = "")
     {
         _registeredViewModels.Add(viewModel);
-        Debug.WriteLine($"Current prefix is {prefix} looking at {viewModel}");
         foreach (var propertyInfo in viewModel.GetType().GetProperties())
         {
             if (propertyInfo.GetMethod is not null 
@@ -37,7 +36,6 @@ public class ViewModelSerializationHelper(TopLevel topLevel, IPersistentDataMana
                 && propertyInfo.GetMethod.Invoke(viewModel, []) is ViewModelBase childViewModel
                 && !_registeredViewModels.Contains(childViewModel))
             {
-                Debug.WriteLine($"New view model: {propertyInfo.Name}, prefix will be {(string.IsNullOrEmpty(prefix) ? propertyInfo.Name : (prefix + "." + propertyInfo.Name))}");
                 SerializeObservableProperties(childViewModel, dataStore, string.IsNullOrEmpty(prefix) ? propertyInfo.Name : (prefix + "." + propertyInfo.Name));
             }
         }
@@ -45,7 +43,6 @@ public class ViewModelSerializationHelper(TopLevel topLevel, IPersistentDataMana
         var serializedPropertyInfos = GetSerializedPropertyInfos(viewModel.GetType(), viewModel);
         foreach (var property in serializedPropertyInfos.Values)
         {
-            Debug.WriteLine($"Initializing property {property.ValueKey(prefix)}");
             property.InitializeToDataStore(prefix, viewModel, dataStore);
             dataStore.GetObservable(property.ValueKey(prefix)).ValueChanged += (_, _) =>
             {
