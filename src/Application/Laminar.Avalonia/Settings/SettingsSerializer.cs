@@ -20,20 +20,22 @@ public class SettingsSerializer(TopLevel topLevel, IPersistentDataManager persis
             if (x is SettingsCategory category && !_initialized)
             {
                 _initialized = true;
-                Serialize(category);
+                SerializeCategory(category, "");
             }
         }));
     }
 
     private void Serialize(SettingsItem settingsItem, string prefix = "")
     {
+        var key = string.IsNullOrEmpty(prefix) ? settingsItem.Name : prefix + "." + settingsItem.Name;
+        
         switch (settingsItem)
         {
             case SettingsCategory category:
-                SerializeCategory(category, prefix + "." + settingsItem.Name);
+                SerializeCategory(category, key);
                 break;
             case Setting setting:
-                SerializeSetting(setting, prefix + "." + settingsItem.Name);
+                SerializeSetting(setting, key);
                 break;
         }
     }
