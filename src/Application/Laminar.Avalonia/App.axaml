@@ -11,11 +11,6 @@
 	        <Button Theme="{StaticResource ToolButton}"/>
         </DataTemplate>
     </Application.DataTemplates>
-  
-    <Application.Styles>
-        <FluentTheme />
-        <StyleInclude Source="XamlAssets/Styles/FontStyles.axaml"/>
-    </Application.Styles>
 
 	<Application.Resources>
 		<ResourceDictionary>
@@ -35,6 +30,12 @@
 			<conv:ToolInstancingConverter x:Key="ToolInstancer"/>
 			<conv:ToStringConverter x:Key="ToStringConverter"/>
 			<conv:MillisecondsFromTimespanConverter x:Key="MillisecondsFromTimespanConverter"/>
+			<conv:MultiplyConverter x:Key="MultiplyConverter"/>
 		</ResourceDictionary>
 	</Application.Resources>
+	
+	<Application.Styles>
+		<FluentTheme />
+		<StyleInclude Source="XamlAssets/Styles/FontStyles.axaml"/>
+	</Application.Styles>
 </Application>

@@ -2,9 +2,11 @@ using System.Collections.Specialized;
 using System.Diagnostics;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Reactive;
 using Avalonia.VisualTree;
+using Laminar.PluginFramework.UserInterface;
 
 namespace BasicFunctionality.Avalonia.UserControls;
 
@@ -77,8 +79,10 @@ public partial class SliderEditor : UserControl
                 SetIsEnteringValue(false);
             }
         };
+
+        NumberDisplay[!TextBlock.TextProperty] = new Binding { Path = nameof(IInterfaceData.Value),  };
     }
-    
+
     private void SetIsEnteringValue(bool isEnteringValue)
     {
         MainSlider.IsVisible = !isEnteringValue;
@@ -89,6 +93,14 @@ public partial class SliderEditor : UserControl
         {
             NumberEntry.Value = (decimal)MainSlider.Value;
             NumberEntry.Focus();
+        }
+    }
+
+    protected override void OnDataContextChanged(EventArgs e)
+    {
+        if (DataContext is IInterfaceData { Definition: Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions.Slider sliderDefinition })
+        {
+            NumberDisplay[!TextBlock.TextProperty] = new Binding { Path = nameof(IInterfaceData.Value), StringFormat = sliderDefinition.FormatString };
         }
     }
 }

@@ -1,46 +1,80 @@
 <Styles xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:sys="using:System"
+        xmlns:s="using:Laminar.Avalonia.Settings">
+
+    <Styles.Resources>
+        <sys:Double x:Key="H1FontSize">34</sys:Double>
+        <sys:Double x:Key="H2FontSize">24</sys:Double>
+        <sys:Double x:Key="P1FontSize">18</sys:Double>
+        <sys:Double x:Key="P2FontSize">14</sys:Double>
+    </Styles.Resources>
+    
     <Style Selector="Run.Emphasis">
         <Setter Property="Foreground" Value="{DynamicResource LaminarForegroundEmphasis}"/>
     </Style>
     
     <Style Selector="TextBlock.h1">
-        <Setter Property="FontSize" Value="{DynamicResource H1FontSize}"/>
+        <Setter Property="FontSize" Value="{Binding Value, 
+            Source={StaticResource SettingsRoot.InterfaceSettings.UiScale},
+            DataType=s:DoubleSetting,
+            Converter={StaticResource MultiplyConverter}, ConverterParameter={StaticResource H1FontSize}}"/>
         <Setter Property="FontWeight" Value="DemiBold"/>
     </Style>
         
     <Style Selector="TextBlock.h2">
-        <Setter Property="FontSize" Value="{DynamicResource H2FontSize}"/>
+        <Setter Property="FontSize" Value="{Binding Value, 
+            Source={StaticResource SettingsRoot.InterfaceSettings.UiScale},
+            DataType=s:DoubleSetting,
+            Converter={StaticResource MultiplyConverter}, ConverterParameter={StaticResource H2FontSize}}"/>
         <Setter Property="FontWeight" Value="Medium"/>
     </Style>
         
     <Style Selector="TextBlock">
-        <Setter Property="FontSize" Value="{DynamicResource B1FontSize}"/>
+        <Setter Property="FontSize" Value="{Binding Value, 
+            Source={StaticResource SettingsRoot.InterfaceSettings.UiScale},
+            DataType=s:DoubleSetting,
+            Converter={StaticResource MultiplyConverter}, ConverterParameter={StaticResource P1FontSize}}"/>
         <Setter Property="FontWeight" Value="Normal"/>
     </Style>
         
     <Style Selector="TextBlock.b2">
-        <Setter Property="FontSize" Value="{DynamicResource B2FontSize}"/>
+        <Setter Property="FontSize" Value="{Binding Value, 
+            Source={StaticResource SettingsRoot.InterfaceSettings.UiScale},
+            DataType=s:DoubleSetting,
+            Converter={StaticResource MultiplyConverter}, ConverterParameter={StaticResource P2FontSize}}"/>
         <Setter Property="FontWeight" Value="SemiLight"/>
     </Style>
         
     <Style Selector=":is(TemplatedControl).h1">
-        <Setter Property="FontSize" Value="{DynamicResource H1FontSize}"/>
+        <Setter Property="FontSize" Value="{Binding Value, 
+            Source={StaticResource SettingsRoot.InterfaceSettings.UiScale},
+            DataType=s:DoubleSetting,
+            Converter={StaticResource MultiplyConverter}, ConverterParameter={StaticResource H1FontSize}}"/>
         <Setter Property="FontWeight" Value="DemiBold"/>
     </Style>
         
     <Style Selector=":is(TemplatedControl).h2">
-        <Setter Property="FontSize" Value="{DynamicResource H2FontSize}"/>
+        <Setter Property="FontSize" Value="{Binding Value, 
+            Source={StaticResource SettingsRoot.InterfaceSettings.UiScale},
+            DataType=s:DoubleSetting,
+            Converter={StaticResource MultiplyConverter}, ConverterParameter={StaticResource H2FontSize}}"/>
         <Setter Property="FontWeight" Value="Medium"/>
     </Style>
         
     <Style Selector=":is(TemplatedControl)">
-        <Setter Property="FontSize" Value="{DynamicResource B1FontSize}"/>
+        <Setter Property="FontSize" Value="{Binding Value, 
+            Source={StaticResource SettingsRoot.InterfaceSettings.UiScale},
+            DataType=s:DoubleSetting,
+            Converter={StaticResource MultiplyConverter}, ConverterParameter={StaticResource P1FontSize}}"/>
         <Setter Property="FontWeight" Value="Normal"/>
     </Style>
         
     <Style Selector=":is(TemplatedControl).b2">
-        <Setter Property="FontSize" Value="{DynamicResource B2FontSize}"/>
+        <Setter Property="FontSize" Value="{Binding Value, 
+            Source={StaticResource SettingsRoot.InterfaceSettings.UiScale},
+            DataType=s:DoubleSetting,
+            Converter={StaticResource MultiplyConverter}, ConverterParameter={StaticResource P2FontSize}}"/>
         <Setter Property="FontWeight" Value="SemiLight"/>
     </Style>
         

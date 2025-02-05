@@ -1,6 +1,6 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:sys="using:System"
+
                     xmlns:d="using:Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions"
                     xmlns:s="using:Laminar.Avalonia.Settings">
 	
@@ -14,18 +14,18 @@
 	                   Name="Animation Duration" 
 	                   Value="0:0:0.2" 
 	                   DisplayValueConverter="{StaticResource MillisecondsFromTimespanConverter}">
-		<d:Slider Min="0" Max="300" FormatString="{}{0} ms"/>
+		<d:Slider Min="0" Max="300" FormatString="{}{0:0} ms"/>
 	</s:TimeSpanSetting>
 
+	<s:DoubleSetting x:Key="SettingsRoot.InterfaceSettings.UiScale" Name="User Interface Scale" Value="1">
+		<d:Slider Min="0.4" Max="2.0" FormatString="{}{0:P0}"></d:Slider>
+	</s:DoubleSetting>
+	
 	<s:SettingsCategory x:Key="SettingsRoot" Name="Settings Root">
 		<StaticResource ResourceKey="SettingsRoot.InterfaceSettings.AnimationDuration"/>
 		<StaticResource ResourceKey="SettingsRoot.InterfaceSettings.ThemeVariant"/>
+		<StaticResource ResourceKey="SettingsRoot.InterfaceSettings.UiScale"/>
 	</s:SettingsCategory>
-	
-	<sys:Double x:Key="H1FontSize">34</sys:Double>
-    <sys:Double x:Key="H2FontSize">24</sys:Double>
-    <sys:Double x:Key="B1FontSize">18</sys:Double>
-    <sys:Double x:Key="B2FontSize">14</sys:Double>
 	
     <Easing x:Key="AnimationEasing">QuadraticEaseInOut</Easing>
 	

@@ -104,7 +104,6 @@
 				<TextBlock IsHitTestVisible="False" 
 				           HorizontalAlignment="Center" 
 				           VerticalAlignment="Center" 
-				           Text="{Binding Value, StringFormat='{}{0:0}'}"
 				           Name="NumberDisplay"/>
 				<NumericUpDown ShowButtonSpinner="False"
 				               IsVisible="False"
