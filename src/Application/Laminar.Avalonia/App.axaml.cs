@@ -8,6 +8,7 @@ using Avalonia.Markup.Xaml;
 using Laminar.Avalonia.InitializationTargets;
 using Laminar.Avalonia.ViewModels;
 using Laminar.Avalonia.Views;
+using Laminar.Contracts.Base.PluginLoading;
 using Laminar.Contracts.Base.UserInterface;
 using Laminar.Implementation.Extensions;
 using Laminar.Implementation.Extensions.ServiceInitializers;
@@ -35,10 +36,11 @@ public partial class App : Application
             desktop.MainWindow = new MainWindow();
             
             var services = new ServiceCollection()
-                .AddLaminarServices()
+                .AddLaminarServices(FrontendDependency.Avalonia)
                 .AddDescendantsTransient<ViewModelBase>()
                 .AddDescendantsSingleton<IBeforeApplicationBuiltTarget>()
                 .AddDescendantsSingleton<IAfterApplicationBuiltTarget>()
+                .AddDescendantsSingleton<IPlugin>()
                 .AddSingleton(desktop.MainWindow.StorageProvider)
                 .AddSingleton<TopLevel>(desktop.MainWindow)
                 .AddLogging(builder => builder.AddSerilog(
@@ -49,12 +51,18 @@ public partial class App : Application
                         .CreateLogger()))
                 .BuildServiceProvider();
             
-            services.InitializeLaminar(FrontendDependency.Avalonia);
+            services.InitializeLaminar();
             services.GetServices<IBeforeApplicationBuiltTarget>().Initialize();
             
             desktop.MainWindow.DataContext = services.GetRequiredService<MainWindowViewModel>();
 
             services.GetServices<IAfterApplicationBuiltTarget>().Initialize();
+            
+            var pluginLoader = services.GetRequiredService<IPluginLoader>();
+            foreach (var avaloniaPlugin in services.GetServices<IPlugin>())
+            {
+                pluginLoader.Register(avaloniaPlugin);
+            }
         }
 
         base.OnFrameworkInitializationCompleted();

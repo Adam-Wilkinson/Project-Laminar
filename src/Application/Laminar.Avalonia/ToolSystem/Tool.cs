@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Avalonia;
 using Avalonia.Collections;
+using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using Avalonia.Data;
 using Avalonia.Input;
@@ -35,7 +36,7 @@ public class Tool : AvaloniaObject, ITemplate<object?, ToolInstance?>, IEnumerab
 {
     public static readonly string ToolRootKey = "ToolRoot"; 
     
-    public static readonly StyledProperty<KeyGesture?> GestureProperty = AvaloniaProperty.Register<Tool, KeyGesture?>(nameof(Gesture));
+    public static readonly StyledProperty<KeyGesture?> GestureProperty = AvaloniaProperty.Register<Tool, KeyGesture?>(nameof(Gesture), new KeyGesture(Key.None));
 
     public static readonly StyledProperty<IDataTemplate?> IconTemplateProperty = AvaloniaProperty.Register<Tool, IDataTemplate?>(nameof(IconTemplate));
     
@@ -84,7 +85,9 @@ public class Tool : AvaloniaObject, ITemplate<object?, ToolInstance?>, IEnumerab
             }
         }
     }
-    
+
+    public Control? DefaultPopupTarget { get; set; }
+
     public AvaloniaList<Tool> ChildTools { get; } = [];
     
     public ToolInstance? Build(object? param)
@@ -98,6 +101,7 @@ public class Tool : AvaloniaObject, ITemplate<object?, ToolInstance?>, IEnumerab
         {
             DataContext = param,
             Tool = this,
+            PopupTarget = DefaultPopupTarget,
         };
 
         if (GetCommandBinding() is { } commandBinding)

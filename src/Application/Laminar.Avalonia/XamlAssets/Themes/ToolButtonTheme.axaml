@@ -36,7 +36,7 @@
                         </TextBlock.Text>
                     </TextBlock>
                     <TextBlock Classes="b2"
-                               IsVisible="{Binding Tool.Gesture, Converter={x:Static ObjectConverters.IsNotNull}}">
+                               IsVisible="{Binding Tool.Gesture, Converter={StaticResource HasValueConverter}}">
                         Currently bound to <Run Classes="Emphasis" FontWeight="Normal" Text="{Binding Tool.Gesture}"/>
                     </TextBlock>
                     <TextBlock Classes="b2">Press <Run Classes="Emphasis" 
@@ -73,9 +73,10 @@
         <Setter Property="Tag" Value="{Binding ChildTools, Converter={StaticResource NullOrEmptyConverter}}"/>
         <Style Selector="^[Tag=true]">
             <Setter Property="Flyout">
+                <!-- There is a MenuFlyout which does this simpler, but the bindings don't work. If that's fixed, this can be simplified-->
                 <Flyout FlyoutPresenterTheme="{StaticResource NoBorderFlyoutPresenter}">
                     <MenuFlyoutPresenter ItemsSource="{Binding ChildTools}" Margin="0" Padding="0" BorderThickness="0"
-                                        ItemContainerTheme="{DynamicResource ToolMenuItemTheme}"/>
+                                         ItemContainerTheme="{DynamicResource ToolMenuItemTheme}" Cursor="Arrow"/>
                 </Flyout>
             </Setter>
         </Style>

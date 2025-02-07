@@ -9,17 +9,25 @@ using Laminar.PluginFramework.Registration;
 
 namespace Laminar.Implementation.Base.PluginLoading;
 
-public class PluginLoader
+public class PluginLoader(FrontendDependency frontend, IPluginHostFactory pluginHostFactory) : IPluginLoader
 {
     private static readonly string[] AutoLoadPlugins = ["Basic Functionality UI", "Base plugin functionality"];//, "Keyboard and Mouse interface", "Windows Base" };
-    private readonly FrontendDependency _frontend;
-    private readonly IPluginHostFactory _pluginHostFactory;
-
-    public PluginLoader(string path, FrontendDependency frontend, IPluginHostFactory pluginHostFactory)
+    
+    public void Register(IPlugin plugin)
     {
-        _frontend = frontend;
-        _pluginHostFactory = pluginHostFactory;
-        List<IRegisteredPlugin> registeredPlugins = [];
+        RegisteredPlugin registeredPlugin = new(plugin, pluginHostFactory);
+        if (AutoLoadPlugins.Contains(registeredPlugin.PluginName))
+        {
+            registeredPlugin.Load();
+        }
+        
+        RegisteredPlugins.Add(registeredPlugin);
+    }
+    
+    public List<IRegisteredPlugin> RegisteredPlugins { get; } = [];
+    
+    public void LoadInbuiltFromPath(string path)
+    {
         foreach (var pluginPath in InbuiltPluginFinder.GetInbuiltPlugins(path))
         {
             PluginLoadContext pluginContext = new(pluginPath);
@@ -28,10 +36,7 @@ public class PluginLoader
             {
                 try
                 {
-                    if (LoadModule(module) is { } plugin)
-                    {
-                        registeredPlugins.Add(plugin);
-                    }
+                    LoadModule(module);
                 }
                 catch (Exception e)
                 {
@@ -39,15 +44,13 @@ public class PluginLoader
                 }
             }
         }
-
-        RegisteredPlugins = registeredPlugins.ToArray();
     }
-
-    private RegisteredPlugin? LoadModule(Module module)
+    
+    private void LoadModule(Module module)
     {
-        if (module.GetCustomAttribute<HasFrontendDependencyAttribute>() is { } attr && attr.FrontendDependency != _frontend)
+        if (module.GetCustomAttribute<HasFrontendDependencyAttribute>() is { } attr && attr.FrontendDependency != frontend)
         {
-            return null;
+            return;
         }
 
         foreach (var type in module.GetTypes())
@@ -55,29 +58,20 @@ public class PluginLoader
             if (!typeof(IPlugin).IsAssignableFrom(type) || type.IsInterface ||
                 Activator.CreateInstance(type) is not IPlugin plugin) continue;
             
-            RegisteredPlugin registeredPlugin = new(plugin, _pluginHostFactory);
-            if (AutoLoadPlugins.Contains(registeredPlugin.PluginName))
-            {
-                registeredPlugin.Load();
-            }
-            return registeredPlugin;
+            Register(plugin);
         }
-
-        return null;
     }
-
-    public IRegisteredPlugin[] RegisteredPlugins { get; }
 
     private class RegisteredPlugin : IRegisteredPlugin
     {
         private readonly IPluginHost _host;
         private readonly IPlugin _plugin;
-        private readonly Dictionary<string, Type> _registeredNodesByName = new();
-        private readonly HashSet<Type> _registeredNodes = new();
+        private readonly Dictionary<string, Type> _registeredNodesByName = [];
+        private readonly HashSet<Type> _registeredNodes = [];
 
         public RegisteredPlugin(IPlugin plugin, IPluginHostFactory pluginHostFactory)
         {
-            _host = pluginHostFactory.GetPluginhost(this);
+            _host = pluginHostFactory.GetPluginHost(this);
             _plugin = plugin;
             PluginName = plugin.PluginName;
             PluginDescription = plugin.PluginDescription;

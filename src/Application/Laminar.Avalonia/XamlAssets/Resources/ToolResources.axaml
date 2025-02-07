@@ -255,5 +255,6 @@
         <StaticResource ResourceKey="Tools.Edit"/>
         <StaticResource ResourceKey="Tools.FileNavigator"/>
         <StaticResource ResourceKey="Tools.Window"/>
+        <t:PropertySetterTool Gesture="Ctrl+Shift+S" x:DataType="s:Setting" Name="Set Setting Value" PropertyBinding="{Binding Value}"/>
     </t:Toolbox>
 </ResourceDictionary>

@@ -47,7 +47,9 @@ public class ToolKeyBindManager(TopLevel topLevel) : IAfterApplicationBuiltTarge
             [!KeyBinding.GestureProperty] = tool[!Tool.GestureProperty],
             Command = new ExecuteToolAtCursor(tool, this),
         });
-
+        
+        tool.DefaultPopupTarget ??= _topLevel;
+        
         foreach (var childTool in tool.ChildTools)
         {
             BindTool(childTool);

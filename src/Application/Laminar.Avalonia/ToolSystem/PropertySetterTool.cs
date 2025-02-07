@@ -6,6 +6,10 @@ using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Data;
 using Avalonia.Data.Converters;
+using Avalonia.Input;
+using Avalonia.Interactivity;
+using Laminar.PluginFramework.UserInterface;
+using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
 namespace Laminar.Avalonia.ToolSystem;
 
@@ -35,12 +39,17 @@ public class PropertySetterTool : Tool
         {
             bindingBase.Mode = BindingMode.TwoWay;
         }
+
+        if (DefaultPopupTarget is null)
+        {
+            
+        }
         
-        return new Binding { Converter = new GetPropertySetterCommandConverter(PropertyBinding, CanChangeValueBinding) };
+        return new Binding { Converter = new GetPropertySetterCommandConverter(PropertyBinding, CanChangeValueBinding, DefaultPopupTarget, DescriptionBinding) };
     }
 }
 
-public class GetPropertySetterCommandConverter(IBinding? propertyBinding, IBinding? canExecuteBinding) : IValueConverter
+public class GetPropertySetterCommandConverter(IBinding? propertyBinding, IBinding? canExecuteBinding, Control? popupTarget, IBinding? descriptionBinding) : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
@@ -51,15 +60,20 @@ public class GetPropertySetterCommandConverter(IBinding? propertyBinding, IBindi
 
         if (propertyBinding is not null)
         {
-            boundPropertyContainer[!BoundPropertyContainer.BoundValueProperty] = propertyBinding;
+            boundPropertyContainer[!BoundPropertyContainer.ValueProperty] = propertyBinding;
         }
         
         if (canExecuteBinding is not null)
         {
-            boundPropertyContainer[!BoundPropertyContainer.CanChangeValueProperty] = canExecuteBinding;
+            boundPropertyContainer[!BoundPropertyContainer.IsUserEditableProperty] = canExecuteBinding;
+        }
+
+        if (descriptionBinding is not null)
+        {
+            boundPropertyContainer[!StyledElement.NameProperty] = descriptionBinding;
         }
         
-        return new PropertySetterCommand(boundPropertyContainer);
+        return new PropertySetterCommand(boundPropertyContainer, popupTarget);
     }
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
@@ -68,59 +82,88 @@ public class GetPropertySetterCommandConverter(IBinding? propertyBinding, IBindi
     }
 }
 
-public class BoundPropertyContainer : StyledElement
+public class BoundPropertyContainer : StyledElement, IInterfaceData
 {
-    public static readonly StyledProperty<object?> BoundValueProperty =
-        AvaloniaProperty.Register<BoundPropertyContainer, object?>(nameof(BoundValue));
+    public static readonly StyledProperty<object> ValueProperty =
+        AvaloniaProperty.Register<BoundPropertyContainer, object>(nameof(Value));
 
-    public static readonly StyledProperty<bool> CanChangeValueProperty =
-        AvaloniaProperty.Register<BoundPropertyContainer, bool>(nameof(CanChangeValue), defaultValue: true);
+    public static readonly StyledProperty<bool> IsUserEditableProperty =
+        AvaloniaProperty.Register<BoundPropertyContainer, bool>(nameof(IsUserEditable), defaultValue: true);
     
-    public object? BoundValue
+    public object Value
     {
-        get => GetValue(BoundValueProperty);
-        set => SetValue(BoundValueProperty, value);
+        get => GetValue(ValueProperty);
+        set => SetValue(ValueProperty, value);
+    }
+    
+    public IUserInterfaceDefinition? Definition { get; }
+
+    public bool IsUserEditable
+    {
+        get => GetValue(IsUserEditableProperty);
+        set => SetValue(IsUserEditableProperty, value);
     }
 
-    public bool CanChangeValue
-    {
-        get => GetValue(CanChangeValueProperty);
-        set => SetValue(CanChangeValueProperty, value);
-    }
+    string IInterfaceData.Name => Name ?? string.Empty;
 }
 
 public class PropertySetterCommand : ICommand
 {
     private readonly BoundPropertyContainer _boundPropertyContainer;
-
-    public PropertySetterCommand(BoundPropertyContainer boundPropertyContainer)
+    private readonly Control? _popupTarget;
+    
+    public PropertySetterCommand(BoundPropertyContainer boundPropertyContainer, Control? popupTarget)
     {
+        _popupTarget = popupTarget;
         _boundPropertyContainer = boundPropertyContainer;
         _boundPropertyContainer.PropertyChanged += (_, args) =>
         {
-            if (args.Property == BoundPropertyContainer.CanChangeValueProperty)
+            if (args.Property == BoundPropertyContainer.IsUserEditableProperty)
                 CanExecuteChanged?.Invoke(this, EventArgs.Empty);
         };
     }
 
-    public bool CanExecute(object? parameter) 
-        => _boundPropertyContainer.BoundValue is not null && _boundPropertyContainer.CanChangeValue;
+    public bool CanExecute(object? parameter) => _boundPropertyContainer.IsUserEditable;
 
     public void Execute(object? parameter)
     {
         if (!CanExecute(parameter)) return;
         
-        if (_boundPropertyContainer.BoundValue is bool booleanValue)
+        if (_boundPropertyContainer.Value is bool booleanValue)
         {
-            _boundPropertyContainer.BoundValue = !booleanValue;
+            _boundPropertyContainer.Value = !booleanValue;
             return;
         }
 
-        var test = TopLevel.GetTopLevel(null)!;
+        if (_popupTarget is null)
+        {
+            return;
+        }
+
+        var flyoutContent = new ContentControl
+        {
+            MinWidth = 250,
+            Content = _boundPropertyContainer,
+        };
+
+        void KeyDown(object? sender, KeyEventArgs e) => flyoutContent.Presenter?.Child?.RaiseEvent(e);
+
+        void KeyUp(object? sender, KeyEventArgs e) => flyoutContent.Presenter?.Child?.RaiseEvent(e);
+
+        _popupTarget.KeyDown += KeyDown;
+        _popupTarget.KeyUp += KeyUp;
         
-        FlyoutBase.SetAttachedFlyout(TopLevel.GetTopLevel(null)!, new Flyout { Content = new TextBlock { Text = "Hello?" }});
+        var flyout = new Flyout { Content = flyoutContent, Placement = PlacementMode.Pointer };
         
-        FlyoutBase.ShowAttachedFlyout(TopLevel.GetTopLevel(null)!);
+        FlyoutBase.SetAttachedFlyout(_popupTarget, flyout);
+        
+        FlyoutBase.ShowAttachedFlyout(_popupTarget);
+
+        flyout.Closed += (_, _) =>
+        {
+            _popupTarget.KeyDown -= KeyDown;
+            _popupTarget.KeyUp -= KeyUp;
+        };
     }
 
     public event EventHandler? CanExecuteChanged;

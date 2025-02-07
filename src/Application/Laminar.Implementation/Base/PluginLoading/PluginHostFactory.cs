@@ -15,7 +15,7 @@ internal class PluginHostFactory(
     ISerializer serializer)
     : IPluginHostFactory
 {
-    public IPluginHost GetPluginhost(IRegisteredPlugin registeredPlugin)
+    public IPluginHost GetPluginHost(IRegisteredPlugin registeredPlugin)
     {
         return new PluginHost(registeredPlugin, typeInfoStore, loadedNodeManager, userInterfaceStore, dataInterfaceFactory, serializer);
     }

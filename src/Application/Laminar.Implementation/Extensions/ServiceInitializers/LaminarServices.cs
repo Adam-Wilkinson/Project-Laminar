@@ -14,6 +14,7 @@ using Laminar.Implementation.Scripting.NodeWrapping;
 using Laminar.Implementation.UserData;
 using Laminar.Implementation.UserData.FileNavigation;
 using Laminar.PluginFramework.NodeSystem.IO;
+using Laminar.PluginFramework.Registration;
 using Laminar.PluginFramework.Serialization;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -21,7 +22,7 @@ namespace Laminar.Implementation.Extensions.ServiceInitializers;
 
 public static class LaminarServices
 {
-    public static IServiceCollection AddLaminarServices(this IServiceCollection services) => services
+    public static IServiceCollection AddLaminarServices(this IServiceCollection services, FrontendDependency frontendDependency) => services
             .AddSingleton<IPersistentDataManager, PersistentDataManager>()
             .AddSingleton<ISerializer, Serializer>()
             .AddSingleton<IUserActionManager, UserActionManager>()
@@ -30,6 +31,7 @@ public static class LaminarServices
             .AddSingleton<IPluginHostFactory, PluginHostFactory>()
             .AddSingleton<ILaminarStorageItemFactory, LaminarStorageItemFactory>()
             .AddSingleton<IFileSystem, FileSystem>()
+            .AddSingleton<IPluginLoader>(provider => new PluginLoader(frontendDependency, provider.GetRequiredService<IPluginHostFactory>()))
             .AddUserInterfaceServices()
             .AddScriptingServices();
 }

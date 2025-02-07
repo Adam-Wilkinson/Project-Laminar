@@ -4,5 +4,5 @@ namespace Laminar.Contracts.Base.PluginLoading;
 
 public interface IPluginHostFactory
 {
-    public IPluginHost GetPluginhost(IRegisteredPlugin registeredPlugin);
+    public IPluginHost GetPluginHost(IRegisteredPlugin registeredPlugin);
 }

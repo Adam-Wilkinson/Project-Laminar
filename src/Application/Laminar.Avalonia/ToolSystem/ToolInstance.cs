@@ -57,6 +57,9 @@ public class ToolInstance : StyledElement, IEnumerable<ToolInstance>
         set => SetValue(ToolProperty, value);
     }
 
+
+    public Visual? PopupTarget { get; set; }
+
     public IEnumerator<ToolInstance> GetEnumerator() => ChildTools.GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
