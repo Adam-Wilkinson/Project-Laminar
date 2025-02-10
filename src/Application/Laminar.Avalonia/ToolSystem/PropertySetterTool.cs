@@ -143,7 +143,7 @@ public class PropertySetterCommand : ICommand
         var flyoutContent = new ContentControl
         {
             MinWidth = 250,
-            Content = _boundPropertyContainer,
+            Content = _boundPropertyContainer.Value is IInterfaceData ? _boundPropertyContainer.Value : _boundPropertyContainer,
         };
 
         void KeyDown(object? sender, KeyEventArgs e) => flyoutContent.Presenter?.Child?.RaiseEvent(e);

@@ -24,7 +24,6 @@
 				<ResourceInclude Source="XamlAssets/Themes/SwitchIconTheme.axaml"/>
 			</ResourceDictionary.MergedDictionaries>
 			
-			<conv:ScaleNameConverter x:Key="ScaleNameConverter"/>
 			<conv:FirstNotNullValueConverter x:Key="FirstNotNullValueConverter"/>
 			<conv:NullOrEmptyConverter x:Key="NullOrEmptyConverter"/>
 			<conv:ToolInstancingConverter x:Key="ToolInstancer"/>

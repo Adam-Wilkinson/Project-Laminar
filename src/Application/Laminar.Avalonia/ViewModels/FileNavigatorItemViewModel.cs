@@ -29,8 +29,6 @@ public partial class FileNavigatorItemViewModel : ViewModelBase
 
         CoreItem.PropertyChanged += (_, e) =>
         {
-            if (e.PropertyName == nameof(ILaminarStorageItem.IsEnabled))
-                OnPropertyChanged(nameof(ToggleEnabledString));
             if (e.PropertyName == nameof(ILaminarStorageItem.Name))
                 OnPropertyChanged(nameof(Name));
         };
@@ -50,8 +48,6 @@ public partial class FileNavigatorItemViewModel : ViewModelBase
         LaminarStorageFile => "script",
         _ => "item"
     };
-    
-    public string ToggleEnabledString => $"{(CoreItem.IsEnabled ? "Disable" : "Enable")} this {ItemTypeName}";
 
     public IReadOnlyObservableCollection<FileNavigatorItemViewModel>? Children { get; }
 
