@@ -5,6 +5,7 @@
                     xmlns:t="using:Laminar.Avalonia.ToolSystem"
                     xmlns:fi="using:Laminar.Implementation.UserData.FileNavigation"
                     xmlns:s="using:Laminar.Avalonia.Settings"
+                    xmlns:sys="using:System"
                     xmlns:shapes="using:Laminar.Avalonia.Shapes">
     
     <!-- Edit Menu Tool -->
@@ -81,10 +82,16 @@
     <t:PropertySetterTool Name="Expand/Collapse Sidebar" x:Key="Tools.Window.ToggleSidebar" 
                           x:DataType="vm:MainWindowViewModel"
                           Gesture="Ctrl+B"
-                          DescriptionBinding="{Binding ToggleSidebarDescription}"
                           PropertyBinding="{Binding SidebarExpanded}"
                           CanChangeValueBinding="{Binding !SettingsOpen}">
-        <t:Tool.IconTemplate>
+	    <t:Tool.DescriptionBinding>
+		    <MultiBinding Converter="{StaticResource TernaryConverter}">
+			    <Binding Path="SidebarExpanded"/>
+			    <Binding Source="Close Sidebar"/>
+			    <Binding Source="Open Sidebar"/>
+		    </MultiBinding>
+	    </t:Tool.DescriptionBinding>
+	    <t:Tool.IconTemplate>
             <DataTemplate DataType="vm:MainWindowViewModel">
                 <Panel Classes.SidebarExpanded="{Binding SidebarExpanded}"
                        Classes.Disabled="{Binding SettingsOpen}">
@@ -158,9 +165,15 @@
     <t:PropertySetterTool Name="Open/Close Settings Menu" x:Key="Tools.Window.ToggleSettings"
                           x:DataType="vm:MainWindowViewModel"
                           Gesture="Ctrl+Alt+S"
-                          DescriptionBinding="{Binding ToggleSettingsDescription}"
                           PropertyBinding="{Binding SettingsOpen}">
-		<t:Tool.IconTemplate>
+	    <t:Tool.DescriptionBinding>
+		    <MultiBinding Converter="{StaticResource TernaryConverter}">
+			    <Binding Path="SettingsOpen"/>
+			    <Binding Source="Close Settings"/>
+			    <Binding Source="Open Settings"/>
+		    </MultiBinding>
+	    </t:Tool.DescriptionBinding>
+	    <t:Tool.IconTemplate>
 			<DataTemplate x:DataType="vm:MainWindowViewModel">
 				<Panel Classes.SettingsOpen="{Binding SettingsOpen}"
 				       VerticalAlignment="Stretch"

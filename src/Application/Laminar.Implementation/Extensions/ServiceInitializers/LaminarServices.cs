@@ -17,6 +17,7 @@ using Laminar.PluginFramework.NodeSystem.IO;
 using Laminar.PluginFramework.Registration;
 using Laminar.PluginFramework.Serialization;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.Extensions.ServiceInitializers;
 
@@ -31,7 +32,7 @@ public static class LaminarServices
             .AddSingleton<IPluginHostFactory, PluginHostFactory>()
             .AddSingleton<ILaminarStorageItemFactory, LaminarStorageItemFactory>()
             .AddSingleton<IFileSystem, FileSystem>()
-            .AddSingleton<IPluginLoader>(provider => new PluginLoader(frontendDependency, provider.GetRequiredService<IPluginHostFactory>()))
+            .AddSingleton<IPluginLoader>(provider => new PluginLoader(frontendDependency, provider.GetRequiredService<IPluginHostFactory>(), provider.GetRequiredService<ILogger<IPluginHost>>()))
             .AddUserInterfaceServices()
             .AddScriptingServices();
 }

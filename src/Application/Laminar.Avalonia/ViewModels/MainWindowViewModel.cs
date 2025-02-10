@@ -23,10 +23,6 @@ public partial class MainWindowViewModel : ViewModelBase, IUndoTarget
         };
     }
     
-    public string ToggleSettingsDescription => SettingsOpen ? "Close settings" : "Open settings";
-
-    public string ToggleSidebarDescription => SidebarExpanded ? "Collapse Sidebar" : "Expand Sidebar";
-    
     public TitleBarViewModel TitleBar { get; }
 
     public SettingsViewModel Settings { get; }

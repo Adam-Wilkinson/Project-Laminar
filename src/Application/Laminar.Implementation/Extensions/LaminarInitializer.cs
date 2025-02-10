@@ -10,10 +10,11 @@ namespace Laminar.Implementation.Extensions;
 
 public static class LaminarInitializer
 {
-    public static void InitializeLaminar(this IServiceProvider serviceProvider, [CallerFilePath] string sourceFilePath = "")
+    public static IServiceProvider InitializeLaminar(this IServiceProvider serviceProvider, [CallerFilePath] string sourceFilePath = "")
     {
         LaminarFactory.ServiceProvider = serviceProvider;
         ((PluginLoader)serviceProvider.GetRequiredService<IPluginLoader>()).LoadInbuiltFromPath(sourceFilePath);
         serviceProvider.GetRequiredService<ILogger<None>>().LogTrace("Laminar Initialized");
+        return serviceProvider;
     }
 }

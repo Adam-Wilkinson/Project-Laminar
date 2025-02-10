@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Reflection.Metadata;
+using Laminar.PluginFramework.Registration;
+using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.Base.PluginLoading;
 
@@ -12,7 +11,7 @@ internal static class InbuiltPluginFinder
 {
     private const string RelativePluginsPath = @"src\Plugins";
 
-    public static IEnumerable<string> GetInbuiltPlugins(string path)
+    public static IEnumerable<string> GetInbuiltPlugins(ILogger<IPluginHost> logger,string path)
     {
         if (GetSolutionFileFolder(path) is not { } solutionFileFolder) yield break;
 
@@ -25,7 +24,7 @@ internal static class InbuiltPluginFinder
 
             if (!Directory.Exists(correctNetVersionFolder))
             {
-                Debug.WriteLine($"Unable to find correct net version folder for project {projectPath}");
+                logger.LogError("Unable to find correct net version folder for project {projectPath}", projectPath);
                 continue;
             }
             

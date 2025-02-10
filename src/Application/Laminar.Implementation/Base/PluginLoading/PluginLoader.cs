@@ -6,10 +6,11 @@ using System.Reflection;
 using Laminar.Contracts.Base.PluginLoading;
 using Laminar.PluginFramework.NodeSystem;
 using Laminar.PluginFramework.Registration;
+using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.Base.PluginLoading;
 
-public class PluginLoader(FrontendDependency frontend, IPluginHostFactory pluginHostFactory) : IPluginLoader
+public class PluginLoader(FrontendDependency frontend, IPluginHostFactory pluginHostFactory, ILogger<IPluginHost> logger) : IPluginLoader
 {
     private static readonly string[] AutoLoadPlugins = ["Basic Functionality UI", "Base plugin functionality"];//, "Keyboard and Mouse interface", "Windows Base" };
     
@@ -28,7 +29,7 @@ public class PluginLoader(FrontendDependency frontend, IPluginHostFactory plugin
     
     public void LoadInbuiltFromPath(string path)
     {
-        foreach (var pluginPath in InbuiltPluginFinder.GetInbuiltPlugins(path))
+        foreach (var pluginPath in InbuiltPluginFinder.GetInbuiltPlugins(logger, path))
         {
             PluginLoadContext pluginContext = new(pluginPath);
             var pluginAssembly = pluginContext.LoadFromAssemblyPath(pluginPath);

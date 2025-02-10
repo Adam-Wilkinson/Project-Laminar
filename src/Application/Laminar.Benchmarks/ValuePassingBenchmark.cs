@@ -4,9 +4,12 @@ using Laminar.Contracts.Base.UserInterface;
 using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Implementation;
+using Laminar.Implementation.Extensions;
+using Laminar.Implementation.Extensions.ServiceInitializers;
 using Laminar.Implementation.Scripting.NodeIO;
 using Laminar.PluginFramework.NodeSystem;
 using Laminar.PluginFramework.NodeSystem.Components;
+using Laminar.PluginFramework.Registration;
 using Laminar.PluginFramework.UserInterface;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -15,10 +18,14 @@ namespace Laminar.Benchmarks;
 [MemoryDiagnoser]
 public class ValuePassingBenchmark
 {
+    private readonly IServiceProvider _serviceProvider = new ServiceCollection()
+        .AddLaminarServices(FrontendDependency.None)
+        .BuildServiceProvider()
+        .InitializeLaminar();
+    
     private IScript? _script1;
     private IScriptEditor? _scriptEditor;
     private INodeFactory? _nodeWrapperFactory;
-    private readonly Instance _instance = new(null, PluginFramework.Registration.FrontendDependency.None);
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     private ValueIoBenchmarkNode _fieldsFirstNode;
@@ -28,9 +35,9 @@ public class ValuePassingBenchmark
     [GlobalSetup]
     public void Setup()
     {
-        _script1 = _instance.ServiceProvider.GetService<IScriptFactory>()!.CreateScript();
-        _scriptEditor = _instance.ServiceProvider.GetService<IScriptEditor>()!;
-        _nodeWrapperFactory = _instance.ServiceProvider.GetService<INodeFactory>()!;
+        _script1 = _serviceProvider.GetService<IScriptFactory>()!.CreateScript();
+        _scriptEditor = _serviceProvider.GetService<IScriptEditor>()!;
+        _nodeWrapperFactory = _serviceProvider.GetService<INodeFactory>()!;
 
         SetupScript<ValueIoBenchmarkNode>(_script1, 500);
 
