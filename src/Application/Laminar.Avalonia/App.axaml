@@ -33,7 +33,8 @@
 			<conv:MultiplyConverter x:Key="MultiplyConverter"/>
 			<conv:NullifyIfNoneConverter x:Key="NullifyIfNoneConverter"/>
 			<conv:HasValueConverter x:Key="HasValueConverter"/>
-			<conv:TernaryConverter x:Key="TernaryConverter"/>
+			<conv:SwitchConverter x:Key="SwitchConverter"/>
+			<conv:SwitchItemConverter x:Key="SwitchItemConverter"/>
 		</ResourceDictionary>
 	</Application.Resources>
 	

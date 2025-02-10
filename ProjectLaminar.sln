@@ -11,6 +11,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{3B478EA0-F31D-4067-B313-2EC16EDDDEA3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Application", "Application", "{B6015095-D28C-4D9E-82FB-7166934E8AA5}"
+	ProjectSection(SolutionItems) = preProject
+		src\Application\Laminar.Avalonia\Lang\Resources.resx = src\Application\Laminar.Avalonia\Lang\Resources.resx
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugins", "Plugins", "{DD409C11-D6B5-47ED-9FD2-FDECE50FC4FA}"
 EndProject
