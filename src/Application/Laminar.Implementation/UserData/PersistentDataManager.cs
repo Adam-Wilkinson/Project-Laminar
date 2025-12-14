@@ -43,9 +43,13 @@ public class PersistentDataManager(ISerializer serializer, IFileSystem fileSyste
 
         var newDataStore = dataStoreKey.DataType switch
         {
-            PersistentDataType.Json => new PersistentDataStore<JsonElement>(file, serializer, new JsonPersistentDataTranscoder(), dataStoreLogger),
+            PersistentDataType.Json => new PersistentDataStore<JsonElement>(serializer, new JsonPersistentDataTranscoder(), dataStoreLogger),
             var unknown => throw new UnknownDataTypeException(unknown),
         };
+
+        newDataStore.RawData = file.Contents;
+        newDataStore.DataChanged += (_, _) => file.Contents = newDataStore.RawData;
+        file.ContentsChanged += (_, _) => newDataStore.RawData = file.Contents;
         
         _dataStores[dataStoreKey] = newDataStore;
         return newDataStore;

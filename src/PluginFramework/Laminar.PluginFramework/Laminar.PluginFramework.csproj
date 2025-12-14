@@ -31,6 +31,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Laminar.PluginFramework.SourceGeneration" Version="1.0.0" />
+    <PackageReference Include="Laminar.PluginFramework.SourceGeneration" />
   </ItemGroup>
 </Project>

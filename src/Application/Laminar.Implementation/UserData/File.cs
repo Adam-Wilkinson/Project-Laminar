@@ -5,11 +5,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Laminar.Contracts;
 using Laminar.Contracts.UserData;
+using Laminar.Domain.ValueObjects;
 using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.UserData;
 
-public class File : IFile
+public class File : IFile, IValueSink<byte[]>
 {
     private const int ErrorSharingViolation = 32;
     private const int ErrorLockViolation = 33;
@@ -22,7 +23,8 @@ public class File : IFile
     
     private byte[] _contents = [];
     private bool _readNextFileChange = true;
-    
+    private IValueSink<byte[]> _valueSinkImplementation;
+
     public File(IFileSystem fileSystem, string filePath, ILogger<File> logger)
     {
         _logger = logger;
@@ -141,4 +143,6 @@ public class File : IFile
             throw new Exception("Unexpected error when accessing file", innerException: e);
         }
     }
+    
+    byte[] IValueSink<byte[]>.Value {set => Contents = value; }
 }

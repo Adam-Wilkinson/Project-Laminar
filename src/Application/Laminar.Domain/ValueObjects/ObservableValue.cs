@@ -6,7 +6,7 @@ namespace Laminar.Domain.ValueObjects;
 /// A lightweight implementation of <see cref="INotifyPropertyChanged"/>
 /// </summary>
 /// <typeparam name="T">The type of the child value</typeparam>
-public class ObservableValue<T> : IObservableValue<T>
+public class ObservableValue<T> : IObservableValue<T>, IValueSink<T>
 {
     private T _value = default!;
 

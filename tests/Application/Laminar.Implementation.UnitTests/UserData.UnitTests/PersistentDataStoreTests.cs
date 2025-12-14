@@ -29,15 +29,18 @@ public class PersistentDataStoreTests
         {
             const string testValueKey = "Test Key";
             const double testValue = 5.0;
-            
-            var fileMock = Substitute.For<IFile>();
-            fileMock.Contents.Returns(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(initialData, JsonOptions )));
-            
+
+            var fileData = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(initialData, JsonOptions));
+                
             var serializerMock = Substitute.For<ISerializer>();
             serializerMock.GetSerializedType(typeof(double)).Returns(typeof(double));
             serializerMock.SerializeObject(testValue).Returns(testValue);
 
-            var sut = new PersistentDataStore<JsonElement>(fileMock, serializerMock, new JsonPersistentDataTranscoder(JsonOptions), Logger);
+            var sut = new PersistentDataStore<JsonElement>(serializerMock, new JsonPersistentDataTranscoder(JsonOptions), Logger)
+                {
+                    RawData = fileData
+                };
+            
             sut.InitializeDefaultValue(testValueKey, testValue);
 
             Assert.Equal(testValue, sut.GetItem<double>(testValueKey).Result);
@@ -52,15 +55,17 @@ public class PersistentDataStoreTests
 
             initialData[testValueKey] = savedValue;
             
-            var fileMock = Substitute.For<IFile>();
-            fileMock.Contents.Returns(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(initialData, JsonOptions )));
+            var fileData = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(initialData, JsonOptions));
             
             var serializerMock = Substitute.For<ISerializer>();
             serializerMock.GetSerializedType(typeof(double)).Returns(typeof(double));
             serializerMock.SerializeObject(Arg.Any<double>()).Returns(ci => ci.Arg<double>());
             serializerMock.DeserializeObject(Arg.Any<double>(), typeof(double)).Returns(ci => ci.Arg<double>());
 
-            var sut = new PersistentDataStore<JsonElement>(fileMock, serializerMock, new JsonPersistentDataTranscoder(JsonOptions), Logger);
+            var sut = new PersistentDataStore<JsonElement>(serializerMock, new JsonPersistentDataTranscoder(JsonOptions), Logger)
+            {
+                RawData = fileData
+            };
             sut.InitializeDefaultValue(testValueKey, defaultValue);
 
             Assert.Equal(savedValue, sut.GetItem<double>(testValueKey).Result);
@@ -75,16 +80,21 @@ public class PersistentDataStoreTests
             const string testValueKey = "Test Key";
             const double initialValue = 5.0;
             const double newValue = 10.0;
+
+            var rawData = Encoding.UTF8.GetBytes(
+                JsonSerializer.Serialize(new Dictionary<string, double> { [testValueKey] = initialValue },
+                    JsonOptions));
             
-            var fileMock = Substitute.For<IFile>();
-            fileMock.Contents.Returns(Encoding.UTF8.GetBytes(
-                JsonSerializer.Serialize(new Dictionary<string, double> { [testValueKey] = initialValue }, JsonOptions)));
             var serializerMock = Substitute.For<ISerializer>();
             serializerMock.GetSerializedType(typeof(double)).Returns(typeof(double));
             serializerMock.SerializeObject(Arg.Any<double>()).Returns(ci => ci.Arg<double>());
             serializerMock.DeserializeObject(Arg.Any<double>(), typeof(double)).Returns(ci => ci.Arg<double>());
+
+            var sut = new PersistentDataStore<JsonElement>(serializerMock, new JsonPersistentDataTranscoder(JsonOptions), Logger)
+            {
+                RawData = rawData
+            };
             
-            var sut = new PersistentDataStore<JsonElement>(fileMock, serializerMock, new JsonPersistentDataTranscoder(JsonOptions), Logger);
             sut.InitializeDefaultValue(testValueKey, initialValue);
 
             sut.SetItem(testValueKey, newValue);
@@ -98,17 +108,19 @@ public class PersistentDataStoreTests
             const string testValueKey = "Test Key";
             const double initialValue = 5.0;
             const double newValue = 10.0;
-            
-            var fileMock = Substitute.For<IFile>();
-            fileMock.Contents.Returns(Encoding.UTF8.GetBytes(
-                JsonSerializer.Serialize(new Dictionary<string, double> { [testValueKey] = initialValue }, JsonOptions)));
+
+            var rawData = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new Dictionary<string, double> { [testValueKey] = initialValue }, JsonOptions));
+                
             var serializerMock = Substitute.For<ISerializer>();
             serializerMock.GetSerializedType(typeof(double)).Returns(typeof(double));
             serializerMock.SerializeObject(Arg.Any<double>()).Returns(ci => ci.Arg<double>());
             serializerMock.SerializeObject(Arg.Any<double>(), typeof(double)).Returns(ci => ci.Arg<double>());
             serializerMock.DeserializeObject(Arg.Any<double>(), typeof(double)).Returns(ci => ci.Arg<double>());
-            
-            var sut = new PersistentDataStore<JsonElement>(fileMock, serializerMock, new JsonPersistentDataTranscoder(JsonOptions), Logger);
+
+            var sut = new PersistentDataStore<JsonElement>(serializerMock, new JsonPersistentDataTranscoder(JsonOptions), Logger)
+            {
+                RawData = rawData
+            };
             sut.InitializeDefaultValue(testValueKey, initialValue);
 
             sut.SetItem(testValueKey, newValue);
@@ -118,7 +130,7 @@ public class PersistentDataStoreTests
                     JsonSerializer.Serialize(new Dictionary<string, double> { [testValueKey] = newValue },
                         JsonOptions));
             
-            Assert.Equal(expectedFileContents, fileMock.Contents);
+            Assert.Equal(expectedFileContents, sut.RawData);
         }
         
         [Fact]
@@ -127,12 +139,11 @@ public class PersistentDataStoreTests
             const string testValueKey = "Test Key";
             const double testValue = 5.0;
             
-            var fileMock = Substitute.For<IFile>();
             var serializerMock = Substitute.For<ISerializer>();
             serializerMock.GetSerializedType(typeof(double)).Returns(typeof(double));
             serializerMock.SerializeObject(testValue).Returns(testValue);
             
-            var sut = new PersistentDataStore<JsonElement>(fileMock, serializerMock, new JsonPersistentDataTranscoder(JsonOptions), Logger);
+            var sut = new PersistentDataStore<JsonElement>(serializerMock, new JsonPersistentDataTranscoder(JsonOptions), Logger);
             
             Assert.Equal(DataIoStatus.DataNotFound, sut.SetItem(testValueKey, testValue).Status);
         }

@@ -29,6 +29,13 @@ public class MockDataManager : IPersistentDataManager
             return _dataStore.TryGetValue(key, out var result) && result is T typedResult ? new DataReadResult<T>(typedResult) : default;
         }
 
+        public IPersistentDataStore CreateChild(string childDataStoreName)
+        {
+            var retVal = new MockDataStore(childDataStoreName);
+            _dataStore.Add(childDataStoreName, retVal);
+            return retVal;
+        }
+
         public DataReadResult<object> GetItem(string key, Type type)
         {
             return _dataStore.TryGetValue(key, out var result) && result.GetType() == type ? new DataReadResult<object>(result) : default;

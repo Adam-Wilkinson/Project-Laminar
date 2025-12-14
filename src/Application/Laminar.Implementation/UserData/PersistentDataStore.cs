@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Threading;
-using Laminar.Contracts;
 using Laminar.Contracts.UserData;
 using Laminar.Domain.DataManagement;
 using Laminar.Domain.ValueObjects;
@@ -11,78 +9,87 @@ using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.UserData;
 
-public class PersistentDataStore<TEncodedValue> : IPersistentDataStore where TEncodedValue : notnull
+public class PersistentDataStore<TEncodedValue>(
+    ISerializer serializer, 
+    IPersistentDataTranscoder<TEncodedValue> persistentDataTranscoder, 
+    ILogger<IPersistentDataStore> logger)
+        : IPersistentDataStore where TEncodedValue : notnull
 {
-    private readonly ISerializer _serializer;
-    private readonly IPersistentDataTranscoder<TEncodedValue> _persistentDataTranscoder;
-    private readonly IFile _file;
-    private readonly ILogger<IPersistentDataStore> _logger;
-    
     private readonly Dictionary<string, PersistentDataValue> _serializedDataCache = [];
-    private DateTime? _lastWrite;
-    
-    public PersistentDataStore(
-        IFile file, 
-        ISerializer serializer, 
-        IPersistentDataTranscoder<TEncodedValue> persistentDataTranscoder,
-        ILogger<IPersistentDataStore> logger)
-    {
-        _logger = logger;
-        _serializer = serializer;
-        _persistentDataTranscoder = persistentDataTranscoder;
-        _file = file;
-        _file.ContentsChanged += FileChanged;
-        FileChanged(null, EventArgs.Empty);
-    }
 
-    private void FileChanged(object? sender, EventArgs e)
+    public IEnumerable<(string, TEncodedValue)> EncodedValues
     {
-        // Don't read our own writes, makes usage awful
-        if (_lastWrite.HasValue && DateTime.Now - _lastWrite.Value < TimeSpan.FromMilliseconds(200)) return;
-        
-        _persistentDataTranscoder.DecodeByteArray(_file.Contents, (name, encodedValue) =>
+        get
         {
-            if (!_serializedDataCache.TryGetValue(name, out var value))
+            foreach (var (key, value) in _serializedDataCache)
             {
-                value = new PersistentDataValue(_serializer, _persistentDataTranscoder, _logger) { ValueName = name };
-                _serializedDataCache[name] = value;
+                yield return (key, value.EncodedValue);
             }
+        }
+        set
+        {
+            foreach (var (key, newValue) in value)
+            {
+                _serializedDataCache[key].EncodedValue = newValue;
+            }
+        }
+    } 
 
-            value.EncodedValue = encodedValue;
-        });
-    }
-
-    public string FilePath => _file.Path;
-
-    public DataReadResult<T> GetItem<T>(string key)
-        where T : notnull
+    private byte[] _rawData = [];
+    
+    public byte[] RawData
     {
-        var objectRead = GetItem(key, typeof(T));
-        return new DataReadResult<T>(objectRead.Status == DataIoStatus.Success ? (T)objectRead.Result : default, objectRead.Status, objectRead.Exception);
+        get => _rawData;
+        set
+        {
+            if (Equals(value, _rawData)) return;
+            
+            _rawData = value;
+            persistentDataTranscoder.DecodeByteArray(_rawData, (name, encodedValue) =>
+            {
+                if (!_serializedDataCache.TryGetValue(name, out var value))
+                {
+                    value = new PersistentDataValue(serializer, persistentDataTranscoder, logger) { ValueName = name };
+                    _serializedDataCache[name] = value;
+                }
+
+                value.EncodedValue = encodedValue;
+            });
+        }
     }
 
-    public DataReadResult<object> GetItem(string key, Type type)
+    public event EventHandler? DataChanged;
+
+    public IPersistentDataStore CreateChild(string childDataStoreName)
+    {
+        var result = new PersistentDataStore<TEncodedValue>(serializer, persistentDataTranscoder, logger);
+        InitializeDefaultValue(childDataStoreName, result, typeof(PersistentDataStore<TEncodedValue>), result);
+        result.DataChanged += (_, _) =>
+        {
+            SetItem(childDataStoreName, result, typeof(PersistentDataStore<TEncodedValue>));
+        };
+        
+        return result;
+    }
+
+    public DataReadResult<object?> GetItem(string key, Type type)
     {
         if (!_serializedDataCache.TryGetValue(key, out var persistentData))
         {
-            return new DataReadResult<object>(null, DataIoStatus.DataNotFound);
+            return new DataReadResult<object?>(null, DataIoStatus.DataNotFound);
         }
 
         if (persistentData.ValueType != type)
         {
-            return new DataReadResult<object>(null, DataIoStatus.UnknownError);
+            return new DataReadResult<object?>(null, DataIoStatus.UnknownError);
         }
         
-        return new DataReadResult<object>(persistentData.Value);
+        return new DataReadResult<object?>(persistentData.Value);
     }
 
-    public IObservableValue<object> GetObservable(string key) => _serializedDataCache[key];
+    public IObservableValue<object?> GetObservable(string key) => _serializedDataCache[key];
 
-    public DataSaveResult SetItem<T>(string key, T value)
-        where T : notnull
-        => SetItem(key, value, typeof(T));
-
-    public DataSaveResult SetItem(string key, object value, Type type)
+    public DataSaveResult SetItem(string key, object? value, Type type)
     {
         if (!_serializedDataCache.TryGetValue(key, out var persistentValue))
         {
@@ -105,15 +112,12 @@ public class PersistentDataStore<TEncodedValue> : IPersistentDataStore where TEn
         SyncToFile();
         return new DataSaveResult();
     }
-    
-    public IPersistentDataStore InitializeDefaultValue<T>(string key, T value, object? deserializationContext = null) where T : notnull 
-        => InitializeDefaultValue(key, value, typeof(T), deserializationContext);
 
-    public IPersistentDataStore InitializeDefaultValue(string key, object value, Type type, object? deserializationContext = null)
+    public IPersistentDataStore InitializeDefaultValue(string key, object? value, Type type, object? deserializationContext = null)
     {
         if (!_serializedDataCache.TryGetValue(key, out var persistentValue))
         {
-            persistentValue = new PersistentDataValue(_serializer, _persistentDataTranscoder, _logger) { ValueName = key };
+            persistentValue = new PersistentDataValue(serializer, persistentDataTranscoder, logger) { ValueName = key };
             _serializedDataCache[key] = persistentValue;
         }
         
@@ -123,13 +127,13 @@ public class PersistentDataStore<TEncodedValue> : IPersistentDataStore where TEn
 
     private void SyncToFile()
     {
-        _file.Contents = _persistentDataTranscoder.EncodeDictionary(_serializedDataCache, eachValue => eachValue.EncodedValue);
-        _lastWrite = DateTime.Now;
+        _rawData = persistentDataTranscoder.EncodeDictionary(_serializedDataCache, eachValue => eachValue.EncodedValue);
+        DataChanged?.Invoke(this, EventArgs.Empty);
     }
     
     private class ValueNotInitializedException(string valueName) : Exception($"Value {valueName} has not been initialized");
     
-    private class PersistentDataValue(ISerializer serializer, IPersistentDataTranscoder<TEncodedValue> transcoder, ILogger<IPersistentDataStore> logger) : IObservableValue<object>
+    private class PersistentDataValue(ISerializer serializer, IPersistentDataTranscoder<TEncodedValue> transcoder, ILogger<IPersistentDataStore> logger) : IObservableValue<object?>
     {
         private TEncodedValue _encodedValue = default!;
         private bool _hasEncodedValue;
@@ -140,7 +144,7 @@ public class PersistentDataStore<TEncodedValue> : IPersistentDataStore where TEn
         
         public event PropertyChangedEventHandler? PropertyChanged;
         
-        public event EventHandler<object>? ValueChanged;
+        public event EventHandler<object?>? ValueChanged;
 
         public required string ValueName { get; init; }
 
@@ -168,16 +172,11 @@ public class PersistentDataStore<TEncodedValue> : IPersistentDataStore where TEn
             }
         }
 
-        public object Value
+        public object? Value
         {
             get => _value ?? throw new ValueNotInitializedException(ValueName);
             set
             {
-                if (_value == value)
-                {
-                    return;
-                }
-
                 if (_valueType is null)
                 {
                     throw new ValueNotInitializedException(ValueName);
@@ -193,10 +192,10 @@ public class PersistentDataStore<TEncodedValue> : IPersistentDataStore where TEn
             }
         }
 
-        public void Initialize(object defaultValue, Type? valueType = null, object? deserializationContext = null)
+        public void Initialize(object? defaultValue, Type? valueType = null, object? deserializationContext = null)
         {
             _defaultValue = defaultValue;
-            _valueType = valueType ?? _defaultValue.GetType();
+            _valueType = valueType ?? _defaultValue?.GetType();
             _deserializationContext = deserializationContext;
             if (_hasEncodedValue)
             {

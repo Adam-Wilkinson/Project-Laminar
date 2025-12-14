@@ -79,7 +79,12 @@ public class Serializer : ISerializer
             return conditionalSerializer;
         }
 
-        return _defaultSerializerFactory.TryCreateSerializerFor(typeToSerialize)!;
+        if (_defaultSerializerFactory.TryCreateSerializerFor(typeToSerialize) is { } defaultSerializer)
+        {
+            return defaultSerializer;
+        }
+        
+        throw new NotSupportedException($"No serializer found for type {typeToSerialize.FullName}.");
     }
 
     private void EnsureAssemblyInit(Type typeAssemblySource)
