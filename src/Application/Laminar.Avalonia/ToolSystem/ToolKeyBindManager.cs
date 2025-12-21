@@ -87,25 +87,20 @@ public class ToolKeyBindManager(TopLevel topLevel) : IAfterApplicationBuiltTarge
 
         private bool TryBuildTool(out ToolInstance? instance)
         {
-            if (TryBuildToolFromTarget(keyBindManager._topLevel.FocusManager?.GetFocusedElement()) is { } focusedElementTool)
+            var allVisualsUnderCursor = keyBindManager._visualUnderCursor?.GetVisualAncestors() ?? [];
+            foreach (var visual in allVisualsUnderCursor)
             {
-                instance = focusedElementTool;
-                return true;
-            }
-
-            if (keyBindManager._visualUnderCursor is null)
-            {
-                instance = null;
-                return false;
-            }
-            
-            foreach (var parentVisual in keyBindManager._visualUnderCursor.GetVisualAncestors())
-            {
-                if (TryBuildToolFromTarget(parentVisual) is { } hoveredVisualTool)
+                if (TryBuildToolFromTarget(visual) is { } hoveredVisualTool)
                 {
                     instance = hoveredVisualTool;
                     return true;
                 }
+            }
+            
+            if (TryBuildToolFromTarget(keyBindManager._topLevel.FocusManager?.GetFocusedElement()) is { } focusedElementTool)
+            {
+                instance = focusedElementTool;
+                return true;
             }
             
             instance = null;
