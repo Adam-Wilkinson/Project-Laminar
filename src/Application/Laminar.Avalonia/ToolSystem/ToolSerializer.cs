@@ -38,6 +38,7 @@ public class ToolSerializer(TopLevel topLevel, IPersistentDataManager persistent
 
         var currentDataStore = _toolDataStore.CreateChild(uniqueToolKey);
         currentDataStore.InitializeDefaultValue("Key Gesture", tool.Gesture);
+        tool.Gesture = currentDataStore.GetItem<KeyGesture?>("Key Gesture").Result;
         tool.PropertyChanged += (_, _) =>
         {
             currentDataStore.SetItem("Key Gesture", tool.Gesture);

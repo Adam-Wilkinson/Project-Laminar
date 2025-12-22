@@ -2,7 +2,7 @@ using System.ComponentModel;
 
 namespace Laminar.Domain.ValueObjects;
 
-public interface IObservableValue<T> : IObservableValueBase
+public interface IObservableValue<out T> : IObservableValueBase
 {
     public T Value { get; }
 

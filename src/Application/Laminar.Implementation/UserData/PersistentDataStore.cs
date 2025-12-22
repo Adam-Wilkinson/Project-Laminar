@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Laminar.Contracts.UserData;
 using Laminar.Domain.DataManagement;
+using Laminar.Domain.Helpers;
 using Laminar.Domain.ValueObjects;
 using Laminar.PluginFramework.Serialization;
 using Microsoft.Extensions.Logging;
@@ -13,7 +15,7 @@ namespace Laminar.Implementation.UserData;
 /// <summary>
 /// <para>
 /// Handles serialization of a collection of string-keyed values. Converts all types via the serialization system into
-/// savable types, before using the IPersistentDataTranscoder to save these types to a byte array.
+/// savable types, before using the IPersistentDataTranscoder to save them to a byte array.
 /// </para>
 ///
 /// <para>
@@ -37,7 +39,7 @@ public class PersistentDataStore<TEncodedValue>(
         get => _rawData;
         set
         {
-            if (Equals(value, _rawData)) return;
+            if (BytesHelper.Equals(value, _rawData)) return;
             
             _rawData = value;
             persistentDataTranscoder.DecodeByteArray(_rawData, RegisterEncodedValue);
@@ -101,13 +103,7 @@ public class PersistentDataStore<TEncodedValue>(
 
     public IPersistentDataStore InitializeDefaultValue(string key, object? value, Type type, object? deserializationContext = null)
     {
-        if (!_serializedDataCache.TryGetValue(key, out var persistentValue))
-        {
-            persistentValue = new PersistentDataValue(serializer, persistentDataTranscoder, logger) { ValueName = key };
-            _serializedDataCache[key] = persistentValue;
-        }
-        
-        persistentValue.Initialize(value, type, deserializationContext);
+        GetPersistentData(key).Initialize(value, type, deserializationContext);
         return this;
     }
 
@@ -129,25 +125,28 @@ public class PersistentDataStore<TEncodedValue>(
 
         foreach (var (key, encodedValue) in serialized)
         {
-            targetDataStore.RegisterEncodedValue(key, encodedValue);
+            targetDataStore.GetPersistentData(key).EncodedValue = encodedValue;
         }
 
         return targetDataStore;
     }
-
-    /// <summary>
-    ///  Register a known encoded value. If the value is not yet initialized, the encoded value is stored,
-    ///  and upon initialization is it decoded to give the correct value.
-    /// </summary>
+    
     private void RegisterEncodedValue(string name, TEncodedValue encodedValue)
     {
-        if (!_serializedDataCache.TryGetValue(name, out var value))
+        GetPersistentData(name).EncodedValue = encodedValue;
+    }
+
+    private PersistentDataValue GetPersistentData(string key)
+    {
+        if (_serializedDataCache.TryGetValue(key, out var value))
         {
-            value = new PersistentDataValue(serializer, persistentDataTranscoder, logger) { ValueName = name };
-            _serializedDataCache[name] = value;
+            return value;
         }
 
-        value.EncodedValue = encodedValue;
+        value = new PersistentDataValue(serializer, persistentDataTranscoder, logger) { ValueName = key };
+        value.ValueChanged += (_, _) => SyncToFile();
+        _serializedDataCache[key] = value;
+        return value;
     }
     
     
@@ -224,7 +223,6 @@ public class PersistentDataStore<TEncodedValue>(
             if (_hasEncodedValue && TrySetValueFromEncodedValue()) return;
             
             Value = _defaultValue;
-            _hasEncodedValue = true;
         }
 
         public void ResetToDefault()
@@ -241,6 +239,7 @@ public class PersistentDataStore<TEncodedValue>(
             
             var serialized = serializer.SerializeObject(_value, ValueType);
             _encodedValue = transcoder.EncodeValue(serialized);
+            _hasEncodedValue = true;
             PropertyChanged?.Invoke(this, IObservableValueBase.ValueChangedEventArgs);
             ValueChanged?.Invoke(this, _value);
         }

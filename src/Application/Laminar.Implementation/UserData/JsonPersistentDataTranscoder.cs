@@ -1,15 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.Encodings.Web;
 using Laminar.Contracts.UserData;
 using System.Text.Json;
+using System.Text.Unicode;
 using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.UserData;
 
 public class JsonPersistentDataTranscoder(JsonSerializerOptions jsonOptions, ILogger<JsonPersistentDataTranscoder> logger) : IPersistentDataTranscoder<JsonElement>
 {
-    public JsonPersistentDataTranscoder(ILogger<JsonPersistentDataTranscoder> logger) : this(new JsonSerializerOptions { WriteIndented = true }, logger)
+    public JsonPersistentDataTranscoder(ILogger<JsonPersistentDataTranscoder> logger) : this(new JsonSerializerOptions { WriteIndented = true, Encoder = JavaScriptEncoder.Create(new UnicodeRange('+', 1)) }, logger)
     {
     }
 
