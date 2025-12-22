@@ -10,6 +10,18 @@ using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.UserData;
 
+/// <summary>
+/// <para>
+/// Handles serialization of a collection of string-keyed values. Converts all types via the serialization system into
+/// savable types, before using the IPersistentDataTranscoder to save these types to a byte array.
+/// </para>
+///
+/// <para>
+/// Makes a distinction between setting/getting values, and initializing them. Reads non-initialized
+/// values as their raw encoded data, such that this value can be later initialized, at which point the stored data
+/// is decoded and used. This means that persistent values read from files can be initialized and used at any time.
+/// </para>
+/// </summary>
 public class PersistentDataStore<TEncodedValue>(
     ISerializer serializer, 
     IPersistentDataTranscoder<TEncodedValue> persistentDataTranscoder, 
@@ -104,7 +116,6 @@ public class PersistentDataStore<TEncodedValue>(
         _rawData = persistentDataTranscoder.EncodeDictionary(_serializedDataCache, eachValue => eachValue.EncodedValue);
         DataChanged?.Invoke(this, EventArgs.Empty);
     }
-    
     
     public Dictionary<string, TEncodedValue> Serialize()
     {
