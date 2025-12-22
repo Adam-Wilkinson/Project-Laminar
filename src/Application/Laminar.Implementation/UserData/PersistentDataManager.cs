@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.UserData;
 
-public class PersistentDataManager(ISerializer serializer, IFileSystem fileSystem, ILogger<IPersistentDataStore> dataStoreLogger) : IPersistentDataManager
+public class PersistentDataManager(ISerializer serializer, IFileSystem fileSystem, ILogger<IPersistentDataStore> dataStoreLogger, ILogger<JsonPersistentDataTranscoder> jsonTranscoderLogger) : IPersistentDataManager
 {
     private static readonly string StaticPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Project Laminar");
     private readonly Dictionary<DataStoreKey, IPersistentDataStore> _dataStores = new();
@@ -35,7 +35,7 @@ public class PersistentDataManager(ISerializer serializer, IFileSystem fileSyste
 
         var transcoder = dataStoreKey.DataType switch
         {
-            PersistentDataType.Json => new JsonPersistentDataTranscoder(),
+            PersistentDataType.Json => new JsonPersistentDataTranscoder(jsonTranscoderLogger),
             var unknown => throw new UnknownDataTypeException(unknown),
         };
 
@@ -43,7 +43,7 @@ public class PersistentDataManager(ISerializer serializer, IFileSystem fileSyste
 
         var newDataStore = dataStoreKey.DataType switch
         {
-            PersistentDataType.Json => new PersistentDataStore<JsonElement>(serializer, new JsonPersistentDataTranscoder(), dataStoreLogger),
+            PersistentDataType.Json => new PersistentDataStore<JsonElement>(serializer, new JsonPersistentDataTranscoder(jsonTranscoderLogger), dataStoreLogger),
             var unknown => throw new UnknownDataTypeException(unknown),
         };
 

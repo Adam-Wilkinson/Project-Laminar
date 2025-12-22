@@ -17,23 +17,6 @@ public class PersistentDataStore<TEncodedValue>(
 {
     private readonly Dictionary<string, PersistentDataValue> _serializedDataCache = [];
 
-    public IEnumerable<(string, TEncodedValue)> EncodedValues
-    {
-        get
-        {
-            foreach (var (key, value) in _serializedDataCache)
-            {
-                yield return (key, value.EncodedValue);
-            }
-        }
-        set
-        {
-            foreach (var (key, newValue) in value)
-            {
-                _serializedDataCache[key].EncodedValue = newValue;
-            }
-        }
-    } 
 
     private byte[] _rawData = [];
     
@@ -168,7 +151,10 @@ public class PersistentDataStore<TEncodedValue>(
                     return;
                 }
 
-                SetValueFromEncodedValue();
+                if (!TrySetValueFromEncodedValue())
+                {
+                    SetEncodedValueFromValue();
+                }
             }
         }
 
@@ -197,15 +183,11 @@ public class PersistentDataStore<TEncodedValue>(
             _defaultValue = defaultValue;
             _valueType = valueType ?? _defaultValue?.GetType();
             _deserializationContext = deserializationContext;
-            if (_hasEncodedValue)
-            {
-                SetValueFromEncodedValue();
-            }
-            else
-            {
-                Value = _defaultValue;
-                _hasEncodedValue = true;
-            }
+            
+            if (_hasEncodedValue && TrySetValueFromEncodedValue()) return;
+            
+            Value = _defaultValue;
+            _hasEncodedValue = true;
         }
 
         public void ResetToDefault()
@@ -226,18 +208,18 @@ public class PersistentDataStore<TEncodedValue>(
             ValueChanged?.Invoke(this, _value);
         }
         
-        private void SetValueFromEncodedValue()
+        private bool TrySetValueFromEncodedValue()
         {
             if (transcoder.DecodeValue(EncodedValue, serializer.GetSerializedType(ValueType)) is not { } decodedValue)
             {
                 logger.LogError("Error reading value {valueName}. Unable to decode value, the value will not be changed", ValueName);
-                SetEncodedValueFromValue();
-                return;
+                return false;
             }
             
             _value = serializer.DeserializeObject(decodedValue, ValueType, _deserializationContext);
             PropertyChanged?.Invoke(this, IObservableValueBase.ValueChangedEventArgs);
             ValueChanged?.Invoke(this, _value);
+            return true;
         }
     }
 }

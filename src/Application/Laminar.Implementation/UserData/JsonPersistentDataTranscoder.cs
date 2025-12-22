@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using Laminar.Contracts.UserData;
 using System.Text.Json;
+using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.UserData;
 
-public class JsonPersistentDataTranscoder(JsonSerializerOptions jsonOptions) : IPersistentDataTranscoder<JsonElement>
+public class JsonPersistentDataTranscoder(JsonSerializerOptions jsonOptions, ILogger<JsonPersistentDataTranscoder> logger) : IPersistentDataTranscoder<JsonElement>
 {
-    public JsonPersistentDataTranscoder() : this(new JsonSerializerOptions { WriteIndented = true })
+    public JsonPersistentDataTranscoder(ILogger<JsonPersistentDataTranscoder> logger) : this(new JsonSerializerOptions { WriteIndented = true }, logger)
     {
     }
 
@@ -78,7 +79,18 @@ public class JsonPersistentDataTranscoder(JsonSerializerOptions jsonOptions) : I
 
     public JsonElement EncodeValue(object value) => JsonSerializer.SerializeToElement(value, jsonOptions);
 
-    public object? DecodeValue(JsonElement element, Type targetType) => element.Deserialize(targetType)!;
+    public object? DecodeValue(JsonElement element, Type targetType)
+    {
+        try
+        {
+            return element.Deserialize(targetType);
+        }
+        catch (JsonException ex)
+        {
+            logger.LogDebug(ex, ex.Message);
+            return null;
+        }
+    } 
     
     public string FileExtension => ".json";
 }
