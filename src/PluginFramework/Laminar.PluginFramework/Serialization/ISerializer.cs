@@ -15,6 +15,9 @@ public interface ISerializer
 
 public static class SerializerExtensions
 {
-    public static T? TryDeserialize<T>(this ISerializer serializer, object serialized, object? deserializationContext = null)
-        => serializer.DeserializeObject(serialized, typeof(T), deserializationContext) is T typed ? typed : default;
+    extension(ISerializer serializer)
+    {
+        public T? TryDeserialize<T>(object serialized, object? deserializationContext = null)
+            => serializer.DeserializeObject(serialized, typeof(T), deserializationContext) is T typed ? typed : default;
+    }
 }

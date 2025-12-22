@@ -42,7 +42,7 @@ public class EnumerableSerializer<TElement, TSerialized, TEnumerable>(ISerialize
     protected override TEnumerable DeSerializeTyped(SerializedEnumerable<TSerialized, TEnumerable> serialized, object? deserializationContext = null)
     {
         var enumerable = serialized.Select(x => _serializer.TryDeserialize<TElement>(x, deserializationContext));
-        var result = (TEnumerable)Activator.CreateInstance(typeof(TEnumerable));
+        var result = Activator.CreateInstance<TEnumerable>();
         var addMethod = result!.GetType().GetMethod("Add");
         foreach (var element in enumerable)
         {
