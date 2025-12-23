@@ -16,16 +16,9 @@ public class Instance
     public Instance(SynchronizationContext? uiContext, FrontendDependency supportedDependencies, [CallerFilePath] string path = "")
     {
         PluginFramework.LaminarFactory.ServiceProvider = ServiceProvider;
-        // _ = new PluginLoader(supportedDependencies, ServiceProvider.GetService<IPluginHostFactory>()!);
-        // _isLoading = true;
-        //foreach (var serializedScript in UserData.LoadAllFromFolder<ISerializedObject<IAdvancedScript>>("Scripts", "las"))
-        //{
-        //    AllAdvancedScripts.Add(Serializer.Deserialize(serializedScript, null));
-        //}
-        // _isLoading = false;
     }
 
-    public ObservableCollection<IScript> AllScripts { get; } = new();
+    public ObservableCollection<IScript> AllScripts { get; } = [];
 
     public IServiceProvider ServiceProvider { get; } = new ServiceCollection()
         .AddScriptingServices()

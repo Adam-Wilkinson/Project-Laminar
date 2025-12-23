@@ -40,7 +40,6 @@ public class PersistentDataStore<TEncodedValue>(
         set
         {
             if (BytesHelper.Equals(value, _rawData)) return;
-            
             _rawData = value;
             persistentDataTranscoder.DecodeByteArray(_rawData, RegisterEncodedValue);
         }
@@ -85,7 +84,6 @@ public class PersistentDataStore<TEncodedValue>(
         }
         
         persistentValue.Value = value;
-        SyncToFile();
         return new DataSaveResult();
     }
 
@@ -97,7 +95,6 @@ public class PersistentDataStore<TEncodedValue>(
         }
         
         persistentValue.ResetToDefault();
-        SyncToFile();
         return new DataSaveResult();
     }
 
@@ -113,6 +110,7 @@ public class PersistentDataStore<TEncodedValue>(
         DataChanged?.Invoke(this, EventArgs.Empty);
     }
     
+    // TODO: This method of serialization seems vastly inefficient, but it works for now.
     public Dictionary<string, TEncodedValue> Serialize()
     {
         return new Dictionary<string, TEncodedValue>(_serializedDataCache.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.EncodedValue));
