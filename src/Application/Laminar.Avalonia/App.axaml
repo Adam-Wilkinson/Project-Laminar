@@ -22,6 +22,7 @@
 				<ResourceInclude Source="XamlAssets/Themes/ToolMenuItemTheme.axaml"/>
 				<ResourceInclude Source="XamlAssets/Themes/GeometryIconTheme.axaml"/>
 				<ResourceInclude Source="XamlAssets/Themes/SwitchIconTheme.axaml"/>
+				<ResourceInclude Source="XamlAssets/Themes/LineIconTheme.axaml"/>
 			</ResourceDictionary.MergedDictionaries>
 			
 			<conv:FirstNotNullValueConverter x:Key="FirstNotNullValueConverter"/>

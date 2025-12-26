@@ -9,24 +9,24 @@
              x:Class="Laminar.Avalonia.Views.CustomTitleBars.WindowsTitleBar"
              x:DataType="vm:TitleBarViewModel">
   <StackPanel>
-	  <Grid Height="45">
+	  <Grid Height="35">
 		  <DockPanel IsHitTestVisible="False"
 					Name="TitleBarBackground">
 			  <DockPanel.Background>
 				  <LinearGradientBrush StartPoint="0,0" EndPoint="0,180">
 					  <GradientStop Offset="0" Color="{DynamicResource LaminarSecondary}"/>
-					  <GradientStop Offset="5" Color="{DynamicResource LaminarAccent}"/>
+					  <GradientStop Offset="5" Color="#1555"/>
 				  </LinearGradientBrush>
 			  </DockPanel.Background>
 			  <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Spacing="5">
 				  <TextBlock Name="ProjectText" Classes="h2"
 							 Text="Project:"
 							 FontWeight="Bold"
-							 FontSize="24"
+							 FontSize="20"
 							 VerticalAlignment="Center"
 							 IsHitTestVisible="False"/>
 				  <TextBlock Text="Laminar" Classes="h2"
-							 FontSize="24"
+							 FontSize="20"
 							 FontWeight="SemiLight"
 							 VerticalAlignment="Center"
 							 IsHitTestVisible="False"/>
@@ -69,12 +69,12 @@
 				
 				<Button Name="SystemTrayButton" Classes="TitleBarStyle"
 						ToolTip.Tip="Minimize to System Tray">
-					<Path Data="M-1,0 v2 h-4 M-2,0"/>
+					<PathIcon Data="M-1,0 v2 h-4 M-2,0"/>
 				</Button>
 			
 				<Button Name="MinimizeButton" Classes="TitleBarStyle"
 						ToolTip.Tip="Minimize">
-				  <Path Data="M0,1 h-2 v0.065 h2 z"/>
+					<PathIcon Theme="{StaticResource {x:Type PathIcon}}" Margin="5" Data="M0,15 h-5 v0.02 h5 z"/>
 				</Button>
 
 				<Button Name="MaximizeButton" Classes="TitleBarStyle">
@@ -82,7 +82,7 @@
 					<ToolTip Content="Maximize"
 							 Name="MaximizeToolTip"/>
 				  </ToolTip.Tip>
-				  <Path Name="MaximizeIcon"/>
+					<PathIcon Name="MaximizeIcon"/>
 				</Button>
 
 			  <Button Name="CloseButton" Classes="TitleBarStyle"
@@ -92,7 +92,7 @@
 					<Setter Property="Background" Value="Red"/>
 				  </Style>
 				</Button.Styles>
-				<Path Data="M1,1 L-1,-1 M-1,1 L1,-1"></Path>
+				  <PathIcon Data="M1,1 L-1,-1 M-1,1 L1,-1"/>
 			  </Button>
 
 			</StackPanel>
@@ -102,18 +102,20 @@
 	  <StackPanel.Styles>
 		  <Style Selector="Button.TitleBarStyle">
 			  <Setter Property="VerticalAlignment" Value="Stretch"/>
-			  <Setter Property="VerticalContentAlignment" Value="Center"/>
-			  <Setter Property="Padding" Value="5"/>
 			  <Setter Property="Width" Value="46"/>
-			  <Setter Property="BorderThickness" Value="0"/>
-			  <Style Selector="^:not(:pointerover) /template/ ContentPresenter#PART_ContentPresenter">
-				  <Setter Property="Background" Value="Transparent"/>
-			  </Style>
 			  <Style Selector="^ Path">
 				  <Setter Property="Stretch" Value="Uniform"/>
-				  <Setter Property="Margin" Value="10"/>
 				  <Setter Property="Stroke" Value="{DynamicResource LaminarForeground}"/>
-				  <Setter Property="StrokeThickness" Value="2"/>
+				  <Setter Property="StrokeThickness" Value="1.5"/>
+				  <Setter Property="VerticalAlignment" Value="Center"/>
+				  <Setter Property="HorizontalAlignment" Value="Center"/>
+			  </Style>
+			  <Style Selector="^ PathIcon">
+				  <Setter Property="Foreground" Value="{DynamicResource LaminarForeground}"/>
+				  <Setter Property="Padding" Value="10"/>
+				  <Setter Property="Width" Value="12"/>
+				  <Setter Property="Height" Value="12"/>
+				  <Setter Property="Theme" Value="{StaticResource LineIcon}"/>
 			  </Style>
 		  </Style>
 	  </StackPanel.Styles>

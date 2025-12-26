@@ -1,9 +1,9 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:t="using:Laminar.Avalonia.ToolSystem">
-    <SolidColorBrush x:Key="AccentButtonBackground" Color="{DynamicResource LaminarAccent}" />
-    <SolidColorBrush x:Key="AccentButtonBackgroundPointerOver" Color="{DynamicResource LaminarAccentLight}"/>
-    <SolidColorBrush x:Key="AccentButtonBackgroundPressed" Color="{DynamicResource LaminarAccentDark}"/>
+    <SolidColorBrush x:Key="AccentButtonBackground" Color="#8555" />
+    <SolidColorBrush x:Key="AccentButtonBackgroundPointerOver" Color="#a555"/>
+    <SolidColorBrush x:Key="AccentButtonBackgroundPressed" Color="#d555"/>
     <SolidColorBrush x:Key="ButtonBackgroundDisabled" Color="Transparent"/>
     <SolidColorBrush x:Key="ButtonBackground" Color="Transparent"/>
     <Thickness x:Key="ButtonPadding">0</Thickness>
@@ -13,6 +13,32 @@
         <Setter Property="Padding" Value="0"/>
         <Setter Property="Margin" Value="0"/>
         <Setter Property="BorderThickness" Value="0"/>
+    </ControlTheme>
+    
+    <ControlTheme x:Key="IconButton"
+                  TargetType="Button">
+        <Setter Property="Background" Value="{DynamicResource ThemeControlMidBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderLowBrush}" />
+        <Setter Property="BorderThickness" Value="{DynamicResource ThemeBorderThickness}" />
+        <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundBrush}" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Padding" Value="4" />
+        <Style Selector="^ /template/ ContentControl#PART_ContentControl">
+            <Setter Property="Background" Value="Transparent"/>
+        </Style>
+        <Style Selector="^:pointerover  /template/ ContentControl#PART_ContentControl">
+            <Setter Property="Background" Value="#3555" />
+        </Style>
+        <Style Selector="^:pointerover /template/ ContentControl#PART_ContentControl">
+            <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderMidBrush}" />
+        </Style>
+        <Style Selector="^:pressed  /template/ ContentControl#PART_ContentControl">
+            <Setter Property="Background" Value="{DynamicResource ThemeControlHighBrush}" />
+        </Style>
+        <Style Selector="^:disabled">
+            <Setter Property="Opacity" Value="{DynamicResource ThemeDisabledOpacity}" />
+        </Style>
     </ControlTheme>
     
     <ControlTheme x:Key="ToolButton" 
