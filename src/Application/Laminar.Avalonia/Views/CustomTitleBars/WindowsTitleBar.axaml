@@ -5,6 +5,7 @@
              xmlns:titlebars="using:Laminar.Avalonia.Views.CustomTitleBars"
              xmlns:vm="using:Laminar.Avalonia.ViewModels"
              xmlns:vmd="using:Laminar.Avalonia.ViewModels.Design"
+             xmlns:init="using:Laminar.Avalonia.InitializationTargets"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450" d:DataContext="{x:Static vmd:DesignViewModel.TitleBar}"
              x:Class="Laminar.Avalonia.Views.CustomTitleBars.WindowsTitleBar"
              x:DataType="vm:TitleBarViewModel">
@@ -13,9 +14,9 @@
 		  <DockPanel IsHitTestVisible="False"
 					Name="TitleBarBackground">
 			  <DockPanel.Background>
-				  <LinearGradientBrush StartPoint="0,0" EndPoint="0,180">
-					  <GradientStop Offset="0" Color="{DynamicResource LaminarSecondary}"/>
-					  <GradientStop Offset="5" Color="#1555"/>
+				  <LinearGradientBrush StartPoint="0,0" EndPoint="0,90">
+					  <GradientStop Offset="0" Color="{DynamicResource {x:Static init:ColorInitialization.LaminarAccentBackgroundKey}}"/>
+					  <GradientStop Offset="1" Color="#0555"/>
 				  </LinearGradientBrush>
 			  </DockPanel.Background>
 			  <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Spacing="5">

@@ -1,13 +1,14 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:t="using:Laminar.Avalonia.ToolSystem"
-                    xmlns:s="using:Laminar.Avalonia.Settings">
+                    xmlns:s="using:Laminar.Avalonia.Settings"
+                    xmlns:init="using:Laminar.Avalonia.InitializationTargets">
     <ControlTheme x:Key="{x:Type t:SwitchIcon}" TargetType="t:SwitchIcon">
         <Setter Property="Template">
             <ControlTemplate>
                 <Panel>
                     <Ellipse Width="30" Height="30" 
-                             Stroke="{DynamicResource LaminarForeground}" StrokeThickness="3" 
+                             Stroke="{DynamicResource {x:Static init:ColorInitialization.LaminarForegroundKey}}" StrokeThickness="3" 
                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     <Ellipse Name="IsCheckedIndicator"
                              Width="16" Height="16"
@@ -22,7 +23,7 @@
                                     </Transitions>
                                 </Setter>
                                 <Style Selector="^.Show">
-                                    <Setter Property="Fill" Value="{DynamicResource LaminarForegroundEmphasis}"/>
+                                    <Setter Property="Fill" Value="{DynamicResource {x:Static init:ColorInitialization.LaminarAccentForegroundKey}}"/>
                                 </Style>
                             </Style>
                         </Ellipse.Styles>

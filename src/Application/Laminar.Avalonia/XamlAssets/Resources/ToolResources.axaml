@@ -7,7 +7,8 @@
                     xmlns:s="using:Laminar.Avalonia.Settings"
                     xmlns:lang="using:Laminar.Avalonia.Assets.Lang"
                     xmlns:shapes="using:Laminar.Avalonia.Shapes"
-                    xmlns:conv="using:Laminar.Avalonia.Converters">
+                    xmlns:conv="using:Laminar.Avalonia.Converters"
+                    xmlns:init="using:Laminar.Avalonia.InitializationTargets">
     
     <!-- Edit Menu Tool -->
     <t:CommandTool Name="{x:Static lang:Resources.Undo}" x:DataType="vms:IUndoTarget" 
@@ -119,8 +120,8 @@
             <DataTemplate DataType="vm:MainWindowViewModel">
                 <Panel Classes.SidebarExpanded="{Binding SidebarExpanded}"
                        Classes.Disabled="{Binding SettingsOpen}">
-                    <Path HorizontalAlignment="Center" Name="CloseSidebarHint" Data="M 0 0 L -2 8 L 0 16" Stroke="{DynamicResource LaminarForeground}" StrokeThickness="2" Height="16" ClipToBounds="False"/>
-                    <Path HorizontalAlignment="Center" Name="ExpandSidebarHint" Data="M 0 0 L 2 8 L 0 16" Stroke="{DynamicResource LaminarForeground}" StrokeThickness="2" Height="16" ClipToBounds="False"/>
+                    <Path HorizontalAlignment="Center" Name="CloseSidebarHint" Data="M 0 0 L -2 8 L 0 16" Stroke="{DynamicResource {x:Static init:ColorInitialization.LaminarForegroundKey}}" StrokeThickness="2" Height="16" ClipToBounds="False"/>
+                    <Path HorizontalAlignment="Center" Name="ExpandSidebarHint" Data="M 0 0 L 2 8 L 0 16" Stroke="{DynamicResource {x:Static init:ColorInitialization.LaminarForegroundKey}}" StrokeThickness="2" Height="16" ClipToBounds="False"/>
                     <Image Source="/Assets/ProjectLaminarLogo.png"
                                Height="30"
                                Width="30"
@@ -204,10 +205,10 @@
 				       Classes="TagIsPointerOver">
 					<shapes:SettingsCog Classes="SettingsCog" Width="19" Height="19" 
 					                    SpokeDepth="4.5" SpokeCount="8" 
-					                    Stroke="{DynamicResource LaminarForeground}" StrokeThickness="1.5"/>
+					                    Stroke="{DynamicResource {x:Static init:ColorInitialization.LaminarForegroundKey}}" StrokeThickness="1.5"/>
 					<Border Classes="SettingsArrowRotater">
 						<Path Classes="SettingsArrow" Data="M 0 0 L 3 1 L 6 0" Height="20" Width="17"
-						      Stroke="{DynamicResource LaminarForeground}" VerticalAlignment="Stretch" 
+						      Stroke="{DynamicResource {x:Static init:ColorInitialization.LaminarForegroundKey}}" VerticalAlignment="Stretch" 
 						      ClipToBounds="False" HorizontalAlignment="Stretch" StrokeThickness="1.5"/>
 					</Border>
 					<Panel.Styles>

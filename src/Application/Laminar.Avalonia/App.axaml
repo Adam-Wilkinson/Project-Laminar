@@ -35,6 +35,7 @@
 			<conv:HasValueConverter x:Key="HasValueConverter"/>
 			<conv:SwitchConverter x:Key="SwitchConverter"/>
 			<conv:SwitchItemConverter x:Key="SwitchItemConverter"/>
+			<conv:ColorToBrushConverter x:Key="ColorToBrushConverter"/>
 		</ResourceDictionary>
 	</Application.Resources>
 	

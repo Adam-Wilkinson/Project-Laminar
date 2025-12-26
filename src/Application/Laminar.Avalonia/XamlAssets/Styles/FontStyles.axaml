@@ -1,7 +1,8 @@
 <Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:sys="using:System"
-        xmlns:s="using:Laminar.Avalonia.Settings">
+        xmlns:s="using:Laminar.Avalonia.Settings"
+        xmlns:init="using:Laminar.Avalonia.InitializationTargets">
 
     <Styles.Resources>
         <sys:Double x:Key="H1FontSize">34</sys:Double>
@@ -11,7 +12,7 @@
     </Styles.Resources>
     
     <Style Selector="Run.Emphasis">
-        <Setter Property="Foreground" Value="{DynamicResource LaminarForegroundEmphasis}"/>
+        <Setter Property="Foreground" Value="{DynamicResource {x:Static init:ColorInitialization.LaminarAccentForegroundKey}}"/>
     </Style>
     
     <Style Selector="TextBlock.h1">
@@ -85,7 +86,7 @@
             <FontFamily x:Key="Abyssinica">/Assets/Fonts/AbyssinicaSIL-Regular.ttf#Abyssinica SIL</FontFamily>
         </Style.Resources>
         
-        <Setter Property="Foreground" Value="{DynamicResource LaminarForeground}"/>
+        <Setter Property="Foreground" Value="{DynamicResource {x:Static init:ColorInitialization.LaminarForegroundKey}}"/>
         <Setter Property="Background" Value="{DynamicResource LaminarBackground}"/>
         <Setter Property="FontFamily" Value="{DynamicResource  Abyssinica}"/>
     </Style>

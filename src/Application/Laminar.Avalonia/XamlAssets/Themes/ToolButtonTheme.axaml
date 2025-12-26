@@ -1,6 +1,7 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:t="using:Laminar.Avalonia.ToolSystem">
+                    xmlns:t="using:Laminar.Avalonia.ToolSystem"
+                    xmlns:init="using:Laminar.Avalonia.InitializationTargets">
     <SolidColorBrush x:Key="AccentButtonBackground" Color="#8555" />
     <SolidColorBrush x:Key="AccentButtonBackgroundPointerOver" Color="#a555"/>
     <SolidColorBrush x:Key="AccentButtonBackgroundPressed" Color="#d555"/>
@@ -107,10 +108,10 @@
             </Setter>
         </Style>
         <Style Selector="^.Highlight">
-            <Setter Property="Background" Value="{DynamicResource LaminarAccent}"/>
+            <Setter Property="Background" Value="{DynamicResource {x:Static init:ColorInitialization.LaminarAccentKey}}"/>
         </Style>
         <Style Selector="^.Highlight:pointerover">
-            <Setter Property="Background" Value="{DynamicResource LaminarAccent}"/>
+            <Setter Property="Background" Value="{DynamicResource {x:Static init:ColorInitialization.LaminarAccentKey}}"/>
         </Style>
     </ControlTheme>
 </ResourceDictionary>

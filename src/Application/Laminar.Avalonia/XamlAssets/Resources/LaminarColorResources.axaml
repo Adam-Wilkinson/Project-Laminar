@@ -1,19 +1,16 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:init="using:Laminar.Avalonia.InitializationTargets">
     <ResourceDictionary.ThemeDictionaries>
         <ResourceDictionary x:Key="Dark">
-            <Color x:Key='LaminarForeground'>#dbe5ff</Color>
-            <Color x:Key="LaminarForegroundEmphasis">#9eaedf</Color>
-            <Color x:Key='LaminarBackground'>#010103</Color>
-            <Color x:Key='LaminarPrimary'>#242ee0</Color>
-            <Color x:Key='LaminarSecondary'>#000c2e</Color>
+            <Color x:Key='{x:Static init:ColorInitialization.LaminarForegroundKey}'>#dbe5ff</Color>
+            <Color x:Key='{x:Static init:ColorInitialization.LaminarAccentKey}'>#242ee0</Color>
+            <Color x:Key="LaminarBackground">#000002</Color>
         </ResourceDictionary>
         <ResourceDictionary x:Key="Light">
-            <Color x:Key='LaminarForeground'>#000a24</Color>
-            <Color x:Key="LaminarForegroundEmphasis">#505de8</Color>
-            <Color x:Key='LaminarBackground'>#fafaff</Color>
-            <Color x:Key='LaminarPrimary'>#1f29db</Color>
-            <Color x:Key='LaminarSecondary'>#d1ddff</Color>
+            <Color x:Key='{x:Static init:ColorInitialization.LaminarForegroundKey}'>#000a24</Color>
+            <Color x:Key='{x:Static init:ColorInitialization.LaminarAccentKey}'>#1f29db</Color>
+            <Color x:Key="LaminarBackground">#eee</Color>
         </ResourceDictionary>
     </ResourceDictionary.ThemeDictionaries>
 </ResourceDictionary>
