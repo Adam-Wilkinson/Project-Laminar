@@ -53,7 +53,7 @@
 					</Transitions>
 				</Setter>
 				<Style Selector="^.IsFaded">
-					<Setter Property="Opacity" Value="0.3"/>
+					<Setter Property="Opacity" Value="0"/>
 				</Style>
 			</Style>
 		</DockPanel.Styles>

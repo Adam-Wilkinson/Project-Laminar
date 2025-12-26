@@ -7,21 +7,22 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450" d:DataContext="{x:Static dvm:DesignViewModel.Settings}"
              x:Class="Laminar.Avalonia.Views.SettingsView"	
              x:DataType="vm:SettingsViewModel"
-             HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-			 Background="{DynamicResource LaminarBackgroundLighter}">
-	<ItemsControl ItemsSource="{StaticResource SettingsRoot}" Margin="100, 30" HorizontalAlignment="Stretch">
+             HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+	<ItemsControl ItemsSource="{StaticResource SettingsRoot}" MaxWidth="1500" Margin="100, 30" HorizontalAlignment="Stretch">
 		<ItemsControl.ItemsPanel>
 			<ItemsPanelTemplate>
-				<StackPanel Spacing="10"/>			
+				<StackPanel Spacing="4"/>			
 			</ItemsPanelTemplate>
 		</ItemsControl.ItemsPanel>
 		
 		<ItemsControl.ItemTemplate>
 			<DataTemplate>
-				<StackPanel>
-					<ContentControl Content="{Binding}" Margin="20"/>
-					<Rectangle HorizontalAlignment="Stretch" Height="5" Fill="{DynamicResource LaminarBackground}"/>
-				</StackPanel>
+				<Border
+					CornerRadius="10"
+					Background="#2555">
+					<ContentControl
+						Content="{Binding}" Margin="20"/>
+				</Border>
 			</DataTemplate>
 		</ItemsControl.ItemTemplate>
 	</ItemsControl>
