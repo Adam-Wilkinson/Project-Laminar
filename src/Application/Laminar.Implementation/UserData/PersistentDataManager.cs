@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
-using Laminar.Contracts;
 using Laminar.Contracts.UserData;
 using Laminar.Domain.DataManagement;
 using Laminar.Domain.Exceptions;
@@ -49,7 +48,7 @@ public class PersistentDataManager(ISerializer serializer, IFileSystem fileSyste
 
         newDataStore.RawData = file.Contents;
         newDataStore.DataChanged += (_, _) => file.Contents = newDataStore.RawData;
-        file.ContentsChanged += (_, _) => newDataStore.RawData = file.Contents;
+        // file.ContentsChanged += (_, _) => newDataStore.RawData = file.Contents;
         
         _dataStores[dataStoreKey] = newDataStore;
         return newDataStore;

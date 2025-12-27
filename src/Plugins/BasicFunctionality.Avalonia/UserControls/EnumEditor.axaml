@@ -8,7 +8,7 @@
              x:DataType="uid:EnumDropdown+IXamlTarget"
              x:Class="BasicFunctionality.Avalonia.UserControls.EnumEditor">
 	<local:ValueEditorPanel>
-		<ComboBox VerticalAlignment="Center" HorizontalAlignment="Stretch" VerticalContentAlignment="Center" 
+		<ComboBox VerticalAlignment="Center" HorizontalAlignment="Stretch" VerticalContentAlignment="Center" Margin="5,0,0,0" 
 		          Name="CBox"
 		          local:ValueEditorPanel.Position="SpansWhenCompact"
 		          SelectedItem="{Binding Value, Mode=TwoWay}"/>

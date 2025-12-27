@@ -3,8 +3,9 @@
              x:Class="BasicFunctionality.Avalonia.UIViewer.App"
              RequestedThemeVariant="Default">
              <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
-
+             
     <Application.Styles>
+        <StyleInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/Fluent/Fluent.xaml" />
         <FluentTheme />
     </Application.Styles>
 </Application>

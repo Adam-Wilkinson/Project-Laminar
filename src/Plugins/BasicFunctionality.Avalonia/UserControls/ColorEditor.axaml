@@ -1,0 +1,18 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:uid="using:Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions"
+             xmlns:local="using:BasicFunctionality.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="uid:ColorEditor+IXamlTarget"
+             x:Class="BasicFunctionality.Avalonia.UserControls.ColorEditor">
+    <local:ValueEditorPanel>
+        <TextBlock local:ValueEditorPanel.Position="Nameplate" 
+                   Text="{Binding Name}" 
+                   VerticalAlignment="Center"/>
+        <Rectangle Name="WidthFinder" HorizontalAlignment="Stretch" MinWidth="40" MaxWidth="200" local:ValueEditorPanel.Position="Value"/>
+        <ColorPicker local:ValueEditorPanel.Position="Value" Name="MainColorPicker"
+                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="{Binding #WidthFinder.Bounds.Width}" HorizontalContentAlignment="Stretch" Margin="5"/>
+    </local:ValueEditorPanel>
+</UserControl>

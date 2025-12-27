@@ -7,11 +7,13 @@
         xmlns:ui="using:Laminar.PluginFramework.UserInterface"
         xmlns:pf="using:Laminar.PluginFramework"
         xmlns:local="using:BasicFunctionality.Avalonia.UIViewer"
+        xmlns:drawing="using:System.Drawing"
+        xmlns:media="using:Avalonia.Media"
         mc:Ignorable="d" d:DesignWidth="550" d:DesignHeight="450"
         x:Class="BasicFunctionality.Avalonia.UIViewer.MainWindow"
         x:DataType="local:MainWindow"
         Title="BasicFunctionality.Avalonia.UIViewer">
-    <UniformGrid Columns="1" Margin="10" HorizontalAlignment="Stretch" >
+    <UniformGrid Columns="1" Margin="5" HorizontalAlignment="Stretch" >
         
         <bfa:BoolEditor HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
             <bfa:BoolEditor.DataContext>
@@ -94,5 +96,21 @@
                 <ui:InterfaceData x:TypeArguments="uid:ToggleSwitch, x:Boolean" Value="False" Name="Default Name"/>
             </bfa:ToggleSwitch.DataContext>
         </bfa:ToggleSwitch>
+        
+        <Separator/>
+        
+        <bfa:ColorViewer>
+            <bfa:ColorViewer.DataContext>
+                <ui:InterfaceData x:TypeArguments="uid:ColorViewer, media:Color" Name="A color viewer" Value="{x:Static media:Colors.BlueViolet}"/>
+            </bfa:ColorViewer.DataContext>
+        </bfa:ColorViewer>
+        
+        <Separator/>
+        
+        <bfa:ColorEditor>
+            <bfa:ColorEditor.DataContext>
+                <ui:InterfaceData x:TypeArguments="uid:ColorEditor, media:Color" Name="A color editor" Value="{x:Static media:Colors.DarkGoldenrod}"/>
+            </bfa:ColorEditor.DataContext>
+        </bfa:ColorEditor>
     </UniformGrid>
 </Window>
