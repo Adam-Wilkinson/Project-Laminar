@@ -28,7 +28,7 @@ public class Setting : SettingsItem, IInterfaceData
     public static readonly StyledProperty<object> ValueProperty = AvaloniaProperty.Register<Setting, object>(nameof(Value));
     public static readonly StyledProperty<IUserInterfaceDefinition?> DefinitionProperty = AvaloniaProperty.Register<Setting, IUserInterfaceDefinition?>(nameof(Definition));
     public static readonly StyledProperty<IValueConverter?> DisplayValueConverterProperty = AvaloniaProperty.Register<Setting, IValueConverter?>(nameof(DisplayValueConverter));
-    public static readonly StyledProperty<bool> DisplayToUserProperty = AvaloniaProperty.Register<Setting, bool>(nameof(DisplayToUser));
+    public static readonly StyledProperty<bool> DisplayToUserProperty = AvaloniaProperty.Register<Setting, bool>(nameof(DisplayToUser), defaultValue: true);
     
     public virtual object Value
     {

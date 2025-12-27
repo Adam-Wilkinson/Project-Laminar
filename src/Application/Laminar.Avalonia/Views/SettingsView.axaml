@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:Laminar.Avalonia.ViewModels"
              xmlns:dvm="using:Laminar.Avalonia.ViewModels.Design"
+             xmlns:s="using:Laminar.Avalonia.Settings"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450" d:DataContext="{x:Static dvm:DesignViewModel.Settings}"
              x:Class="Laminar.Avalonia.Views.SettingsView"	
              x:DataType="vm:SettingsViewModel"
@@ -16,12 +17,13 @@
 		</ItemsControl.ItemsPanel>
 		
 		<ItemsControl.ItemTemplate>
-			<DataTemplate>
+			<DataTemplate x:DataType="s:Setting">
 				<Border
+					IsVisible="{Binding DisplayToUser}"
 					CornerRadius="10"
 					Background="#2555">
-					<ContentControl
-						Content="{Binding}" Margin="20"/>
+					<ContentControl MinHeight="40"
+						Content="{Binding}" Margin="10"/>
 				</Border>
 			</DataTemplate>
 		</ItemsControl.ItemTemplate>

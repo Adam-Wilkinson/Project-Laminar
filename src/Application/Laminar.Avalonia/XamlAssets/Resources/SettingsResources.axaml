@@ -21,9 +21,11 @@
 		<d:Slider Min="0.4" Max="2.0" FormatString="{}{0:P0}"></d:Slider>
 	</s:DoubleSetting>
 	
-	<s:BoolSetting x:Key="SettingsRoot.InterfaceSettings.ColorsFromTheme" Name="Determine colors based on theme" Value="True"/>
+	<s:BoolSetting x:Key="SettingsRoot.InterfaceSettings.ColorsFromTheme" Name="Determine Colors" Value="False">
+		<d:BoolTwoButton TrueText="Manually" FalseText="Based on theme"/>
+	</s:BoolSetting>
 	<s:ColorSetting x:Key="SettingsRoot.InterfaceSettings.AccentColor" Name="Accent Colour" Value="#242ee0" DisplayToUser="{s:Setting InterfaceSettings.ColorsFromTheme}"/>
-	
+	<s:ColorSetting x:Key="SettingsRoot.InterfaceSettings.ForegroundColor" Name="Foreground Colour" Value="#dbe5ff" DisplayToUser="{s:Setting InterfaceSettings.ColorsFromTheme}"/>
 	
 	<s:SettingsCategory x:Key="SettingsRoot" Name="Settings Root">
 		<StaticResource ResourceKey="SettingsRoot.InterfaceSettings.AnimationDuration"/>
@@ -31,6 +33,7 @@
 		<StaticResource ResourceKey="SettingsRoot.InterfaceSettings.UiScale"/>
 		<StaticResource ResourceKey="SettingsRoot.InterfaceSettings.ColorsFromTheme"/>
 		<StaticResource ResourceKey="SettingsRoot.InterfaceSettings.AccentColor"/>
+		<StaticResource ResourceKey="SettingsRoot.InterfaceSettings.ForegroundColor"/>
 	</s:SettingsCategory>
 	
     <Easing x:Key="AnimationEasing">QuadraticEaseInOut</Easing>

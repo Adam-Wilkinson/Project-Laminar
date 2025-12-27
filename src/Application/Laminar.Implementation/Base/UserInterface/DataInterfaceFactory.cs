@@ -7,10 +7,11 @@ using Laminar.Contracts.Base.UserInterface;
 using Laminar.PluginFramework;
 using Laminar.PluginFramework.UserInterface;
 using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
+using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.Base.UserInterface;
 
-public class DataInterfaceFactory(ITypeInfoStore typeInfoStore) : IDataInterfaceFactory
+public partial class DataInterfaceFactory(ITypeInfoStore typeInfoStore, ILogger<DataInterfaceFactory> logger) : IDataInterfaceFactory
 {
     private delegate IInterfaceData? GenericDataFactory(IInterfaceData inputData, IUserInterfaceDefinition userInterfaceDefinition);
     
@@ -76,6 +77,7 @@ public class DataInterfaceFactory(ITypeInfoStore typeInfoStore) : IDataInterface
     {
         if (!_interfaceFactories.TryGetValue(interfaceDefinition.GetType(), out var genericInterfaceDataFactories))
         {
+            LogRequestedDataInterfaceNoImplementations(logger, interfaceDefinition.GetType());
             return null;
         }
 
@@ -89,6 +91,7 @@ public class DataInterfaceFactory(ITypeInfoStore typeInfoStore) : IDataInterface
             }
         }
 
+        LogRequestedDataInterfaceNoFrontend(logger, interfaceDefinition.GetType(), typeof(TFrontend));
         return null;
     }
 
@@ -136,6 +139,12 @@ public class DataInterfaceFactory(ITypeInfoStore typeInfoStore) : IDataInterface
             not null => new InterfaceDataGenericWrapper<TInterfaceDefinition, TValue>(interfaceData, (TInterfaceDefinition)interfaceDefinition),
             _ => null,
         };
+
+    [LoggerMessage(LogLevel.Error, "The requested data interface {definitionType} has implementations, but none of them are for the correct frontend type {frontendType}. System will fall back along default interfaces")]
+    static partial void LogRequestedDataInterfaceNoFrontend(ILogger<DataInterfaceFactory> logger, Type definitionType, Type frontendType);
+
+    [LoggerMessage(LogLevel.Error, "The requested data interface type {definitionType} has no implementations. System will fall back along default interfaces")]
+    static partial void LogRequestedDataInterfaceNoImplementations(ILogger<DataInterfaceFactory> logger, Type definitionType);
 }
 
 public class InterfaceDataGenericWrapper<TInterfaceDefinition, TValue> : IInterfaceData<TInterfaceDefinition, TValue>
