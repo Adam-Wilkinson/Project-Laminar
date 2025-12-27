@@ -1,5 +1,4 @@
 using System;
-using System.ComponentModel;
 using System.Globalization;
 using Avalonia;
 using Avalonia.Data.Converters;
@@ -13,6 +12,7 @@ namespace Laminar.Avalonia.Settings;
 public class TimeSpanSetting : Setting<TimeSpan>;
 public class DoubleSetting : Setting<double>;
 public class ColorSetting : Setting<Color>;
+public class BoolSetting : Setting<bool>;
 
 public class Setting<T> : Setting where T : notnull
 {
@@ -28,11 +28,18 @@ public class Setting : SettingsItem, IInterfaceData
     public static readonly StyledProperty<object> ValueProperty = AvaloniaProperty.Register<Setting, object>(nameof(Value));
     public static readonly StyledProperty<IUserInterfaceDefinition?> DefinitionProperty = AvaloniaProperty.Register<Setting, IUserInterfaceDefinition?>(nameof(Definition));
     public static readonly StyledProperty<IValueConverter?> DisplayValueConverterProperty = AvaloniaProperty.Register<Setting, IValueConverter?>(nameof(DisplayValueConverter));
+    public static readonly StyledProperty<bool> DisplayToUserProperty = AvaloniaProperty.Register<Setting, bool>(nameof(DisplayToUser));
     
     public virtual object Value
     {
         get => GetValue(ValueProperty);
         set => SetValue(ValueProperty, value);
+    }
+
+    public bool DisplayToUser
+    {
+        get => GetValue(DisplayToUserProperty);
+        set => SetValue(DisplayToUserProperty, value);
     }
     
     public bool IsUserEditable => true;

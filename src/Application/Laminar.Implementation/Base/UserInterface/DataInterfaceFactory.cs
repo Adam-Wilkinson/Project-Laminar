@@ -65,7 +65,7 @@ public class DataInterfaceFactory(ITypeInfoStore typeInfoStore) : IDataInterface
         var defaultViewerData = new InterfaceDataGenericWrapper<DefaultViewer, None>(interfaceData, new DefaultViewer());
         if (GetFrontendFromData<TFrontend>(defaultViewerData) is { } defaultResult)
         {
-            return (defaultResult, defaultViewerData);
+            return (defaultResult, interfaceData);
         }
 
         throw new Exception($"No default viewer found for frontend of type {typeof(TFrontend)}");

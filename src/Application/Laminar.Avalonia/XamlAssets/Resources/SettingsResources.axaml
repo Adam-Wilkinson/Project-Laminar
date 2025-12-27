@@ -21,12 +21,15 @@
 		<d:Slider Min="0.4" Max="2.0" FormatString="{}{0:P0}"></d:Slider>
 	</s:DoubleSetting>
 	
-	<s:ColorSetting x:Key="SettingsRoot.InterfaceSettings.AccentColor" Name="Accent Colour" Value="#242ee0"/>
+	<s:BoolSetting x:Key="SettingsRoot.InterfaceSettings.ColorsFromTheme" Name="Determine colors based on theme" Value="True"/>
+	<s:ColorSetting x:Key="SettingsRoot.InterfaceSettings.AccentColor" Name="Accent Colour" Value="#242ee0" DisplayToUser="{s:Setting InterfaceSettings.ColorsFromTheme}"/>
+	
 	
 	<s:SettingsCategory x:Key="SettingsRoot" Name="Settings Root">
 		<StaticResource ResourceKey="SettingsRoot.InterfaceSettings.AnimationDuration"/>
 		<StaticResource ResourceKey="SettingsRoot.InterfaceSettings.ThemeVariant"/>
 		<StaticResource ResourceKey="SettingsRoot.InterfaceSettings.UiScale"/>
+		<StaticResource ResourceKey="SettingsRoot.InterfaceSettings.ColorsFromTheme"/>
 		<StaticResource ResourceKey="SettingsRoot.InterfaceSettings.AccentColor"/>
 	</s:SettingsCategory>
 	
