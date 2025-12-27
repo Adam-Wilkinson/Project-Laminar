@@ -40,6 +40,7 @@
 	</Application.Resources>
 	
 	<Application.Styles>
+		<StyleInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/Fluent/Fluent.xaml" />
 		<FluentTheme />
 		<StyleInclude Source="XamlAssets/Styles/FontStyles.axaml"/>
 	</Application.Styles>

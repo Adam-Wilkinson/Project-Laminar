@@ -17,7 +17,6 @@ public class DataInterface<TFrontend> : IDataInterface<TFrontend>
     
     public DataInterface(IInterfaceData interfaceData, DataInterfaceFactory dataInterfaceFactory)
     {
-        
         _interfaceData = interfaceData;
         _valueType = _interfaceData.Value.GetType();
         _valueTypeIsMutable = !(interfaceData.GetType().IsGenericType && interfaceData.GetType().GetGenericTypeDefinition() == typeof(IInterfaceData<>));

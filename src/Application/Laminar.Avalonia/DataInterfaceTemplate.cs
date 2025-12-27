@@ -1,5 +1,7 @@
+using System.Diagnostics;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
+using Avalonia.Media;
 using Laminar.Avalonia.InitializationTargets;
 using Laminar.Contracts.Base.UserInterface;
 using Laminar.PluginFramework.UserInterface;

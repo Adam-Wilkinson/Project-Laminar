@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Globalization;
 using Avalonia;
 using Avalonia.Data.Converters;
+using Avalonia.Media;
 using Avalonia.Metadata;
 using Laminar.PluginFramework.UserInterface;
 using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
@@ -11,6 +12,7 @@ namespace Laminar.Avalonia.Settings;
 
 public class TimeSpanSetting : Setting<TimeSpan>;
 public class DoubleSetting : Setting<double>;
+public class ColorSetting : Setting<Color>;
 
 public class Setting<T> : Setting where T : notnull
 {
