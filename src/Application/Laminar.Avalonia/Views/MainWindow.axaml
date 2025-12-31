@@ -5,6 +5,7 @@
         xmlns:v="using:Laminar.Avalonia.Views"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:init="using:Laminar.Avalonia.InitializationTargets"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450" d:DataContext="{x:Static dvm:DesignViewModel.MainWindow}"
         x:Class="Laminar.Avalonia.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
@@ -12,6 +13,8 @@
         Title="Project: Laminar"
         xmlns:s="using:Laminar.Avalonia.Settings"
         RequestedThemeVariant="{s:Setting InterfaceSettings.ThemeVariant}"
+        Foreground="{DynamicResource {x:Static init:ColorInitialization.LaminarForegroundKey}}"
+        Background="{DynamicResource LaminarBackground}"
 		ExtendClientAreaToDecorationsHint="True"
 		ExtendClientAreaChromeHints="NoChrome"
 		ExtendClientAreaTitleBarHeightHint="40">	

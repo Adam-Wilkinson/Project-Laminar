@@ -21,7 +21,7 @@
 				<Border
 					IsVisible="{Binding DisplayToUser}"
 					CornerRadius="10"
-					Background="#2555">
+					Background="{DynamicResource UiLayer}">
 					<ContentControl MinHeight="40"
 						Content="{Binding}" Margin="10"/>
 				</Border>

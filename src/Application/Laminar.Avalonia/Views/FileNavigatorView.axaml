@@ -26,7 +26,7 @@
         <TreeView ClipToBounds="False" ItemsSource="{Binding RootFiles}">
             <TreeView.ItemTemplate>
                 <TreeDataTemplate DataType="{x:Type vm:FileNavigatorItemViewModel}" ItemsSource="{Binding Children}">
-                    <Border CornerRadius="10" Background="#2555" Margin="0,0,2,3">
+                    <Border CornerRadius="10" Background="{DynamicResource UiLayer}" Margin="0,0,2,3">
                         <DockPanel Tag="{Binding ItemTypeName}"
                                    HorizontalAlignment="Stretch"
                                    Height="37">

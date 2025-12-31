@@ -27,6 +27,10 @@
 			              RenderTransformOrigin="0%,50%"
 			              HorizontalContentAlignment="Center"
 			              Content="{Binding Definition.FalseText}"/>
+		<Grid.Styles>
+			<Style Selector=":is(ToggleButton):pressed /template/ ContentPresenter#PART_ContentPresenter">
+			</Style>
+		</Grid.Styles>
 		</Grid>
 	</local:ValueEditorPanel>
 </UserControl>

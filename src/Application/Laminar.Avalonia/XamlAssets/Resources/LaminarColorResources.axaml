@@ -3,14 +3,16 @@
                     xmlns:init="using:Laminar.Avalonia.InitializationTargets">
     <ResourceDictionary.ThemeDictionaries>
         <ResourceDictionary x:Key="Dark">
-            <Color x:Key='{x:Static init:ColorInitialization.LaminarForegroundKey}'>#dbe5ff</Color>
-            <Color x:Key='{x:Static init:ColorInitialization.LaminarAccentKey}'>#242ee0</Color>
-            <Color x:Key="LaminarBackground">#000002</Color>
+            <Color x:Key='LaminarThemeForeground'>#dbe5ff</Color>
+            <Color x:Key='LaminarThemeAccent'>#242ee0</Color>
+            <Color x:Key="LaminarThemeBackground">#000002</Color>
         </ResourceDictionary>
         <ResourceDictionary x:Key="Light">
-            <Color x:Key='{x:Static init:ColorInitialization.LaminarForegroundKey}'>#000a24</Color>
-            <Color x:Key='{x:Static init:ColorInitialization.LaminarAccentKey}'>#1f29db</Color>
-            <Color x:Key="LaminarBackground">#eee</Color>
+            <Color x:Key='LaminarThemeForeground'>#000a24</Color>
+            <Color x:Key='LaminarThemeAccent'>#1f29db</Color>
+            <Color x:Key="LaminarThemeBackground">#eee</Color>
         </ResourceDictionary>
     </ResourceDictionary.ThemeDictionaries>
+    
+    <Color x:Key="UiLayer">#3555</Color>
 </ResourceDictionary>

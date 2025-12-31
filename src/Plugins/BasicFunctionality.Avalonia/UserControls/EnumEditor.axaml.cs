@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Data;
 using Laminar.PluginFramework.UserInterface;
 using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
@@ -13,19 +14,17 @@ public partial class EnumEditor : UserControl
 
     protected override void OnDataContextChanged(EventArgs e)
     {
-        if (DataContext is not IInterfaceData { Definition: EnumDropdown enumDropdown } interfaceData)
+        const string bindingPath = $"{nameof(IInterfaceData.Definition)}.{nameof(EnumDropdown.DropdownOptions)}";
+        
+        if (DataContext is not IInterfaceData { Definition: EnumDropdown } interfaceData)
         {
             return;
         }
-
-        if (enumDropdown.DropdownOptions is not null)
-        {
-            CBox.ItemsSource = enumDropdown.DropdownOptions;
-        }
-
-        if (interfaceData.Value.GetType().IsEnum)
-        {
-            CBox.ItemsSource = interfaceData.Value.GetType().GetEnumValues();
-        }
+        
+        CBox[!ItemsControl.ItemsSourceProperty] = 
+            new Binding(bindingPath, BindingMode.OneWay)
+            {
+                FallbackValue = interfaceData.Value.GetType().IsEnum ? interfaceData.Value.GetType().GetEnumValues() : null,
+            };
     }
 }

@@ -51,7 +51,9 @@
 						</Style>
 					</Menu.Styles>
 					<MenuItem Header="File"/>
-					<MenuItem Header="Edit" ItemContainerTheme="{StaticResource ToolMenuItemTheme}" ItemsSource="{Binding MainWindow, Converter={StaticResource ToolInstancer}, ConverterParameter={StaticResource Tools.Edit}}"/>
+					<MenuItem Header="Edit" 
+					          ItemContainerTheme="{StaticResource ToolMenuItemTheme}" 
+					          ItemsSource="{Binding MainWindow, Converter={StaticResource ToolInstancer}, ConverterParameter={StaticResource Tools.Edit}}"/>
 					<MenuItem Header="View"/>
 				</Menu>
 			</StackPanel>

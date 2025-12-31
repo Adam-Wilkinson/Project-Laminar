@@ -17,7 +17,7 @@
                             Content="{Binding FileNavigator}" 
                             asp:ResizeWidget.TargetSize="{Binding CurrentSidebarWidth, Mode=TwoWay}"/>
         </asp:AdjustableStackPanel>
-        <Border CornerRadius="10" Background="#1555">
+        <Border CornerRadius="10" Background="{DynamicResource UiLayer}">
             <TextBlock Classes="h2" HorizontalAlignment="Center" VerticalAlignment="Center">The script editor</TextBlock>
         </Border>
         <DockPanel.Resources>

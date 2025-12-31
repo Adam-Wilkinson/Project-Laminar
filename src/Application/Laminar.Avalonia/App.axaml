@@ -3,6 +3,7 @@
              x:Class="Laminar.Avalonia.App"
              xmlns:vms="using:Laminar.Avalonia.ViewModels.Services"
              xmlns:t="using:Laminar.Avalonia.ToolSystem"
+             xmlns:s="using:Laminar.Avalonia.Settings"
              xmlns:conv="using:Laminar.Avalonia.Converters">
 
     <Application.DataTemplates>
@@ -41,7 +42,11 @@
 	
 	<Application.Styles>
 		<StyleInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/Fluent/Fluent.xaml" />
-		<FluentTheme />
+		<FluentTheme DensityStyle="{s:Setting InterfaceSettings.Density}">
+			<FluentTheme.Palettes>
+				
+			</FluentTheme.Palettes>
+		</FluentTheme>
 		<StyleInclude Source="XamlAssets/Styles/FontStyles.axaml"/>
 	</Application.Styles>
 </Application>

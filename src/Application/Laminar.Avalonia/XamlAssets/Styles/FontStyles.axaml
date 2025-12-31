@@ -21,6 +21,7 @@
             DataType=s:DoubleSetting,
             Converter={StaticResource MultiplyConverter}, ConverterParameter={StaticResource H1FontSize}}"/>
         <Setter Property="FontWeight" Value="DemiBold"/>
+        <Setter Property="Foreground" Value="{DynamicResource {x:Static init:ColorInitialization.LaminarForegroundKey}}"/>
     </Style>
         
     <Style Selector="TextBlock.h2">
@@ -29,6 +30,7 @@
             DataType=s:DoubleSetting,
             Converter={StaticResource MultiplyConverter}, ConverterParameter={StaticResource H2FontSize}}"/>
         <Setter Property="FontWeight" Value="Medium"/>
+        <Setter Property="Foreground" Value="{DynamicResource {x:Static init:ColorInitialization.LaminarForegroundKey}}"/>
     </Style>
         
     <Style Selector="TextBlock">
@@ -37,6 +39,7 @@
             DataType=s:DoubleSetting,
             Converter={StaticResource MultiplyConverter}, ConverterParameter={StaticResource P1FontSize}}"/>
         <Setter Property="FontWeight" Value="Normal"/>
+        <Setter Property="Foreground" Value="{DynamicResource {x:Static init:ColorInitialization.LaminarForegroundKey}}"/>
     </Style>
         
     <Style Selector="TextBlock.b2">
@@ -45,6 +48,7 @@
             DataType=s:DoubleSetting,
             Converter={StaticResource MultiplyConverter}, ConverterParameter={StaticResource P2FontSize}}"/>
         <Setter Property="FontWeight" Value="SemiLight"/>
+        <Setter Property="Foreground" Value="{DynamicResource {x:Static init:ColorInitialization.LaminarForegroundKey}}"/>
     </Style>
         
     <Style Selector=":is(TemplatedControl).h1">
@@ -53,6 +57,7 @@
             DataType=s:DoubleSetting,
             Converter={StaticResource MultiplyConverter}, ConverterParameter={StaticResource H1FontSize}}"/>
         <Setter Property="FontWeight" Value="DemiBold"/>
+        <Setter Property="Foreground" Value="{DynamicResource {x:Static init:ColorInitialization.LaminarForegroundKey}}"/>
     </Style>
         
     <Style Selector=":is(TemplatedControl).h2">
@@ -61,6 +66,7 @@
             DataType=s:DoubleSetting,
             Converter={StaticResource MultiplyConverter}, ConverterParameter={StaticResource H2FontSize}}"/>
         <Setter Property="FontWeight" Value="Medium"/>
+        <Setter Property="Foreground" Value="{DynamicResource {x:Static init:ColorInitialization.LaminarForegroundKey}}"/>
     </Style>
         
     <Style Selector=":is(TemplatedControl)">
@@ -69,6 +75,7 @@
             DataType=s:DoubleSetting,
             Converter={StaticResource MultiplyConverter}, ConverterParameter={StaticResource P1FontSize}}"/>
         <Setter Property="FontWeight" Value="Normal"/>
+        <Setter Property="Foreground" Value="{DynamicResource {x:Static init:ColorInitialization.LaminarForegroundKey}}"/>
     </Style>
         
     <Style Selector=":is(TemplatedControl).b2">
@@ -77,6 +84,7 @@
             DataType=s:DoubleSetting,
             Converter={StaticResource MultiplyConverter}, ConverterParameter={StaticResource P2FontSize}}"/>
         <Setter Property="FontWeight" Value="SemiLight"/>
+        <Setter Property="Foreground" Value="{DynamicResource {x:Static init:ColorInitialization.LaminarForegroundKey}}"/>
     </Style>
         
     <Style Selector="Window">

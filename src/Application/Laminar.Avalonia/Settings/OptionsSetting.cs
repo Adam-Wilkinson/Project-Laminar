@@ -9,8 +9,6 @@ namespace Laminar.Avalonia.Settings;
 
 public class OptionsSetting : Setting, IInterfaceData<EnumDropdown, object>
 {
-    private int _valueIndex;
-    
     public static readonly StyledProperty<OptionsSettingValue> SelectedOptionProperty = AvaloniaProperty.Register<OptionsSetting, OptionsSettingValue>(nameof(SelectedOption));
 
     static OptionsSetting()
@@ -39,20 +37,20 @@ public class OptionsSetting : Setting, IInterfaceData<EnumDropdown, object>
     }
 
     [Content] public AvaloniaList<OptionsSettingValue> Options { get; } = [];
-    
+
     public int ValueIndex
     {
-        get => _valueIndex;
+        get;
         set
         {
-            _valueIndex = value;
+            field = value;
             if (Options.Count > ValueIndex)
             {
                 SelectedOption = Options[ValueIndex];
             }
         }
     }
-    
+
     public OptionsSettingValue SelectedOption
     {
         get => GetValue(SelectedOptionProperty);
@@ -65,5 +63,5 @@ public class OptionsSetting : Setting, IInterfaceData<EnumDropdown, object>
         set => SelectedOption = (OptionsSettingValue)value;
     }
 
-    EnumDropdown IInterfaceData<EnumDropdown, object>.Definition => new() { DropdownOptions = Options};
+    EnumDropdown IInterfaceData<EnumDropdown, object>.Definition => new() { DropdownOptions = Options };
 }

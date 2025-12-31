@@ -1,9 +1,11 @@
 using System;
 using System.Globalization;
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Data.Converters;
 using Avalonia.Media;
 using Avalonia.Metadata;
+using Avalonia.Reactive;
 using Laminar.PluginFramework.UserInterface;
 using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
@@ -20,7 +22,23 @@ public class Setting<T> : Setting where T : notnull
     {
         get => (T)base.Value;
         set => base.Value = value;
-    }   
+    }
+    
+    public static void OnChange(TopLevel topLevel, string settingKey, Action<T> onChange)
+    {
+        topLevel.GetResourceObservable(settingKey).Subscribe(
+            new AnonymousObserver<object?>(o =>
+            {
+                if (o is not Setting<T> setting) return;
+
+                onChange(setting.Value);
+                setting.GetPropertyChangedObservable(ValueProperty)
+                    .Subscribe(new AnonymousObserver<AvaloniaPropertyChangedEventArgs>(changedArgs =>
+                    {
+                        onChange(setting.Value);
+                    }));
+            }));
+    }
 }
 
 public class Setting : SettingsItem, IInterfaceData
