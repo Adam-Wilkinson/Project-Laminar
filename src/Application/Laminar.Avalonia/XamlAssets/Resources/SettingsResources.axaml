@@ -11,7 +11,7 @@
 	</s:OptionsSetting>
 	
 	<s:OptionsSetting x:Key="SettingsRoot.InterfaceSettings.Density" Name="UI Density" ValueIndex="0">
-		<s:OptionsSettingValue Name="This should make new text" Value="{x:Static DensityStyle.Normal}"/>
+		<s:OptionsSettingValue Name="Normal" Value="{x:Static DensityStyle.Normal}"/>
 		<s:OptionsSettingValue Name="Compact" Value="{x:Static DensityStyle.Compact}"/>
 	</s:OptionsSetting>
 	

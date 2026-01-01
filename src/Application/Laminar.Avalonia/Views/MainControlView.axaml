@@ -12,8 +12,16 @@
              Margin="4"
              x:Class="Laminar.Avalonia.Views.MainControlView">
     <DockPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-        <asp:AdjustableStackPanel DockPanel.Dock="Left" HorizontalAlignment="Left" VerticalAlignment="Stretch" Orientation="Horizontal" Name="SidebarStackPanel" TransitionDuration="{s:Setting InterfaceSettings.AnimationDuration}" TransitionEasing="{DynamicResource AnimationEasing}">
+        <asp:AdjustableStackPanel DockPanel.Dock="Left" 
+                                  HorizontalAlignment="Left" 
+                                  VerticalAlignment="Stretch" 
+                                  Orientation="Horizontal" 
+                                  Name="SidebarStackPanel" 
+                                  TransitionDuration="{s:Setting InterfaceSettings.AnimationDuration}" 
+                                  TransitionEasing="{DynamicResource AnimationEasing}"
+                                  ClipToBounds="False">
             <ContentControl Name="FileNavigator" 
+                            ClipToBounds="False"
                             Content="{Binding FileNavigator}" 
                             asp:ResizeWidget.TargetSize="{Binding CurrentSidebarWidth, Mode=TwoWay}"/>
         </asp:AdjustableStackPanel>

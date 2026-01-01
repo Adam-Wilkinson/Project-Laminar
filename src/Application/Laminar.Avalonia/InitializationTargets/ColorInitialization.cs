@@ -1,21 +1,21 @@
+using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Reactive;
 using Avalonia.Styling;
+using Avalonia.Themes.Fluent;
 using Laminar.Avalonia.Settings;
-using Laminar.Contracts.UserData;
-using Laminar.Domain.DataManagement;
-using Laminar.Implementation.UserData;
+using Microsoft.Extensions.Logging;
 
 namespace Laminar.Avalonia.InitializationTargets;
 
-public class ColorInitialization(TopLevel topLevel) : IAfterApplicationBuiltTarget
+public class ColorInitialization(Application topLevel, ILogger<ColorInitialization> logger) : IAfterApplicationBuiltTarget
 {
-    public static readonly string LaminarAccentKey = "LaminarAccent";
-    public static readonly string LaminarForegroundKey = "LaminarForeground";
-    public static readonly string LaminarAccentForegroundKey = "LaminarAccentForeground";
-    public static readonly string LaminarAccentBackgroundKey = "LaminarAccentBackground";
+    public const string LaminarAccentKey = "LaminarAccent";
+    public const string LaminarForegroundKey = "LaminarForeground";
+    public const string LaminarAccentForegroundKey = "LaminarAccentForeground";
+    public const string LaminarAccentBackgroundKey = "LaminarAccentBackground";
     
     private const double BackgroundAlpha = 0.25;
     private const double ForegroundBrightness = 0.6;
@@ -80,6 +80,8 @@ public class ColorInitialization(TopLevel topLevel) : IAfterApplicationBuiltTarg
             _manualBackground = backgroundColor;
             ColorsChanged();
         });
+
+        topLevel.ActualThemeVariantChanged += (_, _) => ColorsChanged();
     }
 
     private void ColorsChanged()
@@ -90,7 +92,12 @@ public class ColorInitialization(TopLevel topLevel) : IAfterApplicationBuiltTarg
         topLevel.Resources[LaminarAccentKey] = accent;
         topLevel.Resources[LaminarForegroundKey] = foreground;
         topLevel.Resources["LaminarBackground"] = background;
-        topLevel.Resources["SystemAccentColor"] = accent;
+
+        if (topLevel.Styles.FirstOrDefault(x => x is FluentTheme) is FluentTheme fluentTheme )
+        {
+            fluentTheme.Palettes[ThemeVariant.Light] = new ColorPaletteResources { Accent = accent }; 
+            fluentTheme.Palettes[ThemeVariant.Dark] = new ColorPaletteResources { Accent = accent };
+        }
         
         topLevel.Resources[LaminarAccentBackgroundKey] =
             new Color((byte)(accent.A * BackgroundAlpha), accent.R, accent.G, accent.B);

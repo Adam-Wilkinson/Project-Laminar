@@ -3,13 +3,13 @@
                     xmlns:init="using:Laminar.Avalonia.InitializationTargets">
     <ResourceDictionary.ThemeDictionaries>
         <ResourceDictionary x:Key="Dark">
+            <Color x:Key='LaminarThemeAccent'>#143ed0</Color>
             <Color x:Key='LaminarThemeForeground'>#dbe5ff</Color>
-            <Color x:Key='LaminarThemeAccent'>#242ee0</Color>
             <Color x:Key="LaminarThemeBackground">#000002</Color>
         </ResourceDictionary>
         <ResourceDictionary x:Key="Light">
+            <Color x:Key='LaminarThemeAccent'>#3f49eb</Color>
             <Color x:Key='LaminarThemeForeground'>#000a24</Color>
-            <Color x:Key='LaminarThemeAccent'>#1f29db</Color>
             <Color x:Key="LaminarThemeBackground">#eee</Color>
         </ResourceDictionary>
     </ResourceDictionary.ThemeDictionaries>

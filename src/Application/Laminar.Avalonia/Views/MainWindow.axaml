@@ -12,7 +12,6 @@
         Icon="/Assets/ProjectLaminarLogo.png"
         Title="Project: Laminar"
         xmlns:s="using:Laminar.Avalonia.Settings"
-        RequestedThemeVariant="{s:Setting InterfaceSettings.ThemeVariant}"
         Foreground="{DynamicResource {x:Static init:ColorInitialization.LaminarForegroundKey}}"
         Background="{DynamicResource LaminarBackground}"
 		ExtendClientAreaToDecorationsHint="True"

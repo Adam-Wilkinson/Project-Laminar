@@ -4,6 +4,7 @@
              xmlns:vms="using:Laminar.Avalonia.ViewModels.Services"
              xmlns:t="using:Laminar.Avalonia.ToolSystem"
              xmlns:s="using:Laminar.Avalonia.Settings"
+             xmlns:init="using:Laminar.Avalonia.InitializationTargets"
              xmlns:conv="using:Laminar.Avalonia.Converters">
 
     <Application.DataTemplates>
@@ -40,13 +41,13 @@
 		</ResourceDictionary>
 	</Application.Resources>
 	
+	<Application.RequestedThemeVariant>
+		<Binding Path="Value" DataType="{x:Type s:OptionsSetting}" Source="{StaticResource SettingsRoot.InterfaceSettings.ThemeVariant}"/>
+	</Application.RequestedThemeVariant>
+	
 	<Application.Styles>
 		<StyleInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/Fluent/Fluent.xaml" />
-		<FluentTheme DensityStyle="{s:Setting InterfaceSettings.Density}">
-			<FluentTheme.Palettes>
-				
-			</FluentTheme.Palettes>
-		</FluentTheme>
+		<FluentTheme DensityStyle="{s:Setting InterfaceSettings.Density}"/>
 		<StyleInclude Source="XamlAssets/Styles/FontStyles.axaml"/>
 	</Application.Styles>
 </Application>

@@ -6,11 +6,12 @@
              xmlns:dvm="using:Laminar.Avalonia.ViewModels.Design"
              xmlns:dd="using:Laminar.Avalonia.DragDrop"
              xmlns:c="using:Laminar.Avalonia.Controls"
+             ClipToBounds="False"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450" d:DataContext="{x:Static dvm:DesignViewModel.FileNavigator}"
              x:DataType="vm:FileNavigatorViewModel"
              x:Class="Laminar.Avalonia.Views.FileNavigatorView">
     
-    <Panel MinWidth="1" Name="FileNavigator">
+    <Panel MinWidth="1" Name="FileNavigator" ClipToBounds="False">
         <Panel.Styles>
             <Style Selector="DockPanel:pointerover :is(Control).HoverReveal">
                 <Setter Property="IsVisible" Value="True"/>

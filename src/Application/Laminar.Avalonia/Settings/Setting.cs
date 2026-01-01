@@ -24,9 +24,9 @@ public class Setting<T> : Setting where T : notnull
         set => base.Value = value;
     }
     
-    public static void OnChange(TopLevel topLevel, string settingKey, Action<T> onChange)
+    public static void OnChange(IResourceHost resourceHost, string settingKey, Action<T> onChange)
     {
-        topLevel.GetResourceObservable(settingKey).Subscribe(
+        resourceHost.GetResourceObservable(settingKey).Subscribe(
             new AnonymousObserver<object?>(o =>
             {
                 if (o is not Setting<T> setting) return;

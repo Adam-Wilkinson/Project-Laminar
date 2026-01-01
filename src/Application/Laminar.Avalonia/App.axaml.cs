@@ -43,6 +43,7 @@ public partial class App : Application
                 .AddDescendantsSingleton<IPlugin>()
                 .AddSingleton(desktop.MainWindow.StorageProvider)
                 .AddSingleton<TopLevel>(desktop.MainWindow)
+                .AddSingleton<Application>(this)
                 .AddLogging(builder => builder.AddSerilog(
                     new LoggerConfiguration()
                         .MinimumLevel.Verbose()
