@@ -34,7 +34,7 @@ public class CommandTool : Tool
 
 public class Tool : AvaloniaObject, ITemplate<object?, ToolInstance?>, IEnumerable<Tool>
 {
-    public static readonly string ToolRootKey = "ToolRoot"; 
+    public const string ToolRootKey = "ToolRoot"; 
     
     public static readonly StyledProperty<KeyGesture?> GestureProperty = AvaloniaProperty.Register<Tool, KeyGesture?>(nameof(Gesture), new KeyGesture(Key.None));
 
@@ -43,8 +43,6 @@ public class Tool : AvaloniaObject, ITemplate<object?, ToolInstance?>, IEnumerab
     public static readonly StyledProperty<IBinding?> DescriptionBindingProperty = AvaloniaProperty.Register<Tool, IBinding?>(nameof(DescriptionBinding));
 
     public static readonly StyledProperty<object?> CommandParameterProperty = AvaloniaProperty.Register<Tool, object?>(nameof(CommandParameter));
-    
-    private Geometry? _defaultIconGeometry; 
     
     public string Name { get; set; } = string.Empty;
 
@@ -75,10 +73,10 @@ public class Tool : AvaloniaObject, ITemplate<object?, ToolInstance?>, IEnumerab
     
     public Geometry? DefaultIconGeometry
     {
-        get => _defaultIconGeometry;
+        get;
         set
         {
-            _defaultIconGeometry = value;
+            field = value;
             if (value is not null && IconTemplate is null)
             {
                 IconTemplate = new FuncDataTemplate(_ => true, (_, _) => new GeometryIcon { Data = value });   

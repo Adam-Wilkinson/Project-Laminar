@@ -11,7 +11,7 @@
              x:DataType="vm:MainControlViewModel"
              Margin="4"
              x:Class="Laminar.Avalonia.Views.MainControlView">
-    <DockPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+    <DockPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ClipToBounds="False">
         <asp:AdjustableStackPanel DockPanel.Dock="Left" 
                                   HorizontalAlignment="Left" 
                                   VerticalAlignment="Stretch" 
@@ -19,6 +19,7 @@
                                   Name="SidebarStackPanel" 
                                   TransitionDuration="{s:Setting InterfaceSettings.AnimationDuration}" 
                                   TransitionEasing="{DynamicResource AnimationEasing}"
+                                  ZIndex="400"
                                   ClipToBounds="False">
             <ContentControl Name="FileNavigator" 
                             ClipToBounds="False"

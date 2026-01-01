@@ -1,54 +1,114 @@
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Reflection.Metadata.Ecma335;
 using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
+using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Reactive;
 using Avalonia.VisualTree;
 using Laminar.Avalonia.InitializationTargets;
+using Laminar.Contracts.Base.ActionSystem;
+using Microsoft.Extensions.Logging;
 
 namespace Laminar.Avalonia.ToolSystem;
 
-public class ToolKeyBindManager(TopLevel topLevel) : IAfterApplicationBuiltTarget
+public class ToolKeyBindManager(TopLevel defaultTopLevel, ILogger<ToolKeyBindManager> logger) : IAfterApplicationBuiltTarget
 {
-    private readonly TopLevel _topLevel = topLevel;
+    private readonly List<KeyBinding> _keyBindings = [];
     
+    private TopLevel _focusedTopLevel = defaultTopLevel;
     private Visual? _visualUnderCursor;
     private bool _keyChordHandled = false;
+    private Tool? _rootTool;
     
     public void OnApplicationBuilt()
     {
-        _topLevel.PointerMoved += (_, args) =>
-        {
-            _visualUnderCursor = _topLevel.GetVisualAt(args.GetPosition(_topLevel));
-        };
-
-        _topLevel.Resources.GetResourceObservable(Tool.ToolRootKey).Subscribe(new AnonymousObserver<object?>(
+        defaultTopLevel.Resources.GetResourceObservable(Tool.ToolRootKey).Subscribe(new AnonymousObserver<object?>(
             toolRoot =>
             {
-                if (toolRoot is Tool rootToolTemplate) BindTool(rootToolTemplate);
+                if (toolRoot is Tool rootToolTemplate && rootToolTemplate != _rootTool)
+                {
+                    _rootTool = rootToolTemplate;
+                    _keyBindings.Clear();
+                    BindTool(rootToolTemplate);
+                }
             }));
+        
+        HookTopLevel(_focusedTopLevel);
+    }
+
+    private void HookTopLevel(TopLevel focusedTopLevel)
+    {
+        _focusedTopLevel = focusedTopLevel;
+        
+        focusedTopLevel.LostFocus += FocusedTopLevelLostFocus;
+        
+        focusedTopLevel.PointerMoved += (_, args) =>
+        {
+            _visualUnderCursor = focusedTopLevel.GetVisualAt(args.GetPosition(focusedTopLevel));
+        };
         
         // Hack to stop Avalonia from focusing the menu when keybindings involving the Alt key are released.
         // If the bug is fixed, remove this.
-        _topLevel.AddHandler(InputElement.KeyUpEvent, (_, e) =>
+        focusedTopLevel.AddHandler(InputElement.KeyUpEvent, (_, e) =>
         {
             if (_keyChordHandled) e.Handled = true;
             if (e.KeyModifiers == KeyModifiers.None) _keyChordHandled = false;
         }, RoutingStrategies.Bubble | RoutingStrategies.Tunnel);
+        
+        focusedTopLevel.KeyBindings.AddRange(_keyBindings);
     }
 
+    private void FocusedTopLevelLostFocus(object? sender, EventArgs args)
+    {
+        var newTopLevel = GetFocusedTopLevel();
+        if (newTopLevel == _focusedTopLevel)
+        {
+            return;
+        }
+        
+        _focusedTopLevel.LostFocus -= FocusedTopLevelLostFocus;
+        _focusedTopLevel = newTopLevel;
+        HookTopLevel(newTopLevel);
+    }
+
+    private TopLevel GetFocusedTopLevel()
+    {
+        if (_focusedTopLevel.IsKeyboardFocusWithin)
+        {
+            logger.LogTrace("Top level unfocused, but it kept keyboard focus?");
+            return defaultTopLevel;
+        }
+
+        if (_focusedTopLevel.FocusManager?.GetFocusedElement() is not Visual focusedVisual)
+        {
+            logger.LogTrace("Keyboard focus moved to something, but it wasn't a visual, it was {element}", _focusedTopLevel.FocusManager?.GetFocusedElement());
+            return defaultTopLevel;
+        }
+        
+        if (TopLevel.GetTopLevel(focusedVisual) is not {  } newTopLevel)
+        {
+            logger.LogTrace("The focused visual {visual} does not have a top level", focusedVisual);
+            return defaultTopLevel;
+        }
+
+        return newTopLevel;
+    }
+    
     private void BindTool(Tool tool)
     {
-        _topLevel.KeyBindings.Add(new KeyBinding
+        _keyBindings.Add(new KeyBinding
         {
             [!KeyBinding.GestureProperty] = tool[!Tool.GestureProperty],
             Command = new ExecuteToolAtCursor(tool, this),
         });
         
-        tool.DefaultPopupTarget ??= _topLevel;
+        tool.DefaultPopupTarget ??= defaultTopLevel;
         
         foreach (var childTool in tool.ChildTools)
         {
@@ -59,13 +119,17 @@ public class ToolKeyBindManager(TopLevel topLevel) : IAfterApplicationBuiltTarge
     private class ExecuteToolAtCursor(Tool tool, ToolKeyBindManager keyBindManager) : ICommand
     {
         private ToolInstance? _toolInstanceCache;
-        
-        public bool CanExecute(object? parameter) 
-            => TryBuildTool(out _toolInstanceCache) 
-               && _toolInstanceCache?.Command.CanExecute(parameter) == true;
+
+        public bool CanExecute(object? parameter)
+        {
+            parameter ??= tool.CommandParameter;
+            return TryBuildTool(out _toolInstanceCache) && _toolInstanceCache?.Command.CanExecute(parameter) == true; 
+        }
+               
 
         public void Execute(object? parameter)
         {
+            parameter ??= tool.CommandParameter;
             if (_toolInstanceCache is not null && _toolInstanceCache.Command.CanExecute(parameter))
             {
                 _toolInstanceCache.Command.Execute(parameter);
@@ -97,7 +161,7 @@ public class ToolKeyBindManager(TopLevel topLevel) : IAfterApplicationBuiltTarge
                 }
             }
             
-            if (TryBuildToolFromTarget(keyBindManager._topLevel.FocusManager?.GetFocusedElement()) is { } focusedElementTool)
+            if (TryBuildToolFromTarget(keyBindManager._focusedTopLevel.FocusManager?.GetFocusedElement()) is { } focusedElementTool)
             {
                 instance = focusedElementTool;
                 return true;
