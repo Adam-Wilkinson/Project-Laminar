@@ -81,19 +81,16 @@ public class ToolKeyBindManager(TopLevel defaultTopLevel, ILogger<ToolKeyBindMan
     {
         if (_focusedTopLevel.IsKeyboardFocusWithin)
         {
-            logger.LogTrace("Top level unfocused, but it kept keyboard focus?");
-            return defaultTopLevel;
+            return _focusedTopLevel;
         }
 
         if (_focusedTopLevel.FocusManager?.GetFocusedElement() is not Visual focusedVisual)
         {
-            logger.LogTrace("Keyboard focus moved to something, but it wasn't a visual, it was {element}", _focusedTopLevel.FocusManager?.GetFocusedElement());
             return defaultTopLevel;
         }
         
-        if (TopLevel.GetTopLevel(focusedVisual) is not {  } newTopLevel)
+        if (TopLevel.GetTopLevel(focusedVisual) is not { } newTopLevel)
         {
-            logger.LogTrace("The focused visual {visual} does not have a top level", focusedVisual);
             return defaultTopLevel;
         }
 
@@ -122,6 +119,11 @@ public class ToolKeyBindManager(TopLevel defaultTopLevel, ILogger<ToolKeyBindMan
 
         public bool CanExecute(object? parameter)
         {
+            if (keyBindManager._focusedTopLevel.FocusManager?.GetFocusedElement() is TextBox)
+            {
+                return false;
+            }
+            
             parameter ??= tool.CommandParameter;
             return TryBuildTool(out _toolInstanceCache) && _toolInstanceCache?.Command.CanExecute(parameter) == true; 
         }

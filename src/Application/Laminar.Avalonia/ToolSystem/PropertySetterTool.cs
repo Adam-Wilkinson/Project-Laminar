@@ -150,8 +150,9 @@ public class PropertySetterCommand : ICommand
 
         void KeyUp(object? sender, KeyEventArgs e) => flyoutContent.Presenter?.Child?.RaiseEvent(e);
 
-        _popupTarget.KeyDown += KeyDown;
-        _popupTarget.KeyUp += KeyUp;
+        var keyboardSource = TopLevel.GetTopLevel(_popupTarget)?.FocusManager?.GetFocusedElement() is { } focused ? focused : _popupTarget;
+        keyboardSource.KeyDown += KeyDown;
+        keyboardSource.KeyUp += KeyUp;
         
         var flyout = new Flyout { Content = flyoutContent, Placement = PlacementMode.Pointer };
         
@@ -159,6 +160,8 @@ public class PropertySetterCommand : ICommand
         
         FlyoutBase.ShowAttachedFlyout(_popupTarget);
 
+        flyoutContent.Focus();
+        
         flyout.Closed += (_, _) =>
         {
             _popupTarget.KeyDown -= KeyDown;
