@@ -19,5 +19,4 @@ public static class DesignViewModel
     public static readonly SettingsViewModel Settings = new();
     
     public static readonly MainWindowViewModel MainWindow = new(MainControl, TitleBar, Settings);
-
 }

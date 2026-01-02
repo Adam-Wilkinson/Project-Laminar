@@ -22,7 +22,7 @@ public class LaminarStorageFile : LaminarStorageItem<FileInfo>
         ParentFolder = parent;
     }
 
-    protected override void TryMoveTo(string newPath)
+    protected override void MoveTo(string newPath)
     {
         FileSystemInfo.MoveTo(newPath);
     }

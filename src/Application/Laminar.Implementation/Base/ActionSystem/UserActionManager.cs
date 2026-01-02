@@ -11,7 +11,11 @@ internal class UserActionManager : IUserActionManager
     public bool ExecuteAction(IUserAction action)
     {
         if (!action.CanExecute) return false;
-        _undoList.Add(action.Execute());
+        if (action.Execute() is not { } undoAction)
+        {
+            return false;
+        }
+        _undoList.Add(undoAction);
         return true;
     }
 
@@ -20,9 +24,9 @@ internal class UserActionManager : IUserActionManager
         var successfulAction = false;
         while (!successfulAction && _undoList.Count > 0)
         {
-            if (_undoList[^1].CanExecute)
+            if (_undoList[^1].CanExecute && _undoList[^1].Execute() is { } redoAction)
             {
-                _redoList.Add(_undoList[^1].Execute());
+                _redoList.Add(redoAction);
                 successfulAction = true;
             }
 
@@ -35,9 +39,9 @@ internal class UserActionManager : IUserActionManager
         var successfulAction = false;
         while (!successfulAction && _redoList.Count > 0)
         {
-            if (_redoList[^1].CanExecute)
+            if (_redoList[^1].CanExecute && _redoList[^1].Execute() is { } undoAction)
             {
-                _undoList.Add(_redoList[^1].Execute());
+                _undoList.Add(undoAction);
                 successfulAction = true;
             }
 

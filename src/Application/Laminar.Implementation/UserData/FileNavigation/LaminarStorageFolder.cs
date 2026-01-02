@@ -63,7 +63,7 @@ public class LaminarStorageFolder : LaminarStorageItem<DirectoryInfo>, ILaminarS
         }
     }
 
-    protected override void TryMoveTo(string newPath)
+    protected override void MoveTo(string newPath)
     {
         FileSystemInfo.MoveTo(newPath);
     }

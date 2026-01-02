@@ -11,7 +11,7 @@ public interface ILaminarStorageItem : INotifyPropertyChanged
     public bool IsEffectivelyEnabled { get; }
     public bool NeedsName { get; set; }
     public void Delete();
-    public void MoveTo(string newPath);
+    public bool TryMoveTo(string newPath);
     public ILaminarStorageFolder ParentFolder { get; }
     public event EventHandler<IOException> ExceptionRaised;
 }

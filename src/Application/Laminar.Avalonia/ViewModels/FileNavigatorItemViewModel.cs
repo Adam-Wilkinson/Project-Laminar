@@ -32,6 +32,7 @@ public partial class FileNavigatorItemViewModel : ViewModelBase
         _actionManager = actionManager;
         _storageFactory = storageFactory;
         CoreItem = coreItem;
+        Name = CoreItem.Name;
         Children = coreItem is ILaminarStorageFolder coreFolder
             ? new MappedObservableCollection<ILaminarStorageItem, FileNavigatorItemViewModel>(coreFolder.Contents,
                 item => new FileNavigatorItemViewModel(item, _actionManager, _storageFactory, dialogService, topLevel))
@@ -39,8 +40,7 @@ public partial class FileNavigatorItemViewModel : ViewModelBase
 
         CoreItem.PropertyChanged += (_, e) =>
         {
-            if (e.PropertyName == nameof(ILaminarStorageItem.Name))
-                OnPropertyChanged(nameof(Name));
+            if (e.PropertyName == nameof(ILaminarStorageItem.Name)) Name = CoreItem.Name;
         };
 
         CoreItem.ExceptionRaised += async (_, e) =>
@@ -53,10 +53,23 @@ public partial class FileNavigatorItemViewModel : ViewModelBase
 
     public string Name
     {
-        get => CoreItem.Name;
-        set => _actionManager.ExecuteAction(new RenameStorageItemAction(value, CoreItem));
+        get;
+        set
+        {
+            if (value != field)
+            {
+                field = value;
+                OnPropertyChanged();
+            }
+
+            if (value != CoreItem.Name && !_actionManager.ExecuteAction(new RenameStorageItemAction(value, CoreItem)))
+            {
+                field = CoreItem.Name;
+                OnPropertyChanged();
+            }
+        }
     }
-    
+
     public ILaminarStorageItem CoreItem { get; }
 
     public string ItemTypeName => CoreItem switch

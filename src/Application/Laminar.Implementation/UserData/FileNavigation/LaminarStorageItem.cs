@@ -8,7 +8,8 @@ using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.UserData.FileNavigation;
 
-public abstract partial class LaminarStorageItem<T>(T fileSystemInfo, ILogger<ILaminarStorageItem>? logger) : ILaminarStorageItem where T : FileSystemInfo
+public abstract partial class LaminarStorageItem<T>(T fileSystemInfo, ILogger<ILaminarStorageItem>? logger) 
+    : ILaminarStorageItem where T : FileSystemInfo
 {
     protected T FileSystemInfo { get; } = fileSystemInfo;
 
@@ -33,12 +34,11 @@ public abstract partial class LaminarStorageItem<T>(T fileSystemInfo, ILogger<IL
         get;
         set
         {
-            if (value == field)
+            if (value == field || !TryMoveTo(System.IO.Path.Combine(ParentFolder.Path, value + Extension)))
             {
                 return;
             }
-
-            MoveTo(System.IO.Path.Combine(ParentFolder.Path, value + Extension));
+            
             SetField(ref field, value);
             OnPropertyChanged(nameof(Path));
         }
@@ -76,21 +76,22 @@ public abstract partial class LaminarStorageItem<T>(T fileSystemInfo, ILogger<IL
         }
     }
 
-    public void MoveTo(string newPath)
+    public bool TryMoveTo(string newPath)
     {
         try
         {
-            TryMoveTo(newPath);
+            MoveTo(newPath);
+            return true;
         }
         catch (IOException ioException)
         {
-            OnPropertyChanged(nameof(Name));
             if (Logger is not null) LogCannotMoveStorageItem(Logger, Path, newPath);
             ExceptionRaised?.Invoke(this, ioException);
+            return false;
         }
     }
     
-    protected abstract void TryMoveTo(string newPath);
+    protected abstract void MoveTo(string newPath);
 
     public abstract ILaminarStorageFolder ParentFolder { get; }
     
@@ -111,6 +112,6 @@ public abstract partial class LaminarStorageItem<T>(T fileSystemInfo, ILogger<IL
         return true;
     }
 
-    [LoggerMessage(LogLevel.Error, "Cannot move storage item from {path} to {newPath}")]
+    [LoggerMessage(LogLevel.Error, "Cannot move storage item from '{path}' to '{newPath}'")]
     static partial void LogCannotMoveStorageItem(ILogger<ILaminarStorageItem> logger, string path, string newPath);
 }
