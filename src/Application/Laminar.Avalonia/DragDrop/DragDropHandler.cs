@@ -21,11 +21,17 @@ public class DragDropHandler
     public static MouseButton? GetTriggerMouseButton(AvaloniaObject control) => control.GetValue(TriggerMouseButtonProperty);
     public static void SetTriggerMouseButton(AvaloniaObject control, MouseButton? mouseButton) => control.SetValue(TriggerMouseButtonProperty, mouseButton);
 
+    public static readonly AttachedProperty<bool> IsBeingDraggedProperty = AvaloniaProperty.RegisterAttached<DragDropHandler, Control, bool>("IsBeingDragged");
+    public static bool GetIsBeingDragged(AvaloniaObject control) => control.GetValue(IsBeingDraggedProperty);
+    public static void SetIsBeingDragged(AvaloniaObject control, bool value) => control.SetValue(IsBeingDraggedProperty, value);
+    
     private static DragEventArgs? _hoverArgs;
+    private static PointerPressedEventArgs? _originalClickEvent;
     private static Point? _clickOffset;
     private static ITransform? _controlOriginalTransform;
     private static bool? _controlIsClipToBounds;
     private static int? _controlZIndex;
+    private static bool _dragActive = false;
     
     static DragDropHandler()
     {
@@ -54,6 +60,7 @@ public class DragDropHandler
         }
         
         e.Handled = true;
+        _dragActive = true;
         
         var currentClickOffset = e.GetCurrentPoint(null).Position; 
         var transform = TransformOperations.CreateBuilder(2);
@@ -72,11 +79,13 @@ public class DragDropHandler
 
     private static void InputElementSender_PointerPressed(object? sender, PointerPressedEventArgs e)
     {
-        if (sender is not Control senderControl || !PointerHasMouseButton(e.GetCurrentPoint(null), GetTriggerMouseButton(senderControl)))
+        if (sender is not Control senderControl || !PointerHasMouseButton(e.GetCurrentPoint(null), GetTriggerMouseButton(senderControl)) || _hoverArgs is not null)
         {
             return;
         }
 
+        SetIsBeingDragged(senderControl, true);
+        _originalClickEvent = e;
         _clickOffset = e.GetCurrentPoint(null).Position;
         _controlIsClipToBounds = senderControl.ClipToBounds;
         senderControl.ClipToBounds = false;
@@ -84,8 +93,13 @@ public class DragDropHandler
         _controlZIndex = senderControl.ZIndex;
         senderControl.ZIndex = int.MaxValue;
 
-        _controlOriginalTransform = senderControl.RenderTransform ?? new TranslateTransform();
-        _hoverArgs = DragEventArgs.HoverEnter(senderControl, e);
+        // If the pointer is pressed during an active drag (e.g. while it's animating back), do not change the transform
+        if (!_dragActive)
+        {
+            _controlOriginalTransform = senderControl.RenderTransform ?? new TranslateTransform();
+        }
+        
+        _hoverArgs = DragEventArgs.HoverEnter(senderControl, e);   
         
         e.Handled = true;
     }
@@ -97,6 +111,15 @@ public class DragDropHandler
             return;
         }
 
+        // A draggable control was clicked on, but it was not dragged.
+        if (!_dragActive && _originalClickEvent is not null && _hoverArgs.DraggingVisual is Interactive inputElementSender)
+        {
+            _originalClickEvent.Handled = false;
+            inputElementSender.RaiseEvent(_originalClickEvent);
+            _hoverArgs = null;
+            return;
+        }
+        
         e.Handled = true;
         e.PreventGestureRecognition();
         DebugRenderer?.EndAll();
@@ -109,8 +132,8 @@ public class DragDropHandler
     private static void ExecuteDragEventAtPointer(PointerEventArgs pointerEventArgs, DragEventArgs dragEvent)
     {
         dragEvent.Handled = false;
-        var currentHoverVisual = dragEvent.HoverOverInteractive;
-        var currentReceptacleTag = dragEvent.ReceptacleTag;
+        Interactive? currentHoverVisual = dragEvent.HoverOverInteractive;
+        object? currentReceptacleTag = dragEvent.ReceptacleTag;
         
         if (TopLevel.GetTopLevel(dragEvent.DraggingVisual) is not { } topLevel) return;
 
@@ -123,7 +146,7 @@ public class DragDropHandler
             }
             
             if (!DropHandler.GetDropAcceptor(visualAtPoint)
-                    .AcceptDrop(visualAtPoint, pointerEventArgs, out var receptacleTag))
+                    .AcceptDrop(visualAtPoint, pointerEventArgs, out object? receptacleTag))
             {
                 continue;
             }
@@ -151,7 +174,7 @@ public class DragDropHandler
     
     private static void AnimateHome(Visual visual, ITransform originalTransform)
     {
-        var transformTransition = new TransformOperationsTransition()
+        var transformTransition = new TransformOperationsTransition
         {
             Property = Visual.RenderTransformProperty, 
             Duration = new TimeSpan(0, 0, 0, 0, 300),
@@ -174,7 +197,10 @@ public class DragDropHandler
                 visual.Transitions?.Remove(transformTransition);
                 visual.ClipToBounds = _controlIsClipToBounds!.Value;
                 visual.ZIndex = _controlZIndex!.Value;
-                visual.Transitions?.Remove(transformTransition); 
+                visual.Transitions?.Remove(transformTransition);
+                _dragActive = false;
+                _hoverArgs = null;
+                SetIsBeingDragged(visual, false);
             });
         });
     }

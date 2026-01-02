@@ -11,7 +11,7 @@
              x:DataType="vm:FileNavigatorViewModel"
              x:Class="Laminar.Avalonia.Views.FileNavigatorView">
     
-    <Panel MinWidth="1" Name="FileNavigator" ClipToBounds="False">
+    <Panel MinWidth="1" Name="FileNavigator">
         <Panel.Styles>
             <Style Selector="DockPanel:pointerover :is(Control).HoverReveal">
                 <Setter Property="IsVisible" Value="True"/>
@@ -24,7 +24,7 @@
             </Style>
         </Panel.Styles>
         
-        <TreeView ClipToBounds="False" ItemsSource="{Binding RootFiles}">
+        <TreeView ClipToBounds="False" ItemsSource="{Binding RootFiles}" SelectionMode="Multiple">
             <TreeView.ItemTemplate>
                 <TreeDataTemplate DataType="{x:Type vm:FileNavigatorItemViewModel}" ItemsSource="{Binding Children}">
                     <ContentControl Content="{Binding}"/>
@@ -36,6 +36,9 @@
                     <Setter Property="dd:DragDropHandler.TriggerMouseButton" Value="Left"/>
                     <Setter Property="ClipToBounds" Value="False"/>
                     <Setter Property="IsExpanded" Value="{Binding IsExpanded, DataType=vm:FileNavigatorItemViewModel}"/>
+                    <Style Selector="^[(dd|DragDropHandler.IsBeingDragged)=True]">
+                        <Setter Property="IsExpanded" Value="False"/>
+                    </Style>
                 </Style>
                 <Style Selector="TreeView /template/ ScrollViewer">
                     <Setter Property="ClipToBounds" Value="False"/>

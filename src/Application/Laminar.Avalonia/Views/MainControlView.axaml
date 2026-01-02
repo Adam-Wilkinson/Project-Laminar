@@ -22,7 +22,7 @@
                                   ZIndex="400"
                                   ClipToBounds="False">
             <ContentControl Name="FileNavigator" 
-                            ClipToBounds="False"
+                            ClipToBounds="{Binding !SidebarExpanded}"
                             Content="{Binding FileNavigator}" 
                             asp:ResizeWidget.TargetSize="{Binding CurrentSidebarWidth, Mode=TwoWay}"/>
         </asp:AdjustableStackPanel>

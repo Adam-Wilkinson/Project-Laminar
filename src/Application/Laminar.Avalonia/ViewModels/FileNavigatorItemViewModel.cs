@@ -19,7 +19,7 @@ public partial class FileNavigatorItemViewModel : ViewModelBase
     private readonly IUserActionManager _actionManager;
     private readonly ILaminarStorageItemFactory _storageFactory;
 
-    [ObservableProperty] private bool _isExpanded;
+    [ObservableProperty] private bool _isExpanded = true;
     
     public FileNavigatorItemViewModel(
         ILaminarStorageItem coreItem, 
