@@ -15,16 +15,6 @@ public abstract partial class LaminarStorageItem<T>(T fileSystemInfo, ILogger<IL
 
     protected ILogger<ILaminarStorageItem>? Logger { get; } = logger;
 
-    public bool ParentIsEffectivelyEnabled
-    {
-        get;
-        set
-        {
-            SetField(ref field, value);
-            OnPropertyChanged(nameof(IsEffectivelyEnabled));
-        }
-    }
-
     public string Extension { get; } = fileSystemInfo.Extension;
     
     public string Path => FileSystemInfo.FullName;
@@ -34,6 +24,12 @@ public abstract partial class LaminarStorageItem<T>(T fileSystemInfo, ILogger<IL
         get;
         set
         {
+            if (ParentFolder is null)
+            {
+                Error("Cannot rename a storage item since it does not have a parent");
+                return;
+            }
+            
             if (value == field || !TryMoveTo(System.IO.Path.Combine(ParentFolder.Path, value + Extension)))
             {
                 return;
@@ -52,9 +48,9 @@ public abstract partial class LaminarStorageItem<T>(T fileSystemInfo, ILogger<IL
             SetField(ref field, value);
             OnPropertyChanged(nameof(IsEffectivelyEnabled));
         }
-    }
+    } = true;
 
-    public bool IsEffectivelyEnabled => IsEnabled && ParentIsEffectivelyEnabled;
+    public virtual bool IsEffectivelyEnabled => IsEnabled && (ParentFolder is null || ParentFolder.IsEffectivelyEnabled);
 
     public bool NeedsName { get; set => SetField(ref field, value); }
 
@@ -70,6 +66,12 @@ public abstract partial class LaminarStorageItem<T>(T fileSystemInfo, ILogger<IL
 
     public void Delete()
     {
+        if (ParentFolder is null)
+        {
+            Error("Cannot delete storage item since it does not have a parent");
+            return;
+        }
+        
         if (ParentFolder.Contents.Remove(this))
         {
             FileSystemInfo.Delete();
@@ -93,12 +95,12 @@ public abstract partial class LaminarStorageItem<T>(T fileSystemInfo, ILogger<IL
     
     protected abstract void MoveTo(string newPath);
 
-    public abstract ILaminarStorageFolder ParentFolder { get; }
+    public abstract ILaminarStorageFolder? ParentFolder { get; }
     
     public event EventHandler<IOException>? ExceptionRaised;
-
+    
     public event PropertyChangedEventHandler? PropertyChanged;
-
+    
     protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -112,6 +114,12 @@ public abstract partial class LaminarStorageItem<T>(T fileSystemInfo, ILogger<IL
         return true;
     }
 
+    protected void Error(string message)
+    {
+        Logger?.LogError(message);
+        ExceptionRaised?.Invoke(this, new IOException(message));
+    }
+    
     [LoggerMessage(LogLevel.Error, "Cannot move storage item from '{path}' to '{newPath}'")]
     static partial void LogCannotMoveStorageItem(ILogger<ILaminarStorageItem> logger, string path, string newPath);
 }

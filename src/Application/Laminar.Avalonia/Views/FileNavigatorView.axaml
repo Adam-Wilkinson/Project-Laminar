@@ -37,6 +37,12 @@
                     <Setter Property="ClipToBounds" Value="False"/>
                     <Setter Property="IsExpanded" Value="{Binding IsExpanded, DataType=vm:FileNavigatorItemViewModel}"/>
                 </Style>
+                <Style Selector="TreeView /template/ ScrollViewer">
+                    <Setter Property="ClipToBounds" Value="False"/>
+                    <Style Selector="^ /template/ ScrollContentPresenter#PART_ContentPresenter">
+                        <Setter Property="ClipToBounds" Value="False"/>
+                    </Style>
+                </Style>
             </TreeView.Styles>
         </TreeView>
     </Panel>

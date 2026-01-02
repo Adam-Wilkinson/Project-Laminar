@@ -4,7 +4,6 @@ using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using HanumanInstitute.MvvmDialogs;
-using HanumanInstitute.MvvmDialogs.Avalonia;
 using Laminar.Avalonia.ViewModels.Services;
 using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.UserData.FileNavigation;
@@ -121,7 +120,7 @@ public class FileNavigatorItemViewModelSerializer(ILaminarStorageItemFactory sto
     {
         if (deserializationContext is not FileNavigatorViewModel fileNavigator)
         {
-            throw new ArgumentException("DeserializationContext must be of type FileNavigatorViewModel", nameof(deserializationContext));
+            throw new ArgumentException(@"DeserializationContext must be of type FileNavigatorViewModel", nameof(deserializationContext));
         }
 
         return fileNavigator.NewItem(storageItemFactory.FromPath(serialized));

@@ -11,9 +11,7 @@ namespace Laminar.Implementation.UserData.FileNavigation;
 public class LaminarStorageFolder : LaminarStorageItem<DirectoryInfo>, ILaminarStorageFolder
 {
     private readonly ILaminarStorageItemFactory _factory;
-    
-    private ILaminarStorageFolder? _parent;
-    
+
     public LaminarStorageFolder(string path, 
         ILaminarStorageItemFactory factory, 
         ILogger<ILaminarStorageItem>? logger,
@@ -36,7 +34,7 @@ public class LaminarStorageFolder : LaminarStorageItem<DirectoryInfo>, ILaminarS
         Contents = new ObservableCollection<ILaminarStorageItem>(GetChildren());
         Contents.HelperInstance().ItemAdded += ContentsItemAdded;
         Contents.HelperInstance().ItemRemoved += ContentsItemRemoved;
-        _parent = parent;
+        ParentFolder = parent;
     }
 
     private void ContentsItemRemoved(object? sender, ItemRemovedEventArgs<ILaminarStorageItem> e)
@@ -50,9 +48,9 @@ public class LaminarStorageFolder : LaminarStorageItem<DirectoryInfo>, ILaminarS
     }
 
     public ObservableCollection<ILaminarStorageItem> Contents { get; }
-    
-    public override ILaminarStorageFolder ParentFolder => _parent ??= new LaminarStorageFolder(FileSystemInfo.Parent!, _factory, Logger);
-    
+
+    public override ILaminarStorageFolder? ParentFolder { get; }
+
     public override bool IsEnabled
     {
         get => base.IsEnabled;
@@ -72,9 +70,8 @@ public class LaminarStorageFolder : LaminarStorageItem<DirectoryInfo>, ILaminarS
         .Select(x => _factory.FromFileSystemInfo(x, this))
         .Concat(FileSystemInfo.GetFiles().Select(x => _factory.FromFileSystemInfo(x, this)));
     
-    private void ParentEnabledChange(bool newValue)
+    private void ParentEnabledChange()
     {
-        ParentIsEffectivelyEnabled = newValue;
         EffectivelyEnabledChanged();
     }
 
@@ -89,7 +86,7 @@ public class LaminarStorageFolder : LaminarStorageItem<DirectoryInfo>, ILaminarS
                     file.ParentEnabledChanged(IsEffectivelyEnabled);
                     break;
                 case LaminarStorageFolder folder:
-                    folder.ParentEnabledChange(IsEffectivelyEnabled);
+                    folder.ParentEnabledChange();
                     break;
             }
         }

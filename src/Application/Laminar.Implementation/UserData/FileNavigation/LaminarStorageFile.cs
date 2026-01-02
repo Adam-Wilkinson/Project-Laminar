@@ -31,7 +31,6 @@ public class LaminarStorageFile : LaminarStorageItem<FileInfo>
 
     internal void ParentEnabledChanged(bool enabled)
     {
-        ParentIsEffectivelyEnabled = enabled;
         OnPropertyChanged(nameof(IsEffectivelyEnabled));
     }
 }
