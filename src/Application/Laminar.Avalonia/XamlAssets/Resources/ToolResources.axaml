@@ -25,6 +25,37 @@
         <t:Tool Name="{x:Static lang:Resources.Redo}" Gesture="Ctrl+y" DefaultIconGeometry="{x:Static shapes:PathData.RedoIcon}"/>
     </t:Toolbox>
     
+    <!-- Tool that toggles whether a TreeViewItem is expanded -->
+    <t:PropertySetterTool Name="Toggle Expanded" 
+                          x:DataType="vm:FileNavigatorItemViewModel" 
+                          x:Key="Tools.ExpandCollapseTreeViewTool" 
+                          PropertyBinding="{Binding IsExpanded}">
+	    <t:Tool.IconTemplate>
+		    <DataTemplate DataType="vm:FileNavigatorItemViewModel">
+			    <Path Stroke="{DynamicResource {x:Static init:ColorInitialization.LaminarForegroundKey}}"
+			          StrokeThickness="2"
+			          Margin="5"
+			          Data="M 1,0 10,10 l -9,10 -1,-1 L 8,10 -0,1 Z"
+			          Name="PART_ExpandCollapseChevron"
+			          Tag="{Binding IsExpanded}">
+				    <Path.Styles>
+					    <Style Selector="Path[Tag=False]">
+						    <Setter Property="RenderTransform" Value="rotate(0deg)"/>
+					    </Style>
+					    <Style Selector="Path[Tag=True]">
+						    <Setter Property="RenderTransform" Value="rotate(90deg)"/>
+					    </Style>
+				    </Path.Styles>
+				    <Path.Transitions>
+					    <Transitions>
+						    <TransformOperationsTransition Property="RenderTransform" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
+					    </Transitions>
+				    </Path.Transitions>
+			    </Path>
+		    </DataTemplate>
+	    </t:Tool.IconTemplate>
+    </t:PropertySetterTool>
+    
     <!-- File Navigator Tool -->
     <t:Toolbox x:Key="Tools.FileNavigator.StorageItem" 
                Name="{x:Static lang:Resources.StorageItemTools}" 
@@ -49,6 +80,7 @@
                 </PathIcon>
             </DataTemplate>
         </t:Tool.IconTemplate>
+	    
         <t:CommandTool Name="{x:Static lang:Resources.Rename}" x:DataType="vm:FileNavigatorItemViewModel" 
                        DefaultIconGeometry="{x:Static shapes:PathData.RenameIcon}"
                        CommandBinding="{Binding RenameCommand}"/>
@@ -293,6 +325,7 @@
         <StaticResource ResourceKey="Tools.Edit"/>
         <StaticResource ResourceKey="Tools.FileNavigator"/>
         <StaticResource ResourceKey="Tools.Window"/>
+        <StaticResource ResourceKey="Tools.ExpandCollapseTreeViewTool"/>
         <t:PropertySetterTool Gesture="Ctrl+Shift+S" x:DataType="s:Setting" Name="Set Setting Value" PropertyBinding="{Binding}"/>
     </t:Toolbox>
 </ResourceDictionary>

@@ -35,10 +35,7 @@
                 <Style Selector="TreeViewItem">
                     <Setter Property="dd:DragDropHandler.TriggerMouseButton" Value="Left"/>
                     <Setter Property="ClipToBounds" Value="False"/>
-                    <Setter Property="IsExpanded" Value="{Binding IsExpanded, DataType=vm:FileNavigatorItemViewModel}"/>
-                    <Style Selector="^[(dd|DragDropHandler.IsBeingDragged)=True]">
-                        <Setter Property="IsExpanded" Value="False"/>
-                    </Style>
+                    <Setter Property="IsExpanded" Value="{Binding IsExpanded, DataType=vm:FileNavigatorItemViewModel, Mode=TwoWay}"/>
                 </Style>
                 <Style Selector="TreeView /template/ ScrollViewer">
                     <Setter Property="ClipToBounds" Value="False"/>

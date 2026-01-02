@@ -21,6 +21,10 @@
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
             </ItemsControl>
+            <Button DockPanel.Dock="Left" DataContext="{Binding 
+                Converter={StaticResource ToolInstancer}, 
+                ConverterParameter={StaticResource Tools.ExpandCollapseTreeViewTool}}" 
+                    Theme="{StaticResource ToolButton}" VerticalAlignment="Stretch" Width="32"/>
             <c:EditableLabel VerticalAlignment="Center" 
                              Text="{Binding Name, Mode=TwoWay}" 
                              IsBeingEdited="{Binding CoreItem.NeedsName, Mode=TwoWay}"
