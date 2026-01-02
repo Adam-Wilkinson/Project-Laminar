@@ -5,8 +5,11 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
+using HanumanInstitute.MvvmDialogs;
+using HanumanInstitute.MvvmDialogs.Avalonia;
 using Laminar.Avalonia.InitializationTargets;
 using Laminar.Avalonia.ViewModels;
+using Laminar.Avalonia.ViewModels.Services;
 using Laminar.Avalonia.Views;
 using Laminar.Contracts.Base.PluginLoading;
 using Laminar.Contracts.Base.UserInterface;
@@ -14,12 +17,15 @@ using Laminar.Implementation.Extensions;
 using Laminar.Implementation.Extensions.ServiceInitializers;
 using Laminar.PluginFramework.Registration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Serilog;
 
 namespace Laminar.Avalonia;
 public partial class App : Application
 {
     private static readonly string LocalFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Project Laminar");
+    
+    private IServiceProvider _services;
     
     public override void Initialize()
     {
@@ -35,7 +41,7 @@ public partial class App : Application
             BindingPlugins.DataValidators.RemoveAt(0);
             desktop.MainWindow = new MainWindow();
             
-            var services = new ServiceCollection()
+            _services = new ServiceCollection()
                 .AddLaminarServices(FrontendDependency.Avalonia)
                 .AddDescendantsTransient<ViewModelBase>()
                 .AddDescendantsSingleton<IBeforeApplicationBuiltTarget>()
@@ -50,17 +56,21 @@ public partial class App : Application
                         .WriteTo.Console()
                         .WriteTo.File(Path.Combine(LocalFolder, "logs.txt"))
                         .CreateLogger()))
+                .AddSingleton<IViewLocator, ViewLocator>()
+                .AddSingleton<IDialogFactory>(new DialogFactory().AddMessageBox())
+                .AddSingleton<IDialogManager, DialogManager>()
+                .AddSingleton<IDialogService, DialogService>()
                 .BuildServiceProvider();
             
-            services.InitializeLaminar();
-            services.GetServices<IBeforeApplicationBuiltTarget>().Initialize();
+            _services.InitializeLaminar();
+            _services.GetServices<IBeforeApplicationBuiltTarget>().Initialize();
             
-            desktop.MainWindow.DataContext = services.GetRequiredService<MainWindowViewModel>();
+            desktop.MainWindow.DataContext = _services.GetRequiredService<MainWindowViewModel>();
 
-            services.GetServices<IAfterApplicationBuiltTarget>().Initialize();
+            _services.GetServices<IAfterApplicationBuiltTarget>().Initialize();
             
-            var pluginLoader = services.GetRequiredService<IPluginLoader>();
-            foreach (var avaloniaPlugin in services.GetServices<IPlugin>())
+            var pluginLoader = _services.GetRequiredService<IPluginLoader>();
+            foreach (var avaloniaPlugin in _services.GetServices<IPlugin>())
             {
                 pluginLoader.Register(avaloniaPlugin);
             }

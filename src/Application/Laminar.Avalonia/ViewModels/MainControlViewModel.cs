@@ -7,6 +7,7 @@ using Laminar.PluginFramework.UserInterface;
 using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
 namespace Laminar.Avalonia.ViewModels;
+
 public partial class MainControlViewModel : ViewModelBase
 {
     [ObservableProperty, Serialize] private bool _sidebarExpanded = true;

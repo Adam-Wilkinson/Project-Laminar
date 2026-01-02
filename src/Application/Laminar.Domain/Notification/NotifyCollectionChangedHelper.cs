@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.ComponentModel;
 
 namespace Laminar.Domain.Notification;
 
@@ -11,10 +12,9 @@ public static class NotifyCollectionChangedHelper
 {
     private static readonly Dictionary<INotifyCollectionChanged, object> ExistingListeners = new();
     
-    public static Instance<T> HelperInstance<T>(this IReadOnlyObservableCollection<T> collection) => HelperInstance<T>((INotifyCollectionChanged)collection);
+    public static Instance<T> HelperInstance<T>(this IReadOnlyObservableCollection<T> collection) => ((INotifyCollectionChanged)collection).HelperInstance<T>();
 
-    public static Instance<T> HelperInstance<T>(this ObservableCollection<T> collection) =>
-        HelperInstance<T>((INotifyCollectionChanged)collection);
+    public static Instance<T> HelperInstance<T>(this ObservableCollection<T> collection) => ((INotifyCollectionChanged)collection).HelperInstance<T>();
     
     public static Instance<T> HelperInstance<T>(this INotifyCollectionChanged core)
     {
@@ -27,63 +27,63 @@ public static class NotifyCollectionChangedHelper
 }
 
 public class Instance<T> : INotifyCollectionChangedHelper.IHelperInstance<T>
+{
+    private readonly INotifyCollectionChanged _core;
+    
+    public Instance(INotifyCollectionChanged core)
     {
-        private readonly INotifyCollectionChanged _core;
+        _core = core;
+        _core.CollectionChanged += CoreCollectionChanged;
+    }
+    
+    public event EventHandler<ItemAddedEventArgs<T>>? ItemAdded;
 
-        public Instance(INotifyCollectionChanged core)
+    public event EventHandler<ItemRemovedEventArgs<T>>? ItemRemoved;
+
+    public event EventHandler<EventArgs>? Reset;
+
+    private void CoreCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        switch (e.Action)
         {
-            _core = core;
-            _core.CollectionChanged += CoreCollectionChanged;
+            case NotifyCollectionChangedAction.Add:
+                ItemsAdded(e.NewItems!);
+                break;
+            case NotifyCollectionChangedAction.Remove:
+                ItemsRemoved(e.OldItems!);
+                break;
+            case NotifyCollectionChangedAction.Reset:
+                Reset?.Invoke(_core, EventArgs.Empty);
+                break;
+            case NotifyCollectionChangedAction.Replace:
+                ItemsRemoved(e.OldItems!);
+                ItemsAdded(e.NewItems!);
+                break;
+            case NotifyCollectionChangedAction.Move:
+            default:
+                break;
         }
+    }
 
-        public event EventHandler<ItemAddedEventArgs<T>>? ItemAdded;
-
-        public event EventHandler<ItemRemovedEventArgs<T>>? ItemRemoved;
-
-        public event EventHandler<EventArgs>? Reset;
-
-        private void CoreCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    private void ItemsAdded(IList items)
+    {
+        foreach (var obj in items)
         {
-            switch (e.Action)
+            if (obj is T typedItem)
             {
-                case NotifyCollectionChangedAction.Add:
-                    ItemsAdded(e.NewItems!);
-                    break;
-                case NotifyCollectionChangedAction.Remove:
-                    ItemsRemoved(e.OldItems!);
-                    break;
-                case NotifyCollectionChangedAction.Reset:
-                    Reset?.Invoke(_core, EventArgs.Empty);
-                    break;
-                case NotifyCollectionChangedAction.Replace:
-                    ItemsRemoved(e.OldItems!);
-                    ItemsAdded(e.NewItems!);
-                    break;
-                case NotifyCollectionChangedAction.Move:
-                default:
-                    break;
-            }
-        }
-
-        private void ItemsAdded(IList items)
-        {
-            foreach (var obj in items)
-            {
-                if (obj is T typedItem)
-                {
-                    ItemAdded?.Invoke(_core, new ItemAddedEventArgs<T>(typedItem));
-                }
-            }
-        }
-
-        private void ItemsRemoved(IList items)
-        {
-            foreach (var obj in items)
-            {
-                if (obj is T typedItem)
-                {
-                    ItemRemoved?.Invoke(_core, new ItemRemovedEventArgs<T>(typedItem));
-                }
+                ItemAdded?.Invoke(_core, new ItemAddedEventArgs<T>(typedItem));
             }
         }
     }
+
+    private void ItemsRemoved(IList items)
+    {
+        foreach (var obj in items)
+        {
+            if (obj is T typedItem)
+            {
+                ItemRemoved?.Invoke(_core, new ItemRemovedEventArgs<T>(typedItem));
+            }
+        }
+    }
+}

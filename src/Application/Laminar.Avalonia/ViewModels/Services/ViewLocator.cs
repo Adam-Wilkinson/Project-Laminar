@@ -1,31 +1,18 @@
 using System;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
+using HanumanInstitute.MvvmDialogs;
+using HanumanInstitute.MvvmDialogs.Avalonia;
 
 namespace Laminar.Avalonia.ViewModels.Services;
-public class ViewLocator : IDataTemplate
+public class ViewLocator : ViewLocatorBase
 {
-    public Control? Build(object? data)
+    protected override string GetViewName(object viewModel)
     {
-        if (data is null)
-        {
-            return null;
-        }
-
-        string? name = data.GetType().FullName!.Replace("ViewModel", "View", StringComparison.Ordinal);
-        Type? type = Type.GetType(name);
-        
-        if (type != null)
-        {
-            Control? control = (Control)Activator.CreateInstance(type)!;
-            control.DataContext = data;
-            return control;
-        }
-
-        return new TextBlock { Text = "Not Found: " + name };
+        return viewModel.GetType().FullName!.Replace("ViewModel", "View", StringComparison.Ordinal);
     }
 
-    public bool Match(object? data)
+    public override bool Match(object? data)
     {
         return data is ViewModelBase;
     }

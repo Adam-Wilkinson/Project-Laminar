@@ -1,15 +1,18 @@
 using System.IO;
 using Laminar.Contracts.UserData.FileNavigation;
+using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.UserData.FileNavigation;
 
 public class LaminarStorageFile : LaminarStorageItem<FileInfo>
 {
-    public LaminarStorageFile(string path, ILaminarStorageFolder parent) : this(new FileInfo(path), parent)
+    public LaminarStorageFile(string path, ILaminarStorageFolder parent, ILogger<ILaminarStorageItem>? logger) 
+        : this(new FileInfo(path), parent, logger)
     {
     }
 
-    public LaminarStorageFile(FileInfo fileSystemInfo, ILaminarStorageFolder parent) : base(fileSystemInfo)
+    public LaminarStorageFile(FileInfo fileSystemInfo, ILaminarStorageFolder parent, ILogger<ILaminarStorageItem>? logger) 
+        : base(fileSystemInfo, logger)
     {
         if (!fileSystemInfo.Exists)
         {
@@ -19,7 +22,7 @@ public class LaminarStorageFile : LaminarStorageItem<FileInfo>
         ParentFolder = parent;
     }
 
-    public override void MoveTo(string newPath)
+    protected override void TryMoveTo(string newPath)
     {
         FileSystemInfo.MoveTo(newPath);
     }

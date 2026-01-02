@@ -13,4 +13,5 @@ public interface ILaminarStorageItem : INotifyPropertyChanged
     public void Delete();
     public void MoveTo(string newPath);
     public ILaminarStorageFolder ParentFolder { get; }
+    public event EventHandler<IOException> ExceptionRaised;
 }

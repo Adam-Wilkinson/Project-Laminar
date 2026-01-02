@@ -1,6 +1,11 @@
 using System;
+using System.ComponentModel;
+using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using HanumanInstitute.MvvmDialogs;
+using HanumanInstitute.MvvmDialogs.Avalonia;
+using Laminar.Avalonia.ViewModels.Services;
 using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.UserData.FileNavigation;
 using Laminar.Domain.Notification;
@@ -17,20 +22,32 @@ public partial class FileNavigatorItemViewModel : ViewModelBase
 
     [ObservableProperty] private bool _isExpanded;
     
-    public FileNavigatorItemViewModel(ILaminarStorageItem coreItem, IUserActionManager actionManager, ILaminarStorageItemFactory storageFactory)
+    public FileNavigatorItemViewModel(
+        ILaminarStorageItem coreItem, 
+        IUserActionManager actionManager, 
+        ILaminarStorageItemFactory storageFactory,
+        IDialogService dialogService, 
+        TopLevel? topLevel = null)
     {
         _actionManager = actionManager;
         _storageFactory = storageFactory;
         CoreItem = coreItem;
         Children = coreItem is ILaminarStorageFolder coreFolder
             ? new MappedObservableCollection<ILaminarStorageItem, FileNavigatorItemViewModel>(coreFolder.Contents,
-                item => new FileNavigatorItemViewModel(item, _actionManager, _storageFactory))
+                item => new FileNavigatorItemViewModel(item, _actionManager, _storageFactory, dialogService, topLevel))
             : null;
 
         CoreItem.PropertyChanged += (_, e) =>
         {
             if (e.PropertyName == nameof(ILaminarStorageItem.Name))
                 OnPropertyChanged(nameof(Name));
+        };
+
+        CoreItem.ExceptionRaised += async (_, e) =>
+        {
+            if (topLevel is null) return;
+            await dialogService.ShowError((INotifyPropertyChanged)topLevel.DataContext!, "File System Error",
+                e.Message);
         };
     }
 

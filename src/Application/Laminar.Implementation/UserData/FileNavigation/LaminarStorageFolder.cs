@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using Laminar.Contracts.UserData.FileNavigation;
 using Laminar.Domain.Notification;
+using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.UserData.FileNavigation;
 
@@ -13,11 +14,17 @@ public class LaminarStorageFolder : LaminarStorageItem<DirectoryInfo>, ILaminarS
     
     private ILaminarStorageFolder? _parent;
     
-    public LaminarStorageFolder(string path, ILaminarStorageItemFactory factory, ILaminarStorageFolder? parent = null) : this(new DirectoryInfo(path), factory, parent)
+    public LaminarStorageFolder(string path, 
+        ILaminarStorageItemFactory factory, 
+        ILogger<ILaminarStorageItem>? logger,
+        ILaminarStorageFolder? parent = null) : this(new DirectoryInfo(path), factory, logger, parent)
     {
     }
     
-    public LaminarStorageFolder(DirectoryInfo directoryInfo, ILaminarStorageItemFactory factory, ILaminarStorageFolder? parent = null) : base(directoryInfo)
+    public LaminarStorageFolder(DirectoryInfo directoryInfo, 
+        ILaminarStorageItemFactory factory, 
+        ILogger<ILaminarStorageItem>? logger,
+        ILaminarStorageFolder? parent = null) : base(directoryInfo, logger)
     {
         if (!directoryInfo.Exists)
         {
@@ -27,8 +34,8 @@ public class LaminarStorageFolder : LaminarStorageItem<DirectoryInfo>, ILaminarS
         _factory = factory;
         
         Contents = new ObservableCollection<ILaminarStorageItem>(GetChildren());
-        Contents.HelperInstance<ILaminarStorageItem>().ItemAdded += ContentsItemAdded;
-        Contents.HelperInstance<ILaminarStorageItem>().ItemRemoved += ContentsItemRemoved;
+        Contents.HelperInstance().ItemAdded += ContentsItemAdded;
+        Contents.HelperInstance().ItemRemoved += ContentsItemRemoved;
         _parent = parent;
     }
 
@@ -44,7 +51,7 @@ public class LaminarStorageFolder : LaminarStorageItem<DirectoryInfo>, ILaminarS
 
     public ObservableCollection<ILaminarStorageItem> Contents { get; }
     
-    public override ILaminarStorageFolder ParentFolder => _parent ??= new LaminarStorageFolder(FileSystemInfo.Parent!, _factory);
+    public override ILaminarStorageFolder ParentFolder => _parent ??= new LaminarStorageFolder(FileSystemInfo.Parent!, _factory, Logger);
     
     public override bool IsEnabled
     {
@@ -56,7 +63,7 @@ public class LaminarStorageFolder : LaminarStorageItem<DirectoryInfo>, ILaminarS
         }
     }
 
-    public override void MoveTo(string newPath)
+    protected override void TryMoveTo(string newPath)
     {
         FileSystemInfo.MoveTo(newPath);
     }
