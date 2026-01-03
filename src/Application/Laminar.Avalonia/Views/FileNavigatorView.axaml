@@ -49,7 +49,9 @@
                     <Setter Property="IsExpanded" Value="{Binding IsExpanded, DataType=vm:FileNavigatorItemViewModel, Mode=TwoWay}"/>
                     <Style Selector="^[(dd|DragDropHandler.IsBeingDragged)=True]">
                         <Setter Property="IsExpanded" Value="False"/>
-                        <Setter Property="Background" Value="{StaticResource TreeViewItemBackgroundPointerOver}"/>
+                        <Style Selector="^ /template/ Border#PART_LayoutRoot">
+                            <Setter Property="Background" Value="{DynamicResource TreeViewItemBackgroundPointerOver}"/>
+                        </Style>
                     </Style>
                     <Setter Property="Background" Value="{DynamicResource UiLayer}"/>
                     <Setter Property="CornerRadius" Value="10"/>

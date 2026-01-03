@@ -62,6 +62,7 @@ public class DragDropHandler
         e.Handled = true;
         _dragActive = true;
         e.Pointer.Capture(_hoverArgs.DraggingControl);
+        SetIsBeingDragged(_hoverArgs.DraggingControl, true);
         
         var currentClickOffset = e.GetCurrentPoint(null).Position; 
         var transform = TransformOperations.CreateBuilder(2);
@@ -85,8 +86,6 @@ public class DragDropHandler
             return;
         }
         
-        
-        SetIsBeingDragged(senderControl, true);
         _originalClickEvent = e;
         _clickOffset = e.GetCurrentPoint(null).Position;
         _controlIsClipToBounds = senderControl.ClipToBounds;
