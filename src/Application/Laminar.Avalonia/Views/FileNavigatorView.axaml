@@ -5,7 +5,11 @@
              xmlns:vm="using:Laminar.Avalonia.ViewModels"
              xmlns:dvm="using:Laminar.Avalonia.ViewModels.Design"
              xmlns:dd="using:Laminar.Avalonia.DragDrop"
+             xmlns:init="using:Laminar.Avalonia.InitializationTargets"
              xmlns:c="using:Laminar.Avalonia.Controls"
+             xmlns:converters="using:Avalonia.Controls.Converters"
+             xmlns:s="using:Laminar.Avalonia.Settings"
+             xmlns:anim="using:Laminar.Avalonia.Animations"
              ClipToBounds="False"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450" d:DataContext="{x:Static dvm:DesignViewModel.FileNavigator}"
              x:DataType="vm:FileNavigatorViewModel"
@@ -24,7 +28,7 @@
             </Style>
         </Panel.Styles>
         
-        <TreeView ClipToBounds="False" ItemsSource="{Binding RootFiles}" SelectionMode="Multiple">
+        <TreeView ClipToBounds="False" ItemsSource="{Binding RootFiles}" SelectionMode="Multiple" Margin="3,0">
             <TreeView.ItemTemplate>
                 <TreeDataTemplate DataType="{x:Type vm:FileNavigatorItemViewModel}" ItemsSource="{Binding Children}">
                     <ContentControl Content="{Binding}"/>
@@ -33,9 +37,73 @@
             
             <TreeView.Styles>
                 <Style Selector="TreeViewItem">
+                    <Style.Resources>
+                        <x:Double x:Key="TreeViewItemIndent">24</x:Double>
+                        <x:Double x:Key="TreeViewItemExpandCollapseChevronSize">24</x:Double>
+                        <x:Double x:Key="TreeViewItemSpacing">5</x:Double>
+                        <StaticResource x:Key="TreeViewItemBackgroundSelected" ResourceKey="{x:Static init:ColorInitialization.LaminarAccentBackgroundKey}"/>
+                    </Style.Resources>
                     <Setter Property="dd:DragDropHandler.TriggerMouseButton" Value="Left"/>
                     <Setter Property="ClipToBounds" Value="False"/>
                     <Setter Property="IsExpanded" Value="{Binding IsExpanded, DataType=vm:FileNavigatorItemViewModel, Mode=TwoWay}"/>
+                    <Setter Property="Background" Value="{DynamicResource UiLayer}"/>
+                    <Setter Property="CornerRadius" Value="10"/>
+                    <Setter Property="anim:PositionAnimation.Duration" Value="{s:Setting InterfaceSettings.AnimationDuration}"/>
+                    <Setter Property="Template">
+                        <ControlTemplate>
+                            <StackPanel >
+                                  <Border Name="PART_LayoutRoot"
+                                          Classes="TreeViewItemLayoutRoot"
+                                          Focusable="True"
+                                          Background="{TemplateBinding Background}"
+                                          BorderBrush="{TemplateBinding BorderBrush}"
+                                          BorderThickness="{TemplateBinding BorderThickness}"
+                                          CornerRadius="{TemplateBinding CornerRadius}"
+                                          MinHeight="{TemplateBinding MinHeight}"
+                                          TemplatedControl.IsTemplateFocusTarget="True">
+                                      <Border.Margin>
+                                          <MultiBinding Converter="{StaticResource TreeViewItemIndentConverter}">
+                                              <Binding Path="Level" RelativeSource="{RelativeSource TemplatedParent}" />
+                                              <DynamicResource ResourceKey="TreeViewItemIndent"/>
+                                              <DynamicResource ResourceKey="TreeViewItemSpacing"/>
+                                          </MultiBinding>
+                                      </Border.Margin>
+                                      <Grid Name="PART_Header"
+                                            ColumnDefinitions="Auto, *">
+                                      <Panel Name="PART_ExpandCollapseChevronContainer">
+                                          <Button Name="PART_ExpandCollapseChevron"
+                                                  DataContext="{Binding 
+                                                    RelativeSource={RelativeSource TemplatedParent}, 
+                                                    Converter={StaticResource ToolInstancer}, 
+                                                    ConverterParameter={StaticResource Tools.ExpandCollapseTreeViewTool}}"
+                                                  Theme="{StaticResource ToolButton}" 
+                                                  VerticalAlignment="Stretch"
+                                                  Width="{StaticResource TreeViewItemExpandCollapseChevronSize}"
+                                                  Padding="3,0,0,0"/>
+                                      </Panel>
+                                      <ContentPresenter Name="PART_HeaderPresenter"
+                                                        Grid.Column="1"
+                                                        Focusable="False"
+                                                        Background="Transparent"
+                                                        Content="{TemplateBinding Header}"
+                                                        ContentTemplate="{TemplateBinding HeaderTemplate}"
+                                                        HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
+                                                        VerticalAlignment="{TemplateBinding VerticalAlignment}"
+                                                        Margin="{TemplateBinding Padding}" />
+                                    </Grid>
+                                  </Border>
+                                  <ItemsPresenter Name="PART_ItemsPresenter"
+                                                  IsVisible="{TemplateBinding IsExpanded}"
+                                                  ItemsPanel="{TemplateBinding ItemsPanel}"/>
+                            </StackPanel>
+                        </ControlTemplate>
+                    </Setter>
+                    <Style Selector="^:empty /template/ Button#PART_ExpandCollapseChevron">
+                        <Setter Property="IsVisible" Value="False" />
+                    </Style>
+                    <Style Selector="^:empty /template/ Panel#PART_ExpandCollapseChevronContainer">
+                        <Setter Property="Width" Value="{StaticResource TreeViewItemExpandCollapseChevronSize}" />
+                    </Style>
                 </Style>
                 <Style Selector="TreeView /template/ ScrollViewer">
                     <Setter Property="ClipToBounds" Value="False"/>

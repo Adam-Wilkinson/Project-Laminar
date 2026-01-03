@@ -7,28 +7,22 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Laminar.Avalonia.Views.FileNavigatorItemView"
              x:DataType="vm:FileNavigatorItemViewModel">
-    <Border CornerRadius="10" Background="{DynamicResource UiLayer}" Margin="0,0,2,3">
-        <DockPanel Tag="{Binding ItemTypeName}"
-                   HorizontalAlignment="Stretch"
-                   Height="37">
-            <ItemsControl DockPanel.Dock="Right" 
-                          ItemsSource="{Binding 
-                                                Converter={StaticResource ToolInstancer}, 
-                                                ConverterParameter={StaticResource Tools.FileNavigator.StorageItem}}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <StackPanel Orientation="Horizontal" Spacing="3" Height="32"/>
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-            </ItemsControl>
-            <Button DockPanel.Dock="Left" DataContext="{Binding 
-                Converter={StaticResource ToolInstancer}, 
-                ConverterParameter={StaticResource Tools.ExpandCollapseTreeViewTool}}" 
-                    Theme="{StaticResource ToolButton}" VerticalAlignment="Stretch" Width="32"/>
-            <c:EditableLabel VerticalAlignment="Center" 
-                             Text="{Binding Name, Mode=TwoWay}" 
-                             IsBeingEdited="{Binding CoreItem.NeedsName, Mode=TwoWay}"
-                             Margin="4,0,0,0"/>
-        </DockPanel>
-    </Border>
+    <DockPanel Tag="{Binding ItemTypeName}"
+               HorizontalAlignment="Stretch"
+               Height="37">
+        <ItemsControl DockPanel.Dock="Right" 
+                      ItemsSource="{Binding 
+                                            Converter={StaticResource ToolInstancer}, 
+                                            ConverterParameter={StaticResource Tools.FileNavigator.StorageItem}}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal" Spacing="3" Height="32"/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+        </ItemsControl>
+        <c:EditableLabel VerticalAlignment="Center" 
+                         Text="{Binding Name, Mode=TwoWay}" 
+                         IsBeingEdited="{Binding CoreItem.NeedsName, Mode=TwoWay}"
+                         Margin="4,0,0,0"/>
+    </DockPanel>
 </UserControl>
