@@ -61,19 +61,20 @@ public class DragDropHandler
         
         e.Handled = true;
         _dragActive = true;
+        e.Pointer.Capture(_hoverArgs.DraggingControl);
         
         var currentClickOffset = e.GetCurrentPoint(null).Position; 
         var transform = TransformOperations.CreateBuilder(2);
         transform.AppendMatrix(_controlOriginalTransform.Value);
         transform.AppendTranslate(currentClickOffset.X - _clickOffset.Value.X, currentClickOffset.Y - _clickOffset.Value.Y);
-        _hoverArgs.DraggingVisual.RenderTransform = transform.Build();
+        _hoverArgs.DraggingControl.RenderTransform = transform.Build();
 
         var oldHoverInteractive = _hoverArgs.HoverOverInteractive;
         var oldHoverReceptacleTag = _hoverArgs.ReceptacleTag;
         ExecuteDragEventAtPointer(e, _hoverArgs);
         if (oldHoverInteractive is not null && (oldHoverInteractive != _hoverArgs.HoverOverInteractive || oldHoverReceptacleTag != _hoverArgs.ReceptacleTag))
         {
-            oldHoverInteractive.RaiseEvent(DragEventArgs.HoverLeave(_hoverArgs.DraggingVisual, _hoverArgs.OriginalClickEventArgs, currentHoverInteractive: oldHoverInteractive, receptacleTag: oldHoverReceptacleTag));
+            oldHoverInteractive.RaiseEvent(DragEventArgs.HoverLeave(_hoverArgs.DraggingControl, _hoverArgs.OriginalClickEventArgs, currentHoverInteractive: oldHoverInteractive, receptacleTag: oldHoverReceptacleTag));
         }
     }
 
@@ -83,7 +84,8 @@ public class DragDropHandler
         {
             return;
         }
-
+        
+        
         SetIsBeingDragged(senderControl, true);
         _originalClickEvent = e;
         _clickOffset = e.GetCurrentPoint(null).Position;
@@ -112,7 +114,7 @@ public class DragDropHandler
         }
 
         // A draggable control was clicked on, but it was not dragged.
-        if (!_dragActive && _originalClickEvent is not null && _hoverArgs.DraggingVisual is Interactive inputElementSender)
+        if (!_dragActive && _originalClickEvent is not null && _hoverArgs.DraggingControl is Interactive inputElementSender)
         {
             _originalClickEvent.Handled = false;
             inputElementSender.RaiseEvent(_originalClickEvent);
@@ -123,9 +125,10 @@ public class DragDropHandler
         e.Handled = true;
         e.PreventGestureRecognition();
         DebugRenderer?.EndAll();
+        e.Pointer.Capture(null);
         
-        ExecuteDragEventAtPointer(e, DragEventArgs.Drop(_hoverArgs.DraggingVisual, _hoverArgs.OriginalClickEventArgs));
-        AnimateHome(_hoverArgs.DraggingVisual, _controlOriginalTransform);
+        ExecuteDragEventAtPointer(e, DragEventArgs.Drop(_hoverArgs.DraggingControl, _hoverArgs.OriginalClickEventArgs));
+        AnimateHome(_hoverArgs.DraggingControl, _controlOriginalTransform);
         _clickOffset = null;
     }
 
@@ -135,10 +138,10 @@ public class DragDropHandler
         Interactive? currentHoverVisual = dragEvent.HoverOverInteractive;
         object? currentReceptacleTag = dragEvent.ReceptacleTag;
         
-        if (TopLevel.GetTopLevel(dragEvent.DraggingVisual) is not { } topLevel) return;
+        if (TopLevel.GetTopLevel(dragEvent.DraggingControl) is not { } topLevel) return;
 
         foreach (var visualAtPoint in topLevel.GetVisualsAt(pointerEventArgs.GetPosition(topLevel),
-                     visual => visual != dragEvent.DraggingVisual))
+                     visual => visual != dragEvent.DraggingControl))
         {
             if (DebugRenderer is not null && visualAtPoint is Control control)
             {

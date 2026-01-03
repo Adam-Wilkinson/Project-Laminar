@@ -10,6 +10,7 @@
              xmlns:converters="using:Avalonia.Controls.Converters"
              xmlns:s="using:Laminar.Avalonia.Settings"
              xmlns:anim="using:Laminar.Avalonia.Animations"
+             xmlns:views="clr-namespace:Laminar.Avalonia.Views"
              ClipToBounds="False"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450" d:DataContext="{x:Static dvm:DesignViewModel.FileNavigator}"
              x:DataType="vm:FileNavigatorViewModel"
@@ -46,6 +47,9 @@
                     <Setter Property="dd:DragDropHandler.TriggerMouseButton" Value="Left"/>
                     <Setter Property="ClipToBounds" Value="False"/>
                     <Setter Property="IsExpanded" Value="{Binding IsExpanded, DataType=vm:FileNavigatorItemViewModel, Mode=TwoWay}"/>
+                    <Style Selector="^[(dd|DragDropHandler.IsBeingDragged)=True]">
+                        <Setter Property="IsExpanded" Value="False"/>
+                    </Style>
                     <Setter Property="Background" Value="{DynamicResource UiLayer}"/>
                     <Setter Property="CornerRadius" Value="10"/>
                     <Setter Property="anim:PositionAnimation.Duration" Value="{s:Setting InterfaceSettings.AnimationDuration}"/>
@@ -72,8 +76,8 @@
                                             ColumnDefinitions="Auto, *">
                                       <Panel Name="PART_ExpandCollapseChevronContainer">
                                           <Button Name="PART_ExpandCollapseChevron"
-                                                  DataContext="{Binding 
-                                                    RelativeSource={RelativeSource TemplatedParent}, 
+                                                  DataContext="{Binding
+                                                    RelativeSource={RelativeSource TemplatedParent},
                                                     Converter={StaticResource ToolInstancer}, 
                                                     ConverterParameter={StaticResource Tools.ExpandCollapseTreeViewTool}}"
                                                   Theme="{StaticResource ToolButton}" 

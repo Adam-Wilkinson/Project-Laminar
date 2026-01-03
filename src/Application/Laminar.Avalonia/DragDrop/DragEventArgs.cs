@@ -1,5 +1,6 @@
 using System;
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 
@@ -7,24 +8,24 @@ namespace Laminar.Avalonia.DragDrop;
 
 public class DragEventArgs : RoutedEventArgs
 {
-    public static DragEventArgs HoverEnter(Visual draggingVisual, PointerPressedEventArgs clickEvent, Interactive? currentHoverInteractive = null, object? receptacleTag = null)
+    public static DragEventArgs HoverEnter(Control draggingVisual, PointerPressedEventArgs clickEvent, Interactive? currentHoverInteractive = null, object? receptacleTag = null)
         => new DragEventArgs(DropHandler.HoverEnterEvent, draggingVisual)
-            { OriginalClickEventArgs = clickEvent, DraggingVisual = draggingVisual, HoverOverInteractive = currentHoverInteractive, ReceptacleTag = receptacleTag };
+            { OriginalClickEventArgs = clickEvent, DraggingControl = draggingVisual, HoverOverInteractive = currentHoverInteractive, ReceptacleTag = receptacleTag };
 
-    public static DragEventArgs HoverLeave(Visual draggingVisual, PointerPressedEventArgs clickEvent, Interactive? currentHoverInteractive = null, object? receptacleTag = null) 
+    public static DragEventArgs HoverLeave(Control draggingVisual, PointerPressedEventArgs clickEvent, Interactive? currentHoverInteractive = null, object? receptacleTag = null) 
         => new DragEventArgs(DropHandler.HoverLeaveEvent, draggingVisual)
-            { OriginalClickEventArgs = clickEvent, DraggingVisual = draggingVisual, HoverOverInteractive = currentHoverInteractive, ReceptacleTag = receptacleTag };
+            { OriginalClickEventArgs = clickEvent, DraggingControl = draggingVisual, HoverOverInteractive = currentHoverInteractive, ReceptacleTag = receptacleTag };
     
-    public static DragEventArgs Drop(Visual draggingVisual, PointerPressedEventArgs clickEvent, Interactive? currentHoverInteractive = null, object? receptacleTag = null)
+    public static DragEventArgs Drop(Control draggingVisual, PointerPressedEventArgs clickEvent, Interactive? currentHoverInteractive = null, object? receptacleTag = null)
         => new DragEventArgs(DropHandler.DropEvent, draggingVisual)
-            { OriginalClickEventArgs = clickEvent, DraggingVisual = draggingVisual, HoverOverInteractive = currentHoverInteractive, ReceptacleTag = receptacleTag };
+            { OriginalClickEventArgs = clickEvent, DraggingControl = draggingVisual, HoverOverInteractive = currentHoverInteractive, ReceptacleTag = receptacleTag };
     
     private DragEventArgs(RoutedEvent<DragEventArgs> routedEvent, Visual draggingControl)
         :base(routedEvent, draggingControl)
     {
     }
 
-    public required Visual DraggingVisual { get; init; }
+    public required Control DraggingControl { get; init; }
 
     public required PointerPressedEventArgs OriginalClickEventArgs { get; init; }
 
