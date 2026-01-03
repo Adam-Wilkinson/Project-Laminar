@@ -39,6 +39,7 @@
 			<conv:SwitchItemConverter x:Key="SwitchItemConverter"/>
 			<conv:ColorToBrushConverter x:Key="ColorToBrushConverter"/>
 			<conv:TreeViewItemIndentConverter x:Key="TreeViewItemIndentConverter"/>
+			<conv:AreEqualConverter x:Key="AreEqualConverter"/>
 		</ResourceDictionary>
 	</Application.Resources>
 	

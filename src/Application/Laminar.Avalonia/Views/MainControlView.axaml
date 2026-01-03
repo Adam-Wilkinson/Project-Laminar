@@ -22,9 +22,23 @@
                                   ZIndex="400"
                                   ClipToBounds="False">
             <ContentControl Name="FileNavigator" 
-                            ClipToBounds="{Binding !SidebarExpanded}"
                             Content="{Binding FileNavigator}" 
-                            asp:ResizeWidget.TargetSize="{Binding CurrentSidebarWidth, Mode=TwoWay}"/>
+                            asp:ResizeWidget.TargetSize="{Binding CurrentSidebarWidth, Mode=TwoWay}">
+                <ContentControl.Tag>
+                    <MultiBinding Converter="{StaticResource AreEqualConverter}">
+                        <Binding Path="ExpandedSidebarWidth"/>
+                        <Binding Path="$self.(asp:ResizeWidget.AnimatedSize)"/>
+                    </MultiBinding>
+                </ContentControl.Tag>
+                <ContentControl.Styles>
+                    <Style Selector="ContentControl[Tag=True]">
+                        <Setter Property="ClipToBounds" Value="False"/>
+                    </Style>
+                    <Style Selector="ContentControl">
+                        <Setter Property="ClipToBounds" Value="True"/>
+                    </Style>
+                </ContentControl.Styles>
+            </ContentControl>
         </asp:AdjustableStackPanel>
         <Border CornerRadius="10" Background="{DynamicResource UiLayer}">
             <TextBlock Classes="h2" HorizontalAlignment="Center" VerticalAlignment="Center">The script editor</TextBlock>
