@@ -11,32 +11,40 @@
     <DockPanel Tag="{Binding ItemTypeName}"
                HorizontalAlignment="Stretch"
                Background="Transparent"
-               IsHitTestVisible="True"
-               Height="37">
+               VerticalAlignment="Stretch"
+               IsHitTestVisible="True">
         <ItemsControl DockPanel.Dock="Right"
                       Name="PART_QuickAccess"
+                      Height="{Binding #ItemNameLabel.Bounds.Height}"
                       ItemsSource="{Binding 
                                             Converter={StaticResource ToolInstancer}, 
-                                            ConverterParameter={StaticResource Tools.FileNavigator.StorageItem}}">
+                                            ConverterParameter={StaticResource Tools.FileNavigator.StorageItem}}"
+                      VerticalAlignment="Stretch">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <StackPanel Orientation="Horizontal" Spacing="3" Height="32"/>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch"/>
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
         </ItemsControl>
-        <PathIcon Height="16" Width="16" VerticalAlignment="Center" DockPanel.Dock="Left" Margin="3,0,0,0">
-            <PathIcon.Data>
-                <MultiBinding Converter="{StaticResource SwitchConverter}">
-                    <Binding Path="ItemTypeName"/>
-                    <Binding Source="{x:Static shapes:PathData.FolderIcon}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="folder"/>
-                    <Binding Source="{x:Static shapes:PathData.ScriptIcon}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="script"/>
-                </MultiBinding>
-            </PathIcon.Data>
-        </PathIcon>
-        <c:EditableLabel VerticalAlignment="Center" 
+        <Viewbox Width="{Binding #ItemNameLabel.Bounds.Height}"
+                 Height="{Binding #ItemNameLabel.Bounds.Height}">
+            <PathIcon VerticalAlignment="Stretch" 
+                      HorizontalAlignment="Stretch"
+                      Margin="5,10"
+                      DockPanel.Dock="Left">
+                <PathIcon.Data>
+                    <MultiBinding Converter="{StaticResource SwitchConverter}">
+                        <Binding Path="ItemTypeName"/>
+                        <Binding Source="{x:Static shapes:PathData.FolderIcon}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="folder"/>
+                        <Binding Source="{x:Static shapes:PathData.ScriptIcon}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="script"/>
+                    </MultiBinding>
+                </PathIcon.Data>
+            </PathIcon>
+        </Viewbox>
+        <c:EditableLabel Name="ItemNameLabel"
+                         VerticalAlignment="Center" 
                          Text="{Binding Name, Mode=TwoWay}" 
-                         IsBeingEdited="{Binding CoreItem.NeedsName, Mode=TwoWay}"
-                         Margin="4,0,0,0"/>
+                         IsBeingEdited="{Binding CoreItem.NeedsName, Mode=TwoWay}"/>
         
         <DockPanel.Styles>
             <Style Selector="DockPanel > ItemsControl#PART_QuickAccess">

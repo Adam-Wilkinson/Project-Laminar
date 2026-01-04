@@ -68,6 +68,11 @@
                                           CornerRadius="{TemplateBinding CornerRadius}"
                                           MinHeight="{TemplateBinding MinHeight}"
                                           TemplatedControl.IsTemplateFocusTarget="True">
+                                      <Border.Transitions>
+                                          <Transitions>
+                                              <BrushTransition Property="Background" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
+                                          </Transitions>
+                                      </Border.Transitions>
                                       <Border.Margin>
                                           <MultiBinding Converter="{StaticResource TreeViewItemIndentConverter}">
                                               <Binding Path="Level" RelativeSource="{RelativeSource TemplatedParent}" />

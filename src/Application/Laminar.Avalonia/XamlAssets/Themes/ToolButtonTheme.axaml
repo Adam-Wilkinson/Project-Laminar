@@ -77,9 +77,12 @@
         </Setter>
         <Setter Property="Content">
             <Template>
-                <Border Name="PART_PointerOverSource" Background="Transparent" 
+                <Border Name="PART_PointerOverSource" 
+                        Background="Transparent"
+                        VerticalAlignment="Stretch"
+                        HorizontalAlignment="Stretch"
                         ClipToBounds="False">
-                    <Viewbox ClipToBounds="False">
+                    <Viewbox ClipToBounds="False" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
                         <ContentControl Padding="8,10"
                                         Content="{Binding DataContext}"
                                         ContentTemplate="{Binding Tool.IconTemplate}"/>

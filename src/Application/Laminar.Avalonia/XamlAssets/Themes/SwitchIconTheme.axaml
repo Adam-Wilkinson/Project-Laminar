@@ -4,15 +4,17 @@
                     xmlns:s="using:Laminar.Avalonia.Settings"
                     xmlns:init="using:Laminar.Avalonia.InitializationTargets">
     <ControlTheme x:Key="{x:Type t:SwitchIcon}" TargetType="t:SwitchIcon">
+        <Setter Property="VerticalAlignment" Value="Stretch"/>
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
         <Setter Property="Template">
             <ControlTemplate>
-                <Panel>
-                    <Ellipse Width="30" Height="30" 
-                             Stroke="{DynamicResource {x:Static init:ColorInitialization.LaminarForegroundKey}}" StrokeThickness="3" 
-                             HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    <Ellipse Name="IsCheckedIndicator"
-                             Width="16" Height="16"
-                             HorizontalAlignment="Center" VerticalAlignment="Center"
+                <Panel VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                    <Ellipse Stroke="{DynamicResource {x:Static init:ColorInitialization.LaminarForegroundKey}}" 
+                             StrokeThickness="3" 
+                             Height="30" Width="30"
+                             HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+                    <Ellipse Name="IsCheckedIndicator" Margin="8"
+                             HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                              Classes.Show="{TemplateBinding IsOn}">
                         <Ellipse.Styles>
                             <Style Selector="Ellipse">
