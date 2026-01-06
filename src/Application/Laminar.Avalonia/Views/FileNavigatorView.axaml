@@ -47,8 +47,9 @@
                     <Setter Property="dd:DragDropHandler.TriggerMouseButton" Value="Left"/>
                     <Setter Property="ClipToBounds" Value="False"/>
                     <Setter Property="IsExpanded" Value="{Binding IsExpanded, DataType=vm:FileNavigatorItemViewModel, Mode=TwoWay}"/>
-                    <Style Selector="^[(dd|DragDropHandler.IsBeingDragged)=True]">
-                        <Setter Property="IsExpanded" Value="False"/>
+                    <Setter Property="dd:BeingDraggedHandler.DragStartedCommand" Value="{x:Static dd:TreeViewItemDrag.StartedCommand}"/>
+                    <Setter Property="dd:BeingDraggedHandler.DragEndedCommand" Value="{x:Static dd:TreeViewItemDrag.EndedCommand}"/>
+                    <Style Selector="^[(dd|BeingDraggedHandler.IsBeingDragged)=True]">
                         <Style Selector="^ /template/ Border#PART_LayoutRoot">
                             <Setter Property="Background" Value="{DynamicResource TreeViewItemBackgroundPointerOver}"/>
                         </Style>
@@ -88,9 +89,9 @@
                                       <Panel Name="PART_ExpandCollapseChevronContainer">
                                           <Button Name="PART_ExpandCollapseChevron"
                                                   DataContext="{Binding
-                                                    RelativeSource={RelativeSource TemplatedParent},
-                                                    Converter={StaticResource ToolInstancer}, 
-                                                    ConverterParameter={StaticResource Tools.ExpandCollapseTreeViewTool}}"
+                                                        RelativeSource={RelativeSource TemplatedParent},
+                                                        Converter={StaticResource ToolInstancer}, 
+                                                        ConverterParameter={StaticResource Tools.ExpandCollapseTreeViewTool}}"
                                                   Theme="{StaticResource ToolButton}" 
                                                   VerticalAlignment="Stretch"
                                                   Width = "{Binding Value, 

@@ -4,8 +4,7 @@ using Avalonia;
 
 namespace Laminar.Avalonia.DragDrop;
 
-public abstract class DropAcceptor<T> : DropAcceptor
-    where T : Visual
+public abstract class DropAcceptor<T> : DropAcceptor where T : Visual
 {
     protected abstract IEnumerable<Receptacle> GetReceptacles(T visual);
     
@@ -13,7 +12,7 @@ public abstract class DropAcceptor<T> : DropAcceptor
     {
         if (visual is not T typedVisual)
         {
-            throw new ArgumentException("Visual must be of type T", nameof(visual));
+            throw new ArgumentException($@"Visual must be of type {typeof(T)}", nameof(visual));
         }
 
         return GetReceptacles(typedVisual);

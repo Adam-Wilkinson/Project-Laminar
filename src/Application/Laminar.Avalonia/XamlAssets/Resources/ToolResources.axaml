@@ -29,7 +29,7 @@
     <t:PropertySetterTool Name="Toggle Expanded" 
                           x:DataType="TreeViewItem" 
                           x:Key="Tools.ExpandCollapseTreeViewTool" 
-                          PropertyBinding="{Binding IsExpanded, Priority=Template}">
+                          PropertyBinding="{Binding IsExpanded}">
 	    <t:Tool.IconTemplate>
 		    <DataTemplate DataType="TreeViewItem">
 			    <Path Stroke="{DynamicResource {x:Static init:ColorInitialization.LaminarForegroundKey}}"

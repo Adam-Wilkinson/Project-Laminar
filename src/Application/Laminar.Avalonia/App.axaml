@@ -41,6 +41,7 @@
 			<conv:TreeViewItemIndentConverter x:Key="TreeViewItemIndentConverter"/>
 			<conv:AreEqualConverter x:Key="AreEqualConverter"/>
 			<conv:MultiMultiplyConverter x:Key="MultiMultiplyConverter"/>
+			<conv:AndConverter x:Key="AndConverter"/>
 		</ResourceDictionary>
 	</Application.Resources>
 	

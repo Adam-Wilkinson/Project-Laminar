@@ -9,14 +9,14 @@ public class DragDropDebugRenderer<T1, T2> : DragDropDebugRenderer
     where T1 : DropAcceptor where T2 : DropAcceptor
 {
     protected override bool ShouldDebugControl(Control ctrl)
-        => DropHandler.GetDropAcceptor(ctrl) is T1 or T2;
+        => DropTargetHandler.GetDropAcceptor(ctrl) is T1 or T2;
 }
 
 public class DragDropDebugRenderer<T> : DragDropDebugRenderer
     where T : DropAcceptor
 {
     protected override bool ShouldDebugControl(Control ctrl)
-        => DropHandler.GetDropAcceptor(ctrl) is T;
+        => DropTargetHandler.GetDropAcceptor(ctrl) is T;
 }
 
 public class DragDropDebugRenderer
@@ -72,7 +72,7 @@ public class DragDropDebugRenderer
         
         public override void Render(DrawingContext context)
         {
-            DropHandler.GetDropAcceptor(_debugRenderControl).RenderAllReceptacles(_debugRenderControl, context);
+            DropTargetHandler.GetDropAcceptor(_debugRenderControl).RenderAllReceptacles(_debugRenderControl, context);
         }
     }
 }
