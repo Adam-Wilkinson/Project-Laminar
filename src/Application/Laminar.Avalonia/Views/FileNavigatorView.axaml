@@ -52,13 +52,16 @@
                         <Style Selector="^ /template/ Border#PART_LayoutRoot">
                             <Setter Property="Background" Value="{DynamicResource TreeViewItemBackgroundPointerOver}"/>
                         </Style>
+                        <Style Selector="^:selected /template/ Border#PART_LayoutRoot">
+                            <Setter Property="Background" Value="{DynamicResource TreeViewItemBackgroundSelectedPointerOver}"/>
+                        </Style>
                     </Style>
                     <Setter Property="Background" Value="{DynamicResource UiLayer}"/>
                     <Setter Property="CornerRadius" Value="10"/>
                     <Setter Property="anim:PositionAnimation.Duration" Value="{s:Setting InterfaceSettings.AnimationDuration}"/>
                     <Setter Property="Template">
                         <ControlTemplate>
-                            <StackPanel >
+                            <StackPanel>
                                   <Border Name="PART_LayoutRoot"
                                           Classes="TreeViewItemLayoutRoot"
                                           Focusable="True"
@@ -90,8 +93,13 @@
                                                     ConverterParameter={StaticResource Tools.ExpandCollapseTreeViewTool}}"
                                                   Theme="{StaticResource ToolButton}" 
                                                   VerticalAlignment="Stretch"
-                                                  Width="{StaticResource TreeViewItemExpandCollapseChevronSize}"
-                                                  Padding="3,0,0,0"/>
+                                                  Width = "{Binding Value, 
+                                                        Source={StaticResource SettingsRoot.InterfaceSettings.UiScale}, 
+                                                        DataType=s:DoubleSetting,
+                                                        Converter={StaticResource MultiplyConverter}, 
+                                                        ConverterParameter={StaticResource TreeViewItemExpandCollapseChevronSize}}"
+                                                  Padding="3,0,0,0">
+                                          </Button>
                                       </Panel>
                                       <ContentPresenter Name="PART_HeaderPresenter"
                                                         Grid.Column="1"

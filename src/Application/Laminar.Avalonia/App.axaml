@@ -40,11 +40,12 @@
 			<conv:ColorToBrushConverter x:Key="ColorToBrushConverter"/>
 			<conv:TreeViewItemIndentConverter x:Key="TreeViewItemIndentConverter"/>
 			<conv:AreEqualConverter x:Key="AreEqualConverter"/>
+			<conv:MultiMultiplyConverter x:Key="MultiMultiplyConverter"/>
 		</ResourceDictionary>
 	</Application.Resources>
 	
 	<Application.RequestedThemeVariant>
-		<Binding Path="Value" DataType="{x:Type s:OptionsSetting}" Source="{StaticResource SettingsRoot.InterfaceSettings.ThemeVariant}"/>
+		<Binding Path="Value" DataType="s:OptionsSetting" Source="{StaticResource SettingsRoot.InterfaceSettings.ThemeVariant}"/>
 	</Application.RequestedThemeVariant>
 	
 	<Application.Styles>

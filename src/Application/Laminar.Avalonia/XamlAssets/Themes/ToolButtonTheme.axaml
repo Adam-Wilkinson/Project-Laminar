@@ -1,12 +1,14 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:t="using:Laminar.Avalonia.ToolSystem"
-                    xmlns:init="using:Laminar.Avalonia.InitializationTargets">
+                    xmlns:init="using:Laminar.Avalonia.InitializationTargets"
+                    xmlns:s="using:Laminar.Avalonia.Settings">
     <SolidColorBrush x:Key="AccentButtonBackground" Color="#8555" />
     <SolidColorBrush x:Key="AccentButtonBackgroundPointerOver" Color="#a555"/>
     <SolidColorBrush x:Key="AccentButtonBackgroundPressed" Color="#d555"/>
     <SolidColorBrush x:Key="ButtonBackgroundDisabled" Color="Transparent"/>
     <SolidColorBrush x:Key="ButtonBackground" Color="Transparent"/>
+    <x:Double x:Key="ThemeDisabledOpacity">0.4</x:Double>
     <Thickness x:Key="ButtonPadding">0</Thickness>
     <Thickness x:Key="ButtonBorderThemeThickness">0</Thickness>
     
@@ -111,11 +113,21 @@
                 </Flyout>
             </Setter>
         </Style>
+        <Setter Property="Transitions">
+            <Setter.Value>
+                <Transitions>
+                    <DoubleTransition Property="Opacity" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
+                </Transitions>
+            </Setter.Value>
+        </Setter>
         <Style Selector="^.Highlight">
             <Setter Property="Background" Value="{DynamicResource {x:Static init:ColorInitialization.LaminarAccentKey}}"/>
         </Style>
         <Style Selector="^.Highlight:pointerover">
             <Setter Property="Background" Value="{DynamicResource {x:Static init:ColorInitialization.LaminarAccentKey}}"/>
+        </Style>
+        <Style Selector="^:disabled">
+            <Setter Property="Opacity" Value="{StaticResource ThemeDisabledOpacity}" />
         </Style>
     </ControlTheme>
 </ResourceDictionary>

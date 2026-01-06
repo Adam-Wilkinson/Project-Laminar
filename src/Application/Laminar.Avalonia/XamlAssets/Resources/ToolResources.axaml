@@ -29,7 +29,7 @@
     <t:PropertySetterTool Name="Toggle Expanded" 
                           x:DataType="TreeViewItem" 
                           x:Key="Tools.ExpandCollapseTreeViewTool" 
-                          PropertyBinding="{Binding IsExpanded}">
+                          PropertyBinding="{Binding IsExpanded, Priority=Template}">
 	    <t:Tool.IconTemplate>
 		    <DataTemplate DataType="TreeViewItem">
 			    <Path Stroke="{DynamicResource {x:Static init:ColorInitialization.LaminarForegroundKey}}"
@@ -321,11 +321,29 @@
 	    <StaticResource ResourceKey="Tools.Windows.ChangeKeybinding"/>
     </t:Toolbox>
 
+    <t:CommandTool x:Key="Tools.Settings.ResetSettingTool" 
+            x:DataType="s:Setting" 
+            Gesture="r"
+            Name="Reset Setting" 
+            CommandBinding="{Binding ResetCommand}"
+            DefaultIconGeometry="{x:Static shapes:PathData.UndoIcon}"/>
+    
+    <t:PropertySetterTool x:Key="Tools.Settings.ChangeSettingTool" 
+                          x:DataType="s:Setting" 
+                          Gesture="Ctrl+Shift+S" 
+                          Name="Set Setting Value" 
+                          PropertyBinding="{Binding}"/>
+    
+    <t:Toolbox x:Key="Tools.Settings" Name="Settings Tools">
+	    <StaticResource ResourceKey="Tools.Settings.ResetSettingTool"/>
+	    <StaticResource ResourceKey="Tools.Settings.ChangeSettingTool"/>
+    </t:Toolbox>
+    
     <t:Toolbox x:Key="{x:Static t:Tool.ToolRootKey}" Name="LaminarToolRoot">
         <StaticResource ResourceKey="Tools.Edit"/>
         <StaticResource ResourceKey="Tools.FileNavigator"/>
         <StaticResource ResourceKey="Tools.Window"/>
         <StaticResource ResourceKey="Tools.ExpandCollapseTreeViewTool"/>
-        <t:PropertySetterTool Gesture="Ctrl+Shift+S" x:DataType="s:Setting" Name="Set Setting Value" PropertyBinding="{Binding}"/>
+        <StaticResource ResourceKey="Tools.Settings"/>
     </t:Toolbox>
 </ResourceDictionary>

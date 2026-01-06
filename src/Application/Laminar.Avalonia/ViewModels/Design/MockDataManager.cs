@@ -20,7 +20,7 @@ public class MockDataManager : IPersistentDataManager
 
     private class MockDataStore(string filePath) : IPersistentDataStore
     {
-        private readonly Dictionary<string, object> _dataStore = []; 
+        private readonly Dictionary<string, object?> _dataStore = []; 
         
         public string FilePath { get; } = filePath;
         
@@ -36,14 +36,14 @@ public class MockDataManager : IPersistentDataManager
             return retVal;
         }
 
-        public DataReadResult<object> GetItem(string key, Type type)
+        public DataReadResult<object?> GetItem(string key, Type type)
         {
-            return _dataStore.TryGetValue(key, out var result) && result.GetType() == type ? new DataReadResult<object>(result) : default;
+            return _dataStore.TryGetValue(key, out var result) && result?.GetType() == type ? new DataReadResult<object?>(result) : default;
         }
 
-        public IObservableValue<object> GetObservable(string key)
+        public IObservableValue<object?> GetObservable(string key)
         {
-            return new ObservableValue<object>(_dataStore[key]);
+            return new ObservableValue<object?>(_dataStore[key]);
         }
 
         public DataSaveResult SetItem<T>(string key, T value) where T : notnull
@@ -52,7 +52,7 @@ public class MockDataManager : IPersistentDataManager
             return new DataSaveResult();
         }
 
-        public DataSaveResult SetItem(string key, object value, Type type)
+        public DataSaveResult SetItem(string key, object? value)
         {
             _dataStore[key] = value;
             return new DataSaveResult();
@@ -64,10 +64,15 @@ public class MockDataManager : IPersistentDataManager
             return this;
         }
 
-        public IPersistentDataStore InitializeDefaultValue(string key, object value, Type type, object? deserializationContext = null)
+        public IPersistentDataStore InitializeDefaultValue(string key, object? value, Type type, object? deserializationContext = null)
         {
             _dataStore[key] = value;
             return this;
+        }
+
+        public DataReadResult<object?> GetDefaultValue(string key)
+        {
+            throw new NotImplementedException();
         }
     }
 }

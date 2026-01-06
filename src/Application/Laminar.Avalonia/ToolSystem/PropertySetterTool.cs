@@ -56,6 +56,7 @@ public class GetPropertySetterCommandConverter(IBinding? propertyBinding, IBindi
         var boundPropertyContainer = new BoundPropertyContainer
         {
             DataContext = value,
+            Priority = propertyBinding is BindingBase bindingBase ? bindingBase.Priority : BindingPriority.LocalValue,
         };
 
         if (propertyBinding is not null)
@@ -98,6 +99,8 @@ public class BoundPropertyContainer : StyledElement, IInterfaceData
     
     public IUserInterfaceDefinition? Definition { get; }
 
+    public BindingPriority Priority { get; init; }
+    
     public bool IsUserEditable
     {
         get => GetValue(IsUserEditableProperty);
@@ -131,7 +134,7 @@ public class PropertySetterCommand : ICommand
         
         if (_boundPropertyContainer.Value is bool booleanValue)
         {
-            _boundPropertyContainer.Value = !booleanValue;
+            _boundPropertyContainer.SetValue(BoundPropertyContainer.ValueProperty, !booleanValue);
             return;
         }
 

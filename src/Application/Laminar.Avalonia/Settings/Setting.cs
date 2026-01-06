@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data.Converters;
@@ -47,6 +48,13 @@ public class Setting : SettingsItem, IInterfaceData
     public static readonly StyledProperty<IUserInterfaceDefinition?> DefinitionProperty = AvaloniaProperty.Register<Setting, IUserInterfaceDefinition?>(nameof(Definition));
     public static readonly StyledProperty<IValueConverter?> DisplayValueConverterProperty = AvaloniaProperty.Register<Setting, IValueConverter?>(nameof(DisplayValueConverter));
     public static readonly StyledProperty<bool> DisplayToUserProperty = AvaloniaProperty.Register<Setting, bool>(nameof(DisplayToUser), defaultValue: true);
+    public static readonly StyledProperty<ICommand> ResetCommandProperty = AvaloniaProperty.Register<Setting, ICommand>(nameof(ResetCommand));
+    
+    public ICommand ResetCommand
+    {
+        get => GetValue(ResetCommandProperty);
+        set => SetValue(ResetCommandProperty, value);
+    }
     
     public virtual object Value
     {

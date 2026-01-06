@@ -53,7 +53,7 @@ public class PersistentDataStore<TEncodedValue>(
         InitializeDefaultValue(childDataStoreName, result, typeof(PersistentDataStore<TEncodedValue>), result);
         result.DataChanged += (_, _) =>
         {
-            SetItem(childDataStoreName, result, typeof(PersistentDataStore<TEncodedValue>));
+            SetItem(childDataStoreName, result);
         };
         
         return result;
@@ -76,7 +76,7 @@ public class PersistentDataStore<TEncodedValue>(
 
     public IObservableValue<object?> GetObservable(string key) => _serializedDataCache[key];
 
-    public DataSaveResult SetItem(string key, object? value, Type type)
+    public DataSaveResult SetItem(string key, object? value)
     {
         if (!_serializedDataCache.TryGetValue(key, out var persistentValue))
         {
@@ -87,23 +87,22 @@ public class PersistentDataStore<TEncodedValue>(
         return new DataSaveResult();
     }
 
-    public DataSaveResult ResetToDefault(string key)
-    {
-        if (!_serializedDataCache.TryGetValue(key, out var persistentValue))
-        {
-            return new DataSaveResult(DataIoStatus.DataNotFound);
-        }
-        
-        persistentValue.ResetToDefault();
-        return new DataSaveResult();
-    }
-
     public IPersistentDataStore InitializeDefaultValue(string key, object? value, Type type, object? deserializationContext = null)
     {
         GetPersistentData(key).Initialize(value, type, deserializationContext);
         return this;
     }
 
+    public DataReadResult<object?> GetDefaultValue(string key)
+    {
+        if (!_serializedDataCache.TryGetValue(key, out PersistentDataValue? persistentValue))
+        {
+            return new DataReadResult<object?>(null, DataIoStatus.DataNotFound);
+        }
+        
+        return new DataReadResult<object?>(persistentValue.DefaultValue);
+    }
+    
     private void SyncToFile()
     {
         _rawData = persistentDataTranscoder.EncodeDictionary(_serializedDataCache, eachValue => eachValue.EncodedValue);
@@ -154,7 +153,6 @@ public class PersistentDataStore<TEncodedValue>(
     {
         private TEncodedValue _encodedValue = default!;
         private bool _hasEncodedValue;
-        private object? _defaultValue;
         private object? _value;
         private object? _deserializationContext;
         private Type? _valueType;
@@ -166,6 +164,8 @@ public class PersistentDataStore<TEncodedValue>(
         public required string ValueName { get; init; }
 
         public Type ValueType => _valueType ?? throw new ValueNotInitializedException(ValueName);
+
+        public object? DefaultValue { get; private set; }
 
         public TEncodedValue EncodedValue
         {
@@ -214,18 +214,13 @@ public class PersistentDataStore<TEncodedValue>(
 
         public void Initialize(object? defaultValue, Type? valueType = null, object? deserializationContext = null)
         {
-            _defaultValue = defaultValue;
-            _valueType = valueType ?? _defaultValue?.GetType();
+            DefaultValue = defaultValue;
+            _valueType = valueType ?? DefaultValue?.GetType();
             _deserializationContext = deserializationContext;
             
             if (_hasEncodedValue && TrySetValueFromEncodedValue()) return;
             
-            Value = _defaultValue;
-        }
-
-        public void ResetToDefault()
-        {
-            Value = _defaultValue ?? throw new ValueNotInitializedException(ValueName);
+            Value = DefaultValue;
         }
         
         private void SetEncodedValueFromValue()

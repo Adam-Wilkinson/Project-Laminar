@@ -1,7 +1,11 @@
+using System;
+using System.IO;
+using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Reactive;
 using Avalonia.Threading;
+using CommunityToolkit.Mvvm.Input;
 using Laminar.Avalonia.InitializationTargets;
 using Laminar.Contracts.UserData;
 using Laminar.Domain.DataManagement;
@@ -24,7 +28,7 @@ public class SettingsSerializer(TopLevel topLevel, IPersistentDataManager persis
             }
         }));
     }
-
+    
     private void Serialize(SettingsItem settingsItem, string prefix = "")
     {
         var key = string.IsNullOrEmpty(prefix) ? settingsItem.Name : prefix + "." + settingsItem.Name;
@@ -66,6 +70,54 @@ public class SettingsSerializer(TopLevel topLevel, IPersistentDataManager persis
         };
 
         setting.GetObservable(Setting.ValueProperty).Subscribe(new AnonymousObserver<object>(x =>
-            _settingsDataStore.SetItem(settingKey, x, setting.Value.GetType())));
+            _settingsDataStore.SetItem(settingKey, x)));
+
+        setting.ResetCommand = new ResetSettingCommand(_settingsDataStore, settingKey, setting);
+    }
+    
+    private class ResetSettingCommand : ICommand
+    {
+        private readonly IPersistentDataStore _settingsDataStore;
+        private readonly string _settingKey;
+        private readonly Setting _setting;
+        private bool _canExecute;
+
+        public ResetSettingCommand(IPersistentDataStore settingsDataStore, string settingKey, Setting setting)
+        {
+            _settingsDataStore = settingsDataStore;
+            _settingKey = settingKey;
+            _setting = setting;
+            _settingsDataStore.GetObservable(settingKey).ValueChanged += (_, newValue) =>
+            {
+                var defaultVal = SettingDefaultValue();
+                bool canNowExecute = !Equals(newValue, defaultVal);
+                if (_canExecute != canNowExecute)
+                {
+                    CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+                }
+            };
+        }
+
+        public bool CanExecute(object? parameter)
+        {
+            var defaultVal = SettingDefaultValue();
+            _canExecute = !Equals(_setting.Value, defaultVal);
+            return _canExecute;
+        }
+
+        public void Execute(object? parameter) => _settingsDataStore.ResetToDefault(_settingKey);
+
+        public event EventHandler? CanExecuteChanged;
+
+        private object? SettingDefaultValue()
+        {
+            var defaultRead = _settingsDataStore.GetDefaultValue(_settingKey);
+            if (defaultRead.Status != DataIoStatus.Success)
+            {
+                throw new IOException("Invalid data read");
+            }
+            
+            return defaultRead.Result;
+        }
     }
 }

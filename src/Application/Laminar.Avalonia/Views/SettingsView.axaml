@@ -9,22 +9,41 @@
              x:Class="Laminar.Avalonia.Views.SettingsView"	
              x:DataType="vm:SettingsViewModel"
              HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-	<ItemsControl ItemsSource="{StaticResource SettingsRoot}" MaxWidth="1500" Margin="100, 30" HorizontalAlignment="Stretch">
+	<ItemsControl ItemsSource="{StaticResource SettingsRoot}" MaxWidth="1500" Margin="100, 30" HorizontalAlignment="Stretch" Grid.IsSharedSizeScope="True">
 		<ItemsControl.ItemsPanel>
 			<ItemsPanelTemplate>
-				<StackPanel Spacing="4"/>			
+				<UniformGrid Columns="1" VerticalAlignment="Top" RowSpacing="5"/>			
 			</ItemsPanelTemplate>
 		</ItemsControl.ItemsPanel>
 		
 		<ItemsControl.ItemTemplate>
 			<DataTemplate x:DataType="s:Setting">
-				<Border
-					IsVisible="{Binding DisplayToUser}"
-					CornerRadius="10"
-					Background="{DynamicResource UiLayer}">
-					<ContentControl MinHeight="40"
-						Content="{Binding}" Margin="10"/>
-				</Border>
+				<Grid HorizontalAlignment="Stretch" IsVisible="{Binding DisplayToUser}">
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="*"/>
+						<ColumnDefinition Width="Auto" SharedSizeGroup="ResetSetting"/>
+					</Grid.ColumnDefinitions>
+					<Border Grid.Column="0"
+					        Name="SettingBorder"
+							CornerRadius="10"
+							Background="{DynamicResource UiLayer}">
+						<ContentControl Name="SettingControl"
+										MinHeight="40"
+										Content="{Binding}" 
+										Margin="10"/>
+					</Border>
+					<Button Grid.Column="1"
+					        CornerRadius="10"
+					        Background="{DynamicResource UiLayer}"
+					        DataContext="{Binding 
+										Converter={StaticResource ToolInstancer}, 
+										ConverterParameter={StaticResource Tools.Settings.ResetSettingTool}}"
+					        Theme="{StaticResource ToolButton}"
+					        VerticalAlignment="Stretch"
+					        Width="{Binding $self.Bounds.Height}"
+					        Margin="5,0,0,0">
+					</Button>
+				</Grid>
 			</DataTemplate>
 		</ItemsControl.ItemTemplate>
 	</ItemsControl>

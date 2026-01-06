@@ -13,19 +13,28 @@
                Background="Transparent"
                VerticalAlignment="Stretch"
                IsHitTestVisible="True">
-        <ItemsControl DockPanel.Dock="Right"
-                      Name="PART_QuickAccess"
-                      Height="{Binding #ItemNameLabel.Bounds.Height}"
-                      ItemsSource="{Binding 
+        <Panel DockPanel.Dock="Right">
+            <Panel.Width>
+                <MultiBinding Converter="{StaticResource MultiMultiplyConverter}">
+                    <Binding Path="#PART_QuickAccess.ItemCount"/>
+                    <Binding Path="#ItemNameLabel.Bounds.Height"/>
+                </MultiBinding>
+            </Panel.Width>
+            <ItemsControl DockPanel.Dock="Right"
+                          Name="PART_QuickAccess"
+                          Height="{Binding #ItemNameLabel.Bounds.Height}"
+                          ItemsSource="{Binding 
                                             Converter={StaticResource ToolInstancer}, 
                                             ConverterParameter={StaticResource Tools.FileNavigator.StorageItem}}"
-                      VerticalAlignment="Stretch">
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch"/>
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-        </ItemsControl>
+                          VerticalAlignment="Stretch"
+                          HorizontalAlignment="Right">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+        </Panel>
         <Viewbox Width="{Binding #ItemNameLabel.Bounds.Height}"
                  Height="{Binding #ItemNameLabel.Bounds.Height}">
             <PathIcon VerticalAlignment="Stretch" 
@@ -47,11 +56,11 @@
                          IsBeingEdited="{Binding CoreItem.NeedsName, Mode=TwoWay}"/>
         
         <DockPanel.Styles>
-            <Style Selector="DockPanel > ItemsControl#PART_QuickAccess">
+            <Style Selector="DockPanel > Panel > ItemsControl#PART_QuickAccess">
                 <Setter Property="IsVisible" Value="False"/>
             </Style>
             
-            <Style Selector="DockPanel:pointerover > ItemsControl#PART_QuickAccess">
+            <Style Selector="DockPanel:pointerover > Panel > ItemsControl#PART_QuickAccess">
                 <Setter Property="IsVisible" Value="True"/>
             </Style>
         </DockPanel.Styles>

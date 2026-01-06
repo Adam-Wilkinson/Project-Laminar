@@ -1,7 +1,9 @@
 using System;
 using System.Globalization;
+using System.Linq;
 using Avalonia.Data;
 using Avalonia.Data.Converters;
+using Avalonia.Markup.Xaml.MarkupExtensions;
 
 namespace Laminar.Avalonia.Converters;
 
