@@ -7,7 +7,6 @@ using Avalonia.Animation.Easings;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using Avalonia.LogicalTree;
 using Avalonia.Media;
 using Avalonia.Media.Transformation;
 using Avalonia.Reactive;
@@ -36,6 +35,8 @@ public class DragDropHandler
     }
 
     public static DragDropDebugRenderer? DebugRenderer { get; set; } = new DragDropDebugRenderer<TreeViewDropAcceptor>();
+
+    public static TimeSpan AnimateHomeAnimationDuration { get; set; } = TimeSpan.Zero;
 
     private static void TriggerMouseButtonChanged(AvaloniaPropertyChangedEventArgs<MouseButton?> e)
     {
@@ -189,8 +190,8 @@ public class DragDropHandler
         TransformOperationsTransition transformTransition = new()
         {
             Property = Visual.RenderTransformProperty, 
-            Duration = new TimeSpan(0, 0, 0, 0, 300),
-            Easing = new QuadraticEaseInOut()
+            Duration = AnimateHomeAnimationDuration,
+            Easing = new QuadraticEaseOut()
         };
         
         visual.Transitions ??= [];

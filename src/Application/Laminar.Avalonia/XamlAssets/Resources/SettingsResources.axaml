@@ -17,7 +17,7 @@
 	
 	<s:TimeSpanSetting x:Key="SettingsRoot.InterfaceSettings.AnimationDuration" 
 	                   Name="Animation Duration" 
-	                   Value="0:0:0.2" 
+	                   Value="0:0:0.15" 
 	                   DisplayValueConverter="{StaticResource MillisecondsFromTimespanConverter}">
 		<d:Slider Min="0" Max="300" FormatString="{}{0:0} ms"/>
 	</s:TimeSpanSetting>

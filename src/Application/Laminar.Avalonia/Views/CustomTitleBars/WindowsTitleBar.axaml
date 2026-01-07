@@ -41,6 +41,7 @@
 										Converter={StaticResource ToolInstancer}, 
 										ConverterParameter={StaticResource Tools.Window.ToggleSidebar}}"
 				        Theme="{StaticResource ToolButton}"
+				        Opacity="1"
 				        Width="50"/>
 				<Menu VerticalAlignment="Stretch">
 					<Menu.Styles>
