@@ -42,5 +42,5 @@ public class DropAcceptor
         yield return new Receptacle(new RectangleGeometry(visual.Bounds), null);
     }
 
-    protected record struct Receptacle(Geometry AcceptsDropRegion, object? Tag);
+    public record struct Receptacle(Geometry AcceptsDropRegion, object? Tag);
 }

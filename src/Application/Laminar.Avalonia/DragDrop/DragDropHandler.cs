@@ -140,10 +140,11 @@ public class DragDropHandler
         object? currentReceptacleTag = dropTargetEvent.ReceptacleTag;
         
         if (TopLevel.GetTopLevel(dropTargetEvent.DraggingControl) is not { } topLevel) return;
+        if (topLevel.GetVisualAt(pointerEventArgs.GetPosition(topLevel)) is not { } pointerVisual) return;
         
-        foreach (ILogical logicalAtPoint in topLevel.GetVisualAt(pointerEventArgs.GetPosition(topLevel))!.GetLogicalAncestors())
+        foreach (Visual visualAtPoint in pointerVisual.GetVisualAncestors())
         {
-            if (logicalAtPoint is not Visual visualAtPoint || Equals(logicalAtPoint, dropTargetEvent.DraggingControl))
+            if (Equals(visualAtPoint, dropTargetEvent.DraggingControl))
             {
                 continue;
             }

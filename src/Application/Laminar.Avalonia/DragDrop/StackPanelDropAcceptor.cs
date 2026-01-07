@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Avalonia;
 using Avalonia.Controls;
@@ -10,8 +11,12 @@ public class StackPanelDropAcceptor : DropAcceptor<StackPanel>
 {
     public double ReceptacleAreaFraction { get; set; } = 0.67;
 
+    public IEnumerable<Receptacle> Receptacles(StackPanel stackPanel) => GetReceptacles(stackPanel);
+    
     protected override IEnumerable<Receptacle> GetReceptacles(StackPanel stackPanel)
     {
+        if (stackPanel.Children.Count == 0) yield break;
+        
         var heightOfFirstReceptacle = ChildDepth(stackPanel, stackPanel.Children[0]) * ReceptacleAreaFraction / 2;
         yield return new Receptacle(
             new RectangleGeometry(OrientedReceptacleRect(stackPanel, 0, heightOfFirstReceptacle)), 0);
@@ -37,7 +42,7 @@ public class StackPanelDropAcceptor : DropAcceptor<StackPanel>
         }
     }
 
-    protected override IPen DebugReceptaclePen { get; set; } = new Pen(Brushes.Yellow, 1.5);
+    protected override IPen DebugReceptaclePen { get; set; } = new Pen(new SolidColorBrush((uint)Random.Shared.NextInt64()), 1.5);
     
     private static double ChildDepth(StackPanel stackPanel, Control control)
     {

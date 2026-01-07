@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Avalonia;
@@ -10,21 +11,21 @@ using Laminar.Domain.Extensions;
 
 namespace Laminar.Avalonia.DragDrop;
 
-public class TreeViewDropAcceptor : DropAcceptor<TreeView>
+public class TreeViewDropAcceptor : DropAcceptor<TreeViewItem>
 {
-    protected override IEnumerable<Receptacle> GetReceptacles(TreeView visual)
+    private readonly StackPanelDropAcceptor _stackPanelDropAcceptor = new();
+    
+    protected override IEnumerable<Receptacle> GetReceptacles(TreeViewItem treeViewItem)
     {
-        if (visual.ItemsPanelRoot is not { } visualPanel) yield break;
-
-        var rootTreeViewItems = visualPanel.GetVisualChildren().Where(x => x is TreeViewItem).Cast<TreeViewItem>();
-        
-        foreach (TreeViewItem child in Flatten(rootTreeViewItems))
+        if (treeViewItem.ItemsPanelRoot is StackPanel stackPanel)
         {
-            yield return new Receptacle(new RectangleGeometry(child.Bounds), null);
+            return _stackPanelDropAcceptor.Receptacles(stackPanel).Skip(1);
         }
+
+        return [];
     }
 
-    protected override IPen? DebugReceptaclePen { get; set; } = new Pen(Brushes.Blue, 2);
+    protected override IPen? DebugReceptaclePen => new Pen(new SolidColorBrush(new HslColor(1, Random.Shared.NextSingle() * 360, 1, 0.5).ToRgb()), 1.5);
     
     private IEnumerable<TreeViewItem> Flatten(IEnumerable<TreeViewItem> items)
     {

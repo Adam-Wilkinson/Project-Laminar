@@ -45,6 +45,7 @@
 			<conv:AndConverter x:Key="AndConverter"/>
 			
 			<dd:TreeViewDropAcceptor x:Key="TreeViewDropAcceptor"/>
+			<dd:StackPanelDropAcceptor x:Key="StackPanelDropAcceptor"/>
 		</ResourceDictionary>
 	</Application.Resources>
 	

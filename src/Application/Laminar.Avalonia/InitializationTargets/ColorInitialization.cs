@@ -16,8 +16,10 @@ public class ColorInitialization(Application topLevel, ILogger<ColorInitializati
     public const string LaminarForegroundKey = "LaminarForeground";
     public const string LaminarAccentForegroundKey = "LaminarAccentForeground";
     public const string LaminarAccentBackgroundKey = "LaminarAccentBackground";
+    public const string LaminarAccenterBackgroundKey = "LaminarAccenterBackground";
     
     private const double BackgroundAlpha = 0.25;
+    private const double AccenterBackgroundAlpha = 0.5;
     private const double ForegroundBrightness = 0.6;
     
     private Color _themeAccent = Color.Parse("#2555");
@@ -102,6 +104,9 @@ public class ColorInitialization(Application topLevel, ILogger<ColorInitializati
         topLevel.Resources[LaminarAccentBackgroundKey] =
             new Color((byte)(accent.A * BackgroundAlpha), accent.R, accent.G, accent.B);
 
+        topLevel.Resources[LaminarAccenterBackgroundKey] = 
+            new Color((byte)(accent.A * AccenterBackgroundAlpha), accent.R, accent.G, accent.B);
+        
         var accentHsl = accent.ToHsl();
         var foregroundHsl = foreground.ToHsl();
         
