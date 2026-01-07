@@ -5,6 +5,7 @@
              xmlns:t="using:Laminar.Avalonia.ToolSystem"
              xmlns:s="using:Laminar.Avalonia.Settings"
              xmlns:init="using:Laminar.Avalonia.InitializationTargets"
+             xmlns:dd="using:Laminar.Avalonia.DragDrop"
              xmlns:conv="using:Laminar.Avalonia.Converters">
 
     <Application.DataTemplates>
@@ -42,6 +43,8 @@
 			<conv:AreEqualConverter x:Key="AreEqualConverter"/>
 			<conv:MultiMultiplyConverter x:Key="MultiMultiplyConverter"/>
 			<conv:AndConverter x:Key="AndConverter"/>
+			
+			<dd:TreeViewDropAcceptor x:Key="TreeViewDropAcceptor"/>
 		</ResourceDictionary>
 	</Application.Resources>
 	

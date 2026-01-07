@@ -41,7 +41,7 @@ public class StackPanelDropAcceptor : DropAcceptor<StackPanel>
     
     private static double ChildDepth(StackPanel stackPanel, Control control)
     {
-        return (stackPanel.Orientation == Orientation.Horizontal ? control.Bounds.Width : control.Bounds.Height);
+        return stackPanel.Orientation == Orientation.Horizontal ? control.Bounds.Width : control.Bounds.Height;
     }
 
     private static Rect OrientedReceptacleRect(StackPanel stackPanel, double startingDepth, double receptacleDepth)

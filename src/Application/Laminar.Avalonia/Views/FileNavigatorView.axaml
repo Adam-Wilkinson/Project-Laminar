@@ -29,7 +29,12 @@
             </Style>
         </Panel.Styles>
         
-        <TreeView ClipToBounds="False" ItemsSource="{Binding RootFiles}" SelectionMode="Multiple" Margin="3,0">
+        <TreeView ClipToBounds="False" 
+                  ItemsSource="{Binding RootFiles}" 
+                  SelectionMode="Multiple" 
+                  Margin="3,0"
+                  Background="Transparent"
+                  dd:DropTargetHandler.DropAcceptor="{StaticResource TreeViewDropAcceptor}">
             <TreeView.ItemTemplate>
                 <TreeDataTemplate DataType="{x:Type vm:FileNavigatorItemViewModel}" ItemsSource="{Binding Children}">
                     <ContentControl Content="{Binding}"/>

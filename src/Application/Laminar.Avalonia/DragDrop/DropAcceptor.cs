@@ -26,14 +26,16 @@ public class DropAcceptor
 
     public void RenderAllReceptacles(Visual visual, DrawingContext drawingContext)
     {
-        foreach (var receptacle in GetReceptacles(visual))
+        if (DebugReceptaclePen is null) return;
+        
+        foreach (Receptacle receptacle in GetReceptacles(visual))
         {
             receptacle.AcceptsDropRegion.Transform = new MatrixTransform(visual.GetVisualParent()!.TransformToVisual(TopLevel.GetTopLevel(visual)!)!.Value);
             drawingContext.DrawGeometry(null, DebugReceptaclePen, receptacle.AcceptsDropRegion);
         }
     }
     
-    protected virtual IPen DebugReceptaclePen { get; set; } = new Pen { Brush = Brushes.Red } ;
+    protected virtual IPen? DebugReceptaclePen { get; set; }
 
     protected virtual IEnumerable<Receptacle> GetReceptacles(Visual visual)
     {

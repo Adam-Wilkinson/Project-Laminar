@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Media;
+using Avalonia.VisualTree;
 
 namespace Laminar.Avalonia.DragDrop;
 
@@ -22,7 +23,8 @@ public class DragDropDebugRenderer<T> : DragDropDebugRenderer
 public class DragDropDebugRenderer
 {
     private readonly Dictionary<Control, RendererControl> _allDebugRenderers = new();
-
+    private readonly List<RendererControl> _allRendererControls = [];
+    
     protected virtual bool ShouldDebugControl(Control ctrl) => true; 
     
     public bool EnsureAttached(Control control)
@@ -36,6 +38,7 @@ public class DragDropDebugRenderer
 
         RendererControl renderer = new(control);
         adornerLayer.Children.Add(renderer);
+        _allRendererControls.Add(renderer);
         _allDebugRenderers.Add(control, renderer);
         return true;
     }
@@ -43,12 +46,13 @@ public class DragDropDebugRenderer
     public bool Detach(Control control)
     {
         if (AdornerLayer.GetAdornerLayer(control) is not { } adornerLayer 
-            || !_allDebugRenderers.TryGetValue(control, out var _))
+            || !_allDebugRenderers.TryGetValue(control, out RendererControl? renderer))
         {
             return false;
         }
 
-        adornerLayer.Children.Remove(control);
+        adornerLayer.Children.Remove(renderer);
+        renderer.IsVisible = false;
         _allDebugRenderers.Remove(control);
         return true;
     }
@@ -61,18 +65,11 @@ public class DragDropDebugRenderer
         }
     }
 
-    private class RendererControl : Control
+    private class RendererControl(Control debugRenderControl) : Control
     {
-        private readonly Control _debugRenderControl;
-        
-        public RendererControl(Control control)
-        {
-            _debugRenderControl = control;
-        }
-        
         public override void Render(DrawingContext context)
         {
-            DropTargetHandler.GetDropAcceptor(_debugRenderControl).RenderAllReceptacles(_debugRenderControl, context);
+            DropTargetHandler.GetDropAcceptor(debugRenderControl).RenderAllReceptacles(debugRenderControl, context);
         }
     }
 }

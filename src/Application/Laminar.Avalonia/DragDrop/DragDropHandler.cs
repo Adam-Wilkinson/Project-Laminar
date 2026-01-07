@@ -7,6 +7,7 @@ using Avalonia.Animation.Easings;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.LogicalTree;
 using Avalonia.Media;
 using Avalonia.Media.Transformation;
 using Avalonia.Reactive;
@@ -34,7 +35,7 @@ public class DragDropHandler
         TriggerMouseButtonProperty.Changed.Subscribe(new AnonymousObserver<AvaloniaPropertyChangedEventArgs<MouseButton?>>(TriggerMouseButtonChanged));
     }
 
-    public static DragDropDebugRenderer? DebugRenderer { get; set; }
+    public static DragDropDebugRenderer? DebugRenderer { get; set; } = new DragDropDebugRenderer<TreeViewDropAcceptor>();
 
     private static void TriggerMouseButtonChanged(AvaloniaPropertyChangedEventArgs<MouseButton?> e)
     {
@@ -139,11 +140,15 @@ public class DragDropHandler
         object? currentReceptacleTag = dropTargetEvent.ReceptacleTag;
         
         if (TopLevel.GetTopLevel(dropTargetEvent.DraggingControl) is not { } topLevel) return;
-
-        foreach (Visual visualAtPoint in topLevel.GetVisualsAt(pointerEventArgs.GetPosition(topLevel),
-                     visual => visual != dropTargetEvent.DraggingControl))
+        
+        foreach (ILogical logicalAtPoint in topLevel.GetVisualAt(pointerEventArgs.GetPosition(topLevel))!.GetLogicalAncestors())
         {
-            if (DebugRenderer is not null && visualAtPoint is Control control)
+            if (logicalAtPoint is not Visual visualAtPoint || Equals(logicalAtPoint, dropTargetEvent.DraggingControl))
+            {
+                continue;
+            }
+            
+            if (DebugRenderer is not null && visualAtPoint is Control control && dropTargetEvent.EventType == DropTargetEventType.HoverEnter)
             {
                 DebugRenderer.EnsureAttached(control);
             }
@@ -165,10 +170,13 @@ public class DragDropHandler
                 dropTargetEvent.CurrentHoverOver = interactiveAtPoint;
                 dropTargetEvent.ReceptacleTag = receptacleTag;
                 interactiveAtPoint.RaiseEvent(dropTargetEvent);
-                dropTargetEvent.DraggingControl.RaiseEvent(BeingDraggedEventArgs.HoverStarted(dropTargetEvent.DraggingControl));
             }
 
-            if (dropTargetEvent.Handled) return;
+            if (dropTargetEvent.Handled)
+            {
+                dropTargetEvent.DraggingControl.RaiseEvent(BeingDraggedEventArgs.HoverStarted(dropTargetEvent.DraggingControl));
+                return;
+            }
         }
 
         dropTargetEvent.CurrentHoverOver = null;
