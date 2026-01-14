@@ -28,14 +28,10 @@ public class DragDropHandler(ILogger<DragDropHandler> logger) : IAfterApplicatio
     private static ILogger<DragDropHandler>? _logger;
     private static DropTargetEventArgs? _hoverArgs;
     private static PointerPressedEventArgs? _originalClickEvent;
-    private static Point? _clickOffset;
     private static ITransform? _controlOriginalTransform;
     private static bool? _controlIsClipToBounds;
     private static int? _controlZIndex;
     private static bool _dragActive = false;
-    private static bool _currentDragHasMoved = false;
-    private static Rect? _currentDragControlBoundsInTopLevel = null;
-
     private static Vector? _clickOffsetInDraggedCoords;
     private static Vector? _currentTransformVector;
     
@@ -91,7 +87,7 @@ public class DragDropHandler(ILogger<DragDropHandler> logger) : IAfterApplicatio
 
     private static void InputElementSender_PointerMoved(object? sender, PointerEventArgs e)
     {
-        if (_hoverArgs is null || !_clickOffset.HasValue || _controlOriginalTransform is null)
+        if (_hoverArgs is null || _controlOriginalTransform is null)
         {
             return;
         }
@@ -101,37 +97,8 @@ public class DragDropHandler(ILogger<DragDropHandler> logger) : IAfterApplicatio
         {
             e.Handled = true;
             _dragActive = true;
-            _currentDragHasMoved = false;
             e.Pointer.Capture(_hoverArgs.DraggingControl);
             BeingDraggedHandler.StartDrag(_hoverArgs.DraggingControl);   
-        }
-        
-        Point currentClickOffset = e.GetCurrentPoint(null).Position;
-        Matrix? transformToTopLevel = TopLevel.GetTopLevel(_hoverArgs.DraggingControl) is { } topLevel
-            ? _hoverArgs.DraggingControl.TransformToVisual(topLevel)
-            : null;
-
-        if (_hoverArgs.DraggingControl.RenderTransform is { Value.HasInverse: true } && transformToTopLevel.HasValue)
-        {
-            transformToTopLevel = transformToTopLevel.Value * _hoverArgs.DraggingControl.RenderTransform.Value.Invert();
-        }
-        
-        Rect? currentControlBoundsInTopLevel = transformToTopLevel is not null
-                ? _hoverArgs.DraggingControl.Bounds.TransformToAABB(transformToTopLevel.Value)
-                : null;
-        
-        _logger?.LogTrace("Bounds were {oldBounds}, but are now {bounds}", _currentDragControlBoundsInTopLevel, currentControlBoundsInTopLevel);
-        
-        if (_currentDragControlBoundsInTopLevel.HasValue && currentControlBoundsInTopLevel.HasValue && 
-            !currentControlBoundsInTopLevel.Value.TopLeft.NearlyEquals(_currentDragControlBoundsInTopLevel.Value.TopLeft))
-        {
-            _logger?.LogTrace("Adjusting the click offset by {adjustment} to account for change in bounds", currentControlBoundsInTopLevel.Value.TopLeft - _currentDragControlBoundsInTopLevel.Value.TopLeft);
-            _clickOffset += currentControlBoundsInTopLevel.Value.TopLeft - _currentDragControlBoundsInTopLevel.Value.TopLeft;
-        }
-
-        if (currentControlBoundsInTopLevel.HasValue)
-        {
-            _currentDragControlBoundsInTopLevel = currentControlBoundsInTopLevel;
         }
 
         var currentClickOffsetLocal = e.GetPosition(_hoverArgs.DraggingControl);
@@ -161,7 +128,6 @@ public class DragDropHandler(ILogger<DragDropHandler> logger) : IAfterApplicatio
         }
         
         _originalClickEvent = e;
-        _clickOffset = e.GetCurrentPoint(null).Position;
         _clickOffsetInDraggedCoords = e.GetPosition(senderControl);
         _currentTransformVector = Vector.Zero;
         _controlIsClipToBounds = senderControl.ClipToBounds;
@@ -183,7 +149,7 @@ public class DragDropHandler(ILogger<DragDropHandler> logger) : IAfterApplicatio
 
     private static void InputElementSender_PointerReleased(object? sender, PointerReleasedEventArgs e)
     {
-        if (_hoverArgs is null || _controlOriginalTransform is null || _clickOffset is null)
+        if (_hoverArgs is null || _controlOriginalTransform is null)
         {
             return;
         }
@@ -204,8 +170,6 @@ public class DragDropHandler(ILogger<DragDropHandler> logger) : IAfterApplicatio
         
         ExecuteDragEventAtPointer(e, DropTargetEventArgs.Drop(_hoverArgs.DraggingControl, _hoverArgs.OriginalClickEventArgs));
         AnimateHome(_hoverArgs.DraggingControl, _controlOriginalTransform);
-        _clickOffset = null;
-        _currentDragControlBoundsInTopLevel = null;
     }
 
     private static void ExecuteDragEventAtPointer(PointerEventArgs pointerEventArgs, DropTargetEventArgs dropTargetEvent)
