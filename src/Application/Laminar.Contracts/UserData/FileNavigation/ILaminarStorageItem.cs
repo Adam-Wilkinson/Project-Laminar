@@ -9,8 +9,8 @@ public interface ILaminarStorageItem : INotifyPropertyChanged
     public bool IsEnabled { get; set; }
     public bool IsEffectivelyEnabled { get; }
     public bool NeedsName { get; set; }
+    public ILaminarStorageFolder? ParentFolder { get; }
     public void Delete();
     public bool TryMoveTo(string newPath);
-    public ILaminarStorageFolder? ParentFolder { get; }
     public event EventHandler<IOException> ExceptionRaised;
 }

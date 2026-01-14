@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
@@ -7,20 +8,24 @@ using Avalonia.Animation.Easings;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.LogicalTree;
 using Avalonia.Media;
 using Avalonia.Media.Transformation;
 using Avalonia.Reactive;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
+using Laminar.Avalonia.InitializationTargets;
+using Microsoft.Extensions.Logging;
 
 namespace Laminar.Avalonia.DragDrop;
 
-public class DragDropHandler
+public class DragDropHandler(ILogger<DragDropHandler> logger) : IAfterApplicationBuiltTarget
 {
     public static readonly AttachedProperty<MouseButton?> TriggerMouseButtonProperty = AvaloniaProperty.RegisterAttached<DragDropHandler, Control, MouseButton?>("TriggerMouseButton");
     public static MouseButton? GetTriggerMouseButton(AvaloniaObject control) => control.GetValue(TriggerMouseButtonProperty);
     public static void SetTriggerMouseButton(AvaloniaObject control, MouseButton? mouseButton) => control.SetValue(TriggerMouseButtonProperty, mouseButton);
-    
+
+    private static ILogger<DragDropHandler>? _logger;
     private static DropTargetEventArgs? _hoverArgs;
     private static PointerPressedEventArgs? _originalClickEvent;
     private static Point? _clickOffset;
@@ -28,6 +33,11 @@ public class DragDropHandler
     private static bool? _controlIsClipToBounds;
     private static int? _controlZIndex;
     private static bool _dragActive = false;
+    private static bool _currentDragHasMoved = false;
+    private static Rect? _currentDragControlBoundsInTopLevel = null;
+
+    private static Vector? _clickOffsetInDraggedCoords;
+    private static Vector? _currentTransformVector;
     
     static DragDropHandler()
     {
@@ -44,10 +54,39 @@ public class DragDropHandler
         {
             throw new Exception($"Property {nameof(TriggerMouseButtonProperty)} is only valid on objects of type {typeof(Interactive)}");
         }
-        
-        inputElementSender.AddHandler(InputElement.PointerPressedEvent, InputElementSender_PointerPressed);
-        inputElementSender.AddHandler(InputElement.PointerReleasedEvent, InputElementSender_PointerReleased);
-        inputElementSender.AddHandler(InputElement.PointerMovedEvent, InputElementSender_PointerMoved);
+
+        if (e.OldValue != MouseButton.None && e.NewValue == MouseButton.None)
+        {
+            inputElementSender.RemoveHandler(InputElement.PointerPressedEvent, InputElementSender_PointerPressed);
+            inputElementSender.RemoveHandler(InputElement.PointerMovedEvent, InputElementSender_PointerMoved);
+            inputElementSender.RemoveHandler(InputElement.PointerReleasedEvent, InputElementSender_PointerReleased);
+            inputElementSender.RemoveHandler(Control.LoadedEvent, InputElementSender_Loaded);
+            inputElementSender.RemoveHandler(Control.UnloadedEvent, InputElementSender_Unloaded);
+        }
+
+        if (e.NewValue != MouseButton.None)
+        {
+            inputElementSender.AddHandler(InputElement.PointerPressedEvent, InputElementSender_PointerPressed);
+            inputElementSender.AddHandler(InputElement.PointerMovedEvent, InputElementSender_PointerMoved);   
+            inputElementSender.AddHandler(InputElement.PointerReleasedEvent, InputElementSender_PointerReleased);
+            inputElementSender.AddHandler(Control.LoadedEvent, InputElementSender_Loaded);
+            inputElementSender.AddHandler(Control.UnloadedEvent, InputElementSender_Unloaded);
+        }
+    }
+
+    private static void InputElementSender_Unloaded(object? sender, RoutedEventArgs e)
+    {
+        if (_hoverArgs is null || e.Source is not Visual unloadedVisual) return;
+    }
+
+    private static void InputElementSender_Loaded(object? sender, RoutedEventArgs e)
+    {
+        if (_hoverArgs is null) return;
+
+        if (e.Source is Control element && Equals(element.DataContext, _hoverArgs.DraggingControl.DataContext))
+        {
+            _hoverArgs = DropTargetEventArgs.HoverEnter(element, _hoverArgs.OriginalClickEventArgs);
+        }
     }
 
     private static void InputElementSender_PointerMoved(object? sender, PointerEventArgs e)
@@ -62,23 +101,55 @@ public class DragDropHandler
         {
             e.Handled = true;
             _dragActive = true;
+            _currentDragHasMoved = false;
             e.Pointer.Capture(_hoverArgs.DraggingControl);
             BeingDraggedHandler.StartDrag(_hoverArgs.DraggingControl);   
         }
         
-        var currentClickOffset = e.GetCurrentPoint(null).Position; 
-        var transform = TransformOperations.CreateBuilder(2);
+        Point currentClickOffset = e.GetCurrentPoint(null).Position;
+        Matrix? transformToTopLevel = TopLevel.GetTopLevel(_hoverArgs.DraggingControl) is { } topLevel
+            ? _hoverArgs.DraggingControl.TransformToVisual(topLevel)
+            : null;
+
+        if (_hoverArgs.DraggingControl.RenderTransform is { Value.HasInverse: true } && transformToTopLevel.HasValue)
+        {
+            transformToTopLevel = transformToTopLevel.Value * _hoverArgs.DraggingControl.RenderTransform.Value.Invert();
+        }
+        
+        Rect? currentControlBoundsInTopLevel = transformToTopLevel is not null
+                ? _hoverArgs.DraggingControl.Bounds.TransformToAABB(transformToTopLevel.Value)
+                : null;
+        
+        _logger?.LogTrace("Bounds were {oldBounds}, but are now {bounds}", _currentDragControlBoundsInTopLevel, currentControlBoundsInTopLevel);
+        
+        if (_currentDragControlBoundsInTopLevel.HasValue && currentControlBoundsInTopLevel.HasValue && 
+            !currentControlBoundsInTopLevel.Value.TopLeft.NearlyEquals(_currentDragControlBoundsInTopLevel.Value.TopLeft))
+        {
+            _logger?.LogTrace("Adjusting the click offset by {adjustment} to account for change in bounds", currentControlBoundsInTopLevel.Value.TopLeft - _currentDragControlBoundsInTopLevel.Value.TopLeft);
+            _clickOffset += currentControlBoundsInTopLevel.Value.TopLeft - _currentDragControlBoundsInTopLevel.Value.TopLeft;
+        }
+
+        if (currentControlBoundsInTopLevel.HasValue)
+        {
+            _currentDragControlBoundsInTopLevel = currentControlBoundsInTopLevel;
+        }
+
+        var currentClickOffsetLocal = e.GetPosition(_hoverArgs.DraggingControl);
+        var neededChangeInTranslation = currentClickOffsetLocal - _clickOffsetInDraggedCoords;
+        _currentTransformVector += neededChangeInTranslation;
+        
+        TransformOperations.Builder transform = TransformOperations.CreateBuilder(2);
         transform.AppendMatrix(_controlOriginalTransform.Value);
-        transform.AppendTranslate(currentClickOffset.X - _clickOffset.Value.X, currentClickOffset.Y - _clickOffset.Value.Y);
+        transform.AppendTranslate(_currentTransformVector.Value.X, _currentTransformVector.Value.Y);
         _hoverArgs.DraggingControl.RenderTransform = transform.Build();
 
-        var oldHoverInteractive = _hoverArgs.CurrentHoverOver;
-        var oldHoverReceptacleTag = _hoverArgs.ReceptacleTag;
+        Interactive? oldHoverInteractive = _hoverArgs.CurrentHoverOver;
+        object? oldHoverReceptacleTag = _hoverArgs.ReceptacleTag;
         ExecuteDragEventAtPointer(e, _hoverArgs);
         if (oldHoverInteractive is not null && (oldHoverInteractive != _hoverArgs.CurrentHoverOver || oldHoverReceptacleTag != _hoverArgs.ReceptacleTag))
         {
-            oldHoverInteractive.RaiseEvent(DropTargetEventArgs.HoverLeave(_hoverArgs.DraggingControl, _hoverArgs.OriginalClickEventArgs, currentHoverInteractive: oldHoverInteractive, receptacleTag: oldHoverReceptacleTag));
-            _hoverArgs.DraggingControl.RaiseEvent(BeingDraggedEventArgs.DragStarted(_hoverArgs.DraggingControl));
+            DropTargetHandler.RaiseEvent(DropTargetEventArgs.HoverLeave(_hoverArgs.DraggingControl, _hoverArgs.OriginalClickEventArgs, currentHoverInteractive: oldHoverInteractive, receptacleTag: oldHoverReceptacleTag));
+            _hoverArgs.DraggingControl.RaiseEvent(BeingDraggedEventArgs.HoverStarted(_hoverArgs.DraggingControl));
         }
     }
 
@@ -91,6 +162,8 @@ public class DragDropHandler
         
         _originalClickEvent = e;
         _clickOffset = e.GetCurrentPoint(null).Position;
+        _clickOffsetInDraggedCoords = e.GetPosition(senderControl);
+        _currentTransformVector = Vector.Zero;
         _controlIsClipToBounds = senderControl.ClipToBounds;
         senderControl.ClipToBounds = false;
         
@@ -132,6 +205,7 @@ public class DragDropHandler
         ExecuteDragEventAtPointer(e, DropTargetEventArgs.Drop(_hoverArgs.DraggingControl, _hoverArgs.OriginalClickEventArgs));
         AnimateHome(_hoverArgs.DraggingControl, _controlOriginalTransform);
         _clickOffset = null;
+        _currentDragControlBoundsInTopLevel = null;
     }
 
     private static void ExecuteDragEventAtPointer(PointerEventArgs pointerEventArgs, DropTargetEventArgs dropTargetEvent)
@@ -141,9 +215,8 @@ public class DragDropHandler
         object? currentReceptacleTag = dropTargetEvent.ReceptacleTag;
         
         if (TopLevel.GetTopLevel(dropTargetEvent.DraggingControl) is not { } topLevel) return;
-        if (topLevel.GetVisualAt(pointerEventArgs.GetPosition(topLevel)) is not { } pointerVisual) return;
         
-        foreach (Visual visualAtPoint in pointerVisual.GetVisualAncestors())
+        foreach (Visual visualAtPoint in GetAllElementsAtPoint<Visual>(pointerEventArgs, topLevel))
         {
             if (Equals(visualAtPoint, dropTargetEvent.DraggingControl))
             {
@@ -152,18 +225,18 @@ public class DragDropHandler
             
             if (DebugRenderer is not null && visualAtPoint is Control control && dropTargetEvent.EventType == DropTargetEventType.HoverEnter)
             {
-                DebugRenderer.EnsureAttached(control);
+                DebugRenderer.EnsureAttachedAndUpdated(control);
             }
             
             if (!DropTargetHandler.GetDropAcceptor(visualAtPoint).AcceptDrop(visualAtPoint, pointerEventArgs, out object? receptacleTag))
             {
                 continue;
             }
-
-            if (visualAtPoint == currentHoverVisual && receptacleTag == currentReceptacleTag)
+            
+            if (Equals(visualAtPoint, currentHoverVisual) && Equals(receptacleTag, currentReceptacleTag))
             {
                 dropTargetEvent.CurrentHoverOver = currentHoverVisual;
-                dropTargetEvent.ReceptacleTag = dropTargetEvent.ReceptacleTag;
+                dropTargetEvent.ReceptacleTag = currentReceptacleTag;
                 return;
             }
             
@@ -171,9 +244,9 @@ public class DragDropHandler
             {
                 dropTargetEvent.CurrentHoverOver = interactiveAtPoint;
                 dropTargetEvent.ReceptacleTag = receptacleTag;
-                interactiveAtPoint.RaiseEvent(dropTargetEvent);
+                DropTargetHandler.RaiseEvent(dropTargetEvent);
             }
-
+            
             if (dropTargetEvent.Handled)
             {
                 dropTargetEvent.DraggingControl.RaiseEvent(BeingDraggedEventArgs.HoverStarted(dropTargetEvent.DraggingControl));
@@ -187,6 +260,8 @@ public class DragDropHandler
     
     private static void AnimateHome(Visual visual, ITransform originalTransform)
     {
+        BeingDraggedHandler.TriggerOnAnimateHome(visual);
+        
         TransformOperationsTransition transformTransition = new()
         {
             Property = Visual.RenderTransformProperty, 
@@ -227,4 +302,23 @@ public class DragDropHandler
         MouseButton.XButton2 => pointer.Properties.IsXButton2Pressed,
         _ => false,
     };
+
+    private static IEnumerable<T> GetAllElementsAtPoint<T>(PointerEventArgs args, TopLevel topLevel)
+    {
+        foreach (var visual in topLevel.GetVisualsAt(args.GetPosition(topLevel)))
+        {
+            foreach (var ancestor in visual.GetLogicalAncestors())
+            {
+                if (ancestor is T correctType)
+                {
+                    yield return correctType;
+                }
+            }
+        }
+    }
+
+    public void OnApplicationBuilt()
+    {
+        _logger = logger;
+    }
 }

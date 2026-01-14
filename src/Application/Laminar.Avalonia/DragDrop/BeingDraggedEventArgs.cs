@@ -8,6 +8,8 @@ public class BeingDraggedEventArgs : RoutedEventArgs
 {
     public static BeingDraggedEventArgs DragStarted(AvaloniaObject targetObject) => new(BeingDraggedHandler.DragStartedEvent, targetObject);
 
+    public static BeingDraggedEventArgs AnimateHomeStarted(AvaloniaObject targetObject) => new(BeingDraggedHandler.AnimateHomeStartedEvent, targetObject);
+    
     public static BeingDraggedEventArgs DragEnded(AvaloniaObject targetObject) => new(BeingDraggedHandler.DragEndedEvent, targetObject);
     
     public static BeingDraggedEventArgs HoverStarted(AvaloniaObject targetObject) => new(BeingDraggedHandler.HoverStartedEvent, targetObject);

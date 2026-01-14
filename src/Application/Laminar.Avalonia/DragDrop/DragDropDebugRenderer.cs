@@ -23,22 +23,25 @@ public class DragDropDebugRenderer<T> : DragDropDebugRenderer
 public class DragDropDebugRenderer
 {
     private readonly Dictionary<Control, RendererControl> _allDebugRenderers = new();
-    private readonly List<RendererControl> _allRendererControls = [];
     
     protected virtual bool ShouldDebugControl(Control ctrl) => true; 
     
-    public bool EnsureAttached(Control control)
+    public bool EnsureAttachedAndUpdated(Control control)
     {
         if (AdornerLayer.GetAdornerLayer(control) is not { } adornerLayer 
-            || _allDebugRenderers.ContainsKey(control)
             || !ShouldDebugControl(control))
         {
             return false;
         }
 
+        if (_allDebugRenderers.TryGetValue(control, out var rendererControl))
+        {
+            rendererControl.InvalidateVisual();
+            return true;
+        }
+
         RendererControl renderer = new(control);
         adornerLayer.Children.Add(renderer);
-        _allRendererControls.Add(renderer);
         _allDebugRenderers.Add(control, renderer);
         return true;
     }

@@ -18,22 +18,16 @@ public interface INotifyCollectionChangedHelper
     }
 }
 
-public class ItemAddedEventArgs<T> : EventArgs
+public class ItemAddedEventArgs<T>(T item, int index) : EventArgs
 {
-    public ItemAddedEventArgs(T item)
-    {
-        Item = item;
-    }
+    public T Item { get; } = item;
 
-    public T Item { get; }
+    public int Index { get; } = index;
 }
 
-public class ItemRemovedEventArgs<T> : EventArgs
+public class ItemRemovedEventArgs<T>(T item, int index) : EventArgs
 {
-    public ItemRemovedEventArgs(T item)
-    {
-        Item = item;
-    }
+    public T Item { get; } = item;
 
-    public T Item { get; }
+    public int Index { get; } = index;
 }

@@ -15,4 +15,5 @@
     </ResourceDictionary.ThemeDictionaries>
     
     <Color x:Key="UiLayer">#30999999</Color>
+    <Color x:Key="UiLayerHighlight">#50999999</Color>
 </ResourceDictionary>

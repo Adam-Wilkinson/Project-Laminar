@@ -33,6 +33,9 @@
                   ItemsSource="{Binding RootFiles}" 
                   SelectionMode="Multiple" 
                   Margin="3,0"
+                  dd:DropTargetHandler.DropAcceptor="{StaticResource TreeViewDropAcceptor}"
+                  dd:DropTargetHandler.HoverEnterCommand="{Binding HoverCommand}"
+                  dd:DropTargetHandler.DropCommand="{Binding DropCommand}"
                   Background="Transparent">
             <TreeView.ItemTemplate>
                 <TreeDataTemplate DataType="{x:Type vm:FileNavigatorItemViewModel}" ItemsSource="{Binding Children}">
@@ -46,6 +49,7 @@
                         <x:Double x:Key="TreeViewItemIndent">24</x:Double>
                         <x:Double x:Key="TreeViewItemExpandCollapseChevronSize">24</x:Double>
                         <x:Double x:Key="TreeViewItemSpacing">5</x:Double>
+                        <StaticResource x:Key="TreeViewItemBackgroundPointerOver" ResourceKey="UiLayerHighlight"/>
                     </Style.Resources>
                     
                     <Setter Property="ClipToBounds" Value="False"/>
@@ -54,9 +58,8 @@
                     <Setter Property="IsExpanded" Value="{Binding IsExpanded, DataType=vm:FileNavigatorItemViewModel, Mode=TwoWay}"/>
                     
                     <Setter Property="dd:DragDropHandler.TriggerMouseButton" Value="Left"/>
-                    <Setter Property="dd:DropTargetHandler.DropAcceptor" Value="{StaticResource TreeViewDropAcceptor}"/>
                     <Setter Property="dd:BeingDraggedHandler.DragStartedCommand" Value="{x:Static dd:TreeViewItemDrag.StartedCommand}"/>
-                    <Setter Property="dd:BeingDraggedHandler.DragEndedCommand" Value="{x:Static dd:TreeViewItemDrag.EndedCommand}"/>
+                    <Setter Property="dd:BeingDraggedHandler.AnimateHomeStartedCommand" Value="{x:Static dd:TreeViewItemDrag.AnimateHomeCommand}"/>
                     
                     <Setter Property="anim:PositionAnimation.Duration" Value="{s:Setting InterfaceSettings.AnimationDuration}"/>
                     

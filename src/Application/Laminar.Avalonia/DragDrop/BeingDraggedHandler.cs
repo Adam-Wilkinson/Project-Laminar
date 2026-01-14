@@ -13,6 +13,9 @@ public class BeingDraggedHandler : Interactive
     
     public static readonly RoutedEvent<BeingDraggedEventArgs> DragEndedEvent = 
         RoutedEvent.Register<BeingDraggedHandler, BeingDraggedEventArgs>(nameof(DragEnded),  RoutingStrategies.Direct);
+
+    public static readonly RoutedEvent<BeingDraggedEventArgs> AnimateHomeStartedEvent =
+        RoutedEvent.Register<BeingDraggedHandler, BeingDraggedEventArgs>(nameof(AnimateHomeStarted), RoutingStrategies.Direct);
     
     public static readonly RoutedEvent<BeingDraggedEventArgs> HoverStartedEvent =
         RoutedEvent.Register<BeingDraggedHandler, BeingDraggedEventArgs>(nameof(HoverStarted), RoutingStrategies.Direct);
@@ -28,6 +31,10 @@ public class BeingDraggedHandler : Interactive
     public static ICommand? GetDragStartedCommand(AvaloniaObject control) => control.GetValue(DragStartedCommandProperty);
     public static void SetDragStartedCommand(AvaloniaObject control, ICommand? value) => control.SetValue(DragStartedCommandProperty, value);
     
+    public static readonly AttachedProperty<ICommand?> AnimateHomeStartedCommandProperty = AvaloniaProperty.RegisterAttached<BeingDraggedHandler, AvaloniaObject, ICommand?>("AnimateHomeStartedCommand");
+    public static ICommand? GetAnimateHomeStartedCommand(AvaloniaObject control) => control.GetValue(AnimateHomeStartedCommandProperty);
+    public static void SetAnimateHomeStartedCommand(AvaloniaObject control, ICommand? value) => control.SetValue(AnimateHomeStartedCommandProperty, value);
+    
     public static readonly AttachedProperty<ICommand?> DragEndedCommandProperty = AvaloniaProperty.RegisterAttached<BeingDraggedHandler, AvaloniaObject, ICommand?>("DragEndedCommand");
     public static ICommand? GetDragEndedCommand(AvaloniaObject control) => control.GetValue(DragEndedCommandProperty);
     public static void SetDragEndedCommand(AvaloniaObject control, ICommand? value) => control.SetValue(DragEndedCommandProperty, value);
@@ -42,6 +49,12 @@ public class BeingDraggedHandler : Interactive
     {
         add => AddHandler(DragEndedEvent, value);
         remove  => RemoveHandler(DragEndedEvent, value);
+    }
+    
+    public event EventHandler<BeingDraggedEventArgs> AnimateHomeStarted
+    {
+        add => AddHandler(AnimateHomeStartedEvent, value);
+        remove => RemoveHandler(AnimateHomeStartedEvent, value);
     }
     
     public event EventHandler<BeingDraggedEventArgs> HoverStarted
@@ -64,18 +77,19 @@ public class BeingDraggedHandler : Interactive
             interactive.RaiseEvent(BeingDraggedEventArgs.DragStarted(aObject));
         }
         
-        if (GetDragStartedCommand(aObject) is not { } command) return;
-        
-        if (command.CanExecute(null))
-        {
-            command.Execute(null);
-        }
-        else if (command.CanExecute(aObject))
-        {
-            command.Execute(aObject);
-        }
+        TryExecuteCommandProperty(DragStartedCommandProperty, aObject);
     }
 
+    public static void TriggerOnAnimateHome(AvaloniaObject aObject)
+    {
+        if (aObject is Interactive interactive)
+        {
+            interactive.RaiseEvent(BeingDraggedEventArgs.AnimateHomeStarted(aObject));
+        }
+        
+        TryExecuteCommandProperty(AnimateHomeStartedCommandProperty, aObject);
+    }
+    
     public static void EndDrag(AvaloniaObject aObject)
     {
         SetIsBeingDragged(aObject, false);
@@ -83,16 +97,31 @@ public class BeingDraggedHandler : Interactive
         {
             interactive.RaiseEvent(BeingDraggedEventArgs.DragEnded(aObject));
         }
+
+        TryExecuteCommandProperty(DragEndedCommandProperty, aObject);
+    }
+
+    private static bool TryExecuteCommandProperty(AvaloniaProperty commandProperty, AvaloniaObject target)
+    {
+        object? commandPropertyValue = target.GetValue(commandProperty);
         
-        if (GetDragEndedCommand(aObject) is not { } command) return;
+        if (commandPropertyValue is not ICommand command)
+        {
+            return false;
+        }
         
         if (command.CanExecute(null))
         {
             command.Execute(null);
+            return true;
         }
-        else if (command.CanExecute(aObject))
+
+        if (command.CanExecute(target))
         {
-            command.Execute(aObject);
+            command.Execute(target);
+            return true;
         }
+
+        return false;
     }
 }

@@ -47,17 +47,17 @@ public class Instance<T> : INotifyCollectionChangedHelper.IHelperInstance<T>
         switch (e.Action)
         {
             case NotifyCollectionChangedAction.Add:
-                ItemsAdded(e.NewItems!);
+                ItemsAdded(e.NewItems!, e.NewStartingIndex);
                 break;
             case NotifyCollectionChangedAction.Remove:
-                ItemsRemoved(e.OldItems!);
+                ItemsRemoved(e.OldItems!, e.OldStartingIndex);
                 break;
             case NotifyCollectionChangedAction.Reset:
                 Reset?.Invoke(_core, EventArgs.Empty);
                 break;
             case NotifyCollectionChangedAction.Replace:
-                ItemsRemoved(e.OldItems!);
-                ItemsAdded(e.NewItems!);
+                ItemsRemoved(e.OldItems!, e.OldStartingIndex);
+                ItemsAdded(e.NewItems!, e.NewStartingIndex);
                 break;
             case NotifyCollectionChangedAction.Move:
             default:
@@ -65,24 +65,28 @@ public class Instance<T> : INotifyCollectionChangedHelper.IHelperInstance<T>
         }
     }
 
-    private void ItemsAdded(IList items)
+    private void ItemsAdded(IList items, int startIndex)
     {
+        int offset = 0;
         foreach (var obj in items)
         {
             if (obj is T typedItem)
             {
-                ItemAdded?.Invoke(_core, new ItemAddedEventArgs<T>(typedItem));
+                ItemAdded?.Invoke(_core, new ItemAddedEventArgs<T>(typedItem, startIndex + offset));
+                offset++;
             }
         }
     }
 
-    private void ItemsRemoved(IList items)
+    private void ItemsRemoved(IList items, int startingIndex)
     {
+        int offset = 0;
         foreach (var obj in items)
         {
             if (obj is T typedItem)
             {
-                ItemRemoved?.Invoke(_core, new ItemRemovedEventArgs<T>(typedItem));
+                ItemRemoved?.Invoke(_core, new ItemRemovedEventArgs<T>(typedItem, startingIndex + offset)); 
+                offset++;
             }
         }
     }

@@ -44,6 +44,13 @@ public class LaminarStorageFolder : LaminarStorageItem<DirectoryInfo>, ILaminarS
 
     private void ContentsItemAdded(object? sender, ItemAddedEventArgs<ILaminarStorageItem> e)
     {
+        if (!Equals(e.Item.ParentFolder, this) && e.Item.ParentFolder is { } oldParent)
+        {
+            var fullItemName = System.IO.Path.GetRelativePath(e.Item.ParentFolder.Path, e.Item.Path);
+            e.Item.TryMoveTo(System.IO.Path.Join(Path, fullItemName));
+            (oldParent as LaminarStorageFolder)?.FileSystemInfo.Refresh();
+        }
+        
         FileSystemInfo.Refresh();
     }
 
@@ -69,11 +76,6 @@ public class LaminarStorageFolder : LaminarStorageItem<DirectoryInfo>, ILaminarS
     private IEnumerable<ILaminarStorageItem> GetChildren() => FileSystemInfo.GetDirectories()
         .Select(x => _factory.FromFileSystemInfo(x, this))
         .Concat(FileSystemInfo.GetFiles().Select(x => _factory.FromFileSystemInfo(x, this)));
-    
-    private void ParentEnabledChange()
-    {
-        EffectivelyEnabledChanged();
-    }
 
     private void EffectivelyEnabledChanged()
     {
@@ -86,7 +88,7 @@ public class LaminarStorageFolder : LaminarStorageItem<DirectoryInfo>, ILaminarS
                     file.ParentEnabledChanged(IsEffectivelyEnabled);
                     break;
                 case LaminarStorageFolder folder:
-                    folder.ParentEnabledChange();
+                    folder.EffectivelyEnabledChanged();
                     break;
             }
         }

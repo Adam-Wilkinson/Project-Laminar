@@ -1,30 +1,72 @@
 using System.Collections.ObjectModel;
 using System.IO;
 using Avalonia.Controls;
+using CommunityToolkit.Mvvm.Input;
 using HanumanInstitute.MvvmDialogs;
+using Laminar.Avalonia.DragDrop;
 using Laminar.Avalonia.ViewModels.Services;
 using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.UserData;
 using Laminar.Contracts.UserData.FileNavigation;
+using Laminar.Implementation.UserData.FileNavigation.UserActions;
+using Microsoft.Extensions.Logging;
 
 namespace Laminar.Avalonia.ViewModels;
-public class FileNavigatorViewModel(
+
+public partial class FileNavigatorViewModel(
     IUserActionManager actionManager, 
     IPersistentDataManager dataManager, 
     ILaminarStorageItemFactory storageItemFactory,
     IDialogService dialogService,
+    ILogger<FileNavigatorItemViewModel>? logger = null,
     TopLevel? topLevel = null)
     : ViewModelBase
 {
     [Serialize]
     public ObservableCollection<FileNavigatorItemViewModel> RootFiles { get; set; } = [ 
-        new(storageItemFactory.FromPath(Path.Combine(dataManager.Path, "Default")), actionManager, storageItemFactory, dialogService, topLevel) 
+        new(storageItemFactory.FromPath(Path.Combine(dataManager.Path, "Default")), actionManager, storageItemFactory, dialogService, logger, topLevel) 
     ];
 
     public FileNavigatorItemViewModel NewItem(ILaminarStorageItem coreItem) =>
-        new(coreItem, actionManager, storageItemFactory, dialogService, topLevel);
+        new(coreItem, actionManager, storageItemFactory, dialogService, logger, topLevel);
     
     public void OpenFilePicker()
     {
+    }
+    
+    [RelayCommand]
+    public void OnHover(DropTargetEventArgs eventArgs)
+    {
+        if (eventArgs.ReceptacleTag is not TreeViewDropAcceptor.TreeViewItemReceptacleInfo
+            {
+                ReceptacleParentDataContext: FileNavigatorItemViewModel targetFileNavigatorViewModel,
+                ReceptacleIndex: var targetIndex
+            })
+        {
+            return;
+        }
+        if (eventArgs.DraggingControl.DataContext is not FileNavigatorItemViewModel draggedItem) return;
+        
+        eventArgs.Handled = true;
+        
+        if (targetFileNavigatorViewModel.Children is null) return;
+        var indexInParent = draggedItem.Parent?.Children?.IndexOf(draggedItem); 
+        
+        if (indexInParent == -1 || (indexInParent == targetIndex && Equals(draggedItem.Parent, targetFileNavigatorViewModel))) return;
+
+        logger?.LogTrace("Moving an item from index {currentIndex} in {currentFolder} to index {newIndex} in {newFolder}", 
+            draggedItem.Parent?.Children?.IndexOf(draggedItem),
+            draggedItem.Parent?.CoreItem.Name,
+            targetIndex,
+            targetFileNavigatorViewModel.CoreItem.Name);
+        
+        draggedItem.Parent?.Children?.Remove(draggedItem);
+        targetFileNavigatorViewModel.Children?.Insert(targetIndex, draggedItem);   
+    }
+
+    [RelayCommand]
+    public void OnDrop(DropTargetEventArgs eventArgs)
+    {
+        eventArgs.Handled = true;
     }
 }

@@ -21,7 +21,7 @@
                                 <Setter Property="Fill" Value="Red"/>
                                 <Setter Property="Transitions">
                                     <Transitions>
-                                        <BrushTransition Property="Fill" Duration="{s:Setting InterfaceSettings.AnimationDuration}" Easing="{DynamicResource AnimationEasing}"/>
+                                        <BrushTransition Property="Fill" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
                                     </Transitions>
                                 </Setter>
                                 <Style Selector="^.Show">

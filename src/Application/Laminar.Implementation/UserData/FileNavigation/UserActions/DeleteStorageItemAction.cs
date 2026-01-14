@@ -7,10 +7,10 @@ namespace Laminar.Implementation.UserData.FileNavigation.UserActions;
 public class DeleteStorageItemAction<T>(T item) : IUserAction where T : class, ILaminarStorageItem
 {
     public event EventHandler? CanExecuteChanged;
-    public bool CanExecute => true;
-    public IUserAction Execute()
+    public bool CanExecute => item.ParentFolder is not null;
+    public IUserAction? Execute()
     {
-        var parentFolder = item.ParentFolder;
+        if (item.ParentFolder is not { } parentFolder) return null;
         item.Delete();
         return new AddStorageItemAction<T>(item, parentFolder);
     }

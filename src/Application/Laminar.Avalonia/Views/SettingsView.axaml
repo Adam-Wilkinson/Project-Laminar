@@ -25,8 +25,7 @@
 					</Grid.ColumnDefinitions>
 					<Border Grid.Column="0"
 					        Name="SettingBorder"
-							CornerRadius="10"
-							Background="{DynamicResource UiLayer}">
+							CornerRadius="10">
 						<ContentControl Name="SettingControl"
 										MinHeight="40"
 										Content="{Binding}" 
@@ -43,6 +42,20 @@
 					        Width="{Binding $self.Bounds.Height}"
 					        Margin="5,0,0,0">
 					</Button>
+					
+					<Grid.Styles>
+						<Style Selector="Border#SettingBorder">
+							<Setter Property="Background" Value="{DynamicResource UiLayer}"/>
+							<Setter Property="Transitions">
+								<Transitions>
+									<BrushTransition Property="Background" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
+								</Transitions>
+							</Setter>
+							<Style Selector="^:pointerover">
+								<Setter Property="Background" Value="{DynamicResource UiLayerHighlight}"/>
+							</Style>
+						</Style>
+					</Grid.Styles>
 				</Grid>
 			</DataTemplate>
 		</ItemsControl.ItemTemplate>

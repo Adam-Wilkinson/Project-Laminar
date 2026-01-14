@@ -10,7 +10,7 @@ public class TreeViewItemDrag
     
     public static ICommand StartedCommand { get; } = new DragStarted();
     
-    public static ICommand EndedCommand { get; } = new DragEnded();
+    public static ICommand AnimateHomeCommand { get; } = new DragEnded();
 
     private class DragStarted : ICommand
     {
