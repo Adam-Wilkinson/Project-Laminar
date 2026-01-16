@@ -45,7 +45,7 @@ public class DragDropHandler
         TriggerMouseButtonProperty.Changed.Subscribe(new AnonymousObserver<AvaloniaPropertyChangedEventArgs<MouseButton>>(TriggerMouseButtonChanged));
     }
 
-    public static DragDropDebugRenderer? DebugRenderer { get; set; }
+    public static DragDropDebugRenderer? DebugRenderer { get; set; } = new DragDropDebugRenderer<TreeViewDropAcceptor>();
 
     public static TimeSpan AnimateHomeAnimationDuration { get; set; } = TimeSpan.Zero;
 

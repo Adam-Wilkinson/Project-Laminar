@@ -81,16 +81,31 @@ public class TreeViewDropAcceptor : DropAcceptor<TreeView>
         
         var headerBounds = currentItem.HeaderPresenter.Bounds.TransformToAABB(matrixToTreeView);
         var nextItemLevel = nextItem?.Level ?? 0;
-        int numberOfReceptacles = Math.Max(currentItem.Level - nextItemLevel + 1, 1);
+        int numberOfReceptacles = Math.Max(currentItem.Level - nextItemLevel, 0) + 2;
         double heightOfReceptacles = headerBounds.Height / numberOfReceptacles;
+        double startOfNextReceptacle = 0;
         var currentParent = currentItem.GetLogicalParent() as ItemsControl;
-        for (int i = 0; i < numberOfReceptacles; i++)
+
+        yield return new Receptacle(new RectangleGeometry(new Rect(
+                0, headerBounds.Top + startOfNextReceptacle, headerBounds.Right, heightOfReceptacles)),
+            new TreeViewItemReceptacleInfo(currentParent!.DataContext, indicesInEachLevel[currentItem.Level]));
+
+        startOfNextReceptacle += heightOfReceptacles;
+
+        yield return new Receptacle(new RectangleGeometry(new Rect(
+                0, headerBounds.Top + startOfNextReceptacle, headerBounds.Right, heightOfReceptacles)),
+            new TreeViewItemReceptacleInfo(currentItem.DataContext, 0));
+        
+        startOfNextReceptacle += heightOfReceptacles;
+        
+        for (int i = 0; i < numberOfReceptacles - 2; i++)
         {
             int index = indicesInEachLevel[currentItem.Level - i];
-            yield return new Receptacle(new RectangleGeometry(new Rect(
-                0, headerBounds.Top + heightOfReceptacles * i, headerBounds.Right, heightOfReceptacles)), 
-                new TreeViewItemReceptacleInfo(currentParent!.DataContext, index));
             currentParent = currentParent.GetLogicalParent() as ItemsControl;
+            yield return new Receptacle(new RectangleGeometry(new Rect(
+                0, headerBounds.Top + startOfNextReceptacle, headerBounds.Right, heightOfReceptacles)), 
+                new TreeViewItemReceptacleInfo(currentParent!.DataContext, index));
+            startOfNextReceptacle += heightOfReceptacles;
         }
         
         indicesInEachLevel[currentItem.Level]++;

@@ -116,9 +116,20 @@
                                                         Margin="{TemplateBinding Padding}" />
                                     </Grid>
                                   </Border>
-                                  <ItemsPresenter Name="PART_ItemsPresenter"
-                                                  IsVisible="{TemplateBinding IsExpanded}"
-                                                  ItemsPanel="{TemplateBinding ItemsPanel}"/>
+                                <Panel>
+                                    <Border VerticalAlignment="Stretch" HorizontalAlignment="Left" Width="{StaticResource TreeViewItemExpandCollapseChevronSize}">
+                                        <Border.Margin>
+                                            <MultiBinding Converter="{StaticResource TreeViewItemIndentConverter}">
+                                                <Binding Path="Level" RelativeSource="{RelativeSource TemplatedParent}" />
+                                                <DynamicResource ResourceKey="TreeViewItemIndent"/>
+                                            </MultiBinding>
+                                        </Border.Margin>
+                                        <Rectangle Fill="{DynamicResource UiLayer}" Width="3" HorizontalAlignment="Center" VerticalAlignment="Stretch"/>
+                                    </Border>
+                                    <ItemsPresenter Name="PART_ItemsPresenter"
+                                                    IsVisible="{TemplateBinding IsExpanded}"
+                                                    ItemsPanel="{TemplateBinding ItemsPanel}"/>
+                                </Panel>
                             </StackPanel>
                         </ControlTemplate>
                     </Setter>

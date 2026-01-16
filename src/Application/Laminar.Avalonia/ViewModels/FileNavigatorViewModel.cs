@@ -52,13 +52,17 @@ public partial class FileNavigatorViewModel(
         if (targetFileNavigatorViewModel.Children is null) return;
         var indexInParent = draggedItem.Parent?.Children?.IndexOf(draggedItem); 
         
+        logger?.LogTrace("Moving an item from index {currentIndex} in {currentFolder} to index {newIndex} in {newFolder}", 
+            draggedItem.Parent?.Children?.IndexOf(draggedItem),
+            draggedItem.Parent?.CoreItem.Name,
+            targetIndex,
+            targetFileNavigatorViewModel.CoreItem.Name);
+        
+        // The parent does not contain its child, or this hover does not constitute a move
         if (indexInParent == -1 || (indexInParent == targetIndex && Equals(draggedItem.Parent, targetFileNavigatorViewModel))) return;
-
-        // logger?.LogTrace("Moving an item from index {currentIndex} in {currentFolder} to index {newIndex} in {newFolder}", 
-        //     draggedItem.Parent?.Children?.IndexOf(draggedItem),
-        //     draggedItem.Parent?.CoreItem.Name,
-        //     targetIndex,
-        //     targetFileNavigatorViewModel.CoreItem.Name);
+        
+        // Trying to move a folder into itself
+        if (Equals(draggedItem, targetFileNavigatorViewModel)) return;
         
         draggedItem.Parent?.Children?.Remove(draggedItem);
         targetFileNavigatorViewModel.Children?.Insert(targetIndex, draggedItem);   
