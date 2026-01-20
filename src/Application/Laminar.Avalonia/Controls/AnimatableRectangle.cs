@@ -1,3 +1,4 @@
+using System;
 using Avalonia;
 using Avalonia.Controls.Shapes;
 using Avalonia.Data;
@@ -47,7 +48,9 @@ public class AnimatableRectangle : Rectangle
     protected override Geometry CreateDefiningGeometry()
     {
         var rect = new Rect(Size).Deflate(Padding).Deflate(StrokeThickness / 2);
+        var radiusX = Math.Min(RadiusX, Size.Height / 2);
+        var radiusY = Math.Min(RadiusY, Size.Width / 2);
 
-        return new RectangleGeometry(rect, RadiusX, RadiusY);
+        return new RectangleGeometry(rect, radiusX, radiusY);
     }
 }

@@ -1,6 +1,9 @@
+using System;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Threading.Tasks;
 using Avalonia.Controls;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
 using HanumanInstitute.MvvmDialogs;
 using Laminar.Avalonia.DragDrop;
@@ -22,6 +25,10 @@ public partial class FileNavigatorViewModel(
     TopLevel? topLevel = null)
     : ViewModelBase
 {
+    private static readonly TimeSpan ExpandHoveredOverFolderDelay = new(0, 0, 0, 0, 500);
+
+    private FileNavigatorItemViewModel? _currentHoveredItem;
+    
     [Serialize]
     public ObservableCollection<FileNavigatorItemViewModel> RootFiles { get; set; } = [ 
         new(storageItemFactory.FromPath(Path.Combine(dataManager.Path, "Default")), actionManager, storageItemFactory, dialogService, logger, topLevel) 
@@ -39,6 +46,7 @@ public partial class FileNavigatorViewModel(
     {
         if (eventArgs.ReceptacleTag is not TreeViewDropAcceptor.TreeViewItemReceptacleInfo
             {
+                ReceptacleParent: { } targetParentTreeViewItem,
                 ReceptacleParentDataContext: FileNavigatorItemViewModel targetFileNavigatorViewModel,
                 ReceptacleIndex: var targetIndex
             })
@@ -48,6 +56,8 @@ public partial class FileNavigatorViewModel(
         if (eventArgs.DraggingControl.DataContext is not FileNavigatorItemViewModel draggedItem) return;
         
         eventArgs.Handled = true;
+
+        _currentHoveredItem = targetFileNavigatorViewModel;
         
         if (targetFileNavigatorViewModel.Children is null) return;
         var indexInParent = draggedItem.Parent?.Children?.IndexOf(draggedItem); 
@@ -60,6 +70,21 @@ public partial class FileNavigatorViewModel(
 
         // A list with 5 elements cannot have one of its own elements moved to index 5
         if (Equals(draggedItem.Parent, targetFileNavigatorViewModel) && targetIndex == draggedItem.Parent?.Children?.Count) return;
+        
+        // A closed folder cannot take children, but should be expanded after a certain amount of time
+        if (!targetParentTreeViewItem.IsExpanded)
+        {
+            _ = Task.Delay(ExpandHoveredOverFolderDelay).ContinueWith(_ =>
+            {
+                if (!Equals(_currentHoveredItem, targetFileNavigatorViewModel)) return;
+                Dispatcher.UIThread.Post(() =>
+                {
+                    targetParentTreeViewItem.IsExpanded = true;
+                    // OnHover(eventArgs); 
+                });
+            });
+            return;
+        }
         
         draggedItem.Parent?.Children?.Remove(draggedItem);
         targetFileNavigatorViewModel.Children?.Insert(targetIndex, draggedItem);   
