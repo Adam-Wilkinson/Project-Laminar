@@ -66,80 +66,89 @@
                     <Setter Property="Template">
                         <ControlTemplate>
                             <StackPanel>
-                                  <Border Name="PART_LayoutRoot"
-                                          Classes="TreeViewItemLayoutRoot"
-                                          Focusable="True"
-                                          Background="{TemplateBinding Background}"
-                                          BorderBrush="{TemplateBinding BorderBrush}"
-                                          BorderThickness="{TemplateBinding BorderThickness}"
-                                          CornerRadius="{TemplateBinding CornerRadius}"
-                                          MinHeight="{TemplateBinding MinHeight}"
-                                          TemplatedControl.IsTemplateFocusTarget="True">
-                                      <Border.Transitions>
-                                          <Transitions>
-                                              <BrushTransition Property="Background" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
-                                          </Transitions>
-                                      </Border.Transitions>
-                                      <Border.Margin>
-                                          <MultiBinding Converter="{StaticResource TreeViewItemIndentConverter}">
-                                              <Binding Path="Level" RelativeSource="{RelativeSource TemplatedParent}" />
-                                              <DynamicResource ResourceKey="TreeViewItemIndent"/>
-                                              <DynamicResource ResourceKey="TreeViewItemSpacing"/>
-                                          </MultiBinding>
-                                      </Border.Margin>
-                                      <Grid Name="PART_Header"
-                                            ColumnDefinitions="Auto, *">
-                                      <Panel Name="PART_ExpandCollapseChevronContainer">
-                                          <Button Name="PART_ExpandCollapseChevron"
-                                                  DataContext="{Binding
-                                                        RelativeSource={RelativeSource TemplatedParent},
-                                                        Converter={StaticResource ToolInstancer}, 
-                                                        ConverterParameter={StaticResource Tools.ExpandCollapseTreeViewTool}}"
-                                                  Theme="{StaticResource ToolButton}" 
-                                                  VerticalAlignment="Stretch"
-                                                  Width = "{Binding Value, 
-                                                        Source={StaticResource SettingsRoot.InterfaceSettings.UiScale}, 
-                                                        DataType=s:DoubleSetting,
-                                                        Converter={StaticResource MultiplyConverter}, 
-                                                        ConverterParameter={StaticResource TreeViewItemExpandCollapseChevronSize}}"
-                                                  Padding="3,0,0,0">
-                                          </Button>
-                                      </Panel>
-                                      <ContentPresenter Name="PART_HeaderPresenter"
-                                                        Grid.Column="1"
-                                                        Focusable="False"
-                                                        Background="Transparent"
-                                                        Content="{TemplateBinding Header}"
-                                                        ContentTemplate="{TemplateBinding HeaderTemplate}"
-                                                        HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
-                                                        VerticalAlignment="{TemplateBinding VerticalAlignment}"
-                                                        Margin="{TemplateBinding Padding}" />
+                                <Border Name="PART_LayoutRoot"
+                                      Classes="TreeViewItemLayoutRoot"
+                                      Focusable="True"
+                                      Background="{TemplateBinding Background}"
+                                      BorderBrush="{TemplateBinding BorderBrush}"
+                                      BorderThickness="{TemplateBinding BorderThickness}"
+                                      CornerRadius="{TemplateBinding CornerRadius}"
+                                      MinHeight="{TemplateBinding MinHeight}"
+                                      TemplatedControl.IsTemplateFocusTarget="True"
+                                      Margin="0,0,0,4">
+                                    <Border.Transitions>
+                                        <Transitions>
+                                            <BrushTransition Property="Background" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
+                                        </Transitions>
+                                    </Border.Transitions>
+                                    <Grid Name="PART_Header" ColumnDefinitions="Auto, *">
+                                        <Button Name="PART_ExpandCollapseChevron"
+                                                Grid.Column="0" Grid.Row="0"
+                                                DataContext="{Binding
+                                                    RelativeSource={RelativeSource TemplatedParent},
+                                                    Converter={StaticResource ToolInstancer}, 
+                                                    ConverterParameter={StaticResource Tools.ExpandCollapseTreeViewTool}}"
+                                                Theme="{StaticResource ToolButton}" 
+                                                VerticalAlignment="Stretch"
+                                                Width = "{Binding Value, 
+                                                    Source={StaticResource SettingsRoot.InterfaceSettings.UiScale}, 
+                                                    DataType=s:DoubleSetting,
+                                                    Converter={StaticResource MultiplyConverter}, 
+                                                    ConverterParameter={StaticResource TreeViewItemExpandCollapseChevronSize}}"
+                                                Padding="3,0,0,0">
+                                            <Button.Transitions>
+                                                <Transitions>
+                                                    <DoubleTransition Property="Opacity" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
+                                                </Transitions>
+                                            </Button.Transitions>
+                                        </Button>
+                                        <ContentPresenter Name="PART_HeaderPresenter"
+                                                          Grid.Column="1" Grid.Row="0"
+                                                          Focusable="False"
+                                                          Background="Transparent"
+                                                          Content="{TemplateBinding Header}"
+                                                          ContentTemplate="{TemplateBinding HeaderTemplate}"
+                                                          HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
+                                                          VerticalAlignment="{TemplateBinding VerticalAlignment}"
+                                                          Margin="{TemplateBinding Padding}" />
                                     </Grid>
-                                  </Border>
-                                <Panel>
-                                    <Border VerticalAlignment="Stretch" HorizontalAlignment="Left" Width="{StaticResource TreeViewItemExpandCollapseChevronSize}">
-                                        <Border.Margin>
-                                            <MultiBinding Converter="{StaticResource TreeViewItemIndentConverter}">
-                                                <Binding Path="Level" RelativeSource="{RelativeSource TemplatedParent}" />
-                                                <DynamicResource ResourceKey="TreeViewItemIndent"/>
-                                            </MultiBinding>
-                                        </Border.Margin>
-                                        <Rectangle Fill="{DynamicResource UiLayer}" Width="3" HorizontalAlignment="Center" VerticalAlignment="Stretch"/>
+                                </Border>
+                                <DockPanel>
+                                    <Border DockPanel.Dock="Left"
+                                            VerticalAlignment="Stretch"
+                                            HorizontalAlignment="Left" 
+                                            Width="{Binding #PART_ExpandCollapseChevron.Bounds.Width}">
+                                        <c:AnimatableRectangle Fill="{DynamicResource UiLayer}" 
+                                                               Width="4"
+                                                               Padding="0,0,0,4"
+                                                               HorizontalAlignment="Center" 
+                                                               VerticalAlignment="Stretch">
+                                            <c:AnimatableRectangle.Transitions>
+                                                <Transitions>
+                                                    <SizeTransition Property="Size" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
+                                                </Transitions>
+                                            </c:AnimatableRectangle.Transitions>
+                                        </c:AnimatableRectangle>
                                     </Border>
                                     <ItemsPresenter Name="PART_ItemsPresenter"
                                                     IsVisible="{TemplateBinding IsExpanded}"
                                                     ItemsPanel="{TemplateBinding ItemsPanel}"/>
-                                </Panel>
+                                </DockPanel>
                             </StackPanel>
                         </ControlTemplate>
                     </Setter>
                     
+                    <Style Selector="^ /template/ Button#PART_ExpandCollapseChevron">
+                        <Setter Property="Opacity" Value="1"/>
+                        <Setter Property="IsHitTestVisible" Value="True"/>
+                    </Style>
+                    
                     <Style Selector="^:empty /template/ Button#PART_ExpandCollapseChevron">
-                        <Setter Property="IsVisible" Value="False" />
+                        <Setter Property="Opacity" Value="0" />
+                        <Setter Property="IsHitTestVisible" Value="False"/>
                     </Style>
-                    <Style Selector="^:empty /template/ Panel#PART_ExpandCollapseChevronContainer">
-                        <Setter Property="Width" Value="{StaticResource TreeViewItemExpandCollapseChevronSize}" />
-                    </Style>
+                    
+                    
                     <Style Selector="^:selected /template/ Border#PART_LayoutRoot">
                         <Setter Property="Background" Value="{DynamicResource {x:Static init:ColorInitialization.LaminarAccentBackgroundKey}}"/>
                     </Style>

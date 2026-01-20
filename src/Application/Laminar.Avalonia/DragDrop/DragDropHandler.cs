@@ -15,6 +15,8 @@ using Avalonia.Reactive;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using Laminar.Avalonia.Animations;
+using Laminar.Avalonia.InitializationTargets;
+using Microsoft.Extensions.Logging;
 
 // BOOK-KEEPING: Global point is with respect to top level, LocalPoint is with respect to currently dragged control
 using GlobalPoint = Avalonia.Point;
@@ -30,22 +32,24 @@ public enum DragDropState
     AnimateHome,
 }
 
-public class DragDropHandler
+public class DragDropHandler(ILogger<DragDropHandler> logger) : IAfterApplicationBuiltTarget
 {
     public static readonly AttachedProperty<MouseButton> TriggerMouseButtonProperty = AvaloniaProperty.RegisterAttached<DragDropHandler, Control, MouseButton>("TriggerMouseButton", MouseButton.None);
     public static MouseButton GetTriggerMouseButton(AvaloniaObject control) => control.GetValue(TriggerMouseButtonProperty);
-    public static void SetTriggerMouseButton(AvaloniaObject control, MouseButton mouseButton) => control.SetValue(TriggerMouseButtonProperty, mouseButton);
-
+    public static void SetTriggerMouseButton(AvaloniaObject control, MouseButton mouseButton) => control.SetValue(TriggerMouseButtonProperty, mouseButton); 
+    
     private static DragDropState _state = DragDropState.None;
+    private static ILogger<DragDropHandler>? _logger;
     private static CurrentDragInfo? _currentDragInfo;
     private static Vector? _currentTransformVector;
+    private static Geometry? _currentReceptacleGeometryTopLevel;
     
     static DragDropHandler()
     {
         TriggerMouseButtonProperty.Changed.Subscribe(new AnonymousObserver<AvaloniaPropertyChangedEventArgs<MouseButton>>(TriggerMouseButtonChanged));
     }
 
-    public static DragDropDebugRenderer? DebugRenderer { get; set; } = new DragDropDebugRenderer<TreeViewDropAcceptor>();
+    public static DragDropDebugRenderer? DebugRenderer { get; set; }
 
     public static TimeSpan AnimateHomeAnimationDuration { get; set; } = TimeSpan.Zero;
 
@@ -91,13 +95,14 @@ public class DragDropHandler
         
         Rect globalCoordsBounds = transformedBounds.Bounds.TransformToAABB(transformedBounds.Transform);
         GlobalPoint changeInTopLeft = globalCoordsBounds.TopLeft - currentDragInfo.ControlOriginalTopLeft;
-        _currentTransformVector -= changeInTopLeft;
+        currentTransformVector -= changeInTopLeft;
         _currentDragInfo = currentDragInfo with { ControlOriginalTopLeft = globalCoordsBounds.TopLeft } ;
         
         TransformOperations.Builder transform = TransformOperations.CreateBuilder(2);
         transform.AppendMatrix(_currentDragInfo.Value.ControlOriginalTransform.Value);
-        transform.AppendTranslate(_currentTransformVector.Value.X, _currentTransformVector.Value.Y);
+        transform.AppendTranslate(currentTransformVector.X, currentTransformVector.Y);
         _currentDragInfo.Value.EventArgs.DraggingControl.RenderTransform = transform.Build();
+        _currentTransformVector = currentTransformVector;
     }
     
     private static void InputElementSender_PointerMoved(object? sender, PointerEventArgs e)
@@ -121,6 +126,11 @@ public class DragDropHandler
         transform.AppendTranslate(currentTransformVector.X, currentTransformVector.Y);
         currentDragInfo.EventArgs.DraggingControl.RenderTransform = transform.Build();
         _currentTransformVector = currentTransformVector;
+
+        if (_currentReceptacleGeometryTopLevel is not null && _currentReceptacleGeometryTopLevel.FillContains(e.GetPosition(null)))
+        {
+            return;
+        }
         
         Interactive? oldHoverInteractive = currentDragInfo.EventArgs.CurrentHoverOver;
         object? oldHoverReceptacleTag = currentDragInfo.EventArgs.ReceptacleTag;
@@ -206,12 +216,12 @@ public class DragDropHandler
                 DebugRenderer.EnsureAttachedAndUpdated(control);
             }
             
-            if (!DropTargetHandler.GetDropAcceptor(visualAtPoint).AcceptDrop(visualAtPoint, pointerEventArgs, out object? receptacleTag))
+            if (DropTargetHandler.GetDropAcceptor(visualAtPoint).AcceptDrop(visualAtPoint, pointerEventArgs) is not { } receptacle)
             {
                 continue;
             }
             
-            if (Equals(visualAtPoint, currentHoverVisual) && Equals(receptacleTag, currentReceptacleTag))
+            if (Equals(visualAtPoint, currentHoverVisual) && Equals(receptacle.Tag, currentReceptacleTag))
             {
                 dropTargetEvent.CurrentHoverOver = currentHoverVisual;
                 dropTargetEvent.ReceptacleTag = currentReceptacleTag;
@@ -221,13 +231,28 @@ public class DragDropHandler
             if (visualAtPoint is Interactive interactiveAtPoint)
             {
                 dropTargetEvent.CurrentHoverOver = interactiveAtPoint;
-                dropTargetEvent.ReceptacleTag = receptacleTag;
+                dropTargetEvent.ReceptacleTag = receptacle.Tag;
                 DropTargetHandler.RaiseEvent(dropTargetEvent);
             }
             
             if (dropTargetEvent.Handled)
             {
                 dropTargetEvent.DraggingControl.RaiseEvent(BeingDraggedEventArgs.HoverStarted(dropTargetEvent.DraggingControl));
+                _currentReceptacleGeometryTopLevel = receptacle.AcceptsDropRegion;
+
+                Matrix matrixToTopLevel = Matrix.Identity;
+
+                if (_currentReceptacleGeometryTopLevel.Transform?.Value is { } geometryTransform)
+                {
+                    matrixToTopLevel *=  geometryTransform;
+                }
+
+                if (dropTargetEvent.CurrentHoverOver?.GetTransformedBounds()?.Transform is { } currentHoverOverTransform)
+                {
+                    matrixToTopLevel *= currentHoverOverTransform;
+                }
+                
+                _currentReceptacleGeometryTopLevel.Transform = new MatrixTransform(matrixToTopLevel);
                 return;
             }
         }
@@ -298,15 +323,20 @@ public class DragDropHandler
             }
         }
     }
-    
+
     private record struct CurrentDragInfo(
-        DropTargetEventArgs EventArgs, 
-        PointerPressedEventArgs OriginalClickEventArgs, 
+        DropTargetEventArgs EventArgs,
+        PointerPressedEventArgs OriginalClickEventArgs,
         ITransform ControlOriginalTransform,
-        LocalPoint ClickOffset, 
-        GlobalPoint ControlOriginalTopLeft, 
-        bool ControlWasClipToBounds, 
-        int ControlOriginalZIndex, 
+        LocalPoint ClickOffset,
+        GlobalPoint ControlOriginalTopLeft,
+        bool ControlWasClipToBounds,
+        int ControlOriginalZIndex,
         TimeSpan ControlOriginalPositionAnimationDuration
     );
+
+    public void OnApplicationBuilt()
+    {
+        _logger = logger;
+    }
 }

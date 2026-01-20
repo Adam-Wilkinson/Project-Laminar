@@ -98,17 +98,22 @@ public class TreeViewDropAcceptor : DropAcceptor<TreeView>
         
         startOfNextReceptacle += heightOfReceptacles;
         
+        indicesInEachLevel[currentItem.Level]++;
         for (int i = 0; i < numberOfReceptacles - 2; i++)
         {
             int index = indicesInEachLevel[currentItem.Level - i];
-            currentParent = currentParent.GetLogicalParent() as ItemsControl;
+            if (currentParent?.ItemCount < index)
+            {
+                continue;
+            }
+            
             yield return new Receptacle(new RectangleGeometry(new Rect(
                 0, headerBounds.Top + startOfNextReceptacle, headerBounds.Right, heightOfReceptacles)), 
                 new TreeViewItemReceptacleInfo(currentParent!.DataContext, index));
+            currentParent = currentParent.GetLogicalParent() as ItemsControl;
             startOfNextReceptacle += heightOfReceptacles;
         }
         
-        indicesInEachLevel[currentItem.Level]++;
         // If the level will increase, we need to zero it out
         if (nextItem is not null && nextItem.Level > currentItem.Level)
         {

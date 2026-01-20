@@ -25,8 +25,6 @@ public partial class App : Application
 {
     private static readonly string LocalFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Project Laminar");
     
-    private IServiceProvider _services;
-    
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
@@ -41,7 +39,7 @@ public partial class App : Application
             BindingPlugins.DataValidators.RemoveAt(0);
             desktop.MainWindow = new MainWindow();
             
-            _services = new ServiceCollection()
+            var services = new ServiceCollection()
                 .AddLaminarServices(FrontendDependency.Avalonia)
                 .AddDescendantsTransient<ViewModelBase>()
                 .AddDescendantsSingleton<IBeforeApplicationBuiltTarget>()
@@ -62,15 +60,15 @@ public partial class App : Application
                 .AddSingleton<IDialogService, DialogService>()
                 .BuildServiceProvider();
             
-            _services.InitializeLaminar();
-            _services.GetServices<IBeforeApplicationBuiltTarget>().Initialize();
+            services.InitializeLaminar();
+            services.GetServices<IBeforeApplicationBuiltTarget>().Initialize();
             
-            desktop.MainWindow.DataContext = _services.GetRequiredService<MainWindowViewModel>();
+            desktop.MainWindow.DataContext = services.GetRequiredService<MainWindowViewModel>();
 
-            _services.GetServices<IAfterApplicationBuiltTarget>().Initialize();
+            services.GetServices<IAfterApplicationBuiltTarget>().Initialize();
             
-            var pluginLoader = _services.GetRequiredService<IPluginLoader>();
-            foreach (var avaloniaPlugin in _services.GetServices<IPlugin>())
+            IPluginLoader pluginLoader = services.GetRequiredService<IPluginLoader>();
+            foreach (IPlugin avaloniaPlugin in services.GetServices<IPlugin>())
             {
                 pluginLoader.Register(avaloniaPlugin);
             }

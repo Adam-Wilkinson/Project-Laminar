@@ -11,20 +11,18 @@ namespace Laminar.Avalonia.DragDrop;
 
 public class DropAcceptor
 {
-    public bool AcceptDrop(Visual hoverVisual, PointerEventArgs pointerEventArgs, out object? receptacleTag)
+    public Receptacle? AcceptDrop(Visual hoverVisual, PointerEventArgs pointerEventArgs)
     {
         var pointerPosition = pointerEventArgs.GetPosition(hoverVisual);
-        foreach (var receptacle in GetReceptacles(hoverVisual))
+        foreach (var currentReceptacle in GetReceptacles(hoverVisual))
         {
-            if (receptacle.AcceptsDropRegion.FillContains(pointerPosition))
+            if (currentReceptacle.AcceptsDropRegion.FillContains(pointerPosition))
             {
-                receptacleTag = receptacle.Tag;
-                return true;
+                return currentReceptacle;
             }
         }
-
-        receptacleTag = null;
-        return false;
+        
+        return null;
     }
 
     public void RenderAllReceptacles(Visual visual, DrawingContext drawingContext)
