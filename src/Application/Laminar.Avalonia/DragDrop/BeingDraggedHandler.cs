@@ -122,6 +122,12 @@ public class BeingDraggedHandler : Interactive
             return true;
         }
 
+        if (target is StyledElement styledElement && command.CanExecute(styledElement.DataContext))
+        {
+            command.Execute(styledElement.DataContext);
+            return true;
+        }
+
         return false;
     }
 }

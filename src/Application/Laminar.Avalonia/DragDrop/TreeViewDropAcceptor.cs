@@ -88,13 +88,13 @@ public class TreeViewDropAcceptor : DropAcceptor<TreeView>
 
         yield return new Receptacle(new RectangleGeometry(new Rect(
                 0, headerBounds.Top + startOfNextReceptacle, headerBounds.Right, heightOfReceptacles)),
-            new TreeViewItemReceptacleInfo(currentParent as TreeViewItem, currentParent!.DataContext, indicesInEachLevel[currentItem.Level]));
+            new TreeViewItemReceptacleInfo(currentParent!.DataContext, indicesInEachLevel[currentItem.Level]));
 
         startOfNextReceptacle += heightOfReceptacles;
 
         yield return new Receptacle(new RectangleGeometry(new Rect(
                 0, headerBounds.Top + startOfNextReceptacle, headerBounds.Right, heightOfReceptacles)),
-            new TreeViewItemReceptacleInfo(currentItem, currentItem.DataContext, 0));
+            new TreeViewItemReceptacleInfo(currentItem.DataContext, 0));
         
         startOfNextReceptacle += heightOfReceptacles;
         
@@ -109,7 +109,7 @@ public class TreeViewDropAcceptor : DropAcceptor<TreeView>
             
             yield return new Receptacle(new RectangleGeometry(new Rect(
                 0, headerBounds.Top + startOfNextReceptacle, headerBounds.Right, heightOfReceptacles)), 
-                new TreeViewItemReceptacleInfo(currentParent as TreeViewItem, currentParent!.DataContext, index));
+                new TreeViewItemReceptacleInfo(currentParent!.DataContext, index));
             currentParent = currentParent.GetLogicalParent() as ItemsControl;
             startOfNextReceptacle += heightOfReceptacles;
         }
@@ -121,7 +121,7 @@ public class TreeViewDropAcceptor : DropAcceptor<TreeView>
         }
     }
 
-    public record struct TreeViewItemReceptacleInfo(TreeViewItem? ReceptacleParent, object? ReceptacleParentDataContext, int ReceptacleIndex);
+    public record struct TreeViewItemReceptacleInfo(object? ReceptacleParentDataContext, int ReceptacleIndex);
 
     protected override IPen DebugReceptaclePen => new Pen(Brushes.Beige, 1.5);
 }

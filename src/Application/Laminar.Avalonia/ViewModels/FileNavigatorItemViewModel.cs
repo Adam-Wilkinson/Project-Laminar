@@ -18,7 +18,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Laminar.Avalonia.ViewModels;
 
-public partial class FileNavigatorItemViewModel : ViewModelBase
+public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemViewModel
 {
     private readonly IUserActionManager _actionManager;
     private readonly ILaminarStorageItemFactory _storageFactory;

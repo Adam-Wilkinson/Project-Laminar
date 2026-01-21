@@ -84,8 +84,7 @@
                                     <Grid Name="PART_Header" ColumnDefinitions="Auto, *">
                                         <Button Name="PART_ExpandCollapseChevron"
                                                 Grid.Column="0" Grid.Row="0"
-                                                DataContext="{Binding
-                                                    RelativeSource={RelativeSource TemplatedParent},
+                                                DataContext="{TemplateBinding DataContext,
                                                     Converter={StaticResource ToolInstancer}, 
                                                     ConverterParameter={StaticResource Tools.ExpandCollapseTreeViewTool}}"
                                                 Theme="{StaticResource ToolButton}" 

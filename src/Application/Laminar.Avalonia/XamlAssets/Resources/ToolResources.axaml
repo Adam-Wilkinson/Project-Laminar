@@ -27,11 +27,11 @@
     
     <!-- Tool that toggles whether a TreeViewItem is expanded -->
     <t:PropertySetterTool Name="Toggle Expanded" 
-                          x:DataType="TreeViewItem" 
+                          x:DataType="vm:ITreeViewItemViewModel" 
                           x:Key="Tools.ExpandCollapseTreeViewTool" 
                           PropertyBinding="{Binding IsExpanded}">
 	    <t:Tool.IconTemplate>
-		    <DataTemplate DataType="TreeViewItem">
+		    <DataTemplate DataType="vm:ITreeViewItemViewModel">
 			    <Path Stroke="{DynamicResource {x:Static init:ColorInitialization.LaminarForegroundKey}}"
 			          StrokeThickness="2"
 			          Margin="5"

@@ -46,7 +46,6 @@ public partial class FileNavigatorViewModel(
     {
         if (eventArgs.ReceptacleTag is not TreeViewDropAcceptor.TreeViewItemReceptacleInfo
             {
-                ReceptacleParent: { } targetParentTreeViewItem,
                 ReceptacleParentDataContext: FileNavigatorItemViewModel targetFileNavigatorViewModel,
                 ReceptacleIndex: var targetIndex
             })
@@ -72,15 +71,15 @@ public partial class FileNavigatorViewModel(
         if (Equals(draggedItem.Parent, targetFileNavigatorViewModel) && targetIndex == draggedItem.Parent?.Children?.Count) return;
         
         // A closed folder cannot take children, but should be expanded after a certain amount of time
-        if (!targetParentTreeViewItem.IsExpanded)
+        if (!targetFileNavigatorViewModel.IsExpanded)
         {
             _ = Task.Delay(ExpandHoveredOverFolderDelay).ContinueWith(_ =>
             {
                 if (!Equals(_currentHoveredItem, targetFileNavigatorViewModel)) return;
                 Dispatcher.UIThread.Post(() =>
                 {
-                    targetParentTreeViewItem.IsExpanded = true;
-                    // OnHover(eventArgs); 
+                    targetFileNavigatorViewModel.IsExpanded = true;
+                    OnHover(eventArgs); 
                 });
             });
             return;

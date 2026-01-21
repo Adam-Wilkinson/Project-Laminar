@@ -1,10 +1,11 @@
 using System;
 using System.Windows.Input;
 using Avalonia.Controls;
+using Laminar.Avalonia.ViewModels;
 
 namespace Laminar.Avalonia.DragDrop;
 
-public class TreeViewItemDrag
+public static class TreeViewItemDrag
 {
     private static bool _currentDragTargetShouldBeExpanded;
     
@@ -14,11 +15,11 @@ public class TreeViewItemDrag
 
     private class DragStarted : ICommand
     {
-        public bool CanExecute(object? parameter) => parameter is TreeViewItem;
+        public bool CanExecute(object? parameter) => parameter is ITreeViewItemViewModel;
 
         public void Execute(object? parameter)
         {
-            if (parameter is not TreeViewItem item) return;
+            if (parameter is not ITreeViewItemViewModel item) return;
 
             _currentDragTargetShouldBeExpanded = item.IsExpanded;
             item.IsExpanded = false;
@@ -29,11 +30,11 @@ public class TreeViewItemDrag
 
     private class DragEnded : ICommand
     {
-        public bool CanExecute(object? parameter) => parameter is TreeViewItem;
+        public bool CanExecute(object? parameter) => parameter is ITreeViewItemViewModel;
 
         public void Execute(object? parameter)
         {
-            if (parameter is not TreeViewItem item) return;
+            if (parameter is not ITreeViewItemViewModel item) return;
             item.IsExpanded = _currentDragTargetShouldBeExpanded;
         }
 
