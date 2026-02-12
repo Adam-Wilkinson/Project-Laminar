@@ -1,7 +1,11 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -20,6 +24,8 @@ namespace Laminar.Avalonia.ViewModels;
 
 public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemViewModel
 {
+    private static readonly ContentsEqualComparer ContentsEqual = new();
+    
     private readonly IUserActionManager _actionManager;
     private readonly ILaminarStorageItemFactory _storageFactory;
     private readonly ILogger<FileNavigatorItemViewModel>? _logger;
@@ -42,23 +48,15 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
         CoreItem = coreItem;
         Name = CoreItem.Name;
         _factory = storageItem =>
-            new FileNavigatorItemViewModel(storageItem, _actionManager, _storageFactory, dialogService, logger,
-                topLevel)
+            new FileNavigatorItemViewModel(storageItem, _actionManager, _storageFactory, dialogService, logger, topLevel)
             {
                 Parent = this,
             };
 
         if (coreItem is ILaminarStorageFolder folder)
         {
-            Children = new ObservableCollection<FileNavigatorItemViewModel>(folder.Contents.Select(_factory));
-            folder.Contents.HelperInstance().ItemAdded += (_, e) 
-                => Children.Insert(e.Index, _factory(e.Item));
-            folder.Contents.HelperInstance().ItemRemoved += (_, e)
-                => Children.RemoveAt(e.Index);
-            Children.HelperInstance().ItemAdded += (_, e) =>
-            {
-                e.Item.Parent = this;
-            };
+            Children = new SourcedObservableCollection<FileNavigatorItemViewModel>(
+                folder.Contents.ObservableMap(_factory), ContentsEqual);
         }
 
         CoreItem.PropertyChanged += (_, e) =>
@@ -69,13 +67,15 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
         CoreItem.ExceptionRaised += async (_, e) =>
         {
             if (topLevel is null) return;
-            await dialogService.ShowError((INotifyPropertyChanged)topLevel.DataContext!, "File System Error",
-                e.Message);
+            await dialogService.ShowError((INotifyPropertyChanged)topLevel.DataContext!, "File System Error", e.Message);
         };
     }
 
-    public FileNavigatorItemViewModel? Parent { get; private set; }
 
+    public FileNavigatorItemViewModel? Parent { get; private set; }
+    
+    public IObservableCollection<FileNavigatorItemViewModel>? Children { get; }
+    
     public string Name
     {
         get;
@@ -103,8 +103,6 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
         LaminarStorageFile => "script",
         _ => "item"
     };
-
-    public ObservableCollection<FileNavigatorItemViewModel>? Children { get; }
 
     [RelayCommand(CanExecute = nameof(IsFolder))]
     public void AddItem(Type itemType)
@@ -134,7 +132,15 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
     public void Delete()
     {
         _actionManager.ExecuteAction(new DeleteStorageItemAction<ILaminarStorageItem>(CoreItem));
-    }   
+    }
+
+    private class ContentsEqualComparer : IEqualityComparer<FileNavigatorItemViewModel>
+    {
+        public bool Equals(FileNavigatorItemViewModel? x, FileNavigatorItemViewModel? y) 
+            => Equals(x?.CoreItem, y?.CoreItem);
+
+        public int GetHashCode(FileNavigatorItemViewModel obj) => obj.CoreItem.GetHashCode();
+    }
 }
 
 public class FileNavigatorItemViewModelSerializer(ILaminarStorageItemFactory storageItemFactory) : TypeSerializer<FileNavigatorItemViewModel, string>

@@ -69,4 +69,38 @@ public static class TestUtils
 
         return !second.MoveNext();
     }
+
+    public static bool SetEquals(IEnumerable? firstList, IEnumerable? secondList)
+    {
+        if (firstList is null)
+        {
+            return secondList is null;
+        }
+
+        if (secondList is null)
+        {
+            return false;
+        }
+
+        HashSet<object> firstListSet = [], secondListSet = [];
+
+        var firstListEnumerable = firstList.GetEnumerator();
+        var secondListEnumerable = secondList.GetEnumerator();
+        using var firstListDisposable = (IDisposable)firstListEnumerable;
+        using var secondListDisposable = (IDisposable)secondListEnumerable;
+
+        while (firstListEnumerable.MoveNext())
+        {
+            if (firstListEnumerable.Current is null) continue;
+            firstListSet.Add(firstListEnumerable.Current);
+        }
+
+        while (secondListEnumerable.MoveNext())
+        {
+            if (secondListEnumerable.Current is null) continue;
+            secondListSet.Add(secondListEnumerable.Current);
+        }
+        
+        return firstListSet.SetEquals(secondListSet);
+    }
 }

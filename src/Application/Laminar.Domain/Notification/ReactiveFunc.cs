@@ -14,7 +14,7 @@ public class ReactiveFunc<TInput, TOutput>
     private readonly HashSet<string>? _dependentProperties;
     private readonly Func<TInput, TOutput> _func;
     
-    public ReactiveFunc(Func<TInput, TOutput> func, params string[] dependentProperties)
+    public ReactiveFunc(Func<TInput, TOutput> func, params Span<string> dependentProperties)
     {
         if (typeof(TInput).GetInterface(nameof(INotifyPropertyChanged)) is not null)
         {

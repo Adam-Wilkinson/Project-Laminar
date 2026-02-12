@@ -14,15 +14,16 @@ public class PersistentDataStoreTests
 {
     private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
     private static readonly ILogger<IPersistentDataStore> Logger = Substitute.For<ILogger<IPersistentDataStore>>();
+    private static readonly ILogger<JsonPersistentDataTranscoder> TranscoderLogger = Substitute.For<ILogger<JsonPersistentDataTranscoder>>();
     
     public class InitializeDefault
     {
-        public static IEnumerable<object[]> InitialPersistentData => new List<object[]>
-        {
-            new object[] { new Dictionary<string, object>() },
-            new object[] { new Dictionary<string, object> { ["Test Item One"] = false }},
-            new object[] { new Dictionary<string, object> { ["Test Item One"] = "A string", ["Test Item Two"] = 60 }}
-        };
+        public static TheoryData<Dictionary<string, object>> InitialPersistentData => 
+        [
+            new(),
+            new() { ["Test Item One"] = false },
+            new() { ["Test Item One"] = "A string", ["Test Item Two"] = 60 }
+        ];
         
         [Theory, MemberData(nameof(InitialPersistentData))]
         public void ShouldAddItem_WhenItemDoesntExist(Dictionary<string, object> initialData)
@@ -36,7 +37,7 @@ public class PersistentDataStoreTests
             serializerMock.GetSerializedType(typeof(double)).Returns(typeof(double));
             serializerMock.SerializeObject(testValue).Returns(testValue);
 
-            var sut = new PersistentDataStore<JsonElement>(serializerMock, new JsonPersistentDataTranscoder(JsonOptions), Logger)
+            var sut = new PersistentDataStore<JsonElement>(serializerMock, new JsonPersistentDataTranscoder(JsonOptions, TranscoderLogger), Logger)
                 {
                     RawData = fileData
                 };
@@ -62,7 +63,7 @@ public class PersistentDataStoreTests
             serializerMock.SerializeObject(Arg.Any<double>()).Returns(ci => ci.Arg<double>());
             serializerMock.DeserializeObject(Arg.Any<double>(), typeof(double)).Returns(ci => ci.Arg<double>());
 
-            var sut = new PersistentDataStore<JsonElement>(serializerMock, new JsonPersistentDataTranscoder(JsonOptions), Logger)
+            var sut = new PersistentDataStore<JsonElement>(serializerMock, new JsonPersistentDataTranscoder(JsonOptions, TranscoderLogger), Logger)
             {
                 RawData = fileData
             };
@@ -90,7 +91,7 @@ public class PersistentDataStoreTests
             serializerMock.SerializeObject(Arg.Any<double>()).Returns(ci => ci.Arg<double>());
             serializerMock.DeserializeObject(Arg.Any<double>(), typeof(double)).Returns(ci => ci.Arg<double>());
 
-            var sut = new PersistentDataStore<JsonElement>(serializerMock, new JsonPersistentDataTranscoder(JsonOptions), Logger)
+            var sut = new PersistentDataStore<JsonElement>(serializerMock, new JsonPersistentDataTranscoder(JsonOptions, TranscoderLogger), Logger)
             {
                 RawData = rawData
             };
@@ -117,7 +118,7 @@ public class PersistentDataStoreTests
             serializerMock.SerializeObject(Arg.Any<double>(), typeof(double)).Returns(ci => ci.Arg<double>());
             serializerMock.DeserializeObject(Arg.Any<double>(), typeof(double)).Returns(ci => ci.Arg<double>());
 
-            var sut = new PersistentDataStore<JsonElement>(serializerMock, new JsonPersistentDataTranscoder(JsonOptions), Logger)
+            var sut = new PersistentDataStore<JsonElement>(serializerMock, new JsonPersistentDataTranscoder(JsonOptions, TranscoderLogger), Logger)
             {
                 RawData = rawData
             };
@@ -143,7 +144,7 @@ public class PersistentDataStoreTests
             serializerMock.GetSerializedType(typeof(double)).Returns(typeof(double));
             serializerMock.SerializeObject(testValue).Returns(testValue);
             
-            var sut = new PersistentDataStore<JsonElement>(serializerMock, new JsonPersistentDataTranscoder(JsonOptions), Logger);
+            var sut = new PersistentDataStore<JsonElement>(serializerMock, new JsonPersistentDataTranscoder(JsonOptions, TranscoderLogger), Logger);
             
             Assert.Equal(DataIoStatus.DataNotFound, sut.SetItem(testValueKey, testValue).Status);
         }

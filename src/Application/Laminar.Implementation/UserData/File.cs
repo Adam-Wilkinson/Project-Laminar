@@ -10,10 +10,12 @@ using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.UserData;
 
-public class File : IFile, IValueSink<byte[]>
+public partial class File : IFile
 {
     private const int ErrorSharingViolation = 32;
     private const int ErrorLockViolation = 33;
+    
+    private static readonly TimeSpan FileBusyWaitDuration = new(0, 0, 2);
     
     private readonly IFileSystem _fileSystem;
     private readonly CancellationTokenSource _cancelReadTokenSource = new();
@@ -23,7 +25,6 @@ public class File : IFile, IValueSink<byte[]>
     
     private byte[] _contents = [];
     private bool _readNextFileChange = true;
-    private IValueSink<byte[]> _valueSinkImplementation;
     private Task? _writeTask;
     private Task? _readTask;
 
@@ -72,6 +73,19 @@ public class File : IFile, IValueSink<byte[]>
 
     public event EventHandler<EventArgs>? ContentsChanged;
     
+    public void CheckAccess()
+    {
+        if (_writeTask is not null && !_writeTask.IsCompleted)
+        {
+            _writeTask.Wait();
+        }
+
+        if (_readTask is not null && !_readTask.IsCompleted)
+        {
+            _readTask.Wait();
+        }
+    }
+
     private void FileChanged(object? sender, FileSystemEventArgs e)
     {
         if (e.FullPath != Path)
@@ -87,7 +101,7 @@ public class File : IFile, IValueSink<byte[]>
 
         if (_readTask is null || _readTask.IsCompleted)
         {
-            Task.Run(InitiateReadAttempt);
+            _readTask = Task.Run(InitiateReadAttempt);
         }
     }
     
@@ -95,12 +109,12 @@ public class File : IFile, IValueSink<byte[]>
     {
         var success = false;
         var cancellationToken = _cancelWriteTokenSource.Token;
+        _readNextFileChange = false;
         
         while (!success && !cancellationToken.IsCancellationRequested)
         {
             try
             {
-                _readNextFileChange = false;
                 _fileSystem.WriteBytesAsync(Path, _contents, cancellationToken);
                 success = true;
             }
@@ -144,14 +158,15 @@ public class File : IFile, IValueSink<byte[]>
         var errorCode = Marshal.GetHRForException(e) & ((1 << 16) - 1);
         if (errorCode is ErrorSharingViolation or ErrorLockViolation)
         {
-            _logger.LogDebug("File {file} is busy. Waiting 2000 milliseconds before trying to access again", Path);
-            await Task.Delay(2000, cancellationToken);   
+            LogFileFileIsBusyWaitingMillisecondsBeforeTryingToAccessAgain(Path, FileBusyWaitDuration);
+            await Task.Delay(FileBusyWaitDuration, cancellationToken);   
         }
         else
         {
             throw new Exception("Unexpected error when accessing file", innerException: e);
         }
     }
-    
-    byte[] IValueSink<byte[]>.Value { set => Contents = value; }
+
+    [LoggerMessage(LogLevel.Debug, "File {file} is busy. Waiting {waitDuration} before trying to access again")]
+    partial void LogFileFileIsBusyWaitingMillisecondsBeforeTryingToAccessAgain(string file, TimeSpan waitDuration);
 }

@@ -89,7 +89,7 @@ public class JsonPersistentDataTranscoder(JsonSerializerOptions jsonOptions, ILo
         }
         catch (JsonException ex)
         {
-            logger.LogDebug(ex, ex.Message);
+            logger.LogWarning(ex, ex.Message);
             return null;
         }
     } 
