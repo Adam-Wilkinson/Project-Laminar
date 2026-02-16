@@ -7,7 +7,11 @@ public static class MappedObservableCollectionExtensions
 {
     public static MappedObservableCollection<TIn, TOut> ObservableMap<TCollection, TIn, TOut>(
         this TCollection collection, Func<TIn, TOut> map) where TCollection : IEnumerable<TIn>, INotifyCollectionChanged
-        => MappedObservableCollection<TIn, TOut>.New(collection, map); 
+        => MappedObservableCollection<TIn, TOut>.New(collection, map);
+
+    public static MappedObservableCollection<TIn, TOut> ObservableMap<TIn, TOut>(
+        this IReadOnlyObservableCollection<TIn> collection, Func<TIn, TOut> map) =>
+        MappedObservableCollection<TIn, TOut>.New(collection, map);
 }
 
 public class MappedObservableCollection<TIn, TOut> : ReadOnlyObservableCollectionBase<TOut>

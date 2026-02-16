@@ -10,6 +10,10 @@ namespace Laminar.Domain.Notification;
 /// <typeparam name="T"></typeparam>
 public class ObservableCollectionImpl<T>(ObservableCollection<T> baseCollection) : IObservableCollection<T>
 {
+    public ObservableCollectionImpl(IEnumerable<T> baseEnumerable) : this(new ObservableCollection<T>(baseEnumerable))
+    {
+    }
+    
     private ObservableCollection<T> BaseCollection => baseCollection;
 
     public bool IsReadOnly => false;
@@ -51,4 +55,12 @@ public class ObservableCollectionImpl<T>(ObservableCollection<T> baseCollection)
 
     public static implicit operator ObservableCollection<T>(ObservableCollectionImpl<T> wrapper)
         => new(wrapper.BaseCollection);
+}
+
+public static class ObservableCollectionExtensions
+{
+    extension<T>(ObservableCollection<T> observableCollection)
+    {
+        public ObservableCollectionImpl<T> ToInterfaceImpl() => new(observableCollection);
+    }
 }

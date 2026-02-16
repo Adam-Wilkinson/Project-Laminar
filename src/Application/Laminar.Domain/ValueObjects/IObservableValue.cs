@@ -28,5 +28,42 @@ public interface IObservableValue<out T> : IObservableValueBase
 
 public interface IObservableValueBase : INotifyPropertyChanged
 {
-    public static readonly PropertyChangedEventArgs ValueChangedEventArgs = new(nameof(IObservableValue<object>.Value));
+    public static readonly PropertyChangedEventArgs ValueChangedEventArgs = new(nameof(IObservableValue<>.Value));
+}
+
+public static class ObservableValueExtensions
+{
+    extension<T>(IObservableValue<T> observableValue)
+    {
+        public IObservableValue<TOut> Cast<TOut>()
+        {
+            if (observableValue.Value is not TOut typedValue)
+            {
+                throw new InvalidCastException();
+            }
+
+            ObservableValue<TOut> output = new() { Value = typedValue };
+
+            observableValue.ValueChanged += (o, e) =>
+            {
+                if (e is not TOut newTypedValue)
+                {
+                    throw new InvalidCastException();
+                }
+
+                output.Value = newTypedValue;
+            };
+
+            return output;
+        }
+
+        public IObservableValue<TOut> Map<TOut>(Func<T, TOut> func)
+        {
+            ObservableValue<TOut> output = new() { Value = func(observableValue.Value) };
+            
+            observableValue.ValueChanged += (o, e) => output.Value = func(e);
+
+            return output;
+        }
+    }
 }

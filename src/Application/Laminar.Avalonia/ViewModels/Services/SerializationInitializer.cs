@@ -1,64 +1,44 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Laminar.Avalonia.InitializationTargets;
 using Laminar.Contracts.UserData;
 using Laminar.Domain.DataManagement;
 
 namespace Laminar.Avalonia.ViewModels.Services;
 
-public class ViewModelSerializationHelper(TopLevel topLevel, IPersistentDataManager dataManager) : IAfterApplicationBuiltTarget
+public class SerializationInitializer(IPersistentDataManager dataManager) : IViewModelInitializer
 {
-    private readonly HashSet<ViewModelBase> _registeredViewModels = [];
+    private readonly Dictionary<ViewModelBase, string> _serializationPrefixes = [];
     private readonly Dictionary<Type, Dictionary<string, ISerializedPropertyInfo>> _serializedPropertyInfos = [];
-    private readonly IPersistentDataStore _dataStore = dataManager.GetDataStore(DataStoreKey.PersistentData);
+    private readonly IPersistentDataStore _dataStore = 
+        dataManager.GetDataStore(DataStoreKey.PersistentData).CreateChild("User Interface");
     
-    public void OnApplicationBuilt()
+    public void Initialize(ViewModelBase? parentViewModel, ViewModelBase viewModel, string viewModelName)
     {
-        if (topLevel.DataContext is ViewModelBase topLevelViewModel)
-        {
-            SerializeObservableProperties(topLevelViewModel, _dataStore);
-        }
-    }
-    
-    public void SerializeObservableProperties(ViewModelBase viewModel, IPersistentDataStore dataStore, string prefix = "")
-    {
-        _registeredViewModels.Add(viewModel);
-        foreach (var propertyInfo in viewModel.GetType().GetProperties())
-        {
-            if (propertyInfo.GetMethod is not null 
-                && propertyInfo.PropertyType.IsSubclassOf(typeof(ViewModelBase))
-                && propertyInfo.GetMethod.Invoke(viewModel, []) is ViewModelBase childViewModel
-                && !_registeredViewModels.Contains(childViewModel))
-            {
-                SerializeObservableProperties(childViewModel, dataStore, string.IsNullOrEmpty(prefix) ? propertyInfo.Name : (prefix + "." + propertyInfo.Name));
-            }
-        }
-        
+        var prefix = (parentViewModel is null ? "" : _serializationPrefixes[parentViewModel]) + "." + viewModelName;
+        _serializationPrefixes[viewModel] = prefix;
         var serializedPropertyInfos = GetSerializedPropertyInfos(viewModel.GetType(), viewModel);
         foreach (var property in serializedPropertyInfos.Values)
         {
-            property.InitializeToDataStore(prefix, viewModel, dataStore);
-            dataStore.GetObservable(property.ValueKey(prefix)).ValueChanged += (_, _) =>
+            property.InitializeToDataStore(prefix, viewModel, _dataStore);
+            _dataStore.GetObservable(property.ValueKey(prefix)).ValueChanged += (_, _) =>
             {
-                property.DataStoreToProperty(prefix, viewModel, dataStore);
+                property.DataStoreToProperty(prefix, viewModel, _dataStore);
             };
         }
         
         foreach (var property in serializedPropertyInfos.Values)
         {
-            property.DataStoreToProperty(prefix, viewModel, dataStore);
+            property.DataStoreToProperty(prefix, viewModel, _dataStore);
         }
         
         viewModel.PropertyChanged += (_, e) =>
         {
             if (e.PropertyName is null || !serializedPropertyInfos.TryGetValue(e.PropertyName, out var propertyInfo)) return;
-            propertyInfo.PropertyToDataStore(prefix, viewModel, dataStore);
+            propertyInfo.PropertyToDataStore(prefix, viewModel, _dataStore);
         };
     }
     

@@ -11,7 +11,9 @@ public class MoveStorageItemAction(
      : IUserAction
 {
      public event EventHandler? CanExecuteChanged;
+     
      public bool CanExecute => true;
+     
      public IUserAction? Execute()
      {
           if (item.ParentFolder is null) return null;

@@ -55,8 +55,9 @@ public class Serializer : ISerializer
     
     private IConditionalSerializer GetSerializer(Type typeToSerialize)
     {
-        EnsureAssemblyInit(typeToSerialize);
-        EnsureAssemblyInit(typeof(Serializer));
+        // The Implementation assembly. If we do this in the constructor, the app doesn't start
+        EnsureAssemblyInit(typeof(Serializer).Assembly);
+        EnsureAssemblyInit(typeToSerialize.Assembly);
         
         if (_typeSerializers.TryGetValue(typeToSerialize, out var typeSerializer))
         {
@@ -87,9 +88,8 @@ public class Serializer : ISerializer
         throw new NotSupportedException($"No serializer found for type {typeToSerialize.FullName}.");
     }
 
-    private void EnsureAssemblyInit(Type typeAssemblySource)
+    public void EnsureAssemblyInit(Assembly assembly)
     {
-        var assembly = typeAssemblySource.Assembly;
         if (!_scannedAssemblies.Add(assembly))
         {
             return;

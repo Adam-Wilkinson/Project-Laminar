@@ -8,8 +8,6 @@ public interface IPersistentDataStore
 {
     protected static readonly PropertyChangedEventArgs ValueChangedArgs = new("Value");
     
-    // public string FilePath { get; }
-    
     public IPersistentDataStore CreateChild(string childDataStoreName);
     
     public DataReadResult<object?> GetItem(string key, Type type);
@@ -43,5 +41,8 @@ public static class PersistentDataStoreExtensions
         }
 
         public void ResetToDefault(string key) => dataStore.SetItem(key, dataStore.GetDefaultValue(key).Result);
+
+        public IObservableValue<T> GetObservable<T>(string key) where T : notnull
+            => dataStore.GetObservable(key).Cast<object?, T>();
     }
 }

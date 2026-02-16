@@ -2,15 +2,16 @@ using Avalonia.Controls;
 using HanumanInstitute.MvvmDialogs.Avalonia;
 using Laminar.Avalonia.ToolSystem;
 using Laminar.Contracts.Base.ActionSystem;
+using Laminar.Contracts.UserData.FileNavigation;
 using Laminar.Implementation.UserData.FileNavigation;
 
 namespace Laminar.Avalonia.ViewModels.Design;
 
 public static class DesignViewModel
 {
-    private static readonly IUserActionManager MockUserActionManager = new MockUserActionManager();
+    private static readonly ILaminarFileBrowser MockFileBrowser = new MockFileBrowser();
     
-    public static readonly FileNavigatorViewModel FileNavigator = new(MockUserActionManager, new MockDataManager(), new LaminarStorageItemFactory(null), new DialogService());
+    public static readonly FileNavigatorViewModel FileNavigator = new(MockFileBrowser, new DialogService());
     
     public static readonly MainControlViewModel MainControl = new(FileNavigator);
     

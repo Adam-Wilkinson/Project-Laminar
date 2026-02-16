@@ -25,7 +25,7 @@ public interface IUserAction
 
 public static class UserActionExtensions
 {
-    public static IObservableValue<bool> CanExecuteObservable(this IUserAction action)
+    public static IObservableValue<bool> CreateCanExecuteObservable(this IUserAction action)
     {
         ObservableValue<bool> output = new(action.CanExecute);
         action.CanExecuteChanged += (_, __) => output.Value = action.CanExecute;

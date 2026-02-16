@@ -1,25 +1,18 @@
 using System;
-using System.Collections.ObjectModel;
-using System.IO;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
 using HanumanInstitute.MvvmDialogs;
 using Laminar.Avalonia.DragDrop;
-using Laminar.Avalonia.ViewModels.Services;
-using Laminar.Contracts.Base.ActionSystem;
-using Laminar.Contracts.UserData;
 using Laminar.Contracts.UserData.FileNavigation;
-using Laminar.Implementation.UserData.FileNavigation.UserActions;
+using Laminar.Domain.Notification;
 using Microsoft.Extensions.Logging;
 
 namespace Laminar.Avalonia.ViewModels;
 
 public partial class FileNavigatorViewModel(
-    IUserActionManager actionManager, 
-    IPersistentDataManager dataManager, 
-    ILaminarStorageItemFactory storageItemFactory,
+    ILaminarFileBrowser fileBrowser,
     IDialogService dialogService,
     ILogger<FileNavigatorItemViewModel>? logger = null,
     TopLevel? topLevel = null)
@@ -27,16 +20,13 @@ public partial class FileNavigatorViewModel(
 {
     private static readonly TimeSpan ExpandHoveredOverFolderDelay = new(0, 0, 0, 0, 500);
 
-    private FileNavigatorItemViewModel? _currentHoveredItem;
-    
-    [Serialize]
-    public ObservableCollection<FileNavigatorItemViewModel> RootFiles { get; set; } = [ 
-        new(storageItemFactory.FromPath(Path.Combine(dataManager.Path, "Default")), actionManager, storageItemFactory, dialogService, logger, topLevel) 
-    ];
+    private FileNavigatorItemViewModel? _proposedHoveredItem;
+    private (FileNavigatorItemViewModel moveItem, int moveIndex)? _currentHoverMove;
 
-    public FileNavigatorItemViewModel NewItem(ILaminarStorageItem coreItem) =>
-        new(coreItem, actionManager, storageItemFactory, dialogService, logger, topLevel);
-    
+    public IReadOnlyObservableCollection<FileNavigatorItemViewModel> RootFiles { get; set; } = 
+        fileBrowser.RootFolders.ObservableMap(rootFolder => 
+            new FileNavigatorItemViewModel(rootFolder, fileBrowser, dialogService, logger, topLevel));
+
     public void OpenFilePicker()
     {
     }
@@ -44,54 +34,81 @@ public partial class FileNavigatorViewModel(
     [RelayCommand]
     public void OnHover(DropTargetEventArgs eventArgs)
     {
-        if (eventArgs.ReceptacleTag is not TreeViewDropAcceptor.TreeViewItemReceptacleInfo
-            {
-                ReceptacleParentDataContext: FileNavigatorItemViewModel targetFileNavigatorViewModel,
-                ReceptacleIndex: var targetIndex
-            })
+        if (GetMoveFromDragInfo(eventArgs) is not var (draggedItem, targetParent, targetIndex))
         {
             return;
         }
-        if (eventArgs.DraggingControl.DataContext is not FileNavigatorItemViewModel draggedItem) return;
         
         eventArgs.Handled = true;
-
-        _currentHoveredItem = targetFileNavigatorViewModel;
         
-        if (targetFileNavigatorViewModel.Children is null) return;
-        var indexInParent = draggedItem.Parent?.Children?.IndexOf(draggedItem); 
+        _proposedHoveredItem = targetParent;
         
-        // The parent does not contain its child, or this hover does not constitute a move
-        if (indexInParent == -1 || (indexInParent == targetIndex && Equals(draggedItem.Parent, targetFileNavigatorViewModel))) return;
-        
-        // Trying to move a folder into itself
-        if (Equals(draggedItem, targetFileNavigatorViewModel)) return;
-
-        // A list with 5 elements cannot have one of its own elements moved to index 5
-        if (Equals(draggedItem.Parent, targetFileNavigatorViewModel) && targetIndex == draggedItem.Parent?.Children?.Count) return;
+        if (!IsValidMove(draggedItem, targetParent, targetIndex)) return;
         
         // A closed folder cannot take children, but should be expanded after a certain amount of time
-        if (!targetFileNavigatorViewModel.IsExpanded)
+        if (!targetParent.IsExpanded)
         {
             _ = Task.Delay(ExpandHoveredOverFolderDelay).ContinueWith(_ =>
             {
-                if (!Equals(_currentHoveredItem, targetFileNavigatorViewModel)) return;
+                if (!Equals(_proposedHoveredItem, targetParent)) return;
                 Dispatcher.UIThread.Post(() =>
                 {
-                    targetFileNavigatorViewModel.IsExpanded = true;
+                    targetParent.IsExpanded = true;
                     OnHover(eventArgs); 
                 });
             });
             return;
         }
-        
+
+        _currentHoverMove = (targetParent, targetIndex);
         draggedItem.Parent?.Children?.Remove(draggedItem);
-        targetFileNavigatorViewModel.Children?.Insert(targetIndex, draggedItem);   
+        targetParent.Children?.Insert(targetIndex, draggedItem);   
     }
 
     [RelayCommand]
     public void OnDrop(DropTargetEventArgs eventArgs)
     {
-        eventArgs.Handled = true;
+        if (_currentHoverMove is not var (targetItem, targetIndex) ||
+            targetItem.CoreItem is not ILaminarStorageFolder targetFolder) return;
+        if (eventArgs.DraggingControl.DataContext is not FileNavigatorItemViewModel draggedItem) return;
+
+        fileBrowser.Move(draggedItem.CoreItem, targetFolder, targetIndex);
+        _currentHoverMove = null;
+        _proposedHoveredItem = null;
+    }
+
+    private (FileNavigatorItemViewModel draggedItem, FileNavigatorItemViewModel targetParent, int targetIndex)?
+        GetMoveFromDragInfo(DropTargetEventArgs eventArgs)
+    {
+        if (eventArgs.ReceptacleTag is not TreeViewDropAcceptor.TreeViewItemReceptacleInfo
+            {
+                ReceptacleParentDataContext: FileNavigatorItemViewModel targetParent,
+                ReceptacleIndex: var targetIndex
+            })
+        {
+            return null;
+        }
+        if (eventArgs.DraggingControl.DataContext is not FileNavigatorItemViewModel draggedItem) return null;
+
+        return (draggedItem, targetParent, targetIndex);
+    }
+    
+    private bool IsValidMove(FileNavigatorItemViewModel draggedItem, FileNavigatorItemViewModel targetParent,
+        int targetIndex)
+    {
+        if (targetParent.Children is null) return false;
+        
+        int? indexInParent = draggedItem.Parent?.Children?.IndexOf(draggedItem); 
+        
+        // The parent does not contain its child, or this hover does not constitute a move
+        if (indexInParent == -1 || (indexInParent == targetIndex && Equals(draggedItem.Parent, targetParent))) return false;
+        
+        // Trying to move a folder into itself
+        if (Equals(draggedItem, targetParent)) return false;
+
+        // A list with 5 elements cannot have one of its own elements moved to index 5
+        if (Equals(draggedItem.Parent, targetParent) && targetIndex == draggedItem.Parent?.Children?.Count) return false;
+
+        return true;
     }
 }

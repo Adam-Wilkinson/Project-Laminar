@@ -32,6 +32,7 @@ public static class LaminarServices
             .AddSingleton<IPluginHostFactory, PluginHostFactory>()
             .AddSingleton<ILaminarStorageItemFactory, LaminarStorageItemFactory>()
             .AddSingleton<IFileSystem, FileSystem>()
+            .AddSingleton<ILaminarFileBrowser, LaminarFileBrowser>()
             .AddSingleton<IPluginLoader>(provider => new PluginLoader(frontendDependency, provider.GetRequiredService<IPluginHostFactory>(), provider.GetRequiredService<ILogger<IPluginHost>>()))
             .AddUserInterfaceServices()
             .AddScriptingServices();

@@ -1,7 +1,11 @@
-﻿namespace Laminar.PluginFramework.Serialization;
+﻿using System.Reflection;
+
+namespace Laminar.PluginFramework.Serialization;
 
 public interface ISerializer
 {
+    public void EnsureAssemblyInit(Assembly assembly);
+    
     public object SerializeObject(object toSerialize, Type? overrideTypeKey = null);
 
     public object DeserializeObject(object serialized, Type requestedType, object? context = null);

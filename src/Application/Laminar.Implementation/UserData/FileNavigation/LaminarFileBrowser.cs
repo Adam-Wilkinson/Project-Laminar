@@ -1,0 +1,65 @@
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.IO;
+using Laminar.Contracts.Base.ActionSystem;
+using Laminar.Contracts.UserData;
+using Laminar.Contracts.UserData.FileNavigation;
+using Laminar.Domain.DataManagement;
+using Laminar.Domain.Notification;
+using Laminar.Implementation.UserData.FileNavigation.UserActions;
+
+namespace Laminar.Implementation.UserData.FileNavigation;
+
+public class LaminarFileBrowser : ILaminarFileBrowser
+{
+    private readonly IUserActionManager _actionManager;
+    private readonly ILaminarStorageItemFactory _factory;
+
+    public LaminarFileBrowser(IUserActionManager actionManager, 
+        ILaminarStorageItemFactory factory,
+        IPersistentDataManager dataManager)
+    {
+        _actionManager = actionManager;
+        _factory = factory;
+        var dataStore = dataManager.GetDataStore(DataStoreKey.PersistentData).CreateChild("FileBrowser");
+        
+        dataStore.InitializeDefaultValue<List<string>>(nameof(RootFolders), [
+            Path.Combine(dataManager.Path, "Default")
+        ]);
+        
+        var rootFolderPaths = 
+            new SourcedObservableCollection<string>(dataStore.GetItem<List<string>>(nameof(RootFolders)).Result!);
+        
+        RootFolders = new MappedObservableCollection<string, ILaminarStorageRootFolder>(rootFolderPaths, path =>
+            _factory.FromPath<ILaminarStorageRootFolder>(path));
+        
+        dataStore.GetObservable<List<string>>(nameof(RootFolders)).ValueChanged += (o, e) =>
+        {
+            rootFolderPaths.ChangeSourceTo(e);
+        };
+    }
+
+    public IReadOnlyObservableCollection<ILaminarStorageRootFolder> RootFolders { get; }
+
+    public bool AddDefault<T>(ILaminarStorageFolder parentFolder, IActionScope? scope = null) 
+        where T : class, ILaminarStorageItem
+    {
+        return _actionManager.ExecuteAction(new AddDefaultStorageItemAction<T>(parentFolder, _factory), scope);
+    }
+
+    public bool Move(ILaminarStorageItem itemToMove, ILaminarStorageFolder destinationFolder, int destinationIndex,
+        IActionScope? scope)
+    {
+        return _actionManager.ExecuteAction(new MoveStorageItemAction(itemToMove, destinationFolder, destinationIndex), scope);
+    }
+
+    public bool Delete<T>(T itemToDelete, IActionScope? scope) where T : class, ILaminarStorageItem
+    {
+        return _actionManager.ExecuteAction(new DeleteStorageItemAction<T>(itemToDelete), scope);
+    }
+
+    public bool Rename(ILaminarStorageItem itemToRename, string newName, IActionScope? scope)
+    {
+        return _actionManager.ExecuteAction(new RenameStorageItemAction(newName, itemToRename), scope);
+    }
+}

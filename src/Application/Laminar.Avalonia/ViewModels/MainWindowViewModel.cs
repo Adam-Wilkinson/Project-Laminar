@@ -9,7 +9,7 @@ namespace Laminar.Avalonia.ViewModels;
 
 public interface IRootWindowViewModel : INotifyPropertyChanged;
 
-public partial class MainWindowViewModel : ViewModelBase, IRootWindowViewModel, IUndoTarget
+public partial class MainWindowViewModel : ViewModelBase, IRootWindowViewModel, IUndoScope
 {
     [ObservableProperty] private bool _settingsOpen;
     [ObservableProperty] private bool _sidebarExpanded;
@@ -38,12 +38,4 @@ public partial class MainWindowViewModel : ViewModelBase, IRootWindowViewModel, 
     {
         MainControl.SidebarExpanded = value;
     }
-
-    [RelayCommand]
-    public void Undo() 
-    {
-        
-    }
-
-    ICommand IUndoTarget.UndoCommand => UndoCommand;
 }

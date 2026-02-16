@@ -1,23 +1,14 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Linq;
-using System.Reflection.Metadata.Ecma335;
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using HanumanInstitute.MvvmDialogs;
-using Laminar.Avalonia.DragDrop;
 using Laminar.Avalonia.ViewModels.Services;
-using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.UserData.FileNavigation;
 using Laminar.Domain.Notification;
 using Laminar.Implementation.UserData.FileNavigation;
-using Laminar.Implementation.UserData.FileNavigation.UserActions;
-using Laminar.PluginFramework.Serialization;
 using Microsoft.Extensions.Logging;
 
 namespace Laminar.Avalonia.ViewModels;
@@ -26,8 +17,7 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
 {
     private static readonly ContentsEqualComparer ContentsEqual = new();
     
-    private readonly IUserActionManager _actionManager;
-    private readonly ILaminarStorageItemFactory _storageFactory;
+    private readonly ILaminarFileBrowser _fileBrowser;
     private readonly ILogger<FileNavigatorItemViewModel>? _logger;
     private readonly Func<ILaminarStorageItem, FileNavigatorItemViewModel> _factory;
     
@@ -36,27 +26,25 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
     
     public FileNavigatorItemViewModel(
         ILaminarStorageItem coreItem, 
-        IUserActionManager actionManager, 
-        ILaminarStorageItemFactory storageFactory,
+        ILaminarFileBrowser fileBrowser, 
         IDialogService dialogService, 
         ILogger<FileNavigatorItemViewModel>? logger = null,
         TopLevel? topLevel = null)
     {
-        _actionManager = actionManager;
-        _storageFactory = storageFactory;
+        _fileBrowser = fileBrowser;
         _logger = logger;
         CoreItem = coreItem;
         Name = CoreItem.Name;
         _factory = storageItem =>
-            new FileNavigatorItemViewModel(storageItem, _actionManager, _storageFactory, dialogService, logger, topLevel)
+            new FileNavigatorItemViewModel(storageItem, _fileBrowser, dialogService, logger, topLevel)
             {
                 Parent = this,
             };
 
         if (coreItem is ILaminarStorageFolder folder)
         {
-            Children = new SourcedObservableCollection<FileNavigatorItemViewModel>(
-                folder.Contents.ObservableMap(_factory), ContentsEqual);
+            Children = new SourcedObservableCollection<FileNavigatorItemViewModel>(folder.Contents.ObservableMap(_factory), ContentsEqual);
+            Children.HelperInstance().ItemAdded += (_, e) => e.Item.Parent = this;
         }
 
         CoreItem.PropertyChanged += (_, e) =>
@@ -87,7 +75,7 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
                 OnPropertyChanged();
             }
 
-            if (value != CoreItem.Name && !_actionManager.ExecuteAction(new RenameStorageItemAction(value, CoreItem)))
+            if (value != CoreItem.Name && !_fileBrowser.Rename(CoreItem, value))
             {
                 field = CoreItem.Name;
                 OnPropertyChanged();
@@ -99,7 +87,7 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
 
     public string ItemTypeName => CoreItem switch
     {
-        LaminarStorageFolder => "folder",
+        ILaminarStorageFolder => "folder",
         LaminarStorageFile => "script",
         _ => "item"
     };
@@ -111,12 +99,12 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
         if (itemType.IsAssignableTo(typeof(ILaminarStorageFolder)))
         {
             IsExpanded = true;
-            _actionManager.ExecuteAction(new AddDefaultStorageItemAction<ILaminarStorageFolder>(folder, _storageFactory));
+            _fileBrowser.AddDefault<ILaminarStorageFolder>(folder);
         }
         else if (itemType.IsAssignableTo(typeof(LaminarStorageFile)))
         {
             IsExpanded = true;
-            _actionManager.ExecuteAction(new AddDefaultStorageItemAction<LaminarStorageFile>(folder, _storageFactory));
+            _fileBrowser.AddDefault<LaminarStorageFile>(folder);
         }
     }
 
@@ -131,7 +119,7 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
     [RelayCommand]
     public void Delete()
     {
-        _actionManager.ExecuteAction(new DeleteStorageItemAction<ILaminarStorageItem>(CoreItem));
+        _fileBrowser.Delete(CoreItem);
     }
 
     private class ContentsEqualComparer : IEqualityComparer<FileNavigatorItemViewModel>
@@ -140,21 +128,5 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
             => Equals(x?.CoreItem, y?.CoreItem);
 
         public int GetHashCode(FileNavigatorItemViewModel obj) => obj.CoreItem.GetHashCode();
-    }
-}
-
-public class FileNavigatorItemViewModelSerializer(ILaminarStorageItemFactory storageItemFactory) : TypeSerializer<FileNavigatorItemViewModel, string>
-{
-    protected override string SerializeTyped(FileNavigatorItemViewModel toSerialize)
-        => toSerialize.CoreItem.Path;
-
-    protected override FileNavigatorItemViewModel DeSerializeTyped(string serialized, object? deserializationContext = null)
-    {
-        if (deserializationContext is not FileNavigatorViewModel fileNavigator)
-        {
-            throw new ArgumentException(@"DeserializationContext must be of type FileNavigatorViewModel", nameof(deserializationContext));
-        }
-
-        return fileNavigator.NewItem(storageItemFactory.FromPath(serialized));
     }
 }

@@ -21,14 +21,24 @@ public class LaminarStorageItemFactory(ILogger<ILaminarStorageItem>? logger) : I
 
     public T FromPath<T>(string path, ILaminarStorageFolder? parent = null) where T : class, ILaminarStorageItem
     {
+        if (typeof(ILaminarStorageRootFolder).IsAssignableTo(typeof(T)))
+        {
+            if (parent is not null)
+            {
+                throw new ArgumentException("Root folders do not have parents");
+            }
+            
+            return (new LaminarStorageRootFolder(path, this, logger) as T)!;
+        }
+        
         parent ??= new LaminarStorageFolder(new DirectoryInfo(path).Parent!, this, logger); 
         
-        if (typeof(ILaminarStorageFolder).IsAssignableFrom(typeof(T)))
+        if (typeof(ILaminarStorageFolder).IsAssignableTo(typeof(T)))
         {
             return (new LaminarStorageFolder(path, this, logger, parent) as T)!;
         }
 
-        if (typeof(LaminarStorageFile).IsAssignableFrom(typeof(T)))
+        if (typeof(LaminarStorageFile).IsAssignableTo(typeof(T)))
         {
             return (new LaminarStorageFile(path, parent, logger) as T)!;
         }

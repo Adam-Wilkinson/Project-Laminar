@@ -1,55 +1,34 @@
 using System.Collections;
 using System.Collections.Specialized;
-using System.Reflection.Metadata.Ecma335;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
 namespace Laminar.Domain.Notification;
 
 public class SourcedObservableCollection<T> : IObservableCollection<T> where T : notnull
 {
-    private readonly List<T> _internalList;
+    private readonly List<T> _internalList = [];
     private readonly IEqualityComparer<T> _equalityComparer;
-    private readonly IEnumerable<T> _source;
     
+    private IEnumerable<T> _source = [];
     private bool _matchesSource = true;
     
     public SourcedObservableCollection(IEnumerable<T> source, IEqualityComparer<T>? equalityCheck = null)
     {
-        _source = source;
-        _internalList = new(_source);
         _equalityComparer = equalityCheck ?? EqualityComparer<T>.Default;
+        ChangeSourceTo(source);
+    }
 
-        if (source is not INotifyCollectionChanged notifyingSource) return;
-        
-        notifyingSource.CollectionChanged += (_, args) =>
+    public void ChangeSourceTo(IEnumerable<T> source)
+    {
+        _source = source;
+        _matchesSource = false;
+
+        if (source is INotifyCollectionChanged notifyingSource)
         {
-            if (!_matchesSource)
-            {
-                SyncFromSource();
-                return;
-            }
-            
-            switch (args.Action)
-            {
-                case NotifyCollectionChangedAction.Add:
-                    _internalList.InsertRange(args.NewStartingIndex, args.NewItems!.Cast<T>());
-                    break;
-                case NotifyCollectionChangedAction.Remove:
-                    _internalList.RemoveRange(args.OldStartingIndex, args.OldItems!.Count);
-                    break;
-                case NotifyCollectionChangedAction.Replace:
-                case NotifyCollectionChangedAction.Move:
-                    _internalList.RemoveRange(args.OldStartingIndex, args.OldItems!.Count);
-                    _internalList.InsertRange(args.NewStartingIndex, args.NewItems!.Cast<T>());
-                    break;
-                case NotifyCollectionChangedAction.Reset:
-                    _internalList.Clear();
-                    break;
-            }
+            notifyingSource.CollectionChanged += NotifyingSourceChanged;
+        }
 
-            CollectionChanged?.Invoke(this, args);
-        };
+        SyncFromSource();
     }
 
     // We will initialize spans manually
@@ -121,7 +100,7 @@ public class SourcedObservableCollection<T> : IObservableCollection<T> where T :
             // movePassTargetIndices now needs a longest increasing subsequence (LIS) calculation to find
             // the minimum number of move operations required to sync the lists
             Span<int> lis = stackalloc int[commonItemCount];
-            int lisLength = ComputeLIS(movePassTargetIndices, ref lis);
+            int lisLength = ComputeLis(movePassTargetIndices, ref lis);
         
             // We will order the moves by their target index. This ensures that moves don't affect future moves.
             Span<ValueTuple<int, int>> movesInOrder = stackalloc ValueTuple<int, int>[commonItemCount];
@@ -277,6 +256,37 @@ public class SourcedObservableCollection<T> : IObservableCollection<T> where T :
 
     public event NotifyCollectionChangedEventHandler? CollectionChanged;
     
+    
+    
+    private void NotifyingSourceChanged(object? _, NotifyCollectionChangedEventArgs args)
+    {
+        if (!_matchesSource)
+        {
+            SyncFromSource();
+            return;
+        }
+
+        switch (args.Action)
+        {
+            case NotifyCollectionChangedAction.Add:
+                _internalList.InsertRange(args.NewStartingIndex, args.NewItems!.Cast<T>());
+                break;
+            case NotifyCollectionChangedAction.Remove:
+                _internalList.RemoveRange(args.OldStartingIndex, args.OldItems!.Count);
+                break;
+            case NotifyCollectionChangedAction.Replace:
+            case NotifyCollectionChangedAction.Move:
+                _internalList.RemoveRange(args.OldStartingIndex, args.OldItems!.Count);
+                _internalList.InsertRange(args.NewStartingIndex, args.NewItems!.Cast<T>());
+                break;
+            case NotifyCollectionChangedAction.Reset:
+                _internalList.Clear();
+                break;
+        }
+
+        CollectionChanged?.Invoke(this, args);
+    }
+    
     private int GetIndexInOutput(T sourceItem)
     {
         int currentIndex = 0;
@@ -295,7 +305,7 @@ public class SourcedObservableCollection<T> : IObservableCollection<T> where T :
     
     // Returns the LIS length, and writes the LIS *values* (not indices) into `lis[0..length)`.
     // Allocation-free on the heap; uses stackalloc for scratch.
-    private static int ComputeLIS(ReadOnlySpan<int> values, ref Span<int> lis)
+    private static int ComputeLis(ReadOnlySpan<int> values, ref Span<int> lis)
     {
         int n = values.Length;
         if (n == 0) return 0;

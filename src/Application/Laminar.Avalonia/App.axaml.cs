@@ -41,7 +41,7 @@ public partial class App : Application
             
             var services = new ServiceCollection()
                 .AddLaminarServices(FrontendDependency.Avalonia)
-                .AddDescendantsTransient<ViewModelBase>()
+                .AddViewModels()
                 .AddDescendantsSingleton<IBeforeApplicationBuiltTarget>()
                 .AddDescendantsSingleton<IAfterApplicationBuiltTarget>()
                 .AddDescendantsSingleton<IPlugin>()
@@ -54,13 +54,12 @@ public partial class App : Application
                         .WriteTo.Console()
                         .WriteTo.File(Path.Combine(LocalFolder, "logs.txt"))
                         .CreateLogger()))
-                .AddSingleton<IViewLocator, ViewLocator>()
                 .AddSingleton<IDialogFactory>(new DialogFactory().AddMessageBox())
                 .AddSingleton<IDialogManager, DialogManager>()
                 .AddSingleton<IDialogService, DialogService>()
                 .BuildServiceProvider();
             
-            services.InitializeLaminar();
+            services.InitializeLaminar<App>();
             services.GetServices<IBeforeApplicationBuiltTarget>().Initialize();
             
             desktop.MainWindow.DataContext = services.GetRequiredService<MainWindowViewModel>();
