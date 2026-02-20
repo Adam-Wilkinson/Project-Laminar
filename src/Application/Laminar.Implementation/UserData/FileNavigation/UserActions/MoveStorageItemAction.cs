@@ -7,7 +7,7 @@ namespace Laminar.Implementation.UserData.FileNavigation.UserActions;
 public class MoveStorageItemAction(
      ILaminarStorageItem item, 
      ILaminarStorageFolder destinationFolder, 
-     int? indexInFolder = null)
+     int? targetIndex = null)
      : IUserAction
 {
      public event EventHandler? CanExecuteChanged;
@@ -19,13 +19,15 @@ public class MoveStorageItemAction(
           if (item.ParentFolder is null) return null;
           var oldFolder = item.ParentFolder;
           var indexInOldFolder = item.ParentFolder.Contents.IndexOf(item);
-          if (indexInFolder.HasValue)
+          var indexInDestinationFolder = targetIndex ?? destinationFolder.Contents.Count;
+
+          if (Equals(oldFolder, destinationFolder))
           {
-               destinationFolder.Contents.Insert(indexInFolder.Value, item);
+               destinationFolder.Contents.Move(indexInOldFolder, indexInDestinationFolder);
           }
           else
           {
-               destinationFolder.Contents.Add(item);
+               destinationFolder.Contents.Insert(indexInDestinationFolder, item);
           }
 
           return new MoveStorageItemAction(item, oldFolder, indexInOldFolder);

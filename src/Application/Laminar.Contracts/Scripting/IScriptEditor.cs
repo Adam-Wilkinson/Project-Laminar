@@ -7,8 +7,6 @@ namespace Laminar.Contracts.Scripting;
 
 public interface IScriptEditor
 {
-    public IUserActionManager UserActionManager { get; }
-
     public void DeleteNodes(IScript script, IEnumerable<IWrappedNode> nodes);
 
     public IWrappedNode AddCopyOfNode(IScript script, IWrappedNode node);

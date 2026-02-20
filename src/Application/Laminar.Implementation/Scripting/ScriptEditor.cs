@@ -13,32 +13,23 @@ using Laminar.PluginFramework.NodeSystem.Connectors;
 
 namespace Laminar.Implementation.Scripting;
 
-internal class ScriptEditor : IScriptEditor
+internal class ScriptEditor(
+    IUserActionManager userActionManager,
+    IEnumerable<IConnectionBridger> connectionBridgers)
+    : IScriptEditor
 {
-    private readonly IEnumerable<IConnectionBridger> _connectionBridgers;
-
-    public ScriptEditor(
-        IUserActionManager userActionManager,
-        IEnumerable<IConnectionBridger> connectionBridgers)
-    {
-        UserActionManager = userActionManager;
-        _connectionBridgers = connectionBridgers;
-    }
-
-    public IUserActionManager UserActionManager { get; }
-
     public IWrappedNode AddCopyOfNode(IScript script, IWrappedNode node)
     {
         IEditableScript editableScript = MakeEditable(script);
         IWrappedNode newNode = node.Clone(editableScript.ExecutionInstance);
-        UserActionManager.ExecuteAction(new AddNodeAction(newNode, editableScript.Nodes));
+        userActionManager.ExecuteAction(new AddNodeAction(newNode, editableScript.Nodes));
         return newNode;
     }
 
     public void DeleteNodes(IScript script, IEnumerable<IWrappedNode> nodes)
     {
         IEditableScript editableScript = MakeEditable(script);
-        UserActionManager.ExecuteAction(
+        userActionManager.ExecuteAction(
             new CompoundAction(nodes.Select(x => new DeleteNodeAction(x, editableScript.Nodes))));
     }
 
@@ -50,7 +41,7 @@ internal class ScriptEditor : IScriptEditor
             moveNodesAction.Add(new MoveNodeAction(node, delta));
         }
 
-        UserActionManager.ExecuteAction(moveNodesAction);
+        userActionManager.ExecuteAction(moveNodesAction);
     }
 
     public bool TryBridgeConnectors(IScript script, IIOConnector connectorOne, IIOConnector connectorTwo)
@@ -75,11 +66,11 @@ internal class ScriptEditor : IScriptEditor
 
     private bool TryGetBridgeDisposableOrdered(IEditableScript editableScript, IInputConnector inputConnector, IOutputConnector outputConnector)
     {
-        foreach (IConnectionBridger bridger in _connectionBridgers)
+        foreach (IConnectionBridger bridger in connectionBridgers)
         {
-            if (bridger.TryBridge(outputConnector, inputConnector, this, editableScript.Connections) is IUserAction action)
+            if (bridger.TryBridge(outputConnector, inputConnector, this, editableScript.Connections) is { } action)
             {
-                UserActionManager.ExecuteAction(action);
+                userActionManager.ExecuteAction(action);
                 return true;
             }
         }

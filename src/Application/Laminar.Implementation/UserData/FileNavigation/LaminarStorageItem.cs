@@ -87,7 +87,7 @@ public abstract partial class LaminarStorageItem<T>(T fileSystemInfo, ILogger<IL
         }
         catch (IOException ioException)
         {
-            if (Logger is not null) LogCannotMoveStorageItem(Logger, Path, newPath);
+            if (Logger is not null) LogCannotMoveStorageItem(Logger, Path, newPath, ioException);
             ExceptionRaised?.Invoke(this, ioException);
             return false;
         }
@@ -121,5 +121,5 @@ public abstract partial class LaminarStorageItem<T>(T fileSystemInfo, ILogger<IL
     }
     
     [LoggerMessage(LogLevel.Error, "Cannot move storage item from '{path}' to '{newPath}'")]
-    static partial void LogCannotMoveStorageItem(ILogger<ILaminarStorageItem> logger, string path, string newPath);
+    static partial void LogCannotMoveStorageItem(ILogger<ILaminarStorageItem> logger, string path, string newPath, Exception exception);
 }

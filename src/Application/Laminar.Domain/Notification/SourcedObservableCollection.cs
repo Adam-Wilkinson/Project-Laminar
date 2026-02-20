@@ -59,12 +59,13 @@ public class SourcedObservableCollection<T> : IObservableCollection<T> where T :
                 continue;
             }
 
-            // We subtract the numberOfNewItems because they won't be in the list during the move pass.
+            // We've already found an item that has this oldIndex
             if (targetIndices[indexInOldList] != -1)
             {
                 throw new DuplicateItemException();
             }
             
+            // We subtract the numberOfNewItems because they won't be in the list during the move pass.
             targetIndices[indexInOldList] = i - numberOfNewItems;
             commonItemCount++;
         }

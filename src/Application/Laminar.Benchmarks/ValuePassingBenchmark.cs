@@ -21,7 +21,7 @@ public class ValuePassingBenchmark
     private readonly IServiceProvider _serviceProvider = new ServiceCollection()
         .AddLaminarServices(FrontendDependency.None)
         .BuildServiceProvider()
-        .InitializeLaminar();
+        .InitializeLaminar<Program>();
     
     private IScript? _script1;
     private IScriptEditor? _scriptEditor;
