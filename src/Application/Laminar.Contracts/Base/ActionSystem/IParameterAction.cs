@@ -8,7 +8,7 @@ public interface IParameterAction<in TParameter>
 {
     public IObservableValue<bool> CanExecute(TParameter parameter);
     
-    public IUserAction Execute(TParameter parameter);
+    public IUserAction? Execute(TParameter parameter);
 }
 
 public static class ParameterActionExtensions

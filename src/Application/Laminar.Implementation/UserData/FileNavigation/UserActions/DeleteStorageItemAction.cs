@@ -1,17 +1,24 @@
 using System;
 using Laminar.Contracts.Base.ActionSystem;
+using Laminar.Contracts.UserData;
 using Laminar.Contracts.UserData.FileNavigation;
 
 namespace Laminar.Implementation.UserData.FileNavigation.UserActions;
 
-public class DeleteStorageItemAction<T>(T item) : IUserAction where T : class, ILaminarStorageItem
+public class DeleteStorageItemAction<T>(IFileSystem fileSystem, T item) : IUserAction where T : class, ILaminarStorageItem
 {
     public event EventHandler? CanExecuteChanged;
-    public bool CanExecute => item.ParentFolder is not null;
+    
+    public bool CanExecute => item.ParentFolder is not null && item is LaminarStorageItem;
+    
     public IUserAction? Execute()
     {
-        if (item.ParentFolder is not { } parentFolder) return null;
-        item.Delete();
-        return new AddStorageItemAction<T>(item, parentFolder);
+        if (item is not LaminarStorageItem storageItem || item.ParentFolder is not { } parentFolder) return null;
+
+        int indexInParent = parentFolder.Contents.IndexOf(item); 
+        storageItem.FileSystemInfo.Delete();
+        storageItem.ParentFolder?.Refresh();
+        
+        return new InsertStorageItemAction<T>(fileSystem, item, parentFolder, indexInParent);
     }
 }

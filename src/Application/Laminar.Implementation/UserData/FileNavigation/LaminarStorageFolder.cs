@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using Laminar.Contracts.UserData;
 using Laminar.Contracts.UserData.FileNavigation;
 using Laminar.Domain.Notification;
 using Microsoft.Extensions.Logging;
@@ -11,18 +11,13 @@ namespace Laminar.Implementation.UserData.FileNavigation;
 public class LaminarStorageFolder : LaminarStorageItem<DirectoryInfo>, ILaminarStorageFolder
 {
     private readonly ILaminarStorageItemFactory _factory;
+    private readonly SourcedObservableCollection<ILaminarStorageItem> _contents;
 
-    public LaminarStorageFolder(string path, 
-        ILaminarStorageItemFactory factory, 
-        ILogger<ILaminarStorageItem>? logger,
-        ILaminarStorageFolder? parent = null) : this(new DirectoryInfo(path), factory, logger, parent)
-    {
-    }
-    
     public LaminarStorageFolder(DirectoryInfo directoryInfo, 
         ILaminarStorageItemFactory factory, 
-        ILogger<ILaminarStorageItem>? logger,
-        ILaminarStorageFolder? parent = null) : base(directoryInfo, logger)
+        IFileSystem fileSystem,
+        ILogger<LaminarStorageItem>? logger,
+        ILaminarStorageFolder? parent = null) : base(directoryInfo, fileSystem, logger)
     {
         if (!directoryInfo.Exists)
         {
@@ -30,67 +25,44 @@ public class LaminarStorageFolder : LaminarStorageItem<DirectoryInfo>, ILaminarS
         }
 
         _factory = factory;
+        _contents = new SourcedObservableCollection<ILaminarStorageItem>(GetChildren())
+        {
+            SyncMode = SourcedCollectionMode.SetEquality // We have a different item order to the system files
+        };
         
-        Contents = new ObservableCollection<ILaminarStorageItem>(GetChildren());
         Contents.HelperInstance().ItemAdded += ContentsItemAdded;
-        Contents.HelperInstance().ItemRemoved += ContentsItemRemoved;
         ParentFolder = parent;
-    }
-
-    private void ContentsItemRemoved(object? sender, ItemRemovedEventArgs<ILaminarStorageItem> e)
-    {
-        e.Item.Delete();
     }
 
     private void ContentsItemAdded(object? sender, ItemAddedEventArgs<ILaminarStorageItem> e)
     {
-        if (!Equals(e.Item.ParentFolder, this) && e.Item.ParentFolder is { } oldParent)
-        {
-            var fullItemName = System.IO.Path.GetRelativePath(e.Item.ParentFolder.Path, e.Item.Path);
-            e.Item.TryMoveTo(System.IO.Path.Join(Path, fullItemName));
-            (oldParent as LaminarStorageFolder)?.FileSystemInfo.Refresh();
-        }
-        
+        if (e.Item is not LaminarStorageItem newStorageItem) return;
+        newStorageItem.ParentFolder = this;
         FileSystemInfo.Refresh();
     }
 
-    public ObservableCollection<ILaminarStorageItem> Contents { get; }
-
-    public override ILaminarStorageFolder? ParentFolder { get; }
-
-    public override bool IsEnabled
-    {
-        get => base.IsEnabled;
-        set
-        {
-            base.IsEnabled = value;
-            EffectivelyEnabledChanged();
-        }
-    }
+    public IReadOnlyObservableCollection<ILaminarStorageItem> Contents => _contents;
 
     protected override void MoveTo(string newPath)
     {
         FileSystemInfo.MoveTo(newPath);
     }
-
-    private IEnumerable<ILaminarStorageItem> GetChildren() => FileSystemInfo.GetDirectories()
-        .Select(x => _factory.FromFileSystemInfo(x, this))
-        .Concat(FileSystemInfo.GetFiles().Select(x => _factory.FromFileSystemInfo(x, this)));
-
-    private void EffectivelyEnabledChanged()
+    
+    public override void OnEffectivelyEnabledChanged()
     {
-        OnPropertyChanged(nameof(IsEffectivelyEnabled));
+        base.OnEffectivelyEnabledChanged();
         foreach (var storageItem in Contents)
         {
-            switch (storageItem)
-            {
-                case LaminarStorageFile file:
-                    file.ParentEnabledChanged(IsEffectivelyEnabled);
-                    break;
-                case LaminarStorageFolder folder:
-                    folder.EffectivelyEnabledChanged();
-                    break;
-            }
+            if (storageItem is not LaminarStorageItem laminarStorageItem) return;
+            laminarStorageItem.OnEffectivelyEnabledChanged();
         }
     }
+    
+    public override void Refresh()
+    {
+        _contents.ChangeSourceTo(GetChildren());
+    }
+    
+    private IEnumerable<ILaminarStorageItem> GetChildren() =>
+        FileSystemInfo.GetFileSystemInfos().Select(x => _factory.FromFileSystemInfo(x, this));
 }

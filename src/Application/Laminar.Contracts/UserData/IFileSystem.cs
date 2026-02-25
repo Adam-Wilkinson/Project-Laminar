@@ -4,6 +4,12 @@ public interface IFileSystem
 {
     public bool Exists(string path);
 
+    public bool IsDirectory(string path);
+    
+    public void Move(string sourcePath, string destPath);
+    
+    public void Move(FileSystemInfo fileSystemInfo, string destPath);
+    
     public DirectoryInfo? GetParent(string path);
     
     public IFileWatcher CreateFileWatcher(string path, string filter = "");

@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.UserData;
@@ -14,13 +13,17 @@ public class LaminarFileBrowser : ILaminarFileBrowser
 {
     private readonly IUserActionManager _actionManager;
     private readonly ILaminarStorageItemFactory _factory;
+    private readonly IFileSystem _fileSystem;
 
     public LaminarFileBrowser(IUserActionManager actionManager, 
         ILaminarStorageItemFactory factory,
-        IPersistentDataManager dataManager)
+        IPersistentDataManager dataManager, 
+        IFileSystem fileSystem)
     {
         _actionManager = actionManager;
         _factory = factory;
+        _fileSystem = fileSystem;
+        
         var dataStore = dataManager.GetDataStore(DataStoreKey.PersistentData).CreateChild("FileBrowser");
         
         dataStore.InitializeDefaultValue<List<string>>(nameof(RootFolders), [
@@ -44,22 +47,22 @@ public class LaminarFileBrowser : ILaminarFileBrowser
     public bool AddDefault<T>(ILaminarStorageFolder parentFolder, IActionScope? scope = null) 
         where T : class, ILaminarStorageItem
     {
-        return _actionManager.ExecuteAction(new AddDefaultStorageItemAction<T>(parentFolder, _factory), scope);
+        return _actionManager.ExecuteAction(new AddDefaultStorageItemAction<T>(_fileSystem, parentFolder, _factory), scope);
     }
 
     public bool Move(ILaminarStorageItem itemToMove, ILaminarStorageFolder destinationFolder, int destinationIndex,
         IActionScope? scope)
     {
-        return _actionManager.ExecuteAction(new MoveStorageItemAction(itemToMove, destinationFolder, destinationIndex), scope);
+        return _actionManager.ExecuteAction(new MoveStorageItemAction(itemToMove, destinationFolder, _fileSystem, destinationIndex), scope);
     }
 
     public bool Delete<T>(T itemToDelete, IActionScope? scope) where T : class, ILaminarStorageItem
     {
-        return _actionManager.ExecuteAction(new DeleteStorageItemAction<T>(itemToDelete), scope);
+        return _actionManager.ExecuteAction(new DeleteStorageItemAction<T>(_fileSystem, itemToDelete), scope);
     }
 
     public bool Rename(ILaminarStorageItem itemToRename, string newName, IActionScope? scope)
     {
-        return _actionManager.ExecuteAction(new RenameStorageItemAction(newName, itemToRename), scope);
+        return _actionManager.ExecuteAction(new RenameStorageItemAction(newName, itemToRename, _fileSystem), scope);
     }
 }

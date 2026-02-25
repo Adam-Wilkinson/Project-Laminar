@@ -7,8 +7,6 @@ internal class UserActionManager : IUserActionManager
 {
     private readonly DefaultActionScope _defaultActionScope = new();
     private readonly Dictionary<IActionScope, ActionScopeInfo> _scopeInfos = new();
-    private readonly Dictionary<IActionScope, List<IUserAction>> _undoLists = [];
-    private readonly Dictionary<IActionScope, List<IUserAction>> _redoLists = [];
 
     public bool ExecuteAction(IUserAction action, IActionScope? scope = null)
     {

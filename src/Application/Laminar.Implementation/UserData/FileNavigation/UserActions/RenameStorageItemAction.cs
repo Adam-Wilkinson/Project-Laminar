@@ -1,26 +1,25 @@
 using System;
 using System.IO;
 using Laminar.Contracts.Base.ActionSystem;
+using Laminar.Contracts.UserData;
 using Laminar.Contracts.UserData.FileNavigation;
 
 namespace Laminar.Implementation.UserData.FileNavigation.UserActions;
 
-public class RenameStorageItemAction(string newName, ILaminarStorageItem item) : IUserAction
+public class RenameStorageItemAction(string newName, ILaminarStorageItem item, IFileSystem fileSystem) : IUserAction
 {
     public event EventHandler? CanExecuteChanged;
-    public bool CanExecute { get; private set; } = item.Name != newName;
+    public bool CanExecute { get; } = item.Name != newName;
 
     public IUserAction? Execute()
     {
-        var oldName = item.Name;
-        item.Name = newName;
-
-        if (item.Name != newName)
+        if (item.ParentFolder is null || Equals(item.Name, newName))
         {
-            CanExecute = false;
             return null;
         }
         
-        return new RenameStorageItemAction(oldName, item);
+        string oldName = item.Name;
+        fileSystem.Move(item.Path, Path.Combine(item.ParentFolder.Path, newName + item.Extension));
+        return new RenameStorageItemAction(oldName, item, fileSystem);
     }
 }

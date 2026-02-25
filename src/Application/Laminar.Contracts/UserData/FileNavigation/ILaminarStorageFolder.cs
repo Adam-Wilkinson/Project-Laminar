@@ -1,8 +1,8 @@
-using System.Collections.ObjectModel;
+using Laminar.Domain.Notification;
 
 namespace Laminar.Contracts.UserData.FileNavigation;
 
 public interface ILaminarStorageFolder : ILaminarStorageItem
 {
-    public ObservableCollection<ILaminarStorageItem> Contents { get; }
+    public IReadOnlyObservableCollection<ILaminarStorageItem> Contents { get; }
 }

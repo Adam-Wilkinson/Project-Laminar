@@ -1,23 +1,41 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using Laminar.Contracts.UserData;
 using Laminar.Contracts.UserData.FileNavigation;
+using Laminar.Domain.Extensions;
 using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.UserData.FileNavigation;
 
-public class LaminarStorageItemFactory(ILogger<ILaminarStorageItem>? logger) : ILaminarStorageItemFactory
+public class LaminarStorageItemFactory(IFileSystem fileSystem, ILogger<LaminarStorageItem>? logger) : ILaminarStorageItemFactory
 {
-    public ILaminarStorageItem FromPath(string path, ILaminarStorageFolder? folder)
-        => (System.IO.File.GetAttributes(path) & FileAttributes.Directory) == FileAttributes.Directory
-            ? new LaminarStorageFolder(path, this, logger, folder)
-            : new LaminarStorageFile(path, folder ?? new LaminarStorageFolder(new DirectoryInfo(path).Parent!, this, logger), logger);
-
-    public ILaminarStorageItem FromFileSystemInfo(FileSystemInfo fileSystemInfo, ILaminarStorageFolder? parent = null) => fileSystemInfo switch
+    private readonly Dictionary<string, ILaminarStorageItem> _allStorageItems = [];
+    
+    public ILaminarStorageItem FromFileSystemInfo(FileSystemInfo fileSystemInfo, ILaminarStorageFolder parent)
     {
-        DirectoryInfo dir => new LaminarStorageFolder(dir, this, logger, parent),
-        FileInfo file => new LaminarStorageFile(file, parent ?? new LaminarStorageFolder(file.Directory!, this, logger), logger),
-        _ => throw new ArgumentException($"Unknown file system type {fileSystemInfo.GetType()}", nameof(fileSystemInfo)),
-    };
+        if (_allStorageItems.TryGetValue(fileSystemInfo.FullName, out ILaminarStorageItem? item))
+        {
+            return item;
+        }
+        
+        ILaminarStorageItem newItem = fileSystemInfo switch
+        {
+            DirectoryInfo dir => new LaminarStorageFolder(dir, this, fileSystem, logger, parent),
+            FileInfo file => new LaminarStorageFile(file, parent, fileSystem, logger),
+            _ => throw new ArgumentException($"Unknown file system type {fileSystemInfo.GetType()}",
+                nameof(fileSystemInfo)),
+        };
+        
+        _allStorageItems[fileSystemInfo.FullName] = newItem;
+        newItem.DependentValueChanged(x => x.Path).DependencyChanged += (_, e) =>
+        {
+            _allStorageItems.Remove(e.OldValue);
+            _allStorageItems[e.NewValue] = newItem;
+        };
+        
+        return newItem;
+    }
 
     public T FromPath<T>(string path, ILaminarStorageFolder? parent = null) where T : class, ILaminarStorageItem
     {
@@ -28,39 +46,24 @@ public class LaminarStorageItemFactory(ILogger<ILaminarStorageItem>? logger) : I
                 throw new ArgumentException("Root folders do not have parents");
             }
             
-            return (new LaminarStorageRootFolder(path, this, logger) as T)!;
+            return (new LaminarStorageRootFolder(new DirectoryInfo(path), this, fileSystem, logger) as T)!;
         }
-        
-        parent ??= new LaminarStorageFolder(new DirectoryInfo(path).Parent!, this, logger); 
+
+        if (parent is null)
+        {
+            throw new ArgumentNullException(nameof(parent), "Non-root folders must be supplied with parents");
+        }
         
         if (typeof(ILaminarStorageFolder).IsAssignableTo(typeof(T)))
         {
-            return (new LaminarStorageFolder(path, this, logger, parent) as T)!;
+            return (FromFileSystemInfo(new DirectoryInfo(path), parent) as T)!;
         }
 
         if (typeof(LaminarStorageFile).IsAssignableTo(typeof(T)))
         {
-            return (new LaminarStorageFile(path, parent, logger) as T)!;
+            return (FromFileSystemInfo(new FileInfo(path), parent) as T)!;
         }
         
         throw new ArgumentException($"Unknown file system type {typeof(T)}", nameof(path));
-    }
-
-    public T AddDefaultToFolder<T>(ILaminarStorageFolder folder) where T : class, ILaminarStorageItem
-    {
-        object newItem = typeof(T) switch
-        {
-            var type when type == typeof(LaminarStorageFolder) || type == typeof(ILaminarStorageFolder) =>
-                new LaminarStorageFolder(Path.Join(folder.Path, "Untitled Folder"), this, logger, folder),
-            var type when type == typeof(LaminarStorageFile) => new LaminarStorageFile(
-                Path.Join(folder.Path, "Untitled Script.pls"), folder, logger),
-            _ => throw new ArgumentException($"Unknown file system type {typeof(T)}")
-        };
-
-        if (newItem is not T typedItem) throw new Exception();
-
-        typedItem.NeedsName = true;
-        folder.Contents.Add(typedItem);
-        return typedItem;
     }
 }

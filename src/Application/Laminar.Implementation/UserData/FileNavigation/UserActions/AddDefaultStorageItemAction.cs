@@ -1,17 +1,41 @@
 using System;
+using System.IO;
 using Laminar.Contracts.Base.ActionSystem;
+using Laminar.Contracts.UserData;
 using Laminar.Contracts.UserData.FileNavigation;
 
 namespace Laminar.Implementation.UserData.FileNavigation.UserActions;
 
-public class AddDefaultStorageItemAction<T>(ILaminarStorageFolder parentFolder, ILaminarStorageItemFactory factory) : IUserAction
+public class AddDefaultStorageItemAction<T>(IFileSystem fileSystem, ILaminarStorageFolder parentFolder, ILaminarStorageItemFactory factory) : IUserAction
     where T : class, ILaminarStorageItem
 {
+    private static readonly (Type, string)[] DefaultItemNames =
+    [
+        (typeof(ILaminarStorageFolder), "Untitled Folder"),
+        (typeof(ILaminarStorageItem), "Untitled Script.pls"),
+    ];
+    
     public event EventHandler? CanExecuteChanged;
     public bool CanExecute => true;
     public IUserAction Execute()
     {
-        var newItem = factory.AddDefaultToFolder<T>(parentFolder);
-        return new DeleteStorageItemAction<T>(newItem);
+        string newItemPath = Path.Join(parentFolder.Path, GetDefaultItemName());
+        T newItem = factory.FromPath<T>(newItemPath, parentFolder);
+        newItem.NeedsName = true;
+        newItem.ParentFolder?.Refresh();
+        return new DeleteStorageItemAction<T>(fileSystem, newItem);
+    }
+    
+    private static string GetDefaultItemName()
+    {
+        foreach (var (type, name) in DefaultItemNames)
+        {
+            if (type.IsAssignableTo(typeof(T)))
+            {
+                return name;
+            }
+        }
+
+        return "";
     }
 }

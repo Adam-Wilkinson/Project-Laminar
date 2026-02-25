@@ -14,8 +14,6 @@ public static class EnumerableExtensions
     {
         public IEnumerable<T> Flatten(Func<T, IEnumerable<T>> selector)
         {
-            if (enumerable is null) return [];
-            
             return enumerable.SelectMany(c => selector(c).Flatten(selector)).Concat(enumerable);
         }
     } 

@@ -77,7 +77,7 @@ public partial class FileNavigatorViewModel(
         _proposedHoveredItem = null;
     }
 
-    private (FileNavigatorItemViewModel draggedItem, FileNavigatorItemViewModel targetParent, int targetIndex)?
+    private static (FileNavigatorItemViewModel draggedItem, FileNavigatorItemViewModel targetParent, int targetIndex)?
         GetMoveFromDragInfo(DropTargetEventArgs eventArgs)
     {
         if (eventArgs.ReceptacleTag is not TreeViewDropAcceptor.TreeViewItemReceptacleInfo
@@ -88,12 +88,13 @@ public partial class FileNavigatorViewModel(
         {
             return null;
         }
+        
         if (eventArgs.DraggingControl.DataContext is not FileNavigatorItemViewModel draggedItem) return null;
 
         return (draggedItem, targetParent, targetIndex);
     }
     
-    private bool IsValidMove(FileNavigatorItemViewModel draggedItem, FileNavigatorItemViewModel targetParent,
+    private static bool IsValidMove(FileNavigatorItemViewModel draggedItem, FileNavigatorItemViewModel targetParent,
         int targetIndex)
     {
         if (targetParent.Children is null) return false;

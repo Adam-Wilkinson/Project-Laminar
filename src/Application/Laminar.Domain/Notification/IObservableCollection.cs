@@ -18,6 +18,10 @@ public interface IObservableCollection<T> : IReadOnlyObservableCollection<T>, IL
     public new int IndexOf(T value);
 
     public new void RemoveAt(int index);
+
+    public new void Insert(int index, T item);
+
+    public void Move(int oldIndex, int newIndex);
     
     object? IList.this[int index]
     {

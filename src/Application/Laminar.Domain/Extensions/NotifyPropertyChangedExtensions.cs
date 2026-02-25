@@ -5,36 +5,60 @@ namespace Laminar.Domain.Extensions;
 
 public static class NotifyPropertyChangedExtensions
 {
-    private static readonly Dictionary<INotifyPropertyChanged, PropertyChangedFilterHolder> Holders = [];
+    private static readonly Dictionary<INotifyPropertyChanged, PropertyChangedHolder> Holders = [];
+
+    public static PropertyChangedDependency<TObject, TValue> DependentValueChanged<TObject, TValue>(
+        this TObject notifyPropertyChanged, Func<TObject, TValue> dependent, IEqualityComparer<TValue>? equalityComparer = null)
+        where TObject : INotifyPropertyChanged
+    {
+        PropertyChangedDependency<TObject, TValue> newDependentValue = new(dependent(notifyPropertyChanged), dependent, equalityComparer);
+        GetHolder(notifyPropertyChanged).AddDependency(newDependentValue);
+        return newDependentValue;
+    }
     
-    public static INotificationSource FilterPropertyChanged(this INotifyPropertyChanged notifyPropertyChanged,
-        string propertyName)
+    public static INotificationSource FilterPropertyChanged(this INotifyPropertyChanged notifyPropertyChanged, string propertyName)
+    {
+        return GetHolder(notifyPropertyChanged).GetFilter(propertyName);
+    }
+
+    private static PropertyChangedHolder GetHolder(INotifyPropertyChanged notifyPropertyChanged)
     {
         if (Holders.TryGetValue(notifyPropertyChanged, out var holder))
         {
-            return holder.GetFilter(propertyName);
+            return holder;
         }
 
-        var newHolder = new PropertyChangedFilterHolder(notifyPropertyChanged);
+        var newHolder = new PropertyChangedHolder(notifyPropertyChanged);
         Holders.Add(notifyPropertyChanged, newHolder);
-        return newHolder.GetFilter(propertyName);
+        return newHolder;
     }
 
-    private class PropertyChangedFilterHolder
+    private class PropertyChangedHolder
     {
         private readonly Dictionary<string, FilteredPropertyChangedEventSource> _filteredEvents = [];
+        private readonly List<IPropertyChangedDependency> _dependencies = [];
         
-        public PropertyChangedFilterHolder(INotifyPropertyChanged notifyPropertyChanged)
+        public PropertyChangedHolder(INotifyPropertyChanged notifyPropertyChanged)
         {
             notifyPropertyChanged.PropertyChanged += (sender, args) =>
             {
                 if (args.PropertyName is not null && _filteredEvents.TryGetValue(args.PropertyName, out var filteredEvent))
                 {
                     filteredEvent.InvokePropertyChanged(sender, args);
-                } 
+                }
+
+                foreach (var dependency in _dependencies)
+                {
+                    dependency.InvokeIfChanged(sender, notifyPropertyChanged);
+                }
             };
         }
 
+        public void AddDependency(IPropertyChangedDependency dependency)
+        {
+            _dependencies.Add(dependency);
+        }
+        
         public FilteredPropertyChangedEventSource GetFilter(string propertyName)
         {
             if (_filteredEvents.TryGetValue(propertyName, out var value))
@@ -48,15 +72,44 @@ public static class NotifyPropertyChangedExtensions
         }
     }
     
-    public class FilteredPropertyChangedEventSource : INotifyPropertyChanged, INotificationSource
+    private class FilteredPropertyChangedEventSource : INotifyPropertyChanged, INotificationSource
     {
         public void InvokePropertyChanged(object? sender, PropertyChangedEventArgs args)
         {
             PropertyChanged?.Invoke(sender, args);
-            TriggerNotification?.Invoke(sender, EventArgs.Empty);
+            OnNotification?.Invoke(sender, EventArgs.Empty);
         }
         
         public event PropertyChangedEventHandler? PropertyChanged;
-        public event EventHandler? TriggerNotification;
+        public event EventHandler? OnNotification;
     }
+}
+
+public class PropertyChangedDependency<TObject, TValue>(TValue initialValue, Func<TObject, TValue> dependentValue, IEqualityComparer<TValue>? comparer) : IPropertyChangedDependency
+{
+    private readonly IEqualityComparer<TValue> _comparer = comparer ?? EqualityComparer<TValue>.Default;
+    private TValue _currentValue = initialValue;
+
+    public event EventHandler<PropertyChangedDependencyEventArgs<TValue>>? DependencyChanged;
+
+    void IPropertyChangedDependency.InvokeIfChanged(object? sender, INotifyPropertyChanged notifyPropertyChanged)
+    {
+        if (notifyPropertyChanged is not TObject typedObject) return;
+        
+        TValue newValue = dependentValue(typedObject);
+        if (_comparer.Equals(_currentValue, newValue)) return;
+        DependencyChanged?.Invoke(sender, new PropertyChangedDependencyEventArgs<TValue>(_currentValue, newValue));
+        _currentValue = newValue;
+    }
+}
+
+internal interface IPropertyChangedDependency
+{
+    internal void InvokeIfChanged(object? sender, INotifyPropertyChanged notifyPropertyChanged);
+}
+
+public class PropertyChangedDependencyEventArgs<T>(T oldValue, T newValue) : EventArgs
+{
+    public T OldValue { get; } = oldValue;
+    public T NewValue { get; } = newValue;
 }

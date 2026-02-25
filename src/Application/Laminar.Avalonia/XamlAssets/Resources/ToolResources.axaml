@@ -109,7 +109,7 @@
         <t:PropertySetterTool Name="{x:Static lang:Resources.ToggleEnabled}" x:DataType="vm:FileNavigatorItemViewModel"
                               Gesture="Alt+E"
                               PropertyBinding="{Binding CoreItem.IsEnabled}"
-                              CanChangeValueBinding="{Binding CoreItem.ParentFolder.IsEffectivelyEnabled, FallbackValue={x:True}}">
+                              CanChangeValueBinding="{Binding CanChangeIsEnabled}">
 	        <t:Tool.DescriptionBinding>
 		        <MultiBinding Converter="{StaticResource SwitchConverter}">
 			        <MultiBinding StringFormat="Is Enabled: {0}, Item Type: {1}">

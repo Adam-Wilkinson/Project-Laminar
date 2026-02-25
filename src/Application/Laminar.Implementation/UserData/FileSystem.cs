@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Threading;
 using Laminar.Contracts;
@@ -10,6 +11,34 @@ public class FileSystem(ILogger<File> fileLogger) : IFileSystem
 {
     public bool Exists(string path) => Directory.Exists(path) || System.IO.File.Exists(path);
     
+    public bool IsDirectory(string path) => System.IO.File.GetAttributes(path).HasFlag(FileAttributes.Directory);
+
+    public void Move(string sourcePath, string destPath) 
+    {
+        fileLogger.LogTrace("Moving an item from '{sourcePath}' to '{destPath}'", sourcePath, destPath);
+        if (IsDirectory(sourcePath))
+        {
+            Directory.Move(sourcePath, destPath);
+        }
+        else
+        {
+            System.IO.File.Move(sourcePath, destPath);            
+        }
+    }
+
+    public void Move(FileSystemInfo fileSystemInfo, string destPath)
+    {
+        switch (fileSystemInfo)
+        {
+            case FileInfo fileInfo:
+                fileInfo.MoveTo(destPath);
+                break; 
+            case DirectoryInfo directoryInfo:
+                directoryInfo.MoveTo(destPath);
+                break;
+        };
+    }
+
     public DirectoryInfo? GetParent(string path) => Directory.GetParent(path);
     
     public IFileWatcher CreateFileWatcher(string path, string filter = "") => string.IsNullOrEmpty(filter) ? new FileWatcher(path) : new FileWatcher(path, filter); 

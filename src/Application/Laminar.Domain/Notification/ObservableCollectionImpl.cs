@@ -20,6 +20,8 @@ public class ObservableCollectionImpl<T>(ObservableCollection<T> baseCollection)
 
     public int Count => baseCollection.Count;
 
+    public void Move(int oldIndex, int newIndex) => BaseCollection.Move(oldIndex, newIndex);
+
     public T this[int index]
     {
         get => baseCollection[index];

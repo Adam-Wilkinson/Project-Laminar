@@ -6,5 +6,13 @@ public interface IFileWatcher : IDisposable
     
     public bool EnableRaisingEvents { get; set; }
     
+    public bool IncludeSubdirectories { get; set; }
+    
     public event FileSystemEventHandler? Changed;
+    
+    public event FileSystemEventHandler? Created;
+    
+    public event FileSystemEventHandler? Deleted;
+    
+    public event RenamedEventHandler? Renamed;
 }

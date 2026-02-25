@@ -1,12 +1,15 @@
 using System;
 using Laminar.Contracts.Base.ActionSystem;
+using Laminar.Contracts.UserData;
 using Laminar.Contracts.UserData.FileNavigation;
+using Laminar.Domain.Notification;
 
 namespace Laminar.Implementation.UserData.FileNavigation.UserActions;
 
 public class MoveStorageItemAction(
      ILaminarStorageItem item, 
-     ILaminarStorageFolder destinationFolder, 
+     ILaminarStorageFolder destinationFolder,
+     IFileSystem fileSystem,
      int? targetIndex = null)
      : IUserAction
 {
@@ -16,20 +19,29 @@ public class MoveStorageItemAction(
      
      public IUserAction? Execute()
      {
-          if (item.ParentFolder is null) return null;
-          var oldFolder = item.ParentFolder;
-          var indexInOldFolder = item.ParentFolder.Contents.IndexOf(item);
+          if (item.ParentFolder is not { } oldFolder || item is not LaminarStorageItem storageItem) return null;
+          var indexInOldFolder = oldFolder.Contents.IndexOf(item);
           var indexInDestinationFolder = targetIndex ?? destinationFolder.Contents.Count;
-
-          if (Equals(oldFolder, destinationFolder))
+          
+          if (Equals(oldFolder, destinationFolder) && destinationFolder.Contents is IObservableCollection<ILaminarStorageItem> editableCollection)
           {
-               destinationFolder.Contents.Move(indexInOldFolder, indexInDestinationFolder);
+               editableCollection.Move(indexInOldFolder, indexInDestinationFolder);
           }
           else
           {
-               destinationFolder.Contents.Insert(indexInDestinationFolder, item);
+               // We insert the item before working with the file system so it will be placed at the right index
+               if (destinationFolder.Contents is IObservableCollection<ILaminarStorageItem> editable)
+               {
+                    editable.Insert(indexInDestinationFolder, item);
+               }
+
+               var destinationPath = System.IO.Path.Join(destinationFolder.Path, item.Name + item.Extension);
+               fileSystem.Move(storageItem.FileSystemInfo, destinationPath);
+               item.Refresh();
+               oldFolder.Refresh();
+               destinationFolder.Refresh();
           }
 
-          return new MoveStorageItemAction(item, oldFolder, indexInOldFolder);
+          return new MoveStorageItemAction(item, oldFolder, fileSystem, indexInOldFolder);
      }
 }

@@ -4,6 +4,19 @@ using System.Runtime.CompilerServices;
 
 namespace Laminar.Domain.Notification;
 
+public enum SourcedCollectionMode
+{
+    /// <summary>
+    /// When a sync occurs, the list is arranged to be equal
+    /// </summary>
+    SequenceEquality = 0,
+    
+    /// <summary>
+    /// When a sync occurs, the two lists will contain the same items, but not necessarily in the same order
+    /// </summary>
+    SetEquality = 1,
+}
+
 public class SourcedObservableCollection<T> : IObservableCollection<T> where T : notnull
 {
     private readonly List<T> _internalList = [];
@@ -96,7 +109,7 @@ public class SourcedObservableCollection<T> : IObservableCollection<T> where T :
         }
 
         // The move pass involves expensive calculations to minimize move operations; best avoid if we can
-        if (movePassNecessary)
+        if (movePassNecessary && SyncMode == SourcedCollectionMode.SequenceEquality)
         {
             // movePassTargetIndices now needs a longest increasing subsequence (LIS) calculation to find
             // the minimum number of move operations required to sync the lists
@@ -151,7 +164,9 @@ public class SourcedObservableCollection<T> : IObservableCollection<T> where T :
         
         _matchesSource = true;
     }
-    
+
+    public SourcedCollectionMode SyncMode { get; set; } = SourcedCollectionMode.SequenceEquality;
+
     public void Add(T item)
     {
         _internalList.Add(item);

@@ -7,6 +7,7 @@ using CommunityToolkit.Mvvm.Input;
 using HanumanInstitute.MvvmDialogs;
 using Laminar.Avalonia.ViewModels.Services;
 using Laminar.Contracts.UserData.FileNavigation;
+using Laminar.Domain.Extensions;
 using Laminar.Domain.Notification;
 using Laminar.Implementation.UserData.FileNavigation;
 using Microsoft.Extensions.Logging;
@@ -19,9 +20,7 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
     
     private readonly ILaminarFileBrowser _fileBrowser;
     private readonly ILogger<FileNavigatorItemViewModel>? _logger;
-    private readonly Func<ILaminarStorageItem, FileNavigatorItemViewModel> _factory;
-    
-    
+
     [ObservableProperty] private bool _isExpanded = true;
     
     public FileNavigatorItemViewModel(
@@ -35,15 +34,10 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
         _logger = logger;
         CoreItem = coreItem;
         Name = CoreItem.Name;
-        _factory = storageItem =>
-            new FileNavigatorItemViewModel(storageItem, _fileBrowser, dialogService, logger, topLevel)
-            {
-                Parent = this,
-            };
 
         if (coreItem is ILaminarStorageFolder folder)
         {
-            Children = new SourcedObservableCollection<FileNavigatorItemViewModel>(folder.Contents.ObservableMap(_factory), ContentsEqual);
+            Children = new SourcedObservableCollection<FileNavigatorItemViewModel>(folder.Contents.ObservableMap((Func<ILaminarStorageItem, FileNavigatorItemViewModel>)Factory), ContentsEqual);
             Children.HelperInstance().ItemAdded += (_, e) => e.Item.Parent = this;
         }
 
@@ -52,16 +46,24 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
             if (e.PropertyName == nameof(ILaminarStorageItem.Name)) Name = CoreItem.Name;
         };
 
+        CoreItem.DependentValueChanged(item => item.ParentFolder?.IsEffectivelyEnabled ?? false).DependencyChanged +=
+            (_, _) => OnPropertyChanged(nameof(CanChangeIsEnabled));
+        
         CoreItem.ExceptionRaised += async (_, e) =>
         {
             if (topLevel is null) return;
             await dialogService.ShowError((INotifyPropertyChanged)topLevel.DataContext!, "File System Error", e.Message);
         };
+        return;
+
+        FileNavigatorItemViewModel Factory(ILaminarStorageItem storageItem) 
+            => new(storageItem, _fileBrowser, dialogService, logger, topLevel) { Parent = this };
     }
-
-
-    public FileNavigatorItemViewModel? Parent { get; private set; }
     
+    public FileNavigatorItemViewModel? Parent { get; private set; }
+
+    public bool CanChangeIsEnabled => CoreItem.ParentFolder?.IsEffectivelyEnabled ?? true;
+
     public IObservableCollection<FileNavigatorItemViewModel>? Children { get; }
     
     public string Name

@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Laminar.Contracts;
 using Laminar.Contracts.UserData;
-using Laminar.Domain.ValueObjects;
 using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.UserData;
@@ -88,7 +87,7 @@ public partial class File : IFile
 
     private void FileChanged(object? sender, FileSystemEventArgs e)
     {
-        if (e.FullPath != Path)
+        if (e.FullPath != Path || e.ChangeType != WatcherChangeTypes.Changed)
         {
             return;
         }
@@ -155,10 +154,10 @@ public partial class File : IFile
 
     private async Task WaitIfFileBusyException(IOException e, CancellationToken cancellationToken)
     {
-        var errorCode = Marshal.GetHRForException(e) & ((1 << 16) - 1);
+        int errorCode = Marshal.GetHRForException(e) & ((1 << 16) - 1);
         if (errorCode is ErrorSharingViolation or ErrorLockViolation)
         {
-            LogFileFileIsBusyWaitingMillisecondsBeforeTryingToAccessAgain(Path, FileBusyWaitDuration);
+            LogFileFileIsBusyWaitingMillisecondsBeforeTryingToAccessAgain(Path, FileBusyWaitDuration.TotalMilliseconds);
             await Task.Delay(FileBusyWaitDuration, cancellationToken);   
         }
         else
@@ -167,6 +166,6 @@ public partial class File : IFile
         }
     }
 
-    [LoggerMessage(LogLevel.Debug, "File {file} is busy. Waiting {waitDuration} before trying to access again")]
-    partial void LogFileFileIsBusyWaitingMillisecondsBeforeTryingToAccessAgain(string file, TimeSpan waitDuration);
+    [LoggerMessage(LogLevel.Debug, "File '{filePath}' is busy. Waiting {waitDurationMs}ms before trying to access again")]
+    partial void LogFileFileIsBusyWaitingMillisecondsBeforeTryingToAccessAgain(string filePath, double waitDurationMs);
 }
