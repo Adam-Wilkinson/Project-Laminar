@@ -38,7 +38,7 @@ public class LaminarFileBrowser : ILaminarFileBrowser
         
         dataStore.GetObservable<List<string>>(nameof(RootFolders)).ValueChanged += (o, e) =>
         {
-            rootFolderPaths.ChangeSourceTo(e);
+            rootFolderPaths.ChangeSourceTo(e.NewValue);
         };
     }
 

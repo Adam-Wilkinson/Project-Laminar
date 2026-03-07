@@ -30,16 +30,16 @@ public class MoveStorageItemAction(
           else
           {
                // We insert the item before working with the file system so it will be placed at the right index
-               if (destinationFolder.Contents is IObservableCollection<ILaminarStorageItem> editable)
+               if (destinationFolder is LaminarStorageFolder typedFolder)
                {
-                    editable.Insert(indexInDestinationFolder, item);
+                    typedFolder.RegisterQueuedMove(item, indexInDestinationFolder);
                }
 
                var destinationPath = System.IO.Path.Join(destinationFolder.Path, item.Name + item.Extension);
                fileSystem.Move(storageItem.FileSystemInfo, destinationPath);
-               item.Refresh();
                oldFolder.Refresh();
                destinationFolder.Refresh();
+               item.Refresh();
           }
 
           return new MoveStorageItemAction(item, oldFolder, fileSystem, indexInOldFolder);

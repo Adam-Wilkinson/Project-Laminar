@@ -28,6 +28,7 @@ public class FileSystem(ILogger<File> fileLogger) : IFileSystem
 
     public void Move(FileSystemInfo fileSystemInfo, string destPath)
     {
+        fileLogger.LogTrace("Moving an item from '{sourcePath}' to '{destPath}'", fileSystemInfo.FullName, destPath);
         switch (fileSystemInfo)
         {
             case FileInfo fileInfo:
@@ -50,6 +51,8 @@ public class FileSystem(ILogger<File> fileLogger) : IFileSystem
     public void WriteBytesAsync(string path, byte[] bytes, CancellationToken cancellationToken = default) => System.IO.File.WriteAllBytesAsync(path, bytes, cancellationToken);
 
     public byte[] ReadBytes(string path) => System.IO.File.ReadAllBytes(path);
+    
+    public long GetFileSize(string path) => new FileInfo(path).Length;
 
     public string ReadTextFile(string path) => System.IO.File.ReadAllText(path);
 

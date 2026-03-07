@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Laminar.Contracts.UserData;
 using Laminar.Contracts.UserData.FileNavigation;
 using Microsoft.Extensions.Logging;
@@ -13,29 +15,50 @@ public class LaminarStorageRootFolder : LaminarStorageFolder, ILaminarStorageRoo
         DirectoryInfo directoryInfo, 
         ILaminarStorageItemFactory factory,
         IFileSystem fileSystem,
-        ILogger<LaminarStorageItem>? logger) : base(directoryInfo, factory, fileSystem, logger)
+        ILogger<LaminarStorageItem>? logger) : base(directoryInfo, factory, logger)
     {
         _folderWatcher = fileSystem.CreateFileWatcher(FileSystemInfo.FullName);
         _folderWatcher.IncludeSubdirectories = true;
 
         _folderWatcher.Renamed += ChildItem_Renamed;
-        _folderWatcher.Created += ChildItem_ContentsChanged;
-        _folderWatcher.Deleted += ChildItem_ContentsChanged;
+        _folderWatcher.Created += ChildItem_Created;
+        _folderWatcher.Deleted += ChildItem_Deleted;
+        _folderWatcher.Changed += ChildItem_Changed;
     }
 
-    private void ChildItem_ContentsChanged(object sender, FileSystemEventArgs e)
+    public override string Path => FileSystemInfo.FullName;
+
+    private void ChildItem_Changed(object sender, FileSystemEventArgs e)
     {
-        if (FindChildFromPath(e.FullPath) is not LaminarStorageItem changedChild) return;
-        changedChild.ParentFolder?.Refresh();
+        FindChildrenFromPath(e.FullPath).LastOrDefault()?.Refresh();
+    }
+
+    private void ChildItem_Deleted(object sender, FileSystemEventArgs e)
+    {
+        if (FindChildrenFromPath(e.FullPath).LastOrDefault() is LaminarStorageItem item)
+        {
+            TriggerOnDeleted(item);
+        }
+        
+        if (new FileInfo(e.FullPath).Directory?.FullName is { } parentPath)
+        {
+            FindChildrenFromPath(parentPath).LastOrDefault()?.Refresh();
+        }
+    }
+
+    private void ChildItem_Created(object sender, FileSystemEventArgs e)
+    {
+        if (new FileInfo(e.FullPath).Directory?.FullName is not { } parentPath) return;
+        FindChildrenFromPath(parentPath).LastOrDefault()?.Refresh();
     }
 
     private void ChildItem_Renamed(object sender, RenamedEventArgs e)
     {
-        if (FindChildFromPath(e.OldFullPath) is not LaminarStorageItem renamedChild || e.Name is not { } newName) return;
+        if (FindChildrenFromPath(e.OldFullPath).LastOrDefault() is not LaminarStorageItem renamedChild || e.Name is not { } newName) return;
         renamedChild.Name = newName;
     }
 
-    private ILaminarStorageItem? FindChildFromPath(string absolutePath)
+    private IEnumerable<ILaminarStorageItem> FindChildrenFromPath(string absolutePath)
     {
         string relativePath = System.IO.Path.GetRelativePath(Path, absolutePath); 
         var childNames = relativePath.Split('/');
@@ -46,17 +69,17 @@ public class LaminarStorageRootFolder : LaminarStorageFolder, ILaminarStorageRoo
             switch (FindDirectChildNamed(currentFolder, childNames[indexInChildNames]))
             {
                 case { } item when item.Path == absolutePath:
-                    return item;
+                    yield return item;
+                    yield break;
                 case ILaminarStorageFolder childFolder:
                     indexInChildNames++;
                     currentFolder = childFolder;
+                    yield return currentFolder;
                     break;
                 default:
                     continue;
             }
         }
-
-        return null;
     }
 
     private ILaminarStorageItem? FindDirectChildNamed(ILaminarStorageFolder folder, string itemName)

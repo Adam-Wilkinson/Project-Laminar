@@ -19,6 +19,7 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
     private static readonly ContentsEqualComparer ContentsEqual = new();
     
     private readonly ILaminarFileBrowser _fileBrowser;
+    private readonly SourcedObservableCollection<FileNavigatorItemViewModel>? _children;
     private readonly ILogger<FileNavigatorItemViewModel>? _logger;
 
     [ObservableProperty] private bool _isExpanded = true;
@@ -37,8 +38,8 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
 
         if (coreItem is ILaminarStorageFolder folder)
         {
-            Children = new SourcedObservableCollection<FileNavigatorItemViewModel>(folder.Contents.ObservableMap((Func<ILaminarStorageItem, FileNavigatorItemViewModel>)Factory), ContentsEqual);
-            Children.HelperInstance().ItemAdded += (_, e) => e.Item.Parent = this;
+            _children = new SourcedObservableCollection<FileNavigatorItemViewModel>(folder.Contents.ObservableMap((Func<ILaminarStorageItem, FileNavigatorItemViewModel>)Factory), ContentsEqual);
+            _children.HelperInstance().ItemAdded += (_, e) => e.Item.Parent = this;
         }
 
         CoreItem.PropertyChanged += (_, e) =>
@@ -64,7 +65,7 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
 
     public bool CanChangeIsEnabled => CoreItem.ParentFolder?.IsEffectivelyEnabled ?? true;
 
-    public IObservableCollection<FileNavigatorItemViewModel>? Children { get; }
+    public IObservableCollection<FileNavigatorItemViewModel>? Children => _children;
     
     public string Name
     {
@@ -130,5 +131,10 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
             => Equals(x?.CoreItem, y?.CoreItem);
 
         public int GetHashCode(FileNavigatorItemViewModel obj) => obj.CoreItem.GetHashCode();
+    }
+
+    public void Refresh()
+    {
+        _children?.SyncFromSource();
     }
 }

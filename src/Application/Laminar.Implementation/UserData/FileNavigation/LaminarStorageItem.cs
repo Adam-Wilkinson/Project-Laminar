@@ -4,16 +4,27 @@ using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
 using Laminar.Contracts.UserData.FileNavigation;
+using Laminar.Domain.ValueObjects;
 using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.UserData.FileNavigation;
 
 public abstract class LaminarStorageItem(ILogger<LaminarStorageItem>? logger) : ILaminarStorageItem
 {
+    protected static void SetParent(LaminarStorageItem item, ILaminarStorageFolder? folder) => item.ParentFolder = folder;
+    
+    protected static void TriggerOnDeleted(LaminarStorageItem item)
+    {
+        item.OnDeleted?.Invoke(item, EventArgs.Empty);
+        SetParent(item, null);
+    }
+    
     protected ILogger<LaminarStorageItem>? Logger { get; } = logger;
     
     public event PropertyChangedEventHandler? PropertyChanged;
 
+    public event EventHandler? OnDeleted;
+    
     public string Name
     {
         get;
@@ -23,10 +34,14 @@ public abstract class LaminarStorageItem(ILogger<LaminarStorageItem>? logger) : 
             OnPropertyChanged(nameof(Path));
         }
     } = "";
-    
-    public abstract string Path { get; }
+
+    public virtual string Path => ParentFolder is not null
+        ? System.IO.Path.Combine(ParentFolder.Path, Name + Extension)
+        : Name + Extension;
 
     public abstract FileSystemInfo FileSystemInfo { get; }
+
+    public abstract IObservableValue<long> SizeOnDisk { get; }
 
     public string Extension { get; protected init; } = "";
     
@@ -44,15 +59,25 @@ public abstract class LaminarStorageItem(ILogger<LaminarStorageItem>? logger) : 
     
     public bool NeedsName { get; set => SetField(ref field, value); }
     
-    public ILaminarStorageFolder? ParentFolder { get; set; }
+    public ILaminarStorageFolder? ParentFolder { get; private set; }
 
     public event EventHandler<IOException>? ExceptionRaised;
     
     public abstract void Refresh();
-
+    
     public virtual void OnEffectivelyEnabledChanged()
     {
         OnPropertyChanged(nameof(IsEffectivelyEnabled));
+    }
+    
+    public override bool Equals(object? obj)
+    {
+        return obj is LaminarStorageItem storageItem && storageItem.Path == Path;
+    }
+
+    public override int GetHashCode()
+    {
+        return Path.GetHashCode();
     }
     
     protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)

@@ -22,6 +22,8 @@ public interface IFileSystem
 
     public byte[] ReadBytes(string path);
     
+    public long GetFileSize(string path);
+    
     public string ReadTextFile(string path);
     
     public void CreateDirectory(string path);

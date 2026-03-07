@@ -25,13 +25,14 @@ public class ObservableValue<T> : IObservableValue<T>, IValueSink<T>
             if (EqualityComparer<T>.Default.Equals(field, value))
                 return;
 
+            var oldValue = field;
             field = value;
-            ValueChanged?.Invoke(this, field);
+            ValueChanged?.Invoke(this, new ObservableValueChangedEventArgs<T>(oldValue, field));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Value)));
         }
     } = default!;
 
-    public event EventHandler<T>? ValueChanged;
+    public event EventHandler<ObservableValueChangedEventArgs<T>>? ValueChanged;
     
     public event PropertyChangedEventHandler? PropertyChanged;
 }

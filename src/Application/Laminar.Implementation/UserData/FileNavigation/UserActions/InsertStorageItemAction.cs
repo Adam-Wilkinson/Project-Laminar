@@ -15,9 +15,9 @@ public class InsertStorageItemAction<T>(IFileSystem fileSystem, T item, ILaminar
         if (item is not LaminarStorageItem storageItem) return null;
         
         // We insert the item before working with the file system so it will be placed at the right index
-        if (folder.Contents is IObservableCollection<ILaminarStorageItem> editable)
+        if (folder is LaminarStorageFolder destinationFolder)
         {
-            editable.Insert(index, item);
+            destinationFolder.RegisterQueuedMove(item, index);
         }
 
         var destinationPath = System.IO.Path.Join(folder.Path, item.Name + item.Extension);

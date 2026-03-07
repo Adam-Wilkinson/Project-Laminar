@@ -30,7 +30,7 @@ public class AddDefaultStorageItemAction<T>(IFileSystem fileSystem, ILaminarStor
     {
         foreach (var (type, name) in DefaultItemNames)
         {
-            if (type.IsAssignableTo(typeof(T)))
+            if (type.IsAssignableFrom(typeof(T)))
             {
                 return name;
             }

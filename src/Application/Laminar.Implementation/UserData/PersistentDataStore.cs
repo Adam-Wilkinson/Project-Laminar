@@ -159,7 +159,7 @@ public class PersistentDataStore<TEncodedValue>(
         
         public event PropertyChangedEventHandler? PropertyChanged;
         
-        public event EventHandler<object?>? ValueChanged;
+        public event EventHandler<ObservableValueChangedEventArgs<object?>>? ValueChanged;
 
         public required string ValueName { get; init; }
 
@@ -233,8 +233,8 @@ public class PersistentDataStore<TEncodedValue>(
             var serialized = serializer.SerializeObject(_value, ValueType);
             _encodedValue = transcoder.EncodeValue(serialized);
             _hasEncodedValue = true;
-            PropertyChanged?.Invoke(this, IObservableValueBase.ValueChangedEventArgs);
-            ValueChanged?.Invoke(this, _value);
+            // PropertyChanged?.Invoke(this, IObservableValueBase.ValueChangedEventArgs);
+            // ValueChanged?.Invoke(this, _value);
         }
         
         private bool TrySetValueFromEncodedValue()
@@ -244,10 +244,11 @@ public class PersistentDataStore<TEncodedValue>(
                 logger.LogError("Error reading value {valueName}. Unable to decode value, the value will not be changed", ValueName);
                 return false;
             }
-            
+
+            var oldValue = _value;
             _value = serializer.DeserializeObject(decodedValue, ValueType, _deserializationContext);
             PropertyChanged?.Invoke(this, IObservableValueBase.ValueChangedEventArgs);
-            ValueChanged?.Invoke(this, _value);
+            ValueChanged?.Invoke(this, new ObservableValueChangedEventArgs<object?>(oldValue, _value));
             return true;
         }
     }

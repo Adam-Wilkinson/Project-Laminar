@@ -71,8 +71,9 @@ public partial class FileNavigatorViewModel(
         if (_currentHoverMove is not var (targetItem, targetIndex) ||
             targetItem.CoreItem is not ILaminarStorageFolder targetFolder) return;
         if (eventArgs.DraggingControl.DataContext is not FileNavigatorItemViewModel draggedItem) return;
-
+        
         fileBrowser.Move(draggedItem.CoreItem, targetFolder, targetIndex);
+        targetItem.Refresh();
         _currentHoverMove = null;
         _proposedHoveredItem = null;
     }
