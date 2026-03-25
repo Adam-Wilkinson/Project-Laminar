@@ -1,12 +1,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Avalonia;
 using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using Avalonia.Data;
 using Avalonia.Input;
+using Avalonia.Markup.Xaml.Templates;
 using Avalonia.Media;
 using Avalonia.Metadata;
 
@@ -14,7 +16,12 @@ namespace Laminar.Avalonia.ToolSystem;
 
 public class Toolbox : Tool
 {
-    [Content] public AvaloniaList<Tool> ChildrenContent => ChildTools;
+    public Toolbox()
+    {
+        ChildTools = ChildrenContent;
+    }
+
+    [Content] public AvaloniaList<Tool> ChildrenContent { get; } = [];
 }
 
 public class CommandTool : Tool
@@ -32,7 +39,7 @@ public class CommandTool : Tool
     protected override IBinding? GetCommandBinding() => CommandBinding;
 }
 
-public class Tool : AvaloniaObject, ITemplate<object?, ToolInstance?>, IEnumerable<Tool>
+public class Tool : StyledElement, ITemplate<object?, ToolInstance?>, IEnumerable<Tool>
 {
     public const string ToolRootKey = "ToolRoot"; 
     
@@ -86,8 +93,9 @@ public class Tool : AvaloniaObject, ITemplate<object?, ToolInstance?>, IEnumerab
 
     public Control? DefaultPopupTarget { get; set; }
 
-    public AvaloniaList<Tool> ChildTools { get; } = [];
-    
+    [InheritDataTypeFrom(InheritDataTypeFromScopeKind.Style)]
+    public AvaloniaList<Tool>? ChildTools { get; protected init; }
+
     public ToolInstance? Build(object? param)
     {
         if (DataType is not null && !DataType.IsInstanceOfType(param))
@@ -113,10 +121,10 @@ public class Tool : AvaloniaObject, ITemplate<object?, ToolInstance?>, IEnumerab
     
     protected virtual IBinding? GetCommandBinding() => null;
 
-    public IEnumerator<Tool> GetEnumerator() => ChildTools.GetEnumerator();
+    public IEnumerator<Tool> GetEnumerator() => ChildTools?.GetEnumerator() ?? Enumerable.Empty<Tool>().GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
+    
     [DataType] 
     public Type? DataType { get; set; }
 }

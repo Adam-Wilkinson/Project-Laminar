@@ -1,0 +1,133 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:dd="using:Laminar.Avalonia.DragDrop"
+                    xmlns:anim="using:Laminar.Avalonia.Animations"
+                    xmlns:s="using:Laminar.Avalonia.Settings"
+                    xmlns:c="using:Laminar.Avalonia.Controls"
+                    xmlns:init="using:Laminar.Avalonia.InitializationTargets"
+                    xmlns:vm="using:Laminar.Avalonia.ViewModels">
+    <x:Double x:Key="TreeViewItemExpandCollapseChevronSize">24</x:Double>
+    <StaticResource x:Key="TreeViewItemBackgroundPointerOver" ResourceKey="UiLayerHighlight"/>
+    
+    <ControlTheme x:Key="DragDropTreeViewItemTheme" x:DataType="vm:ITreeViewItemViewModel" TargetType="TreeViewItem" 
+                  BasedOn="{StaticResource {x:Type TreeViewItem}}">
+        <Setter Property="ClipToBounds" Value="False"/>
+        <Setter Property="CornerRadius" Value="10"/>
+        <Setter Property="Background" Value="{DynamicResource UiLayer}"/>
+        <Setter Property="IsExpanded" Value="{Binding IsExpanded}"/>
+        
+        <Setter Property="dd:DragDropHandler.TriggerMouseButton" Value="Left"/>
+        <Setter Property="dd:BeingDraggedHandler.DragStartedCommand" Value="{x:Static dd:TreeViewItemDrag.StartedCommand}"/>
+        <Setter Property="dd:BeingDraggedHandler.AnimateHomeStartedCommand" Value="{x:Static dd:TreeViewItemDrag.AnimateHomeCommand}"/>
+        
+        <Setter Property="anim:PositionAnimation.Duration" Value="{s:Setting InterfaceSettings.AnimationDuration}"/>
+        
+        <Setter Property="Template">
+            <ControlTemplate>
+                <StackPanel>
+                    <Border Name="PART_LayoutRoot"
+                          Classes="TreeViewItemLayoutRoot"
+                          Focusable="True"
+                          Background="{TemplateBinding Background}"
+                          BorderBrush="{TemplateBinding BorderBrush}"
+                          BorderThickness="{TemplateBinding BorderThickness}"
+                          CornerRadius="{TemplateBinding CornerRadius}"
+                          MinHeight="{TemplateBinding MinHeight}"
+                          TemplatedControl.IsTemplateFocusTarget="True"
+                          Margin="0,0,0,4">
+                        <Border.Transitions>
+                            <Transitions>
+                                <BrushTransition Property="Background" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
+                            </Transitions>
+                        </Border.Transitions>
+                        <Grid Name="PART_Header" ColumnDefinitions="Auto, *">
+                            <Button Name="PART_ExpandCollapseChevron"
+                                    Grid.Column="0" Grid.Row="0"
+                                    DataContext="{TemplateBinding DataContext,
+                                        Converter={StaticResource ToolInstancer}, 
+                                        ConverterParameter={StaticResource Tools.ExpandCollapseTreeViewTool}}"
+                                    Theme="{StaticResource ToolButton}" 
+                                    VerticalAlignment="Stretch"
+                                    Width = "{Binding Value, 
+                                        Source={StaticResource SettingsRoot.InterfaceSettings.UiScale}, 
+                                        DataType=s:DoubleSetting,
+                                        Converter={StaticResource MultiplyConverter}, 
+                                        ConverterParameter={StaticResource TreeViewItemExpandCollapseChevronSize}}"
+                                    Padding="3,0,0,0">
+                                <Button.Transitions>
+                                    <Transitions>
+                                        <DoubleTransition Property="Opacity" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
+                                    </Transitions>
+                                </Button.Transitions>
+                            </Button>
+                            <ContentPresenter Name="PART_HeaderPresenter"
+                                              Grid.Column="1" Grid.Row="0"
+                                              Focusable="False"
+                                              Background="Transparent"
+                                              Content="{TemplateBinding Header}"
+                                              ContentTemplate="{TemplateBinding HeaderTemplate}"
+                                              HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
+                                              VerticalAlignment="{TemplateBinding VerticalAlignment}"
+                                              Margin="{TemplateBinding Padding}"/>
+                        </Grid>
+                    </Border>
+                    <DockPanel>
+                        <Border DockPanel.Dock="Left"
+                                VerticalAlignment="Stretch"
+                                HorizontalAlignment="Left" 
+                                Width="{Binding #PART_ExpandCollapseChevron.Bounds.Width}">
+                            <c:AnimatableRectangle Name="PART_LevelHintBar" Fill="{DynamicResource UiLayer}" 
+                                                   Width="4"
+                                                   Padding="0,0,0,4"
+                                                   RadiusX="4"
+                                                   RadiusY="4"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Stretch">
+                                <c:AnimatableRectangle.Transitions>
+                                    <Transitions>
+                                        <SizeTransition Property="Size" Duration="{s:Setting InterfaceSettings.AnimationDuration}" Easing=""/>
+                                    </Transitions>
+                                </c:AnimatableRectangle.Transitions>
+                            </c:AnimatableRectangle>
+                        </Border>
+                        <ItemsPresenter Name="PART_ItemsPresenter"
+                                        IsVisible="{TemplateBinding IsExpanded}"
+                                        ItemsPanel="{TemplateBinding ItemsPanel}"/>
+                    </DockPanel>
+                </StackPanel>
+            </ControlTemplate>
+        </Setter>
+        
+        <Style Selector="^ /template/ Button#PART_ExpandCollapseChevron">
+            <Setter Property="Opacity" Value="1"/>
+            <Setter Property="IsHitTestVisible" Value="True"/>
+        </Style>
+        
+        <Style Selector="^:empty /template/ Button#PART_ExpandCollapseChevron">
+            <Setter Property="Opacity" Value="0" />
+            <Setter Property="IsHitTestVisible" Value="False"/>
+        </Style>
+        
+        
+        <Style Selector="^:selected /template/ Border#PART_LayoutRoot">
+            <Setter Property="Background" Value="{DynamicResource {x:Static init:ColorInitialization.LaminarAccentBackgroundKey}}"/>
+        </Style>
+        <Style Selector="^:selected /template/ Border#PART_LayoutRoot:pointerover">
+            <Setter Property="Background" Value="{DynamicResource {x:Static init:ColorInitialization.LaminarAccenterBackgroundKey}}"/>
+        </Style>
+        <Style Selector="^:pressed:selected /template/ Border#PART_LayoutRoot:pointerover">
+            <Setter Property="Background" Value="{DynamicResource {x:Static init:ColorInitialization.LaminarAccentBackgroundKey}}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource TreeViewItemBorderBrushSelectedPressed}"/>
+        </Style>
+        
+        <Style Selector="^[(dd|BeingDraggedHandler.IsBeingDragged)=True]">
+            <Style Selector="^ /template/ Border#PART_LayoutRoot">
+                <Setter Property="Background" Value="{DynamicResource TreeViewItemBackgroundPointerOver}"/>
+            </Style>
+            <Style Selector="^:selected /template/ Border#PART_LayoutRoot">
+                <Setter Property="Background" Value="{DynamicResource {x:Static init:ColorInitialization.LaminarAccenterBackgroundKey}}"/>
+            </Style>
+        </Style>
+                
+    </ControlTheme>
+</ResourceDictionary>

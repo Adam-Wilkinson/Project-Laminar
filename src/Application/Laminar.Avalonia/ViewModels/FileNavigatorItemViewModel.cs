@@ -135,6 +135,7 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
 
     public void Refresh()
     {
+        CoreItem.Refresh();
         _children?.SyncFromSource();
     }
 }

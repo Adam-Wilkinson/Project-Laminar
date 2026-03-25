@@ -57,7 +57,7 @@
     </t:PropertySetterTool>
     
     <!-- File Navigator Tool -->
-    <t:Toolbox x:Key="Tools.FileNavigator.StorageItem" 
+    <t:Toolbox x:Key="Tools.FileSystem.StorageItem" 
                Name="{x:Static lang:Resources.StorageItemTools}" 
                x:DataType="vm:FileNavigatorItemViewModel">
 	    <t:Tool.DescriptionBinding>
@@ -130,9 +130,22 @@
         </t:PropertySetterTool>
     </t:Toolbox>
     
-    <t:Toolbox Name="{x:Static lang:Resources.FileNavigatorTools}" x:Key="Tools.FileNavigator"
+    
+    <t:Toolbox Name="Browser" DefaultIconGeometry="{x:Static shapes:PathData.FileNavigatorIcon}"
+               x:Key="Tools.FileSystem.Browser" 
+               x:DataType="vm:FileNavigatorViewModel">
+	    <t:CommandTool Name="Refresh" 
+	                   CommandBinding="{Binding RefreshCommand}"
+	                   DefaultIconGeometry="{x:Static shapes:PathData.RefreshIcon}"/>
+	    <t:CommandTool Name="Add root folder" 
+	                   CommandBinding="{Binding AddRootFolderCommand}"
+	                   DefaultIconGeometry="{x:Static shapes:PathData.AddIcon}"/>
+    </t:Toolbox>
+    
+    <t:Toolbox Name="{x:Static lang:Resources.FileNavigatorTools}" x:Key="Tools.FileSystem"
                DefaultIconGeometry="{x:Static shapes:PathData.FileNavigatorIcon}">
-        <StaticResource ResourceKey="Tools.FileNavigator.StorageItem"/>
+        <StaticResource ResourceKey="Tools.FileSystem.StorageItem"/>
+        <StaticResource ResourceKey="Tools.FileSystem.Browser"/>
     </t:Toolbox>
     
     <!-- Window Tools -->
@@ -341,7 +354,7 @@
     
     <t:Toolbox x:Key="{x:Static t:Tool.ToolRootKey}" Name="LaminarToolRoot">
         <StaticResource ResourceKey="Tools.Edit"/>
-        <StaticResource ResourceKey="Tools.FileNavigator"/>
+        <StaticResource ResourceKey="Tools.FileSystem"/>
         <StaticResource ResourceKey="Tools.Window"/>
         <StaticResource ResourceKey="Tools.ExpandCollapseTreeViewTool"/>
         <StaticResource ResourceKey="Tools.Settings"/>

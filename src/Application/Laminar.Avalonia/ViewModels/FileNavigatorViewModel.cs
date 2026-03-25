@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Threading;
@@ -29,6 +30,21 @@ public partial class FileNavigatorViewModel(
 
     public void OpenFilePicker()
     {
+    }
+
+    [RelayCommand]
+    public void Refresh()
+    {
+        foreach (var root in RootFiles)
+        {
+            root.Refresh();
+        }
+    }
+
+    [RelayCommand]
+    public async Task AddRootFolder()
+    {
+        await dialogService.ShowMessageBoxAsync((INotifyPropertyChanged)topLevel?.DataContext!, "Adding a root folder");
     }
     
     [RelayCommand]

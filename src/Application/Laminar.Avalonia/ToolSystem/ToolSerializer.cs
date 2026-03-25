@@ -30,10 +30,13 @@ public class ToolSerializer(TopLevel topLevel, IPersistentDataManager persistent
     private void SerializeTool(Tool tool, string prefix)
     {
         var uniqueToolKey = $"{prefix}.{tool.Name}";
-        
-        foreach (var childTool in tool.ChildTools)
+
+        if (tool.ChildTools is not null)
         {
-            SerializeTool(childTool, uniqueToolKey);
+            foreach (var childTool in tool.ChildTools)
+            {
+                SerializeTool(childTool, uniqueToolKey);
+            }
         }
 
         var currentDataStore = _toolDataStore.CreateChild(uniqueToolKey);

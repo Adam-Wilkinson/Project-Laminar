@@ -25,7 +25,7 @@
                           Height="{Binding #ItemNameLabel.Bounds.Height}"
                           ItemsSource="{Binding 
                                             Converter={StaticResource ToolInstancer}, 
-                                            ConverterParameter={StaticResource Tools.FileNavigator.StorageItem}}"
+                                            ConverterParameter={StaticResource Tools.FileSystem.StorageItem}}"
                           VerticalAlignment="Stretch"
                           HorizontalAlignment="Right">
                 <ItemsControl.ItemsPanel>

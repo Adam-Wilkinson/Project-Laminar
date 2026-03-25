@@ -106,10 +106,13 @@ public class ToolKeyBindManager(TopLevel defaultTopLevel, ILogger<ToolKeyBindMan
         });
         
         tool.DefaultPopupTarget ??= defaultTopLevel;
-        
-        foreach (var childTool in tool.ChildTools)
+
+        if (tool.ChildTools is not null)
         {
-            BindTool(childTool);
+            foreach (var childTool in tool.ChildTools)
+            {
+                BindTool(childTool);
+            }
         }
     }
 

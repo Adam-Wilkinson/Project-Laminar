@@ -16,7 +16,7 @@ public class ToolInstance : StyledElement, IEnumerable<ToolInstance>
     
     public static readonly StyledProperty<Tool> ToolProperty = AvaloniaProperty.Register<ToolInstance, Tool>(nameof(Tool));
 
-    public static readonly StyledProperty<List<ToolInstance>> ChildToolsProperty = AvaloniaProperty.Register<ToolInstance, List<ToolInstance>>(nameof(ChildTools), defaultValue: []);
+    public static readonly StyledProperty<List<ToolInstance>?> ChildToolsProperty = AvaloniaProperty.Register<ToolInstance, List<ToolInstance>?>(nameof(ChildTools), defaultValue: []);
     
     static ToolInstance()
     {
@@ -25,7 +25,7 @@ public class ToolInstance : StyledElement, IEnumerable<ToolInstance>
 
     private void TemplateChanged(AvaloniaPropertyChangedEventArgs _)
     {
-        ChildTools = Tool.ChildTools.Select(x =>
+        ChildTools = Tool.ChildTools?.Select(x =>
         {
             var childTool = x.Build(DataContext);
             ((ISetInheritanceParent)childTool)?.SetParent(this);
@@ -33,7 +33,7 @@ public class ToolInstance : StyledElement, IEnumerable<ToolInstance>
         }).OfType<ToolInstance>().ToList();
     }
 
-    public List<ToolInstance> ChildTools
+    public List<ToolInstance>? ChildTools
     {
         get => GetValue(ChildToolsProperty);
         set => SetValue(ChildToolsProperty, value);
@@ -60,7 +60,8 @@ public class ToolInstance : StyledElement, IEnumerable<ToolInstance>
 
     public Visual? PopupTarget { get; set; }
 
-    public IEnumerator<ToolInstance> GetEnumerator() => ChildTools.GetEnumerator();
+    public IEnumerator<ToolInstance> GetEnumerator() =>
+        ChildTools?.GetEnumerator() ?? Enumerable.Empty<ToolInstance>().GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
