@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using Laminar.Contracts.Base.ActionSystem;
@@ -9,7 +10,7 @@ using Laminar.Implementation.UserData.FileNavigation.UserActions;
 
 namespace Laminar.Implementation.UserData.FileNavigation;
 
-public class LaminarFileBrowser : ILaminarFileBrowser
+public class LaminarFileBrowser : ILaminarFileBrowser, IDisposable
 {
     private readonly IUserActionManager _actionManager;
     private readonly ILaminarStorageItemFactory _factory;
@@ -64,5 +65,14 @@ public class LaminarFileBrowser : ILaminarFileBrowser
     public bool Rename(ILaminarStorageItem itemToRename, string newName, IActionScope? scope)
     {
         return _actionManager.ExecuteAction(new RenameStorageItemAction(newName, itemToRename, _fileSystem), scope);
+    }
+
+    public void Dispose()
+    {
+        foreach (ILaminarStorageRootFolder rootFolder in RootFolders)
+        {
+            rootFolder.Dispose();
+        }
+        GC.SuppressFinalize(this);
     }
 }

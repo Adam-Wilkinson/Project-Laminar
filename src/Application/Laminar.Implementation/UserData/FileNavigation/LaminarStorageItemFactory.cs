@@ -36,6 +36,7 @@ public class LaminarStorageItemFactory(IFileSystem fileSystem, ILogger<LaminarSt
         
         newItem.OnDeleted += (_, _) =>
         {
+            _allStorageItems.Remove(fileSystemInfo.FullName);
             _recentlyDeletedItems[HashDeletedItem(newItem)] = (newItem, DateTime.Now);
         };
         

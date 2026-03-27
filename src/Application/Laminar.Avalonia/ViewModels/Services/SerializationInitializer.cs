@@ -145,7 +145,7 @@ public interface ISerializedPropertyInfo
             if (target is not TTarget typedTarget)
                 throw new ArgumentException("Target is not of type " + typeof(TTarget).FullName);
             
-            dataStore.SetItem(ValueKey(prefix), Getter(typedTarget));
+            dataStore.SetItem<TValue>(ValueKey(prefix), Getter(typedTarget));
         }
         
         private static Func<TTarget, TValue> ConstructGetter(PropertyInfo propertyInfo)

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Reactive;
@@ -11,7 +12,7 @@ using Laminar.PluginFramework.Serialization;
 
 namespace Laminar.Avalonia.ToolSystem;
 
-public class ToolSerializer(TopLevel topLevel, IPersistentDataManager persistentDataManager, ISerializer serializer) : IAfterApplicationBuiltTarget
+public class ToolSerializer(TopLevel topLevel, IPersistentDataManager persistentDataManager) : IAfterApplicationBuiltTarget
 {    
     private readonly IPersistentDataStore _toolDataStore = persistentDataManager.GetDataStore(DataStoreKey.ToolProperties);
     private bool _initialized;
@@ -32,7 +33,7 @@ public class ToolSerializer(TopLevel topLevel, IPersistentDataManager persistent
     {
         var uniqueToolKey = $"{prefix}.{tool.NameKey}";
 
-        foreach (var childTool in tool.ChildTools.EmptyIfNull())
+        foreach (var childTool in tool.ChildTools ?? Enumerable.Empty<Tool>())
         {
             SerializeTool(childTool, uniqueToolKey);
         }

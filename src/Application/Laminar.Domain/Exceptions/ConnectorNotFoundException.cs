@@ -1,8 +1,3 @@
 ﻿namespace Laminar.Domain.Exceptions;
 
-public class ConnectorNotFoundException : Exception
-{
-    public ConnectorNotFoundException(Type connectorType) : base($"Could not find a registered connector implementation for NodeIO {connectorType}")
-    {
-    }
-}
+public class ConnectorNotFoundException(Type connectorType) : Exception($"Could not find a registered connector implementation for NodeIO {connectorType}");

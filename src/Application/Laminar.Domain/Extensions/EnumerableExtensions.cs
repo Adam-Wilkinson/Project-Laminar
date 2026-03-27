@@ -18,8 +18,8 @@ public static class EnumerableExtensions
         }
     }
 
-    extension<T>(IEnumerable<T>? nullable) where T : IEnumerable<T>
+    extension<TList, TValue>(TList? nullable) where TList : IEnumerable<TValue>
     {
-        public IEnumerable<T> EmptyIfNull() => nullable ?? [];
+        public IEnumerable<TValue> EmptyIfNull() => nullable ?? Enumerable.Empty<TValue>();
     }
 }
