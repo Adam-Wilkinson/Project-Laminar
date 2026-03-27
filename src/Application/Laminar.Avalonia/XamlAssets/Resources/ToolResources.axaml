@@ -11,22 +11,22 @@
                     xmlns:init="using:Laminar.Avalonia.InitializationTargets">
     
     <!-- Edit Menu Tool -->
-    <t:CommandTool Name="{x:Static lang:Resources.Undo}" x:DataType="vms:IUndoTarget" 
+    <t:CommandTool NameKey="{x:Static lang:Resources.Undo}" x:DataType="vms:IUndoTarget" 
                    x:Key="Tools.Edit.Undo"
                    Gesture="Ctrl+z"
                    DefaultIconGeometry="{x:Static shapes:PathData.UndoIcon}"
                    CommandBinding="{Binding UndoCommand}"/>
     
-    <t:Toolbox Name="{x:Static lang:Resources.Edit}" 
+    <t:Toolbox NameKey="{x:Static lang:Resources.Edit}" 
                x:Key="Tools.Edit" 
                DefaultIconGeometry="{x:Static shapes:PathData.EditIcon}"
                Gesture="Ctrl+e">
         <StaticResource ResourceKey="Tools.Edit.Undo"/>
-        <t:Tool Name="{x:Static lang:Resources.Redo}" Gesture="Ctrl+y" DefaultIconGeometry="{x:Static shapes:PathData.RedoIcon}"/>
+        <t:Tool NameKey="{x:Static lang:Resources.Redo}" Gesture="Ctrl+y" DefaultIconGeometry="{x:Static shapes:PathData.RedoIcon}"/>
     </t:Toolbox>
     
     <!-- Tool that toggles whether a TreeViewItem is expanded -->
-    <t:PropertySetterTool Name="Toggle Expanded" 
+    <t:PropertySetterTool NameKey="Toggle Expanded" 
                           x:DataType="vm:ITreeViewItemViewModel" 
                           x:Key="Tools.ExpandCollapseTreeViewTool" 
                           PropertyBinding="{Binding IsExpanded}">
@@ -58,7 +58,7 @@
     
     <!-- File Navigator Tool -->
     <t:Toolbox x:Key="Tools.FileSystem.StorageItem" 
-               Name="{x:Static lang:Resources.StorageItemTools}" 
+               NameKey="{x:Static lang:Resources.StorageItemTools}" 
                x:DataType="vm:FileNavigatorItemViewModel">
 	    <t:Tool.DescriptionBinding>
 		    <MultiBinding Converter="{StaticResource SwitchConverter}">
@@ -81,21 +81,21 @@
             </DataTemplate>
         </t:Tool.IconTemplate>
 	    
-        <t:CommandTool Name="{x:Static lang:Resources.Rename}" x:DataType="vm:FileNavigatorItemViewModel" 
+        <t:CommandTool NameKey="{x:Static lang:Resources.Rename}" 
                        DefaultIconGeometry="{x:Static shapes:PathData.RenameIcon}"
                        CommandBinding="{Binding RenameCommand}"/>
-        <t:Toolbox Name="{x:Static lang:Resources.AddStorageItem}" x:DataType="vm:FileNavigatorItemViewModel"
+        <t:Toolbox NameKey="{x:Static lang:Resources.AddStorageItem}"
                    DefaultIconGeometry="{x:Static shapes:PathData.AddIcon}">
-            <t:CommandTool Name="{x:Static lang:Resources.AddFolder}" x:DataType="vm:FileNavigatorItemViewModel" 
+            <t:CommandTool NameKey="{x:Static lang:Resources.AddFolder}" 
                            DefaultIconGeometry="{x:Static shapes:PathData.FolderIcon}"
                            CommandBinding="{Binding AddItemCommand}"
                            CommandParameter="{x:Type fi:LaminarStorageFolder}"/>
-            <t:CommandTool Name="{x:Static lang:Resources.AddScript}" x:DataType="vm:FileNavigatorItemViewModel" 
+            <t:CommandTool NameKey="{x:Static lang:Resources.AddScript}" 
                            DefaultIconGeometry="{x:Static shapes:PathData.ScriptIcon}"
                            CommandBinding="{Binding AddItemCommand}"
                            CommandParameter="{x:Type fi:LaminarStorageFile}"/>
         </t:Toolbox>
-        <t:CommandTool Name="{x:Static lang:Resources.Delete}" x:DataType="vm:FileNavigatorItemViewModel"
+        <t:CommandTool NameKey="{x:Static lang:Resources.Delete}"
                        DefaultIconGeometry="{x:Static shapes:PathData.DeleteIcon}"
                        CommandBinding="{Binding DeleteCommand}">
 	        <t:Tool.DescriptionBinding>
@@ -106,7 +106,7 @@
 		        </MultiBinding>
 	        </t:Tool.DescriptionBinding>
         </t:CommandTool>
-        <t:PropertySetterTool Name="{x:Static lang:Resources.ToggleEnabled}" x:DataType="vm:FileNavigatorItemViewModel"
+        <t:PropertySetterTool NameKey="{x:Static lang:Resources.ToggleEnabled}"
                               Gesture="Alt+E"
                               PropertyBinding="{Binding CoreItem.IsEnabled}"
                               CanChangeValueBinding="{Binding CanChangeIsEnabled}">
@@ -131,25 +131,25 @@
     </t:Toolbox>
     
     
-    <t:Toolbox Name="Browser" DefaultIconGeometry="{x:Static shapes:PathData.FileNavigatorIcon}"
+    <t:Toolbox NameKey="Browser" DefaultIconGeometry="{x:Static shapes:PathData.FileNavigatorIcon}"
                x:Key="Tools.FileSystem.Browser" 
                x:DataType="vm:FileNavigatorViewModel">
-	    <t:CommandTool Name="Refresh" 
+	    <t:CommandTool NameKey="Refresh" 
 	                   CommandBinding="{Binding RefreshCommand}"
 	                   DefaultIconGeometry="{x:Static shapes:PathData.RefreshIcon}"/>
-	    <t:CommandTool Name="Add root folder" 
+	    <t:CommandTool NameKey="Add root folder" 
 	                   CommandBinding="{Binding AddRootFolderCommand}"
 	                   DefaultIconGeometry="{x:Static shapes:PathData.AddIcon}"/>
     </t:Toolbox>
     
-    <t:Toolbox Name="{x:Static lang:Resources.FileNavigatorTools}" x:Key="Tools.FileSystem"
+    <t:Toolbox NameKey="{x:Static lang:Resources.FileNavigatorTools}" x:Key="Tools.FileSystem"
                DefaultIconGeometry="{x:Static shapes:PathData.FileNavigatorIcon}">
         <StaticResource ResourceKey="Tools.FileSystem.StorageItem"/>
         <StaticResource ResourceKey="Tools.FileSystem.Browser"/>
     </t:Toolbox>
     
     <!-- Window Tools -->
-    <t:PropertySetterTool Name="{x:Static lang:Resources.ToggleSidebar}" x:Key="Tools.Window.ToggleSidebar" 
+    <t:PropertySetterTool NameKey="{x:Static lang:Resources.ToggleSidebar}" x:Key="Tools.Window.ToggleSidebar" 
                           x:DataType="vm:MainWindowViewModel"
                           Gesture="Ctrl+B"
                           PropertyBinding="{Binding SidebarExpanded}"
@@ -232,7 +232,7 @@
         </t:Tool.IconTemplate>
     </t:PropertySetterTool>
     
-    <t:PropertySetterTool Name="{x:Static lang:Resources.ToggleSettingsMenu}" x:Key="Tools.Window.ToggleSettings"
+    <t:PropertySetterTool NameKey="{x:Static lang:Resources.ToggleSettingsMenu}" x:Key="Tools.Window.ToggleSettings"
                           x:DataType="vm:MainWindowViewModel"
                           Gesture="Ctrl+Alt+S"
                           PropertyBinding="{Binding SettingsOpen}">
@@ -323,12 +323,12 @@
     </t:PropertySetterTool>
     
     
-    <t:PropertySetterTool x:Key="Tools.Windows.ChangeKeybinding" Name="Change Keybinding"
+    <t:PropertySetterTool x:Key="Tools.Windows.ChangeKeybinding" NameKey="Change Keybinding"
                           x:DataType="t:ToolInstance"
                           Gesture="Ctrl+Shift+B"
                           PropertyBinding="{Binding Tool.Gesture}"/>
     
-    <t:Toolbox x:Key="Tools.Window" Name="Window">
+    <t:Toolbox x:Key="Tools.Window" NameKey="Window">
 	    <StaticResource ResourceKey="Tools.Window.ToggleSettings"/>
 	    <StaticResource ResourceKey="Tools.Window.ToggleSidebar"/>
 	    <StaticResource ResourceKey="Tools.Windows.ChangeKeybinding"/>
@@ -337,22 +337,22 @@
     <t:CommandTool x:Key="Tools.Settings.ResetSettingTool" 
             x:DataType="s:Setting" 
             Gesture="r"
-            Name="Reset Setting" 
+            NameKey="Reset Setting" 
             CommandBinding="{Binding ResetCommand}"
             DefaultIconGeometry="{x:Static shapes:PathData.UndoIcon}"/>
     
     <t:PropertySetterTool x:Key="Tools.Settings.ChangeSettingTool" 
                           x:DataType="s:Setting" 
                           Gesture="Ctrl+Shift+S" 
-                          Name="Set Setting Value" 
+                          NameKey="Set Setting Value" 
                           PropertyBinding="{Binding}"/>
     
-    <t:Toolbox x:Key="Tools.Settings" Name="Settings Tools">
+    <t:Toolbox x:Key="Tools.Settings" NameKey="Settings Tools">
 	    <StaticResource ResourceKey="Tools.Settings.ResetSettingTool"/>
 	    <StaticResource ResourceKey="Tools.Settings.ChangeSettingTool"/>
     </t:Toolbox>
     
-    <t:Toolbox x:Key="{x:Static t:Tool.ToolRootKey}" Name="LaminarToolRoot">
+    <t:Toolbox x:Key="{x:Static t:Tool.ToolRootKey}" NameKey="LaminarToolRoot">
         <StaticResource ResourceKey="Tools.Edit"/>
         <StaticResource ResourceKey="Tools.FileSystem"/>
         <StaticResource ResourceKey="Tools.Window"/>

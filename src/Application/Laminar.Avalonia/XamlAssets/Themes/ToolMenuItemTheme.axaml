@@ -11,7 +11,7 @@
                                 ContentTemplate="{Binding Tool.IconTemplate}"/>
             </Template>
         </Setter>
-        <Setter Property="Header" Value="{Binding Tool.Name}"/>
+        <Setter Property="Header" Value="{Binding Tool.NameKey}"/>
         <Setter Property="InputGesture" Value="{Binding Tool.Gesture, Converter={StaticResource NullifyIfNoneConverter}}"/>
         <Setter Property="ToolTip.Tip">
             <Template>

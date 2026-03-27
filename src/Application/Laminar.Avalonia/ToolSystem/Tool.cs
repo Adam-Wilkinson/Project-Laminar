@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using Avalonia;
 using Avalonia.Collections;
@@ -8,7 +9,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using Avalonia.Data;
 using Avalonia.Input;
-using Avalonia.Markup.Xaml.Templates;
+using Avalonia.LogicalTree;
 using Avalonia.Media;
 using Avalonia.Metadata;
 
@@ -19,9 +20,36 @@ public class Toolbox : Tool
     public Toolbox()
     {
         ChildTools = ChildrenContent;
+        ChildrenContent.CollectionChanged += ChildrenChanged;
     }
 
     [Content] public AvaloniaList<Tool> ChildrenContent { get; } = [];
+    
+    private void ChildrenChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        switch (e.Action)
+        {
+            case NotifyCollectionChangedAction.Add:
+                LogicalChildren.InsertRange(e.NewStartingIndex, e.NewItems!.OfType<ILogical>().ToList());
+                break;
+            case NotifyCollectionChangedAction.Move:
+                LogicalChildren.MoveRange(e.OldStartingIndex, e.OldItems!.Count, e.NewStartingIndex);
+                break;
+            case NotifyCollectionChangedAction.Remove:
+                LogicalChildren.RemoveAll(e.OldItems!.OfType<ILogical>().ToList());
+                break;
+            case NotifyCollectionChangedAction.Replace:
+                for (var i = 0; i < e.OldItems!.Count; ++i)
+                {
+                    var index = i + e.OldStartingIndex;
+                    var child = (ILogical)e.NewItems![i]!;
+                    LogicalChildren[index] = child;
+                }
+                break;
+            default:
+                throw new NotSupportedException();
+        }
+    }
 }
 
 public class CommandTool : Tool
@@ -51,7 +79,9 @@ public class Tool : StyledElement, ITemplate<object?, ToolInstance?>, IEnumerabl
 
     public static readonly StyledProperty<object?> CommandParameterProperty = AvaloniaProperty.Register<Tool, object?>(nameof(CommandParameter));
     
-    public string Name { get; set; } = string.Empty;
+    public static readonly StyledProperty<Type?> DataTypeProperty = AvaloniaProperty.Register<Tool, Type?>(nameof(DataType), inherits: true);
+    
+    public string NameKey { get; set; } = string.Empty;
 
     public KeyGesture? Gesture
     {
@@ -76,6 +106,13 @@ public class Tool : StyledElement, ITemplate<object?, ToolInstance?>, IEnumerabl
     {
         get => GetValue(CommandParameterProperty);
         set => SetValue(CommandParameterProperty, value);
+    }
+
+    [DataType]
+    public Type? DataType
+    {
+        get => GetValue(DataTypeProperty);
+        set => SetValue(DataTypeProperty, value);
     }
     
     public Geometry? DefaultIconGeometry
@@ -124,7 +161,4 @@ public class Tool : StyledElement, ITemplate<object?, ToolInstance?>, IEnumerabl
     public IEnumerator<Tool> GetEnumerator() => ChildTools?.GetEnumerator() ?? Enumerable.Empty<Tool>().GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-    
-    [DataType] 
-    public Type? DataType { get; set; }
 }

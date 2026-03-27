@@ -60,7 +60,7 @@
                         <TextBlock.Text>
                             <MultiBinding Converter="{StaticResource FirstNotNullValueConverter}">
                                 <Binding Path="Description"/>
-                                <Binding Path="Tool.Name"/>
+                                <Binding Path="Tool.NameKey"/>
                             </MultiBinding>
                         </TextBlock.Text>
                     </TextBlock>

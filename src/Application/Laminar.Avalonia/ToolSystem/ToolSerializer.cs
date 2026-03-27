@@ -29,7 +29,7 @@ public class ToolSerializer(TopLevel topLevel, IPersistentDataManager persistent
 
     private void SerializeTool(Tool tool, string prefix)
     {
-        var uniqueToolKey = $"{prefix}.{tool.Name}";
+        var uniqueToolKey = $"{prefix}.{tool.NameKey}";
 
         if (tool.ChildTools is not null)
         {
