@@ -128,6 +128,9 @@
                 </DataTemplate>
             </t:Tool.IconTemplate>
         </t:PropertySetterTool>
+        <t:CommandTool NameKey="OpenInFileBrowser"
+                       CommandBinding="{Binding OpenInSystemFileBrowserCommand}"
+                       DefaultIconGeometry="{x:Static shapes:PathData.OpenExternalIcon}"/>
     </t:Toolbox>
     
     

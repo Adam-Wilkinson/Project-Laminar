@@ -1,5 +1,7 @@
 using System;
+using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading;
 using Laminar.Contracts;
 using Laminar.Contracts.UserData;
@@ -26,6 +28,29 @@ public class FileSystem(ILogger<File> fileLogger) : IFileSystem
         }
     }
 
+    public bool OpenInSystemFileBrowser(string path)
+    {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            Process.Start(new ProcessStartInfo("explorer.exe", path));
+            return true;
+        }
+
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        {
+            Process.Start("mimeopen", path);
+            return true;
+        }
+
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        {
+            Process.Start("open", $"-R \"{path}\"");
+            return true;
+        }
+        
+        return false;
+    }
+    
     public void Move(FileSystemInfo fileSystemInfo, string destPath)
     {
         fileLogger.LogTrace("Moving an item from '{sourcePath}' to '{destPath}'", fileSystemInfo.FullName, destPath);

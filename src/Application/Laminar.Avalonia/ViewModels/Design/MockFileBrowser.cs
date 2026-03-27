@@ -30,4 +30,9 @@ public class MockFileBrowser : ILaminarFileBrowser
     {
         return false;
     }
+
+    public bool OpenInSystemFileBrowser(ILaminarStorageItem item)
+    {
+        return false;
+    }
 }

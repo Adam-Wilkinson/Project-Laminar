@@ -125,6 +125,12 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
     {
         _fileBrowser.Delete(CoreItem);
     }
+    
+    [RelayCommand]
+    public void OpenInSystemFileBrowser()
+    {
+        _fileBrowser.OpenInSystemFileBrowser(CoreItem);
+    }
 
     private class ContentsEqualComparer : IEqualityComparer<FileNavigatorItemViewModel>
     {
@@ -133,7 +139,7 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
 
         public int GetHashCode(FileNavigatorItemViewModel obj) => obj.CoreItem.GetHashCode();
     }
-
+    
     public void Refresh()
     {
         CoreItem.Refresh();

@@ -16,4 +16,6 @@ public interface ILaminarFileBrowser
     public bool Delete<T>(T itemToDelete, IActionScope? scope = null) where T : class, ILaminarStorageItem;
 
     public bool Rename(ILaminarStorageItem itemToRename, string newName, IActionScope? scope = null);
+    
+    public bool OpenInSystemFileBrowser(ILaminarStorageItem item);
 }

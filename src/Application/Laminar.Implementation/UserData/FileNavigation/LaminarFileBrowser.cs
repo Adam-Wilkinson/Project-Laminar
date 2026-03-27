@@ -67,6 +67,11 @@ public class LaminarFileBrowser : ILaminarFileBrowser, IDisposable
         return _actionManager.ExecuteAction(new RenameStorageItemAction(newName, itemToRename, _fileSystem), scope);
     }
 
+    public bool OpenInSystemFileBrowser(ILaminarStorageItem item)
+    {
+        return _fileSystem.OpenInSystemFileBrowser(item.Path);
+    } 
+    
     public void Dispose()
     {
         foreach (ILaminarStorageRootFolder rootFolder in RootFolders)

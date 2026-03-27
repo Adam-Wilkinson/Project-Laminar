@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Laminar.Contracts.UserData;
@@ -11,6 +12,7 @@ namespace Laminar.Implementation.UserData.FileNavigation;
 public class LaminarStorageRootFolder : LaminarStorageFolder, ILaminarStorageRootFolder
 {
     private readonly IFileWatcher _folderWatcher;
+    private readonly IFileSystem _fileSystem;
     
     public LaminarStorageRootFolder(
         DirectoryInfo directoryInfo, 
@@ -18,7 +20,8 @@ public class LaminarStorageRootFolder : LaminarStorageFolder, ILaminarStorageRoo
         IFileSystem fileSystem,
         ILogger<LaminarStorageItem>? logger) : base(directoryInfo, factory, logger)
     {
-        _folderWatcher = fileSystem.CreateFileWatcher(FileSystemInfo.FullName);
+        _fileSystem = fileSystem;
+        _folderWatcher = _fileSystem.CreateFileWatcher(FileSystemInfo.FullName);
         _folderWatcher.IncludeSubdirectories = true;
         _folderWatcher.EnableRaisingEvents = true;
 

@@ -31,4 +31,5 @@ public interface IFileSystem
     public string GetFileName(string path);
     
     public IFile GetFile(string path);
+    bool OpenInSystemFileBrowser(string path);
 }
