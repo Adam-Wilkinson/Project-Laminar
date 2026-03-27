@@ -57,15 +57,15 @@ public class SettingsSerializer(TopLevel topLevel, IPersistentDataManager persis
         _settingsDataStore.InitializeDefaultValue(settingKey, setting.Value, setting.Value.GetType());
         setting.Value = _settingsDataStore.GetItem(settingKey, setting.Value.GetType()).Result!;
             
-        _settingsDataStore.GetObservable(settingKey).ValueChanged += (_, newValue) =>
+        _settingsDataStore.GetObservable(settingKey).ValueChanged += (_, valueChangedArgs) =>
         {
             if (!Dispatcher.UIThread.CheckAccess())
             {
-                Dispatcher.UIThread.Invoke(() => setting.Value = newValue);
+                Dispatcher.UIThread.Invoke(() => setting.Value = valueChangedArgs.NewValue!);
             }
             else
             {
-                setting.Value = newValue;   
+                setting.Value = valueChangedArgs.NewValue!;   
             }
         };
 

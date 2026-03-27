@@ -16,5 +16,10 @@ public static class EnumerableExtensions
         {
             return enumerable.SelectMany(c => selector(c).Flatten(selector)).Concat(enumerable);
         }
-    } 
+    }
+
+    extension<T>(IEnumerable<T>? nullable) where T : IEnumerable<T>
+    {
+        public IEnumerable<T> EmptyIfNull() => nullable ?? [];
+    }
 }

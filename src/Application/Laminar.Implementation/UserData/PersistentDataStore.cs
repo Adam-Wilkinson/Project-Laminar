@@ -207,8 +207,11 @@ public class PersistentDataStore<TEncodedValue>(
                     throw new Exception($"The value {ValueName} is not of type {_valueType}");
                 }
                 
+                var oldValue = _value;
                 _value = value;
                 SetEncodedValueFromValue();
+                PropertyChanged?.Invoke(this, IObservableValueBase.ValueChangedEventArgs);
+                ValueChanged?.Invoke(this, new ObservableValueChangedEventArgs<object?>(oldValue, _value));
             }
         }
 
@@ -233,8 +236,6 @@ public class PersistentDataStore<TEncodedValue>(
             var serialized = serializer.SerializeObject(_value, ValueType);
             _encodedValue = transcoder.EncodeValue(serialized);
             _hasEncodedValue = true;
-            // PropertyChanged?.Invoke(this, IObservableValueBase.ValueChangedEventArgs);
-            // ValueChanged?.Invoke(this, _value);
         }
         
         private bool TrySetValueFromEncodedValue()

@@ -71,7 +71,7 @@ public class Tool : StyledElement, ITemplate<object?, ToolInstance?>, IEnumerabl
 {
     public const string ToolRootKey = "ToolRoot"; 
     
-    public static readonly StyledProperty<KeyGesture?> GestureProperty = AvaloniaProperty.Register<Tool, KeyGesture?>(nameof(Gesture), new KeyGesture(Key.None));
+    public static readonly StyledProperty<KeyGesture> GestureProperty = AvaloniaProperty.Register<Tool, KeyGesture>(nameof(Gesture), new KeyGesture(Key.None));
 
     public static readonly StyledProperty<IDataTemplate?> IconTemplateProperty = AvaloniaProperty.Register<Tool, IDataTemplate?>(nameof(IconTemplate));
     
@@ -83,7 +83,7 @@ public class Tool : StyledElement, ITemplate<object?, ToolInstance?>, IEnumerabl
     
     public string NameKey { get; set; } = string.Empty;
 
-    public KeyGesture? Gesture
+    public KeyGesture Gesture
     {
         get => GetValue(GestureProperty);
         set => SetValue(GestureProperty, value);
@@ -130,7 +130,6 @@ public class Tool : StyledElement, ITemplate<object?, ToolInstance?>, IEnumerabl
 
     public Control? DefaultPopupTarget { get; set; }
 
-    [InheritDataTypeFrom(InheritDataTypeFromScopeKind.Style)]
     public AvaloniaList<Tool>? ChildTools { get; protected init; }
 
     public ToolInstance? Build(object? param)

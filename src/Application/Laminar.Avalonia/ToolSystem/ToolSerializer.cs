@@ -6,6 +6,7 @@ using Avalonia.Reactive;
 using Laminar.Avalonia.InitializationTargets;
 using Laminar.Contracts.UserData;
 using Laminar.Domain.DataManagement;
+using Laminar.Domain.Extensions;
 using Laminar.PluginFramework.Serialization;
 
 namespace Laminar.Avalonia.ToolSystem;
@@ -31,17 +32,14 @@ public class ToolSerializer(TopLevel topLevel, IPersistentDataManager persistent
     {
         var uniqueToolKey = $"{prefix}.{tool.NameKey}";
 
-        if (tool.ChildTools is not null)
+        foreach (var childTool in tool.ChildTools.EmptyIfNull())
         {
-            foreach (var childTool in tool.ChildTools)
-            {
-                SerializeTool(childTool, uniqueToolKey);
-            }
+            SerializeTool(childTool, uniqueToolKey);
         }
 
         var currentDataStore = _toolDataStore.CreateChild(uniqueToolKey);
         currentDataStore.InitializeDefaultValue("Key Gesture", tool.Gesture);
-        tool.Gesture = currentDataStore.GetItem<KeyGesture?>("Key Gesture").Result;
+        tool.Gesture = currentDataStore.GetItem<KeyGesture>("Key Gesture").Result!;
         tool.PropertyChanged += (_, _) =>
         {
             currentDataStore.SetItem("Key Gesture", tool.Gesture);
@@ -49,7 +47,7 @@ public class ToolSerializer(TopLevel topLevel, IPersistentDataManager persistent
 
         currentDataStore.GetObservable("Key Gesture").ValueChanged += (_, _) =>
         {
-            tool.Gesture = currentDataStore.GetItem<KeyGesture?>("Key Gesture").Result;
+            tool.Gesture = currentDataStore.GetItem<KeyGesture>("Key Gesture").Result!;
         };
     }
 }
