@@ -11,11 +11,12 @@ internal class UserActionManager : IUserActionManager
     public bool ExecuteAction(IUserAction action, IActionScope? scope = null)
     {
         if (!action.CanExecute) return false;
-        if (action.Execute() is not { } undoAction)
+        var actionResult = action.Execute();
+        if (actionResult.ResultType != UserActionResultType.Success || actionResult.InverseAction is not { } inverse)
         {
             return false;
         }
-        GetScopeInfo(scope).UndoList.Add(undoAction);
+        GetScopeInfo(scope).UndoList.Add(inverse);
         return true;
     }
 
@@ -25,7 +26,8 @@ internal class UserActionManager : IUserActionManager
         var successfulAction = false;
         while (!successfulAction && undoList.Count > 0)
         {
-            if (undoList[^1].CanExecute && undoList[^1].Execute() is { } redoAction)
+            if (undoList[^1].CanExecute && undoList[^1].Execute() is 
+                    { ResultType: UserActionResultType.Success, InverseAction: { } redoAction})
             {
                 redoList.Add(redoAction);
                 successfulAction = true;
@@ -41,7 +43,8 @@ internal class UserActionManager : IUserActionManager
         var (undoList, redoList) = GetScopeInfo(scope);
         while (!successfulAction && redoList.Count > 0)
         {
-            if (redoList[^1].CanExecute && redoList[^1].Execute() is { } undoAction)
+            if (redoList[^1].CanExecute && redoList[^1].Execute() is 
+                    { ResultType: UserActionResultType.Success, InverseAction: { } undoAction })
             {
                 undoList.Add(undoAction);
                 successfulAction = true;

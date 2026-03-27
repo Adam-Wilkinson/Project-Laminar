@@ -12,9 +12,9 @@ public class AddNodeAction(IWrappedNode node, ICollection<IWrappedNode> nodeColl
     
     public bool CanExecute => true;
 
-    public IUserAction Execute()
+    public UserActionResult Execute()
     {
         nodeCollection.Add(node);
-        return new DeleteNodeAction(node, nodeCollection);
+        return UserActionResult.Success(new DeleteNodeAction(node, nodeCollection));
     }
 }

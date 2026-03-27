@@ -8,7 +8,7 @@ public interface IUserAction
     
     public bool CanExecute { get; }
 
-    public IUserAction? Execute();
+    public UserActionResult Execute();
 
     public static IUserAction Pass { get; } = new PassAction();
 
@@ -16,9 +16,9 @@ public interface IUserAction
     {
         public event EventHandler? CanExecuteChanged;
         public bool CanExecute => false;
-        public IUserAction? Execute()
+        public UserActionResult Execute()
         {
-            return this;
+            return UserActionResult.Success(this);
         }
     }
 }

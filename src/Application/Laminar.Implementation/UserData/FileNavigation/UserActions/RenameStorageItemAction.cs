@@ -11,15 +11,15 @@ public class RenameStorageItemAction(string newName, ILaminarStorageItem item, I
     public event EventHandler? CanExecuteChanged;
     public bool CanExecute { get; } = item.Name != newName;
 
-    public IUserAction? Execute()
+    public UserActionResult Execute()
     {
         if (item.ParentFolder is null || Equals(item.Name, newName))
         {
-            return null;
+            return UserActionResult.Failure();
         }
         
         string oldName = item.Name;
         fileSystem.Move(item.Path, Path.Combine(item.ParentFolder.Path, newName + item.Extension));
-        return new RenameStorageItemAction(oldName, item, fileSystem);
+        return UserActionResult.Success(new RenameStorageItemAction(oldName, item, fileSystem));
     }
 }

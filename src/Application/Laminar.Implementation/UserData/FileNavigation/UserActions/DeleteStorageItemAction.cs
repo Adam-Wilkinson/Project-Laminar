@@ -11,14 +11,15 @@ public class DeleteStorageItemAction<T>(IFileSystem fileSystem, T item) : IUserA
     
     public bool CanExecute => item.ParentFolder is not null && item is LaminarStorageItem;
     
-    public IUserAction? Execute()
+    public UserActionResult Execute()
     {
-        if (item is not LaminarStorageItem storageItem || item.ParentFolder is not { } parentFolder) return null;
+        if (item is not LaminarStorageItem storageItem || item.ParentFolder is not { } parentFolder) 
+            return UserActionResult.Failure();
 
         int indexInParent = parentFolder.Contents.IndexOf(item); 
         storageItem.FileSystemInfo.Delete();
         storageItem.ParentFolder?.Refresh();
         
-        return new InsertStorageItemAction<T>(fileSystem, item, parentFolder, indexInParent);
+        return UserActionResult.Success(new InsertStorageItemAction<T>(fileSystem, item, parentFolder, indexInParent));
     }
 }

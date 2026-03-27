@@ -17,9 +17,11 @@ public class MoveStorageItemAction(
      
      public bool CanExecute => true;
      
-     public IUserAction? Execute()
+     public UserActionResult Execute()
      {
-          if (item.ParentFolder is not { } oldFolder || item is not LaminarStorageItem storageItem) return null;
+          if (item.ParentFolder is not { } oldFolder || item is not LaminarStorageItem storageItem) 
+               return UserActionResult.Failure();
+          
           var indexInOldFolder = oldFolder.Contents.IndexOf(item);
           var indexInDestinationFolder = targetIndex ?? destinationFolder.Contents.Count;
           
@@ -29,12 +31,14 @@ public class MoveStorageItemAction(
           }
           else
           {
-               // We insert the item before working with the file system so it will be placed at the right index
+               // The file system is not positional, so we prep the StorageFolder to move to the right position
                if (destinationFolder is LaminarStorageFolder typedFolder)
                {
                     typedFolder.RegisterQueuedMove(item, indexInDestinationFolder);
                }
 
+               
+               
                var destinationPath = System.IO.Path.Join(destinationFolder.Path, item.Name + item.Extension);
                fileSystem.Move(storageItem.FileSystemInfo, destinationPath);
                oldFolder.Refresh();
@@ -42,6 +46,6 @@ public class MoveStorageItemAction(
                item.Refresh();
           }
 
-          return new MoveStorageItemAction(item, oldFolder, fileSystem, indexInOldFolder);
+          return UserActionResult.Success(new MoveStorageItemAction(item, oldFolder, fileSystem, indexInOldFolder));
      }
 }

@@ -12,9 +12,9 @@ public class DeleteNodeAction(IWrappedNode node, ICollection<IWrappedNode> nodeC
     
     public bool CanExecute { get; } = nodeCollection.Contains(node);
 
-    public IUserAction Execute()
+    public UserActionResult Execute()
     {
         nodeCollection.Remove(node);
-        return new AddNodeAction(node, nodeCollection);
+        return UserActionResult.Success(new AddNodeAction(node, nodeCollection));
     }
 }

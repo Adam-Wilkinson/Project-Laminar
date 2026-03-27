@@ -17,13 +17,13 @@ public class AddDefaultStorageItemAction<T>(IFileSystem fileSystem, ILaminarStor
     
     public event EventHandler? CanExecuteChanged;
     public bool CanExecute => true;
-    public IUserAction Execute()
+    public UserActionResult Execute()
     {
         string newItemPath = Path.Join(parentFolder.Path, GetDefaultItemName());
         T newItem = factory.FromPath<T>(newItemPath, parentFolder);
         newItem.NeedsName = true;
         newItem.ParentFolder?.Refresh();
-        return new DeleteStorageItemAction<T>(fileSystem, newItem);
+        return UserActionResult.Success(new DeleteStorageItemAction<T>(fileSystem, newItem));
     }
     
     private static string GetDefaultItemName()

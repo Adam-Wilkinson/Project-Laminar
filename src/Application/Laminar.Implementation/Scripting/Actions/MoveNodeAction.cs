@@ -11,9 +11,9 @@ public class MoveNodeAction(IWrappedNode items, Point locationDelta) : IUserActi
     
     public bool CanExecute => true;
 
-    public IUserAction Execute()
+    public UserActionResult Execute()
     {
         items.Location.Value += locationDelta;
-        return new MoveNodeAction(items, -locationDelta);
+        return UserActionResult.Success(new MoveNodeAction(items, -locationDelta));
     }
 }
