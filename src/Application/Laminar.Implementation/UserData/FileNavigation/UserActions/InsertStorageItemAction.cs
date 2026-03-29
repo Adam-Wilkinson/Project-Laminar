@@ -10,9 +10,9 @@ public class InsertStorageItemAction<T>(IFileSystem fileSystem, T item, ILaminar
 {
     public event EventHandler? CanExecuteChanged;
     public bool CanExecute => true;
-    public UserActionResult Execute()
+    public IUserActionResult Execute()
     {
-        if (item is not LaminarStorageItem storageItem) return UserActionResult.Failure();
+        if (item is not LaminarStorageItem storageItem) return IUserActionResult.Failure();
         
         // We insert the item before working with the file system so it will be placed at the right index
         if (folder is LaminarStorageFolder destinationFolder)
@@ -26,6 +26,6 @@ public class InsertStorageItemAction<T>(IFileSystem fileSystem, T item, ILaminar
         item.ParentFolder?.Refresh();
         folder.Refresh();
         
-        return UserActionResult.Success(new DeleteStorageItemAction<T>(fileSystem, item));
+        return IUserActionResult.Success(new DeleteStorageItemAction<T>(fileSystem, item));
     }
 }

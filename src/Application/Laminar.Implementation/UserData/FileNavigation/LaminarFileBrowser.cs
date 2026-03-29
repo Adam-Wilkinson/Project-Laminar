@@ -45,24 +45,24 @@ public class LaminarFileBrowser : ILaminarFileBrowser, IDisposable
 
     public IReadOnlyObservableCollection<ILaminarStorageRootFolder> RootFolders { get; }
 
-    public bool AddDefault<T>(ILaminarStorageFolder parentFolder, IActionScope? scope = null) 
+    public IUserActionResult AddDefault<T>(ILaminarStorageFolder parentFolder, IActionScope? scope = null) 
         where T : class, ILaminarStorageItem
     {
         return _actionManager.ExecuteAction(new AddDefaultStorageItemAction<T>(_fileSystem, parentFolder, _factory), scope);
     }
 
-    public bool Move(ILaminarStorageItem itemToMove, ILaminarStorageFolder destinationFolder, int destinationIndex,
+    public IUserActionResult Move(ILaminarStorageItem itemToMove, ILaminarStorageFolder destinationFolder, int destinationIndex,
         IActionScope? scope)
     {
         return _actionManager.ExecuteAction(new MoveStorageItemAction(itemToMove, destinationFolder, _fileSystem, destinationIndex), scope);
     }
 
-    public bool Delete<T>(T itemToDelete, IActionScope? scope) where T : class, ILaminarStorageItem
+    public IUserActionResult Delete<T>(T itemToDelete, IActionScope? scope) where T : class, ILaminarStorageItem
     {
         return _actionManager.ExecuteAction(new DeleteStorageItemAction<T>(_fileSystem, itemToDelete), scope);
     }
 
-    public bool Rename(ILaminarStorageItem itemToRename, string newName, IActionScope? scope)
+    public IUserActionResult Rename(ILaminarStorageItem itemToRename, string newName, IActionScope? scope)
     {
         return _actionManager.ExecuteAction(new RenameStorageItemAction(newName, itemToRename, _fileSystem), scope);
     }
@@ -74,7 +74,7 @@ public class LaminarFileBrowser : ILaminarFileBrowser, IDisposable
     
     public void Dispose()
     {
-        foreach (ILaminarStorageRootFolder rootFolder in RootFolders)
+        foreach (var rootFolder in RootFolders)
         {
             rootFolder.Dispose();
         }

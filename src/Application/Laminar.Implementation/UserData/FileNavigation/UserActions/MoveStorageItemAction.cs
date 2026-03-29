@@ -1,8 +1,10 @@
 using System;
+using System.Linq;
 using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.UserData;
 using Laminar.Contracts.UserData.FileNavigation;
 using Laminar.Domain.Notification;
+using Laminar.Implementation.UserData.FileNavigation.Exceptions;
 
 namespace Laminar.Implementation.UserData.FileNavigation.UserActions;
 
@@ -17,10 +19,10 @@ public class MoveStorageItemAction(
      
      public bool CanExecute => true;
      
-     public UserActionResult Execute()
+     public IUserActionResult Execute()
      {
           if (item.ParentFolder is not { } oldFolder || item is not LaminarStorageItem storageItem) 
-               return UserActionResult.Failure();
+               return IUserActionResult.Failure();
           
           var indexInOldFolder = oldFolder.Contents.IndexOf(item);
           var indexInDestinationFolder = targetIndex ?? destinationFolder.Contents.Count;
@@ -37,7 +39,11 @@ public class MoveStorageItemAction(
                     typedFolder.RegisterQueuedMove(item, indexInDestinationFolder);
                }
 
-               
+               if (destinationFolder.Contents.Any(x => x.Name == item.Name))
+               {
+                    return IUserActionResult.Error(
+                         new DestinationContainsItemOfThatNameException(destinationFolder.Name, item.Name));
+               }
                
                var destinationPath = System.IO.Path.Join(destinationFolder.Path, item.Name + item.Extension);
                fileSystem.Move(storageItem.FileSystemInfo, destinationPath);
@@ -46,6 +52,6 @@ public class MoveStorageItemAction(
                item.Refresh();
           }
 
-          return UserActionResult.Success(new MoveStorageItemAction(item, oldFolder, fileSystem, indexInOldFolder));
+          return IUserActionResult.Success(new MoveStorageItemAction(item, oldFolder, fileSystem, indexInOldFolder));
      }
 }

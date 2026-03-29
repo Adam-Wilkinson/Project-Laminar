@@ -8,16 +8,16 @@ internal class UserActionManager : IUserActionManager
     private readonly DefaultActionScope _defaultActionScope = new();
     private readonly Dictionary<IActionScope, ActionScopeInfo> _scopeInfos = new();
 
-    public bool ExecuteAction(IUserAction action, IActionScope? scope = null)
+    public IUserActionResult ExecuteAction(IUserAction action, IActionScope? scope = null)
     {
-        if (!action.CanExecute) return false;
+        if (!action.CanExecute) return IUserActionResult.Failure();
         var actionResult = action.Execute();
-        if (actionResult.ResultType != UserActionResultType.Success || actionResult.InverseAction is not { } inverse)
+        if (actionResult is UserActionSuccess { InverseAction: { } inverse})
         {
-            return false;
+            GetScopeInfo(scope).UndoList.Add(inverse);
         }
-        GetScopeInfo(scope).UndoList.Add(inverse);
-        return true;
+        
+        return actionResult;
     }
 
     public void Undo(IActionScope? scope)
@@ -26,8 +26,7 @@ internal class UserActionManager : IUserActionManager
         var successfulAction = false;
         while (!successfulAction && undoList.Count > 0)
         {
-            if (undoList[^1].CanExecute && undoList[^1].Execute() is 
-                    { ResultType: UserActionResultType.Success, InverseAction: { } redoAction})
+            if (undoList[^1].CanExecute && undoList[^1].Execute() is UserActionSuccess { InverseAction: { } redoAction })
             {
                 redoList.Add(redoAction);
                 successfulAction = true;
@@ -43,8 +42,7 @@ internal class UserActionManager : IUserActionManager
         var (undoList, redoList) = GetScopeInfo(scope);
         while (!successfulAction && redoList.Count > 0)
         {
-            if (redoList[^1].CanExecute && redoList[^1].Execute() is 
-                    { ResultType: UserActionResultType.Success, InverseAction: { } undoAction })
+            if (redoList[^1].CanExecute && redoList[^1].Execute() is UserActionSuccess { InverseAction: { } undoAction })
             {
                 undoList.Add(undoAction);
                 successfulAction = true;

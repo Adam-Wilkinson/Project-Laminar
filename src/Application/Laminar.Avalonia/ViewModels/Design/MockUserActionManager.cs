@@ -4,13 +4,9 @@ namespace Laminar.Avalonia.ViewModels.Design;
 
 public class MockUserActionManager : IUserActionManager
 {
-    public bool ExecuteAction(IUserAction action, IActionScope? scope = null)
+    public IUserActionResult ExecuteAction(IUserAction action, IActionScope? scope = null)
     {
-        if (!action.CanExecute) return false;
-        
-        action.Execute();
-        return true;
-
+        return action.CanExecute ? action.Execute() : IUserActionResult.Failure();
     }
 
     public void Undo(IActionScope? scope = null)

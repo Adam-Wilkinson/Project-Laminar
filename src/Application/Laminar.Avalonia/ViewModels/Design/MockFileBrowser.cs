@@ -11,24 +11,24 @@ public class MockFileBrowser : ILaminarFileBrowser
     public IReadOnlyObservableCollection<ILaminarStorageRootFolder> RootFolders { get; } 
         = new ObservableCollection<ILaminarStorageRootFolder>().ToInterfaceImpl();
 
-    public bool AddDefault<T>(ILaminarStorageFolder parentFolder, IActionScope? scope = null)
+    public IUserActionResult AddDefault<T>(ILaminarStorageFolder parentFolder, IActionScope? scope = null)
         where T : class, ILaminarStorageItem
         => throw new InvalidOperationException();
 
-    public bool Move(ILaminarStorageItem itemToMove, ILaminarStorageFolder destinationFolder, int destinationIndex,
+    public IUserActionResult Move(ILaminarStorageItem itemToMove, ILaminarStorageFolder destinationFolder, int destinationIndex,
         IActionScope? scope = null)
     {
-        return false;
+        return IUserActionResult.Failure();
     }
 
-    public bool Delete<T>(T itemToDelete, IActionScope? scope = null) where T : class, ILaminarStorageItem
+    public IUserActionResult Delete<T>(T itemToDelete, IActionScope? scope = null) where T : class, ILaminarStorageItem
     {
-        return false;
+        return IUserActionResult.Failure();
     }
 
-    public bool Rename(ILaminarStorageItem itemToRename, string newName, IActionScope? scope = null)
+    public IUserActionResult Rename(ILaminarStorageItem itemToRename, string newName, IActionScope? scope = null)
     {
-        return false;
+        return IUserActionResult.Failure();
     }
 
     public bool OpenInSystemFileBrowser(ILaminarStorageItem item)

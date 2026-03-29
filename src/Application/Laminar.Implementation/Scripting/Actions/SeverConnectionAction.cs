@@ -13,13 +13,13 @@ public class SeverConnectionAction(IConnection connection, ICollection<IConnecti
 
     public bool CanExecute { get; } = true;
 
-    public UserActionResult Execute()
+    public IUserActionResult Execute()
     {
         connection.InputConnector.OnDisconnectedFrom(connection.OutputConnector);
         connection.OutputConnector.OnDisconnectedFrom(connection.InputConnector);
         connectionCollection.Remove(connection);
         connection.Break();
-        return UserActionResult.Success(new EstablishConnectionAction(connection.OutputConnector, connection.InputConnector,
+        return IUserActionResult.Success(new EstablishConnectionAction(connection.OutputConnector, connection.InputConnector,
             connectionCollection));
     }
 }

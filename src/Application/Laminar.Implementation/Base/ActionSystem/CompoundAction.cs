@@ -32,11 +32,11 @@ public class CompoundAction : IUserAction
     
     public bool CanExecute { get; private set; }
 
-    public UserActionResult Execute()
+    public IUserActionResult Execute()
     {
         if (_actions.Any(userAction => !userAction.CanExecute))
         {
-            return UserActionResult.Failure();
+            return IUserActionResult.Failure();
         }
         
         var undoList = new IUserAction[_actions.Count];
@@ -44,19 +44,17 @@ public class CompoundAction : IUserAction
         foreach (var userAction in _actions)
         {
             var currentResult = userAction.Execute();
-            switch (currentResult.ResultType)
+            switch (currentResult)
             {
-                case UserActionResultType.Failure:
-                    return UserActionResult.Failure();
-                case UserActionResultType.Error:
-                    return UserActionResult.Error(currentResult.Exception!);
-                case UserActionResultType.Success:
-                    undoList[--indexInReverseList] = currentResult.InverseAction!;
+                case UserActionSuccess success:
+                    undoList[--indexInReverseList] = success.InverseAction;
                     break;
+                default:
+                    return currentResult;
             }
         }
 
-        return UserActionResult.Success(new CompoundAction(undoList));
+        return IUserActionResult.Success(new CompoundAction(undoList));
     }
 
     private void ChildCanExecuteChanged(object? sender, EventArgs args)

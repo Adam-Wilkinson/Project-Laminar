@@ -20,10 +20,10 @@ public class EstablishConnectionAction(
 
     public bool CanExecute { get; } = connectorOne.CanConnectTo(connectorTwo) || connectorTwo.CanConnectTo(connectorOne);
 
-    public UserActionResult Execute()
+    public IUserActionResult Execute()
     {
         if (!connectorOne.TryConnectTo(connectorTwo) && !connectorTwo.TryConnectTo(connectorOne)) 
-            return UserActionResult.Failure();
+            return IUserActionResult.Failure();
         
         _connection = new Connection
         {
@@ -32,6 +32,6 @@ public class EstablishConnectionAction(
         };
         connectionCollection.Add(_connection);
 
-        return UserActionResult.Success(new SeverConnectionAction(_connection, connectionCollection));
+        return IUserActionResult.Success(new SeverConnectionAction(_connection, connectionCollection));
     }
 }

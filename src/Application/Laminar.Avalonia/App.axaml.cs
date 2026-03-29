@@ -58,7 +58,7 @@ public partial class App : Application
                 .AddSingleton<IDialogManager, DialogManager>()
                 .AddSingleton<IDialogService, DialogService>()
                 .BuildServiceProvider();
-            
+
             services.InitializeLaminar<App>();
             services.GetServices<IBeforeApplicationBuiltTarget>().Initialize();
             

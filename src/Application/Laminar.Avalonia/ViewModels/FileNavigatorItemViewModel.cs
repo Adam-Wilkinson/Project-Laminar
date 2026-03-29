@@ -7,6 +7,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using HanumanInstitute.MvvmDialogs;
 using Laminar.Avalonia.ViewModels.Services;
+using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.UserData.FileNavigation;
 using Laminar.Domain.Extensions;
 using Laminar.Domain.Notification;
@@ -79,7 +80,7 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
                 OnPropertyChanged();
             }
 
-            if (value != CoreItem.Name && !_fileBrowser.Rename(CoreItem, value))
+            if (value != CoreItem.Name && _fileBrowser.Rename(CoreItem, value) is UserActionFailure)
             {
                 field = CoreItem.Name;
                 OnPropertyChanged();
