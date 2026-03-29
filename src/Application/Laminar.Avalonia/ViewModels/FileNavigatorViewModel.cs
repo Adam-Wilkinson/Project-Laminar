@@ -6,8 +6,11 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
 using HanumanInstitute.MvvmDialogs;
 using Laminar.Avalonia.DragDrop;
+using Laminar.Avalonia.ViewModels.Services;
+using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.UserData.FileNavigation;
 using Laminar.Domain.Notification;
+using Laminar.Implementation.UserData.FileNavigation.Exceptions;
 using Microsoft.Extensions.Logging;
 
 namespace Laminar.Avalonia.ViewModels;
@@ -82,13 +85,21 @@ public partial class FileNavigatorViewModel(
     }
 
     [RelayCommand]
-    public void OnDrop(DropTargetEventArgs eventArgs)
+    public async Task OnDrop(DropTargetEventArgs eventArgs)
     {
         if (_currentHoverMove is not var (targetItem, targetIndex) ||
             targetItem.CoreItem is not ILaminarStorageFolder targetFolder) return;
         if (eventArgs.DraggingControl.DataContext is not FileNavigatorItemViewModel draggedItem) return;
         
-        fileBrowser.Move(draggedItem.CoreItem, targetFolder, targetIndex);
+        var moveResult = fileBrowser.Move(draggedItem.CoreItem, targetFolder, targetIndex);
+
+        if (moveResult is UserActionError 
+                { Exception: DestinationContainsItemOfThatNameException destinationContainsException })
+        {
+            await dialogService.ShowError((INotifyPropertyChanged)topLevel?.DataContext!, "Error moving item",
+                $"Destination folder '{destinationContainsException.DestinationFolder}' already contains an item of name '{destinationContainsException.ItemName}'");
+        }
+        
         targetItem.Refresh();
         _currentHoverMove = null;
         _proposedHoveredItem = null;

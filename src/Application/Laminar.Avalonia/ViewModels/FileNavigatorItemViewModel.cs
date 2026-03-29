@@ -80,7 +80,7 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
                 OnPropertyChanged();
             }
 
-            if (value != CoreItem.Name && _fileBrowser.Rename(CoreItem, value) is UserActionFailure)
+            if (value != CoreItem.Name && _fileBrowser.Rename(CoreItem, value) is not UserActionSuccess)
             {
                 field = CoreItem.Name;
                 OnPropertyChanged();

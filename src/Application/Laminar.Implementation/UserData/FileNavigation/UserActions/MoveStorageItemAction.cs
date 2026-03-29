@@ -33,16 +33,16 @@ public class MoveStorageItemAction(
           }
           else
           {
-               // The file system is not positional, so we prep the StorageFolder to move to the right position
-               if (destinationFolder is LaminarStorageFolder typedFolder)
-               {
-                    typedFolder.RegisterQueuedMove(item, indexInDestinationFolder);
-               }
-
                if (destinationFolder.Contents.Any(x => x.Name == item.Name))
                {
                     return IUserActionResult.Error(
                          new DestinationContainsItemOfThatNameException(destinationFolder.Name, item.Name));
+               }
+               
+               // The file system is not positional, so we prep the StorageFolder to move to the right position
+               if (destinationFolder is LaminarStorageFolder typedFolder)
+               {
+                    typedFolder.RegisterQueuedMove(item, indexInDestinationFolder);
                }
                
                var destinationPath = System.IO.Path.Join(destinationFolder.Path, item.Name + item.Extension);
