@@ -17,9 +17,28 @@ public class RenameStorageItemAction(string newName, ILaminarStorageItem item, I
         {
             return IUserActionResult.Failure();
         }
+
+        if (newName.ContainsAny(Path.GetInvalidFileNameChars()))
+        {
+            return IUserActionResult.Error(new InvalidStorageItemNameException(newName));
+        }
         
         string oldName = item.Name;
-        fileSystem.Move(item.Path, Path.Combine(item.ParentFolder.Path, newName + item.Extension));
+
+        try
+        {
+            fileSystem.Move(item.Path, Path.Combine(item.ParentFolder.Path, newName + item.Extension));
+        }
+        catch (IOException exception)
+        {
+            return IUserActionResult.Error(exception);
+        }
+        
         return IUserActionResult.Success(new RenameStorageItemAction(oldName, item, fileSystem));
     }
+}
+
+public class InvalidStorageItemNameException(string name) : Exception
+{
+    public string Name => name;
 }

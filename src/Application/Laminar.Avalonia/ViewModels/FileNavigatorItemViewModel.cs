@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
 using Avalonia.Controls;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using HanumanInstitute.MvvmDialogs;
@@ -12,6 +14,7 @@ using Laminar.Contracts.UserData.FileNavigation;
 using Laminar.Domain.Extensions;
 using Laminar.Domain.Notification;
 using Laminar.Implementation.UserData.FileNavigation;
+using Laminar.Implementation.UserData.FileNavigation.UserActions;
 using Microsoft.Extensions.Logging;
 
 namespace Laminar.Avalonia.ViewModels;
@@ -23,7 +26,9 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
     private readonly ILaminarFileBrowser _fileBrowser;
     private readonly SourcedObservableCollection<FileNavigatorItemViewModel>? _children;
     private readonly ILogger<FileNavigatorItemViewModel>? _logger;
-
+    private readonly TopLevel? _topLevel;
+    private readonly IDialogService _dialogService;
+    
     [ObservableProperty] private bool _isExpanded = true;
     
     public FileNavigatorItemViewModel(
@@ -35,6 +40,8 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
     {
         _fileBrowser = fileBrowser;
         _logger = logger;
+        _topLevel = topLevel;
+        _dialogService = dialogService;
         CoreItem = coreItem;
         Name = CoreItem.Name;
 
@@ -52,11 +59,6 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
         CoreItem.DependentValueChanged(item => item.ParentFolder?.IsEffectivelyEnabled ?? false).DependencyChanged +=
             (_, _) => OnPropertyChanged(nameof(CanChangeIsEnabled));
         
-        CoreItem.ExceptionRaised += async (_, e) =>
-        {
-            if (topLevel is null) return;
-            await dialogService.ShowError((INotifyPropertyChanged)topLevel.DataContext!, "File System Error", e.Message);
-        };
         return;
 
         FileNavigatorItemViewModel Factory(ILaminarStorageItem storageItem) 
@@ -78,12 +80,10 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
             {
                 field = value;
                 OnPropertyChanged();
-            }
-
-            if (value != CoreItem.Name && _fileBrowser.Rename(CoreItem, value) is not UserActionSuccess)
-            {
-                field = CoreItem.Name;
-                OnPropertyChanged();
+                if (value != CoreItem.Name)
+                {
+                    Dispatcher.UIThread.InvokeAsync(SetCoreItemName);
+                }
             }
         }
     }
@@ -97,6 +97,22 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
         _ => "item"
     };
 
+    private async Task SetCoreItemName()
+    {
+        if (_fileBrowser.Rename(CoreItem, Name) is UserActionError
+                { Exception: { } renameException })
+        {
+            Dispatcher.UIThread.Post(() => Name = CoreItem.Name);
+            var message = renameException switch
+            {
+                InvalidStorageItemNameException storageItemNameException => $"Invalid storage item name: '{storageItemNameException.Name}'", 
+                _ => renameException.Message,
+            };
+            
+            await _dialogService.ShowError((INotifyPropertyChanged)_topLevel?.DataContext!, "File System Error", message);
+        }
+    }
+    
     [RelayCommand(CanExecute = nameof(IsFolder))]
     public void AddItem(Type itemType)
     {

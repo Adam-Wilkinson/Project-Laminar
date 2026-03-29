@@ -60,8 +60,6 @@ public abstract class LaminarStorageItem(ILogger<LaminarStorageItem>? logger) : 
     public bool NeedsName { get; set => SetField(ref field, value); }
     
     public ILaminarStorageFolder? ParentFolder { get; private set; }
-
-    public event EventHandler<IOException>? ExceptionRaised;
     
     public abstract void Refresh();
     
@@ -85,22 +83,11 @@ public abstract class LaminarStorageItem(ILogger<LaminarStorageItem>? logger) : 
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
-    protected void OnExceptionRaised(IOException exception)
-    {
-        ExceptionRaised?.Invoke(this, exception);
-    }
-    
     protected bool SetField<TField>(ref TField field, TField value, [CallerMemberName] string? propertyName = null)
     {
         if (EqualityComparer<TField>.Default.Equals(field, value)) return false;
         field = value;
         OnPropertyChanged(propertyName);
         return true;
-    }
-
-    protected void Error(string message)
-    {
-        Logger?.LogError(message);
-        OnExceptionRaised(new IOException(message));
     }
 }

@@ -13,6 +13,5 @@ public interface ILaminarStorageItem : INotifyPropertyChanged
     public bool NeedsName { get; set; }
     public ILaminarStorageFolder? ParentFolder { get; }
     public IObservableValue<long> SizeOnDisk { get; }
-    public event EventHandler<IOException> ExceptionRaised;
     void Refresh();
 }
