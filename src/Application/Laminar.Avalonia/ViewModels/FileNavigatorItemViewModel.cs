@@ -107,7 +107,8 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
             Dispatcher.UIThread.Post(() => Name = CoreItem.Name);
             var message = renameException switch
             {
-                InvalidStorageItemNameException storageItemNameException => $"Invalid storage item name: '{storageItemNameException.Name}'", 
+                InvalidStorageItemNameException storageItemNameException => $"Invalid storage item name: '{storageItemNameException.Name}'",
+                FileWithNameExistsException nameExistsExtension => $"A storage item with the name '{nameExistsExtension.Name}' already exists",
                 _ => renameException.Message,
             };
             

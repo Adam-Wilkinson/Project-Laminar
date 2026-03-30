@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.UserData;
 using Laminar.Contracts.UserData.FileNavigation;
@@ -22,6 +23,11 @@ public class RenameStorageItemAction(string newName, ILaminarStorageItem item, I
         {
             return IUserActionResult.Error(new InvalidStorageItemNameException(newName));
         }
+
+        if (item.ParentFolder.Contents.Any(sibling => sibling.Name == newName))
+        {
+            return IUserActionResult.Error(new FileWithNameExistsException(newName));
+        }
         
         var oldName = item.Name;
 
@@ -39,6 +45,11 @@ public class RenameStorageItemAction(string newName, ILaminarStorageItem item, I
 }
 
 public class InvalidStorageItemNameException(string name) : Exception
+{
+    public string Name => name;
+}
+
+public class FileWithNameExistsException(string name) : Exception
 {
     public string Name => name;
 }
