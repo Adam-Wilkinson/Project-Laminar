@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
@@ -21,6 +22,7 @@ namespace Laminar.Avalonia.ViewModels;
 
 public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemViewModel
 {
+    public static readonly char[] InvalidFileNameChars = Path.GetInvalidFileNameChars();
     private static readonly ContentsEqualComparer ContentsEqual = new();
     
     private readonly ILaminarFileBrowser _fileBrowser;

@@ -10,7 +10,7 @@
                    HorizontalAlignment="Left"
                    Margin="6.5"/>
         <TextBox Name="Editor"
-                 IsVisible="False"
+                 IsVisible="False" 
                  VerticalAlignment="Center"
                  HorizontalAlignment="Left"
                  Margin="0"/>

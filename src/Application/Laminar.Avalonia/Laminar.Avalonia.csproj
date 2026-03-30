@@ -28,6 +28,7 @@
     <PackageReference Include="Avalonia.Fonts.Inter"/>
     <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
     <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics"/>
+    <PackageReference Include="AvaloniaUI.DiagnosticsSupport" />
     <PackageReference Include="CommunityToolkit.Mvvm" />
     <PackageReference Include="HanumanInstitute.MvvmDialogs" />
     <PackageReference Include="HanumanInstitute.MvvmDialogs.Avalonia" />

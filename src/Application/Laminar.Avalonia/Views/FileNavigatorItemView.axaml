@@ -5,6 +5,7 @@
              xmlns:vm="using:Laminar.Avalonia.ViewModels"
              xmlns:c="using:Laminar.Avalonia.Controls"
              xmlns:shapes="using:Laminar.Avalonia.Shapes"
+             xmlns:io="using:System.IO"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Laminar.Avalonia.Views.FileNavigatorItemView"
              x:DataType="vm:FileNavigatorItemViewModel">
@@ -52,7 +53,8 @@
         </Viewbox>
         <c:EditableLabel Name="ItemNameLabel"
                          VerticalAlignment="Center" 
-                         Text="{Binding Name, Mode=TwoWay}" 
+                         Text="{Binding Name, Mode=TwoWay}"
+                         DisallowedChars="{x:Static vm:FileNavigatorItemViewModel.InvalidFileNameChars}"
                          IsBeingEdited="{Binding CoreItem.NeedsName, Mode=TwoWay}"/>
         
         <DockPanel.Styles>

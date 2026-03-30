@@ -23,7 +23,7 @@ public class RenameStorageItemAction(string newName, ILaminarStorageItem item, I
             return IUserActionResult.Error(new InvalidStorageItemNameException(newName));
         }
         
-        string oldName = item.Name;
+        var oldName = item.Name;
 
         try
         {

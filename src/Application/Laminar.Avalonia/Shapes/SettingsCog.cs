@@ -32,33 +32,31 @@ internal class SettingsCog : Shape
     {
         PathGeometry pathGeometry = new();
 
-        using (PathGeometryContext context = new(pathGeometry))
+        using PathGeometryContext context = new(pathGeometry);
+        double spokeAngleIncrement = 2 * Math.PI / spokeCount;
+        double spokeSubtendsAngle = spokeAngleIncrement * 0.4;
+        double spokeGapAngle = spokeAngleIncrement - spokeSubtendsAngle;
+
+        double currentAngle = -spokeSubtendsAngle / 2;
+
+        Size innerSize = size.Deflate(new Thickness(spokeDepth / 2));
+
+        context.BeginFigure(FromAngle(currentAngle, 0, size), true);
+
+        for (int i = 0; i < spokeCount; i++)
         {
-            double spokeAngleIncrement = 2 * Math.PI / spokeCount;
-            double spokeSubtendsAngle = spokeAngleIncrement * 0.4;
-            double spokeGapAngle = spokeAngleIncrement - spokeSubtendsAngle;
-
-            double currentAngle = -spokeSubtendsAngle / 2;
-
-            Size innerSize = size.Deflate(new Thickness(spokeDepth / 2));
-
-            context.BeginFigure(FromAngle(currentAngle, 0, size), true);
-
-            for (int i = 0; i < spokeCount; i++)
-            {
-                currentAngle += spokeSubtendsAngle;
-                context.ArcTo(FromAngle(currentAngle, 0, size), size, spokeSubtendsAngle, false,
-                    SweepDirection.Clockwise);
-                context.LineTo(FromAngle(currentAngle + spokeGapAngle / 3, spokeDepth, size));
-                currentAngle += spokeGapAngle;
-                context.ArcTo(FromAngle(currentAngle - spokeGapAngle / 3, spokeDepth, size), innerSize, spokeGapAngle, false,
-                    SweepDirection.Clockwise);
-                context.LineTo(FromAngle(currentAngle, 0, size));
-            }
-
-            context.EndFigure(true);
+            currentAngle += spokeSubtendsAngle;
+            context.ArcTo(FromAngle(currentAngle, 0, size), size, spokeSubtendsAngle, false,
+                SweepDirection.Clockwise);
+            context.LineTo(FromAngle(currentAngle + spokeGapAngle / 3, spokeDepth, size));
+            currentAngle += spokeGapAngle;
+            context.ArcTo(FromAngle(currentAngle - spokeGapAngle / 3, spokeDepth, size), innerSize, spokeGapAngle, false,
+                SweepDirection.Clockwise);
+            context.LineTo(FromAngle(currentAngle, 0, size));
         }
-        
+
+        context.EndFigure(true);
+
         return new CombinedGeometry(GeometryCombineMode.Xor, pathGeometry, new EllipseGeometry(new Rect(size).Deflate(new Thickness(spokeDepth * 1.5))));
     }
     
