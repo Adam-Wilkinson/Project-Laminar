@@ -103,6 +103,8 @@ public class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
     
     private IEnumerable<ILaminarStorageItem> GetChildren()
     {
+        // The refresh action can cause this to be called from separate threads, e.g. on a move we have a simultaneous
+        // add and remove
         lock (_getChildrenLock)
         {
             IEnumerable<ILaminarStorageItem> returnValue =

@@ -7,6 +7,7 @@ using Laminar.Contracts.UserData.FileNavigation;
 using Laminar.Domain.DataManagement;
 using Laminar.Domain.Notification;
 using Laminar.Implementation.UserData.FileNavigation.UserActions;
+using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.UserData.FileNavigation;
 
@@ -20,7 +21,8 @@ public class LaminarFileBrowser : ILaminarFileBrowser, IDisposable
     public LaminarFileBrowser(IUserActionManager actionManager, 
         ILaminarStorageItemFactory factory,
         IPersistentDataManager dataManager, 
-        IFileSystem fileSystem)
+        IFileSystem fileSystem,
+        ILogger<LaminarStorageItem> logger)
     {
         _actionManager = actionManager;
         _factory = factory;
@@ -36,7 +38,7 @@ public class LaminarFileBrowser : ILaminarFileBrowser, IDisposable
             new SourcedObservableCollection<string>(dataStore.GetItem<List<string>>(nameof(RootFolders)).Result!);
         
         RootFolders = new MappedObservableCollection<string, ILaminarStorageRootFolder>(rootFolderPaths, path =>
-            _factory.FromPath<ILaminarStorageRootFolder>(path));
+            new LaminarStorageRootFolder(path, _factory, fileSystem, logger));
         
         dataStore.GetObservable<List<string>>(nameof(RootFolders)).ValueChanged += (_, e) =>
         {

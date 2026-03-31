@@ -2,11 +2,10 @@ using System;
 using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.UserData;
 using Laminar.Contracts.UserData.FileNavigation;
-using Laminar.Domain.Notification;
 
 namespace Laminar.Implementation.UserData.FileNavigation.UserActions;
 
-public class InsertStorageItemAction<T>(IFileSystem fileSystem, T item, ILaminarStorageFolder folder, int index) : IUserAction where T : class, ILaminarStorageItem
+public class InsertStorageItemAction<T>(IFileSystem fileSystem, ILaminarStorageItem item, ILaminarStorageFolder folder, int index) : IUserAction where T : class, ILaminarStorageItem
 {
     public event EventHandler? CanExecuteChanged;
     public bool CanExecute => true;

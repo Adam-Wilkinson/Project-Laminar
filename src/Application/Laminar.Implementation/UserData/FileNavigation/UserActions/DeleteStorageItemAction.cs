@@ -5,7 +5,7 @@ using Laminar.Contracts.UserData.FileNavigation;
 
 namespace Laminar.Implementation.UserData.FileNavigation.UserActions;
 
-public class DeleteStorageItemAction<T>(IFileSystem fileSystem, T item) : IUserAction where T : class, ILaminarStorageItem
+public class DeleteStorageItemAction<T>(IFileSystem fileSystem, ILaminarStorageItem item) : IUserAction where T : class, ILaminarStorageItem
 {
     public event EventHandler? CanExecuteChanged;
     

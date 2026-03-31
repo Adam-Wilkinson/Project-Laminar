@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Xml;
 using Laminar.Contracts.UserData;
 using Laminar.Contracts.UserData.FileNavigation;
 using Laminar.Domain.Extensions;
@@ -15,11 +14,6 @@ public partial class LaminarStorageItemFactory(IFileSystem fileSystem, ILogger<L
     
     private readonly Dictionary<string, ILaminarStorageItem> _allStorageItems = [];
     private readonly Dictionary<int, (ILaminarStorageItem item, DateTime timestamp)> _recentlyDeletedItems = [];
-    
-    public ILaminarStorageItem FromFileSystemInfo(FileSystemInfo fileSystemInfo, ILaminarStorageFolder parent)
-    {
-        return FromPath(fileSystemInfo.FullName, parent);
-    }
 
     public ILaminarStorageItem FromPath(string path, ILaminarStorageFolder parent)
     {
@@ -29,7 +23,7 @@ public partial class LaminarStorageItemFactory(IFileSystem fileSystem, ILogger<L
             return item;
         }
 
-        LaminarStorageItem newItem = System.IO.Path.HasExtension(path)
+        LaminarStorageItem newItem = Path.HasExtension(path)
             ? new LaminarStorageFile(path, parent, fileSystem, logger)
             : new LaminarStorageFolder(path, this, logger, fileSystem, parent);
 
@@ -55,26 +49,6 @@ public partial class LaminarStorageItemFactory(IFileSystem fileSystem, ILogger<L
         };
         
         return newItem;
-    }
-
-    public T FromPath<T>(string path, ILaminarStorageFolder? parent = null) where T : class, ILaminarStorageItem
-    {
-        if (typeof(ILaminarStorageRootFolder).IsAssignableFrom(typeof(T)))
-        {
-            if (parent is not null)
-            {
-                throw new ArgumentException("Root folders do not have parents");
-            }
-            
-            return (new LaminarStorageRootFolder(path, this, fileSystem, logger) as T)!;
-        }
-
-        if (parent is null)
-        {
-            throw new ArgumentNullException(nameof(parent), "Non-root folders must be supplied with parents");
-        }
-        
-        return (FromPath(path, parent) as T)!;
     }
 
     private int HashDeletedItem(LaminarStorageItem item) => item switch

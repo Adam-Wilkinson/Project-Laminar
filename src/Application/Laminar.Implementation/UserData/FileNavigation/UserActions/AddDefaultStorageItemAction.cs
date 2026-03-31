@@ -20,7 +20,7 @@ public class AddDefaultStorageItemAction<T>(IFileSystem fileSystem, ILaminarStor
     public IUserActionResult Execute()
     {
         string newItemPath = Path.Join(parentFolder.Path, GetDefaultItemName());
-        T newItem = factory.FromPath<T>(newItemPath, parentFolder);
+        ILaminarStorageItem newItem = factory.FromPath(newItemPath, parentFolder);
         newItem.NeedsName = true;
         newItem.ParentFolder?.Refresh();
         return IUserActionResult.Success(new DeleteStorageItemAction<T>(fileSystem, newItem));

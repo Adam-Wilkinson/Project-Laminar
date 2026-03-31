@@ -10,6 +10,7 @@ namespace Laminar.Implementation.UserData.FileNavigation.UserActions;
 public class RenameStorageItemAction(string newName, ILaminarStorageItem item, IFileSystem fileSystem) : IUserAction
 {
     public event EventHandler? CanExecuteChanged;
+    
     public bool CanExecute { get; } = item.Name != newName;
 
     public IUserActionResult Execute()
