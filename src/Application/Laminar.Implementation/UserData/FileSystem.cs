@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -15,6 +16,20 @@ public class FileSystem(ILogger<File> fileLogger) : IFileSystem
     
     public bool IsDirectory(string path) => System.IO.File.GetAttributes(path).HasFlag(FileAttributes.Directory);
 
+    public void Delete(string path) 
+    {
+        if (IsDirectory(path))
+        {
+            System.IO.Directory.Delete(path);
+        }
+        else
+        {
+            System.IO.File.Delete(path);
+        }
+    }
+    
+    public IEnumerable<string> EnumerateFileSystemEntries(string path) => Directory.GetFileSystemEntries(path);
+    
     public void Move(string sourcePath, string destPath) 
     {
         fileLogger.LogTrace("Moving an item from '{sourcePath}' to '{destPath}'", sourcePath, destPath);
@@ -49,20 +64,6 @@ public class FileSystem(ILogger<File> fileLogger) : IFileSystem
         }
         
         return false;
-    }
-    
-    public void Move(FileSystemInfo fileSystemInfo, string destPath)
-    {
-        fileLogger.LogTrace("Moving an item from '{sourcePath}' to '{destPath}'", fileSystemInfo.FullName, destPath);
-        switch (fileSystemInfo)
-        {
-            case FileInfo fileInfo:
-                fileInfo.MoveTo(destPath);
-                break; 
-            case DirectoryInfo directoryInfo:
-                directoryInfo.MoveTo(destPath);
-                break;
-        };
     }
 
     public DirectoryInfo? GetParent(string path) => Directory.GetParent(path);

@@ -16,10 +16,10 @@ public class DeleteStorageItemAction<T>(IFileSystem fileSystem, T item) : IUserA
         if (item is not LaminarStorageItem storageItem || item.ParentFolder is not { } parentFolder) 
             return IUserActionResult.Failure();
 
-        int indexInParent = parentFolder.Contents.IndexOf(item); 
-        storageItem.FileSystemInfo.Delete();
-        storageItem.ParentFolder?.Refresh();
+        int indexInParent = parentFolder.Contents.IndexOf(item);
+        fileSystem.Delete(storageItem.Path);
         
+        storageItem.ParentFolder?.Refresh();
         return IUserActionResult.Success(new InsertStorageItemAction<T>(fileSystem, item, parentFolder, indexInParent));
     }
 }

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
 using System.Runtime.CompilerServices;
 using Laminar.Contracts.UserData.FileNavigation;
 using Laminar.Domain.ValueObjects;
@@ -38,9 +37,7 @@ public abstract class LaminarStorageItem(ILogger<LaminarStorageItem>? logger) : 
     public virtual string Path => ParentFolder is not null
         ? System.IO.Path.Combine(ParentFolder.Path, Name + Extension)
         : Name + Extension;
-
-    public abstract FileSystemInfo FileSystemInfo { get; }
-
+    
     public abstract IObservableValue<long> SizeOnDisk { get; }
 
     public string Extension { get; protected init; } = "";

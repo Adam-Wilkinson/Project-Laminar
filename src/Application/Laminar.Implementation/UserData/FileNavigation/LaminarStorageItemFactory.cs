@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Xml;
 using Laminar.Contracts.UserData;
 using Laminar.Contracts.UserData.FileNavigation;
 using Laminar.Domain.Extensions;
@@ -8,39 +9,45 @@ using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.UserData.FileNavigation;
 
-public class LaminarStorageItemFactory(IFileSystem fileSystem, ILogger<LaminarStorageItem>? logger) : ILaminarStorageItemFactory
+public partial class LaminarStorageItemFactory(IFileSystem fileSystem, ILogger<LaminarStorageItem> logger) : ILaminarStorageItemFactory
 {
+    private static readonly TimeSpan DeletedItemMoveDetectionCooldown = new(0, 0, 2); 
+    
     private readonly Dictionary<string, ILaminarStorageItem> _allStorageItems = [];
     private readonly Dictionary<int, (ILaminarStorageItem item, DateTime timestamp)> _recentlyDeletedItems = [];
     
     public ILaminarStorageItem FromFileSystemInfo(FileSystemInfo fileSystemInfo, ILaminarStorageFolder parent)
     {
-        if (_allStorageItems.TryGetValue(fileSystemInfo.FullName, out ILaminarStorageItem? item))
+        return FromPath(fileSystemInfo.FullName, parent);
+    }
+
+    public ILaminarStorageItem FromPath(string path, ILaminarStorageFolder parent)
+    {
+        if (_allStorageItems.TryGetValue(path, out ILaminarStorageItem? item))
         {
+            LogRequestedItemMatchesExistingItem(logger, path);
             return item;
         }
-        
-        LaminarStorageItem newItem = fileSystemInfo switch
-        {
-            DirectoryInfo dir => new LaminarStorageFolder(dir, this, logger, parent),
-            FileInfo file => new LaminarStorageFile(file, parent, logger),
-            _ => throw new ArgumentException($"Unknown file system type {fileSystemInfo.GetType()}", 
-                nameof(fileSystemInfo)),
-        };
+
+        LaminarStorageItem newItem = System.IO.Path.HasExtension(path)
+            ? new LaminarStorageFile(path, parent, fileSystem, logger)
+            : new LaminarStorageFolder(path, this, logger, fileSystem, parent);
 
         if (_recentlyDeletedItems.TryGetValue(HashDeletedItem(newItem), out var existingItem) 
-            && (DateTime.Now - existingItem.timestamp).Seconds < 2)
+            && DateTime.Now - existingItem.timestamp < DeletedItemMoveDetectionCooldown)
         {
+            LogRequestedFileMatchesRecentDeletion(logger, path);
+            _allStorageItems[path] = newItem;
             return existingItem.item;
         }
         
         newItem.OnDeleted += (_, _) =>
         {
-            _allStorageItems.Remove(fileSystemInfo.FullName);
+            _allStorageItems.Remove(path);
             _recentlyDeletedItems[HashDeletedItem(newItem)] = (newItem, DateTime.Now);
         };
         
-        _allStorageItems[fileSystemInfo.FullName] = newItem;
+        _allStorageItems[path] = newItem;
         newItem.DependentValueChanged(x => x.Path).DependencyChanged += (_, e) =>
         {
             _allStorageItems.Remove(e.OldValue);
@@ -59,7 +66,7 @@ public class LaminarStorageItemFactory(IFileSystem fileSystem, ILogger<LaminarSt
                 throw new ArgumentException("Root folders do not have parents");
             }
             
-            return (new LaminarStorageRootFolder(new DirectoryInfo(path), this, fileSystem, logger) as T)!;
+            return (new LaminarStorageRootFolder(path, this, fileSystem, logger) as T)!;
         }
 
         if (parent is null)
@@ -67,17 +74,7 @@ public class LaminarStorageItemFactory(IFileSystem fileSystem, ILogger<LaminarSt
             throw new ArgumentNullException(nameof(parent), "Non-root folders must be supplied with parents");
         }
         
-        if (typeof(ILaminarStorageFolder).IsAssignableFrom(typeof(T)))
-        {
-            return (FromFileSystemInfo(new DirectoryInfo(path), parent) as T)!;
-        }
-
-        if (typeof(LaminarStorageFile).IsAssignableFrom(typeof(T)))
-        {
-            return (FromFileSystemInfo(new FileInfo(path), parent) as T)!;
-        }
-        
-        throw new ArgumentException($"Unknown file system type {typeof(T)}", nameof(path));
+        return (FromPath(path, parent) as T)!;
     }
 
     private int HashDeletedItem(LaminarStorageItem item) => item switch
@@ -85,4 +82,10 @@ public class LaminarStorageItemFactory(IFileSystem fileSystem, ILogger<LaminarSt
         ILaminarStorageFolder folder => HashCode.Combine(folder.Name, folder.SizeOnDisk.Value, folder.Contents.Count),
         _ => HashCode.Combine(item.Name + item.Extension, item.SizeOnDisk.Value)
     };
+
+    [LoggerMessage(LogLevel.Trace, "A file at path '{path}' was already cached, returning cached value")]
+    static partial void LogRequestedItemMatchesExistingItem(ILogger<LaminarStorageItem> logger, string path);
+
+    [LoggerMessage(LogLevel.Trace, "A file that was requested at path '{path}' hash matches a recently deleted item, considering this a move operation")]
+    static partial void LogRequestedFileMatchesRecentDeletion(ILogger<LaminarStorageItem> logger, string path);
 }

@@ -12,16 +12,17 @@ namespace Laminar.Implementation.UserData.FileNavigation;
 public class LaminarStorageRootFolder : LaminarStorageFolder, ILaminarStorageRootFolder
 {
     private readonly IFileWatcher _folderWatcher;
-    private readonly IFileSystem _fileSystem;
-    
+
     public LaminarStorageRootFolder(
-        DirectoryInfo directoryInfo, 
+        string path, 
         ILaminarStorageItemFactory factory,
         IFileSystem fileSystem,
-        ILogger<LaminarStorageItem>? logger) : base(directoryInfo, factory, logger)
+        ILogger<LaminarStorageItem>? logger) : base(path, factory, fileSystem, logger)
     {
-        _fileSystem = fileSystem;
-        _folderWatcher = _fileSystem.CreateFileWatcher(FileSystemInfo.FullName);
+        Path = path;
+        Refresh();
+        
+        _folderWatcher = fileSystem.CreateFileWatcher(path);
         _folderWatcher.IncludeSubdirectories = true;
         _folderWatcher.EnableRaisingEvents = true;
 
@@ -31,7 +32,7 @@ public class LaminarStorageRootFolder : LaminarStorageFolder, ILaminarStorageRoo
         _folderWatcher.Changed += ChildItem_Changed;
     }
 
-    public override string Path => FileSystemInfo.FullName;
+    public override string Path { get; }
 
     private void ChildItem_Changed(object sender, FileSystemEventArgs e)
     {

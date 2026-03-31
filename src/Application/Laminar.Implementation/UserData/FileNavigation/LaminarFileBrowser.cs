@@ -10,6 +10,7 @@ using Laminar.Implementation.UserData.FileNavigation.UserActions;
 
 namespace Laminar.Implementation.UserData.FileNavigation;
 
+
 public class LaminarFileBrowser : ILaminarFileBrowser, IDisposable
 {
     private readonly IUserActionManager _actionManager;
@@ -37,7 +38,7 @@ public class LaminarFileBrowser : ILaminarFileBrowser, IDisposable
         RootFolders = new MappedObservableCollection<string, ILaminarStorageRootFolder>(rootFolderPaths, path =>
             _factory.FromPath<ILaminarStorageRootFolder>(path));
         
-        dataStore.GetObservable<List<string>>(nameof(RootFolders)).ValueChanged += (o, e) =>
+        dataStore.GetObservable<List<string>>(nameof(RootFolders)).ValueChanged += (_, e) =>
         {
             rootFolderPaths.ChangeSourceTo(e.NewValue);
         };

@@ -100,7 +100,7 @@ public partial class FileNavigatorViewModel(
                 $"Destination folder '{destinationContainsException.DestinationFolder}' already contains an item of name '{destinationContainsException.ItemName}'");
         }
         
-        targetItem.Refresh();
+        Refresh();
         _currentHoverMove = null;
         _proposedHoveredItem = null;
     }

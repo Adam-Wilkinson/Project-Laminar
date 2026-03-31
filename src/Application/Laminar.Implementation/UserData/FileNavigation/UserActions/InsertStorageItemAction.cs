@@ -21,10 +21,7 @@ public class InsertStorageItemAction<T>(IFileSystem fileSystem, T item, ILaminar
         }
 
         var destinationPath = System.IO.Path.Join(folder.Path, item.Name + item.Extension);
-        fileSystem.Move(storageItem.FileSystemInfo, destinationPath);
-        item.Refresh();
-        item.ParentFolder?.Refresh();
-        folder.Refresh();
+        fileSystem.Move(storageItem.Path, destinationPath);
         
         return IUserActionResult.Success(new DeleteStorageItemAction<T>(fileSystem, item));
     }

@@ -1,7 +1,7 @@
-using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
+using System.Threading;
+using Laminar.Contracts.UserData;
 using Laminar.Contracts.UserData.FileNavigation;
 using Laminar.Domain.Notification;
 using Laminar.Domain.ValueObjects;
@@ -9,36 +9,47 @@ using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.UserData.FileNavigation;
 
-public class LaminarStorageFolder : LaminarStorageItem<DirectoryInfo>, ILaminarStorageFolder
+public class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
 {
     private readonly ILaminarStorageItemFactory _factory;
-    private readonly SourcedObservableCollection<ILaminarStorageItem> _contents;
+    private readonly SourcedObservableCollection<ILaminarStorageItem> _contents = new([])
+    {
+        SyncMode = SourcedCollectionMode.SetEquality,
+    };
+    
     private readonly ObservableValue<long> _sizeOnDisk = new();
     private readonly Queue<(ILaminarStorageItem, int)> _queuedMoves = [];
+    private readonly IFileSystem _fileSystem;
+    private readonly Lock _getChildrenLock = new();
     
-    public LaminarStorageFolder(DirectoryInfo directoryInfo, 
+    public LaminarStorageFolder(string path, 
         ILaminarStorageItemFactory factory, 
         ILogger<LaminarStorageItem>? logger,
-        ILaminarStorageFolder parent) : this(directoryInfo, factory, logger)
+        IFileSystem fileSystem,
+        ILaminarStorageFolder parent) : this(path, factory, fileSystem, logger)
     {
         SetParent(this, parent);
+        Refresh();
     }
 
     protected LaminarStorageFolder(
-        DirectoryInfo directoryInfo, 
+        string path, 
         ILaminarStorageItemFactory factory,
-        ILogger<LaminarStorageItem>? logger) : base(directoryInfo, logger)
+        IFileSystem fileSystem,
+        ILogger<LaminarStorageItem>? logger) : base(logger)
     {
-        if (!directoryInfo.Exists)
+        if (!fileSystem.Exists(path))
         {
-            directoryInfo.Create();
+            fileSystem.CreateDirectory(path);
         }
 
-        _factory = factory;
-        _contents = new SourcedObservableCollection<ILaminarStorageItem>(GetChildren())
+        if (System.IO.Path.GetFileName(path) is { } dirName)
         {
-            SyncMode = SourcedCollectionMode.SetEquality // We have a different item order to the system files
-        };
+            Name = dirName;
+        }
+
+        _fileSystem = fileSystem;
+        _factory = factory;
         
         Contents.HelperInstance().ItemAdded += ContentsItemAdded;
         Contents.HelperInstance().ItemRemoved += ContentsItemRemoved;
@@ -65,7 +76,6 @@ public class LaminarStorageFolder : LaminarStorageItem<DirectoryInfo>, ILaminarS
 
     public override void Refresh()
     {
-        base.Refresh();
         _contents.ChangeSourceTo(GetChildren());
         foreach (var child in Contents)
         {
@@ -84,7 +94,6 @@ public class LaminarStorageFolder : LaminarStorageItem<DirectoryInfo>, ILaminarS
         SetParent(newStorageItem, this);
         _sizeOnDisk.Value += newStorageItem.SizeOnDisk.Value;
         newStorageItem.SizeOnDisk.ValueChanged += ChildSizeChanged;
-        FileSystemInfo.Refresh();
     }
 
     private void ChildSizeChanged(object? sender, ObservableValueChangedEventArgs<long> e)
@@ -94,32 +103,33 @@ public class LaminarStorageFolder : LaminarStorageItem<DirectoryInfo>, ILaminarS
     
     private IEnumerable<ILaminarStorageItem> GetChildren()
     {
-        IEnumerable<ILaminarStorageItem> returnValue =
-            FileSystemInfo.GetFileSystemInfos().Select(x => _factory.FromFileSystemInfo(x, this));
-
-        if (_queuedMoves.Count == 0)
+        lock (_getChildrenLock)
         {
-            return returnValue;
-        }
+            IEnumerable<ILaminarStorageItem> returnValue =
+                _fileSystem.EnumerateFileSystemEntries(Path).Select(x => _factory.FromPath(x, this));
+
+            if (_queuedMoves.Count == 0)
+            {
+                return returnValue;
+            }
         
-        var listReturn = returnValue.ToList();
-
-        while (_queuedMoves.Count > 0)
-        {
-            var (movedItem, newIndex) = _queuedMoves.Dequeue();
-            int oldIndex = listReturn.TakeWhile(item => item.Name != movedItem.Name).Count();
-            if (oldIndex >= listReturn.Count)
+            var listReturn = returnValue.ToList();
+            while (_queuedMoves.Count > 0)
             {
-                Logger?.LogError("Failed to remove item from folder children that should be there");
-            }
-            else
-            {
-                var item = listReturn[oldIndex];
-                listReturn.RemoveAt(oldIndex);
-                listReturn.Insert(newIndex, item);
-            }
+                var (movedItem, newIndex) = _queuedMoves.Dequeue();
+                int oldIndex = listReturn.TakeWhile(item => item.Name != movedItem.Name).Count();
+                if (oldIndex >= listReturn.Count)
+                {
+                    Logger?.LogError("Failed to remove item from folder children that should be there");
+                }
+                else
+                {
+                    var item = listReturn[oldIndex];
+                    listReturn.RemoveAt(oldIndex);
+                    listReturn.Insert(newIndex, item);
+                }
+            }   
+            return listReturn;
         }
-
-        return listReturn;
     }
 }

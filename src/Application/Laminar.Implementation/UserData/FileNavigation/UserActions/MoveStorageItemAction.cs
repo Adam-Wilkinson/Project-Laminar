@@ -46,10 +46,7 @@ public class MoveStorageItemAction(
                }
                
                var destinationPath = System.IO.Path.Join(destinationFolder.Path, item.Name + item.Extension);
-               fileSystem.Move(storageItem.FileSystemInfo, destinationPath);
-               oldFolder.Refresh();
-               destinationFolder.Refresh();
-               item.Refresh();
+               fileSystem.Move(storageItem.Path, destinationPath);
           }
 
           return IUserActionResult.Success(new MoveStorageItemAction(item, oldFolder, fileSystem, indexInOldFolder));

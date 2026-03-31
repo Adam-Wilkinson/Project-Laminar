@@ -1,22 +1,28 @@
 using System.IO;
+using Laminar.Contracts.UserData;
 using Laminar.Contracts.UserData.FileNavigation;
 using Laminar.Domain.ValueObjects;
 using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.UserData.FileNavigation;
 
-public class LaminarStorageFile : LaminarStorageItem<FileInfo>
+public class LaminarStorageFile : LaminarStorageItem
 {
     private readonly ObservableValue<long> _sizeOnDisk = new();
+    private readonly IFileSystem _fileSystem;
     
-    public LaminarStorageFile(FileInfo fileSystemInfo, ILaminarStorageFolder parent, ILogger<LaminarStorageItem>? logger) 
-        : base(fileSystemInfo, logger)
+    public LaminarStorageFile(string path, ILaminarStorageFolder parent, IFileSystem fileSystem, ILogger<LaminarStorageItem>? logger) 
+        : base(logger)
     {
-        if (!fileSystemInfo.Exists)
+        _fileSystem = fileSystem;
+        
+        if (!_fileSystem.Exists(path))
         {
-            fileSystemInfo.Create().Close();
+            _fileSystem.CreateFile(path).Close();
         }
 
+        Extension = System.IO.Path.GetExtension(path);
+        Name = System.IO.Path.GetFileNameWithoutExtension(path);
         SetParent(this, parent);
         Refresh();
     }
@@ -25,7 +31,6 @@ public class LaminarStorageFile : LaminarStorageItem<FileInfo>
 
     public override void Refresh()
     {
-        base.Refresh();
-        _sizeOnDisk.Value = FileSystemInfo.Length;
+        _sizeOnDisk.Value = _fileSystem.GetFileSize(Path);
     }
 }

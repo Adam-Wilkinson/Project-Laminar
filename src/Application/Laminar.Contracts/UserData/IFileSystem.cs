@@ -1,5 +1,9 @@
 namespace Laminar.Contracts.UserData;
 
+/// <summary>
+/// Low-level representation of the file system of the computer we are running on, manipulating path strings.
+/// Anything that modifies the file system should do so through this interface for testability.
+/// </summary>
 public interface IFileSystem
 {
     public bool Exists(string path);
@@ -7,8 +11,6 @@ public interface IFileSystem
     public bool IsDirectory(string path);
     
     public void Move(string sourcePath, string destPath);
-    
-    public void Move(FileSystemInfo fileSystemInfo, string destPath);
     
     public DirectoryInfo? GetParent(string path);
     
@@ -31,5 +33,10 @@ public interface IFileSystem
     public string GetFileName(string path);
     
     public IFile GetFile(string path);
+    
     bool OpenInSystemFileBrowser(string path);
+    
+    IEnumerable<string> EnumerateFileSystemEntries(string path);
+    
+    void Delete(string path);
 }
