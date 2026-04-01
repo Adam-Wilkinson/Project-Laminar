@@ -2,6 +2,7 @@ using System;
 using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.UserData;
 using Laminar.Contracts.UserData.FileNavigation;
+using Laminar.Domain.ValueObjects;
 
 namespace Laminar.Implementation.UserData.FileNavigation.UserActions;
 
@@ -19,7 +20,7 @@ public class InsertStorageItemAction<T>(IFileSystem fileSystem, ILaminarStorageI
             destinationFolder.RegisterQueuedMove(item, index);
         }
 
-        var destinationPath = System.IO.Path.Join(folder.Path, item.Name + item.Extension);
+        var destinationPath = folder.Path.ChildPath(item.Path.NameAndExtension);
         fileSystem.Move(storageItem.Path, destinationPath);
         
         return IUserActionResult.Success(new DeleteStorageItemAction<T>(fileSystem, item));

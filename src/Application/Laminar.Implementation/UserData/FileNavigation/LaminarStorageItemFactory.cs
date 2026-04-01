@@ -4,6 +4,7 @@ using System.IO;
 using Laminar.Contracts.UserData;
 using Laminar.Contracts.UserData.FileNavigation;
 using Laminar.Domain.Extensions;
+using Laminar.Domain.ValueObjects;
 using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.UserData.FileNavigation;
@@ -12,10 +13,10 @@ public partial class LaminarStorageItemFactory(IFileSystem fileSystem, ILogger<L
 {
     private static readonly TimeSpan DeletedItemMoveDetectionCooldown = new(0, 0, 2); 
     
-    private readonly Dictionary<string, ILaminarStorageItem> _allStorageItems = [];
+    private readonly Dictionary<FileSystemPath, ILaminarStorageItem> _allStorageItems = [];
     private readonly Dictionary<int, (ILaminarStorageItem item, DateTime timestamp)> _recentlyDeletedItems = [];
 
-    public ILaminarStorageItem FromPath(string path, ILaminarStorageFolder parent)
+    public ILaminarStorageItem FromPath(FileSystemPath path, ILaminarStorageFolder parent)
     {
         if (_allStorageItems.TryGetValue(path, out ILaminarStorageItem? item))
         {
@@ -23,9 +24,9 @@ public partial class LaminarStorageItemFactory(IFileSystem fileSystem, ILogger<L
             return item;
         }
 
-        LaminarStorageItem newItem = Path.HasExtension(path)
-            ? new LaminarStorageFile(path, parent, fileSystem, logger)
-            : new LaminarStorageFolder(path, this, logger, fileSystem, parent);
+        LaminarStorageItem newItem = string.IsNullOrWhiteSpace(path.Extension)
+            ? new LaminarStorageFolder(path, this, logger, fileSystem, parent) 
+            : new LaminarStorageFile(path, parent, fileSystem, logger);
 
         if (_recentlyDeletedItems.TryGetValue(HashDeletedItem(newItem), out var existingItem) 
             && DateTime.Now - existingItem.timestamp < DeletedItemMoveDetectionCooldown)
@@ -53,13 +54,13 @@ public partial class LaminarStorageItemFactory(IFileSystem fileSystem, ILogger<L
 
     private int HashDeletedItem(LaminarStorageItem item) => item switch
     {
-        ILaminarStorageFolder folder => HashCode.Combine(folder.Name, folder.SizeOnDisk.Value, folder.Contents.Count),
-        _ => HashCode.Combine(item.Name + item.Extension, item.SizeOnDisk.Value)
+        ILaminarStorageFolder folder => HashCode.Combine(folder.Path.NameAndExtension, folder.SizeOnDisk.Value, folder.Contents.Count),
+        _ => HashCode.Combine(item.Path.NameAndExtension, item.SizeOnDisk.Value)
     };
 
     [LoggerMessage(LogLevel.Trace, "A file at path '{path}' was already cached, returning cached value")]
-    static partial void LogRequestedItemMatchesExistingItem(ILogger<LaminarStorageItem> logger, string path);
+    static partial void LogRequestedItemMatchesExistingItem(ILogger<LaminarStorageItem> logger, FileSystemPath path);
 
     [LoggerMessage(LogLevel.Trace, "A file that was requested at path '{path}' hash matches a recently deleted item, considering this a move operation")]
-    static partial void LogRequestedFileMatchesRecentDeletion(ILogger<LaminarStorageItem> logger, string path);
+    static partial void LogRequestedFileMatchesRecentDeletion(ILogger<LaminarStorageItem> logger, FileSystemPath path);
 }

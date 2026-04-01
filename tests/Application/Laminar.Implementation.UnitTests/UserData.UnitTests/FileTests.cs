@@ -1,6 +1,7 @@
 using FluentAssertions;
 using Laminar.Contracts;
 using Laminar.Contracts.UserData;
+using Laminar.Domain.ValueObjects;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using File = Laminar.Implementation.UserData.File;
@@ -9,9 +10,9 @@ namespace Laminar.Implementation.UnitTests.UserData.UnitTests;
 
 public class FileTests
 {
-    private const string FileDirectory = "TestDirectory";
     private const string FileName = "TestContents.extension";
-    private const string FilePath = FileDirectory + "\\" + FileName; 
+    private static readonly FileSystemPath FileDirectory = new("TestDirectory");
+    private static readonly FileSystemPath FilePath = FileDirectory.ChildPath(FileName); 
     
     private readonly ILogger<File> _logger = Substitute.For<ILogger<File>>();
     
@@ -24,8 +25,7 @@ public class FileTests
         var mockFileWatcher = Substitute.For<IFileWatcher>();
         var mockFileSystem = Substitute.For<IFileSystem>();
         mockFileSystem.ReadBytes(FilePath).Returns(initialFileContents);
-        mockFileSystem.CreateFileWatcher(Arg.Any<string>(), Arg.Any<string>()).Returns(mockFileWatcher);
-        mockFileSystem.GetParent(FilePath).Returns(new DirectoryInfo(FileDirectory));
+        mockFileSystem.CreateFileWatcher(Arg.Any<FileSystemPath>(), Arg.Any<string>()).Returns(mockFileWatcher);
         mockFileSystem.Exists(FilePath).Returns(true);
         
         using var sut = new File(mockFileSystem, FilePath, _logger);
@@ -48,16 +48,14 @@ public class FileTests
         var mockFileWatcher = Substitute.For<IFileWatcher>();
         var mockFileSystem = Substitute.For<IFileSystem>();
         mockFileSystem.ReadBytes(FilePath).Returns(initialFileContents);
-        mockFileSystem.CreateFileWatcher(Arg.Any<string>(), Arg.Any<string>()).Returns(mockFileWatcher);
-        mockFileSystem.GetParent(FilePath).Returns(new DirectoryInfo(FileDirectory));
-        mockFileSystem.GetFileName(FilePath).Returns(FileName);
+        mockFileSystem.CreateFileWatcher(Arg.Any<FileSystemPath>(), Arg.Any<string>()).Returns(mockFileWatcher);
         mockFileSystem.Exists(FilePath).Returns(true);
         
         using var sut = new File(mockFileSystem, FilePath, _logger);
         using var mon = sut.Monitor();
 
         sut.Contents = newFileContents;
-        mockFileWatcher.Changed += Raise.Event<FileSystemEventHandler>(new FileSystemEventArgs(WatcherChangeTypes.Changed, FileDirectory, FileName));
+        mockFileWatcher.Changed += Raise.Event<FileSystemEventHandler>(new FileSystemEventArgs(WatcherChangeTypes.Changed, FileDirectory.ToString(), FileName));
 
         sut.CheckAccess();
         
@@ -72,16 +70,16 @@ public class FileTests
 
         var mockFileWatcher = Substitute.For<IFileWatcher>();
         var mockFileSystem = Substitute.For<IFileSystem>();
+        var mockFileStream = Substitute.For<IFileStream>();
         mockFileSystem.ReadBytes(FilePath).Returns(initialFileContents);
-        mockFileSystem.CreateFileWatcher(Arg.Any<string>(), Arg.Any<string>()).Returns(mockFileWatcher);
-        mockFileSystem.GetParent(FilePath).Returns(new DirectoryInfo(FileDirectory));
-        mockFileSystem.GetFileName(FilePath).Returns(FileName);
-    
+        mockFileSystem.CreateFileWatcher(Arg.Any<FileSystemPath>(), Arg.Any<string>()).Returns(mockFileWatcher);
+        mockFileSystem.CreateFile(FilePath).Returns(mockFileStream);
+        
         using var sut = new File(mockFileSystem, FilePath, _logger);
         using var mon = sut.Monitor();
         
         mockFileSystem.ReadBytes(FilePath).Returns(newFileContents);
-        mockFileWatcher.Changed += Raise.Event<FileSystemEventHandler>(new FileSystemEventArgs(WatcherChangeTypes.Changed, FileDirectory, FileName));
+        mockFileWatcher.Changed += Raise.Event<FileSystemEventHandler>(new FileSystemEventArgs(WatcherChangeTypes.Changed, FileDirectory.ToString(), FileName));
         sut.CheckAccess();
         
         mon.Should().Raise(nameof(IFile.ContentsChanged));
@@ -97,16 +95,14 @@ public class FileTests
         var mockFileWatcher = Substitute.For<IFileWatcher>();
         var mockFileSystem = Substitute.For<IFileSystem>();
         mockFileSystem.ReadBytes(FilePath).Returns(initialFileContents);
-        mockFileSystem.CreateFileWatcher(Arg.Any<string>(), Arg.Any<string>()).Returns(mockFileWatcher);
-        mockFileSystem.GetParent(FilePath).Returns(new DirectoryInfo(FileDirectory));
-        mockFileSystem.GetFileName(FilePath).Returns(FileName);
+        mockFileSystem.CreateFileWatcher(Arg.Any<FileSystemPath>(), Arg.Any<string>()).Returns(mockFileWatcher);
         mockFileSystem.Exists(FilePath).Returns(true);
     
         using var sut = new File(mockFileSystem, FilePath, _logger);
         using var mon = sut.Monitor();
         
         mockFileSystem.ReadBytes(FilePath).Returns(newFileContents);
-        mockFileWatcher.Changed += Raise.Event<FileSystemEventHandler>(new FileSystemEventArgs(WatcherChangeTypes.Changed, FileDirectory, "another file.txt"));
+        mockFileWatcher.Changed += Raise.Event<FileSystemEventHandler>(new FileSystemEventArgs(WatcherChangeTypes.Changed, FileDirectory.ToString(), "another file.txt"));
         
         mon.Should().NotRaise(nameof(IFile.ContentsChanged));
         Assert.Equal(initialFileContents, sut.Contents);

@@ -7,7 +7,7 @@ public interface IFile : IDisposable, IValueSink<byte[]>
     /// <summary>
     /// The path of the file
     /// </summary>
-    public string Path { get; }
+    public FileSystemPath Path { get; }
 
     /// <summary>
     /// The contents of the file

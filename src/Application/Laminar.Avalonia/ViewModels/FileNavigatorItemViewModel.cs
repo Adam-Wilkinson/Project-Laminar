@@ -14,6 +14,7 @@ using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.UserData.FileNavigation;
 using Laminar.Domain.Extensions;
 using Laminar.Domain.Notification;
+using Laminar.Domain.ValueObjects;
 using Laminar.Implementation.UserData.FileNavigation;
 using Laminar.Implementation.UserData.FileNavigation.UserActions;
 using Microsoft.Extensions.Logging;
@@ -30,9 +31,7 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
     private readonly ILogger<FileNavigatorItemViewModel>? _logger;
     private readonly TopLevel? _topLevel;
     private readonly IDialogService _dialogService;
-    
-    [ObservableProperty] private bool _isExpanded = true;
-    
+
     public FileNavigatorItemViewModel(
         ILaminarStorageItem coreItem, 
         ILaminarFileBrowser fileBrowser, 
@@ -45,17 +44,17 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
         _topLevel = topLevel;
         _dialogService = dialogService;
         CoreItem = coreItem;
-        Name = CoreItem.Name;
+        Name = CoreItem.Path.Name;
 
         if (coreItem is ILaminarStorageFolder folder)
         {
-            _children = new SourcedObservableCollection<FileNavigatorItemViewModel>(folder.Contents.ObservableMap((Func<ILaminarStorageItem, FileNavigatorItemViewModel>)Factory), ContentsEqual);
+            _children = new SourcedObservableCollection<FileNavigatorItemViewModel>(folder.Contents.ObservableMap(Factory), ContentsEqual);
             _children.HelperInstance().ItemAdded += (_, e) => e.Item.Parent = this;
         }
 
         CoreItem.PropertyChanged += (_, e) =>
         {
-            if (e.PropertyName == nameof(ILaminarStorageItem.Name)) Name = CoreItem.Name;
+            if (e.PropertyName == nameof(ILaminarStorageItem.Path)) Name = CoreItem.Path.Name;
         };
 
         CoreItem.DependentValueChanged(item => item.ParentFolder?.IsEffectivelyEnabled ?? false).DependencyChanged +=
@@ -66,6 +65,9 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
         FileNavigatorItemViewModel Factory(ILaminarStorageItem storageItem) 
             => new(storageItem, _fileBrowser, dialogService, logger, topLevel) { Parent = this };
     }
+    
+    [ObservableProperty]
+    public partial bool IsExpanded { get; set; } = true;
     
     public FileNavigatorItemViewModel? Parent { get; private set; }
 
@@ -78,14 +80,12 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
         get;
         set
         {
-            if (value != field)
+            if (value == field) return;
+            field = value;
+            OnPropertyChanged();
+            if (value != CoreItem.Path.Name)
             {
-                field = value;
-                OnPropertyChanged();
-                if (value != CoreItem.Name)
-                {
-                    Dispatcher.UIThread.InvokeAsync(SetCoreItemName);
-                }
+                Dispatcher.UIThread.InvokeAsync(SetCoreItemName);
             }
         }
     }
@@ -98,23 +98,6 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
         LaminarStorageFile => "script",
         _ => "item"
     };
-
-    private async Task SetCoreItemName()
-    {
-        if (_fileBrowser.Rename(CoreItem, Name) is UserActionError
-                { Exception: { } renameException })
-        {
-            Dispatcher.UIThread.Post(() => Name = CoreItem.Name);
-            var message = renameException switch
-            {
-                InvalidStorageItemNameException storageItemNameException => $"Invalid storage item name: '{storageItemNameException.Name}'",
-                FileWithNameExistsException nameExistsExtension => $"A storage item with the name '{nameExistsExtension.Name}' already exists",
-                _ => renameException.Message,
-            };
-            
-            await _dialogService.ShowError((INotifyPropertyChanged)_topLevel?.DataContext!, "File System Error", message);
-        }
-    }
     
     [RelayCommand(CanExecute = nameof(IsFolder))]
     public void AddItem(Type itemType)
@@ -151,14 +134,6 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
     {
         _fileBrowser.OpenInSystemFileBrowser(CoreItem);
     }
-
-    private class ContentsEqualComparer : IEqualityComparer<FileNavigatorItemViewModel>
-    {
-        public bool Equals(FileNavigatorItemViewModel? x, FileNavigatorItemViewModel? y) 
-            => Equals(x?.CoreItem, y?.CoreItem);
-
-        public int GetHashCode(FileNavigatorItemViewModel obj) => obj.CoreItem.GetHashCode();
-    }
     
     public void Refresh()
     {
@@ -167,6 +142,31 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
         foreach (var child in _children ?? Enumerable.Empty<FileNavigatorItemViewModel>())
         {
             child.Refresh();
+        }
+    }
+    
+    private class ContentsEqualComparer : IEqualityComparer<FileNavigatorItemViewModel>
+    {
+        public bool Equals(FileNavigatorItemViewModel? x, FileNavigatorItemViewModel? y) 
+            => Equals(x?.CoreItem, y?.CoreItem);
+
+        public int GetHashCode(FileNavigatorItemViewModel obj) => obj.CoreItem.GetHashCode();
+    }
+    
+    private async Task SetCoreItemName()
+    {
+        if (_fileBrowser.Rename(CoreItem, Name) is UserActionError
+                { Exception: { } renameException })
+        {
+            Dispatcher.UIThread.Post(() => Name = CoreItem.Path.Name);
+            var message = renameException switch
+            {
+                InvalidStorageItemNameException storageItemNameException => $"Invalid storage item name: '{storageItemNameException.Name}'",
+                FileWithNameExistsException nameExistsExtension => $"A storage item with the name '{nameExistsExtension.Name}' already exists",
+                _ => renameException.Message,
+            };
+            
+            await _dialogService.ShowError((INotifyPropertyChanged)_topLevel?.DataContext!, "File System Error", message);
         }
     }
 }

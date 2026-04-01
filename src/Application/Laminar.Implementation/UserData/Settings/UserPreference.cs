@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
-using Laminar.Contracts.UserData.Settings;
 using Laminar.Contracts.Base.UserInterface;
 using Laminar.Contracts.Notification;
+using Laminar.Contracts.UserData.Settings;
 
 namespace Laminar.Implementation.UserData.Settings;
 

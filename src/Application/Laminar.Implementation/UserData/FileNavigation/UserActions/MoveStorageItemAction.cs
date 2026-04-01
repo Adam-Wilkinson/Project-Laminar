@@ -33,10 +33,10 @@ public class MoveStorageItemAction(
           }
           else
           {
-               if (destinationFolder.Contents.Any(x => x.Name == item.Name))
+               if (destinationFolder.Contents.Any(x => x.Path.Name == item.Path.Name))
                {
                     return IUserActionResult.Error(
-                         new DestinationContainsItemOfThatNameException(destinationFolder.Name, item.Name));
+                         new DestinationContainsItemOfThatNameException(destinationFolder.Path.Name, item.Path.Name));
                }
                
                // The file system is not positional, so we prep the StorageFolder to move to the right position
@@ -44,8 +44,8 @@ public class MoveStorageItemAction(
                {
                     typedFolder.RegisterQueuedMove(item, indexInDestinationFolder);
                }
-               
-               var destinationPath = System.IO.Path.Join(destinationFolder.Path, item.Name + item.Extension);
+
+               var destinationPath = destinationFolder.Path.ChildPath(item.Path.NameAndExtension);
                fileSystem.Move(storageItem.Path, destinationPath);
           }
 

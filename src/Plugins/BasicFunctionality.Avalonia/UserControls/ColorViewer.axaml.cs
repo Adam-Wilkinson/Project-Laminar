@@ -5,8 +5,8 @@ using Avalonia.Data;
 using Avalonia.Data.Converters;
 using Avalonia.Media;
 using Laminar.PluginFramework.UserInterface;
-using DrawingColor = System.Drawing.Color;
 using AvaloniaColor = Avalonia.Media.Color;
+using DrawingColor = System.Drawing.Color;
 
 namespace BasicFunctionality.Avalonia.UserControls;
 

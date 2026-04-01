@@ -3,13 +3,13 @@ using Avalonia.Media;
 using BasicFunctionality.Avalonia.UserControls;
 using Laminar.PluginFramework.Registration;
 using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
-using Slider = Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions.Slider;
-using StringEditor = Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions.StringEditor;
-using ToggleSwitch = Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions.ToggleSwitch;
-using DrawingColor = System.Drawing.Color;
 using AvaloniaColor = Avalonia.Media.Color;
 using ColorEditor = Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions.ColorEditor;
 using ColorViewer = Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions.ColorViewer;
+using DrawingColor = System.Drawing.Color;
+using Slider = Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions.Slider;
+using StringEditor = Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions.StringEditor;
+using ToggleSwitch = Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions.ToggleSwitch;
 
 [module: HasFrontendDependency(FrontendDependency.Avalonia)]
 

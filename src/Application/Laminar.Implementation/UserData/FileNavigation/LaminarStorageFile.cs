@@ -11,8 +11,8 @@ public class LaminarStorageFile : LaminarStorageItem
     private readonly ObservableValue<long> _sizeOnDisk = new();
     private readonly IFileSystem _fileSystem;
     
-    public LaminarStorageFile(string path, ILaminarStorageFolder parent, IFileSystem fileSystem, ILogger<LaminarStorageItem>? logger) 
-        : base(logger)
+    public LaminarStorageFile(FileSystemPath path, ILaminarStorageFolder parent, IFileSystem fileSystem, ILogger<LaminarStorageItem>? logger) 
+        : base(fileSystem, logger)
     {
         _fileSystem = fileSystem;
         
@@ -21,15 +21,14 @@ public class LaminarStorageFile : LaminarStorageItem
             _fileSystem.CreateFile(path).Close();
         }
 
-        Extension = System.IO.Path.GetExtension(path);
-        Name = System.IO.Path.GetFileNameWithoutExtension(path);
         SetParent(this, parent);
+        Rename(this, path.NameAndExtension);
         Refresh();
     }
 
     public override IObservableValue<long> SizeOnDisk => _sizeOnDisk;
 
-    public override void Refresh()
+    protected override void RefreshOverride()
     {
         _sizeOnDisk.Value = _fileSystem.GetFileSize(Path);
     }

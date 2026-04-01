@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Laminar.Contracts.UserData;
 using Laminar.Contracts.UserData.FileNavigation;
+using Laminar.Domain.ValueObjects;
 using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.UserData.FileNavigation;
@@ -14,7 +14,7 @@ public class LaminarStorageRootFolder : LaminarStorageFolder, ILaminarStorageRoo
     private readonly IFileWatcher _folderWatcher;
 
     public LaminarStorageRootFolder(
-        string path, 
+        FileSystemPath path, 
         ILaminarStorageItemFactory factory,
         IFileSystem fileSystem,
         ILogger<LaminarStorageItem>? logger) : base(path, factory, fileSystem, logger)
@@ -32,7 +32,7 @@ public class LaminarStorageRootFolder : LaminarStorageFolder, ILaminarStorageRoo
         _folderWatcher.Changed += ChildItem_Changed;
     }
 
-    public override string Path { get; }
+    public override FileSystemPath Path { get; }
 
     private void ChildItem_Changed(object sender, FileSystemEventArgs e)
     {
@@ -61,21 +61,21 @@ public class LaminarStorageRootFolder : LaminarStorageFolder, ILaminarStorageRoo
     private void ChildItem_Renamed(object sender, RenamedEventArgs e)
     {
         if (FindChildrenFromPath(e.OldFullPath).LastOrDefault() is not LaminarStorageItem renamedChild) return;
-        renamedChild.Name = System.IO.Path.GetFileNameWithoutExtension(e.FullPath);
+        Rename(renamedChild, new FileSystemPath(e.OldFullPath).NameAndExtension);
     }
-
+    
     private IEnumerable<ILaminarStorageItem> FindChildrenFromPath(string absolutePath)
     {
-        string relativePath = System.IO.Path.GetRelativePath(Path, absolutePath);
+        string relativePath = System.IO.Path.GetRelativePath(Path.ToString(), absolutePath);
         yield return this;
         var childNames = relativePath.Split('/');
         int indexInChildNames = 0;
         ILaminarStorageFolder currentFolder = this;
-        while (currentFolder.Path != absolutePath)
+        while (currentFolder.Path.ToString() != absolutePath)
         {
             switch (FindDirectChildNamed(currentFolder, childNames[indexInChildNames]))
             {
-                case { } item when item.Path == absolutePath:
+                case { } item when item.Path.ToString() == absolutePath:
                     yield return item;
                     yield break;
                 case ILaminarStorageFolder childFolder:
@@ -94,7 +94,7 @@ public class LaminarStorageRootFolder : LaminarStorageFolder, ILaminarStorageRoo
         Span<ILaminarStorageItem> contents = folder.Contents.ToArray();
         foreach (var item in contents)
         {
-            if (item.Name + item.Extension == itemName)
+            if (item.Path.NameAndExtension == itemName)
             {
                 return item;
             }

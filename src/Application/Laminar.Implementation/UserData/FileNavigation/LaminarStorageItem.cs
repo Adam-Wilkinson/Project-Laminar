@@ -2,15 +2,24 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using Laminar.Contracts.UserData;
 using Laminar.Contracts.UserData.FileNavigation;
 using Laminar.Domain.ValueObjects;
 using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.UserData.FileNavigation;
 
-public abstract class LaminarStorageItem(ILogger<LaminarStorageItem>? logger) : ILaminarStorageItem
+public abstract class LaminarStorageItem(IFileSystem fileSystem, ILogger<LaminarStorageItem>? logger) : ILaminarStorageItem
 {
+    private string _nameWithExtension = "";
+    
     protected static void SetParent(LaminarStorageItem item, ILaminarStorageFolder? folder) => item.ParentFolder = folder;
+
+    protected static void Rename(LaminarStorageItem item, string newNameWithExtension)
+    {
+        item._nameWithExtension = newNameWithExtension;
+        item.OnPropertyChanged(nameof(item.Path));
+    } 
     
     protected static void TriggerOnDeleted(LaminarStorageItem item)
     {
@@ -23,24 +32,10 @@ public abstract class LaminarStorageItem(ILogger<LaminarStorageItem>? logger) : 
     public event PropertyChangedEventHandler? PropertyChanged;
 
     public event EventHandler? OnDeleted;
-    
-    public string Name
-    {
-        get;
-        internal set
-        {
-            SetField(ref field, value);
-            OnPropertyChanged(nameof(Path));
-        }
-    } = "";
 
-    public virtual string Path => ParentFolder is not null
-        ? System.IO.Path.Combine(ParentFolder.Path, Name + Extension)
-        : Name + Extension;
-    
+    public virtual FileSystemPath Path => ParentFolder?.Path.ChildPath(_nameWithExtension) ?? new(_nameWithExtension);
+
     public abstract IObservableValue<long> SizeOnDisk { get; }
-
-    public string Extension { get; protected init; } = "";
     
     public virtual bool IsEnabled
     {
@@ -57,8 +52,16 @@ public abstract class LaminarStorageItem(ILogger<LaminarStorageItem>? logger) : 
     public bool NeedsName { get; set => SetField(ref field, value); }
     
     public ILaminarStorageFolder? ParentFolder { get; private set; }
+
+    public void Refresh()
+    {
+        if (fileSystem.Exists(Path))
+        {
+            RefreshOverride();
+        }
+    }
     
-    public abstract void Refresh();
+    protected abstract void RefreshOverride();
     
     public virtual void OnEffectivelyEnabledChanged()
     {

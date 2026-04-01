@@ -1,6 +1,6 @@
 ﻿using System;
-using Laminar.Contracts.Base.UserInterface;
 using Laminar.Contracts.Base;
+using Laminar.Contracts.Base.UserInterface;
 using Laminar.PluginFramework.UserInterface;
 using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 

@@ -3,6 +3,7 @@ using System.IO;
 using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.UserData;
 using Laminar.Contracts.UserData.FileNavigation;
+using Laminar.Domain.ValueObjects;
 
 namespace Laminar.Implementation.UserData.FileNavigation.UserActions;
 
@@ -19,7 +20,7 @@ public class AddDefaultStorageItemAction<T>(IFileSystem fileSystem, ILaminarStor
     public bool CanExecute => true;
     public IUserActionResult Execute()
     {
-        string newItemPath = Path.Join(parentFolder.Path, GetDefaultItemName());
+        FileSystemPath newItemPath = parentFolder.Path.ChildPath(GetDefaultItemName());
         ILaminarStorageItem newItem = factory.FromPath(newItemPath, parentFolder);
         newItem.NeedsName = true;
         newItem.ParentFolder?.Refresh();

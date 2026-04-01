@@ -8,7 +8,7 @@ namespace Laminar.Avalonia.ViewModels.Design;
 
 public class MockDataManager : IPersistentDataManager
 {
-    private static readonly string StaticPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Project Laminar", "Mock Data");
+    private static readonly FileSystemPath StaticPath = new(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Project Laminar", "Mock Data"));
     private readonly MockDataStore _dataStore = new(StaticPath);
     
     public IPersistentDataStore GetDataStore(DataStoreKey dataStoreKey)
@@ -16,13 +16,13 @@ public class MockDataManager : IPersistentDataManager
         return _dataStore;
     }
 
-    public string Path => StaticPath;
+    public FileSystemPath Path => StaticPath;
 
-    private class MockDataStore(string filePath) : IPersistentDataStore
+    private class MockDataStore(FileSystemPath filePath) : IPersistentDataStore
     {
         private readonly Dictionary<string, object?> _dataStore = []; 
         
-        public string FilePath { get; } = filePath;
+        public FileSystemPath FilePath { get; } = filePath;
         
         public DataReadResult<T> GetItem<T>(string key) where T : notnull
         {
@@ -31,7 +31,7 @@ public class MockDataManager : IPersistentDataManager
 
         public IPersistentDataStore CreateChild(string childDataStoreName)
         {
-            var retVal = new MockDataStore(childDataStoreName);
+            var retVal = new MockDataStore(FilePath.ChildPath(childDataStoreName));
             _dataStore.Add(childDataStoreName, retVal);
             return retVal;
         }

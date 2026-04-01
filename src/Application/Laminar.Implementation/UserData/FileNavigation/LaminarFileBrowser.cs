@@ -31,14 +31,14 @@ public class LaminarFileBrowser : ILaminarFileBrowser, IDisposable
         var dataStore = dataManager.GetDataStore(DataStoreKey.PersistentData).CreateChild("FileBrowser");
         
         dataStore.InitializeDefaultValue<List<string>>(nameof(RootFolders), [
-            Path.Combine(dataManager.Path, "Default")
+            dataManager.Path.ChildPath("Default").ToString()
         ]);
         
         var rootFolderPaths = 
             new SourcedObservableCollection<string>(dataStore.GetItem<List<string>>(nameof(RootFolders)).Result!);
         
         RootFolders = new MappedObservableCollection<string, ILaminarStorageRootFolder>(rootFolderPaths, path =>
-            new LaminarStorageRootFolder(path, _factory, fileSystem, logger));
+            new LaminarStorageRootFolder(new(path), _factory, fileSystem, logger));
         
         dataStore.GetObservable<List<string>>(nameof(RootFolders)).ValueChanged += (_, e) =>
         {

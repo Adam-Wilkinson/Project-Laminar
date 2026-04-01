@@ -1,3 +1,5 @@
+using Laminar.Domain.ValueObjects;
+
 namespace Laminar.Contracts.UserData;
 
 /// <summary>
@@ -6,37 +8,29 @@ namespace Laminar.Contracts.UserData;
 /// </summary>
 public interface IFileSystem
 {
-    public bool Exists(string path);
+    public bool Exists(FileSystemPath path);
 
-    public bool IsDirectory(string path);
+    public bool IsDirectory(FileSystemPath directoryPath);
     
-    public void Move(string sourcePath, string destPath);
+    public void Move(FileSystemPath sourcePath, FileSystemPath destPath);
     
-    public DirectoryInfo? GetParent(string path);
+    public IFileWatcher CreateFileWatcher(FileSystemPath path, string filter = "");
     
-    public IFileWatcher CreateFileWatcher(string path, string filter = "");
+    public IFileStream CreateFile(FileSystemPath path);
     
-    public FileStream CreateFile(string path);
+    public void WriteBytesAsync(FileSystemPath path, byte[] bytes, CancellationToken cancellationToken = default);
 
-    public StreamWriter SetFileText(string path);
+    public byte[] ReadBytes(FileSystemPath path);
     
-    public void WriteBytesAsync(string path, byte[] bytes, CancellationToken cancellationToken = default);
-
-    public byte[] ReadBytes(string path);
+    public long GetFileSize(FileSystemPath path);
     
-    public long GetFileSize(string path);
+    public void CreateDirectory(FileSystemPath path);
     
-    public string ReadTextFile(string path);
+    public IFile GetFile(FileSystemPath path);
     
-    public void CreateDirectory(string path);
-
-    public string GetFileName(string path);
+    public bool OpenInSystemFileBrowser(FileSystemPath path);
     
-    public IFile GetFile(string path);
+    public IEnumerable<FileSystemPath> EnumerateChildren(FileSystemPath path);
     
-    bool OpenInSystemFileBrowser(string path);
-    
-    IEnumerable<string> EnumerateFileSystemEntries(string path);
-    
-    void Delete(string path);
+    public void Delete(FileSystemPath path);
 }

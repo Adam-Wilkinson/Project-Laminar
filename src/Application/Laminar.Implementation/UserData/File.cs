@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Laminar.Contracts;
 using Laminar.Contracts.UserData;
+using Laminar.Domain.ValueObjects;
 using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.UserData;
@@ -27,22 +28,27 @@ public partial class File : IFile
     private Task? _writeTask;
     private Task? _readTask;
 
-    public File(IFileSystem fileSystem, string filePath, ILogger<File> logger)
+    public File(IFileSystem fileSystem, FileSystemPath path, ILogger<File> logger)
     {
         _logger = logger;
         _fileSystem = fileSystem;
-        Path = filePath;
+        Path = path;
 
         if (!_fileSystem.Exists(Path))
         {
-            _fileSystem.CreateFile(Path);
+            _fileSystem.CreateFile(Path).Close();
         }
         else
         {
             InitiateReadAttempt().Wait();   
         }
+
+        if (Path.Parent is not { } parent)
+        {
+            throw new Exception("File must have a parent path");
+        }
         
-        _fileWatcher = fileSystem.CreateFileWatcher(_fileSystem.GetParent(Path)!.FullName, _fileSystem.GetFileName(Path));
+        _fileWatcher = fileSystem.CreateFileWatcher(parent, Path.Name);
         _fileWatcher.NotifyFilter = NotifyFilters.LastWrite;
         _fileWatcher.EnableRaisingEvents = true;
         _fileWatcher.Changed += FileChanged;
@@ -68,7 +74,7 @@ public partial class File : IFile
         }
     }
 
-    public string Path { get; }
+    public FileSystemPath Path { get; }
 
     public event EventHandler<EventArgs>? ContentsChanged;
     
@@ -87,7 +93,7 @@ public partial class File : IFile
 
     private void FileChanged(object? sender, FileSystemEventArgs e)
     {
-        if (e.FullPath != Path || e.ChangeType != WatcherChangeTypes.Changed)
+        if (e.FullPath != Path.ToString() || e.ChangeType != WatcherChangeTypes.Changed)
         {
             return;
         }
@@ -167,5 +173,5 @@ public partial class File : IFile
     }
 
     [LoggerMessage(LogLevel.Debug, "File '{filePath}' is busy. Waiting {waitDurationMs}ms before trying to access again")]
-    partial void LogFileFileIsBusyWaitingMillisecondsBeforeTryingToAccessAgain(string filePath, double waitDurationMs);
+    partial void LogFileFileIsBusyWaitingMillisecondsBeforeTryingToAccessAgain(FileSystemPath filePath, double waitDurationMs);
 }

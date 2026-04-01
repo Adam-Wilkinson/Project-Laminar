@@ -5,6 +5,7 @@ using System.Text.Json;
 using Laminar.Contracts.UserData;
 using Laminar.Domain.DataManagement;
 using Laminar.Domain.Exceptions;
+using Laminar.Domain.ValueObjects;
 using Laminar.PluginFramework.Serialization;
 using Microsoft.Extensions.Logging;
 
@@ -12,21 +13,18 @@ namespace Laminar.Implementation.UserData;
 
 public class PersistentDataManager(ISerializer serializer, IFileSystem fileSystem, ILogger<IPersistentDataStore> dataStoreLogger, ILogger<JsonPersistentDataTranscoder> jsonTranscoderLogger) : IPersistentDataManager
 {
-    private static readonly string StaticPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Project Laminar");
+    private static readonly FileSystemPath StaticPath = new(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Project Laminar"));
     private readonly Dictionary<DataStoreKey, IPersistentDataStore> _dataStores = new();
-    
-    static PersistentDataManager()
-    {
-        if (!Directory.Exists(StaticPath))
-        {
-            Directory.CreateDirectory(StaticPath);
-        }
-    }
 
-    public string Path => StaticPath;
+    public FileSystemPath Path => StaticPath;
 
     public IPersistentDataStore GetDataStore(DataStoreKey dataStoreKey)
     {
+        if (!fileSystem.Exists(Path))
+        {
+            fileSystem.CreateDirectory(Path);
+        }
+        
         if (_dataStores.TryGetValue(dataStoreKey, out var dataStore))
         {
             return dataStore;
@@ -38,7 +36,7 @@ public class PersistentDataManager(ISerializer serializer, IFileSystem fileSyste
             var unknown => throw new UnknownDataTypeException(unknown),
         };
 
-        var file = fileSystem.GetFile(System.IO.Path.Combine(Path, dataStoreKey.Name + transcoder.FileExtension));
+        var file = fileSystem.GetFile(Path.ChildPath(dataStoreKey.Name + transcoder.FileExtension));
 
         var newDataStore = dataStoreKey.DataType switch
         {

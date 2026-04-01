@@ -2,58 +2,65 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Laminar.Contracts;
 using Laminar.Contracts.UserData;
+using Laminar.Domain.ValueObjects;
 using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.UserData;
 
 public class FileSystem(ILogger<File> fileLogger) : IFileSystem
 {
-    public bool Exists(string path) => Directory.Exists(path) || System.IO.File.Exists(path);
+    public bool Exists(FileSystemPath path) 
+        => Directory.Exists(path.ToString()) || System.IO.File.Exists(path.ToString());
     
-    public bool IsDirectory(string path) => System.IO.File.GetAttributes(path).HasFlag(FileAttributes.Directory);
+    public bool IsDirectory(FileSystemPath path) 
+        => Exists(path) 
+            ? System.IO.File.GetAttributes(path.ToString()).HasFlag(FileAttributes.Directory)
+            : string.IsNullOrWhiteSpace(path.Extension);
 
-    public void Delete(string path) 
+    public void Delete(FileSystemPath path) 
     {
         if (IsDirectory(path))
         {
-            System.IO.Directory.Delete(path);
+            Directory.Delete(path.ToString());
         }
         else
         {
-            System.IO.File.Delete(path);
+            System.IO.File.Delete(path.ToString());
         }
     }
+
+    public IEnumerable<FileSystemPath> EnumerateChildren(FileSystemPath path) 
+        => Directory.GetFileSystemEntries(path.ToString()).Select(x => new FileSystemPath(x));
     
-    public IEnumerable<string> EnumerateFileSystemEntries(string path) => Directory.GetFileSystemEntries(path);
-    
-    public void Move(string sourcePath, string destPath) 
+    public void Move(FileSystemPath sourcePath, FileSystemPath destPath) 
     {
         fileLogger.LogTrace("Moving an item from '{sourcePath}' to '{destPath}'", sourcePath, destPath);
         if (IsDirectory(sourcePath))
         {
-            Directory.Move(sourcePath, destPath);
+            Directory.Move(sourcePath.ToString(), destPath.ToString());
         }
         else
         {
-            System.IO.File.Move(sourcePath, destPath);            
+            System.IO.File.Move(sourcePath.ToString(), destPath.ToString());            
         }
     }
 
-    public bool OpenInSystemFileBrowser(string path)
+    public bool OpenInSystemFileBrowser(FileSystemPath path)
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            Process.Start(new ProcessStartInfo("explorer.exe", path));
+            Process.Start(new ProcessStartInfo("explorer.exe", path.ToString()));
             return true;
         }
 
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
         {
-            Process.Start("mimeopen", path);
+            Process.Start("mimeopen", path.ToString());
             return true;
         }
 
@@ -65,26 +72,25 @@ public class FileSystem(ILogger<File> fileLogger) : IFileSystem
         
         return false;
     }
+    
+    public IFileWatcher CreateFileWatcher(FileSystemPath path, string filter = "") 
+        => string.IsNullOrEmpty(filter) ? new FileWatcher(path.ToString()) : new FileWatcher(path.ToString(), filter);
 
-    public DirectoryInfo? GetParent(string path) => Directory.GetParent(path);
+    public IFileStream CreateFile(FileSystemPath path)
+        => FileStream.Create(path);
     
-    public IFileWatcher CreateFileWatcher(string path, string filter = "") => string.IsNullOrEmpty(filter) ? new FileWatcher(path) : new FileWatcher(path, filter); 
+    public void WriteBytesAsync(FileSystemPath path, byte[] bytes, CancellationToken cancellationToken = default) 
+        => System.IO.File.WriteAllBytesAsync(path.ToString(), bytes, cancellationToken);
 
-    public FileStream CreateFile(string path) => System.IO.File.Create(path);
-    
-    public StreamWriter SetFileText(string path) => System.IO.File.CreateText(path);
-    
-    public void WriteBytesAsync(string path, byte[] bytes, CancellationToken cancellationToken = default) => System.IO.File.WriteAllBytesAsync(path, bytes, cancellationToken);
+    public byte[] ReadBytes(FileSystemPath path) 
+        => System.IO.File.ReadAllBytes(path.ToString());
 
-    public byte[] ReadBytes(string path) => System.IO.File.ReadAllBytes(path);
-    
-    public long GetFileSize(string path) => new FileInfo(path).Length;
+    public long GetFileSize(FileSystemPath path)
+        => new FileInfo(path.ToString()).Length;
 
-    public string ReadTextFile(string path) => System.IO.File.ReadAllText(path);
-
-    public void CreateDirectory(string path) => Directory.CreateDirectory(path);
+    public void CreateDirectory(FileSystemPath path) 
+        => Directory.CreateDirectory(path.ToString());
     
-    public string GetFileName(string path) => Path.GetFileName(path);
-    
-    public IFile GetFile(string path) => new File(this, path, fileLogger);
+    public IFile GetFile(FileSystemPath path) 
+        => new File(this, path, fileLogger);
 }

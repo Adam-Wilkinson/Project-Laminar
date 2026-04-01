@@ -22,30 +22,26 @@ public class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
     private readonly IFileSystem _fileSystem;
     private readonly Lock _getChildrenLock = new();
     
-    public LaminarStorageFolder(string path, 
+    public LaminarStorageFolder(FileSystemPath path, 
         ILaminarStorageItemFactory factory, 
         ILogger<LaminarStorageItem>? logger,
         IFileSystem fileSystem,
         ILaminarStorageFolder parent) : this(path, factory, fileSystem, logger)
     {
         SetParent(this, parent);
+        Rename(this, path.Name);
         Refresh();
     }
 
     protected LaminarStorageFolder(
-        string path, 
+        FileSystemPath path, 
         ILaminarStorageItemFactory factory,
         IFileSystem fileSystem,
-        ILogger<LaminarStorageItem>? logger) : base(logger)
+        ILogger<LaminarStorageItem>? logger) : base(fileSystem, logger)
     {
         if (!fileSystem.Exists(path))
         {
             fileSystem.CreateDirectory(path);
-        }
-
-        if (System.IO.Path.GetFileName(path) is { } dirName)
-        {
-            Name = dirName;
         }
 
         _fileSystem = fileSystem;
@@ -74,7 +70,7 @@ public class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
         }
     }
 
-    public override void Refresh()
+    protected override void RefreshOverride()
     {
         _contents.ChangeSourceTo(GetChildren());
         foreach (var child in Contents)
@@ -108,7 +104,7 @@ public class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
         lock (_getChildrenLock)
         {
             IEnumerable<ILaminarStorageItem> returnValue =
-                _fileSystem.EnumerateFileSystemEntries(Path).Select(x => _factory.FromPath(x, this));
+                _fileSystem.EnumerateChildren(Path).Select(x => _factory.FromPath(x, this));
 
             if (_queuedMoves.Count == 0)
             {
@@ -119,7 +115,7 @@ public class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
             while (_queuedMoves.Count > 0)
             {
                 var (movedItem, newIndex) = _queuedMoves.Dequeue();
-                int oldIndex = listReturn.TakeWhile(item => item.Name != movedItem.Name).Count();
+                int oldIndex = listReturn.TakeWhile(item => item.Path.Name != movedItem.Path.Name).Count();
                 if (oldIndex >= listReturn.Count)
                 {
                     Logger?.LogError("Failed to remove item from folder children that should be there");
