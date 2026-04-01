@@ -6,6 +6,7 @@ using Laminar.Contracts.UserData;
 using Laminar.Contracts.UserData.FileNavigation;
 using Laminar.Domain.DataManagement;
 using Laminar.Domain.Notification;
+using Laminar.Domain.ValueObjects;
 using Laminar.Implementation.UserData.FileNavigation.UserActions;
 using Microsoft.Extensions.Logging;
 
@@ -30,17 +31,17 @@ public class LaminarFileBrowser : ILaminarFileBrowser, IDisposable
         
         var dataStore = dataManager.GetDataStore(DataStoreKey.PersistentData).CreateChild("FileBrowser");
         
-        dataStore.InitializeDefaultValue<List<string>>(nameof(RootFolders), [
-            dataManager.Path.ChildPath("Default").ToString()
-        ]);
+        var rootFoldersFromStore = dataStore.InitializeDefaultValue<List<FileSystemPath>>(
+            nameof(RootFolders), 
+            [ dataManager.Path.ChildPath("Default") ]
+        ).Result!;
         
-        var rootFolderPaths = 
-            new SourcedObservableCollection<string>(dataStore.GetItem<List<string>>(nameof(RootFolders)).Result!);
+        var rootFolderPaths = new SourcedObservableCollection<FileSystemPath>(rootFoldersFromStore);
         
-        RootFolders = new MappedObservableCollection<string, ILaminarStorageRootFolder>(rootFolderPaths, path =>
-            new LaminarStorageRootFolder(new(path), _factory, fileSystem, logger));
+        RootFolders = new MappedObservableCollection<FileSystemPath, ILaminarStorageRootFolder>(rootFolderPaths, path =>
+            new LaminarStorageRootFolder(path, _factory, fileSystem, logger));
         
-        dataStore.GetObservable<List<string>>(nameof(RootFolders)).ValueChanged += (_, e) =>
+        dataStore.GetObservable<List<FileSystemPath>>(nameof(RootFolders)).ValueChanged += (_, e) =>
         {
             rootFolderPaths.ChangeSourceTo(e.NewValue);
         };

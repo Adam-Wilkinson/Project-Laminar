@@ -11,7 +11,7 @@ public class LaminarStorageFile : LaminarStorageItem
     private readonly ObservableValue<long> _sizeOnDisk = new();
     private readonly IFileSystem _fileSystem;
     
-    public LaminarStorageFile(FileSystemPath path, ILaminarStorageFolder parent, IFileSystem fileSystem, ILogger<LaminarStorageItem>? logger) 
+    public LaminarStorageFile(FileSystemPath path, ILaminarStorageFolder parent, IFileSystem fileSystem, ILogger<LaminarStorageItem> logger) 
         : base(fileSystem, logger)
     {
         _fileSystem = fileSystem;

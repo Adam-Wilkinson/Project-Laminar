@@ -9,11 +9,15 @@ using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.UserData.FileNavigation;
 
-public abstract class LaminarStorageItem(IFileSystem fileSystem, ILogger<LaminarStorageItem>? logger) : ILaminarStorageItem
+public abstract class LaminarStorageItem(IFileSystem fileSystem, ILogger<LaminarStorageItem> logger) : ILaminarStorageItem
 {
     private string _nameWithExtension = "";
     
-    protected static void SetParent(LaminarStorageItem item, ILaminarStorageFolder? folder) => item.ParentFolder = folder;
+    protected static void SetParent(LaminarStorageItem item, ILaminarStorageFolder? folder)
+    { 
+        item.ParentFolder = folder;
+        item.OnPropertyChanged(nameof(item.Path));
+    }
 
     protected static void Rename(LaminarStorageItem item, string newNameWithExtension)
     {
@@ -27,7 +31,7 @@ public abstract class LaminarStorageItem(IFileSystem fileSystem, ILogger<Laminar
         SetParent(item, null);
     }
     
-    protected ILogger<LaminarStorageItem>? Logger { get; } = logger;
+    protected ILogger<LaminarStorageItem> Logger { get; } = logger;
     
     public event PropertyChangedEventHandler? PropertyChanged;
 

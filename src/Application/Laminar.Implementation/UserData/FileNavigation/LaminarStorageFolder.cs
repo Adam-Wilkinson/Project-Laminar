@@ -24,7 +24,7 @@ public class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
     
     public LaminarStorageFolder(FileSystemPath path, 
         ILaminarStorageItemFactory factory, 
-        ILogger<LaminarStorageItem>? logger,
+        ILogger<LaminarStorageItem> logger,
         IFileSystem fileSystem,
         ILaminarStorageFolder parent) : this(path, factory, fileSystem, logger)
     {
@@ -37,7 +37,7 @@ public class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
         FileSystemPath path, 
         ILaminarStorageItemFactory factory,
         IFileSystem fileSystem,
-        ILogger<LaminarStorageItem>? logger) : base(fileSystem, logger)
+        ILogger<LaminarStorageItem> logger) : base(fileSystem, logger)
     {
         if (!fileSystem.Exists(path))
         {
@@ -101,8 +101,8 @@ public class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
     {
         // The refresh action can cause this to be called from separate threads, e.g. on a move we have a simultaneous
         // add and remove
-        lock (_getChildrenLock)
-        {
+        // lock (_getChildrenLock)
+        // {
             IEnumerable<ILaminarStorageItem> returnValue =
                 _fileSystem.EnumerateChildren(Path).Select(x => _factory.FromPath(x, this));
 
@@ -128,6 +128,6 @@ public class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
                 }
             }   
             return listReturn;
-        }
+        // }
     }
 }

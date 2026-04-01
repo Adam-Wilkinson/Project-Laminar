@@ -17,7 +17,7 @@ public class LaminarStorageRootFolder : LaminarStorageFolder, ILaminarStorageRoo
         FileSystemPath path, 
         ILaminarStorageItemFactory factory,
         IFileSystem fileSystem,
-        ILogger<LaminarStorageItem>? logger) : base(path, factory, fileSystem, logger)
+        ILogger<LaminarStorageItem> logger) : base(path, factory, fileSystem, logger)
     {
         Path = path;
         Refresh();
@@ -36,11 +36,13 @@ public class LaminarStorageRootFolder : LaminarStorageFolder, ILaminarStorageRoo
 
     private void ChildItem_Changed(object sender, FileSystemEventArgs e)
     {
+        Logger.LogTrace("Identified system changed event of item '{name}'", e.Name);
         FindChildrenFromPath(e.FullPath).LastOrDefault()?.Refresh();
     }
 
     private void ChildItem_Deleted(object sender, FileSystemEventArgs e)
     {
+        Logger.LogTrace("Identified system deleted event of item '{name}'", e.Name);
         if (FindChildrenFromPath(e.FullPath).LastOrDefault() is LaminarStorageItem item)
         {
             TriggerOnDeleted(item);
@@ -54,14 +56,16 @@ public class LaminarStorageRootFolder : LaminarStorageFolder, ILaminarStorageRoo
 
     private void ChildItem_Created(object sender, FileSystemEventArgs e)
     {
+        Logger.LogTrace("Identified system created event of item '{name}'", e.Name);
         if (new FileInfo(e.FullPath).Directory?.FullName is not { } parentPath) return;
         FindChildrenFromPath(parentPath).LastOrDefault()?.Refresh();
     }
 
     private void ChildItem_Renamed(object sender, RenamedEventArgs e)
     {
+        Logger.LogTrace("Identified system rename event, renamed '{oldName}' to '{newName}'", e.OldName, e.Name);
         if (FindChildrenFromPath(e.OldFullPath).LastOrDefault() is not LaminarStorageItem renamedChild) return;
-        Rename(renamedChild, new FileSystemPath(e.OldFullPath).NameAndExtension);
+        Rename(renamedChild, e.Name!);
     }
     
     private IEnumerable<ILaminarStorageItem> FindChildrenFromPath(string absolutePath)

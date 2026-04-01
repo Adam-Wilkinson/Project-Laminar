@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using Laminar.Contracts.UserData;
 using Laminar.Contracts.UserData.FileNavigation;
 using Laminar.Domain.Extensions;
@@ -20,7 +19,7 @@ public partial class LaminarStorageItemFactory(IFileSystem fileSystem, ILogger<L
     {
         if (_allStorageItems.TryGetValue(path, out ILaminarStorageItem? item))
         {
-            LogRequestedItemMatchesExistingItem(logger, path);
+            // LogRequestedItemMatchesExistingItem(logger, path);
             return item;
         }
 

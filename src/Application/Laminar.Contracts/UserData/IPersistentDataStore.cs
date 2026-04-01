@@ -34,10 +34,11 @@ public static class PersistentDataStoreExtensions
             return new DataReadResult<T>(result.Status == DataIoStatus.Success ? (T)result.Result : default, result.Status, result.Exception);
         }
 
-        public IPersistentDataStore InitializeDefaultValue<T>(string key, T value,
+        public DataReadResult<T> InitializeDefaultValue<T>(string key, T value,
             object? deserializationContext = null)
         {
-            return dataStore.InitializeDefaultValue(key, value, typeof(T), deserializationContext);
+            dataStore.InitializeDefaultValue(key, value, typeof(T), deserializationContext);
+            return dataStore.GetItem<T>(key);
         }
 
         public void ResetToDefault(string key) => dataStore.SetItem(key, dataStore.GetDefaultValue(key).Result);
