@@ -17,7 +17,7 @@ public class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
         SyncMode = SourcedCollectionMode.SetEquality,
     };
     
-    private readonly ObservableValue<long> _sizeOnDisk = new();
+    private readonly ObservableValue<long> _sizeOnDisk = new(0);
     private readonly Queue<(ILaminarStorageItem, int)> _queuedMoves = [];
     private readonly IFileSystem _fileSystem;
     private readonly Lock _getChildrenLock = new();

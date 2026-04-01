@@ -12,23 +12,6 @@ public interface ICovariantObservableValue<out T> : IObservableValueBase
 public interface IObservableValue<T> : ICovariantObservableValue<T>
 {
     public event EventHandler<ObservableValueChangedEventArgs<T>>? ValueChanged;
-
-    // public static void TransferObservable(ref IObservableValue<T>? observableValue,
-    //     IObservableValue<T>? newObservableValue, EventHandler<ObservableValueChangedEventArgs<T>> valueChangedHandler)
-    // {
-    //     if (observableValue is not null)
-    //     {
-    //         observableValue.ValueChanged -= valueChangedHandler;
-    //     }
-    //     
-    //     observableValue = newObservableValue;
-    //
-    //     if (observableValue is not null)
-    //     {
-    //         observableValue.ValueChanged += valueChangedHandler;
-    //         valueChangedHandler.Invoke(observableValue, observableValue.Value);
-    //     }
-    // }
 }
 
 public interface IObservableValueBase : INotifyPropertyChanged
@@ -54,11 +37,11 @@ public static class ObservableValueExtensions
                 throw new InvalidCastException();
             }
 
-            ObservableValue<TOut> output = new() { Value = typedValue };
+            ObservableValue<TOut> output = new(typedValue);
 
-            observableValue.ValueChanged += (o, e) =>
+            observableValue.ValueChanged += (_, e) =>
             {
-                if (e is not TOut newTypedValue)
+                if (e.NewValue is not TOut newTypedValue)
                 {
                     throw new InvalidCastException();
                 }
@@ -71,9 +54,9 @@ public static class ObservableValueExtensions
 
         public IObservableValue<TOut> Map<TOut>(Func<T, TOut> func)
         {
-            ObservableValue<TOut> output = new() { Value = func(observableValue.Value) };
+            ObservableValue<TOut> output = new(func(observableValue.Value));
             
-            observableValue.ValueChanged += (o, e) => output.Value = func(e.NewValue);
+            observableValue.ValueChanged += (_, e) => output.Value = func(e.NewValue);
 
             return output;
         }

@@ -8,7 +8,7 @@ namespace Laminar.Implementation.UserData.FileNavigation;
 
 public class LaminarStorageFile : LaminarStorageItem
 {
-    private readonly ObservableValue<long> _sizeOnDisk = new();
+    private readonly ObservableValue<long> _sizeOnDisk = new(0);
     private readonly IFileSystem _fileSystem;
     
     public LaminarStorageFile(FileSystemPath path, ILaminarStorageFolder parent, IFileSystem fileSystem, ILogger<LaminarStorageItem> logger) 

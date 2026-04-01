@@ -14,7 +14,7 @@ public class SerializationInitializer(IPersistentDataManager dataManager) : IVie
     private readonly Dictionary<ViewModelBase, string> _serializationPrefixes = [];
     private readonly Dictionary<Type, Dictionary<string, ISerializedPropertyInfo>> _serializedPropertyInfos = [];
     private readonly IPersistentDataStore _dataStore = 
-        dataManager.GetDataStore(DataStoreKey.PersistentData).CreateChild("User Interface");
+        dataManager.GetDataStore(DataStoreKey.PersistentData).GetOrCreateChild("User Interface");
     
     public void Initialize(ViewModelBase? parentViewModel, ViewModelBase viewModel, string viewModelName)
     {

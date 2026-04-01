@@ -8,7 +8,7 @@ public interface IPersistentDataStore
 {
     protected static readonly PropertyChangedEventArgs ValueChangedArgs = new("Value");
     
-    public IPersistentDataStore CreateChild(string childDataStoreName);
+    public IPersistentDataStore GetOrCreateChild(string childDataStoreName);
     
     public DataReadResult<object?> GetItem(string key, Type type);
     

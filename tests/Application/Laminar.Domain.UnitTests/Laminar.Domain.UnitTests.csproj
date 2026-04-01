@@ -25,8 +25,4 @@
     <ProjectReference Include="..\..\..\src\Application\Laminar.Domain\Laminar.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="ValueObjects.UnitTests\" />
-  </ItemGroup>
-
 </Project>

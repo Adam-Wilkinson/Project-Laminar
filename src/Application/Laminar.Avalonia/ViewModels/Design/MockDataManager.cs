@@ -29,7 +29,7 @@ public class MockDataManager : IPersistentDataManager
             return _dataStore.TryGetValue(key, out var result) && result is T typedResult ? new DataReadResult<T>(typedResult) : default;
         }
 
-        public IPersistentDataStore CreateChild(string childDataStoreName)
+        public IPersistentDataStore GetOrCreateChild(string childDataStoreName)
         {
             var retVal = new MockDataStore(FilePath.ChildPath(childDataStoreName));
             _dataStore.Add(childDataStoreName, retVal);

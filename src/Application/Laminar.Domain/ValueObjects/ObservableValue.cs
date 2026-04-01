@@ -8,13 +8,9 @@ namespace Laminar.Domain.ValueObjects;
 /// <typeparam name="T">The type of the child value</typeparam>
 public class ObservableValue<T> : IObservableValue<T>, IValueSink<T>
 {
-    public ObservableValue(T value) : this()
+    public ObservableValue(T value)
     {
         Value = value;
-    }
-
-    public ObservableValue()
-    {
     }
 
     public T Value
@@ -25,13 +21,13 @@ public class ObservableValue<T> : IObservableValue<T>, IValueSink<T>
             if (EqualityComparer<T>.Default.Equals(field, value))
                 return;
 
-            var oldValue = field;
+            T oldValue = field;
             field = value;
             OnValueChanged?.Invoke(this, EventArgs.Empty);
             ValueChanged?.Invoke(this, new ObservableValueChangedEventArgs<T>(oldValue, field));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Value)));
         }
-    } = default!;
+    }
 
     public event EventHandler? OnValueChanged;
 

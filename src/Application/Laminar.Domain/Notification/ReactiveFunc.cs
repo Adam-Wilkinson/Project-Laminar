@@ -35,7 +35,7 @@ public class ReactiveFunc<TInput, TOutput>
     
     public IObservableValue<TOutput> GetObservable(TInput input)
     {
-        var result = new ObservableValue<TOutput> { Value = _func(input) };
+        var result = new ObservableValue<TOutput>(_func(input));
         if (input is INotifyPropertyChanged notifier)
         {
             notifier.PropertyChanged += (_, args) => OnNotifierPropertyChanged(result, input, args.PropertyName); 

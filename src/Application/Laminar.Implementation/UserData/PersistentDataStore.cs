@@ -47,16 +47,23 @@ public class PersistentDataStore<TEncodedValue>(
 
     public event EventHandler? DataChanged;
 
-    public IPersistentDataStore CreateChild(string childDataStoreName)
+    public IPersistentDataStore GetOrCreateChild(string childDataStoreName)
     {
-        var result = new PersistentDataStore<TEncodedValue>(serializer, persistentDataTranscoder, logger);
-        InitializeDefaultValue(childDataStoreName, result, typeof(PersistentDataStore<TEncodedValue>), result);
-        result.DataChanged += (_, _) =>
+        var childDataValue = GetPersistentData(childDataStoreName);
+        if (!childDataValue.IsInitialized)
         {
-            SetItem(childDataStoreName, result);
-        };
-        
-        return result;
+            var newResult = new PersistentDataStore<TEncodedValue>(serializer, persistentDataTranscoder, logger); 
+            childDataValue.Initialize(newResult, typeof(PersistentDataStore<TEncodedValue>), newResult);
+            newResult.DataChanged += (_, _) =>
+            {
+                SetItem(childDataStoreName, newResult);
+            };
+
+            return newResult;
+        }
+
+        return childDataValue.Value as PersistentDataStore<TEncodedValue> 
+               ?? throw new ArgumentException("Tried to get child data store, but value already exists and is of wrong type", nameof(childDataStoreName));
     }
 
     public DataReadResult<object?> GetItem(string key, Type type)
@@ -204,7 +211,7 @@ public class PersistentDataStore<TEncodedValue>(
 
                 if (!_valueType.IsInstanceOfType(value))
                 {
-                    throw new Exception($"The value {ValueName} is not of type {_valueType}");
+                    throw new Exception($"The value '{ValueName}' is being set to {value}, which is not of type {_valueType}");
                 }
                 
                 var oldValue = _value;
@@ -216,6 +223,8 @@ public class PersistentDataStore<TEncodedValue>(
             }
         }
 
+        public bool IsInitialized { get; private set; } = false;
+
         public void Initialize(object? defaultValue, Type? valueType = null, object? deserializationContext = null)
         {
             DefaultValue = defaultValue;
@@ -225,6 +234,7 @@ public class PersistentDataStore<TEncodedValue>(
             if (_hasEncodedValue && TrySetValueFromEncodedValue()) return;
             
             Value = DefaultValue;
+            IsInitialized = true;
         }
         
         private void SetEncodedValueFromValue()
