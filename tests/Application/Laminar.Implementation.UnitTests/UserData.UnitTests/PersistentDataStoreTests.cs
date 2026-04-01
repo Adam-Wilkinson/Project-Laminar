@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+using FluentAssertions;
 using Laminar.Contracts;
 using Laminar.Contracts.UserData;
 using Laminar.Domain.DataManagement;
@@ -15,6 +16,76 @@ public class PersistentDataStoreTests
     private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
     private static readonly ILogger<IPersistentDataStore> Logger = Substitute.For<ILogger<IPersistentDataStore>>();
     private static readonly ILogger<JsonPersistentDataTranscoder> TranscoderLogger = Substitute.For<ILogger<JsonPersistentDataTranscoder>>();
+
+    public class GetOrCreateChild
+    {
+        [Fact]
+        public void ShouldUseExisting_WhenChildExists()
+        {
+            const string childDatastoreKey = "Test Key";
+
+            var serializerMock = Substitute.For<ISerializer>();
+            var sut = new PersistentDataStore<JsonElement>(serializerMock,
+                new JsonPersistentDataTranscoder(JsonOptions, TranscoderLogger), Logger);
+            
+            var childOne = sut.GetOrCreateChild(childDatastoreKey);
+            var childTwo = sut.GetOrCreateChild(childDatastoreKey);
+            
+            childOne.Should().BeSameAs(childTwo);
+        }
+
+        [Fact]
+        public void ShouldThrowError_WhenChildIncorrect()
+        {
+            const string childDatastoreKey = "Test Key";
+
+            var serializerMock = Substitute.For<ISerializer>();
+            var sut = new PersistentDataStore<JsonElement>(serializerMock,
+                new JsonPersistentDataTranscoder(JsonOptions, TranscoderLogger), Logger);
+            
+            sut.InitializeDefaultValue(childDatastoreKey, 5, typeof(int));
+
+            sut.Invoking(x => x.GetOrCreateChild(childDatastoreKey))
+                .Should().Throw<ArgumentException>();
+        }
+
+        [Fact]
+        public void ShouldUpdate_WhenChildUpdated()
+        {
+            const string childDataStoreKey = "Child Key";
+            const string testValueKey = "Test Key";
+            const double defaultValue = 5.0;
+            
+            var serializerMock = Substitute.For<ISerializer>();
+            serializerMock.GetSerializedType(typeof(double)).Returns(typeof(double));
+            serializerMock.SerializeObject(Arg.Any<double>(), typeof(double)).Returns(ci => ci.Arg<double>());
+            serializerMock.DeserializeObject(Arg.Any<double>(), typeof(double)).Returns(ci => ci.Arg<double>());
+
+            serializerMock.GetSerializedType(typeof(PersistentDataStore<JsonElement>)).Returns(typeof(Dictionary<string, JsonElement>));
+            serializerMock.SerializeObject(Arg.Any<PersistentDataStore<JsonElement>>(), typeof(PersistentDataStore<JsonElement>))
+                .Returns(ci => ci.Arg<PersistentDataStore<JsonElement>>().Serialize());
+            serializerMock.DeserializeObject(Arg.Any<Dictionary<string, JsonElement>>(), typeof(PersistentDataStore<JsonElement>), Arg.Any<object>()).Returns(
+                ci => PersistentDataStore<JsonElement>.Deserialize(ci.Arg<Dictionary<string, JsonElement>>(),  ci.Arg<object>()));
+            
+            var sut = new PersistentDataStore<JsonElement>(serializerMock,
+                new JsonPersistentDataTranscoder(JsonOptions, TranscoderLogger), Logger);
+            
+            var child = sut.GetOrCreateChild(childDataStoreKey);
+
+            child.InitializeDefaultValue(testValueKey, defaultValue);
+
+            string expectedString = JsonSerializer.Serialize(new Dictionary<string, object>
+                {
+                    [childDataStoreKey] = new Dictionary<string, double>
+                    {
+                        [testValueKey] = defaultValue,
+                    }
+                },
+                JsonOptions);
+            
+            Assert.Equal(Encoding.UTF8.GetBytes(expectedString), sut.RawData);
+        }
+    }
     
     public class InitializeDefault
     {
