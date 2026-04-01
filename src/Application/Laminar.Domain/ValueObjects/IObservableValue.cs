@@ -2,10 +2,15 @@ using System.ComponentModel;
 
 namespace Laminar.Domain.ValueObjects;
 
-public interface IObservableValue<T> : IObservableValueBase
+public interface ICovariantObservableValue<out T> : IObservableValueBase
 {
     public T Value { get; }
 
+    public event EventHandler OnValueChanged;
+}
+
+public interface IObservableValue<T> : ICovariantObservableValue<T>
+{
     public event EventHandler<ObservableValueChangedEventArgs<T>>? ValueChanged;
 
     // public static void TransferObservable(ref IObservableValue<T>? observableValue,

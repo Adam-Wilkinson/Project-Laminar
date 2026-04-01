@@ -51,6 +51,9 @@ public partial class LaminarStorageItemFactory(IFileSystem fileSystem, ILogger<L
         return newItem;
     }
 
+    public ILaminarStorageRootFolder CreateRootFolder(FileSystemPath path) => 
+        new LaminarStorageRootFolder(path, this, fileSystem, logger);
+
     private int HashDeletedItem(LaminarStorageItem item) => item switch
     {
         ILaminarStorageFolder folder => HashCode.Combine(folder.Path.NameAndExtension, folder.SizeOnDisk.Value, folder.Contents.Count),

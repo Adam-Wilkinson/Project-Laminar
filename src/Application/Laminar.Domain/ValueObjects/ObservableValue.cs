@@ -27,10 +27,13 @@ public class ObservableValue<T> : IObservableValue<T>, IValueSink<T>
 
             var oldValue = field;
             field = value;
+            OnValueChanged?.Invoke(this, EventArgs.Empty);
             ValueChanged?.Invoke(this, new ObservableValueChangedEventArgs<T>(oldValue, field));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Value)));
         }
     } = default!;
+
+    public event EventHandler? OnValueChanged;
 
     public event EventHandler<ObservableValueChangedEventArgs<T>>? ValueChanged;
     

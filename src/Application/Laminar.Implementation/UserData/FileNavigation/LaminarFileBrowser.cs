@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.UserData;
 using Laminar.Contracts.UserData.FileNavigation;
 using Laminar.Domain.DataManagement;
 using Laminar.Domain.Notification;
 using Laminar.Domain.ValueObjects;
+using Laminar.Domain.Extensions;
 using Laminar.Implementation.UserData.FileNavigation.UserActions;
 using Microsoft.Extensions.Logging;
 
@@ -22,8 +22,7 @@ public class LaminarFileBrowser : ILaminarFileBrowser, IDisposable
     public LaminarFileBrowser(IUserActionManager actionManager, 
         ILaminarStorageItemFactory factory,
         IPersistentDataManager dataManager, 
-        IFileSystem fileSystem,
-        ILogger<LaminarStorageItem> logger)
+        IFileSystem fileSystem)
     {
         _actionManager = actionManager;
         _factory = factory;
@@ -31,20 +30,10 @@ public class LaminarFileBrowser : ILaminarFileBrowser, IDisposable
         
         var dataStore = dataManager.GetDataStore(DataStoreKey.PersistentData).CreateChild("FileBrowser");
         
-        var rootFoldersFromStore = dataStore.InitializeDefaultValue<List<FileSystemPath>>(
-            nameof(RootFolders), 
-            [ dataManager.Path.ChildPath("Default") ]
-        ).Result!;
-        
-        var rootFolderPaths = new SourcedObservableCollection<FileSystemPath>(rootFoldersFromStore);
-        
-        RootFolders = new MappedObservableCollection<FileSystemPath, ILaminarStorageRootFolder>(rootFolderPaths, path =>
-            new LaminarStorageRootFolder(path, _factory, fileSystem, logger));
-        
-        dataStore.GetObservable<List<FileSystemPath>>(nameof(RootFolders)).ValueChanged += (_, e) =>
-        {
-            rootFolderPaths.ChangeSourceTo(e.NewValue);
-        };
+        RootFolders = dataStore
+            .InitializeDefaultValue<List<FileSystemPath>>(nameof(RootFolders), [ dataManager.Path.ChildPath("Default") ])
+            .ToObservableCollection()
+            .ObservableMap(_factory.CreateRootFolder);
     }
 
     public IReadOnlyObservableCollection<ILaminarStorageRootFolder> RootFolders { get; }

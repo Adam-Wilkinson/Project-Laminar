@@ -1,4 +1,7 @@
-﻿namespace Laminar.Domain.Extensions;
+﻿using Laminar.Domain.Notification;
+using Laminar.Domain.ValueObjects;
+
+namespace Laminar.Domain.Extensions;
 
 public static class EnumerableExtensions
 {
@@ -21,5 +24,26 @@ public static class EnumerableExtensions
     extension<TList, TValue>(TList? nullable) where TList : IEnumerable<TValue>
     {
         public IEnumerable<TValue> EmptyIfNull() => nullable ?? Enumerable.Empty<TValue>();
+    }
+
+    extension<T>(ICovariantObservableValue<IEnumerable<T>> observableEnumerable) where T : notnull
+    {
+        /// <summary>
+        /// Converts an ObservableValue that contains a list to an INotifyCollectionChanged list,
+        /// using a <see cref="SourcedObservableCollection{T}"/> to compute a minimal set of collection change actions
+        /// </summary>
+        /// <param name="comparer">The equality comparer used to compute collection changed actions</param>
+        /// <returns></returns>
+        public IReadOnlyObservableCollection<T> ToObservableCollection(IEqualityComparer<T>? comparer = null)
+        {
+            SourcedObservableCollection<T> output = new(observableEnumerable.Value, comparer);
+
+            observableEnumerable.OnValueChanged += (_, _) =>
+            {
+                output.ChangeSourceTo(observableEnumerable.Value);
+            };
+
+            return output;
+        }
     }
 }

@@ -158,8 +158,8 @@ public class PersistentDataStore<TEncodedValue>(
         private Type? _valueType;
         
         public event PropertyChangedEventHandler? PropertyChanged;
-        
         public event EventHandler<ObservableValueChangedEventArgs<object?>>? ValueChanged;
+        public event EventHandler? OnValueChanged;
 
         public required string ValueName { get; init; }
 
@@ -212,6 +212,7 @@ public class PersistentDataStore<TEncodedValue>(
                 SetEncodedValueFromValue();
                 PropertyChanged?.Invoke(this, IObservableValueBase.ValueChangedEventArgs);
                 ValueChanged?.Invoke(this, new ObservableValueChangedEventArgs<object?>(oldValue, _value));
+                OnValueChanged?.Invoke(this, EventArgs.Empty);
             }
         }
 
