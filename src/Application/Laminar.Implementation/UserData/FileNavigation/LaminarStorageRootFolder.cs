@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 using Laminar.Contracts.UserData;
@@ -13,6 +14,7 @@ namespace Laminar.Implementation.UserData.FileNavigation;
 
 public class LaminarStorageRootFolder : LaminarStorageFolder, ILaminarStorageRootFolder
 {
+    private static readonly TimeSpan FileSystemModifiedRefreshDelay = new(0, 0, 0, 0, 100);
     private readonly IFileWatcher _folderWatcher;
     private readonly Channel<FileSystemEventArgs> _fileWatcherUpdateChannel = Channel.CreateUnbounded<FileSystemEventArgs>(
         new UnboundedChannelOptions
@@ -20,6 +22,8 @@ public class LaminarStorageRootFolder : LaminarStorageFolder, ILaminarStorageRoo
         SingleReader = true,
         SingleWriter = false,
     });
+    
+    private CancellationTokenSource? _refreshCts;
 
     public LaminarStorageRootFolder(
         FileSystemPath path, 
@@ -70,7 +74,7 @@ public class LaminarStorageRootFolder : LaminarStorageFolder, ILaminarStorageRoo
                 catch (Exception ex)
                 {
                     Logger.LogError(ex, "Error when processing file system changed events. Refreshing manually");
-                    Refresh();
+                    ScheduleRefresh();
                 }
             }
         }
@@ -84,15 +88,11 @@ public class LaminarStorageRootFolder : LaminarStorageFolder, ILaminarStorageRoo
     private void HandleFileSystemEvent(FileSystemEventArgs e)
     {
         Logger.LogTrace("START processing FS {type} event for file '{path}'", e.ChangeType, e.FullPath);
+        _refreshCts?.Cancel();
+        _refreshCts = new CancellationTokenSource();
+        
         switch (e.ChangeType)
         {
-            case WatcherChangeTypes.Changed: 
-                FindChildrenFromPath(e.FullPath).LastOrDefault()?.Refresh();
-                break;
-            case WatcherChangeTypes.Created:
-                if (new FileInfo(e.FullPath).Directory?.FullName is not { } parentPath) return;
-                FindChildrenFromPath(parentPath).LastOrDefault()?.Refresh();
-                break;
             case WatcherChangeTypes.Renamed:
                 if (e is not RenamedEventArgs renamedEventArgs || 
                     FindChildrenFromPath(renamedEventArgs.OldFullPath).LastOrDefault() is not LaminarStorageItem renamedChild) return;
@@ -104,21 +104,10 @@ public class LaminarStorageRootFolder : LaminarStorageFolder, ILaminarStorageRoo
                 {
                     TriggerOnDeleted(item);
                 }
-        
-                Logger.LogTrace("Deleted thing");
-                
-                if (new FileInfo(e.FullPath).Directory?.FullName is { } deletedParentPath)
-                {
-                    FindChildrenFromPath(deletedParentPath).LastOrDefault()?.Refresh();
-                }
-                
-                Logger.LogTrace("Refreshed parent");
                 break;
         }
-
-        Logger.LogTrace("TIME TO REFRESH processing FS {type} event for file '{path}'", e.ChangeType, e.FullPath);
         
-        Refresh();
+        ScheduleRefresh();
         
         Logger.LogTrace("END processing FS {type} event for file '{path}'", e.ChangeType, e.FullPath);
     }
@@ -142,12 +131,14 @@ public class LaminarStorageRootFolder : LaminarStorageFolder, ILaminarStorageRoo
                     currentFolder = childFolder;
                     yield return currentFolder;
                     break;
+                case null:
+                    throw new InvalidOperationException();
                 default:
                     continue;
             }
         }
     }
-
+        
     private ILaminarStorageItem? FindDirectChildNamed(ILaminarStorageFolder folder, string itemName)
     {
         Span<ILaminarStorageItem> contents = folder.Contents.ToArray();
@@ -161,6 +152,25 @@ public class LaminarStorageRootFolder : LaminarStorageFolder, ILaminarStorageRoo
 
         return null;
     }
+    
+    private void ScheduleRefresh()
+    {
+        _refreshCts?.Cancel();
+        _refreshCts = new CancellationTokenSource();
+
+        var token = _refreshCts.Token;
+
+        Task.Run(async () =>
+        {
+            try
+            {
+                await Task.Delay(FileSystemModifiedRefreshDelay, token);
+                Logger.LogTrace("Triggering refresh after scheduled move operations");
+                Refresh();
+            }
+            catch (TaskCanceledException) { }
+        }, token);
+    }    
 
     public void Dispose()
     {
