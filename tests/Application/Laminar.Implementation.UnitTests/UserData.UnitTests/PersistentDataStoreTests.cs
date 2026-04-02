@@ -1,7 +1,6 @@
 using System.Text;
 using System.Text.Json;
 using FluentAssertions;
-using Laminar.Contracts;
 using Laminar.Contracts.UserData;
 using Laminar.Domain.DataManagement;
 using Laminar.Implementation.UserData;

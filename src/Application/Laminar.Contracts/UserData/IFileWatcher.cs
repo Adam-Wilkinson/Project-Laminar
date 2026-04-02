@@ -7,6 +7,8 @@ public interface IFileWatcher : IDisposable
     public bool EnableRaisingEvents { get; set; }
     
     public bool IncludeSubdirectories { get; set; }
+
+    public int InternalBufferSize { get; set; }
     
     public event FileSystemEventHandler? Changed;
     
@@ -15,4 +17,6 @@ public interface IFileWatcher : IDisposable
     public event FileSystemEventHandler? Deleted;
     
     public event RenamedEventHandler? Renamed;
+
+    public event ErrorEventHandler? Error;
 }
