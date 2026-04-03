@@ -95,12 +95,12 @@ public class LaminarStorageRootFolder : LaminarStorageFolder, ILaminarStorageRoo
         {
             case WatcherChangeTypes.Renamed:
                 if (e is not RenamedEventArgs renamedEventArgs || 
-                    FindChildrenFromPath(renamedEventArgs.OldFullPath).LastOrDefault() is not LaminarStorageItem renamedChild) return;
+                    FindChildFromPath(renamedEventArgs.OldFullPath) is not LaminarStorageItem renamedChild) return;
                 Rename(renamedChild, e.Name!);
                 break;
             case WatcherChangeTypes.Deleted:
                 Logger.LogTrace("Starting a deleted thing");
-                if (FindChildrenFromPath(e.FullPath).LastOrDefault() is LaminarStorageItem item)
+                if (FindChildFromPath(e.FullPath) is LaminarStorageItem item)
                 {
                     TriggerOnDeleted(item);
                 }
@@ -112,34 +112,24 @@ public class LaminarStorageRootFolder : LaminarStorageFolder, ILaminarStorageRoo
         Logger.LogTrace("END processing FS {type} event for file '{path}'", e.ChangeType, e.FullPath);
     }
 
-    private IEnumerable<ILaminarStorageItem> FindChildrenFromPath(string absolutePath)
+    private ILaminarStorageItem? FindChildFromPath(string absolutePath)
     {
         string relativePath = System.IO.Path.GetRelativePath(Path.ToString(), absolutePath);
-        yield return this;
-        var childNames = relativePath.Split('/');
-        int indexInChildNames = 0;
         ILaminarStorageFolder currentFolder = this;
-        while (currentFolder.Path.ToString() != absolutePath)
+        ILaminarStorageItem? currentResult = null;
+        foreach (string name in relativePath.Split('/', '\\'))
         {
-            switch (FindDirectChildNamed(currentFolder, childNames[indexInChildNames]))
-            {
-                case { } item when item.Path.ToString() == absolutePath:
-                    yield return item;
-                    yield break;
-                case ILaminarStorageFolder childFolder:
-                    indexInChildNames++;
-                    currentFolder = childFolder;
-                    yield return currentFolder;
-                    break;
-                case null:
-                    throw new InvalidOperationException();
-                default:
-                    continue;
-            }
+            currentResult = FindDirectChildNamed(currentFolder, name);
+
+            if (currentResult is null) return null;
+
+            if (currentResult is ILaminarStorageFolder folder) currentFolder = folder;
         }
+
+        return currentResult;
     }
         
-    private ILaminarStorageItem? FindDirectChildNamed(ILaminarStorageFolder folder, string itemName)
+    private static ILaminarStorageItem? FindDirectChildNamed(ILaminarStorageFolder folder, string itemName)
     {
         Span<ILaminarStorageItem> contents = folder.Contents.ToArray();
         foreach (var item in contents)

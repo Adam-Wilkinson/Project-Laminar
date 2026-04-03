@@ -20,7 +20,6 @@ public class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
     private readonly ObservableValue<long> _sizeOnDisk = new(0);
     private readonly Queue<(ILaminarStorageItem, int)> _queuedMoves = [];
     private readonly IFileSystem _fileSystem;
-    private readonly Lock _getChildrenLock = new();
     
     public LaminarStorageFolder(FileSystemPath path, 
         ILaminarStorageItemFactory factory, 
