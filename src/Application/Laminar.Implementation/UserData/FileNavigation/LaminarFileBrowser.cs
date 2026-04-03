@@ -8,6 +8,7 @@ using Laminar.Domain.Notification;
 using Laminar.Domain.ValueObjects;
 using Laminar.Domain.Extensions;
 using Laminar.Implementation.UserData.FileNavigation.UserActions;
+using static Laminar.Domain.DataManagement.DataLocations;
 
 namespace Laminar.Implementation.UserData.FileNavigation;
 
@@ -18,17 +19,20 @@ public class LaminarFileBrowser(
     IFileSystem fileSystem)
     : ILaminarFileBrowser, IDisposable
 {
+    private readonly ILaminarStorageRootFolder _recyclingBin 
+        = factory.CreateRootFolder(LocalDataFolder.ChildPath("Recycling Bin"));
+    
     public IReadOnlyObservableCollection<ILaminarStorageRootFolder> RootFolders { get; } = dataManager
         .GetDataStore(DataStoreKey.PersistentData)
         .GetOrCreateChild("FileBrowser")
-        .InitializeDefaultValue<List<FileSystemPath>>(nameof(RootFolders), [ dataManager.Path.ChildPath("Default") ])
+        .InitializeDefaultValue<List<FileSystemPath>>(nameof(RootFolders), [RoamingDataFolder.ChildPath("Default")])
         .ToObservableCollection()
         .ObservableMap(factory.CreateRootFolder);
-
+    
     public IUserActionResult AddDefault<T>(ILaminarStorageFolder parentFolder, IActionScope? scope = null) 
         where T : class, ILaminarStorageItem
     {
-        return actionManager.ExecuteAction(new AddDefaultStorageItemAction<T>(fileSystem, parentFolder, factory), scope);
+        return actionManager.ExecuteAction(new AddDefaultStorageItemAction<T>(fileSystem, parentFolder, factory, _recyclingBin), scope);
     }
 
     public IUserActionResult Move(ILaminarStorageItem itemToMove, ILaminarStorageFolder destinationFolder, int destinationIndex,
@@ -39,7 +43,7 @@ public class LaminarFileBrowser(
 
     public IUserActionResult Delete<T>(T itemToDelete, IActionScope? scope) where T : class, ILaminarStorageItem
     {
-        return actionManager.ExecuteAction(new DeleteStorageItemAction<T>(fileSystem, itemToDelete), scope);
+        return actionManager.ExecuteAction(new MoveStorageItemAction(itemToDelete, _recyclingBin, fileSystem), scope); 
     }
 
     public IUserActionResult Rename(ILaminarStorageItem itemToRename, string newName, IActionScope? scope)
@@ -49,7 +53,7 @@ public class LaminarFileBrowser(
 
     public bool OpenInSystemFileBrowser(ILaminarStorageItem item)
     {
-        return fileSystem.OpenInSystemFileBrowser(item.Path);
+        return item.Path is { } itemPath && fileSystem.OpenInSystemFileBrowser(itemPath);
     } 
     
     public void Dispose()

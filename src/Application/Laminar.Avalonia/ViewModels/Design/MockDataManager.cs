@@ -8,7 +8,7 @@ namespace Laminar.Avalonia.ViewModels.Design;
 
 public class MockDataManager : IPersistentDataManager
 {
-    private static readonly FileSystemPath StaticPath = new(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Project Laminar", "Mock Data"));
+    private static readonly FileSystemPath StaticPath = DataLocations.LocalDataFolder.ChildPath("Mock Data");
     private readonly MockDataStore _dataStore = new(StaticPath);
     
     public IPersistentDataStore GetDataStore(DataStoreKey dataStoreKey)

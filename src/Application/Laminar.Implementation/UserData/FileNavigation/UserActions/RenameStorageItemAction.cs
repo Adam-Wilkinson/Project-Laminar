@@ -11,11 +11,12 @@ public class RenameStorageItemAction(string newName, ILaminarStorageItem item, I
 {
     public event EventHandler? CanExecuteChanged;
     
-    public bool CanExecute { get; } = item.Path.Name != newName;
+    public bool CanExecute { get; } = item.Path.HasValue && item.Path.Value.Name != newName;
 
     public IUserActionResult Execute()
     {
-        if (item.ParentFolder is null || Equals(item.Path.Name, newName))
+        if (item.ParentFolder is not { Path: { } parentPath } parentFolder || item.Path is not { } itemPath 
+                                                                           || Equals(itemPath.Name, newName))
         {
             return IUserActionResult.Failure();
         }
@@ -25,16 +26,16 @@ public class RenameStorageItemAction(string newName, ILaminarStorageItem item, I
             return IUserActionResult.Error(new InvalidStorageItemNameException(newName));
         }
 
-        if (item.ParentFolder.Contents.Any(sibling => sibling.Path.Name == newName))
+        if (parentFolder.Contents.Any(sibling => newName.Equals(sibling.Path?.Name, StringComparison.OrdinalIgnoreCase)))
         {
             return IUserActionResult.Error(new FileWithNameExistsException(newName));
         }
         
-        var oldName = item.Path.Name;
+        var oldName = itemPath.Name;
 
         try
         {
-            fileSystem.Move(item.Path, item.ParentFolder.Path.ChildPath(newName + item.Path.Extension));
+            fileSystem.Move(itemPath, parentPath.ChildPath(newName + itemPath.Extension));
         }
         catch (IOException exception)
         {

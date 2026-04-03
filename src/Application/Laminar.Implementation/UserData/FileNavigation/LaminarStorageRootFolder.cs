@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -14,7 +13,7 @@ namespace Laminar.Implementation.UserData.FileNavigation;
 
 public class LaminarStorageRootFolder : LaminarStorageFolder, ILaminarStorageRootFolder
 {
-    private static readonly TimeSpan FileSystemModifiedRefreshDelay = new(0, 0, 0, 0, 100);
+    private static readonly TimeSpan FileSystemModifiedRefreshDelay = new(0, 0, 0, 0, 300);
     private readonly IFileWatcher _folderWatcher;
     private readonly Channel<FileSystemEventArgs> _fileWatcherUpdateChannel = Channel.CreateUnbounded<FileSystemEventArgs>(
         new UnboundedChannelOptions
@@ -47,11 +46,10 @@ public class LaminarStorageRootFolder : LaminarStorageFolder, ILaminarStorageRoo
         Task.Run(ProcessFileSystemEvents);
     }
 
-    public override FileSystemPath Path { get; }
+    public override FileSystemPath? Path { get; }
 
     private void OnFileSystemEvent(object? sender, FileSystemEventArgs e)
     {
-        Logger.LogTrace("File system event of type {type} happened", e.ChangeType);
         _fileWatcherUpdateChannel.Writer.TryWrite(e);
     }
     
@@ -87,34 +85,37 @@ public class LaminarStorageRootFolder : LaminarStorageFolder, ILaminarStorageRoo
 
     private void HandleFileSystemEvent(FileSystemEventArgs e)
     {
-        Logger.LogTrace("START processing FS {type} event for file '{path}'", e.ChangeType, e.FullPath);
         _refreshCts?.Cancel();
         _refreshCts = new CancellationTokenSource();
-        
+
         switch (e.ChangeType)
         {
             case WatcherChangeTypes.Renamed:
-                if (e is not RenamedEventArgs renamedEventArgs || 
-                    FindChildFromPath(renamedEventArgs.OldFullPath) is not LaminarStorageItem renamedChild) return;
+                if (e is not RenamedEventArgs renamedEventArgs ||
+                    FindChildFromPath(renamedEventArgs.OldFullPath) is not LaminarStorageItem renamedChild)
+                {
+                    Logger.LogWarning("Could not find renamed item {oldName}, this may result in a rename operation being considered as separate delete and create operations", e.Name);
+                    break;
+                }
                 Rename(renamedChild, e.Name!);
                 break;
             case WatcherChangeTypes.Deleted:
-                Logger.LogTrace("Starting a deleted thing");
-                if (FindChildFromPath(e.FullPath) is LaminarStorageItem item)
+                if (FindChildFromPath(e.FullPath) is not LaminarStorageItem deletedItem)
                 {
-                    TriggerOnDeleted(item);
+                    Logger.LogWarning("Could not find deleted item {itemName}, this may result in a move operation being missed", e.Name);
+                    break;
                 }
+                TriggerOnDeleted(deletedItem);
                 break;
         }
         
         ScheduleRefresh();
-        
-        Logger.LogTrace("END processing FS {type} event for file '{path}'", e.ChangeType, e.FullPath);
     }
 
     private ILaminarStorageItem? FindChildFromPath(string absolutePath)
     {
-        string relativePath = System.IO.Path.GetRelativePath(Path.ToString(), absolutePath);
+        if (!Path.HasValue) return null;
+        string relativePath = System.IO.Path.GetRelativePath(Path.Value.ToString(), absolutePath);
         ILaminarStorageFolder currentFolder = this;
         ILaminarStorageItem? currentResult = null;
         foreach (string name in relativePath.Split('/', '\\'))
@@ -134,7 +135,7 @@ public class LaminarStorageRootFolder : LaminarStorageFolder, ILaminarStorageRoo
         Span<ILaminarStorageItem> contents = folder.Contents.ToArray();
         foreach (var item in contents)
         {
-            if (item.Path.NameAndExtension == itemName)
+            if (item.Path?.NameAndExtension == itemName)
             {
                 return item;
             }

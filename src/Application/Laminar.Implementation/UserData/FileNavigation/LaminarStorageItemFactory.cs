@@ -44,8 +44,15 @@ public partial class LaminarStorageItemFactory(IFileSystem fileSystem, ILogger<L
         _allStorageItems[path] = newItem;
         newItem.GetDependentValue(x => x.Path).OnChanged += (_, e) =>
         {
-            _allStorageItems.Remove(e.OldValue);
-            _allStorageItems[e.NewValue] = newItem;
+            if (e.OldValue.HasValue)
+            {
+                _allStorageItems.Remove(e.OldValue.Value);
+            }
+
+            if (e.NewValue.HasValue)
+            {
+                _allStorageItems[e.NewValue.Value] = newItem;
+            } 
         };
         
         return newItem;
@@ -56,8 +63,8 @@ public partial class LaminarStorageItemFactory(IFileSystem fileSystem, ILogger<L
 
     private int HashDeletedItem(LaminarStorageItem item) => item switch
     {
-        ILaminarStorageFolder folder => HashCode.Combine(folder.Path.NameAndExtension, folder.SizeOnDisk.Value, folder.Contents.Count),
-        _ => HashCode.Combine(item.Path.NameAndExtension, item.SizeOnDisk.Value)
+        ILaminarStorageFolder folder => HashCode.Combine(folder.Path?.NameAndExtension, folder.SizeOnDisk.Value, folder.Contents.Count),
+        _ => HashCode.Combine(item.Path?.NameAndExtension, item.SizeOnDisk.Value)
     };
 
     [LoggerMessage(LogLevel.Trace, "A file at path '{path}' was already cached, returning cached value")]

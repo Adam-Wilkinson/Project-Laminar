@@ -14,7 +14,6 @@ using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.UserData.FileNavigation;
 using Laminar.Domain.Extensions;
 using Laminar.Domain.Notification;
-using Laminar.Domain.ValueObjects;
 using Laminar.Implementation.UserData.FileNavigation;
 using Laminar.Implementation.UserData.FileNavigation.UserActions;
 using Microsoft.Extensions.Logging;
@@ -44,7 +43,7 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
         _topLevel = topLevel;
         _dialogService = dialogService;
         CoreItem = coreItem;
-        Name = CoreItem.Path.Name;
+        Name = CoreItem.Path?.Name ?? "";
 
         if (coreItem is ILaminarStorageFolder folder)
         {
@@ -52,9 +51,9 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
             _children.HelperInstance().ItemAdded += (_, e) => e.Item.Parent = this;
         }
 
-        CoreItem.PropertyChanged += (_, e) =>
+        CoreItem.FilterPropertyChanged(nameof(ILaminarStorageItem.Path)).OnNotification += (_, _) =>
         {
-            if (e.PropertyName == nameof(ILaminarStorageItem.Path)) Name = CoreItem.Path.Name;
+            if (CoreItem.Path is not null) Name = CoreItem.Path.Value.Name;
         };
 
         CoreItem.GetDependentValue(item => item.ParentFolder?.IsEffectivelyEnabled ?? false).OnChanged +=
@@ -83,7 +82,7 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
             if (value == field) return;
             field = value;
             OnPropertyChanged();
-            if (value != CoreItem.Path.Name)
+            if (CoreItem.Path.HasValue && value != CoreItem.Path.Value.Name)
             {
                 Dispatcher.UIThread.InvokeAsync(SetCoreItemName);
             }
@@ -148,7 +147,7 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
     private class ContentsEqualComparer : IEqualityComparer<FileNavigatorItemViewModel>
     {
         public bool Equals(FileNavigatorItemViewModel? x, FileNavigatorItemViewModel? y) 
-            => Equals(x?.CoreItem, y?.CoreItem);
+            => Equals(x?.CoreItem.Path, y?.CoreItem.Path);
 
         public int GetHashCode(FileNavigatorItemViewModel obj) => obj.CoreItem.GetHashCode();
     }
@@ -158,7 +157,7 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
         if (_fileBrowser.Rename(CoreItem, Name) is UserActionError
                 { Exception: { } renameException })
         {
-            Dispatcher.UIThread.Post(() => Name = CoreItem.Path.Name);
+            Dispatcher.UIThread.Post(() => Name = CoreItem.Path?.Name ?? "");
             var message = renameException switch
             {
                 InvalidStorageItemNameException storageItemNameException => $"Invalid storage item name: '{storageItemNameException.Name}'",

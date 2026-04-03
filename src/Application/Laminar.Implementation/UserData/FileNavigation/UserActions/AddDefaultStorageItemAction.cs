@@ -7,8 +7,12 @@ using Laminar.Domain.ValueObjects;
 
 namespace Laminar.Implementation.UserData.FileNavigation.UserActions;
 
-public class AddDefaultStorageItemAction<T>(IFileSystem fileSystem, ILaminarStorageFolder parentFolder, ILaminarStorageItemFactory factory) : IUserAction
-    where T : class, ILaminarStorageItem
+public class AddDefaultStorageItemAction<T>(
+    IFileSystem fileSystem, 
+    ILaminarStorageFolder parentFolder, 
+    ILaminarStorageItemFactory factory,
+    ILaminarStorageRootFolder recyclingBin) 
+    : IUserAction where T : class, ILaminarStorageItem
 {
     private static readonly (Type, string)[] DefaultItemNames =
     [
@@ -20,11 +24,12 @@ public class AddDefaultStorageItemAction<T>(IFileSystem fileSystem, ILaminarStor
     public bool CanExecute => true;
     public IUserActionResult Execute()
     {
-        FileSystemPath newItemPath = parentFolder.Path.ChildPath(GetDefaultItemName());
+        if (!parentFolder.Path.HasValue) return IUserActionResult.Failure();
+        FileSystemPath newItemPath = parentFolder.Path.Value.ChildPath(GetDefaultItemName());
         ILaminarStorageItem newItem = factory.FromPath(newItemPath, parentFolder);
         newItem.NeedsName = true;
         newItem.ParentFolder?.Refresh();
-        return IUserActionResult.Success(new DeleteStorageItemAction<T>(fileSystem, newItem));
+        return IUserActionResult.Success(new MoveStorageItemAction(newItem, recyclingBin, fileSystem));
     }
     
     private static string GetDefaultItemName()

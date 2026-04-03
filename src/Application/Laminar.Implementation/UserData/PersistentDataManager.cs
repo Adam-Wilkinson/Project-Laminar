@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Text.Json;
 using Laminar.Contracts.UserData;
 using Laminar.Domain.DataManagement;
@@ -13,10 +11,9 @@ namespace Laminar.Implementation.UserData;
 
 public class PersistentDataManager(ISerializer serializer, IFileSystem fileSystem, ILogger<IPersistentDataStore> dataStoreLogger, ILogger<JsonPersistentDataTranscoder> jsonTranscoderLogger) : IPersistentDataManager
 {
-    private static readonly FileSystemPath StaticPath = new(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Project Laminar"));
     private readonly Dictionary<DataStoreKey, IPersistentDataStore> _dataStores = new();
 
-    public FileSystemPath Path => StaticPath;
+    public FileSystemPath Path => DataLocations.RoamingDataFolder;
 
     public IPersistentDataStore GetDataStore(DataStoreKey dataStoreKey)
     {

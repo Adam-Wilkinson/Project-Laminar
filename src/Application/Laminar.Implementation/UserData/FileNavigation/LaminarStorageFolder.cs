@@ -98,35 +98,32 @@ public class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
     
     private IEnumerable<ILaminarStorageItem> GetChildren()
     {
-        // The refresh action can cause this to be called from separate threads, e.g. on a move we have a simultaneous
-        // add and remove
-        // lock (_getChildrenLock)
-        // {
-            IEnumerable<ILaminarStorageItem> returnValue =
-                _fileSystem.EnumerateChildren(Path).Select(x => _factory.FromPath(x, this));
-
-            if (_queuedMoves.Count == 0)
-            {
-                return returnValue;
-            }
+        if (!Path.HasValue) return [];
         
-            var listReturn = returnValue.ToList();
-            while (_queuedMoves.Count > 0)
+        IEnumerable<ILaminarStorageItem> returnValue =
+            _fileSystem.EnumerateChildren(Path.Value).Select(x => _factory.FromPath(x, this));
+
+        if (_queuedMoves.Count == 0)
+        {
+            return returnValue;
+        }
+    
+        var listReturn = returnValue.ToList();
+        while (_queuedMoves.Count > 0)
+        {
+            var (movedItem, newIndex) = _queuedMoves.Dequeue();
+            int oldIndex = listReturn.TakeWhile(item => item.Path?.Name != movedItem.Path?.Name).Count();
+            if (oldIndex >= listReturn.Count)
             {
-                var (movedItem, newIndex) = _queuedMoves.Dequeue();
-                int oldIndex = listReturn.TakeWhile(item => item.Path.Name != movedItem.Path.Name).Count();
-                if (oldIndex >= listReturn.Count)
-                {
-                    Logger?.LogError("Failed to remove item from folder children that should be there");
-                }
-                else
-                {
-                    var item = listReturn[oldIndex];
-                    listReturn.RemoveAt(oldIndex);
-                    listReturn.Insert(newIndex, item);
-                }
-            }   
-            return listReturn;
-        // }
+                Logger?.LogError("Failed to remove item from folder children that should be there");
+            }
+            else
+            {
+                var item = listReturn[oldIndex];
+                listReturn.RemoveAt(oldIndex);
+                listReturn.Insert(newIndex, item);
+            }
+        }   
+        return listReturn;
     }
 }

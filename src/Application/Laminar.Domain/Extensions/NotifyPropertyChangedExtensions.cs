@@ -102,8 +102,6 @@ public class PropertyChangedDependency<TObject, TValue>(TValue initialValue, Fun
     {
         if (notifyPropertyChanged is not TObject typedObject) return;
         
-        Console.WriteLine($"Invoking if changed for instance {GetHashCode()}. Current Value: {Value}");
-        
         TValue newValue;
         TValue oldValue;
         

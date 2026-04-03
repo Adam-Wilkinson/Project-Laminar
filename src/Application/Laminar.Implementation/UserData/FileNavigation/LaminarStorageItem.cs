@@ -35,9 +35,12 @@ public abstract class LaminarStorageItem(IFileSystem fileSystem, ILogger<Laminar
     
     public event PropertyChangedEventHandler? PropertyChanged;
 
+    /// <summary>
+    /// Called just before an item is deleted and its parent is set to null
+    /// </summary>
     public event EventHandler? OnDeleted;
 
-    public virtual FileSystemPath Path => ParentFolder?.Path.ChildPath(_nameWithExtension) ?? new(_nameWithExtension);
+    public virtual FileSystemPath? Path => ParentFolder?.Path?.ChildPath(_nameWithExtension);
 
     public abstract IObservableValue<long> SizeOnDisk { get; }
     
@@ -59,7 +62,7 @@ public abstract class LaminarStorageItem(IFileSystem fileSystem, ILogger<Laminar
 
     public void Refresh()
     {
-        if (fileSystem.Exists(Path))
+        if (Path.HasValue && fileSystem.Exists(Path.Value))
         {
             RefreshOverride();
         }

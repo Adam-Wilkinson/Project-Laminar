@@ -10,7 +10,7 @@ public class MockFileBrowser : ILaminarFileBrowser
 {
     public IReadOnlyObservableCollection<ILaminarStorageRootFolder> RootFolders { get; } 
         = new ObservableCollection<ILaminarStorageRootFolder>().ToInterfaceImpl();
-
+    
     public IUserActionResult AddDefault<T>(ILaminarStorageFolder parentFolder, IActionScope? scope = null)
         where T : class, ILaminarStorageItem
         => throw new InvalidOperationException();

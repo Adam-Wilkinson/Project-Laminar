@@ -13,7 +13,7 @@ public readonly struct FileSystemPath(string path) : IEquatable<FileSystemPath>
     public string Extension => Path.GetExtension(_path);
     public string Name => Path.GetFileNameWithoutExtension(_path);
     public string NameAndExtension => Path.GetFileName(_path);
-
+    
     public override string ToString() => _path;
 
     public bool Equals(FileSystemPath other) => RuntimeInformation.IsOSPlatform(OSPlatform.Windows)

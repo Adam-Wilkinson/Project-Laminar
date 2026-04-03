@@ -30,6 +30,7 @@ public class LaminarStorageFile : LaminarStorageItem
 
     protected override void RefreshOverride()
     {
-        _sizeOnDisk.Value = _fileSystem.GetFileSize(Path);
+        if (Path.HasValue) 
+            _sizeOnDisk.Value = _fileSystem.GetFileSize(Path.Value);
     }
 }

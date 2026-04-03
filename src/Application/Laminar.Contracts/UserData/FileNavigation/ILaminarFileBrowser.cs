@@ -10,7 +10,7 @@ namespace Laminar.Contracts.UserData.FileNavigation;
 public interface ILaminarFileBrowser
 {
     public IReadOnlyObservableCollection<ILaminarStorageRootFolder> RootFolders { get; }
-
+    
     public IUserActionResult AddDefault<T>(ILaminarStorageFolder parentFolder, IActionScope? scope = null)
         where T : class, ILaminarStorageItem;
     

@@ -13,6 +13,7 @@ using Laminar.Avalonia.ViewModels.Services;
 using Laminar.Avalonia.Views;
 using Laminar.Contracts.Base.PluginLoading;
 using Laminar.Contracts.Base.UserInterface;
+using Laminar.Domain.DataManagement;
 using Laminar.Implementation.Extensions;
 using Laminar.Implementation.Extensions.ServiceInitializers;
 using Laminar.PluginFramework.Registration;
@@ -23,8 +24,6 @@ using Serilog;
 namespace Laminar.Avalonia;
 public partial class App : Application
 {
-    private static readonly string LocalFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Project Laminar");
-    
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
@@ -42,7 +41,6 @@ public partial class App : Application
             // Without this line you will get duplicate validations from both Avalonia and CT
             BindingPlugins.DataValidators.RemoveAt(0);
             desktop.MainWindow = new MainWindow();
-            
             var services = new ServiceCollection()
                 .AddLaminarServices(FrontendDependency.Avalonia)
                 .AddViewModels()
@@ -56,7 +54,7 @@ public partial class App : Application
                     new LoggerConfiguration()
                         .MinimumLevel.Verbose()
                         .WriteTo.Console()
-                        .WriteTo.File(Path.Combine(LocalFolder, "logs.txt"))
+                        .WriteTo.File(DataLocations.LocalDataFolder.ChildPath("logs.txt").ToString())
                         .CreateLogger()))
                 .AddSingleton<IDialogFactory>(new DialogFactory().AddMessageBox())
                 .AddSingleton<IDialogManager, DialogManager>()
