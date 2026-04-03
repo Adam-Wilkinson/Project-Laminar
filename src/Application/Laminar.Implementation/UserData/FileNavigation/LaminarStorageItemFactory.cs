@@ -42,7 +42,7 @@ public partial class LaminarStorageItemFactory(IFileSystem fileSystem, ILogger<L
         };
         
         _allStorageItems[path] = newItem;
-        newItem.DependentValueChanged(x => x.Path).DependencyChanged += (_, e) =>
+        newItem.GetDependentValue(x => x.Path).OnChanged += (_, e) =>
         {
             _allStorageItems.Remove(e.OldValue);
             _allStorageItems[e.NewValue] = newItem;

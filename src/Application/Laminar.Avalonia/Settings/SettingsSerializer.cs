@@ -57,7 +57,7 @@ public class SettingsSerializer(TopLevel topLevel, IPersistentDataManager persis
         _settingsDataStore.InitializeDefaultValue(settingKey, setting.Value, setting.Value.GetType());
         setting.Value = _settingsDataStore.GetItem(settingKey, setting.Value.GetType()).Result!;
             
-        _settingsDataStore.GetObservable(settingKey).ValueChanged += (_, valueChangedArgs) =>
+        _settingsDataStore.GetObservable(settingKey).OnChanged += (_, valueChangedArgs) =>
         {
             if (!Dispatcher.UIThread.CheckAccess())
             {
@@ -87,7 +87,7 @@ public class SettingsSerializer(TopLevel topLevel, IPersistentDataManager persis
             _settingsDataStore = settingsDataStore;
             _settingKey = settingKey;
             _setting = setting;
-            _settingsDataStore.GetObservable(settingKey).ValueChanged += (_, newValue) =>
+            _settingsDataStore.GetObservable(settingKey).OnChanged += (_, newValue) =>
             {
                 var defaultVal = SettingDefaultValue();
                 bool canNowExecute = !Equals(newValue, defaultVal);

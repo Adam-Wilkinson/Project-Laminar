@@ -23,15 +23,15 @@ public class ObservableValue<T> : IObservableValue<T>, IValueSink<T>
 
             T oldValue = field;
             field = value;
-            OnValueChanged?.Invoke(this, EventArgs.Empty);
-            ValueChanged?.Invoke(this, new ObservableValueChangedEventArgs<T>(oldValue, field));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Value)));
+            PropertyChanged?.Invoke(this, IObservableValueBase.ValueChangedEventArgs);
+            OnChanged?.Invoke(this, new ObservableValueChangedEventArgs<T>(oldValue, field));
+            CovariantOnChanged?.Invoke(this, EventArgs.Empty);
         }
     }
 
-    public event EventHandler? OnValueChanged;
+    public event EventHandler? CovariantOnChanged;
 
-    public event EventHandler<ObservableValueChangedEventArgs<T>>? ValueChanged;
+    public event EventHandler<ObservableValueChangedEventArgs<T>>? OnChanged;
     
     public event PropertyChangedEventHandler? PropertyChanged;
 }

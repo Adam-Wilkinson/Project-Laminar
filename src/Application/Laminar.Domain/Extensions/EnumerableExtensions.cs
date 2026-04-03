@@ -38,7 +38,7 @@ public static class EnumerableExtensions
         {
             SourcedObservableCollection<T> output = new(observableEnumerable.Value, comparer);
 
-            observableEnumerable.OnValueChanged += (_, _) =>
+            observableEnumerable.CovariantOnChanged += (_, _) =>
             {
                 output.ChangeSourceTo(observableEnumerable.Value);
             };

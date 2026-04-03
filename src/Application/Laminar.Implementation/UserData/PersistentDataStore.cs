@@ -148,7 +148,7 @@ public class PersistentDataStore<TEncodedValue>(
         }
 
         value = new PersistentDataValue(serializer, persistentDataTranscoder, logger) { ValueName = key };
-        value.ValueChanged += (_, _) => SyncToFile();
+        value.OnChanged += (_, _) => SyncToFile();
         _serializedDataCache[key] = value;
         return value;
     }
@@ -165,8 +165,8 @@ public class PersistentDataStore<TEncodedValue>(
         private Type? _valueType;
         
         public event PropertyChangedEventHandler? PropertyChanged;
-        public event EventHandler<ObservableValueChangedEventArgs<object?>>? ValueChanged;
-        public event EventHandler? OnValueChanged;
+        public event EventHandler<ObservableValueChangedEventArgs<object?>>? OnChanged;
+        public event EventHandler? CovariantOnChanged;
 
         public required string ValueName { get; init; }
 
@@ -218,8 +218,8 @@ public class PersistentDataStore<TEncodedValue>(
                 _value = value;
                 SetEncodedValueFromValue();
                 PropertyChanged?.Invoke(this, IObservableValueBase.ValueChangedEventArgs);
-                ValueChanged?.Invoke(this, new ObservableValueChangedEventArgs<object?>(oldValue, _value));
-                OnValueChanged?.Invoke(this, EventArgs.Empty);
+                OnChanged?.Invoke(this, new ObservableValueChangedEventArgs<object?>(oldValue, _value));
+                CovariantOnChanged?.Invoke(this, EventArgs.Empty);
             }
         }
 
@@ -260,7 +260,7 @@ public class PersistentDataStore<TEncodedValue>(
             var oldValue = _value;
             _value = serializer.DeserializeObject(decodedValue, ValueType, _deserializationContext);
             PropertyChanged?.Invoke(this, IObservableValueBase.ValueChangedEventArgs);
-            ValueChanged?.Invoke(this, new ObservableValueChangedEventArgs<object?>(oldValue, _value));
+            OnChanged?.Invoke(this, new ObservableValueChangedEventArgs<object?>(oldValue, _value));
             return true;
         }
     }

@@ -24,7 +24,7 @@ public class SerializationInitializer(IPersistentDataManager dataManager) : IVie
         foreach (var property in serializedPropertyInfos.Values)
         {
             property.InitializeToDataStore(prefix, viewModel, _dataStore);
-            _dataStore.GetObservable(property.ValueKey(prefix)).ValueChanged += (_, _) =>
+            _dataStore.GetObservable(property.ValueKey(prefix)).OnChanged += (_, _) =>
             {
                 property.DataStoreToProperty(prefix, viewModel, _dataStore);
             };

@@ -46,7 +46,7 @@ public class ToolSerializer(TopLevel topLevel, IPersistentDataManager persistent
             currentDataStore.SetItem("Key Gesture", tool.Gesture);
         };
 
-        currentDataStore.GetObservable("Key Gesture").ValueChanged += (_, _) =>
+        currentDataStore.GetObservable("Key Gesture").OnChanged += (_, _) =>
         {
             tool.Gesture = currentDataStore.GetItem<KeyGesture>("Key Gesture").Result!;
         };

@@ -57,7 +57,7 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
             if (e.PropertyName == nameof(ILaminarStorageItem.Path)) Name = CoreItem.Path.Name;
         };
 
-        CoreItem.DependentValueChanged(item => item.ParentFolder?.IsEffectivelyEnabled ?? false).DependencyChanged +=
+        CoreItem.GetDependentValue(item => item.ParentFolder?.IsEffectivelyEnabled ?? false).OnChanged +=
             (_, _) => OnPropertyChanged(nameof(CanChangeIsEnabled));
         
         return;

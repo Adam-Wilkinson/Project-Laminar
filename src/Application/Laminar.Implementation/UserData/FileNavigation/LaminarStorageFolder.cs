@@ -81,7 +81,7 @@ public class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
     
     private void ContentsItemRemoved(object? sender, ItemRemovedEventArgs<ILaminarStorageItem> e)
     {
-        e.Item.SizeOnDisk.ValueChanged -= ChildSizeChanged;
+        e.Item.SizeOnDisk.OnChanged -= ChildSizeChanged;
     }
     
     private void ContentsItemAdded(object? sender, ItemAddedEventArgs<ILaminarStorageItem> e)
@@ -89,7 +89,7 @@ public class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
         if (e.Item is not LaminarStorageItem newStorageItem) return;
         SetParent(newStorageItem, this);
         _sizeOnDisk.Value += newStorageItem.SizeOnDisk.Value;
-        newStorageItem.SizeOnDisk.ValueChanged += ChildSizeChanged;
+        newStorageItem.SizeOnDisk.OnChanged += ChildSizeChanged;
     }
 
     private void ChildSizeChanged(object? sender, ObservableValueChangedEventArgs<long> e)

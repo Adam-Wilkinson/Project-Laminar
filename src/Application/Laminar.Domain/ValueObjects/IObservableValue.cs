@@ -2,16 +2,16 @@ using System.ComponentModel;
 
 namespace Laminar.Domain.ValueObjects;
 
+public interface IObservableValue<T> : ICovariantObservableValue<T>
+{
+    public new event EventHandler<ObservableValueChangedEventArgs<T>>? OnChanged;
+}
+
 public interface ICovariantObservableValue<out T> : IObservableValueBase
 {
     public T Value { get; }
 
-    public event EventHandler OnValueChanged;
-}
-
-public interface IObservableValue<T> : ICovariantObservableValue<T>
-{
-    public event EventHandler<ObservableValueChangedEventArgs<T>>? ValueChanged;
+    public event EventHandler CovariantOnChanged;
 }
 
 public interface IObservableValueBase : INotifyPropertyChanged
@@ -39,7 +39,7 @@ public static class ObservableValueExtensions
 
             ObservableValue<TOut> output = new(typedValue);
 
-            observableValue.ValueChanged += (_, e) =>
+            observableValue.OnChanged += (_, e) =>
             {
                 if (e.NewValue is not TOut newTypedValue)
                 {
@@ -56,7 +56,7 @@ public static class ObservableValueExtensions
         {
             ObservableValue<TOut> output = new(func(observableValue.Value));
             
-            observableValue.ValueChanged += (_, e) => output.Value = func(e.NewValue);
+            observableValue.OnChanged += (_, e) => output.Value = func(e.NewValue);
 
             return output;
         }

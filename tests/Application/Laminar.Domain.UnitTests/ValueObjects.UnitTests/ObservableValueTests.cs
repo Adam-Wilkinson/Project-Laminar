@@ -27,8 +27,8 @@ public class ObservableValueTests
             
             castedValue.Value.Should().Be(10);
             mon.Should().RaisePropertyChangeFor(x => x.Value);
-            mon.Should().Raise(nameof(ICovariantObservableValue<>.OnValueChanged));
-            mon.Should().Raise(nameof(IObservableValue<>.ValueChanged))
+            mon.Should().Raise(nameof(ICovariantObservableValue<>.CovariantOnChanged));
+            mon.Should().Raise(nameof(IObservableValue<>.OnChanged))
                 .WithSender(castedValue)
                 .WithArgs<ObservableValueChangedEventArgs<int>>(
                     x => x.OldValue == 5 && x.NewValue == 10);

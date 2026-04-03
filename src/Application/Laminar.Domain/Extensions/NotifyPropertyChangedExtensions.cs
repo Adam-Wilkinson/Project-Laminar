@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using Laminar.Domain.Notification;
+using Laminar.Domain.ValueObjects;
 
 namespace Laminar.Domain.Extensions;
 
@@ -7,7 +8,7 @@ public static class NotifyPropertyChangedExtensions
 {
     private static readonly Dictionary<INotifyPropertyChanged, PropertyChangedHolder> Holders = [];
 
-    public static PropertyChangedDependency<TObject, TValue> DependentValueChanged<TObject, TValue>(
+    public static IObservableValue<TValue> GetDependentValue<TObject, TValue>(
         this TObject notifyPropertyChanged, Func<TObject, TValue> dependent, IEqualityComparer<TValue>? equalityComparer = null)
         where TObject : INotifyPropertyChanged
     {
@@ -85,31 +86,44 @@ public static class NotifyPropertyChangedExtensions
     }
 }
 
-public class PropertyChangedDependency<TObject, TValue>(TValue initialValue, Func<TObject, TValue> dependentValue, IEqualityComparer<TValue>? comparer) : IPropertyChangedDependency
+public class PropertyChangedDependency<TObject, TValue>(TValue initialValue, Func<TObject, TValue> dependentValue, IEqualityComparer<TValue>? comparer) 
+    : IPropertyChangedDependency, IObservableValue<TValue>
 {
     private readonly IEqualityComparer<TValue> _comparer = comparer ?? EqualityComparer<TValue>.Default;
-    private TValue _currentValue = initialValue;
-
-    public event EventHandler<PropertyChangedDependencyEventArgs<TValue>>? DependencyChanged;
-
+    private readonly Lock _computeChangeLock = new();
+    
+    public event PropertyChangedEventHandler? PropertyChanged;
+    public event EventHandler? CovariantOnChanged;
+    public event EventHandler<ObservableValueChangedEventArgs<TValue>>? OnChanged;
+    
+    public TValue Value { get; private set; } = initialValue;
+    
     void IPropertyChangedDependency.InvokeIfChanged(object? sender, INotifyPropertyChanged notifyPropertyChanged)
     {
         if (notifyPropertyChanged is not TObject typedObject) return;
         
-        TValue newValue = dependentValue(typedObject);
-        if (_comparer.Equals(_currentValue, newValue)) return;
-        DependencyChanged?.Invoke(sender, new PropertyChangedDependencyEventArgs<TValue>(_currentValue, newValue));
-        _currentValue = newValue;
+        Console.WriteLine($"Invoking if changed for instance {GetHashCode()}. Current Value: {Value}");
+        
+        TValue newValue;
+        TValue oldValue;
+        
+        lock (_computeChangeLock)
+        {
+            oldValue = Value;
+            newValue = dependentValue(typedObject);
+
+            if (_comparer.Equals(oldValue, newValue)) return;
+
+            Value = newValue;
+        }
+        
+        PropertyChanged?.Invoke(this, IObservableValueBase.ValueChangedEventArgs);
+        OnChanged?.Invoke(this, new ObservableValueChangedEventArgs<TValue>(oldValue, newValue));
+        CovariantOnChanged?.Invoke(this, EventArgs.Empty);
     }
 }
 
 internal interface IPropertyChangedDependency
 {
     internal void InvokeIfChanged(object? sender, INotifyPropertyChanged notifyPropertyChanged);
-}
-
-public class PropertyChangedDependencyEventArgs<T>(T oldValue, T newValue) : EventArgs
-{
-    public T OldValue { get; } = oldValue;
-    public T NewValue { get; } = newValue;
 }

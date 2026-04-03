@@ -72,16 +72,6 @@ public abstract class LaminarStorageItem(IFileSystem fileSystem, ILogger<Laminar
         OnPropertyChanged(nameof(IsEffectivelyEnabled));
     }
     
-    public override bool Equals(object? obj)
-    {
-        return obj is LaminarStorageItem storageItem && storageItem.Path == Path;
-    }
-
-    public override int GetHashCode()
-    {
-        return Path.GetHashCode();
-    }
-    
     protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
