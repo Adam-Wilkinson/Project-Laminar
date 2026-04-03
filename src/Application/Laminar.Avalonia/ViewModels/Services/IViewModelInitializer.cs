@@ -1,5 +1,3 @@
-using System.Reflection;
-
 namespace Laminar.Avalonia.ViewModels.Services;
 
 public interface IViewModelInitializer

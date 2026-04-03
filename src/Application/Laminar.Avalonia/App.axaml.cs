@@ -1,5 +1,3 @@
-using System;
-using System.IO;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -12,13 +10,11 @@ using Laminar.Avalonia.ViewModels;
 using Laminar.Avalonia.ViewModels.Services;
 using Laminar.Avalonia.Views;
 using Laminar.Contracts.Base.PluginLoading;
-using Laminar.Contracts.Base.UserInterface;
 using Laminar.Domain.DataManagement;
 using Laminar.Implementation.Extensions;
 using Laminar.Implementation.Extensions.ServiceInitializers;
 using Laminar.PluginFramework.Registration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Serilog;
 
 namespace Laminar.Avalonia;
@@ -63,16 +59,9 @@ public partial class App : Application
 
             services.InitializeLaminar<App>();
             services.GetServices<IBeforeApplicationBuiltTarget>().Initialize();
-            
             desktop.MainWindow.DataContext = services.GetRequiredService<MainWindowViewModel>();
-
             services.GetServices<IAfterApplicationBuiltTarget>().Initialize();
-            
-            IPluginLoader pluginLoader = services.GetRequiredService<IPluginLoader>();
-            foreach (IPlugin avaloniaPlugin in services.GetServices<IPlugin>())
-            {
-                pluginLoader.Register(avaloniaPlugin);
-            }
+            services.GetRequiredService<IPluginLoader>().Register(services.GetServices<IPlugin>());
         }
 
         base.OnFrameworkInitializationCompleted();

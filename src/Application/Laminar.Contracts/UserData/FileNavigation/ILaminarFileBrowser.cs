@@ -17,7 +17,7 @@ public interface ILaminarFileBrowser
     public IUserActionResult Move(ILaminarStorageItem itemToMove, ILaminarStorageFolder destinationFolder, int destinationIndex,
         IActionScope? scope = null);
 
-    public IUserActionResult Delete<T>(T itemToDelete, IActionScope? scope = null) where T : class, ILaminarStorageItem;
+    public IUserActionResult Delete(ILaminarStorageItem itemToDelete, IActionScope? scope = null);
 
     public IUserActionResult Rename(ILaminarStorageItem itemToRename, string newName, IActionScope? scope = null);
     

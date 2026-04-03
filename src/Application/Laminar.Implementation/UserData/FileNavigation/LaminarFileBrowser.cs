@@ -41,7 +41,7 @@ public class LaminarFileBrowser(
         return actionManager.ExecuteAction(new MoveStorageItemAction(itemToMove, destinationFolder, fileSystem, destinationIndex), scope);
     }
 
-    public IUserActionResult Delete<T>(T itemToDelete, IActionScope? scope) where T : class, ILaminarStorageItem
+    public IUserActionResult Delete(ILaminarStorageItem itemToDelete, IActionScope? scope)
     {
         return actionManager.ExecuteAction(new MoveStorageItemAction(itemToDelete, _recyclingBin, fileSystem), scope); 
     }
@@ -54,7 +54,7 @@ public class LaminarFileBrowser(
     public bool OpenInSystemFileBrowser(ILaminarStorageItem item)
     {
         return item.Path is { } itemPath && fileSystem.OpenInSystemFileBrowser(itemPath);
-    } 
+    }
     
     public void Dispose()
     {

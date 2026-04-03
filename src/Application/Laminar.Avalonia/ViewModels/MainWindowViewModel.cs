@@ -4,16 +4,14 @@ using Avalonia.Data;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Laminar.Avalonia.ViewModels.Services;
+using Laminar.Contracts.Base.ActionSystem;
 
 namespace Laminar.Avalonia.ViewModels;
 
 public interface IRootWindowViewModel : INotifyPropertyChanged;
 
-public partial class MainWindowViewModel : ViewModelBase, IRootWindowViewModel, IUndoScope
+public partial class MainWindowViewModel : ViewModelBase, IRootWindowViewModel, IActionScope
 {
-    [ObservableProperty] private bool _settingsOpen;
-    [ObservableProperty] private bool _sidebarExpanded;
-    
     public MainWindowViewModel(MainControlViewModel mainControl, TitleBarViewModel titlebar, SettingsViewModel settings)
     {
         MainControl = mainControl;
@@ -33,6 +31,12 @@ public partial class MainWindowViewModel : ViewModelBase, IRootWindowViewModel, 
     public SettingsViewModel Settings { get; }
 
     public MainControlViewModel MainControl { get; }
+    
+    [ObservableProperty]
+    public partial bool SettingsOpen { get; set; }
+
+    [ObservableProperty]
+    public partial bool SidebarExpanded { get; set; }
 
     partial void OnSidebarExpandedChanged(bool value)
     {

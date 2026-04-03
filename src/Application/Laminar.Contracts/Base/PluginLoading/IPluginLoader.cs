@@ -8,3 +8,17 @@ public interface IPluginLoader
     
     List<IRegisteredPlugin> RegisteredPlugins { get; }
 }
+
+public static class PluginLoaderExtensions
+{
+    extension(IPluginLoader pluginLoader)
+    {
+        public void Register(IEnumerable<IPlugin> plugins)
+        {
+            foreach (var item in plugins)
+            {
+                pluginLoader.Register(item);
+            }
+        }
+    }
+}

@@ -105,12 +105,12 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
         if (itemType.IsAssignableTo(typeof(ILaminarStorageFolder)))
         {
             IsExpanded = true;
-            _fileBrowser.AddDefault<ILaminarStorageFolder>(folder);
+            _fileBrowser.AddDefault<ILaminarStorageFolder>(folder, UndoScope);
         }
         else if (itemType.IsAssignableTo(typeof(LaminarStorageFile)))
         {
             IsExpanded = true;
-            _fileBrowser.AddDefault<LaminarStorageFile>(folder);
+            _fileBrowser.AddDefault<LaminarStorageFile>(folder, UndoScope);
         }
     }
 
@@ -125,7 +125,7 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
     [RelayCommand]
     public void Delete()
     {
-        _fileBrowser.Delete(CoreItem);
+        _fileBrowser.Delete(CoreItem, UndoScope);
     }
     
     [RelayCommand]
@@ -154,7 +154,7 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
     
     private async Task SetCoreItemName()
     {
-        if (_fileBrowser.Rename(CoreItem, Name) is UserActionError
+        if (_fileBrowser.Rename(CoreItem, Name, UndoScope) is UserActionError
                 { Exception: { } renameException })
         {
             Dispatcher.UIThread.Post(() => Name = CoreItem.Path?.Name ?? "");

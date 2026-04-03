@@ -20,7 +20,7 @@ public partial class FileNavigatorViewModel(
     IDialogService dialogService,
     ILogger<FileNavigatorItemViewModel>? logger = null,
     TopLevel? topLevel = null)
-    : ViewModelBase
+    : ViewModelBase, IActionScope
 {
     private static readonly TimeSpan ExpandHoveredOverFolderDelay = new(0, 0, 0, 0, 500);
 
@@ -91,7 +91,7 @@ public partial class FileNavigatorViewModel(
             targetItem.CoreItem is not ILaminarStorageFolder targetFolder) return;
         if (eventArgs.DraggingControl.DataContext is not FileNavigatorItemViewModel draggedItem) return;
         
-        var moveResult = fileBrowser.Move(draggedItem.CoreItem, targetFolder, targetIndex);
+        var moveResult = fileBrowser.Move(draggedItem.CoreItem, targetFolder, targetIndex, UndoScope);
 
         if (moveResult is UserActionError 
                 { Exception: DestinationContainsItemOfThatNameException destinationContainsException })
