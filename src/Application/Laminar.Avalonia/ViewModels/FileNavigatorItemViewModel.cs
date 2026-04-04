@@ -31,6 +31,8 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
     private readonly TopLevel? _topLevel;
     private readonly IDialogService _dialogService;
 
+    private bool _folderContentsInitialized;
+    
     public FileNavigatorItemViewModel(
         ILaminarStorageItem coreItem, 
         ILaminarFileBrowser fileBrowser, 
@@ -45,9 +47,9 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
         CoreItem = coreItem;
         Name = CoreItem.Path?.Name ?? "";
 
-        if (coreItem is ILaminarStorageFolder folder)
+        if (coreItem is ILaminarStorageFolder)
         {
-            _children = new SourcedObservableCollection<FileNavigatorItemViewModel>(folder.Contents.ObservableMap(Factory), ContentsEqual);
+            _children = new SourcedObservableCollection<FileNavigatorItemViewModel>([], ContentsEqual);
             _children.HelperInstance().ItemAdded += (_, e) => e.Item.Parent = this;
         }
 
@@ -58,21 +60,29 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
 
         CoreItem.GetDependentValue(item => item.ParentFolder?.IsEffectivelyEnabled ?? false).OnChanged +=
             (_, _) => OnPropertyChanged(nameof(CanChangeIsEnabled));
-        
-        return;
-
-        FileNavigatorItemViewModel Factory(ILaminarStorageItem storageItem) 
-            => new(storageItem, _fileBrowser, dialogService, logger, topLevel) { Parent = this };
     }
     
     [ObservableProperty]
-    public partial bool IsExpanded { get; set; } = true;
+    public partial bool IsExpanded { get; set; } = false;
     
     public FileNavigatorItemViewModel? Parent { get; private set; }
 
     public bool CanChangeIsEnabled => CoreItem.ParentFolder?.IsEffectivelyEnabled ?? true;
 
-    public IObservableCollection<FileNavigatorItemViewModel>? Children => _children;
+    public IObservableCollection<FileNavigatorItemViewModel>? Children
+    {
+        get
+        {
+            if (_children is null || CoreItem is not ILaminarStorageFolder folder) return null;
+            if (_folderContentsInitialized) return _children;
+
+            _children.ChangeSourceTo(folder.Contents.ObservableMap(item =>
+                new FileNavigatorItemViewModel(item, _fileBrowser, _dialogService, _logger, _topLevel)
+                    { Parent = this }));
+            _folderContentsInitialized = true;
+            return _children;
+        }
+    }
     
     public string Name
     {

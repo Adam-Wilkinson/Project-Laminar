@@ -60,7 +60,12 @@ public class SourcedObservableCollection<T> : IObservableCollection<T> where T :
 
         int commonItemCount = 0;
 
-        // FIRST PASS: Loop through the new list to populate newItemIndices and targetIndices
+        // FIRST PASS: Loop through the new list to populate newItemIndices and targetIndices. 
+        // We also determine here how much calculation is necessary
+        bool sourceIsSubsetOfOldList = true;
+        bool listsHaveSameOrdering = false;
+        int matchCount = 0;
+        int lastIndex = -1;
         for (int i = 0; i < sourceList.Count; i++)
         {
             int indexInOldList = GetIndexInOutput(sourceList[i]);
@@ -69,9 +74,18 @@ public class SourcedObservableCollection<T> : IObservableCollection<T> where T :
             if (indexInOldList == -1)
             {
                 newItemIndices[numberOfNewItems++] = i;
+                sourceIsSubsetOfOldList = false;
                 continue;
             }
-
+            matchCount++;
+            
+            // Determine whether a move pass will be necessary
+            if (indexInOldList <= lastIndex)
+            {
+                listsHaveSameOrdering = false;
+            }
+            lastIndex = indexInOldList;
+            
             // We've already found an item that has this oldIndex
             if (targetIndices[indexInOldList] != -1)
             {
@@ -83,6 +97,14 @@ public class SourcedObservableCollection<T> : IObservableCollection<T> where T :
             commonItemCount++;
         }
         
+        bool listsAreSetEqual = sourceIsSubsetOfOldList && matchCount == _internalList.Count;
+
+        if (listsAreSetEqual && listsHaveSameOrdering)
+        {
+            _matchesSource = true;
+            return;
+        }
+        
         // At each index i, stores the target position of element i.
         // EXAMPLE: Old list: [a, b, c, d]; New list: [a, d, b, c]; movePassTargetIndices: [0, 2, 3, 1]
         Span<int> movePassTargetIndices = stackalloc int[commonItemCount];
@@ -90,7 +112,6 @@ public class SourcedObservableCollection<T> : IObservableCollection<T> where T :
         // SECOND PASS: Remove items and populate movePassTargetIndices
         int indexInCommonItems = 0;
         int removedItemCount = 0;
-        bool movePassNecessary = false;
         for (int i = 0; i < targetIndices.Length; i++)
         {
             if (targetIndices[i] == -1)
@@ -99,17 +120,12 @@ public class SourcedObservableCollection<T> : IObservableCollection<T> where T :
                 removedItemCount++;
                 continue;
             }
-
-            if (targetIndices[i] != indexInCommonItems)
-            {
-                movePassNecessary = true;
-            }
-            
+        
             movePassTargetIndices[indexInCommonItems++] = targetIndices[i];
         }
 
         // The move pass involves expensive calculations to minimize move operations; best avoid if we can
-        if (movePassNecessary && SyncMode == SourcedCollectionMode.SequenceEquality)
+        if (!listsHaveSameOrdering && SyncMode == SourcedCollectionMode.SequenceEquality)
         {
             // movePassTargetIndices now needs a longest increasing subsequence (LIS) calculation to find
             // the minimum number of move operations required to sync the lists

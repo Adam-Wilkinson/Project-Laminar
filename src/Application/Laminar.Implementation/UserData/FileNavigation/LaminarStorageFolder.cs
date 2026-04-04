@@ -12,9 +12,10 @@ namespace Laminar.Implementation.UserData.FileNavigation;
 public class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
 {
     private readonly ILaminarStorageItemFactory _factory;
+    private bool _contentsInitialized;
     private readonly SourcedObservableCollection<ILaminarStorageItem> _contents = new([])
     {
-        SyncMode = SourcedCollectionMode.SetEquality,
+        SyncMode = SourcedCollectionMode.SetEquality
     };
     
     private readonly ObservableValue<long> _sizeOnDisk = new(0);
@@ -46,13 +47,23 @@ public class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
         _fileSystem = fileSystem;
         _factory = factory;
         
-        Contents.HelperInstance().ItemAdded += ContentsItemAdded;
-        Contents.HelperInstance().ItemRemoved += ContentsItemRemoved;
+        _contents.HelperInstance().ItemAdded += ContentsItemAdded;
+        _contents.HelperInstance().ItemRemoved += ContentsItemRemoved;
     }
     
     public override IObservableValue<long> SizeOnDisk => _sizeOnDisk;
 
-    public IReadOnlyObservableCollection<ILaminarStorageItem> Contents => _contents;
+    public IReadOnlyObservableCollection<ILaminarStorageItem> Contents
+    {
+        get
+        {
+            if (_contentsInitialized) return _contents;
+
+            _contentsInitialized = true;
+            Refresh();
+            return _contents;
+        }
+    }
     
     public void RegisterQueuedMove(ILaminarStorageItem item, int newIndex)
     {
@@ -70,7 +81,8 @@ public class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
     }
 
     protected override void RefreshOverride()
-    {
+    { 
+        if (!_contentsInitialized) return;
         _contents.ChangeSourceTo(GetChildren());
         foreach (var child in Contents)
         {
