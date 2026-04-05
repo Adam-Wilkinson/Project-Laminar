@@ -9,7 +9,7 @@ namespace Laminar.Contracts.UserData.FileNavigation;
 /// </summary>
 public interface ILaminarStorageItem : INotifyPropertyChanged
 {
-    public FileSystemPath? Path { get; }
+    public FileSystemPath Path { get; }
     
     public bool IsEnabled { get; set; }
     

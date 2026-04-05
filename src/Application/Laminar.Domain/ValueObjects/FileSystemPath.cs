@@ -2,9 +2,13 @@ using System.Runtime.InteropServices;
 
 namespace Laminar.Domain.ValueObjects;
 
-public readonly struct FileSystemPath(string path) : IEquatable<FileSystemPath>
+/// <summary>
+/// Utility struct for managing paths. Does not reflect the file system, just simplifies the managing of absolute path strings
+/// </summary>
+/// <param name="absolutePath">The absolute path that is being manipulated</param>
+public readonly struct FileSystemPath(string absolutePath) : IEquatable<FileSystemPath>
 {
-    private readonly string _path = Path.GetFullPath(path) ?? throw new ArgumentNullException(nameof(path));
+    private readonly string _path = Path.GetFullPath(absolutePath) ?? throw new ArgumentNullException(nameof(absolutePath));
 
     public FileSystemPath ChildPath(string childName) => new(Path.Join(_path, childName));
 
@@ -13,6 +17,8 @@ public readonly struct FileSystemPath(string path) : IEquatable<FileSystemPath>
     public string Extension => Path.GetExtension(_path);
     public string Name => Path.GetFileNameWithoutExtension(_path);
     public string NameAndExtension => Path.GetFileName(_path);
+    public string[] SplitAfter(FileSystemPath relativeTo) 
+        => Path.GetRelativePath(relativeTo._path, _path).Split('/', '\\');
     
     public override string ToString() => _path;
 
@@ -31,4 +37,6 @@ public readonly struct FileSystemPath(string path) : IEquatable<FileSystemPath>
 
     public static bool operator ==(FileSystemPath left, FileSystemPath right) => left.Equals(right);
     public static bool operator !=(FileSystemPath left, FileSystemPath right) => !left.Equals(right);
+    
+    public static implicit operator FileSystemPath(string path) => new(path);
 }

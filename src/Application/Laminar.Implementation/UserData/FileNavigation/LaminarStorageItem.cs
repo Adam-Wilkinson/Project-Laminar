@@ -23,24 +23,14 @@ public abstract class LaminarStorageItem(IFileSystem fileSystem, ILogger<Laminar
     {
         item._nameWithExtension = newNameWithExtension;
         item.OnPropertyChanged(nameof(item.Path));
-    } 
-    
-    protected static void TriggerOnDeleted(LaminarStorageItem item)
-    {
-        item.OnDeleted?.Invoke(item, EventArgs.Empty);
-        SetParent(item, null);
     }
     
     protected ILogger<LaminarStorageItem> Logger { get; } = logger;
     
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    /// <summary>
-    /// Called just before an item is deleted and its parent is set to null
-    /// </summary>
-    public event EventHandler? OnDeleted;
-
-    public virtual FileSystemPath? Path => ParentFolder?.Path?.ChildPath(_nameWithExtension);
+    public virtual FileSystemPath Path => ParentFolder?.Path.ChildPath(_nameWithExtension) 
+                                          ?? throw new InvalidOperationException("Non-root storage items must have a parent");
 
     public abstract IObservableValue<long> SizeOnDisk { get; }
     
@@ -62,7 +52,7 @@ public abstract class LaminarStorageItem(IFileSystem fileSystem, ILogger<Laminar
 
     public void Refresh()
     {
-        if (Path.HasValue && fileSystem.Exists(Path.Value))
+        if (fileSystem.Exists(Path))
         {
             RefreshOverride();
         }

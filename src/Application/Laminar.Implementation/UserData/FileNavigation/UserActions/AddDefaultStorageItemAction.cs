@@ -24,8 +24,7 @@ public class AddDefaultStorageItemAction<T>(
     public bool CanExecute => true;
     public IUserActionResult Execute()
     {
-        if (!parentFolder.Path.HasValue) return IUserActionResult.Failure();
-        FileSystemPath newItemPath = parentFolder.Path.Value.ChildPath(GetDefaultItemName());
+        FileSystemPath newItemPath = parentFolder.Path.ChildPath(GetDefaultItemName());
         ILaminarStorageItem newItem = factory.FromPath(newItemPath, parentFolder);
         newItem.NeedsName = true;
         newItem.ParentFolder?.Refresh();

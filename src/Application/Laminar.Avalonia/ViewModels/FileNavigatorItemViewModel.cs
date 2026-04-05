@@ -45,7 +45,7 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
         _topLevel = topLevel;
         _dialogService = dialogService;
         CoreItem = coreItem;
-        Name = CoreItem.Path?.Name ?? "";
+        Name = CoreItem.Path.Name;
 
         if (coreItem is ILaminarStorageFolder)
         {
@@ -55,7 +55,7 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
 
         CoreItem.FilterPropertyChanged(nameof(ILaminarStorageItem.Path)).OnNotification += (_, _) =>
         {
-            if (CoreItem.Path is not null) Name = CoreItem.Path.Value.Name;
+            Name = CoreItem.Path.Name;
         };
 
         CoreItem.GetDependentValue(item => item.ParentFolder?.IsEffectivelyEnabled ?? false).OnChanged +=
@@ -92,7 +92,7 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
             if (value == field) return;
             field = value;
             OnPropertyChanged();
-            if (CoreItem.Path.HasValue && value != CoreItem.Path.Value.Name)
+            if (value != CoreItem.Path.Name)
             {
                 Dispatcher.UIThread.InvokeAsync(SetCoreItemName);
             }
@@ -167,7 +167,7 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
         if (_fileBrowser.Rename(CoreItem, Name, UndoScope) is UserActionError
                 { Exception: { } renameException })
         {
-            Dispatcher.UIThread.Post(() => Name = CoreItem.Path?.Name ?? "");
+            Dispatcher.UIThread.Post(() => Name = CoreItem.Path.Name);
             var message = renameException switch
             {
                 InvalidStorageItemNameException storageItemNameException => $"Invalid storage item name: '{storageItemNameException.Name}'",

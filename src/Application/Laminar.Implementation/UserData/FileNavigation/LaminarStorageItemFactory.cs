@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Laminar.Contracts.UserData;
 using Laminar.Contracts.UserData.FileNavigation;
@@ -8,64 +7,43 @@ using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.UserData.FileNavigation;
 
-public partial class LaminarStorageItemFactory(IFileSystem fileSystem, ILogger<LaminarStorageItem> logger) : ILaminarStorageItemFactory
+public partial class LaminarStorageItemFactory(IFileSystem fileSystem, IDeletedStorageItemCache deletedItemCache, ILogger<LaminarStorageItem> logger)
+    : ILaminarStorageItemFactory
 {
-    private static readonly TimeSpan DeletedItemMoveDetectionCooldown = new(0, 0, 2); 
-    
     private readonly Dictionary<FileSystemPath, ILaminarStorageItem> _allStorageItems = [];
-    private readonly Dictionary<int, (ILaminarStorageItem item, DateTime timestamp)> _recentlyDeletedItems = [];
 
     public ILaminarStorageItem FromPath(FileSystemPath path, ILaminarStorageFolder parent)
     {
         if (_allStorageItems.TryGetValue(path, out ILaminarStorageItem? item))
         {
-            // LogRequestedItemMatchesExistingItem(logger, path);
             return item;
         }
 
-        LaminarStorageItem newItem = string.IsNullOrWhiteSpace(path.Extension)
+        ILaminarStorageItem newItem = string.IsNullOrWhiteSpace(path.Extension)
             ? new LaminarStorageFolder(path, this, logger, fileSystem, parent) 
             : new LaminarStorageFile(path, parent, fileSystem, logger);
 
-        if (_recentlyDeletedItems.TryGetValue(HashDeletedItem(newItem), out var existingItem) 
-            && DateTime.Now - existingItem.timestamp < DeletedItemMoveDetectionCooldown)
+        if (deletedItemCache.TryFind(newItem) is { } cachedItem)
         {
             LogRequestedFileMatchesRecentDeletion(logger, path);
-            _allStorageItems[path] = newItem;
-            return existingItem.item;
+            _allStorageItems[path] = cachedItem;
+            return cachedItem;
         }
-        
-        newItem.OnDeleted += (_, _) =>
-        {
-            _allStorageItems.Remove(path);
-            _recentlyDeletedItems[HashDeletedItem(newItem)] = (newItem, DateTime.Now);
-        };
         
         _allStorageItems[path] = newItem;
         newItem.GetDependentValue(x => x.Path).OnChanged += (_, e) =>
         {
-            if (e.OldValue.HasValue)
-            {
-                _allStorageItems.Remove(e.OldValue.Value);
-            }
-
-            if (e.NewValue.HasValue)
-            {
-                _allStorageItems[e.NewValue.Value] = newItem;
-            } 
+            _allStorageItems.Remove(e.OldValue);
+            _allStorageItems[e.NewValue] = newItem;
         };
         
         return newItem;
     }
 
-    public ILaminarStorageRootFolder CreateRootFolder(FileSystemPath path) => 
-        new LaminarStorageRootFolder(path, this, fileSystem, logger);
+    public ILaminarStorageItem? TryGetExisting(FileSystemPath path) =>  _allStorageItems.GetValueOrDefault(path);
 
-    private int HashDeletedItem(LaminarStorageItem item) => item switch
-    {
-        ILaminarStorageFolder folder => HashCode.Combine(folder.Path?.NameAndExtension, folder.SizeOnDisk.Value, folder.Contents.Count),
-        _ => HashCode.Combine(item.Path?.NameAndExtension, item.SizeOnDisk.Value)
-    };
+    public ILaminarStorageRootFolder CreateRootFolder(FileSystemPath path) => 
+        new LaminarStorageRootFolder(path, this, fileSystem, deletedItemCache, logger);
 
     [LoggerMessage(LogLevel.Trace, "A file at path '{path}' was already cached, returning cached value")]
     static partial void LogRequestedItemMatchesExistingItem(ILogger<LaminarStorageItem> logger, FileSystemPath path);

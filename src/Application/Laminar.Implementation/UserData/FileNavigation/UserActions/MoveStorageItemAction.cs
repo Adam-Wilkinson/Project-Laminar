@@ -21,8 +21,7 @@ public class MoveStorageItemAction(
      
      public IUserActionResult Execute()
      {
-          if (item.ParentFolder is not { } oldFolder || item.Path is not { } oldPath || destinationFolder.Path is not { } destinationFolderPath) 
-               return IUserActionResult.Failure();
+          if (item.ParentFolder is not { } oldFolder) return IUserActionResult.Failure();
           
           var indexInOldFolder = oldFolder.Contents.IndexOf(item);
           var indexInDestinationFolder = targetIndex ?? destinationFolder.Contents.Count;
@@ -33,10 +32,10 @@ public class MoveStorageItemAction(
           }
           else
           {
-               if (destinationFolder.Contents.Any(x => oldPath.Name.Equals(x.Path?.Name)))
+               if (destinationFolder.Contents.Any(x => item.Path.Name.Equals(x.Path.Name)))
                {
                     return IUserActionResult.Error(
-                         new DestinationContainsItemOfThatNameException(destinationFolderPath.Name, oldPath.Name));
+                         new DestinationContainsItemOfThatNameException(destinationFolder.Path.Name, item.Path.Name));
                }
                
                // The file system is not positional, so we prep the StorageFolder to move to the right position
@@ -45,8 +44,8 @@ public class MoveStorageItemAction(
                     typedFolder.RegisterQueuedMove(item, indexInDestinationFolder);
                }
 
-               var destinationPath = destinationFolderPath.ChildPath(oldPath.NameAndExtension);
-               fileSystem.Move(oldPath, destinationPath);
+               var destinationPath = destinationFolder.Path.ChildPath(item.Path.NameAndExtension);
+               fileSystem.Move(item.Path, destinationPath);
           }
 
           return IUserActionResult.Success(new MoveStorageItemAction(item, oldFolder, fileSystem, indexInOldFolder));

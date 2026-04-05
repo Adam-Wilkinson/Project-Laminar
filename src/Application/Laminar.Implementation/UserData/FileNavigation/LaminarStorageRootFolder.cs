@@ -15,6 +15,8 @@ public class LaminarStorageRootFolder : LaminarStorageFolder, ILaminarStorageRoo
 {
     private static readonly TimeSpan FileSystemModifiedRefreshDelay = new(0, 0, 0, 0, 300);
     private readonly IFileWatcher _folderWatcher;
+    private readonly IDeletedStorageItemCache _deletedStorageItemCache;
+    private readonly ILaminarStorageItemFactory _factory;
     private readonly Channel<FileSystemEventArgs> _fileWatcherUpdateChannel = Channel.CreateUnbounded<FileSystemEventArgs>(
         new UnboundedChannelOptions
     {
@@ -28,9 +30,12 @@ public class LaminarStorageRootFolder : LaminarStorageFolder, ILaminarStorageRoo
         FileSystemPath path, 
         ILaminarStorageItemFactory factory,
         IFileSystem fileSystem,
+        IDeletedStorageItemCache deletedStorageItemCache,
         ILogger<LaminarStorageItem> logger) : base(path, factory, fileSystem, logger)
     {
         Path = path;
+        _deletedStorageItemCache =  deletedStorageItemCache;
+        _factory = factory;
         Refresh();
 
         _folderWatcher = fileSystem.CreateFileWatcher(path);
@@ -46,7 +51,7 @@ public class LaminarStorageRootFolder : LaminarStorageFolder, ILaminarStorageRoo
         Task.Run(ProcessFileSystemEvents);
     }
 
-    public override FileSystemPath? Path { get; }
+    public override FileSystemPath Path { get; }
 
     private void OnFileSystemEvent(object? sender, FileSystemEventArgs e)
     {
@@ -91,57 +96,25 @@ public class LaminarStorageRootFolder : LaminarStorageFolder, ILaminarStorageRoo
         switch (e.ChangeType)
         {
             case WatcherChangeTypes.Renamed:
-                if (e is not RenamedEventArgs renamedEventArgs ||
-                    FindChildFromPath(renamedEventArgs.OldFullPath) is not LaminarStorageItem renamedChild)
+                if (e is not RenamedEventArgs renamedEventArgs 
+                    || _factory.TryGetExisting(renamedEventArgs.OldFullPath) is not LaminarStorageItem renamedItem)
                 {
                     Logger.LogWarning("Could not find renamed item {oldName}, this may result in a rename operation being considered as separate delete and create operations", e.Name);
                     break;
                 }
-                Rename(renamedChild, e.Name!);
+                Rename(renamedItem, e.Name!);
                 break;
             case WatcherChangeTypes.Deleted:
-                if (FindChildFromPath(e.FullPath) is not LaminarStorageItem deletedItem)
+                if (_factory.TryGetExisting(e.FullPath) is not LaminarStorageItem deletedItem)
                 {
                     Logger.LogWarning("Could not find deleted item {itemName}, this may result in a move operation being missed", e.Name);
                     break;
                 }
-                TriggerOnDeleted(deletedItem);
+                _deletedStorageItemCache.RegisterPotentialDeletion(deletedItem);
                 break;
         }
         
         ScheduleRefresh();
-    }
-
-    private ILaminarStorageItem? FindChildFromPath(string absolutePath)
-    {
-        if (!Path.HasValue) return null;
-        string relativePath = System.IO.Path.GetRelativePath(Path.Value.ToString(), absolutePath);
-        ILaminarStorageFolder currentFolder = this;
-        ILaminarStorageItem? currentResult = null;
-        foreach (string name in relativePath.Split('/', '\\'))
-        {
-            currentResult = FindDirectChildNamed(currentFolder, name);
-
-            if (currentResult is null) return null;
-
-            if (currentResult is ILaminarStorageFolder folder) currentFolder = folder;
-        }
-
-        return currentResult;
-    }
-        
-    private static ILaminarStorageItem? FindDirectChildNamed(ILaminarStorageFolder folder, string itemName)
-    {
-        Span<ILaminarStorageItem> contents = folder.Contents.ToArray();
-        foreach (var item in contents)
-        {
-            if (item.Path?.NameAndExtension == itemName)
-            {
-                return item;
-            }
-        }
-
-        return null;
     }
     
     private void ScheduleRefresh()
@@ -156,8 +129,9 @@ public class LaminarStorageRootFolder : LaminarStorageFolder, ILaminarStorageRoo
             try
             {
                 await Task.Delay(FileSystemModifiedRefreshDelay, token);
-                Logger.LogTrace("Triggering refresh after scheduled move operations");
+                Logger.LogTrace("Triggering file system refresh after scheduled move operations");
                 Refresh();
+                _deletedStorageItemCache.Clear();
             }
             catch (TaskCanceledException) { }
         }, token);

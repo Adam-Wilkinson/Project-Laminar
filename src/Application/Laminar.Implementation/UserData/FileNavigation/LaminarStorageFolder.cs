@@ -110,10 +110,8 @@ public class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
     
     private IEnumerable<ILaminarStorageItem> GetChildren()
     {
-        if (!Path.HasValue) return [];
-        
         IEnumerable<ILaminarStorageItem> returnValue =
-            _fileSystem.EnumerateChildren(Path.Value).Select(x => _factory.FromPath(x, this));
+            _fileSystem.EnumerateChildren(Path).Select(x => _factory.FromPath(x, this));
 
         if (_queuedMoves.Count == 0)
         {
@@ -124,7 +122,7 @@ public class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
         while (_queuedMoves.Count > 0)
         {
             var (movedItem, newIndex) = _queuedMoves.Dequeue();
-            int oldIndex = listReturn.TakeWhile(item => item.Path?.Name != movedItem.Path?.Name).Count();
+            int oldIndex = listReturn.TakeWhile(item => item.Path.Name != movedItem.Path.Name).Count();
             if (oldIndex >= listReturn.Count)
             {
                 Logger?.LogError("Failed to remove item from folder children that should be there");
