@@ -12,6 +12,7 @@ using Avalonia.Input;
 using Avalonia.LogicalTree;
 using Avalonia.Media;
 using Avalonia.Metadata;
+using CommunityToolkit.Mvvm.Input;
 
 namespace Laminar.Avalonia.ToolSystem;
 
@@ -132,6 +133,18 @@ public class Tool : StyledElement, ITemplate<object?, ToolInstance?>, IEnumerabl
 
     public AvaloniaList<Tool>? ChildTools { get; protected init; }
 
+    public event EventHandler? ResetKeybindingRequested;
+    
+    public void ResetGesture()
+    {
+        ResetKeybindingRequested?.Invoke(this, EventArgs.Empty);
+    }
+
+    public void SetGestureToNone()
+    {
+        Gesture = new(Key.None);
+    }
+    
     public ToolInstance? Build(object? param)
     {
         if (DataType is not null && !DataType.IsInstanceOfType(param))

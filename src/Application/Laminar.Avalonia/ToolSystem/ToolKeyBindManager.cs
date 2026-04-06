@@ -106,7 +106,7 @@ public class ToolKeyBindManager(TopLevel defaultTopLevel, ILogger<ToolKeyBindMan
         });
         
         tool.DefaultPopupTarget ??= defaultTopLevel;
-
+        
         if (tool.ChildTools is not null)
         {
             foreach (var childTool in tool.ChildTools)
@@ -130,7 +130,6 @@ public class ToolKeyBindManager(TopLevel defaultTopLevel, ILogger<ToolKeyBindMan
             parameter ??= tool.CommandParameter;
             return TryBuildTool(out _toolInstanceCache) && _toolInstanceCache?.Command.CanExecute(parameter) == true; 
         }
-               
 
         public void Execute(object? parameter)
         {

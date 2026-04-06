@@ -50,5 +50,10 @@ public class ToolSerializer(TopLevel topLevel, IPersistentDataManager persistent
         {
             tool.Gesture = currentDataStore.GetItem<KeyGesture>("Key Gesture").Result!;
         };
+        
+        tool.ResetKeybindingRequested += (_, _) =>
+        {
+            currentDataStore.ResetToDefault("Key Gesture");
+        };
     }
 }

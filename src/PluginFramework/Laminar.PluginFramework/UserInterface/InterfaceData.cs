@@ -8,23 +8,20 @@ public sealed class InterfaceData<TInterfaceDefinition, TValue> : IInterfaceData
     where TInterfaceDefinition : IUserInterfaceDefinition, new()
     where TValue : notnull
 {
-    private TValue _value = default!;
-    private TInterfaceDefinition _interfaceDefinition = new();
-    
     public TValue Value
     {
-        get => _value;
-        set => SetField(ref _value, value);
-    }
-    
+        get;
+        set => SetField(ref field, value);
+    } = default!;
+
     public bool IsUserEditable { get; init; } = false;
 
     public TInterfaceDefinition Definition
     {
-        get => _interfaceDefinition;
-        set => SetField(ref _interfaceDefinition, value);
-    }
-    
+        get;
+        set => SetField(ref field, value);
+    } = new();
+
     public required string Name { get; init; }
     
     public event PropertyChangedEventHandler? PropertyChanged;

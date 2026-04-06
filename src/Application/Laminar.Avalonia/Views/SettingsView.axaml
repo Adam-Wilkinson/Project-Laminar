@@ -4,60 +4,75 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:Laminar.Avalonia.ViewModels"
              xmlns:dvm="using:Laminar.Avalonia.ViewModels.Design"
-             xmlns:s="using:Laminar.Avalonia.Settings"
+             xmlns:toolSystem="clr-namespace:Laminar.Avalonia.ToolSystem"
+             xmlns:c="using:Laminar.Avalonia.Controls"
+             xmlns:shapes="using:Laminar.Avalonia.Shapes"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450" d:DataContext="{x:Static dvm:DesignViewModel.Settings}"
              x:Class="Laminar.Avalonia.Views.SettingsView"	
              x:DataType="vm:SettingsViewModel"
              HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-	<ItemsControl ItemsSource="{StaticResource SettingsRoot}" MaxWidth="1500" Margin="100, 30" HorizontalAlignment="Stretch" Grid.IsSharedSizeScope="True">
-		<ItemsControl.ItemsPanel>
-			<ItemsPanelTemplate>
-				<UniformGrid Columns="1" VerticalAlignment="Top" RowSpacing="5"/>			
-			</ItemsPanelTemplate>
-		</ItemsControl.ItemsPanel>
+	<TabControl MaxWidth="1500" Margin="100, 30" SelectedIndex="1" TabStripPlacement="Top">
+		<TabItem Header="Settings">
+			<ItemsControl HorizontalAlignment="Stretch" 
+			              Grid.IsSharedSizeScope="True"
+			              ItemsSource="{StaticResource SettingsRoot}" 
+			              ItemTemplate="{StaticResource SettingDataTemplate}">
+				<ItemsControl.ItemsPanel>
+					<ItemsPanelTemplate>
+						<UniformGrid Columns="1" VerticalAlignment="Top" RowSpacing="5"/>			
+					</ItemsPanelTemplate>
+				</ItemsControl.ItemsPanel>
+			</ItemsControl>
+		</TabItem>
 		
-		<ItemsControl.ItemTemplate>
-			<DataTemplate x:DataType="s:Setting">
-				<Grid HorizontalAlignment="Stretch" IsVisible="{Binding DisplayToUser}">
-					<Grid.ColumnDefinitions>
-						<ColumnDefinition Width="*"/>
-						<ColumnDefinition Width="Auto" SharedSizeGroup="ResetSetting"/>
-					</Grid.ColumnDefinitions>
-					<Border Grid.Column="0"
-					        Name="SettingBorder"
-							CornerRadius="10">
-						<ContentControl Name="SettingControl"
-										MinHeight="40"
-										Content="{Binding}" 
-										Margin="10"/>
-					</Border>
-					<Button Grid.Column="1"
-					        CornerRadius="10"
-					        Background="{DynamicResource UiLayer}"
-					        DataContext="{Binding 
-										Converter={StaticResource ToolInstancer}, 
-										ConverterParameter={StaticResource Tools.Settings.ResetSettingTool}}"
-					        Theme="{StaticResource ToolButton}"
-					        VerticalAlignment="Stretch"
-					        Width="{Binding $self.Bounds.Height}"
-					        Margin="5,0,0,0">
-					</Button>
-					
-					<Grid.Styles>
-						<Style Selector="Border#SettingBorder">
-							<Setter Property="Background" Value="{DynamicResource UiLayer}"/>
-							<Setter Property="Transitions">
-								<Transitions>
-									<BrushTransition Property="Background" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
-								</Transitions>
-							</Setter>
-							<Style Selector="^:pointerover">
-								<Setter Property="Background" Value="{DynamicResource UiLayerHighlight}"/>
-							</Style>
-						</Style>
-					</Grid.Styles>
-				</Grid>
-			</DataTemplate>
-		</ItemsControl.ItemTemplate>
-	</ItemsControl>
+		<TabItem Header="Keybindings">
+			<ScrollViewer>
+				<ItemsControl ItemsSource="{StaticResource {x:Static toolSystem:Tool.ToolRootKey}}"
+				              Grid.IsSharedSizeScope="True"/>
+			</ScrollViewer>
+			<TabItem.DataTemplates>
+				<DataTemplate x:DataType="toolSystem:Toolbox">
+					<StackPanel>
+						<TextBlock Text="{Binding NameKey}" Margin="0,15,0,0"/>
+						<ItemsControl Margin="15,0,0,0" ItemsSource="{Binding}"/>
+					</StackPanel>
+				</DataTemplate>
+				
+				<DataTemplate x:DataType="toolSystem:Tool">
+					<Grid>
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="Auto"/>
+							<ColumnDefinition Width="*"/>
+							<ColumnDefinition Width="Auto" SharedSizeGroup="Keybindings"/>
+							<ColumnDefinition Width="Auto"/>
+							<ColumnDefinition Width="Auto"/>
+						</Grid.ColumnDefinitions>
+						<TextBlock Grid.Column="0" Margin="0,15,0,0"
+						           Text="{Binding NameKey}"/>
+						<Separator Grid.Column="1" VerticalAlignment="Bottom"></Separator>
+						<c:KeyGestureInterface Grid.Column="2"
+						                       Width="300"
+						                       Gesture="{Binding Gesture, Mode=TwoWay}" 
+						                       DockPanel.Dock="Right"/>
+						<Button Grid.Column="3" Width="35" 
+						        VerticalAlignment="Stretch" 
+						        Margin="3,0" 
+						        CornerRadius="10" 
+						        Background="{StaticResource UiLayer}"
+						        Command="{Binding SetGestureToNone}">
+							<PathIcon Width="20" Data="{x:Static shapes:PathData.BackspaceIcon}"/>
+						</Button>
+						<Button Grid.Column="4" Width="35" 
+						        VerticalAlignment="Stretch" 
+						        Margin="3,0" 
+						        CornerRadius="10" 
+						        Background="{StaticResource UiLayer}"
+						        Command="{Binding ResetGesture}">
+							<PathIcon Width="20" Data="{x:Static shapes:PathData.UndoIcon}"/>
+						</Button>
+					</Grid>
+				</DataTemplate>
+			</TabItem.DataTemplates>
+		</TabItem>
+	</TabControl>
 </UserControl>

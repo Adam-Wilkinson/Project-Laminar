@@ -6,17 +6,10 @@
              xmlns:s="using:Laminar.Avalonia.Settings"
              xmlns:dd="using:Laminar.Avalonia.DragDrop"
              xmlns:conv="using:Laminar.Avalonia.Converters">
-
-    <Application.DataTemplates>
-        <vms:ViewLocator/>
-        <DataTemplate DataType="t:ToolInstance">
-	        <Button Theme="{StaticResource ToolButton}"/>
-        </DataTemplate>
-    </Application.DataTemplates>
-
 	<Application.Resources>
 		<ResourceDictionary>
 			<ResourceDictionary.MergedDictionaries>
+				<ResourceInclude Source="XamlAssets/DataTemplates/SettingDataTemplate.axaml"/>
 				<ResourceInclude Source="XamlAssets/Resources/LaminarColorResources.axaml"/>
 				<ResourceInclude Source="XamlAssets/Resources/ToolResources.axaml"/>
 				<ResourceInclude Source="XamlAssets/Resources/SettingsResources.axaml"/>
@@ -27,6 +20,7 @@
 				<ResourceInclude Source="XamlAssets/Themes/LineIconTheme.axaml"/>
 				<ResourceInclude Source="XamlAssets/Themes/DragDropTreeViewTheme.axaml"/>
 				<ResourceInclude Source="XamlAssets/Themes/DragDropTreeViewItemTheme.axaml"/>
+				<ResourceInclude Source="XamlAssets/Themes/KeyGestureInterfaceTheme.axaml"/>
 			</ResourceDictionary.MergedDictionaries>
 			
 			<conv:FirstNotNullValueConverter x:Key="FirstNotNullValueConverter"/>
@@ -44,11 +38,19 @@
 			<conv:AreEqualConverter x:Key="AreEqualConverter"/>
 			<conv:MultiMultiplyConverter x:Key="MultiMultiplyConverter"/>
 			<conv:AndConverter x:Key="AndConverter"/>
+			<conv:ConcatenateStringsConverter x:Key="ConcatenateStringsConverter"/>
 			
 			<dd:TreeViewDropAcceptor x:Key="TreeViewDropAcceptor"/>
 			<dd:StackPanelDropAcceptor x:Key="StackPanelDropAcceptor"/>
 		</ResourceDictionary>
 	</Application.Resources>
+	
+	<Application.DataTemplates>
+		<vms:ViewLocator/>
+		<DataTemplate DataType="t:ToolInstance">
+			<Button Theme="{StaticResource ToolButton}"/>
+		</DataTemplate>
+	</Application.DataTemplates>
 	
 	<Application.RequestedThemeVariant>
 		<Binding Path="Value" DataType="s:OptionsSetting" Source="{StaticResource SettingsRoot.InterfaceSettings.ThemeVariant}"/>

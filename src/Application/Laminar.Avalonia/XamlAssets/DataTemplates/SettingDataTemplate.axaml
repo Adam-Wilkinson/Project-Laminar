@@ -1,0 +1,45 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:s="using:Laminar.Avalonia.Settings">
+    <DataTemplate x:Key="SettingDataTemplate" x:DataType="s:Setting">
+        <Grid HorizontalAlignment="Stretch" IsVisible="{Binding DisplayToUser}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto" SharedSizeGroup="ResetSetting"/>
+            </Grid.ColumnDefinitions>
+            <Border Grid.Column="0"
+                    Name="SettingBorder"
+                    CornerRadius="10">
+                <ContentControl Name="SettingControl"
+                                MinHeight="40"
+                                Content="{Binding}" 
+                                Margin="10"/>
+            </Border>
+            <Button Grid.Column="1"
+                    CornerRadius="10"
+                    Background="{DynamicResource UiLayer}"
+                    DataContext="{Binding 
+										Converter={StaticResource ToolInstancer}, 
+										ConverterParameter={StaticResource Tools.Settings.ResetSettingTool}}"
+                    Theme="{StaticResource ToolButton}"
+                    VerticalAlignment="Stretch"
+                    Width="{Binding $self.Bounds.Height}"
+                    Margin="5,0,0,0">
+            </Button>
+					
+            <Grid.Styles>
+                <Style Selector="Border#SettingBorder">
+                    <Setter Property="Background" Value="{DynamicResource UiLayer}"/>
+                    <Setter Property="Transitions">
+                        <Transitions>
+                            <BrushTransition Property="Background" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
+                        </Transitions>
+                    </Setter>
+                    <Style Selector="^:pointerover">
+                        <Setter Property="Background" Value="{DynamicResource UiLayerHighlight}"/>
+                    </Style>
+                </Style>
+            </Grid.Styles>
+        </Grid>
+    </DataTemplate>
+</ResourceDictionary>
