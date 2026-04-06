@@ -31,11 +31,16 @@
                   dd:DropTargetHandler.DropCommand="{Binding DropCommand}"
                   Background="Transparent">
             <TreeView.ItemTemplate>
-                <TreeDataTemplate DataType="{x:Type vm:FileNavigatorItemViewModel}" 
+                <TreeDataTemplate DataType="{x:Type vm:FileNavigatorItemViewModel}"
                                   ItemsSource="{Binding Children}">
                     <ContentControl Content="{Binding}"/>
                 </TreeDataTemplate>
             </TreeView.ItemTemplate>
+            <TreeView.Styles>
+                <Style Selector="TreeViewItem">
+                    <Setter Property="MinHeight" Value="0"/>
+                </Style>
+            </TreeView.Styles>
         </TreeView>
     </DockPanel>
 </UserControl>

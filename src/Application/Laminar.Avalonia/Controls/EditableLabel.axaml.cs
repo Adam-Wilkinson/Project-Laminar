@@ -42,13 +42,6 @@ public partial class EditableLabel : UserControl
             {
                 Children =
                 {
-                    // new PopupBackground()
-                    // {
-                    //     TeardropSize = 12,
-                    //     HorizontalAlignment = HorizontalAlignment.Stretch, 
-                    //     VerticalAlignment = VerticalAlignment.Stretch,
-                    //     Fill = Brushes.Black
-                    // },
                     _invalidCharHintText,
                 }
             },
@@ -99,15 +92,19 @@ public partial class EditableLabel : UserControl
         if (args.GetNewValue<bool>())
         {
             Editor.Text = Text;
-            Display.IsVisible = false;
-            Editor.IsVisible = true;
+            Display.IsHitTestVisible = false;
+            Display.Opacity = 0;
+            Editor.IsHitTestVisible = true;
+            Editor.Opacity = 1;
             Editor.SelectAll();
             Editor.Focus();
         }
         else
         {
-            Display.IsVisible = true;
-            Editor.IsVisible = false;
+            Display.IsHitTestVisible = true;
+            Display.Opacity = 1;
+            Editor.IsHitTestVisible = false;
+            Editor.Opacity = 0;
         }
     }
 

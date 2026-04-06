@@ -4,6 +4,7 @@ using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Input.Platform;
+using Avalonia.Interactivity;
 using Avalonia.Reactive;
 
 namespace Laminar.Avalonia.Controls;
@@ -19,10 +20,10 @@ public class KeyGestureInterface : TemplatedControl
 
     public static readonly StyledProperty<KeyGesture> GestureProperty =
         AvaloniaProperty.Register<KeyGestureInterface, KeyGesture>(nameof(Gesture), new(Key.None));
-
+        
     public static readonly DirectProperty<KeyGestureInterface, string> TextProperty =
         AvaloniaProperty.RegisterDirect<KeyGestureInterface, string>(nameof(Text), kgi => kgi.Text);
-
+    
     private static readonly KeyGestureFormatInfo FormatInfo = new(new Dictionary<Key, string>
     {
         [Key.LeftCtrl] = "Left Control",
@@ -119,6 +120,11 @@ public class KeyGestureInterface : TemplatedControl
     {
         State = KeyGestureInterfaceState.ChangingKey;
         Focus();
+    }
+
+    protected override void OnLostFocus(RoutedEventArgs e)
+    {
+        State = KeyGestureInterfaceState.None;
     }
 
     private void FinishFindingKeyGesture()

@@ -77,8 +77,8 @@
                                 HorizontalAlignment="Left" 
                                 Width="{Binding #PART_ExpandCollapseChevron.Bounds.Width}">
                             <c:AnimatableRectangle Name="PART_LevelHintBar" Fill="{DynamicResource UiLayer}" 
-                                                   Width="4"
                                                    Padding="0,0,0,4"
+                                                   Width="{Binding Value, DataType=s:DoubleSetting, Source={StaticResource SettingsRoot.InterfaceSettings.UiScale}, Converter={StaticResource MultiplyConverter}, ConverterParameter=4}"
                                                    RadiusX="4"
                                                    RadiusY="4"
                                                    HorizontalAlignment="Center"

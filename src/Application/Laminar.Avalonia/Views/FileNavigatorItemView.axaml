@@ -5,7 +5,6 @@
              xmlns:vm="using:Laminar.Avalonia.ViewModels"
              xmlns:c="using:Laminar.Avalonia.Controls"
              xmlns:shapes="using:Laminar.Avalonia.Shapes"
-             xmlns:io="using:System.IO"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Laminar.Avalonia.Views.FileNavigatorItemView"
              x:DataType="vm:FileNavigatorItemViewModel">
@@ -14,33 +13,25 @@
                Background="Transparent"
                VerticalAlignment="Stretch"
                IsHitTestVisible="True">
-        <Panel DockPanel.Dock="Right">
-            <Panel.Width>
-                <MultiBinding Converter="{StaticResource MultiMultiplyConverter}">
-                    <Binding Path="#PART_QuickAccess.ItemCount"/>
-                    <Binding Path="#ItemNameLabel.Bounds.Height"/>
-                </MultiBinding>
-            </Panel.Width>
-            <ItemsControl DockPanel.Dock="Right"
-                          Name="PART_QuickAccess"
-                          Height="{Binding #ItemNameLabel.Bounds.Height}"
-                          ItemsSource="{Binding 
-                                            Converter={StaticResource ToolInstancer}, 
-                                            ConverterParameter={StaticResource Tools.FileSystem.StorageItem}}"
-                          VerticalAlignment="Stretch"
-                          HorizontalAlignment="Right">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch"/>
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-            </ItemsControl>
-        </Panel>
+        <ItemsControl DockPanel.Dock="Right"
+                      Name="PART_QuickAccess"
+                      Height="{Binding #ItemNameLabel.Bounds.Height}"
+                      ItemsSource="{Binding 
+                                        Converter={StaticResource ToolInstancer}, 
+                                        ConverterParameter={StaticResource Tools.FileSystem.StorageItem}}"
+                      VerticalAlignment="Stretch"
+                      HorizontalAlignment="Right">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch"/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+        </ItemsControl>
         <Viewbox Width="{Binding #ItemNameLabel.Bounds.Height}"
                  Height="{Binding #ItemNameLabel.Bounds.Height}">
             <PathIcon VerticalAlignment="Stretch" 
                       HorizontalAlignment="Stretch"
-                      Margin="5,10"
+                      Margin="10,5"
                       DockPanel.Dock="Left">
                 <PathIcon.Data>
                     <MultiBinding Converter="{StaticResource SwitchConverter}">
@@ -55,15 +46,18 @@
                          VerticalAlignment="Center" 
                          Text="{Binding Name, Mode=TwoWay}"
                          DisallowedChars="{x:Static vm:FileNavigatorItemViewModel.InvalidFileNameChars}"
-                         IsBeingEdited="{Binding CoreItem.NeedsName, Mode=TwoWay}"/>
+                         IsBeingEdited="{Binding CoreItem.NeedsName, Mode=TwoWay}"
+                         Padding="3"/>
         
         <DockPanel.Styles>
-            <Style Selector="DockPanel > Panel > ItemsControl#PART_QuickAccess">
-                <Setter Property="IsVisible" Value="False"/>
+            <Style Selector="DockPanel > ItemsControl#PART_QuickAccess">
+                <Setter Property="Opacity" Value="0"/>
+                <Setter Property="IsHitTestVisible" Value="False"/>
             </Style>
             
-            <Style Selector="DockPanel:pointerover > Panel > ItemsControl#PART_QuickAccess">
-                <Setter Property="IsVisible" Value="True"/>
+            <Style Selector="DockPanel:pointerover > ItemsControl#PART_QuickAccess">
+                <Setter Property="Opacity" Value="1"/>
+                <Setter Property="IsHitTestVisible" Value="True"/>
             </Style>
         </DockPanel.Styles>
     </DockPanel>

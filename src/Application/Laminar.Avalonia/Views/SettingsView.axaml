@@ -7,11 +7,12 @@
              xmlns:toolSystem="clr-namespace:Laminar.Avalonia.ToolSystem"
              xmlns:c="using:Laminar.Avalonia.Controls"
              xmlns:shapes="using:Laminar.Avalonia.Shapes"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450" d:DataContext="{x:Static dvm:DesignViewModel.Settings}"
+             xmlns:s="using:Laminar.Avalonia.Settings"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="450" d:DataContext="{x:Static dvm:DesignViewModel.Settings}"
              x:Class="Laminar.Avalonia.Views.SettingsView"	
              x:DataType="vm:SettingsViewModel"
              HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-	<TabControl MaxWidth="1500" Margin="100, 30" SelectedIndex="1" TabStripPlacement="Top">
+	<TabControl MaxWidth="1500" Margin="100, 30" TabStripPlacement="Top">
 		<TabItem Header="Settings">
 			<ItemsControl HorizontalAlignment="Stretch" 
 			              Grid.IsSharedSizeScope="True"
@@ -28,6 +29,7 @@
 		<TabItem Header="Keybindings">
 			<ScrollViewer>
 				<ItemsControl ItemsSource="{StaticResource {x:Static toolSystem:Tool.ToolRootKey}}"
+				              Margin="20,10"
 				              Grid.IsSharedSizeScope="True"/>
 			</ScrollViewer>
 			<TabItem.DataTemplates>
@@ -49,27 +51,33 @@
 						</Grid.ColumnDefinitions>
 						<TextBlock Grid.Column="0" Margin="0,15,0,0"
 						           Text="{Binding NameKey}"/>
-						<Separator Grid.Column="1" VerticalAlignment="Bottom"></Separator>
-						<c:KeyGestureInterface Grid.Column="2"
+						<Separator Grid.Column="1" VerticalAlignment="Bottom"/>
+						<c:KeyGestureInterface Grid.Column="2" Name="MainKeyGestureInterface"
+						                       CornerRadius="{s:UiScaled 10}"
 						                       Width="300"
 						                       Gesture="{Binding Gesture, Mode=TwoWay}" 
 						                       DockPanel.Dock="Right"/>
-						<Button Grid.Column="3" Width="35" 
-						        VerticalAlignment="Stretch" 
-						        Margin="3,0" 
-						        CornerRadius="10" 
-						        Background="{StaticResource UiLayer}"
+						<Button Grid.Column="3" ToolTip.Tip="Remove" Classes="KeyBindingAction" 
 						        Command="{Binding SetGestureToNone}">
-							<PathIcon Width="20" Data="{x:Static shapes:PathData.BackspaceIcon}"/>
+							<PathIcon Margin="{s:UiScaled 12}" Width="{s:UiScaled 20}" Height="{s:UiScaled 20}"
+							          Data="{x:Static shapes:PathData.CrossWithCircle}"/>
 						</Button>
-						<Button Grid.Column="4" Width="35" 
-						        VerticalAlignment="Stretch" 
-						        Margin="3,0" 
-						        CornerRadius="10" 
-						        Background="{StaticResource UiLayer}"
+						<Button Grid.Column="4" ToolTip.Tip="Reset" Classes="KeyBindingAction"
 						        Command="{Binding ResetGesture}">
-							<PathIcon Width="20" Data="{x:Static shapes:PathData.UndoIcon}"/>
+							<PathIcon Margin="{s:UiScaled 12}" Width="{s:UiScaled 20}" Height="{s:UiScaled 20}"
+							          Data="{x:Static shapes:PathData.ResetIcon}"/>
 						</Button>
+						
+						<Grid.Styles>
+							<Style Selector="Button.KeyBindingAction">
+								<Setter Property="VerticalAlignment" Value="Stretch"/>
+								<Setter Property="Margin" Value="2"/>
+								<Setter Property="CornerRadius" Value="{s:UiScaled 10}"/>
+								<Setter Property="Background" Value="{DynamicResource UiLayer}"/>
+								<Setter Property="Width" Value="{Binding $self.Bounds.Height}"/>
+								<Setter Property="ToolTip.ShowDelay" Value="300"/>
+							</Style>
+						</Grid.Styles>
 					</Grid>
 				</DataTemplate>
 			</TabItem.DataTemplates>

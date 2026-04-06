@@ -341,7 +341,7 @@
             Gesture="r"
             NameKey="Reset Setting" 
             CommandBinding="{Binding ResetCommand}"
-            DefaultIconGeometry="{x:Static shapes:PathData.UndoIcon}"/>
+            DefaultIconGeometry="{x:Static shapes:PathData.ResetIcon}"/>
     
     <t:PropertySetterTool x:Key="Tools.Settings.ChangeSettingTool" 
                           x:DataType="s:Setting" 

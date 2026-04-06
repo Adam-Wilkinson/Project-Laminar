@@ -18,8 +18,10 @@
         <Setter Property="Focusable" Value="True"/>
         <Setter Property="Template">
             <ControlTemplate>
-                <Border BorderThickness="3" Name="PART_BorderElement">
-                    <TextBlock Text="{TemplateBinding Text}" Margin="5" HorizontalAlignment="Center"/>
+                <Border Name="PART_BorderElement"
+                        BorderThickness="3"
+                        CornerRadius="{TemplateBinding CornerRadius}">
+                    <TextBlock Text="{TemplateBinding Text}" Margin="5" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Border>
             </ControlTemplate>
         </Setter>

@@ -9,14 +9,15 @@
             </Grid.ColumnDefinitions>
             <Border Grid.Column="0"
                     Name="SettingBorder"
-                    CornerRadius="10">
+                    CornerRadius="{s:UiScaled 10}">
                 <ContentControl Name="SettingControl"
-                                MinHeight="40"
+                                MinHeight="{s:UiScaled 40}"
                                 Content="{Binding}" 
-                                Margin="10"/>
+                                Margin="{s:UiScaled 10}"/>
             </Border>
             <Button Grid.Column="1"
-                    CornerRadius="10"
+                    Height="{Binding #SettingControl.Bounds.Height}"
+                    CornerRadius="{s:UiScaled 10}"
                     Background="{DynamicResource UiLayer}"
                     DataContext="{Binding 
 										Converter={StaticResource ToolInstancer}, 
@@ -24,7 +25,7 @@
                     Theme="{StaticResource ToolButton}"
                     VerticalAlignment="Stretch"
                     Width="{Binding $self.Bounds.Height}"
-                    Margin="5,0,0,0">
+                    Margin="{s:UiScaled '5,0,0,0'}">
             </Button>
 					
             <Grid.Styles>

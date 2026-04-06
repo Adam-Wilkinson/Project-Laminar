@@ -8,11 +8,14 @@
         <TextBlock Name="Display"
                    VerticalAlignment="Center"
                    HorizontalAlignment="Left"
-                   Margin="6.5"/>
+                   Background="Transparent"/>
         <TextBox Name="Editor"
-                 IsVisible="False" 
+                 Opacity="0"
+                 IsHitTestVisible="False"
                  VerticalAlignment="Center"
                  HorizontalAlignment="Left"
+                 MinHeight="0"
+                 Padding="0"
                  Margin="0"/>
     </Panel>
 </UserControl>
