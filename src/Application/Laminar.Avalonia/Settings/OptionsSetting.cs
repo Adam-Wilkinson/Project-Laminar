@@ -19,7 +19,10 @@ public class OptionsSetting : Setting, IInterfaceData<EnumDropdown, object>
         });
         ValueProperty.Changed.AddClassHandler<OptionsSetting>((setting, args) =>
         {
-            ((IInterfaceData<object>)setting).Value = setting.Options.FirstOrDefault(x => x.Value == args.GetNewValue<object>())!;
+            if (setting.Options.FirstOrDefault(x => x.Value == args.GetNewValue<object>()) is { } option)
+            {
+                ((IInterfaceData<object>)setting).Value = option;
+            }
         });
     }
     

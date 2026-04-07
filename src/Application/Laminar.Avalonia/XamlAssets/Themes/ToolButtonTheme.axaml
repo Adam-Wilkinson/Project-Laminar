@@ -68,12 +68,20 @@
                                IsVisible="{Binding Tool.Gesture, Converter={StaticResource HasValueConverter}}">
                         Currently bound to <Run Classes="Emphasis" FontWeight="Normal" Text="{Binding Tool.Gesture}"/>
                     </TextBlock>
-                    <TextBlock Classes="b2">Press <Run Classes="Emphasis" 
-                                                       FontWeight="Normal" 
-                                                       Text="{Binding Gesture,
-                                                       Source={StaticResource Tools.Windows.ChangeKeybinding}, 
-                                                       Converter={StaticResource ToStringConverter}, 
-                                                       DataType=t:Tool}"/> to change binding</TextBlock>
+                    <TextBlock Classes="b2"
+                               IsVisible="{Binding Gesture, 
+                                        DataType=t:Tool,
+                                        Source={StaticResource Tools.Windows.ChangeKeybinding},
+                                        Mode=OneWay,
+                                        Converter={StaticResource HasValueConverter}}">
+                        Press <Run Classes="Emphasis" 
+                                   FontWeight="Normal" 
+                                   Text="{Binding Gesture,
+                                        Source={StaticResource Tools.Windows.ChangeKeybinding}, 
+                                        Converter={StaticResource ToStringConverter}, 
+                                        Mode=OneWay,
+                                        DataType=t:Tool}"/> to change binding
+                    </TextBlock>
                 </StackPanel>                
             </Template>
         </Setter>
