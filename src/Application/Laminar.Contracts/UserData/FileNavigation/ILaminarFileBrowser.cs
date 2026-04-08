@@ -11,15 +11,14 @@ public interface ILaminarFileBrowser
 {
     public IReadOnlyObservableCollection<ILaminarStorageRootFolder> RootFolders { get; }
     
-    public IUserActionResult AddDefault<T>(ILaminarStorageFolder parentFolder, IActionScope? scope = null)
+    public IUserActionResult AddDefault<T>(ILaminarStorageFolder parentFolder)
         where T : class, ILaminarStorageItem;
     
-    public IUserActionResult Move(ILaminarStorageItem itemToMove, ILaminarStorageFolder destinationFolder, int destinationIndex,
-        IActionScope? scope = null);
+    public IUserActionResult Move(ILaminarStorageItem itemToMove, ILaminarStorageFolder destinationFolder, int destinationIndex);
 
-    public IUserActionResult Delete(ILaminarStorageItem itemToDelete, IActionScope? scope = null);
+    public IUserActionResult Delete(ILaminarStorageItem itemToDelete);
 
-    public IUserActionResult Rename(ILaminarStorageItem itemToRename, string newName, IActionScope? scope = null);
+    public IUserActionResult Rename(ILaminarStorageItem itemToRename, string newName);
     
     public bool OpenInSystemFileBrowser(ILaminarStorageItem item);
 }

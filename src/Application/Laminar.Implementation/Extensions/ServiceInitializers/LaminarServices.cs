@@ -23,14 +23,14 @@ public static class LaminarServices
     public static IServiceCollection AddLaminarServices(this IServiceCollection services, FrontendDependency frontendDependency) => services
             .AddSingleton<IPersistentDataManager, PersistentDataManager>()
             .AddSingleton<ISerializer, Serializer>()
-            .AddSingleton<IUserActionManager, UserActionManager>()
+            .AddScoped<IUserActionManager, UserActionManager>()
             .AddSingleton<IDataInterfaceFactory, DataInterfaceFactory>()
             .AddSingleton<ITypeInfoStore, TypeInfoStore>()
             .AddSingleton<IPluginHostFactory, PluginHostFactory>()
             .AddSingleton<ILaminarStorageItemFactory, LaminarStorageItemFactory>()
             .AddSingleton<IDeletedStorageItemCache, DeletedStorageItemCache>()
             .AddSingleton<IFileSystem, FileSystem>()
-            .AddSingleton<ILaminarFileBrowser, LaminarFileBrowser>()
+            .AddScoped<ILaminarFileBrowser, LaminarFileBrowser>()
             .AddSingleton<IPluginLoader>(provider => new PluginLoader(frontendDependency, provider.GetRequiredService<IPluginHostFactory>(), provider.GetRequiredService<ILogger<IPluginHost>>()))
             .AddUserInterfaceServices()
             .AddScriptingServices();

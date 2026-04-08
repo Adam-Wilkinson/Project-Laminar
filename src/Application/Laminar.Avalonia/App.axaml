@@ -46,7 +46,6 @@
 	</Application.Resources>
 	
 	<Application.DataTemplates>
-		<vms:ViewLocator/>
 		<DataTemplate DataType="t:ToolInstance">
 			<Button Theme="{StaticResource ToolButton}"/>
 		</DataTemplate>

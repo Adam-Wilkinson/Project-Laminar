@@ -11,16 +11,15 @@ using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.UserData.FileNavigation;
 using Laminar.Domain.Notification;
 using Laminar.Implementation.UserData.FileNavigation.Exceptions;
-using Microsoft.Extensions.Logging;
 
 namespace Laminar.Avalonia.ViewModels;
 
 public partial class FileNavigatorViewModel(
     ILaminarFileBrowser fileBrowser,
     IDialogService dialogService,
-    ILogger<FileNavigatorItemViewModel>? logger = null,
+    FileNavigatorItemViewModel.Factory fileNavigatorItemViewModelFactory,
     TopLevel? topLevel = null)
-    : ViewModelBase, IActionScope
+    : ViewModelBase
 {
     private static readonly TimeSpan ExpandHoveredOverFolderDelay = new(0, 0, 0, 0, 500);
 
@@ -28,15 +27,14 @@ public partial class FileNavigatorViewModel(
     private (FileNavigatorItemViewModel moveItem, int moveIndex)? _currentHoverMove;
 
     public IReadOnlyObservableCollection<FileNavigatorItemViewModel> RootFiles { get; set; } = 
-        fileBrowser.RootFolders.ObservableMap(rootFolder => 
-            new FileNavigatorItemViewModel(rootFolder, fileBrowser, dialogService, logger, topLevel));
+        fileBrowser.RootFolders.ObservableMap(f => fileNavigatorItemViewModelFactory(f));
 
     public void OpenFilePicker()
     {
     }
 
     [RelayCommand]
-    public void Refresh()
+    private void Refresh()
     {
         foreach (var root in RootFiles)
         {
@@ -45,13 +43,13 @@ public partial class FileNavigatorViewModel(
     }
 
     [RelayCommand]
-    public async Task AddRootFolder()
+    private async Task AddRootFolder()
     {
         await dialogService.ShowMessageBoxAsync((INotifyPropertyChanged)topLevel?.DataContext!, "Adding a root folder");
     }
     
     [RelayCommand]
-    public void OnHover(DropTargetEventArgs eventArgs)
+    private void OnHover(DropTargetEventArgs eventArgs)
     {
         if (GetMoveFromDragInfo(eventArgs) is not var (draggedItem, targetParent, targetIndex))
         {
@@ -85,13 +83,13 @@ public partial class FileNavigatorViewModel(
     }
 
     [RelayCommand]
-    public async Task OnDrop(DropTargetEventArgs eventArgs)
+    private async Task OnDrop(DropTargetEventArgs eventArgs)
     {
         if (_currentHoverMove is not var (targetItem, targetIndex) ||
             targetItem.CoreItem is not ILaminarStorageFolder targetFolder) return;
         if (eventArgs.DraggingControl.DataContext is not FileNavigatorItemViewModel draggedItem) return;
         
-        var moveResult = fileBrowser.Move(draggedItem.CoreItem, targetFolder, targetIndex, UndoScope);
+        var moveResult = fileBrowser.Move(draggedItem.CoreItem, targetFolder, targetIndex);
 
         if (moveResult is UserActionError 
                 { Exception: DestinationContainsItemOfThatNameException destinationContainsException })

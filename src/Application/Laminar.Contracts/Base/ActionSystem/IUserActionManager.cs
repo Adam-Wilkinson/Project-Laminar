@@ -2,9 +2,9 @@
 
 public interface IUserActionManager
 {
-    public IUserActionResult ExecuteAction(IUserAction action, IActionScope? scope = null);
+    public IUserActionResult ExecuteAction(IUserAction action);
     
-    public void Undo(IActionScope? scope = null);
+    public void Undo();
 
-    public void Redo(IActionScope? scope = null);
+    public void Redo();
 }

@@ -1,19 +1,25 @@
-using Avalonia.Controls;
+using System;
+using HanumanInstitute.MvvmDialogs;
 using HanumanInstitute.MvvmDialogs.Avalonia;
-using Laminar.Avalonia.ToolSystem;
-using Laminar.Contracts.Base.ActionSystem;
+using Laminar.Avalonia.ViewModels.Services;
 using Laminar.Contracts.UserData.FileNavigation;
-using Laminar.Implementation.UserData.FileNavigation;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Laminar.Avalonia.ViewModels.Design;
 
 public static class DesignViewModel
 {
-    private static readonly ILaminarFileBrowser MockFileBrowser = new MockFileBrowser();
+    private static readonly IServiceProvider DesignServiceProvider = new ServiceCollection()
+        .AddTransient<ILaminarFileBrowser, DesignFileBrowser>()
+        .AddTransient<IDialogService, DialogService>()
+        .AddViewModels()
+        .BuildServiceProvider();
     
-    public static readonly FileNavigatorViewModel FileNavigator = new(MockFileBrowser, new DialogService());
+    private static readonly ILaminarFileBrowser DesignFileBrowser = new DesignFileBrowser();
     
-    public static readonly MainControlViewModel MainControl = new(FileNavigator);
+    public static readonly FileNavigatorViewModel FileNavigator = DesignServiceProvider.GetRequiredService<FileNavigatorViewModel>();
+    
+    public static readonly MainControlViewModel MainControl = DesignServiceProvider.GetRequiredService<MainControlViewModel>();
     
     public static readonly TitleBarViewModel TitleBar = new();
 

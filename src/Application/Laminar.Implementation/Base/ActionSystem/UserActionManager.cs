@@ -5,66 +5,48 @@ namespace Laminar.Implementation.Base.ActionSystem;
 
 internal class UserActionManager : IUserActionManager
 {
-    private readonly DefaultActionScope _defaultActionScope = new();
-    private readonly Dictionary<IActionScope, ActionScopeInfo> _scopeInfos = new();
-
-    public IUserActionResult ExecuteAction(IUserAction action, IActionScope? scope = null)
+    private readonly List<IUserAction> _undoList = [];
+    private readonly List<IUserAction> _redoList = [];
+    
+    public IUserActionResult ExecuteAction(IUserAction action)
     {
         if (!action.CanExecute) return IUserActionResult.Failure();
         var actionResult = action.Execute();
         if (actionResult is UserActionSuccess { InverseAction: { } inverse})
         {
-            GetScopeInfo(scope).UndoList.Add(inverse);
+            _undoList.Add(inverse);
         }
         
         return actionResult;
     }
 
-    public void Undo(IActionScope? scope)
+    public void Undo()
     {
-        var (undoList, redoList) = GetScopeInfo(scope);
         var successfulAction = false;
-        while (!successfulAction && undoList.Count > 0)
+        while (!successfulAction && _undoList.Count > 0)
         {
-            if (undoList[^1].CanExecute && undoList[^1].Execute() is UserActionSuccess { InverseAction: { } redoAction })
+            if (_undoList[^1].CanExecute && _undoList[^1].Execute() is UserActionSuccess { InverseAction: { } redoAction })
             {
-                redoList.Add(redoAction);
+                _redoList.Add(redoAction);
                 successfulAction = true;
             }
 
-            undoList.RemoveAt(undoList.Count - 1);
+            _undoList.RemoveAt(_undoList.Count - 1);
         }
     }
 
-    public void Redo(IActionScope? scope = null)
+    public void Redo()
     {
         var successfulAction = false;
-        var (undoList, redoList) = GetScopeInfo(scope);
-        while (!successfulAction && redoList.Count > 0)
+        while (!successfulAction && _redoList.Count > 0)
         {
-            if (redoList[^1].CanExecute && redoList[^1].Execute() is UserActionSuccess { InverseAction: { } undoAction })
+            if (_redoList[^1].CanExecute && _redoList[^1].Execute() is UserActionSuccess { InverseAction: { } undoAction })
             {
-                undoList.Add(undoAction);
+                _undoList.Add(undoAction);
                 successfulAction = true;
             }
 
-            redoList.RemoveAt(redoList.Count - 1);
+            _redoList.RemoveAt(_redoList.Count - 1);
         }
     }
-
-    private ActionScopeInfo GetScopeInfo(IActionScope? scope)
-    {
-        scope ??= _defaultActionScope;
-        if (_scopeInfos.TryGetValue(scope, out var info))
-        {
-            return info;
-        }
-
-        ActionScopeInfo newScopeInfo = new([], []);
-        _scopeInfos.Add(scope, newScopeInfo);
-        return newScopeInfo;
-    }
-    
-    private record ActionScopeInfo(List<IUserAction> UndoList, List<IUserAction> RedoList);
-    private class DefaultActionScope : IActionScope;
 }

@@ -1,28 +1,31 @@
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
+using System;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Laminar.Avalonia.ViewModels.Services;
-using Laminar.Contracts.Base.UserInterface;
-using Laminar.PluginFramework.UserInterface;
-using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
 namespace Laminar.Avalonia.ViewModels;
 
-public partial class MainControlViewModel : ViewModelBase
+public partial class MainControlViewModel : ViewModelBase, IDisposable
 {
-    [ObservableProperty, Serialize] private bool _sidebarExpanded = true;
+    private readonly ScopedViewModel<FileNavigatorViewModel> _scopedFileNavigator;
+    
+    [ObservableProperty]
+    [field: Serialize]
+    public partial bool SidebarExpanded { get; set; } = true;
 
-    [ObservableProperty, Serialize] private double _expandedSidebarWidth = 350;
+    [ObservableProperty]
+    [field: Serialize]
+    public partial double ExpandedSidebarWidth { get; set; } = 350;
 
-    [ObservableProperty] private double _currentSidebarWidth;
+    [ObservableProperty]
+    public partial double CurrentSidebarWidth { get; set; }
 
-    public MainControlViewModel(FileNavigatorViewModel fileNavigator)
+    public MainControlViewModel(IServiceProvider serviceProvider)
     {
-        FileNavigator = fileNavigator;
-        OnExpandedSidebarWidthChanged(_expandedSidebarWidth);
+        _scopedFileNavigator = new ScopedViewModel<FileNavigatorViewModel>(serviceProvider);
+        OnExpandedSidebarWidthChanged(ExpandedSidebarWidth);
     }
 
-    public FileNavigatorViewModel FileNavigator { get; }
+    public FileNavigatorViewModel FileNavigator => _scopedFileNavigator.ViewModel;
 
     partial void OnSidebarExpandedChanged(bool value)
     {
@@ -37,5 +40,11 @@ public partial class MainControlViewModel : ViewModelBase
     partial void OnCurrentSidebarWidthChanged(double value)
     {
         if (SidebarExpanded) ExpandedSidebarWidth = value;
+    }
+
+    public void Dispose()
+    {
+        _scopedFileNavigator.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

@@ -1,16 +1,11 @@
 ﻿using System.ComponentModel;
-using System.Windows.Input;
-using Avalonia.Data;
 using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using Laminar.Avalonia.ViewModels.Services;
-using Laminar.Contracts.Base.ActionSystem;
 
 namespace Laminar.Avalonia.ViewModels;
 
 public interface IRootWindowViewModel : INotifyPropertyChanged;
 
-public partial class MainWindowViewModel : ViewModelBase, IRootWindowViewModel, IActionScope
+public partial class MainWindowViewModel : ViewModelBase, IRootWindowViewModel
 {
     public MainWindowViewModel(MainControlViewModel mainControl, TitleBarViewModel titlebar, SettingsViewModel settings)
     {

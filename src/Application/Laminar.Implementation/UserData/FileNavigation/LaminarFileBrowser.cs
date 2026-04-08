@@ -29,31 +29,30 @@ public class LaminarFileBrowser(
         .ToObservableCollection()
         .ObservableMap(factory.CreateRootFolder);
     
-    public IUserActionResult AddDefault<T>(ILaminarStorageFolder parentFolder, IActionScope? scope = null) 
+    public IUserActionResult AddDefault<T>(ILaminarStorageFolder parentFolder) 
         where T : class, ILaminarStorageItem
     {
-        return actionManager.ExecuteAction(new AddDefaultStorageItemAction<T>(fileSystem, parentFolder, factory, _recyclingBin), scope);
+        return actionManager.ExecuteAction(new AddDefaultStorageItemAction<T>(fileSystem, parentFolder, factory, _recyclingBin));
     }
 
-    public IUserActionResult Move(ILaminarStorageItem itemToMove, ILaminarStorageFolder destinationFolder, int destinationIndex,
-        IActionScope? scope)
+    public IUserActionResult Move(ILaminarStorageItem itemToMove, ILaminarStorageFolder destinationFolder, int destinationIndex)
     {
-        return actionManager.ExecuteAction(new MoveStorageItemAction(itemToMove, destinationFolder, fileSystem, destinationIndex), scope);
+        return actionManager.ExecuteAction(new MoveStorageItemAction(itemToMove, destinationFolder, fileSystem, destinationIndex));
     }
 
-    public IUserActionResult Delete(ILaminarStorageItem itemToDelete, IActionScope? scope)
+    public IUserActionResult Delete(ILaminarStorageItem itemToDelete)
     {
-        return actionManager.ExecuteAction(new MoveStorageItemAction(itemToDelete, _recyclingBin, fileSystem), scope); 
+        return actionManager.ExecuteAction(new MoveStorageItemAction(itemToDelete, _recyclingBin, fileSystem)); 
     }
 
-    public IUserActionResult Rename(ILaminarStorageItem itemToRename, string newName, IActionScope? scope)
+    public IUserActionResult Rename(ILaminarStorageItem itemToRename, string newName)
     {
-        return actionManager.ExecuteAction(new RenameStorageItemAction(newName, itemToRename, fileSystem), scope);
+        return actionManager.ExecuteAction(new RenameStorageItemAction(newName, itemToRename, fileSystem));
     }
 
     public bool OpenInSystemFileBrowser(ILaminarStorageItem item)
     {
-        return item.Path is { } itemPath && fileSystem.OpenInSystemFileBrowser(itemPath);
+        return fileSystem.OpenInSystemFileBrowser(item.Path);
     }
     
     public void Dispose()

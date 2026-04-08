@@ -16,34 +16,40 @@ using Laminar.Domain.Extensions;
 using Laminar.Domain.Notification;
 using Laminar.Implementation.UserData.FileNavigation;
 using Laminar.Implementation.UserData.FileNavigation.UserActions;
-using Microsoft.Extensions.Logging;
 
 namespace Laminar.Avalonia.ViewModels;
 
 public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemViewModel
 {
+    public delegate FileNavigatorItemViewModel Factory(ILaminarStorageItem item);
+    
     public static readonly char[] InvalidFileNameChars = Path.GetInvalidFileNameChars();
     private static readonly ContentsEqualComparer ContentsEqual = new();
     
     private readonly ILaminarFileBrowser _fileBrowser;
     private readonly SourcedObservableCollection<FileNavigatorItemViewModel>? _children;
-    private readonly ILogger<FileNavigatorItemViewModel>? _logger;
     private readonly TopLevel? _topLevel;
     private readonly IDialogService _dialogService;
+    private readonly Func<ILaminarStorageItem, FileNavigatorItemViewModel> _factory;
 
     private bool _folderContentsInitialized;
     
     public FileNavigatorItemViewModel(
         ILaminarStorageItem coreItem, 
         ILaminarFileBrowser fileBrowser, 
-        IDialogService dialogService, 
-        ILogger<FileNavigatorItemViewModel>? logger = null,
+        IDialogService dialogService,
+        Factory factory,
         TopLevel? topLevel = null)
     {
         _fileBrowser = fileBrowser;
-        _logger = logger;
         _topLevel = topLevel;
         _dialogService = dialogService;
+        _factory = item =>
+        {
+            var result = factory(item);
+            result.Parent = this;
+            return result;
+        };
         CoreItem = coreItem;
         Name = CoreItem.Path.Name;
 
@@ -76,9 +82,7 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
             if (_children is null || CoreItem is not ILaminarStorageFolder folder) return null;
             if (_folderContentsInitialized) return _children;
 
-            _children.ChangeSourceTo(folder.Contents.ObservableMap(item =>
-                new FileNavigatorItemViewModel(item, _fileBrowser, _dialogService, _logger, _topLevel)
-                    { Parent = this }));
+            _children.ChangeSourceTo(folder.Contents.ObservableMap(_factory));
             _folderContentsInitialized = true;
             return _children;
         }
@@ -115,12 +119,12 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
         if (itemType.IsAssignableTo(typeof(ILaminarStorageFolder)))
         {
             IsExpanded = true;
-            _fileBrowser.AddDefault<ILaminarStorageFolder>(folder, UndoScope);
+            _fileBrowser.AddDefault<ILaminarStorageFolder>(folder);
         }
         else if (itemType.IsAssignableTo(typeof(LaminarStorageFile)))
         {
             IsExpanded = true;
-            _fileBrowser.AddDefault<LaminarStorageFile>(folder, UndoScope);
+            _fileBrowser.AddDefault<LaminarStorageFile>(folder);
         }
     }
 
@@ -135,7 +139,7 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
     [RelayCommand]
     public void Delete()
     {
-        _fileBrowser.Delete(CoreItem, UndoScope);
+        _fileBrowser.Delete(CoreItem);
     }
     
     [RelayCommand]
@@ -164,7 +168,7 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
     
     private async Task SetCoreItemName()
     {
-        if (_fileBrowser.Rename(CoreItem, Name, UndoScope) is UserActionError
+        if (_fileBrowser.Rename(CoreItem, Name) is UserActionError
                 { Exception: { } renameException })
         {
             Dispatcher.UIThread.Post(() => Name = CoreItem.Path.Name);

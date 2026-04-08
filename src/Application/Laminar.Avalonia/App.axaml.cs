@@ -39,7 +39,7 @@ public partial class App : Application
             desktop.MainWindow = new MainWindow();
             var services = new ServiceCollection()
                 .AddLaminarServices(FrontendDependency.Avalonia)
-                .AddViewModels()
+                .AddViewModels().AddTransient<FileNavigatorItemViewModel.Factory>(sp => item => ActivatorUtilities.CreateInstance<FileNavigatorItemViewModel>(sp, item))
                 .AddDescendantsSingleton<IBeforeApplicationBuiltTarget>()
                 .AddDescendantsSingleton<IAfterApplicationBuiltTarget>()
                 .AddDescendantsSingleton<IPlugin>()
