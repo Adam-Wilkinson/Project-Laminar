@@ -14,7 +14,6 @@
                    x:Key="Tools.Edit.Undo"
                    Gesture="Ctrl+z"
                    DefaultIconGeometry="{x:Static shapes:PathData.UndoIcon}"
-                   CommandParameter="{Binding}"
                    CommandBinding="{Binding UndoCommand}"/>
     
     <t:Toolbox NameKey="{x:Static lang:Resources.Edit}" 

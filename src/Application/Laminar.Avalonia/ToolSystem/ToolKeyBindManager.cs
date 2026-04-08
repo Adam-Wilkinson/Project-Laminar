@@ -128,7 +128,7 @@ public class ToolKeyBindManager(TopLevel defaultTopLevel, ILogger<ToolKeyBindMan
             }
             
             parameter ??= tool.CommandParameter;
-            return TryBuildTool(out _toolInstanceCache) && _toolInstanceCache?.Command.CanExecute(parameter) == true; 
+            return TryBuildTool(out _toolInstanceCache, parameter); 
         }
 
         public void Execute(object? parameter)
@@ -142,7 +142,7 @@ public class ToolKeyBindManager(TopLevel defaultTopLevel, ILogger<ToolKeyBindMan
                 return;
             }
 
-            if (TryBuildTool(out var toolInstance)
+            if (TryBuildTool(out var toolInstance, parameter)
                 && toolInstance is not null
                 && toolInstance.Command.CanExecute(parameter))
             {
@@ -153,19 +153,19 @@ public class ToolKeyBindManager(TopLevel defaultTopLevel, ILogger<ToolKeyBindMan
 
         public event EventHandler? CanExecuteChanged;
 
-        private bool TryBuildTool(out ToolInstance? instance)
+        private bool TryBuildTool(out ToolInstance? instance, object? parameter)
         {
             var allVisualsUnderCursor = keyBindManager._visualUnderCursor?.GetVisualAncestors() ?? [];
             foreach (var visual in allVisualsUnderCursor)
             {
-                if (TryBuildToolFromTarget(visual) is { } hoveredVisualTool)
+                if (TryBuildToolFromTarget(visual) is { } hoveredVisualTool && hoveredVisualTool.Command.CanExecute(parameter))
                 {
                     instance = hoveredVisualTool;
                     return true;
                 }
             }
             
-            if (TryBuildToolFromTarget(keyBindManager._focusedTopLevel.FocusManager?.GetFocusedElement()) is { } focusedElementTool)
+            if (TryBuildToolFromTarget(keyBindManager._focusedTopLevel.FocusManager?.GetFocusedElement()) is { } focusedElementTool && focusedElementTool.Command.CanExecute(parameter))
             {
                 instance = focusedElementTool;
                 return true;

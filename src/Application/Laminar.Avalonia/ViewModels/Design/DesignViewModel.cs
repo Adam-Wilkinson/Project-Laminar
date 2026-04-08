@@ -15,15 +15,13 @@ public static class DesignViewModel
         .AddViewModels()
         .BuildServiceProvider();
     
-    private static readonly ILaminarFileBrowser DesignFileBrowser = new DesignFileBrowser();
-    
     public static readonly FileNavigatorViewModel FileNavigator = DesignServiceProvider.GetRequiredService<FileNavigatorViewModel>();
     
     public static readonly MainControlViewModel MainControl = DesignServiceProvider.GetRequiredService<MainControlViewModel>();
     
-    public static readonly TitleBarViewModel TitleBar = new();
+    public static readonly TitleBarViewModel TitleBar = DesignServiceProvider.GetRequiredService<TitleBarViewModel>();
 
-    public static readonly SettingsViewModel Settings = new();
+    public static readonly SettingsViewModel Settings = DesignServiceProvider.GetRequiredService<SettingsViewModel>();
     
-    public static readonly MainWindowViewModel MainWindow = new(MainControl, TitleBar, Settings);
+    public static readonly MainWindowViewModel MainWindow = DesignServiceProvider.GetRequiredService<MainWindowViewModel>();
 }

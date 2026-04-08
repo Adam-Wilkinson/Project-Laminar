@@ -1,14 +1,42 @@
 ﻿using System;
+using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
+using Laminar.Contracts.Base.ActionSystem;
 
 namespace Laminar.Avalonia.ViewModels;
 
-public abstract partial class ViewModelBase : ObservableObject
+public abstract class ViewModelBase : ObservableObject
 {
-    [RelayCommand]
-    private void Undo()
+    private readonly UndoCommandClass _undoCommand;
+
+    protected ViewModelBase()
     {
-        throw new NotImplementedException();
+        _undoCommand = new(this);
+    }
+    
+    public ICommand UndoCommand => _undoCommand;
+
+    public IUserActionManager? UserActionManager
+    {
+        get;
+        set
+        {
+            field = value;
+            _undoCommand.UserActionManagerChanged();
+        }
+    }
+
+    private class UndoCommandClass(ViewModelBase viewModel) : ICommand
+    {
+        public void UserActionManagerChanged()
+        {
+            CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+        }
+        
+        public bool CanExecute(object? parameter) => viewModel.UserActionManager is not null;
+
+        public void Execute(object? parameter) => viewModel.UserActionManager?.Undo();
+
+        public event EventHandler? CanExecuteChanged;
     }
 }

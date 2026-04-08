@@ -1,17 +1,20 @@
-﻿using System.ComponentModel;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using Laminar.Contracts.Base.ActionSystem;
 
 namespace Laminar.Avalonia.ViewModels;
 
-public interface IRootWindowViewModel : INotifyPropertyChanged;
-
-public partial class MainWindowViewModel : ViewModelBase, IRootWindowViewModel
+public partial class MainWindowViewModel : ViewModelBase
 {
-    public MainWindowViewModel(MainControlViewModel mainControl, TitleBarViewModel titlebar, SettingsViewModel settings)
+    public MainWindowViewModel(
+        MainControlViewModel mainControl, 
+        TitleBarViewModel titlebar, 
+        SettingsViewModel settings,
+        IUserActionManager rootActionManager)
     {
         MainControl = mainControl;
         TitleBar = titlebar;
         Settings = settings;
+        UserActionManager = rootActionManager;
         TitleBar.MainWindow = this;
         SidebarExpanded = MainControl.SidebarExpanded;
         MainControl.PropertyChanged += (_, args) =>

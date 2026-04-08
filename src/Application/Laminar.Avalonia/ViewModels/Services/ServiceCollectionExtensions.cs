@@ -12,7 +12,8 @@ public static class ServiceCollectionExtensions
     {
         public IServiceCollection AddViewModels() => serviceCollection
             .AddDescendantsTransient<ViewModelBase>()
-            .AddTransient<Func<ILaminarStorageItem, FileNavigatorItemViewModel>>(sp => item => ActivatorUtilities.CreateInstance<FileNavigatorItemViewModel>(sp, item))
+            .AddTransient<Func<ILaminarStorageItem, FileNavigatorItemViewModel>>(sp =>
+                item => ActivatorUtilities.CreateInstance<FileNavigatorItemViewModel>(sp, item))
             .AddDescendantsScoped<IViewModelInitializer>()
             .AddSingleton<IViewLocator, ViewLocator>();
     }
