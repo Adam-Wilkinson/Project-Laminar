@@ -8,22 +8,20 @@ public partial class MainControlViewModel : ViewModelBase, IDisposable
 {
     private readonly ScopedViewModel<FileNavigatorViewModel> _scopedFileNavigator;
     
-    [ObservableProperty]
-    [field: Serialize]
-    public partial bool SidebarExpanded { get; set; } = true;
-
-    [ObservableProperty]
-    [field: Serialize]
-    public partial double ExpandedSidebarWidth { get; set; } = 350;
-
-    [ObservableProperty]
-    public partial double CurrentSidebarWidth { get; set; }
-
     public MainControlViewModel(IServiceProvider serviceProvider)
     {
         _scopedFileNavigator = new ScopedViewModel<FileNavigatorViewModel>(serviceProvider);
         OnExpandedSidebarWidthChanged(ExpandedSidebarWidth);
     }
+    
+    [Persistent, ObservableProperty]
+    public partial bool SidebarExpanded { get; set; } = true;
+
+    [Persistent, ObservableProperty]
+    public partial double ExpandedSidebarWidth { get; set; } = 350;
+
+    [ObservableProperty]
+    public partial double CurrentSidebarWidth { get; set; }
 
     public FileNavigatorViewModel FileNavigator => _scopedFileNavigator.ViewModel;
 

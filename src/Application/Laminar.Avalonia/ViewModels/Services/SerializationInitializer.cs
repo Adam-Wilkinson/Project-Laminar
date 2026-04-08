@@ -14,7 +14,7 @@ public class SerializationInitializer(IPersistentDataManager dataManager) : IVie
     private readonly Dictionary<ViewModelBase, string> _serializationPrefixes = [];
     private readonly Dictionary<Type, Dictionary<string, ISerializedPropertyInfo>> _serializedPropertyInfos = [];
     private readonly IPersistentDataStore _dataStore = 
-        dataManager.GetDataStore(DataStoreKey.PersistentData).GetOrCreateChild("User Interface");
+        dataManager.GetDataStore(DataStoreKey.PersistentData).GetOrCreateChild("UserInterface");
     
     public void Initialize(ViewModelBase? parentViewModel, ViewModelBase viewModel, string viewModelName)
     {
@@ -50,23 +50,21 @@ public class SerializationInitializer(IPersistentDataManager dataManager) : IVie
         }
 
         HashSet<string> fieldPropertyNames = [];
-        List<ISerializedPropertyInfo> serializedPropertyList = [];
 
         foreach (var fieldInfo in type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                     .Where(field => field.CustomAttributes.Any(x => x.AttributeType == typeof(SerializeAttribute)) 
+                     .Where(field => field.CustomAttributes.Any(x => x.AttributeType == typeof(PersistentAttribute)) 
                                      && field.CustomAttributes.Any(x => x.AttributeType == typeof(ObservablePropertyAttribute))))
         {
             fieldPropertyNames.Add(PropertyName(fieldInfo.Name));
         }
 
-        serializedPropertyList.AddRange(type.GetProperties()
+        var retVal = type.GetProperties()
             .Where(property =>
-                (property.CustomAttributes.Any(x => x.AttributeType == typeof(SerializeAttribute)) ||
-                 fieldPropertyNames.Contains(property.Name))
+                (property.CustomAttributes.Any(x => x.AttributeType == typeof(PersistentAttribute)) || fieldPropertyNames.Contains(property.Name))
                 && property.SetMethod is not null && property.GetMethod is not null)
-            .Select(propertyInfo => ISerializedPropertyInfo.Create(propertyInfo, defaultInstance)));
+            .Select(propertyInfo => ISerializedPropertyInfo.Create(propertyInfo, defaultInstance))
+            .ToDictionary(x => x.PropertyName);
 
-        var retVal = serializedPropertyList.ToDictionary(x => x.PropertyName);
         _serializedPropertyInfos.Add(type, retVal);
         return retVal;
     }
@@ -83,7 +81,7 @@ public class SerializationInitializer(IPersistentDataManager dataManager) : IVie
 }
 
 [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-public class SerializeAttribute : Attribute
+public class PersistentAttribute : Attribute
 {
 }
 

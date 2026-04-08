@@ -1,4 +1,6 @@
+using System;
 using HanumanInstitute.MvvmDialogs;
+using Laminar.Contracts.UserData.FileNavigation;
 using Laminar.Implementation.Extensions.ServiceInitializers;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -10,6 +12,7 @@ public static class ServiceCollectionExtensions
     {
         public IServiceCollection AddViewModels() => serviceCollection
             .AddDescendantsTransient<ViewModelBase>()
+            .AddTransient<Func<ILaminarStorageItem, FileNavigatorItemViewModel>>(sp => item => ActivatorUtilities.CreateInstance<FileNavigatorItemViewModel>(sp, item))
             .AddDescendantsScoped<IViewModelInitializer>()
             .AddSingleton<IViewLocator, ViewLocator>();
     }

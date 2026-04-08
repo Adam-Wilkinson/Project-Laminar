@@ -17,7 +17,7 @@ namespace Laminar.Avalonia.ViewModels;
 public partial class FileNavigatorViewModel(
     ILaminarFileBrowser fileBrowser,
     IDialogService dialogService,
-    FileNavigatorItemViewModel.Factory fileNavigatorItemViewModelFactory,
+    Func<ILaminarStorageItem, FileNavigatorItemViewModel> fileNavigatorItemViewModelFactory,
     TopLevel? topLevel = null)
     : ViewModelBase
 {
@@ -27,7 +27,7 @@ public partial class FileNavigatorViewModel(
     private (FileNavigatorItemViewModel moveItem, int moveIndex)? _currentHoverMove;
 
     public IReadOnlyObservableCollection<FileNavigatorItemViewModel> RootFiles { get; set; } = 
-        fileBrowser.RootFolders.ObservableMap(f => fileNavigatorItemViewModelFactory(f));
+        fileBrowser.RootFolders.ObservableMap(fileNavigatorItemViewModelFactory);
 
     public void OpenFilePicker()
     {

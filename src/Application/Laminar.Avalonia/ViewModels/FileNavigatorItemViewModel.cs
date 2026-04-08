@@ -21,8 +21,6 @@ namespace Laminar.Avalonia.ViewModels;
 
 public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemViewModel
 {
-    public delegate FileNavigatorItemViewModel Factory(ILaminarStorageItem item);
-    
     public static readonly char[] InvalidFileNameChars = Path.GetInvalidFileNameChars();
     private static readonly ContentsEqualComparer ContentsEqual = new();
     
@@ -38,7 +36,7 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
         ILaminarStorageItem coreItem, 
         ILaminarFileBrowser fileBrowser, 
         IDialogService dialogService,
-        Factory factory,
+        Func<ILaminarStorageItem, FileNavigatorItemViewModel> factory,
         TopLevel? topLevel = null)
     {
         _fileBrowser = fileBrowser;

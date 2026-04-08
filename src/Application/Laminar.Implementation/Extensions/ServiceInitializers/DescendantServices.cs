@@ -8,39 +8,42 @@ namespace Laminar.Implementation.Extensions.ServiceInitializers;
 
 public static class DescendantServices
 {
-    public static IServiceCollection AddDescendantsTransient<T>(this IServiceCollection collection)
-    { 
-        foreach (var descendantType in DescendantTypes<T>())
-        {
-            collection.AddTransient(descendantType);
-            collection.AddTransient(typeof(T), descendantType);
-        }
-
-        return collection;
-    }
-
-    public static IServiceCollection AddDescendantsScoped<T>(this IServiceCollection collection)
+    extension(IServiceCollection collection)
     {
-        foreach (var descendantType in DescendantTypes<T>())
-        {
-            collection.AddScoped(descendantType);
-            collection.AddScoped(typeof(T), descendantType);
+        public IServiceCollection AddDescendantsTransient<T>()
+        { 
+            foreach (var descendantType in DescendantTypes<T>())
+            {
+                collection.AddTransient(descendantType);
+                collection.AddTransient(typeof(T), descendantType);
+            }
+
+            return collection;
         }
 
-        return collection;
-    }
-
-    public static IServiceCollection AddDescendantsSingleton<T>(this IServiceCollection collection)
-    {
-        foreach (var descendantType in DescendantTypes<T>())
+        public IServiceCollection AddDescendantsScoped<T>()
         {
-            collection.AddSingleton(descendantType);
-            collection.AddSingleton(typeof(T), descendantType);
+            foreach (var descendantType in DescendantTypes<T>())
+            {
+                collection.AddScoped(descendantType);
+                collection.AddScoped(typeof(T), descendantType);
+            }
+
+            return collection;
         }
+
+        public IServiceCollection AddDescendantsSingleton<T>()
+        {
+            foreach (var descendantType in DescendantTypes<T>())
+            {
+                collection.AddSingleton(descendantType);
+                collection.AddSingleton(typeof(T), descendantType);
+            }
         
-        return collection;
+            return collection;
+        }
     }
-
+    
     private static IEnumerable<Type> DescendantTypes<T>()
         => typeof(T).Assembly.GetTypes()
             .Where(x => x is { IsClass: true, IsAbstract: false } && x.IsAssignableTo(typeof(T)));
