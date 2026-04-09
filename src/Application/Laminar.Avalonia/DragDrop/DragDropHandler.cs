@@ -34,6 +34,8 @@ public enum DragDropState
 
 public class DragDropHandler(ILogger<DragDropHandler> logger) : IAfterApplicationBuiltTarget
 {
+    private const double SquaredMinimumDragDistance = 40;
+
     public static readonly AttachedProperty<MouseButton> TriggerMouseButtonProperty = AvaloniaProperty.RegisterAttached<DragDropHandler, Control, MouseButton>("TriggerMouseButton", MouseButton.None);
     public static MouseButton GetTriggerMouseButton(AvaloniaObject control) => control.GetValue(TriggerMouseButtonProperty);
     public static void SetTriggerMouseButton(AvaloniaObject control, MouseButton mouseButton) => control.SetValue(TriggerMouseButtonProperty, mouseButton); 
@@ -69,9 +71,9 @@ public class DragDropHandler(ILogger<DragDropHandler> logger) : IAfterApplicatio
         
         if (e.NewValue.HasValue && e.NewValue.Value != MouseButton.None)
         {
-            inputElementSender.AddHandler(InputElement.PointerPressedEvent, InputElementSender_PointerPressed);
-            inputElementSender.AddHandler(InputElement.PointerMovedEvent, InputElementSender_PointerMoved);   
-            inputElementSender.AddHandler(InputElement.PointerReleasedEvent, InputElementSender_PointerReleased);
+            inputElementSender.AddHandler(InputElement.PointerPressedEvent, InputElementSender_PointerPressed, handledEventsToo: true);
+            inputElementSender.AddHandler(InputElement.PointerMovedEvent, InputElementSender_PointerMoved, handledEventsToo: true);
+            inputElementSender.AddHandler(InputElement.PointerReleasedEvent, InputElementSender_PointerReleased, handledEventsToo: true);
             inputElementSender.GetPropertyChangedObservable(Visual.BoundsProperty).Subscribe(
                 new AnonymousObserver<AvaloniaPropertyChangedEventArgs>(InputElementSender_BoundsChanged));
         }
@@ -138,7 +140,12 @@ public class DragDropHandler(ILogger<DragDropHandler> logger) : IAfterApplicatio
     {
         if (_currentDragInfo is not { } currentDragInfo || !currentDragInfo.EventArgs.DraggingControl.IsLoaded || _currentTransformVector is not { } currentTransformVector) return;
         if (_state is DragDropState.None or DragDropState.AnimateHome) return;
-        
+
+        LocalPoint cursorPosition = e.GetPosition(currentDragInfo.EventArgs.DraggingControl);
+        Vector totalMouseMovement = cursorPosition - currentDragInfo.ClickOffset;
+
+        if (_state == DragDropState.ClickWithoutDrag && totalMouseMovement.SquaredLength < SquaredMinimumDragDistance) return;
+
         // There is a valid drag occuring and the pointer was moved, time for action
         if (_state == DragDropState.ClickWithoutDrag)
         {
@@ -149,7 +156,7 @@ public class DragDropHandler(ILogger<DragDropHandler> logger) : IAfterApplicatio
             BeingDraggedHandler.StartDrag(currentDragInfo.EventArgs.DraggingControl);
         }
 
-        currentTransformVector += e.GetPosition(currentDragInfo.EventArgs.DraggingControl) - currentDragInfo.ClickOffset;
+        currentTransformVector += cursorPosition - currentDragInfo.ClickOffset;
         TransformOperations.Builder transform = TransformOperations.CreateBuilder(2);
         transform.AppendMatrix(currentDragInfo.ControlOriginalTransform.Value);
         transform.AppendTranslate(currentTransformVector.X, currentTransformVector.Y);

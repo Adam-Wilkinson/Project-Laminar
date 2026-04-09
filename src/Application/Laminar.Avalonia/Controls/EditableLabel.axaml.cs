@@ -21,11 +21,13 @@ public partial class EditableLabel : UserControl
     public static readonly StyledProperty<char[]> DisallowedCharsProperty = AvaloniaProperty.Register<EditableLabel, char[]>(nameof(DisallowedChars));
 
     private static readonly TimeSpan InvalidCharHintDuration = new(0, 0, 3);
+    private static readonly TimeSpan EditingStartedCooldown = new(0, 0, 0, 0, 100);
 
     private readonly TextBlock _invalidCharHintText = new();
     private readonly Flyout _invalidCharHintFlyout;
 
-    private DateTime _furthestCloseTime = DateTime.Now;
+    private DateTime _furthestCharHintFlyoutCloseTime = DateTime.Now;
+    private DateTime _editingStartedTime = DateTime.Now;
     
     static EditableLabel()
     {
@@ -65,6 +67,12 @@ public partial class EditableLabel : UserControl
 
         Editor.LostFocus += (_, _) =>
         {
+            if (DateTime.Now - _editingStartedTime < EditingStartedCooldown)
+            {
+                Editor.SelectAll();
+                Editor.Focus();
+                return;
+            }
             IsBeingEdited = false;
         };
     }
@@ -91,6 +99,7 @@ public partial class EditableLabel : UserControl
     {
         if (args.GetNewValue<bool>())
         {
+            _editingStartedTime = DateTime.Now;
             Editor.Text = Text;
             Display.IsHitTestVisible = false;
             Display.Opacity = 0;
@@ -105,6 +114,7 @@ public partial class EditableLabel : UserControl
             Display.Opacity = 1;
             Editor.IsHitTestVisible = false;
             Editor.Opacity = 0;
+            TopLevel.GetTopLevel(this)?.FocusManager.FindNextElement(NavigationDirection.Down)?.Focus();
         }
     }
 
@@ -168,10 +178,10 @@ public partial class EditableLabel : UserControl
         }
         
         var myCloseTime = DateTime.Now + InvalidCharHintDuration;
-        _furthestCloseTime = myCloseTime;
+        _furthestCharHintFlyoutCloseTime = myCloseTime;
         await Task.Delay(InvalidCharHintDuration);
 
-        if (myCloseTime >= _furthestCloseTime)
+        if (myCloseTime >= _furthestCharHintFlyoutCloseTime)
         {
             _invalidCharHintFlyout.Hide();
         }

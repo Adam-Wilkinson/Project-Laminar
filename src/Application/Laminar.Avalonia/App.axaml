@@ -22,7 +22,7 @@
 				<ResourceInclude Source="XamlAssets/Themes/DragDropTreeViewTheme.axaml"/>
 				<ResourceInclude Source="XamlAssets/Themes/DragDropTreeViewItemTheme.axaml"/>
 				<ResourceInclude Source="XamlAssets/Themes/KeyGestureInterfaceTheme.axaml"/>
-				<!--<ResourceInclude Source="XamlAssets/Themes/WindowDrawnDecorationsTheme.axaml"/>-->
+				<ResourceInclude Source="XamlAssets/Themes/WindowDrawnDecorationsTheme.axaml"/>
 			</ResourceDictionary.MergedDictionaries>
 			
 			<conv:FirstNotNullValueConverter x:Key="FirstNotNullValueConverter"/>
