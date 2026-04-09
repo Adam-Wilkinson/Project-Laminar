@@ -36,12 +36,12 @@
 			          Margin="5"
 			          Data="M 1,0 10,10 l -9,10 -1,-1 L 8,10 -0,1 Z"
 			          Name="PART_ExpandCollapseChevron"
-			          Tag="{Binding IsExpanded}">
+			          Classes.IsExpanded="{Binding IsExpanded}">
 				    <Path.Styles>
-					    <Style Selector="Path[Tag=False]">
+					    <Style Selector="Path:not(.IsExpanded)">
 						    <Setter Property="RenderTransform" Value="rotate(0deg)"/>
 					    </Style>
-					    <Style Selector="Path[Tag=True]">
+					    <Style Selector="Path.IsExpanded">
 						    <Setter Property="RenderTransform" Value="rotate(90deg)"/>
 					    </Style>
 				    </Path.Styles>
@@ -68,7 +68,7 @@
 	    </t:Tool.DescriptionBinding>
 	    <t:Tool.IconTemplate>
             <DataTemplate DataType="vm:FileNavigatorItemViewModel">
-                <PathIcon Tag="{Binding ItemTypeName}">
+                <PathIcon>
 	                <PathIcon.Data>
 		                <MultiBinding Converter="{StaticResource SwitchConverter}">
 			                <Binding Path="ItemTypeName"/>
