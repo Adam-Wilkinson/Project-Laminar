@@ -26,7 +26,7 @@ public partial class App : Application
         AvaloniaXamlLoader.Load(this);
         
 #if DEBUG
-        // this.AttachDeveloperTools();
+        this.AttachDeveloperTools();
 #endif
     }
 
@@ -34,9 +34,6 @@ public partial class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            // Line below is needed to remove Avalonia data validation.
-            // Without this line you will get duplicate validations from both Avalonia and CT
-            BindingPlugins.DataValidators.RemoveAt(0);
             desktop.MainWindow = new MainWindow();
             var services = new ServiceCollection()
                 .AddLaminarServices(FrontendDependency.Avalonia)

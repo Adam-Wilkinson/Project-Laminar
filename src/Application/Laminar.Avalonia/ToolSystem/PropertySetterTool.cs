@@ -15,48 +15,48 @@ namespace Laminar.Avalonia.ToolSystem;
 
 public class PropertySetterTool : Tool
 {
-    public static readonly StyledProperty<IBinding?> CanChangeValueBindingProperty = AvaloniaProperty.Register<PropertySetterTool, IBinding?>(nameof(CanChangeValueBinding));
+    public static readonly StyledProperty<BindingBase?> CanChangeValueBindingProperty = AvaloniaProperty.Register<PropertySetterTool, BindingBase?>(nameof(CanChangeValueBinding));
 
-    public static readonly StyledProperty<IBinding?> PropertyBindingProperty = AvaloniaProperty.Register<PropertySetterTool, IBinding?>(nameof(PropertyBinding));
+    public static readonly StyledProperty<BindingBase?> PropertyBindingProperty = AvaloniaProperty.Register<PropertySetterTool, BindingBase?>(nameof(PropertyBinding));
     
     [AssignBinding]
-    public IBinding? CanChangeValueBinding
+    public BindingBase? CanChangeValueBinding
     {
         get => GetValue(CanChangeValueBindingProperty);
         set => SetValue(CanChangeValueBindingProperty, value);
     }
 
     [AssignBinding]
-    public IBinding? PropertyBinding
+    public BindingBase? PropertyBinding
     {
         get => GetValue(PropertyBindingProperty);
         set => SetValue(PropertyBindingProperty, value);
     }
     
-    protected override IBinding GetCommandBinding()
+    protected override BindingBase GetCommandBinding()
     {
-        if (PropertyBinding is BindingBase bindingBase && bindingBase.Mode != BindingMode.TwoWay)
+        if (PropertyBinding is CompiledBinding compiledBinding && compiledBinding.Mode != BindingMode.TwoWay)
         {
-            bindingBase.Mode = BindingMode.TwoWay;
+            compiledBinding.Mode = BindingMode.TwoWay;
         }
 
         if (DefaultPopupTarget is null)
         {
             
         }
-        
-        return new Binding { Converter = new GetPropertySetterCommandConverter(PropertyBinding, CanChangeValueBinding, DefaultPopupTarget, DescriptionBinding) };
+
+        return new ReflectionBinding { Converter = new GetPropertySetterCommandConverter(PropertyBinding, CanChangeValueBinding, DefaultPopupTarget, DescriptionBinding) };
     }
 }
 
-public class GetPropertySetterCommandConverter(IBinding? propertyBinding, IBinding? canExecuteBinding, Control? popupTarget, IBinding? descriptionBinding) : IValueConverter
+public class GetPropertySetterCommandConverter(BindingBase? propertyBinding, BindingBase? canExecuteBinding, Control? popupTarget, BindingBase? descriptionBinding) : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         var boundPropertyContainer = new BoundPropertyContainer
         {
             DataContext = value,
-            Priority = propertyBinding is BindingBase bindingBase ? bindingBase.Priority : BindingPriority.LocalValue,
+            Priority = propertyBinding is CompiledBinding bindingBase ? bindingBase.Priority : BindingPriority.LocalValue,
         };
 
         if (propertyBinding is not null)

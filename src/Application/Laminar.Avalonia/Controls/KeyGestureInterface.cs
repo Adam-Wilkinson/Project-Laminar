@@ -121,8 +121,8 @@ public class KeyGestureInterface : TemplatedControl
         State = KeyGestureInterfaceState.ChangingKey;
         Focus();
     }
-
-    protected override void OnLostFocus(RoutedEventArgs e)
+    
+    protected override void OnLostFocus(FocusChangedEventArgs e)
     {
         State = KeyGestureInterfaceState.None;
     }

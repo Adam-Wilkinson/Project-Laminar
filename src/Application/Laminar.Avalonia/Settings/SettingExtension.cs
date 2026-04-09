@@ -7,8 +7,15 @@ namespace Laminar.Avalonia.Settings;
 
 public class SettingExtension(string settingKey) : MarkupExtension
 {
-    public override IBinding ProvideValue(IServiceProvider serviceProvider)
+    public override CompiledBinding ProvideValue(IServiceProvider serviceProvider)
     {
-        return new StaticResourceExtension($"SettingsRoot.{settingKey}").ProvideValue(serviceProvider) is Setting setting ? setting[!Setting.ValueProperty] : throw new Exception();
+        if (new StaticResourceExtension($"SettingsRoot.{settingKey}").ProvideValue(serviceProvider) is not Setting setting)
+            throw new InvalidOperationException();
+
+        DataType = setting.Value.GetType();
+
+        return CompiledBinding.Create<Setting, object>(s => s.Value, source: setting);
     }
+
+    public Type? DataType { get; set; }
 }

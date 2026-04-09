@@ -104,7 +104,36 @@ public class DragDropHandler(ILogger<DragDropHandler> logger) : IAfterApplicatio
         _currentDragInfo.Value.EventArgs.DraggingControl.RenderTransform = transform.Build();
         _currentTransformVector = currentTransformVector;
     }
-    
+
+    private static void InputElementSender_PointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (sender is not Control senderControl
+            || !PointerHasMouseButton(e.GetCurrentPoint(null), GetTriggerMouseButton(senderControl))
+            || _state is DragDropState.AnimateHome or DragDropState.Drag or DragDropState.ClickWithoutDrag
+            || senderControl.GetTransformedBounds() is not { } transformedBounds)
+        {
+            return;
+        }
+
+        _currentDragInfo = new CurrentDragInfo
+        {
+            OriginalClickEventArgs = e,
+            EventArgs = DropTargetEventArgs.HoverEnter(senderControl, e),
+            ControlOriginalTransform = senderControl.RenderTransform ?? new TranslateTransform(0, 0),
+            ClickOffset = e.GetPosition(senderControl),
+            ControlOriginalTopLeft = transformedBounds.Bounds.TransformToAABB(transformedBounds.Transform).TopLeft,
+            ControlOriginalPositionAnimationDuration = PositionAnimation.GetDuration(senderControl),
+            ControlOriginalZIndex = senderControl.ZIndex,
+            ControlWasClipToBounds = senderControl.ClipToBounds
+        };
+
+        _currentTransformVector = Vector.Zero;
+        senderControl.ClipToBounds = false;
+        senderControl.ZIndex = int.MaxValue;
+        _state = DragDropState.ClickWithoutDrag;
+        e.Handled = true;
+    }
+
     private static void InputElementSender_PointerMoved(object? sender, PointerEventArgs e)
     {
         if (_currentDragInfo is not { } currentDragInfo || !currentDragInfo.EventArgs.DraggingControl.IsLoaded || _currentTransformVector is not { } currentTransformVector) return;
@@ -140,35 +169,6 @@ public class DragDropHandler(ILogger<DragDropHandler> logger) : IAfterApplicatio
             DropTargetHandler.RaiseEvent(DropTargetEventArgs.HoverLeave(currentDragInfo.EventArgs.DraggingControl, currentDragInfo.OriginalClickEventArgs, currentHoverInteractive: oldHoverInteractive, receptacleTag: oldHoverReceptacleTag));
             currentDragInfo.EventArgs.DraggingControl.RaiseEvent(BeingDraggedEventArgs.HoverStarted(currentDragInfo.EventArgs.DraggingControl));
         }
-    }
-
-    private static void InputElementSender_PointerPressed(object? sender, PointerPressedEventArgs e)
-    {
-        if (sender is not Control senderControl 
-            || !PointerHasMouseButton(e.GetCurrentPoint(null), GetTriggerMouseButton(senderControl))
-            || _state is DragDropState.AnimateHome or DragDropState.Drag or DragDropState.ClickWithoutDrag
-            || senderControl.GetTransformedBounds() is not { } transformedBounds)
-        {
-            return;
-        }
-
-        _currentDragInfo = new CurrentDragInfo
-        {
-            OriginalClickEventArgs = e,
-            EventArgs = DropTargetEventArgs.HoverEnter(senderControl, e),
-            ControlOriginalTransform = senderControl.RenderTransform ?? new TranslateTransform(0, 0),
-            ClickOffset = e.GetPosition(senderControl),
-            ControlOriginalTopLeft = transformedBounds.Bounds.TransformToAABB(transformedBounds.Transform).TopLeft,
-            ControlOriginalPositionAnimationDuration = PositionAnimation.GetDuration(senderControl),
-            ControlOriginalZIndex =  senderControl.ZIndex,
-            ControlWasClipToBounds = senderControl.ClipToBounds
-        };
-        
-        _currentTransformVector = Vector.Zero;
-        senderControl.ClipToBounds = false;
-        senderControl.ZIndex = int.MaxValue;
-        _state = DragDropState.ClickWithoutDrag;
-        e.Handled = true;
     }
 
     private static void InputElementSender_PointerReleased(object? sender, PointerReleasedEventArgs e)

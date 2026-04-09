@@ -6,6 +6,7 @@
              xmlns:s="using:Laminar.Avalonia.Settings"
              xmlns:dd="using:Laminar.Avalonia.DragDrop"
              xmlns:conv="using:Laminar.Avalonia.Converters">
+
 	<Application.Resources>
 		<ResourceDictionary>
 			<ResourceDictionary.MergedDictionaries>
@@ -21,6 +22,7 @@
 				<ResourceInclude Source="XamlAssets/Themes/DragDropTreeViewTheme.axaml"/>
 				<ResourceInclude Source="XamlAssets/Themes/DragDropTreeViewItemTheme.axaml"/>
 				<ResourceInclude Source="XamlAssets/Themes/KeyGestureInterfaceTheme.axaml"/>
+				<!--<ResourceInclude Source="XamlAssets/Themes/WindowDrawnDecorationsTheme.axaml"/>-->
 			</ResourceDictionary.MergedDictionaries>
 			
 			<conv:FirstNotNullValueConverter x:Key="FirstNotNullValueConverter"/>
@@ -44,7 +46,13 @@
 			<dd:StackPanelDropAcceptor x:Key="StackPanelDropAcceptor"/>
 		</ResourceDictionary>
 	</Application.Resources>
-	
+
+	<Application.Styles>
+		<StyleInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/Fluent/Fluent.xaml" />
+		<FluentTheme />
+		<StyleInclude Source="XamlAssets/Styles/FontStyles.axaml"/>
+	</Application.Styles>	
+
 	<Application.DataTemplates>
 		<DataTemplate DataType="t:ToolInstance">
 			<Button Theme="{StaticResource ToolButton}"/>
@@ -54,10 +62,4 @@
 	<Application.RequestedThemeVariant>
 		<Binding Path="Value" DataType="s:OptionsSetting" Source="{StaticResource SettingsRoot.InterfaceSettings.ThemeVariant}"/>
 	</Application.RequestedThemeVariant>
-	
-	<Application.Styles>
-		<StyleInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/Fluent/Fluent.xaml" />
-		<FluentTheme DensityStyle="{s:Setting InterfaceSettings.Density}"/>
-		<StyleInclude Source="XamlAssets/Styles/FontStyles.axaml"/>
-	</Application.Styles>
 </Application>

@@ -53,7 +53,7 @@ public partial class WindowsTitleBar : LaminarTitleBar
 
     private void CloseWindow(object? sender, RoutedEventArgs e)
     {
-        ((Window)VisualRoot)?.Close();
+        (TopLevel.GetTopLevel(this) as Window)?.Close();
     }
 
     private void MaximizeWindow(object? sender, RoutedEventArgs e)

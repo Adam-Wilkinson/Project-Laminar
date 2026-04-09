@@ -6,20 +6,19 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:init="using:Laminar.Avalonia.InitializationTargets"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450" d:DataContext="{x:Static dvm:DesignViewModel.MainWindow}"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450" d:DataContext="{x:Static design:DesignViewModel.MainWindow}"
         x:Class="Laminar.Avalonia.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/ProjectLaminarLogo.png"
         Title="Project: Laminar"
         xmlns:s="using:Laminar.Avalonia.Settings"
-        Foreground="{DynamicResource {x:Static init:ColorInitialization.LaminarForegroundKey}}"
-        Background="{DynamicResource LaminarBackground}"
-        TransparencyLevelHint="AcrylicBlur"
-		ExtendClientAreaToDecorationsHint="True"
-		ExtendClientAreaChromeHints="NoChrome"
-		ExtendClientAreaTitleBarHeightHint="40">
-		<DockPanel VerticalAlignment="Stretch">
-			<ContentControl DockPanel.Dock="Top" Name="TitleBar" Content="{Binding TitleBar}" ZIndex="1000"/>
+        xmlns:initializationTargets="clr-namespace:Laminar.Avalonia.InitializationTargets"
+        xmlns:design="clr-namespace:Laminar.Avalonia.ViewModels.Design"
+        Foreground="{DynamicResource {x:Static initializationTargets:ColorInitialization.LaminarForegroundKey}}"
+        Background="{DynamicResource LaminarBackground}">
+
+	<DockPanel VerticalAlignment="Stretch">
+			<ContentControl DockPanel.Dock="Top" Name="TitleBar" Content="{Binding TitleBar}" ZIndex="1000" WindowDecorationProperties.ElementRole="TitleBar"/>
 			<Panel>
 				<ContentControl Name="SettingsMenu"
 				                Classes.IsOpen="{Binding SettingsOpen}"
@@ -28,7 +27,7 @@
 				<ContentControl Name="WindowCentralControl"
 								Content="{Binding MainControl}"
 				                Classes.IsFaded="{Binding SettingsOpen}"/>
-			</Panel>
+			</Panel>	
 			
 			<DockPanel.Styles>
 				<Style Selector="ContentControl#SettingsMenu">

@@ -55,17 +55,17 @@ public class Toolbox : Tool
 
 public class CommandTool : Tool
 {
-    public static readonly StyledProperty<IBinding?> CommandBindingProperty =
-        AvaloniaProperty.Register<CommandTool, IBinding?>(nameof(CommandBinding));
+    public static readonly StyledProperty<BindingBase?> CommandBindingProperty =
+        AvaloniaProperty.Register<CommandTool, BindingBase?>(nameof(CommandBinding));
 
     [AssignBinding]
-    public IBinding? CommandBinding
+    public BindingBase? CommandBinding
     {
         get => GetValue(CommandBindingProperty);
         set => SetValue(CommandBindingProperty, value);
     }
 
-    protected override IBinding? GetCommandBinding() => CommandBinding;
+    protected override BindingBase? GetCommandBinding() => CommandBinding;
 }
 
 public class Tool : StyledElement, ITemplate<object?, ToolInstance?>, IEnumerable<Tool>
@@ -76,7 +76,7 @@ public class Tool : StyledElement, ITemplate<object?, ToolInstance?>, IEnumerabl
 
     public static readonly StyledProperty<IDataTemplate?> IconTemplateProperty = AvaloniaProperty.Register<Tool, IDataTemplate?>(nameof(IconTemplate));
     
-    public static readonly StyledProperty<IBinding?> DescriptionBindingProperty = AvaloniaProperty.Register<Tool, IBinding?>(nameof(DescriptionBinding));
+    public static readonly StyledProperty<BindingBase?> DescriptionBindingProperty = AvaloniaProperty.Register<Tool, BindingBase?>(nameof(DescriptionBinding));
 
     public static readonly StyledProperty<object?> CommandParameterProperty = AvaloniaProperty.Register<Tool, object?>(nameof(CommandParameter));
     
@@ -97,7 +97,7 @@ public class Tool : StyledElement, ITemplate<object?, ToolInstance?>, IEnumerabl
     }
     
     [AssignBinding]
-    public IBinding? DescriptionBinding
+    public BindingBase? DescriptionBinding
     {
         get => GetValue(DescriptionBindingProperty);
         set => SetValue(DescriptionBindingProperty, value);
@@ -168,7 +168,7 @@ public class Tool : StyledElement, ITemplate<object?, ToolInstance?>, IEnumerabl
         return toolInstance;
     }
     
-    protected virtual IBinding? GetCommandBinding() => null;
+    protected virtual BindingBase? GetCommandBinding() => null;
 
     public IEnumerator<Tool> GetEnumerator() => ChildTools?.GetEnumerator() ?? Enumerable.Empty<Tool>().GetEnumerator();
 

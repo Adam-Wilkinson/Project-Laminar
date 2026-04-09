@@ -21,10 +21,11 @@ public partial class EnumEditor : UserControl
             return;
         }
         
-        CBox[!ItemsControl.ItemsSourceProperty] = 
-            new Binding(bindingPath, BindingMode.OneWay)
+        CBox[!ItemsControl.ItemsSourceProperty] =
+            new ReflectionBinding(bindingPath)
             {
                 FallbackValue = interfaceData.Value.GetType().IsEnum ? interfaceData.Value.GetType().GetEnumValues() : null,
+                Mode = BindingMode.OneWay,
             };
     }
 }

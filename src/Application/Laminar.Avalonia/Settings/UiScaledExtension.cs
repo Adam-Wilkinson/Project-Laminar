@@ -1,4 +1,5 @@
 using System;
+using System.Transactions;
 using Avalonia.Data;
 using Avalonia.Markup.Xaml;
 using Avalonia.Markup.Xaml.MarkupExtensions;
@@ -10,14 +11,19 @@ public class UiScaledExtension(string valueToScale) : MarkupExtension
 {
     private static readonly MultiplyConverter Converter = new();
     
-    public override IBinding ProvideValue(IServiceProvider serviceProvider)
+    public override BindingBase ProvideValue(IServiceProvider serviceProvider)
     {
-        return new Binding
+        if (new StaticResourceExtension("SettingsRoot.InterfaceSettings.UiScale").ProvideValue(serviceProvider) is not DoubleSetting uiScaleSetting)
+            throw new InvalidOperationException();
+
+        return new ReflectionBinding(nameof(Setting.Value))
         {
-            Path = "Value",
+            Source = uiScaleSetting,
             Converter = Converter,
-            ConverterParameter = valueToScale,
-            Source = new StaticResourceExtension("SettingsRoot.InterfaceSettings.UiScale").ProvideValue(serviceProvider) 
+            ConverterParameter = valueToScale
         };
+         
+            //CompiledBinding.Create<DoubleSetting, object>(setting => setting.Value, converter: Converter,
+            //converterParameter: valueToScale, source: uiScaleSetting);
     }
 }
