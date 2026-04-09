@@ -1,16 +1,19 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Documents;
 using Avalonia.Input;
 using Avalonia.Input.Platform;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Threading;
-using Laminar.Avalonia.Shapes;
+using Laminar.Domain.Extensions;
 
 namespace Laminar.Avalonia.Controls;
 
@@ -20,10 +23,14 @@ public partial class EditableLabel : UserControl
     public static readonly StyledProperty<string> TextProperty = AvaloniaProperty.Register<EditableLabel, string>(nameof(Text));
     public static readonly StyledProperty<char[]> DisallowedCharsProperty = AvaloniaProperty.Register<EditableLabel, char[]>(nameof(DisallowedChars));
 
-    private static readonly TimeSpan InvalidCharHintDuration = new(0, 0, 3);
+    private static readonly TimeSpan InvalidCharHintDuration = new(0, 0, 5);
     private static readonly TimeSpan EditingStartedCooldown = new(0, 0, 0, 0, 100);
 
-    private readonly TextBlock _invalidCharHintText = new();
+    private readonly StackPanel _invalidCharHint = new()
+    {
+        HorizontalAlignment = HorizontalAlignment.Center,
+        Spacing = 10,
+    };
     private readonly Flyout _invalidCharHintFlyout;
 
     private DateTime _furthestCharHintFlyoutCloseTime = DateTime.Now;
@@ -32,6 +39,7 @@ public partial class EditableLabel : UserControl
     static EditableLabel()
     {
         IsBeingEditedProperty.Changed.AddClassHandler<EditableLabel>((label, args) => label.IsBeingEditedChanged(args));
+        DisallowedCharsProperty.Changed.AddClassHandler<EditableLabel>((label, args) => label.DisallowedCharsChanged(args));
     }
 
     public EditableLabel()
@@ -44,7 +52,7 @@ public partial class EditableLabel : UserControl
             {
                 Children =
                 {
-                    _invalidCharHintText,
+                    _invalidCharHint,
                 }
             },
             ShowMode = FlyoutShowMode.TransientWithDismissOnPointerMoveAway,
@@ -169,9 +177,6 @@ public partial class EditableLabel : UserControl
 
     private async Task OnInvalidTextEntry()
     {
-        _invalidCharHintText.Text = "Invalid character input \n Invalid characters are: "
-                                    + string.Join("', '", DisallowedChars.Where(IsUserFriendlyChar));
-
         if (!_invalidCharHintFlyout.IsOpen)
         {
             _invalidCharHintFlyout.ShowAt(this);
@@ -194,5 +199,36 @@ public partial class EditableLabel : UserControl
                char.GetUnicodeCategory(c) != UnicodeCategory.Format &&
                char.GetUnicodeCategory(c) != UnicodeCategory.PrivateUse &&
                char.GetUnicodeCategory(c) != UnicodeCategory.Surrogate;
+    }
+
+
+    private void DisallowedCharsChanged(AvaloniaPropertyChangedEventArgs args)
+    {
+        IEnumerable<Run> disallowedCharsInline = DisallowedChars
+            .Where(IsUserFriendlyChar)
+            .Select(ch =>
+            {
+                var output = new Run(ch.ToString());
+                output.Classes.Add("Emphasis");
+                return output;
+            }).InsertInBetween(new Run("', '"));
+
+        _invalidCharHint.Children.Clear();
+        _invalidCharHint.Children.Add(new TextBlock 
+        { 
+            Text = "Invalid character!", 
+            HorizontalAlignment = HorizontalAlignment.Center,
+        });
+
+        InlineCollection secondLineInlines = [new Run("Invalid characters are '")];
+        secondLineInlines.AddRange(disallowedCharsInline);
+        secondLineInlines.Add(new Run("'."));
+
+        var secondLine = new TextBlock
+        {
+            Inlines = secondLineInlines
+        };
+        secondLine.Classes.Add("b2");
+        _invalidCharHint.Children.Add(secondLine);
     }
 }

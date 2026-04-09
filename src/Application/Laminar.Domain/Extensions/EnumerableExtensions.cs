@@ -19,6 +19,32 @@ public static class EnumerableExtensions
         {
             return enumerable.SelectMany(c => selector(c).Flatten(selector)).Concat(enumerable);
         }
+
+        public IEnumerable<T> InsertInBetween(T newElement)
+        {
+            var enumerator = enumerable.GetEnumerator();
+            enumerator.MoveNext();
+            yield return enumerator.Current;
+
+            while (enumerator.MoveNext())
+            {
+                yield return newElement;
+                yield return enumerator.Current;
+            }
+        }
+
+        public IEnumerable<T> InsertInBetween(Func<T> newElementFactory)
+        {
+            var enumerator = enumerable.GetEnumerator();
+            enumerator.MoveNext();
+            yield return enumerator.Current;
+
+            while (enumerator.MoveNext())
+            {
+                yield return newElementFactory();
+                yield return enumerator.Current;
+            }
+        }
     }
 
     extension<TList, TValue>(TList? nullable) where TList : IEnumerable<TValue>
