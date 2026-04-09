@@ -18,12 +18,6 @@ public abstract class LaminarStorageItem(IFileSystem fileSystem, ILogger<Laminar
         item.ParentFolder = folder;
         item.OnPropertyChanged(nameof(item.Path));
     }
-
-    protected static void Rename(LaminarStorageItem item, string newNameWithExtension)
-    {
-        item._nameWithExtension = newNameWithExtension;
-        item.OnPropertyChanged(nameof(item.Path));
-    }
     
     protected ILogger<LaminarStorageItem> Logger { get; } = logger;
     
@@ -57,7 +51,13 @@ public abstract class LaminarStorageItem(IFileSystem fileSystem, ILogger<Laminar
             RefreshOverride();
         }
     }
-    
+
+    public void Rename(string newNameWithExtension)
+    {
+        _nameWithExtension = newNameWithExtension;
+        OnPropertyChanged(nameof(Path));
+    }
+
     protected abstract void RefreshOverride();
     
     public virtual void OnEffectivelyEnabledChanged()

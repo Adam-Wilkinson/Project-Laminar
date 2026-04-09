@@ -1,13 +1,14 @@
+using System;
 using System.Collections.Generic;
-using Laminar.Contracts.UserData;
 using Laminar.Contracts.UserData.FileNavigation;
 using Laminar.Domain.Extensions;
 using Laminar.Domain.ValueObjects;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.UserData.FileNavigation;
 
-public partial class LaminarStorageItemFactory(IFileSystem fileSystem, IDeletedStorageItemCache deletedItemCache, ILogger<LaminarStorageItem> logger)
+public partial class LaminarStorageItemFactory(IServiceProvider provider, IDeletedStorageItemCache deletedItemCache, ILogger<LaminarStorageItem> logger)
     : ILaminarStorageItemFactory
 {
     private readonly Dictionary<FileSystemPath, ILaminarStorageItem> _allStorageItems = [];
@@ -20,8 +21,8 @@ public partial class LaminarStorageItemFactory(IFileSystem fileSystem, IDeletedS
         }
 
         ILaminarStorageItem newItem = string.IsNullOrWhiteSpace(path.Extension)
-            ? new LaminarStorageFolder(path, this, logger, fileSystem, parent) 
-            : new LaminarStorageFile(path, parent, fileSystem, logger);
+            ? ActivatorUtilities.CreateInstance<LaminarStorageFolder>(provider, path, parent)
+            : ActivatorUtilities.CreateInstance<LaminarStorageFile>(provider, path, parent);
 
         if (deletedItemCache.TryFind(newItem) is { } cachedItem)
         {
@@ -42,8 +43,8 @@ public partial class LaminarStorageItemFactory(IFileSystem fileSystem, IDeletedS
 
     public ILaminarStorageItem? TryGetExisting(FileSystemPath path) =>  _allStorageItems.GetValueOrDefault(path);
 
-    public ILaminarStorageRootFolder CreateRootFolder(FileSystemPath path) => 
-        new LaminarStorageRootFolder(path, this, fileSystem, deletedItemCache, logger);
+    public ILaminarStorageRootFolder CreateRootFolder(FileSystemPath path) 
+        => ActivatorUtilities.CreateInstance<LaminarStorageRootFolder>(provider, path);
 
     [LoggerMessage(LogLevel.Trace, "A file at path '{path}' was already cached, returning cached value")]
     static partial void LogRequestedItemMatchesExistingItem(ILogger<LaminarStorageItem> logger, FileSystemPath path);

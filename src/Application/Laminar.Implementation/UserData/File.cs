@@ -3,7 +3,6 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using Laminar.Contracts;
 using Laminar.Contracts.UserData;
 using Laminar.Domain.ValueObjects;
 using Microsoft.Extensions.Logging;

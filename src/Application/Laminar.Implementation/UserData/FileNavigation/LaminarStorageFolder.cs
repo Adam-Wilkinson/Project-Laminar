@@ -22,14 +22,14 @@ public class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
     private readonly Queue<(ILaminarStorageItem, int)> _queuedMoves = [];
     private readonly IFileSystem _fileSystem;
     
-    public LaminarStorageFolder(FileSystemPath path, 
+    public LaminarStorageFolder(FileSystemPath path,
+        ILaminarStorageFolder parent, 
         ILaminarStorageItemFactory factory, 
-        ILogger<LaminarStorageItem> logger,
-        IFileSystem fileSystem,
-        ILaminarStorageFolder parent) : this(path, factory, fileSystem, logger)
+        IFileSystem fileSystem, 
+        ILogger<LaminarStorageItem> logger) : this(path, factory, fileSystem, logger)
     {
         SetParent(this, parent);
-        Rename(this, path.Name);
+        Rename(path.Name);
         Refresh();
     }
 

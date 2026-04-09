@@ -22,7 +22,7 @@ public class LaminarStorageFile : LaminarStorageItem
         }
 
         SetParent(this, parent);
-        Rename(this, path.NameAndExtension);
+        Rename(path.NameAndExtension);
         Refresh();
     }
 

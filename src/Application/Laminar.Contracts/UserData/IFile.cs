@@ -1,6 +1,6 @@
 using Laminar.Domain.ValueObjects;
 
-namespace Laminar.Contracts;
+namespace Laminar.Contracts.UserData;
 
 public interface IFile : IDisposable, IValueSink<byte[]>
 {

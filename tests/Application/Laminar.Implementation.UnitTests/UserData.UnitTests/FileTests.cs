@@ -1,5 +1,4 @@
 using FluentAssertions;
-using Laminar.Contracts;
 using Laminar.Contracts.UserData;
 using Laminar.Domain.ValueObjects;
 using Microsoft.Extensions.Logging;
