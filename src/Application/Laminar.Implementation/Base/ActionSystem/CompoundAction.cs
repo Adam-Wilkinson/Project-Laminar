@@ -36,7 +36,7 @@ public class CompoundAction : IUserAction
     {
         if (_actions.Any(userAction => !userAction.CanExecute))
         {
-            return IUserActionResult.Failure();
+            return IUserActionResult.Invalid();
         }
         
         var undoList = new IUserAction[_actions.Count];

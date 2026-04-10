@@ -1,52 +1,136 @@
-﻿using System.Collections.Generic;
-using Laminar.Contracts.Base.ActionSystem;
+﻿using Laminar.Contracts.Base.ActionSystem;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Laminar.Implementation.Base.ActionSystem;
 
-internal class UserActionManager : IUserActionManager
+internal class UserActionManager(IEnumerable<IUserActionErrorResolver> resolvers) : IUserActionManager
 {
-    private readonly List<IUserAction> _undoList = [];
-    private readonly List<IUserAction> _redoList = [];
+    private readonly Stack<IUserAction> _undoList = [];
+    private readonly Stack<IUserAction> _redoList = [];
     
     public IUserActionResult ExecuteAction(IUserAction action)
     {
-        if (!action.CanExecute) return IUserActionResult.Failure();
-        var actionResult = action.Execute();
-        if (actionResult is UserActionSuccess { InverseAction: { } inverse})
+        IUserActionResult actionResult = ResolveExecution(action);
+
+        if (actionResult is UserActionSuccess { InverseAction: { } inverse })
         {
-            _undoList.Add(inverse);
+            _undoList.Push(inverse);
         }
-        
+
         return actionResult;
     }
 
-    public void Undo()
+    public async Task<IUserActionResult> ExecuteActionAsync(IUserAction action)
     {
-        var successfulAction = false;
-        while (!successfulAction && _undoList.Count > 0)
-        {
-            if (_undoList[^1].CanExecute && _undoList[^1].Execute() is UserActionSuccess { InverseAction: { } redoAction })
-            {
-                _redoList.Add(redoAction);
-                successfulAction = true;
-            }
+        IUserActionResult actionResult = await ResolveExecutionAsync(action);
 
-            _undoList.RemoveAt(_undoList.Count - 1);
+        if (actionResult is UserActionSuccess { InverseAction: { } inverse })
+        {
+            _undoList.Push(inverse);
         }
+
+        return actionResult;
     }
 
-    public void Redo()
+    public IUserActionResult Undo()
     {
-        var successfulAction = false;
-        while (!successfulAction && _redoList.Count > 0)
-        {
-            if (_redoList[^1].CanExecute && _redoList[^1].Execute() is UserActionSuccess { InverseAction: { } undoAction })
-            {
-                _undoList.Add(undoAction);
-                successfulAction = true;
-            }
+        IUserActionResult actionResult = ResolveExecution(_undoList.Pop());
 
-            _redoList.RemoveAt(_redoList.Count - 1);
+        if (actionResult is UserActionSuccess { InverseAction: { } inverse })
+        {
+            _redoList.Push(inverse);
         }
+
+        return actionResult;
+    }
+
+    public async Task<IUserActionResult> UndoAsync()
+    {
+        IUserActionResult actionResult = await ResolveExecutionAsync(_undoList.Pop());
+
+        if (actionResult is UserActionSuccess { InverseAction: { } inverse })
+        {
+            _redoList.Push(inverse);
+        }
+
+        return actionResult;
+    }
+
+    public IUserActionResult Redo()
+    {
+        IUserActionResult actionResult = ResolveExecution(_redoList.Pop());
+
+        if (actionResult is UserActionSuccess { InverseAction: { } inverse })
+        {
+            _undoList.Push(inverse);
+        }
+
+        return actionResult;
+    }
+
+    public async Task<IUserActionResult> RedoAsync()
+    {
+        IUserActionResult actionResult = await ResolveExecutionAsync(_redoList.Pop());
+
+        if (actionResult is UserActionSuccess { InverseAction: { } inverse })
+        {
+            _undoList.Push(inverse);
+        }
+
+        return actionResult;
+    }
+
+    private async Task<IUserActionResult> ResolveExecutionAsync(IUserAction action)
+    {
+        if (!action.CanExecute) return IUserActionResult.Invalid();
+        var result = action.Execute();
+        if (result is not UserActionError error) return result;
+
+        foreach (var resolver in resolvers)
+        {
+            var resolution = await resolver.TryResolveAsync(error);
+            switch (resolution)
+            {
+                case CancelledByUser:
+                    return IUserActionResult.Cancelled();
+                case AlternativeActionFound { AlternativeAction: { } alternativeAction }:
+                    if (alternativeAction.CanExecute)
+                    {
+                        var alternative = await ResolveExecutionAsync(alternativeAction);
+                        return alternative;
+                    }
+                    continue;
+                default:
+                    continue;
+            }
+        }
+
+        return error;
+    }
+    private IUserActionResult ResolveExecution(IUserAction action)
+    {
+        if (!action.CanExecute) return IUserActionResult.Invalid();
+        var result = action.Execute();
+        if (result is not UserActionError error) return result;
+
+        foreach (var resolver in resolvers)
+        {
+            switch (resolver.TryResolve(error))
+            {
+                case CancelledByUser:
+                    return IUserActionResult.Cancelled();
+                case AlternativeActionFound { AlternativeAction: { } alternativeAction }:
+                    if (alternativeAction.CanExecute)
+                    {
+                        return ResolveExecution(alternativeAction);
+                    }
+                    continue;
+                default:
+                    continue;
+            }
+        }
+
+        return error;
     }
 }

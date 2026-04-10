@@ -12,16 +12,16 @@ public class DesignFileBrowser : ILaminarFileBrowser
 
     public IUserActionResult AddDefault<T>(ILaminarStorageFolder parentFolder)
         where T : class, ILaminarStorageItem
-        => IUserActionResult.Failure();
+        => IUserActionResult.Invalid();
 
     public IUserActionResult Move(ILaminarStorageItem itemToMove, ILaminarStorageFolder destinationFolder, int destinationIndex) 
-        => IUserActionResult.Failure();
+        => IUserActionResult.Invalid();
 
     public IUserActionResult Delete(ILaminarStorageItem itemToDelete) 
-        => IUserActionResult.Failure();
+        => IUserActionResult.Invalid();
 
     public IUserActionResult Rename(ILaminarStorageItem itemToRename, string newName) 
-        => IUserActionResult.Failure();
+        => IUserActionResult.Invalid();
 
     public bool OpenInSystemFileBrowser(ILaminarStorageItem item) => false;
 }

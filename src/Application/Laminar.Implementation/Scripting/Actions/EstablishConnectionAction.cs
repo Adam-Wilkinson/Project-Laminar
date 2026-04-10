@@ -23,7 +23,7 @@ public class EstablishConnectionAction(
     public IUserActionResult Execute()
     {
         if (!connectorOne.TryConnectTo(connectorTwo) && !connectorTwo.TryConnectTo(connectorOne)) 
-            return IUserActionResult.Failure();
+            return IUserActionResult.Invalid();
         
         _connection = new Connection
         {

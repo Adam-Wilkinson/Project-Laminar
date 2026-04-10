@@ -10,18 +10,19 @@
                     xmlns:init="using:Laminar.Avalonia.InitializationTargets">
     
     <!-- Edit Menu Tool -->
-    <t:CommandTool NameKey="{x:Static lang:Resources.Undo}" x:DataType="vm:ViewModelBase" 
-                   x:Key="Tools.Edit.Undo"
-                   Gesture="Ctrl+z"
-                   DefaultIconGeometry="{x:Static shapes:PathData.UndoIcon}"
-                   CommandBinding="{Binding UndoCommand}"/>
     
     <t:Toolbox NameKey="{x:Static lang:Resources.Edit}" 
                x:Key="Tools.Edit" 
                DefaultIconGeometry="{x:Static shapes:PathData.EditIcon}"
                Gesture="Ctrl+e">
-        <StaticResource ResourceKey="Tools.Edit.Undo"/>
-        <t:Tool NameKey="{x:Static lang:Resources.Redo}" Gesture="Ctrl+y" DefaultIconGeometry="{x:Static shapes:PathData.RedoIcon}"/>
+        <t:CommandTool NameKey="{x:Static lang:Resources.Undo}" x:DataType="vm:ViewModelBase" 
+					   Gesture="Ctrl+z"
+                       DefaultIconGeometry="{x:Static shapes:PathData.UndoIcon}"
+					   CommandBinding="{Binding UndoCommand}"/>
+        <t:CommandTool NameKey="{x:Static lang:Resources.Redo}" x:DataType="vm:ViewModelBase"
+					   Gesture="Ctrl+y" 
+					   DefaultIconGeometry="{x:Static shapes:PathData.RedoIcon}"
+					   CommandBinding="{Binding RedoCommand}"/>
     </t:Toolbox>
     
     <!-- Tool that toggles whether a TreeViewItem is expanded -->

@@ -21,7 +21,7 @@ public class MoveStorageItemAction(
      
      public IUserActionResult Execute()
      {
-          if (item.ParentFolder is not { } oldFolder) return IUserActionResult.Failure();
+          if (item.ParentFolder is not { } oldFolder) return IUserActionResult.Invalid();
           
           var indexInOldFolder = oldFolder.Contents.IndexOf(item);
           var indexInDestinationFolder = targetIndex ?? destinationFolder.Contents.Count;

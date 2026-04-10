@@ -17,7 +17,7 @@ public class RenameStorageItemAction(string newName, ILaminarStorageItem item, I
     {
         if (item.ParentFolder is not { Path: { } parentPath } parentFolder || Equals(item.Path.Name, newName))
         {
-            return IUserActionResult.Failure();
+            return IUserActionResult.Invalid();
         }
 
         if (newName.ContainsAny(Path.GetInvalidFileNameChars()))
