@@ -18,16 +18,19 @@ public class RenameStorageItemAction(string newName, ILaminarStorageItem item, I
     {
         if (item.ParentFolder is not { Path: { } parentPath } parentFolder || Equals(item.Path.Name, newName))
         {
+            item.Refresh();
             return IUserActionResult.Invalid();
         }
 
         if (newName.ContainsAny(Path.GetInvalidFileNameChars()))
         {
+            item.Refresh();
             return IUserActionResult.Error(new InvalidStorageItemNameException(newName));
         }
 
         if (parentFolder.Contents.Any(sibling => newName.Equals(sibling.Path.Name, StringComparison.OrdinalIgnoreCase)))
         {
+            item.Refresh();
             return IUserActionResult.Error(new FileWithNameExistsException(newName));
         }
         
@@ -39,6 +42,7 @@ public class RenameStorageItemAction(string newName, ILaminarStorageItem item, I
         }
         catch (IOException exception)
         {
+            item.Refresh();
             return IUserActionResult.Error(exception);
         }
         
@@ -46,12 +50,12 @@ public class RenameStorageItemAction(string newName, ILaminarStorageItem item, I
     }
 }
 
-public class InvalidStorageItemNameException(string name) : Exception
+public class InvalidStorageItemNameException(string name) : IOException($"The file or folder name '{name}' contains invalid characters")
 {
     public string Name => name;
 }
 
-public class FileWithNameExistsException(string name) : Exception
+public class FileWithNameExistsException(string name) : IOException($"A file or folder with the name '{name}' already exists in that folder")
 {
     public string Name => name;
 }

@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Threading.Tasks;
 using Laminar.Contracts.UserData;
 using Laminar.Domain.ValueObjects;
 using Microsoft.Extensions.Logging;
@@ -78,7 +79,7 @@ public class FileSystem(ILogger<File> fileLogger) : IFileSystem
     public IFileStream CreateFile(FileSystemPath path)
         => FileStream.Create(path);
     
-    public void WriteBytesAsync(FileSystemPath path, byte[] bytes, CancellationToken cancellationToken = default) 
+    public Task WriteBytes(FileSystemPath path, byte[] bytes, CancellationToken cancellationToken = default) 
         => System.IO.File.WriteAllBytesAsync(path.ToString(), bytes, cancellationToken);
 
     public byte[] ReadBytes(FileSystemPath path) 

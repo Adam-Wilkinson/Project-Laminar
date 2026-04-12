@@ -49,6 +49,7 @@ public abstract class LaminarStorageItem(IFileSystem fileSystem, ILogger<Laminar
         if (fileSystem.Exists(Path))
         {
             RefreshOverride();
+            OnPropertyChanged(nameof(Path));
         }
     }
 

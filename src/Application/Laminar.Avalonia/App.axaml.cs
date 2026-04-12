@@ -7,6 +7,7 @@ using CommunityToolkit.Mvvm.Input;
 using HanumanInstitute.MvvmDialogs;
 using HanumanInstitute.MvvmDialogs.Avalonia;
 using Laminar.Avalonia.InitializationTargets;
+using Laminar.Avalonia.UserActionHandlers;
 using Laminar.Avalonia.ViewModels;
 using Laminar.Avalonia.ViewModels.Services;
 using Laminar.Avalonia.Views;
@@ -50,9 +51,10 @@ public partial class App : Application
                         .WriteTo.Console()
                         .WriteTo.File(DataLocations.LocalDataFolder.ChildPath("logs.txt").ToString())
                         .CreateLogger()))
-                .AddSingleton<IDialogFactory>(new DialogFactory().AddMessageBox())
+                .AddSingleton<IDialogFactory>(new DialogFactory())
                 .AddSingleton<IDialogManager, DialogManager>()
-                .AddSingleton<IDialogService, global::HanumanInstitute.MvvmDialogs.Avalonia.DialogService>()
+                .AddSingleton<IDialogService, HanumanInstitute.MvvmDialogs.Avalonia.DialogService>()
+                .AddUserActionHandlers()
                 .BuildServiceProvider();
 
             services.InitializeLaminar<App>();

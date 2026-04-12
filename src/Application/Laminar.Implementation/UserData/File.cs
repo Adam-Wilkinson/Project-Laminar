@@ -119,7 +119,7 @@ public partial class File : IFile
         {
             try
             {
-                _fileSystem.WriteBytesAsync(Path, _contents, cancellationToken);
+                await _fileSystem.WriteBytes(Path, _contents, cancellationToken);
                 success = true;
             }
             catch (IOException e)

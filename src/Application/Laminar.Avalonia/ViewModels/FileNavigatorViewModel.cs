@@ -53,7 +53,6 @@ public partial class FileNavigatorViewModel(
             SelectedOptionIndex = 2,
         });
 
-
         await dialogService.PromptError("Result", $"You cleasrly selected {selected}");
     }
     
@@ -70,20 +69,20 @@ public partial class FileNavigatorViewModel(
         _proposedHoveredItem = targetParent;
         
         if (!IsValidMove(draggedItem, targetParent, targetIndex)) return;
-        
+
         // A closed folder cannot take children, but should be expanded after a certain amount of time
         if (!targetParent.IsExpanded)
         {
-            _ = Task.Delay(ExpandHoveredOverFolderDelay).ContinueWith(_ =>
-            {
+            Dispatcher.UIThread.InvokeAsync(async () => {
+                await Task.Delay(ExpandHoveredOverFolderDelay);
                 if (!Equals(_proposedHoveredItem, targetParent)) return;
                 Dispatcher.UIThread.Post(() =>
                 {
                     targetParent.IsExpanded = true;
-                    OnHover(eventArgs); 
+                    OnHover(eventArgs);
                 });
+                return;
             });
-            return;
         }
 
         _currentHoverMove = (targetParent, targetIndex);
@@ -98,21 +97,13 @@ public partial class FileNavigatorViewModel(
             targetItem.CoreItem is not ILaminarStorageFolder targetFolder) return;
         if (eventArgs.DraggingControl.DataContext is not FileNavigatorItemViewModel draggedItem) return;
         
-        var moveResult = await fileBrowser.Move(draggedItem.CoreItem, targetFolder, targetIndex);
-
-        if (moveResult is UserActionError 
-                { Exception: DestinationContainsItemOfThatNameException destinationContainsException })
-        {
-            await dialogService.PromptError("Error moving item",
-                $"Destination folder '{destinationContainsException.DestinationFolder}' already contains an item of name '{destinationContainsException.ItemName}'");
-        }
+        await fileBrowser.Move(draggedItem.CoreItem, targetFolder, targetIndex);
         
         _currentHoverMove = null;
         _proposedHoveredItem = null;
     }
 
-    private static (FileNavigatorItemViewModel draggedItem, FileNavigatorItemViewModel targetParent, int targetIndex)?
-        GetMoveFromDragInfo(DropTargetEventArgs eventArgs)
+    private static (FileNavigatorItemViewModel draggedItem, FileNavigatorItemViewModel targetParent, int targetIndex)? GetMoveFromDragInfo(DropTargetEventArgs eventArgs)
     {
         if (eventArgs.ReceptacleTag is not TreeViewDropAcceptor.TreeViewItemReceptacleInfo
             {
@@ -128,8 +119,7 @@ public partial class FileNavigatorViewModel(
         return (draggedItem, targetParent, targetIndex);
     }
     
-    private static bool IsValidMove(FileNavigatorItemViewModel draggedItem, FileNavigatorItemViewModel targetParent,
-        int targetIndex)
+    private static bool IsValidMove(FileNavigatorItemViewModel draggedItem, FileNavigatorItemViewModel targetParent, int targetIndex)
     {
         if (targetParent.Children is null) return false;
         

@@ -4,7 +4,9 @@ using System.Threading.Tasks;
 
 namespace Laminar.Implementation.Base.ActionSystem;
 
-internal class UserActionManager(IEnumerable<IUserActionErrorResolver> errorResolvers) : IUserActionManager
+internal class UserActionManager(
+    IEnumerable<IUserActionErrorResolver> errorResolvers,
+    IEnumerable<IUnresolvedUserActionErrorSink> unresolvedErrorSinks) : IUserActionManager
 {
     private readonly Stack<IUserAction> _undoList = [];
     private readonly Stack<IUserAction> _redoList = [];
@@ -56,7 +58,7 @@ internal class UserActionManager(IEnumerable<IUserActionErrorResolver> errorReso
             var resolution = await errorResolver.TryResolve(action, error);
             switch (resolution)
             {
-                case CancelledByUser:
+                case UserActionCancelledResolution:
                     return IUserActionResult.Cancelled();
                 case AlternativeActionFound { AlternativeAction: { } alternativeAction }:
                     if (alternativeAction.CanExecute)
@@ -67,6 +69,11 @@ internal class UserActionManager(IEnumerable<IUserActionErrorResolver> errorReso
                 default:
                     continue;
             }
+        }
+
+        foreach (var errorSink in unresolvedErrorSinks)
+        {
+            await errorSink.OnError(action, error);
         }
 
         return error;

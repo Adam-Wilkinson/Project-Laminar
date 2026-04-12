@@ -33,7 +33,7 @@ public class FileTests
         sut.Contents = newFileContents;
         sut.CheckAccess();
         
-        mockFileSystem.Received(1).WriteBytesAsync(FilePath, newFileContents, Arg.Any<CancellationToken>());
+        mockFileSystem.Received(1).WriteBytes(FilePath, newFileContents, Arg.Any<CancellationToken>());
         mon.Should().Raise(nameof(IFile.ContentsChanged));
         Assert.Equal(newFileContents, sut.Contents);
     }

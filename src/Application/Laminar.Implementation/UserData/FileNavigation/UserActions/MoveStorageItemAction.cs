@@ -35,8 +35,9 @@ public class MoveStorageItemAction(
           {
                if (destinationFolder.Contents.Any(x => item.Path.Name.Equals(x.Path.Name)))
                {
-                    return Task.FromResult(IUserActionResult.Error(
-                         new DestinationContainsItemOfThatNameException(destinationFolder.Path.Name, item.Path.Name)));
+                    oldFolder.Refresh();
+                    destinationFolder.Refresh();
+                    return Task.FromResult(IUserActionResult.Error(new DestinationContainsItemOfThatNameException(destinationFolder.Path.Name, item.Path.Name)));
                }
                
                // The file system is not positional, so we prep the StorageFolder to move to the right position

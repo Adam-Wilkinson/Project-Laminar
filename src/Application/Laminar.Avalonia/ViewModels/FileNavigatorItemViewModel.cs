@@ -25,8 +25,7 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
     
     private readonly ILaminarFileBrowser _fileBrowser;
     private readonly SourcedObservableCollection<FileNavigatorItemViewModel>? _children;
-    private readonly TopLevel? _topLevel;
-    private readonly DialogService _dialogService;
+
     private readonly Func<ILaminarStorageItem, FileNavigatorItemViewModel> _factory;
 
     private bool _folderContentsInitialized;
@@ -34,13 +33,9 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
     public FileNavigatorItemViewModel(
         ILaminarStorageItem coreItem, 
         ILaminarFileBrowser fileBrowser, 
-        DialogService dialogService,
-        Func<ILaminarStorageItem, FileNavigatorItemViewModel> factory,
-        TopLevel? topLevel = null)
+        Func<ILaminarStorageItem, FileNavigatorItemViewModel> factory)
     {
         _fileBrowser = fileBrowser;
-        _topLevel = topLevel;
-        _dialogService = dialogService;
         _factory = item =>
         {
             var result = factory(item);
@@ -95,7 +90,7 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
             OnPropertyChanged();
             if (value != CoreItem.Path.Name)
             {
-                Dispatcher.UIThread.InvokeAsync(SetCoreItemName);
+                Dispatcher.UIThread.InvokeAsync(async () => _fileBrowser.Rename(CoreItem, Name));
             }
         }
     }
@@ -110,19 +105,21 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
     };
     
     [RelayCommand(CanExecute = nameof(IsFolder))]
-    public void AddItem(Type itemType)
+    public Task AddItem(Type itemType)
     {
-        if (CoreItem is not ILaminarStorageFolder folder) return;
+        if (CoreItem is not ILaminarStorageFolder folder) return Task.CompletedTask;
         if (itemType.IsAssignableTo(typeof(ILaminarStorageFolder)))
         {
             IsExpanded = true;
-            _fileBrowser.AddDefault<ILaminarStorageFolder>(folder);
+            return _fileBrowser.AddDefault<ILaminarStorageFolder>(folder);
         }
         else if (itemType.IsAssignableTo(typeof(LaminarStorageFile)))
         {
             IsExpanded = true;
-            _fileBrowser.AddDefault<LaminarStorageFile>(folder);
+            return _fileBrowser.AddDefault<LaminarStorageFile>(folder);
         }
+
+        return Task.CompletedTask;
     }
 
     public bool IsFolder() => CoreItem is ILaminarStorageFolder;
@@ -134,9 +131,9 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
     }
 
     [RelayCommand]
-    public void Delete()
+    public Task Delete()
     {
-        _fileBrowser.Delete(CoreItem);
+        return _fileBrowser.Delete(CoreItem);
     }
     
     [RelayCommand]
@@ -161,23 +158,5 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
             => Equals(x?.CoreItem.Path, y?.CoreItem.Path);
 
         public int GetHashCode(FileNavigatorItemViewModel obj) => obj.CoreItem.GetHashCode();
-    }
-    
-    private async Task SetCoreItemName()
-    {
-        var renameResult = await _fileBrowser.Rename(CoreItem, Name);
-        if (renameResult is UserActionError
-                { Exception: { } renameException })
-        {
-            Dispatcher.UIThread.Post(() => Name = CoreItem.Path.Name);
-            var message = renameException switch
-            {
-                InvalidStorageItemNameException storageItemNameException => $"Invalid storage item name: '{storageItemNameException.Name}'",
-                FileWithNameExistsException nameExistsExtension => $"A storage item with the name '{nameExistsExtension.Name}' already exists",
-                _ => renameException.Message,
-            };
-            
-            await _dialogService.PromptError("File System Error", message);
-        }
     }
 }

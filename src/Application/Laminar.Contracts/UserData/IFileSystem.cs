@@ -18,7 +18,7 @@ public interface IFileSystem
     
     public IFileStream CreateFile(FileSystemPath path);
     
-    public void WriteBytesAsync(FileSystemPath path, byte[] bytes, CancellationToken cancellationToken = default);
+    public Task WriteBytes(FileSystemPath path, byte[] bytes, CancellationToken cancellationToken = default);
 
     public byte[] ReadBytes(FileSystemPath path);
     
