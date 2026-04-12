@@ -1,10 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using Laminar.Contracts.Base.ActionSystem;
+﻿using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.Scripting.Connection;
 using Laminar.Domain.ValueObjects;
 using Laminar.Implementation.Scripting.Connections;
 using Laminar.PluginFramework.NodeSystem.Connectors;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Laminar.Implementation.Scripting.Actions;
 
@@ -20,10 +21,10 @@ public class EstablishConnectionAction(
 
     public bool CanExecute { get; } = connectorOne.CanConnectTo(connectorTwo) || connectorTwo.CanConnectTo(connectorOne);
 
-    public IUserActionResult Execute()
+    public Task<IUserActionResult> Execute()
     {
         if (!connectorOne.TryConnectTo(connectorTwo) && !connectorTwo.TryConnectTo(connectorOne)) 
-            return IUserActionResult.Invalid();
+            return Task.FromResult(IUserActionResult.Invalid());
         
         _connection = new Connection
         {
@@ -32,6 +33,6 @@ public class EstablishConnectionAction(
         };
         connectionCollection.Add(_connection);
 
-        return IUserActionResult.Success(new SeverConnectionAction(_connection, connectionCollection));
+        return Task.FromResult(IUserActionResult.Success(new SeverConnectionAction(_connection, connectionCollection)));
     }
 }

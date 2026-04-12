@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.UserData;
 using Laminar.Contracts.UserData.FileNavigation;
@@ -19,9 +20,9 @@ public class MoveStorageItemAction(
      
      public bool CanExecute => true;
      
-     public IUserActionResult Execute()
+     public Task<IUserActionResult> Execute()
      {
-          if (item.ParentFolder is not { } oldFolder) return IUserActionResult.Invalid();
+          if (item.ParentFolder is not { } oldFolder) return Task.FromResult(IUserActionResult.Invalid());
           
           var indexInOldFolder = oldFolder.Contents.IndexOf(item);
           var indexInDestinationFolder = targetIndex ?? destinationFolder.Contents.Count;
@@ -34,8 +35,8 @@ public class MoveStorageItemAction(
           {
                if (destinationFolder.Contents.Any(x => item.Path.Name.Equals(x.Path.Name)))
                {
-                    return IUserActionResult.Error(
-                         new DestinationContainsItemOfThatNameException(destinationFolder.Path.Name, item.Path.Name));
+                    return Task.FromResult(IUserActionResult.Error(
+                         new DestinationContainsItemOfThatNameException(destinationFolder.Path.Name, item.Path.Name)));
                }
                
                // The file system is not positional, so we prep the StorageFolder to move to the right position
@@ -48,6 +49,6 @@ public class MoveStorageItemAction(
                fileSystem.Move(item.Path, destinationPath);
           }
 
-          return IUserActionResult.Success(new MoveStorageItemAction(item, oldFolder, fileSystem, indexInOldFolder));
+          return Task.FromResult(IUserActionResult.Success(new MoveStorageItemAction(item, oldFolder, fileSystem, indexInOldFolder)));
      }
 }

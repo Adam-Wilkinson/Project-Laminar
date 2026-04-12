@@ -1,7 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using Laminar.Contracts.Base.ActionSystem;
+﻿using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.Scripting.NodeWrapping;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Laminar.Implementation.Scripting.Actions;
 
@@ -12,9 +13,9 @@ public class DeleteNodeAction(IWrappedNode node, ICollection<IWrappedNode> nodeC
     
     public bool CanExecute { get; } = nodeCollection.Contains(node);
 
-    public IUserActionResult Execute()
+    public Task<IUserActionResult> Execute()
     {
         nodeCollection.Remove(node);
-        return IUserActionResult.Success(new AddNodeAction(node, nodeCollection));
+        return Task.FromResult(IUserActionResult.Success(new AddNodeAction(node, nodeCollection)));
     }
 }

@@ -25,7 +25,9 @@ public static class TreeViewItemDrag
             item.IsExpanded = false;
         }
 
+#pragma warning disable CS0067
         public event EventHandler? CanExecuteChanged;
+#pragma warning restore CS0067
     }
 
     private class DragEnded : ICommand
@@ -38,6 +40,8 @@ public static class TreeViewItemDrag
             item.IsExpanded = _currentDragTargetShouldBeExpanded;
         }
 
+#pragma warning disable CS0067
         public event EventHandler? CanExecuteChanged;
+#pragma warning restore CS0067
     }
 }

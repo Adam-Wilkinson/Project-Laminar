@@ -31,9 +31,7 @@
     <PackageReference Include="CommunityToolkit.Mvvm" />
     <PackageReference Include="HanumanInstitute.MvvmDialogs" />
     <PackageReference Include="HanumanInstitute.MvvmDialogs.Avalonia" />
-    <PackageReference Include="HanumanInstitute.MvvmDialogs.Avalonia.MessageBox" />
     <PackageReference Include="Laminar.Avalonia.AdjustableStackPanel" />
-    <PackageReference Include="MessageBox.Avalonia" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
     <PackageReference Include="Serilog" />
     <PackageReference Include="Serilog.Extensions.Logging" />

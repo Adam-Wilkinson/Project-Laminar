@@ -1,13 +1,14 @@
-using System;
-using System.Collections.Generic;
 using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.UserData;
 using Laminar.Contracts.UserData.FileNavigation;
 using Laminar.Domain.DataManagement;
+using Laminar.Domain.Extensions;
 using Laminar.Domain.Notification;
 using Laminar.Domain.ValueObjects;
-using Laminar.Domain.Extensions;
 using Laminar.Implementation.UserData.FileNavigation.UserActions;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using static Laminar.Domain.DataManagement.DataLocations;
 
 namespace Laminar.Implementation.UserData.FileNavigation;
@@ -29,23 +30,23 @@ public class LaminarFileBrowser(
         .ToObservableCollection()
         .ObservableMap(factory.CreateRootFolder);
     
-    public IUserActionResult AddDefault<T>(ILaminarStorageFolder parentFolder) 
+    public Task<IUserActionResult> AddDefault<T>(ILaminarStorageFolder parentFolder) 
         where T : class, ILaminarStorageItem
     {
         return actionManager.ExecuteAction(new AddDefaultStorageItemAction<T>(fileSystem, parentFolder, factory, _recyclingBin));
     }
 
-    public IUserActionResult Move(ILaminarStorageItem itemToMove, ILaminarStorageFolder destinationFolder, int destinationIndex)
+    public Task<IUserActionResult> Move(ILaminarStorageItem itemToMove, ILaminarStorageFolder destinationFolder, int destinationIndex)
     {
         return actionManager.ExecuteAction(new MoveStorageItemAction(itemToMove, destinationFolder, fileSystem, destinationIndex));
     }
 
-    public IUserActionResult Delete(ILaminarStorageItem itemToDelete)
+    public Task<IUserActionResult> Delete(ILaminarStorageItem itemToDelete)
     {
         return actionManager.ExecuteAction(new MoveStorageItemAction(itemToDelete, _recyclingBin, fileSystem)); 
     }
 
-    public IUserActionResult Rename(ILaminarStorageItem itemToRename, string newName)
+    public Task<IUserActionResult> Rename(ILaminarStorageItem itemToRename, string newName)
     {
         return actionManager.ExecuteAction(new RenameStorageItemAction(newName, itemToRename, fileSystem));
     }
@@ -61,6 +62,7 @@ public class LaminarFileBrowser(
         {
             rootFolder.Dispose();
         }
+
         GC.SuppressFinalize(this);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.Scripting.NodeWrapping;
 
@@ -12,9 +13,9 @@ public class AddNodeAction(IWrappedNode node, ICollection<IWrappedNode> nodeColl
     
     public bool CanExecute => true;
 
-    public IUserActionResult Execute()
+    public Task<IUserActionResult> Execute()
     {
         nodeCollection.Add(node);
-        return IUserActionResult.Success(new DeleteNodeAction(node, nodeCollection));
+        return Task.FromResult(IUserActionResult.Success(new DeleteNodeAction(node, nodeCollection)));
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Laminar.Contracts.Base.ActionSystem;
 
 namespace Laminar.Implementation.Base.ActionSystem;
@@ -15,7 +16,7 @@ public class CompoundAction : IUserAction
 
     public CompoundAction(IEnumerable<IUserAction> actions)
     {
-        _actions = actions.ToList();
+        _actions = [.. actions];
         foreach (var action in _actions)
         {
             action.CanExecuteChanged += ChildCanExecuteChanged;
@@ -32,7 +33,7 @@ public class CompoundAction : IUserAction
     
     public bool CanExecute { get; private set; }
 
-    public IUserActionResult Execute()
+    public async Task<IUserActionResult> Execute()
     {
         if (_actions.Any(userAction => !userAction.CanExecute))
         {
@@ -43,7 +44,7 @@ public class CompoundAction : IUserAction
         var indexInReverseList = _actions.Count;
         foreach (var userAction in _actions)
         {
-            var currentResult = userAction.Execute();
+            var currentResult = await userAction.Execute();
             switch (currentResult)
             {
                 case UserActionSuccess success:

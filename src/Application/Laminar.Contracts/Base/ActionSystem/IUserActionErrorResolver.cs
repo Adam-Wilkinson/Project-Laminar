@@ -2,7 +2,5 @@
 
 public interface IUserActionErrorResolver
 {
-    public IUserActionErrorResolution? TryResolve(UserActionError error);
-
-    public Task<IUserActionErrorResolution?> TryResolveAsync(UserActionError error);
+    public Task<IUserActionErrorResolution?> TryResolve(IUserAction action, UserActionError error);
 }

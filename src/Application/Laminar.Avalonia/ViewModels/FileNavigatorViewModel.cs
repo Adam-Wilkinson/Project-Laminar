@@ -1,24 +1,22 @@
 using System;
-using System.ComponentModel;
 using System.Threading.Tasks;
-using Avalonia.Controls;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
-using HanumanInstitute.MvvmDialogs;
 using Laminar.Avalonia.DragDrop;
 using Laminar.Avalonia.ViewModels.Services;
 using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.UserData.FileNavigation;
 using Laminar.Domain.Notification;
 using Laminar.Implementation.UserData.FileNavigation.Exceptions;
+using Microsoft.Extensions.Logging;
 
 namespace Laminar.Avalonia.ViewModels;
 
 public partial class FileNavigatorViewModel(
     ILaminarFileBrowser fileBrowser,
-    IDialogService dialogService,
+    DialogService dialogService,
     Func<ILaminarStorageItem, FileNavigatorItemViewModel> fileNavigatorItemViewModelFactory,
-    TopLevel? topLevel = null)
+    ILogger<FileNavigatorViewModel> logger)
     : ViewModelBase
 {
     private static readonly TimeSpan ExpandHoveredOverFolderDelay = new(0, 0, 0, 0, 500);
@@ -45,7 +43,18 @@ public partial class FileNavigatorViewModel(
     [RelayCommand]
     private async Task AddRootFolder()
     {
-        await dialogService.ShowMessageBoxAsync((INotifyPropertyChanged)topLevel?.DataContext!, "Adding a root folder");
+        var selected = await dialogService.PromptUserResponse(new LaminarDialogViewModel
+        {
+            Options = [new DialogOption("Testing One"), new DialogOption("Two"), new DialogOption("Ok")],
+            Title = "is this a title?",
+            Message = "this might be a message",
+            ShowRememberAnswer = true,
+            CancelledOptionIndex = 1,
+            SelectedOptionIndex = 2,
+        });
+
+
+        await dialogService.PromptError("Result", $"You cleasrly selected {selected}");
     }
     
     [RelayCommand]
@@ -89,16 +98,15 @@ public partial class FileNavigatorViewModel(
             targetItem.CoreItem is not ILaminarStorageFolder targetFolder) return;
         if (eventArgs.DraggingControl.DataContext is not FileNavigatorItemViewModel draggedItem) return;
         
-        var moveResult = fileBrowser.Move(draggedItem.CoreItem, targetFolder, targetIndex);
+        var moveResult = await fileBrowser.Move(draggedItem.CoreItem, targetFolder, targetIndex);
 
         if (moveResult is UserActionError 
                 { Exception: DestinationContainsItemOfThatNameException destinationContainsException })
         {
-            await dialogService.ShowError((INotifyPropertyChanged)topLevel?.DataContext!, "Error moving item",
+            await dialogService.PromptError("Error moving item",
                 $"Destination folder '{destinationContainsException.DestinationFolder}' already contains an item of name '{destinationContainsException.ItemName}'");
         }
         
-        // Refresh();
         _currentHoverMove = null;
         _proposedHoveredItem = null;
     }

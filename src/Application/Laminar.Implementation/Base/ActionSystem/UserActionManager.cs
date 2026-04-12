@@ -4,24 +4,12 @@ using System.Threading.Tasks;
 
 namespace Laminar.Implementation.Base.ActionSystem;
 
-internal class UserActionManager(IEnumerable<IUserActionErrorResolver> resolvers) : IUserActionManager
+internal class UserActionManager(IEnumerable<IUserActionErrorResolver> errorResolvers) : IUserActionManager
 {
     private readonly Stack<IUserAction> _undoList = [];
     private readonly Stack<IUserAction> _redoList = [];
-    
-    public IUserActionResult ExecuteAction(IUserAction action)
-    {
-        IUserActionResult actionResult = ResolveExecution(action);
 
-        if (actionResult is UserActionSuccess { InverseAction: { } inverse })
-        {
-            _undoList.Push(inverse);
-        }
-
-        return actionResult;
-    }
-
-    public async Task<IUserActionResult> ExecuteActionAsync(IUserAction action)
+    public async Task<IUserActionResult> ExecuteAction(IUserAction action)
     {
         IUserActionResult actionResult = await ResolveExecutionAsync(action);
 
@@ -33,19 +21,7 @@ internal class UserActionManager(IEnumerable<IUserActionErrorResolver> resolvers
         return actionResult;
     }
 
-    public IUserActionResult Undo()
-    {
-        IUserActionResult actionResult = ResolveExecution(_undoList.Pop());
-
-        if (actionResult is UserActionSuccess { InverseAction: { } inverse })
-        {
-            _redoList.Push(inverse);
-        }
-
-        return actionResult;
-    }
-
-    public async Task<IUserActionResult> UndoAsync()
+    public async Task<IUserActionResult> Undo()
     {
         IUserActionResult actionResult = await ResolveExecutionAsync(_undoList.Pop());
 
@@ -57,19 +33,7 @@ internal class UserActionManager(IEnumerable<IUserActionErrorResolver> resolvers
         return actionResult;
     }
 
-    public IUserActionResult Redo()
-    {
-        IUserActionResult actionResult = ResolveExecution(_redoList.Pop());
-
-        if (actionResult is UserActionSuccess { InverseAction: { } inverse })
-        {
-            _undoList.Push(inverse);
-        }
-
-        return actionResult;
-    }
-
-    public async Task<IUserActionResult> RedoAsync()
+    public async Task<IUserActionResult> Redo()
     {
         IUserActionResult actionResult = await ResolveExecutionAsync(_redoList.Pop());
 
@@ -84,12 +48,12 @@ internal class UserActionManager(IEnumerable<IUserActionErrorResolver> resolvers
     private async Task<IUserActionResult> ResolveExecutionAsync(IUserAction action)
     {
         if (!action.CanExecute) return IUserActionResult.Invalid();
-        var result = action.Execute();
+        var result = await action.Execute();
         if (result is not UserActionError error) return result;
 
-        foreach (var resolver in resolvers)
+        foreach (var errorResolver in errorResolvers)
         {
-            var resolution = await resolver.TryResolveAsync(error);
+            var resolution = await errorResolver.TryResolve(action, error);
             switch (resolution)
             {
                 case CancelledByUser:
@@ -97,33 +61,7 @@ internal class UserActionManager(IEnumerable<IUserActionErrorResolver> resolvers
                 case AlternativeActionFound { AlternativeAction: { } alternativeAction }:
                     if (alternativeAction.CanExecute)
                     {
-                        var alternative = await ResolveExecutionAsync(alternativeAction);
-                        return alternative;
-                    }
-                    continue;
-                default:
-                    continue;
-            }
-        }
-
-        return error;
-    }
-    private IUserActionResult ResolveExecution(IUserAction action)
-    {
-        if (!action.CanExecute) return IUserActionResult.Invalid();
-        var result = action.Execute();
-        if (result is not UserActionError error) return result;
-
-        foreach (var resolver in resolvers)
-        {
-            switch (resolver.TryResolve(error))
-            {
-                case CancelledByUser:
-                    return IUserActionResult.Cancelled();
-                case AlternativeActionFound { AlternativeAction: { } alternativeAction }:
-                    if (alternativeAction.CanExecute)
-                    {
-                        return ResolveExecution(alternativeAction);
+                        return await ResolveExecutionAsync(alternativeAction);
                     }
                     continue;
                 default:

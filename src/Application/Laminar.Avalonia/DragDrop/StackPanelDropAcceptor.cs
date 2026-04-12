@@ -42,7 +42,7 @@ public class StackPanelDropAcceptor : DropAcceptor<StackPanel>
         }
     }
 
-    protected override IPen DebugReceptaclePen { get; set; } = new Pen(new SolidColorBrush((uint)Random.Shared.NextInt64()), 1.5);
+    protected override IPen? DebugReceptaclePen { get; set; } = new Pen(new SolidColorBrush((uint)Random.Shared.NextInt64()), 1.5);
     
     private static double ChildDepth(StackPanel stackPanel, Control control)
     {

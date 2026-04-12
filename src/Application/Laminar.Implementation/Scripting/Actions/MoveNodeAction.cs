@@ -1,7 +1,8 @@
-﻿using System;
-using Laminar.Contracts.Base.ActionSystem;
+﻿using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Domain.ValueObjects;
+using System;
+using System.Threading.Tasks;
 
 namespace Laminar.Implementation.Scripting.Actions;
 
@@ -11,9 +12,9 @@ public class MoveNodeAction(IWrappedNode items, Point locationDelta) : IUserActi
     
     public bool CanExecute => true;
 
-    public IUserActionResult Execute()
+    public Task<IUserActionResult> Execute()
     {
         items.Location.Value += locationDelta;
-        return IUserActionResult.Success(new MoveNodeAction(items, -locationDelta));
+        return Task.FromResult(IUserActionResult.Success(new MoveNodeAction(items, -locationDelta)));
     }
 }

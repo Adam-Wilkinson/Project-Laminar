@@ -1,23 +1,18 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Reflection.Metadata.Ecma335;
 using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
-using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Reactive;
 using Avalonia.VisualTree;
 using Laminar.Avalonia.InitializationTargets;
-using Laminar.Contracts.Base.ActionSystem;
-using Microsoft.Extensions.Logging;
 
 namespace Laminar.Avalonia.ToolSystem;
 
-public class ToolKeyBindManager(TopLevel defaultTopLevel, ILogger<ToolKeyBindManager> logger) : IAfterApplicationBuiltTarget
+public class ToolKeyBindManager(TopLevel defaultTopLevel) : IAfterApplicationBuiltTarget
 {
     private readonly List<KeyBinding> _keyBindings = [];
     

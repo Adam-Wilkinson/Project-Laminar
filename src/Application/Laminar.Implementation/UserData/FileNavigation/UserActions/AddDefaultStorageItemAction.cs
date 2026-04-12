@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.UserData;
 using Laminar.Contracts.UserData.FileNavigation;
@@ -21,14 +22,15 @@ public class AddDefaultStorageItemAction<T>(
     ];
     
     public event EventHandler? CanExecuteChanged;
+
     public bool CanExecute => true;
-    public IUserActionResult Execute()
+
+    public Task<IUserActionResult> Execute()
     {
         FileSystemPath newItemPath = parentFolder.Path.ChildPath(GetDefaultItemName());
         ILaminarStorageItem newItem = factory.FromPath(newItemPath, parentFolder);
         newItem.NeedsName = true;
-        newItem.ParentFolder?.Refresh();
-        return IUserActionResult.Success(new MoveStorageItemAction(newItem, recyclingBin, fileSystem));
+        return Task.FromResult(IUserActionResult.Success(new MoveStorageItemAction(newItem, recyclingBin, fileSystem)));
     }
     
     private static string GetDefaultItemName()

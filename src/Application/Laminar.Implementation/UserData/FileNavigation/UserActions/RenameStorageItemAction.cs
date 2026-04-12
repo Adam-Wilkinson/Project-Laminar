@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.UserData;
 using Laminar.Contracts.UserData.FileNavigation;
@@ -13,7 +14,7 @@ public class RenameStorageItemAction(string newName, ILaminarStorageItem item, I
     
     public bool CanExecute { get; } = item.Path.Name != newName;
 
-    public IUserActionResult Execute()
+    public async Task<IUserActionResult> Execute()
     {
         if (item.ParentFolder is not { Path: { } parentPath } parentFolder || Equals(item.Path.Name, newName))
         {

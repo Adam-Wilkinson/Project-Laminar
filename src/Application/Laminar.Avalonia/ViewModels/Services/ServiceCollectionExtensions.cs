@@ -15,6 +15,7 @@ public static class ServiceCollectionExtensions
             .AddTransient<Func<ILaminarStorageItem, FileNavigatorItemViewModel>>(sp =>
                 item => ActivatorUtilities.CreateInstance<FileNavigatorItemViewModel>(sp, item))
             .AddDescendantsScoped<IViewModelInitializer>()
-            .AddSingleton<IViewLocator, ViewLocator>();
+            .AddSingleton<IViewLocator, ViewLocator>()
+            .AddSingleton<DialogService>();
     }
 }

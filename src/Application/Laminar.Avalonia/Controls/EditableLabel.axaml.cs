@@ -39,7 +39,7 @@ public partial class EditableLabel : UserControl
     static EditableLabel()
     {
         IsBeingEditedProperty.Changed.AddClassHandler<EditableLabel>((label, args) => label.IsBeingEditedChanged(args));
-        DisallowedCharsProperty.Changed.AddClassHandler<EditableLabel>((label, args) => label.DisallowedCharsChanged(args));
+        DisallowedCharsProperty.Changed.AddClassHandler<EditableLabel>((label, args) => label.DisallowedCharsChanged());
     }
 
     public EditableLabel()
@@ -153,7 +153,7 @@ public partial class EditableLabel : UserControl
             var text = await clipboard.TryGetTextAsync();
             if (text.ContainsAny(DisallowedChars))
             {
-                Dispatcher.UIThread.InvokeAsync(OnInvalidTextEntry);
+                _ = Dispatcher.UIThread.InvokeAsync(OnInvalidTextEntry);
             }
             else
             {
@@ -202,7 +202,7 @@ public partial class EditableLabel : UserControl
     }
 
 
-    private void DisallowedCharsChanged(AvaloniaPropertyChangedEventArgs args)
+    private void DisallowedCharsChanged()
     {
         IEnumerable<Run> disallowedCharsInline = DisallowedChars
             .Where(IsUserFriendlyChar)

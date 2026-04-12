@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Laminar.Avalonia.InitializationTargets;
 
-public class ColorInitialization(Application topLevel, ILogger<ColorInitialization> logger) : IAfterApplicationBuiltTarget
+public class ColorInitialization(Application topLevel) : IAfterApplicationBuiltTarget
 {
     public const string LaminarAccentKey = "LaminarAccent";
     public const string LaminarForegroundKey = "LaminarForeground";

@@ -8,7 +8,6 @@ using Avalonia.Controls;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using HanumanInstitute.MvvmDialogs;
 using Laminar.Avalonia.ViewModels.Services;
 using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.UserData.FileNavigation;
@@ -27,7 +26,7 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
     private readonly ILaminarFileBrowser _fileBrowser;
     private readonly SourcedObservableCollection<FileNavigatorItemViewModel>? _children;
     private readonly TopLevel? _topLevel;
-    private readonly IDialogService _dialogService;
+    private readonly DialogService _dialogService;
     private readonly Func<ILaminarStorageItem, FileNavigatorItemViewModel> _factory;
 
     private bool _folderContentsInitialized;
@@ -35,7 +34,7 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
     public FileNavigatorItemViewModel(
         ILaminarStorageItem coreItem, 
         ILaminarFileBrowser fileBrowser, 
-        IDialogService dialogService,
+        DialogService dialogService,
         Func<ILaminarStorageItem, FileNavigatorItemViewModel> factory,
         TopLevel? topLevel = null)
     {
@@ -166,7 +165,8 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
     
     private async Task SetCoreItemName()
     {
-        if (_fileBrowser.Rename(CoreItem, Name) is UserActionError
+        var renameResult = await _fileBrowser.Rename(CoreItem, Name);
+        if (renameResult is UserActionError
                 { Exception: { } renameException })
         {
             Dispatcher.UIThread.Post(() => Name = CoreItem.Path.Name);
@@ -177,7 +177,7 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
                 _ => renameException.Message,
             };
             
-            await _dialogService.ShowError((INotifyPropertyChanged)_topLevel?.DataContext!, "File System Error", message);
+            await _dialogService.PromptError("File System Error", message);
         }
     }
 }

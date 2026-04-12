@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using Laminar.Contracts.Base.ActionSystem;
+﻿using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.Scripting.Connection;
-using Laminar.Domain.ValueObjects;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Laminar.Implementation.Scripting.Actions;
 
@@ -13,13 +13,13 @@ public class SeverConnectionAction(IConnection connection, ICollection<IConnecti
 
     public bool CanExecute { get; } = true;
 
-    public IUserActionResult Execute()
+    public Task<IUserActionResult> Execute()
     {
         connection.InputConnector.OnDisconnectedFrom(connection.OutputConnector);
         connection.OutputConnector.OnDisconnectedFrom(connection.InputConnector);
         connectionCollection.Remove(connection);
         connection.Break();
-        return IUserActionResult.Success(new EstablishConnectionAction(connection.OutputConnector, connection.InputConnector,
-            connectionCollection));
+        return Task.FromResult(IUserActionResult.Success(new EstablishConnectionAction(connection.OutputConnector, connection.InputConnector,
+            connectionCollection)));
     }
 }

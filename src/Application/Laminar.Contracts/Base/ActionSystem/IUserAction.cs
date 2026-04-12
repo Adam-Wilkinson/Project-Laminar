@@ -8,19 +8,7 @@ public interface IUserAction
     
     public bool CanExecute { get; }
 
-    public IUserActionResult Execute();
-
-    public static IUserAction Pass { get; } = new PassAction();
-
-    public class PassAction : IUserAction
-    {
-        public event EventHandler? CanExecuteChanged;
-        public bool CanExecute => false;
-        public IUserActionResult Execute()
-        {
-            return IUserActionResult.Success(this);
-        }
-    }
+    public Task<IUserActionResult> Execute();
 }
 
 public static class UserActionExtensions

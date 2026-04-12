@@ -52,7 +52,7 @@ public partial class App : Application
                         .CreateLogger()))
                 .AddSingleton<IDialogFactory>(new DialogFactory().AddMessageBox())
                 .AddSingleton<IDialogManager, DialogManager>()
-                .AddSingleton<IDialogService, DialogService>()
+                .AddSingleton<IDialogService, global::HanumanInstitute.MvvmDialogs.Avalonia.DialogService>()
                 .BuildServiceProvider();
 
             services.InitializeLaminar<App>();
