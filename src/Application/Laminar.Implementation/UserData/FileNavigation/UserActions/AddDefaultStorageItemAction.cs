@@ -30,7 +30,7 @@ public class AddDefaultStorageItemAction<T>(
         FileSystemPath newItemPath = parentFolder.Path.ChildPath(GetDefaultItemName());
         ILaminarStorageItem newItem = factory.FromPath(newItemPath, parentFolder);
         newItem.NeedsName = true;
-        return Task.FromResult(IUserActionResult.Success(new MoveStorageItemAction(newItem, recyclingBin, fileSystem)));
+        return Task.FromResult(IUserActionResult.Success(new DeleteStorageItemAction(newItem, fileSystem, recyclingBin)));
     }
     
     private static string GetDefaultItemName()

@@ -45,6 +45,7 @@
         <c:EditableLabel Name="ItemNameLabel"
                          VerticalAlignment="Center" 
                          Text="{Binding Name, Mode=TwoWay}"
+                         DisallowedChars="{x:Static vm:FileNavigatorItemViewModel.InvalidFileNameChars}"
                          IsBeingEdited="{Binding CoreItem.NeedsName, Mode=TwoWay}"
                          Padding="3"/>
         

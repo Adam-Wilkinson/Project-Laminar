@@ -16,6 +16,7 @@ public class MoveStorageItemAction(
      ILaminarStorageItem item, 
      ILaminarStorageFolder destinationFolder,
      IFileSystem fileSystem,
+     ILaminarStorageRootFolder recyclingBin,
      int? targetIndex = null)
      : IUserAction
 {
@@ -36,7 +37,7 @@ public class MoveStorageItemAction(
         }
         else
         {
-            if (destinationFolder.Contents.Any(x => item.Path.Name.Equals(x.Path.Name, StringComparison.OrdinalIgnoreCase)))
+            if (destinationFolder.Contents.FirstOrDefault(x => item.Path.Name.Equals(x.Path.Name, StringComparison.OrdinalIgnoreCase)) is { } clash)
             {
                 oldFolder.Refresh();
                 destinationFolder.Refresh();
@@ -45,8 +46,8 @@ public class MoveStorageItemAction(
                     Exception = new DestinationContainsItemOfThatNameException(destinationFolder.Path.Name, item.Path.Name),
                     Resolve = resolution => resolution switch
                     {
-                        NamingConflictResolution.ReplaceItem => new AlternativeActionFound(new CompoundAction(new DeleteStorageItemAction(), this)),
-                        NamingConflictResolution.IncrementName => new AlternativeActionFound(new CompoundAction(new RenameStorageItemAction(item.Path.Name + " (1)", item, fileSystem), this)),
+                        NamingConflictResolution.ReplaceItem => new AlternativeActionFound(new CompoundAction(new DeleteStorageItemAction(clash, fileSystem, recyclingBin), this)),
+                        NamingConflictResolution.IncrementName => new AlternativeActionFound(new CompoundAction(new RenameStorageItemAction(item.Path.Name + " (1)", item, fileSystem, recyclingBin), this)),
                         _ => throw new InvalidOperationException(),
                     }
                 });
@@ -65,6 +66,6 @@ public class MoveStorageItemAction(
             }
         }
 
-        return Task.FromResult(IUserActionResult.Success(new MoveStorageItemAction(item, oldFolder, fileSystem, indexInOldFolder)));
+        return Task.FromResult(IUserActionResult.Success(new MoveStorageItemAction(item, oldFolder, fileSystem, recyclingBin, indexInOldFolder)));
     }
 }

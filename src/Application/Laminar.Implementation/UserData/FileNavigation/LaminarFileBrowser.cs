@@ -30,25 +30,24 @@ public class LaminarFileBrowser(
         .ToObservableCollection()
         .ObservableMap(factory.CreateRootFolder);
     
-    public Task<IUserActionResult> AddDefault<T>(ILaminarStorageFolder parentFolder) 
-        where T : class, ILaminarStorageItem
+    public Task<IUserActionResult> AddDefault<T>(ILaminarStorageFolder parentFolder) where T : class, ILaminarStorageItem
     {
         return actionManager.ExecuteAction(new AddDefaultStorageItemAction<T>(fileSystem, parentFolder, factory, _recyclingBin));
     }
 
     public Task<IUserActionResult> Move(ILaminarStorageItem itemToMove, ILaminarStorageFolder destinationFolder, int destinationIndex)
     {
-        return actionManager.ExecuteAction(new MoveStorageItemAction(itemToMove, destinationFolder, fileSystem, destinationIndex));
+        return actionManager.ExecuteAction(new MoveStorageItemAction(itemToMove, destinationFolder, fileSystem, _recyclingBin, destinationIndex));
     }
 
     public Task<IUserActionResult> Delete(ILaminarStorageItem itemToDelete)
     {
-        return actionManager.ExecuteAction(new MoveStorageItemAction(itemToDelete, _recyclingBin, fileSystem)); 
+        return actionManager.ExecuteAction(new DeleteStorageItemAction(itemToDelete, fileSystem, _recyclingBin)); 
     }
 
     public Task<IUserActionResult> Rename(ILaminarStorageItem itemToRename, string newName)
     {
-        return actionManager.ExecuteAction(new RenameStorageItemAction(newName, itemToRename, fileSystem));
+        return actionManager.ExecuteAction(new RenameStorageItemAction(newName, itemToRename, fileSystem, _recyclingBin));
     }
 
     public bool OpenInSystemFileBrowser(ILaminarStorageItem item)

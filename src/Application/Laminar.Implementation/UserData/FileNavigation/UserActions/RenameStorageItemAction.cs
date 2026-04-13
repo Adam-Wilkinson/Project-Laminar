@@ -11,7 +11,7 @@ using Laminar.Implementation.Base.ActionSystem;
 
 namespace Laminar.Implementation.UserData.FileNavigation.UserActions;
 
-public class RenameStorageItemAction(string newName, ILaminarStorageItem item, IFileSystem fileSystem) : IUserAction
+public class RenameStorageItemAction(string newName, ILaminarStorageItem item, IFileSystem fileSystem, ILaminarStorageRootFolder recyclingBin) : IUserAction
 {
     public event EventHandler? CanExecuteChanged;
     
@@ -29,7 +29,7 @@ public class RenameStorageItemAction(string newName, ILaminarStorageItem item, I
             return Task.FromResult(IUserActionResult.Error(new InvalidStorageItemNameException(newName)));
         }
 
-        if (parentFolder.Contents.Any(sibling => newName.Equals(sibling.Path.Name, StringComparison.OrdinalIgnoreCase)))
+        if (parentFolder.Contents.FirstOrDefault(sibling => newName.Equals(sibling.Path.Name, StringComparison.OrdinalIgnoreCase)) is { } clash)
         {
             item.Refresh();
             return Task.FromResult<IUserActionResult>(new ResolvableError<NamingConflictResolution>
@@ -37,19 +37,19 @@ public class RenameStorageItemAction(string newName, ILaminarStorageItem item, I
                 Exception = new FileWithNameExistsException(newName),
                 Resolve = resolution => resolution switch
                 {
-                    NamingConflictResolution.IncrementName => new AlternativeActionFound(new RenameStorageItemAction(newName + " (1)", item, fileSystem)),
-                    NamingConflictResolution.ReplaceItem => new AlternativeActionFound(new CompoundAction(new DeleteStorageItemAction(), this)),
+                    NamingConflictResolution.IncrementName => new AlternativeActionFound(new RenameStorageItemAction(newName + " (1)", item, fileSystem, recyclingBin)),
+                    NamingConflictResolution.ReplaceItem => new AlternativeActionFound(new CompoundAction(new DeleteStorageItemAction(clash, fileSystem, recyclingBin), this)),
                     _ => throw new InvalidOperationException(),
                 }
             });
         }
         
-        var oldName = item.Path.NameAndExtension;
+        var oldName = item.Path.Name;
 
         try
         {
             fileSystem.Move(item.Path, parentPath.ChildPath(newName + item.Path.Extension));
-            (item as LaminarStorageItem)?.Rename(newName);
+            (item as LaminarStorageItem)?.Rename(newName + item.Path.Extension);
         }
         catch (IOException exception)
         {
@@ -57,6 +57,6 @@ public class RenameStorageItemAction(string newName, ILaminarStorageItem item, I
             return Task.FromResult(IUserActionResult.Error(exception));
         }
         
-        return Task.FromResult(IUserActionResult.Success(new RenameStorageItemAction(oldName, item, fileSystem)));
+        return Task.FromResult(IUserActionResult.Success(new RenameStorageItemAction(oldName, item, fileSystem, recyclingBin)));
     }
 }
