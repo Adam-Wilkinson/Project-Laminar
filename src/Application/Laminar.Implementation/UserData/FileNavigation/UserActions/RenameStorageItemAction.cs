@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.UserData;
 using Laminar.Contracts.UserData.FileNavigation;
+using Laminar.Domain.Enums.ActionResolutions;
+using Laminar.Domain.Exceptions;
+using Laminar.Implementation.Base.ActionSystem;
 
 namespace Laminar.Implementation.UserData.FileNavigation.UserActions;
 
@@ -14,24 +17,33 @@ public class RenameStorageItemAction(string newName, ILaminarStorageItem item, I
     
     public bool CanExecute { get; } = item.Path.Name != newName;
 
-    public async Task<IUserActionResult> Execute()
+    public Task<IUserActionResult> Execute()
     {
         if (item.ParentFolder is not { Path: { } parentPath } parentFolder || Equals(item.Path.Name, newName))
         {
             item.Refresh();
-            return IUserActionResult.Invalid();
+            return Task.FromResult(IUserActionResult.Invalid());
         }
 
         if (newName.ContainsAny(Path.GetInvalidFileNameChars()))
         {
             item.Refresh();
-            return IUserActionResult.Error(new InvalidStorageItemNameException(newName));
+            return Task.FromResult(IUserActionResult.Error(new InvalidStorageItemNameException(newName)));
         }
 
         if (parentFolder.Contents.Any(sibling => newName.Equals(sibling.Path.Name, StringComparison.OrdinalIgnoreCase)))
         {
             item.Refresh();
-            return IUserActionResult.Error(new FileWithNameExistsException(newName));
+            return Task.FromResult<IUserActionResult>(new ResolvableError<NamingConflictResolution>
+            {
+                Exception = new FileWithNameExistsException(newName),
+                Resolve = resolution => resolution switch
+                {
+                    NamingConflictResolution.IncrementName => new AlternativeActionFound(new RenameStorageItemAction(newName + " (1)", item, fileSystem)),
+                    NamingConflictResolution.ReplaceItem => new AlternativeActionFound(new CompoundAction(new DeleteStorageItemAction(), this)),
+                    _ => throw new InvalidOperationException(),
+                }
+            });
         }
         
         var oldName = item.Path.Name;
@@ -43,19 +55,9 @@ public class RenameStorageItemAction(string newName, ILaminarStorageItem item, I
         catch (IOException exception)
         {
             item.Refresh();
-            return IUserActionResult.Error(exception);
+            return Task.FromResult(IUserActionResult.Error(exception));
         }
         
-        return IUserActionResult.Success(new RenameStorageItemAction(oldName, item, fileSystem));
+        return Task.FromResult(IUserActionResult.Success(new RenameStorageItemAction(oldName, item, fileSystem)));
     }
-}
-
-public class InvalidStorageItemNameException(string name) : IOException($"The file or folder name '{name}' contains invalid characters")
-{
-    public string Name => name;
-}
-
-public class FileWithNameExistsException(string name) : IOException($"A file or folder with the name '{name}' already exists in that folder")
-{
-    public string Name => name;
 }

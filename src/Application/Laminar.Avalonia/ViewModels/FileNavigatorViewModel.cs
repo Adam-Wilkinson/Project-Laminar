@@ -4,10 +4,8 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
 using Laminar.Avalonia.DragDrop;
 using Laminar.Avalonia.ViewModels.Services;
-using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.UserData.FileNavigation;
 using Laminar.Domain.Notification;
-using Laminar.Implementation.UserData.FileNavigation.Exceptions;
 using Microsoft.Extensions.Logging;
 
 namespace Laminar.Avalonia.ViewModels;
@@ -76,13 +74,11 @@ public partial class FileNavigatorViewModel(
             Dispatcher.UIThread.InvokeAsync(async () => {
                 await Task.Delay(ExpandHoveredOverFolderDelay);
                 if (!Equals(_proposedHoveredItem, targetParent)) return;
-                Dispatcher.UIThread.Post(() =>
-                {
-                    targetParent.IsExpanded = true;
-                    OnHover(eventArgs);
-                });
-                return;
+                targetParent.IsExpanded = true;
+                OnHover(eventArgs);
             });
+
+            return;
         }
 
         _currentHoverMove = (targetParent, targetIndex);

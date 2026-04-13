@@ -21,6 +21,7 @@ public class CompoundAction : IUserAction
         {
             action.CanExecuteChanged += ChildCanExecuteChanged;
         }
+        CanExecute = _actions.All(x => x.CanExecute);
     }
 
     public void Add(IUserAction action)
@@ -60,7 +61,11 @@ public class CompoundAction : IUserAction
 
     private void ChildCanExecuteChanged(object? sender, EventArgs args)
     {
+        var canExecuteBefore = CanExecute;
         CanExecute = _actions.All(x => x.CanExecute);
-        CanExecuteChanged?.Invoke(sender, args);
+        if (canExecuteBefore != CanExecute)
+        {
+            CanExecuteChanged?.Invoke(sender, args);
+        }
     }
 }

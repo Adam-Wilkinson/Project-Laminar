@@ -1,48 +1,58 @@
 ﻿using Laminar.Avalonia.ViewModels;
 using Laminar.Avalonia.ViewModels.Services;
 using Laminar.Contracts.Base.ActionSystem;
-using Laminar.Implementation.UserData.FileNavigation.Exceptions;
-using Laminar.Implementation.UserData.FileNavigation.UserActions;
+using Laminar.Domain.Enums.ActionResolutions;
+using Laminar.Domain.Exceptions;
+using System;
 using System.Threading.Tasks;
 
 namespace Laminar.Avalonia.UserActionHandlers;
 
 public class UserPromptErrorResolver(DialogService dialogService) : IUserActionErrorResolver
 {
-    private readonly DialogOption ReplaceExistingFile = new("Replace file");
-    private readonly DialogOption IncrementFileName = new("Increment name");
+    private readonly DialogOption<NamingConflictResolution> ReplaceExistingFile = new(NamingConflictResolution.ReplaceItem, "Replace file");
+    private readonly DialogOption<NamingConflictResolution> IncrementFileName = new(NamingConflictResolution.IncrementName, "Increment name");
 
-    public async Task<IUserActionErrorResolution?> TryResolve(IUserAction action, UserActionError error)
+    public Task<IUserActionErrorResolution?> TryResolve(IUserActionResult result) => result switch
     {
-        switch (error.Exception)
+        ResolvableError<NamingConflictResolution> 
+        { 
+            Exception: FileWithNameExistsException fileWithNameExists 
+        } renamingNameClash => ResolveError(renamingNameClash, new LaminarDialogViewModel
         {
-            case InvalidStorageItemNameException storageItemName:
-                await dialogService.PromptError("Invalid item name", $"Invalid storage item name: '{storageItemName.Name}'");
-                return new UserActionCancelledResolution();
-            case FileWithNameExistsException fileWithNameExists:
-                await dialogService.PromptUserResponse(new LaminarDialogViewModel
-                {
-                    Options = [DialogOption.Cancel, ReplaceExistingFile, IncrementFileName],
-                    Title = "Rename error",
-                    Message = $"A file with the name '{fileWithNameExists.Name}' already exists in that folder",
-                    SelectedOptionIndex = 2,
-                    CancelledOptionIndex = 0,
-                });
+            Options = [DialogOption.Cancel, ReplaceExistingFile, IncrementFileName],
+            Title = "Rename error",
+            Message = $"A file with the name '{fileWithNameExists.Name}' already exists in that folder",
+            SelectedOptionIndex = 2,
+            CancelledOptionIndex = 0,
+        }),
+        ResolvableError<NamingConflictResolution> 
+        { 
+            Exception: DestinationContainsItemOfThatNameException destinationContainsException 
+        } moveNamingConflict => ResolveError(moveNamingConflict, new LaminarDialogViewModel
+        {
+            Options = [DialogOption.Cancel, ReplaceExistingFile, IncrementFileName],
+            Title = "Error moving item",
+            Message = $"Destination folder '{destinationContainsException.DestinationFolder}' already contains an item of name '{destinationContainsException.ItemName}'",
+            SelectedOptionIndex = 2,
+            CancelledOptionIndex = 0,
+        }),
+        _ => Task.FromResult<IUserActionErrorResolution?>(null),
+    };
 
-                return new UserActionCancelledResolution();
-            case DestinationContainsItemOfThatNameException destinationContainsException:
-                await dialogService.PromptUserResponse(new LaminarDialogViewModel
-                {
-                    Options = [DialogOption.Cancel, ReplaceExistingFile, IncrementFileName],
-                    Title = "Rename error",
-                    Message = $"Destination folder '{destinationContainsException.DestinationFolder}' already contains an item of name '{destinationContainsException.ItemName}'",
-                    SelectedOptionIndex = 2,
-                    CancelledOptionIndex = 0,
-                });
-
-                return new UserActionCancelledResolution();
+    private async Task<IUserActionErrorResolution?> ResolveError<T>(ResolvableError<T> resolvable, LaminarDialogViewModel dialog)
+    {
+        var parameterDialogOption = await dialogService.PromptUserResponse(dialog);
+        if (parameterDialogOption is DialogOption<T> typedCorrectly)
+        {
+            return resolvable.Resolve(typedCorrectly.Value);
         }
 
-        return null;
+        if (parameterDialogOption == DialogOption.Cancel)
+        {
+            return new UserActionCancelledResolution();
+        }
+
+        throw new InvalidOperationException();
     }
 }

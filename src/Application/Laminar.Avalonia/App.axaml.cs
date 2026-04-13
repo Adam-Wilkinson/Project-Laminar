@@ -1,9 +1,7 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
-using CommunityToolkit.Mvvm.Input;
 using HanumanInstitute.MvvmDialogs;
 using HanumanInstitute.MvvmDialogs.Avalonia;
 using Laminar.Avalonia.InitializationTargets;
@@ -11,7 +9,6 @@ using Laminar.Avalonia.UserActionHandlers;
 using Laminar.Avalonia.ViewModels;
 using Laminar.Avalonia.ViewModels.Services;
 using Laminar.Avalonia.Views;
-using Laminar.Contracts.Base.PluginLoading;
 using Laminar.Domain.DataManagement;
 using Laminar.Implementation.Extensions;
 using Laminar.Implementation.Extensions.ServiceInitializers;
@@ -36,6 +33,7 @@ public partial class App : Application
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             desktop.MainWindow = new MainWindow();
+
             var services = new ServiceCollection()
                 .AddLaminarServices(FrontendDependency.Avalonia)
                 .AddViewModels()
@@ -49,6 +47,7 @@ public partial class App : Application
                     new LoggerConfiguration()
                         .MinimumLevel.Verbose()
                         .WriteTo.Console()
+                        .WriteTo.Debug()
                         .WriteTo.File(DataLocations.LocalDataFolder.ChildPath("logs.txt").ToString())
                         .CreateLogger()))
                 .AddSingleton<IDialogFactory>(new DialogFactory())
@@ -61,7 +60,6 @@ public partial class App : Application
             services.GetServices<IBeforeApplicationBuiltTarget>().Initialize();
             desktop.MainWindow.DataContext = services.GetRequiredService<MainWindowViewModel>();
             services.GetServices<IAfterApplicationBuiltTarget>().Initialize();
-            services.GetRequiredService<IPluginLoader>().Register(services.GetServices<IPlugin>());
         }
 
         base.OnFrameworkInitializationCompleted();

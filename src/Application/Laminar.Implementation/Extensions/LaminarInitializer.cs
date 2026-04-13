@@ -4,6 +4,7 @@ using Laminar.Contracts.Base.PluginLoading;
 using Laminar.Implementation.Base.PluginLoading;
 using Laminar.Implementation.UserData;
 using Laminar.PluginFramework;
+using Laminar.PluginFramework.Registration;
 using Laminar.PluginFramework.Serialization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -17,6 +18,7 @@ public static class LaminarInitializer
         LaminarFactory.ServiceProvider = serviceProvider;
         ((PluginLoader)serviceProvider.GetRequiredService<IPluginLoader>()).LoadInbuiltFromPath(sourceFilePath);
         serviceProvider.GetRequiredService<ISerializer>().EnsureAssemblyInit(typeof(T).Assembly);
+        serviceProvider.GetRequiredService<IPluginLoader>().Register(serviceProvider.GetServices<IPlugin>());
         serviceProvider.GetRequiredService<ILogger<None>>().LogTrace("Laminar Initialized");
         return serviceProvider;
     }

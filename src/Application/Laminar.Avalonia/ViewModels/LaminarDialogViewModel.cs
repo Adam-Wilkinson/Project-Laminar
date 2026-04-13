@@ -81,6 +81,8 @@ public partial class LaminarDialogViewModel : ViewModelBase, IModalDialogViewMod
     }
 }
 
+public record DialogOption<T>(T Value, string UiText, bool? DialogResult = null) : DialogOption(UiText, DialogResult);
+
 public record DialogOption(string UiText, bool? DialogResult = null)
 {
     public static readonly DialogOption Ok = new("Ok", true);

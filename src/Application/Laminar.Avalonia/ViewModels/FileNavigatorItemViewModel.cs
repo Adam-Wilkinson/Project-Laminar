@@ -58,10 +58,12 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
 
         CoreItem.GetDependentValue(item => item.ParentFolder?.IsEffectivelyEnabled ?? false).OnChanged +=
             (_, _) => OnPropertyChanged(nameof(CanChangeIsEnabled));
+
+        IsExpanded = CoreItem is ILaminarStorageRootFolder;
     }
     
     [ObservableProperty]
-    public partial bool IsExpanded { get; set; } = false;
+    public partial bool IsExpanded { get; set; }
     
     public FileNavigatorItemViewModel? Parent { get; private set; }
 

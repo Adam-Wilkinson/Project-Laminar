@@ -1,4 +1,5 @@
 ﻿using Laminar.Contracts.Base.ActionSystem;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -51,11 +52,11 @@ internal class UserActionManager(
     {
         if (!action.CanExecute) return IUserActionResult.Invalid();
         var result = await action.Execute();
-        if (result is not UserActionError error) return result;
+        if (result is UserActionSuccess success) return success;
 
         foreach (var errorResolver in errorResolvers)
         {
-            var resolution = await errorResolver.TryResolve(action, error);
+            var resolution = await errorResolver.TryResolve(result);
             switch (resolution)
             {
                 case UserActionCancelledResolution:
@@ -71,11 +72,19 @@ internal class UserActionManager(
             }
         }
 
-        foreach (var errorSink in unresolvedErrorSinks)
+        if (result is IResolvableError unresolvedError)
         {
-            await errorSink.OnError(action, error);
+            result = new UserActionError(unresolvedError.Exception);
         }
 
-        return error;
+        if (result is UserActionError error)
+        {
+            foreach (var errorSink in unresolvedErrorSinks)
+            {
+                await errorSink.OnError(action, error);
+            }
+        }
+
+        return result;
     }
 }
