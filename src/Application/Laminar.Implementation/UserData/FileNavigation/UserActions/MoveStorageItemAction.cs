@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Laminar.Contracts.Base.ActionSystem;
@@ -35,7 +36,7 @@ public class MoveStorageItemAction(
         }
         else
         {
-            if (destinationFolder.Contents.Any(x => item.Path.Name.Equals(x.Path.Name)))
+            if (destinationFolder.Contents.Any(x => item.Path.Name.Equals(x.Path.Name, StringComparison.OrdinalIgnoreCase)))
             {
                 oldFolder.Refresh();
                 destinationFolder.Refresh();
@@ -51,15 +52,19 @@ public class MoveStorageItemAction(
                 });
             }
 
-            // The file system is not positional, so we prep the StorageFolder to move to the right position
-            if (destinationFolder is LaminarStorageFolder typedFolder)
-            {
-               typedFolder.RegisterQueuedMove(item, indexInDestinationFolder);
-            }
-
             var destinationPath = destinationFolder.Path.ChildPath(item.Path.NameAndExtension);
-            fileSystem.Move(item.Path, destinationPath);
+
+            try
+            {
+                fileSystem.Move(item.Path, destinationPath);
+                (destinationFolder.Contents as IObservableCollection<ILaminarStorageItem>)?.Insert(indexInDestinationFolder, item);
+            }
+            catch (IOException exception)
+            {
+                return Task.FromResult(IUserActionResult.Error(exception));
+            }
         }
+
         return Task.FromResult(IUserActionResult.Success(new MoveStorageItemAction(item, oldFolder, fileSystem, indexInOldFolder)));
     }
 }

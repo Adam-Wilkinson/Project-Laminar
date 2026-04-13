@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Laminar.Contracts.UserData;
 using Laminar.Contracts.UserData.FileNavigation;
+using Laminar.Domain.Notification;
 using Laminar.Domain.ValueObjects;
 using Microsoft.Extensions.Logging;
 
@@ -15,6 +16,16 @@ public abstract class LaminarStorageItem(IFileSystem fileSystem, ILogger<Laminar
     
     protected static void SetParent(LaminarStorageItem item, ILaminarStorageFolder? folder)
     { 
+        if (item.ParentFolder == folder)
+        {
+            return;
+        }
+
+        if (item.ParentFolder?.Contents is IObservableCollection<ILaminarStorageItem> oldParentContents)
+        {
+            oldParentContents.Remove(item);
+        }
+
         item.ParentFolder = folder;
         item.OnPropertyChanged(nameof(item.Path));
     }

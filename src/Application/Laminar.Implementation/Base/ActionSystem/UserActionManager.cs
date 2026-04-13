@@ -26,6 +26,7 @@ internal class UserActionManager(
 
     public async Task<IUserActionResult> Undo()
     {
+        if (_undoList.Count <= 0) return IUserActionResult.Invalid();
         IUserActionResult actionResult = await ResolveExecutionAsync(_undoList.Pop());
 
         if (actionResult is UserActionSuccess { InverseAction: { } inverse })
@@ -38,6 +39,7 @@ internal class UserActionManager(
 
     public async Task<IUserActionResult> Redo()
     {
+        if (_redoList.Count <= 0) return IUserActionResult.Invalid();
         IUserActionResult actionResult = await ResolveExecutionAsync(_redoList.Pop());
 
         if (actionResult is UserActionSuccess { InverseAction: { } inverse })

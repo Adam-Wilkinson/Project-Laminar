@@ -17,7 +17,7 @@ internal class LaminarFileSystemMonitor : ILaminarFileSystemMonitor
     private readonly IFileSystem _fileSystem;
     private readonly ILaminarStorageItemFactory _factory;
     private readonly ILogger<ILaminarFileSystemMonitor> _logger;
-    private readonly Channel<FileSystemEventArgs> _updateChannel = Channel.CreateUnbounded<FileSystemEventArgs>(
+    private readonly Channel<LaminarFileSystemEvent> _updateChannel = Channel.CreateUnbounded<LaminarFileSystemEvent>(
     new UnboundedChannelOptions
     {
         SingleReader = true,
@@ -57,8 +57,7 @@ internal class LaminarFileSystemMonitor : ILaminarFileSystemMonitor
 
     private void OnFileSystemEvent(FileSystemEventArgs e, ILaminarStorageRootFolder folder)
     {
-        _outdatedFolders.Add(folder);
-        _updateChannel.Writer.TryWrite(e);
+        _updateChannel.Writer.TryWrite(new LaminarFileSystemEvent(e, folder));
     }
 
     private void OnFileSystemError(ErrorEventArgs e, ILaminarStorageRootFolder folder)
@@ -91,20 +90,22 @@ internal class LaminarFileSystemMonitor : ILaminarFileSystemMonitor
         }
     }
 
-    private void HandleFileSystemEvent(FileSystemEventArgs e)
+    private void HandleFileSystemEvent(LaminarFileSystemEvent laminarFileSystemEvent)
     {
         _refreshCts?.Cancel();
         _refreshCts = new CancellationTokenSource();
 
+        _outdatedFolders.Add(laminarFileSystemEvent.OriginatingFolder);
+        var e = laminarFileSystemEvent.EventArgs;
         switch (e.ChangeType)
         {
             case WatcherChangeTypes.Renamed:
-                if (e is not RenamedEventArgs renamedEventArgs || _factory.TryGetExisting(renamedEventArgs.OldFullPath) is not LaminarStorageItem renamedItem)
+                if (e is not RenamedEventArgs renamedEventArgs || Path.GetFileName(renamedEventArgs.Name) is not string newName || _factory.TryGetExisting(renamedEventArgs.OldFullPath) is not LaminarStorageItem renamedItem)
                 {
                     _logger.LogWarning("Could not find renamed item {oldName}, this may result in a rename operation being considered as separate delete and create operations", e.Name);
                     break;
                 }
-                renamedItem.Rename(e.Name!);
+                renamedItem.Rename(newName);
                 break;
             case WatcherChangeTypes.Deleted:
                 if (_factory.TryGetExisting(e.FullPath) is not ILaminarStorageItem deletedItem)
@@ -142,4 +143,6 @@ internal class LaminarFileSystemMonitor : ILaminarFileSystemMonitor
             catch (TaskCanceledException) { }
         }, token);
     }
+
+    private record struct LaminarFileSystemEvent(FileSystemEventArgs EventArgs, ILaminarStorageRootFolder OriginatingFolder);
 }

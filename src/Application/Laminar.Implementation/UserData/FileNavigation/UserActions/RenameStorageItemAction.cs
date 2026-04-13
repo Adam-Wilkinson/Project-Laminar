@@ -21,13 +21,11 @@ public class RenameStorageItemAction(string newName, ILaminarStorageItem item, I
     {
         if (item.ParentFolder is not { Path: { } parentPath } parentFolder || Equals(item.Path.Name, newName))
         {
-            item.Refresh();
             return Task.FromResult(IUserActionResult.Invalid());
         }
 
         if (newName.ContainsAny(Path.GetInvalidFileNameChars()))
         {
-            item.Refresh();
             return Task.FromResult(IUserActionResult.Error(new InvalidStorageItemNameException(newName)));
         }
 
@@ -46,11 +44,12 @@ public class RenameStorageItemAction(string newName, ILaminarStorageItem item, I
             });
         }
         
-        var oldName = item.Path.Name;
+        var oldName = item.Path.NameAndExtension;
 
         try
         {
             fileSystem.Move(item.Path, parentPath.ChildPath(newName + item.Path.Extension));
+            (item as LaminarStorageItem)?.Rename(newName);
         }
         catch (IOException exception)
         {
