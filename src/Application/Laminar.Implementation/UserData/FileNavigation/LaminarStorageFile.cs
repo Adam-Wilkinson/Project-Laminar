@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.UserData.FileNavigation;
 
-public class LaminarStorageFile : LaminarStorageItem
+internal class LaminarStorageFile : LaminarStorageItem
 {
     private readonly ObservableValue<long> _sizeOnDisk = new(0);
     private readonly IFileSystem _fileSystem;
@@ -21,7 +21,7 @@ public class LaminarStorageFile : LaminarStorageItem
             _fileSystem.CreateFile(path).Close();
         }
 
-        SetParent(this, parent);
+        SetParent(parent);
         Rename(path.NameAndExtension);
         Refresh();
     }

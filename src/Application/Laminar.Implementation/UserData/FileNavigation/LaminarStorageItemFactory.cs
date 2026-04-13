@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.UserData.FileNavigation;
 
-public partial class LaminarStorageItemFactory(IServiceProvider provider, IDeletedStorageItemCache deletedItemCache, ILogger<LaminarStorageItem> logger)
+internal partial class LaminarStorageItemFactory(IServiceProvider provider, IDeletedStorageItemCache deletedItemCache, ILogger<LaminarStorageItem> logger)
     : ILaminarStorageItemFactory
 {
     private readonly Dictionary<FileSystemPath, ILaminarStorageItem> _allStorageItems = [];

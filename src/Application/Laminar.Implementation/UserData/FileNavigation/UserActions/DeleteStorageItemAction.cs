@@ -8,13 +8,12 @@ using System.Threading.Tasks;
 namespace Laminar.Implementation.UserData.FileNavigation.UserActions;
 
 internal class DeleteStorageItemAction(
-    ILaminarStorageItem item,
-    IFileSystem fileSystem,
+    LaminarStorageItem item,
     ILaminarStorageRootFolder recyclingBin) : IUserAction
 {
     private readonly CompoundAction _internalAction = new(
-        new RenameStorageItemAction(GetDeletedName(item.Path.Name), item, fileSystem, recyclingBin), 
-        new MoveStorageItemAction(item, recyclingBin, fileSystem, recyclingBin));
+        new RenameStorageItemAction(GetDeletedName(item.Path.Name), item, recyclingBin), 
+        new MoveStorageItemAction(item, recyclingBin, recyclingBin));
 
     public bool CanExecute => _internalAction.CanExecute;
 

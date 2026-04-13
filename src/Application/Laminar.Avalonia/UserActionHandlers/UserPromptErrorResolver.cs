@@ -50,6 +50,7 @@ public class UserPromptErrorResolver(DialogService dialogService) : IUserActionE
 
         if (parameterDialogOption == DialogOption.Cancel)
         {
+            resolvable.OnCancelled?.Invoke();
             return new UserActionCancelledResolution();
         }
 

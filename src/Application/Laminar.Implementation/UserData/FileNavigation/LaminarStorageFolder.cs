@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using Laminar.Contracts.UserData;
 using Laminar.Contracts.UserData.FileNavigation;
 using Laminar.Domain.Notification;
@@ -9,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.UserData.FileNavigation;
 
-public class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
+internal class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
 {
     private readonly ILaminarStorageItemFactory _factory;
     private bool _contentsInitialized;
@@ -19,7 +18,6 @@ public class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
     };
     
     private readonly ObservableValue<long> _sizeOnDisk = new(0);
-    private readonly Queue<(ILaminarStorageItem, int)> _queuedMoves = [];
     private readonly IFileSystem _fileSystem;
     
     public LaminarStorageFolder(FileSystemPath path,
@@ -28,7 +26,7 @@ public class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
         IFileSystem fileSystem, 
         ILogger<LaminarStorageItem> logger) : this(path, factory, fileSystem, logger)
     {
-        SetParent(this, parent);
+        SetParent(parent);
         Rename(path.Name);
         Refresh();
     }
@@ -65,11 +63,6 @@ public class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
         }
     }
     
-    public void RegisterQueuedMove(ILaminarStorageItem item, int newIndex)
-    {
-        _queuedMoves.Enqueue((item, newIndex));
-    }
-    
     public override void OnEffectivelyEnabledChanged()
     {
         base.OnEffectivelyEnabledChanged();
@@ -98,7 +91,7 @@ public class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
     private void ContentsItemAdded(object? sender, ItemAddedEventArgs<ILaminarStorageItem> e)
     {
         if (e.Item is not LaminarStorageItem newStorageItem) return;
-        SetParent(newStorageItem, this);
+        newStorageItem.SetParent(this);
         _sizeOnDisk.Value += newStorageItem.SizeOnDisk.Value;
         newStorageItem.SizeOnDisk.OnChanged += ChildSizeChanged;
     }
@@ -107,33 +100,7 @@ public class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
     {
         _sizeOnDisk.Value += e.NewValue - e.OldValue;
     }
-    
-    private IEnumerable<ILaminarStorageItem> GetChildren()
-    {
-        IEnumerable<ILaminarStorageItem> returnValue =
-            _fileSystem.EnumerateChildren(Path).Select(x => _factory.FromPath(x, this));
 
-        if (_queuedMoves.Count == 0)
-        {
-            return returnValue;
-        }
-    
-        var listReturn = returnValue.ToList();
-        while (_queuedMoves.Count > 0)
-        {
-            var (movedItem, newIndex) = _queuedMoves.Dequeue();
-            int oldIndex = listReturn.TakeWhile(item => item.Path.Name != movedItem.Path.Name).Count();
-            if (oldIndex >= listReturn.Count)
-            {
-                Logger?.LogError("Failed to remove item from folder children that should be there");
-            }
-            else
-            {
-                var item = listReturn[oldIndex];
-                listReturn.RemoveAt(oldIndex);
-                listReturn.Insert(newIndex, item);
-            }
-        }   
-        return listReturn;
-    }
+    private IEnumerable<ILaminarStorageItem> GetChildren() 
+        => _fileSystem.EnumerateChildren(Path).Select(x => _factory.FromPath(x, this));
 }

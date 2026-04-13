@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.UserData.FileNavigation;
 
-public class LaminarStorageRootFolder : LaminarStorageFolder, ILaminarStorageRootFolder
+internal class LaminarStorageRootFolder : LaminarStorageFolder, ILaminarStorageRootFolder
 {
     private readonly IDisposable _monitor;
 

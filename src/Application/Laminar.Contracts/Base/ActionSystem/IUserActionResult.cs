@@ -20,6 +20,8 @@ public class ResolvableError<TParam> : IResolvableError
 {
     public required Func<TParam, IUserActionErrorResolution> Resolve { get; init; }
 
+    public Action? OnCancelled { get; init; }
+
     public required Exception Exception { get; init; }
 }
 

@@ -10,25 +10,9 @@ using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.UserData.FileNavigation;
 
-public abstract class LaminarStorageItem(IFileSystem fileSystem, ILogger<LaminarStorageItem> logger) : ILaminarStorageItem
+internal abstract class LaminarStorageItem(IFileSystem fileSystem, ILogger<LaminarStorageItem> logger) : ILaminarStorageItem
 {
     private string _nameWithExtension = "";
-    
-    protected static void SetParent(LaminarStorageItem item, ILaminarStorageFolder? folder)
-    { 
-        if (item.ParentFolder == folder)
-        {
-            return;
-        }
-
-        if (item.ParentFolder?.Contents is IObservableCollection<ILaminarStorageItem> oldParentContents)
-        {
-            oldParentContents.Remove(item);
-        }
-
-        item.ParentFolder = folder;
-        item.OnPropertyChanged(nameof(item.Path));
-    }
     
     protected ILogger<LaminarStorageItem> Logger { get; } = logger;
     
@@ -66,17 +50,45 @@ public abstract class LaminarStorageItem(IFileSystem fileSystem, ILogger<Laminar
 
     public void Rename(string newNameWithExtension)
     {
+        ArgumentNullException.ThrowIfNull(ParentFolder);
+        if (!string.IsNullOrWhiteSpace(_nameWithExtension)) 
+        {
+            fileSystem.Move(Path, ParentFolder.Path.ChildPath(newNameWithExtension));
+        }
+
         _nameWithExtension = newNameWithExtension;
         OnPropertyChanged(nameof(Path));
     }
 
-    protected abstract void RefreshOverride();
+    public void SetParent(ILaminarStorageFolder? folder)
+    {
+        if (ParentFolder == folder)
+        {
+            return;
+        }
+
+        if (ParentFolder?.Contents is IObservableCollection<ILaminarStorageItem> oldParentContents)
+        {
+            oldParentContents.Remove(this);
+        }
+
+        if (folder is not null && ParentFolder is not null)
+        {
+            var destinationPath = folder.Path.ChildPath(Path.NameAndExtension);
+            fileSystem.Move(Path, destinationPath);
+        }
+
+        ParentFolder = folder;
+        OnPropertyChanged(nameof(Path));
+    }
     
     public virtual void OnEffectivelyEnabledChanged()
     {
         OnPropertyChanged(nameof(IsEffectivelyEnabled));
     }
-    
+
+    protected abstract void RefreshOverride();
+
     protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

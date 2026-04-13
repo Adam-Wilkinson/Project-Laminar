@@ -4,7 +4,7 @@ using Laminar.Contracts.UserData.FileNavigation;
 
 namespace Laminar.Implementation.UserData.FileNavigation;
 
-public class DeletedStorageItemCache : IDeletedStorageItemCache
+internal class DeletedStorageItemCache : IDeletedStorageItemCache
 {
     private static readonly TimeSpan DeletedItemMoveDetectionCooldown = new(0, 0, 2); 
     
