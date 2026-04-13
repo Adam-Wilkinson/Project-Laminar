@@ -29,5 +29,5 @@ internal class DeleteStorageItemAction(
         return _internalAction.Execute();
     }
 
-    private static string GetDeletedName(string name) => $"({DateTime.UtcNow:t})-- {name}".Replace(':', '-');
+    private static string GetDeletedName(string name) => $"({DateTime.UtcNow.Ticks}) {name}".Replace(':', '-');
 }

@@ -33,7 +33,8 @@ public class MoveStorageItemAction(
          
         if (Equals(oldFolder, destinationFolder) && destinationFolder.Contents is IObservableCollection<ILaminarStorageItem> editableCollection)
         {
-             editableCollection.Move(indexInOldFolder, indexInDestinationFolder);
+            indexInDestinationFolder = Math.Min(indexInDestinationFolder, editableCollection.Count);
+            editableCollection.Move(indexInOldFolder, indexInDestinationFolder);
         }
         else
         {
@@ -58,7 +59,11 @@ public class MoveStorageItemAction(
             try
             {
                 fileSystem.Move(item.Path, destinationPath);
-                (destinationFolder.Contents as IObservableCollection<ILaminarStorageItem>)?.Insert(indexInDestinationFolder, item);
+                if (destinationFolder.Contents is IObservableCollection<ILaminarStorageItem> destinationFolderEditable)
+                {
+                    indexInDestinationFolder = Math.Min(indexInDestinationFolder, destinationFolderEditable.Count);
+                    destinationFolderEditable.Insert(indexInDestinationFolder, item);
+                }
             }
             catch (IOException exception)
             {
