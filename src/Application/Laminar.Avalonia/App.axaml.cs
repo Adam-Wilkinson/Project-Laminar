@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using Avalonia.Threading;
 using HanumanInstitute.MvvmDialogs;
 using HanumanInstitute.MvvmDialogs.Avalonia;
 using Laminar.Avalonia.InitializationTargets;
@@ -15,6 +16,8 @@ using Laminar.Implementation.Extensions.ServiceInitializers;
 using Laminar.PluginFramework.Registration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
+using System;
+using System.Threading.Tasks;
 
 namespace Laminar.Avalonia;
 public partial class App : Application
@@ -54,6 +57,7 @@ public partial class App : Application
                 .AddSingleton<IDialogManager, DialogManager>()
                 .AddSingleton<IDialogService, HanumanInstitute.MvvmDialogs.Avalonia.DialogService>()
                 .AddUserActionHandlers()
+                .AddSingleton<Contracts.Base.IDispatcher, AvaloniaDispatcher>()
                 .BuildServiceProvider();
 
             services.InitializeLaminar<App>();
@@ -63,5 +67,10 @@ public partial class App : Application
         }
 
         base.OnFrameworkInitializationCompleted();
+    }
+
+    private class AvaloniaDispatcher : Contracts.Base.IDispatcher
+    {
+        public Task InvokeAsync(Action action) => Dispatcher.UIThread.InvokeAsync(action).GetTask();
     }
 }

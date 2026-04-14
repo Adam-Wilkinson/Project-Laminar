@@ -40,6 +40,11 @@ public class FileSystem(ILogger<File> fileLogger) : IFileSystem
     public void Move(FileSystemPath sourcePath, FileSystemPath destPath) 
     {
         fileLogger.LogTrace("Moving an item from '{sourcePath}' to '{destPath}'", sourcePath, destPath);
+        if (!Exists(sourcePath))
+        {
+            throw new InvalidOperationException("Attempt to move a storage item that does not exist");
+        }
+
         if (IsDirectory(sourcePath))
         {
             Directory.Move(sourcePath.ToString(), destPath.ToString());

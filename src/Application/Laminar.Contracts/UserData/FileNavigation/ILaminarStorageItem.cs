@@ -19,7 +19,5 @@ public interface ILaminarStorageItem : INotifyPropertyChanged
     
     public ILaminarStorageFolder? ParentFolder { get; }
     
-    public IObservableValue<long> SizeOnDisk { get; }
-    
     public void Refresh();
 }

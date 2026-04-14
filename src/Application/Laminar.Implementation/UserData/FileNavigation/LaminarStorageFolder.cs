@@ -46,11 +46,8 @@ internal class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
         _factory = factory;
         
         _contents.HelperInstance().ItemAdded += ContentsItemAdded;
-        _contents.HelperInstance().ItemRemoved += ContentsItemRemoved;
     }
     
-    public override IObservableValue<long> SizeOnDisk => _sizeOnDisk;
-
     public IReadOnlyObservableCollection<ILaminarStorageItem> Contents
     {
         get
@@ -83,22 +80,10 @@ internal class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
         }
     }
     
-    private void ContentsItemRemoved(object? sender, ItemRemovedEventArgs<ILaminarStorageItem> e)
-    {
-        e.Item.SizeOnDisk.OnChanged -= ChildSizeChanged;
-    }
-    
     private void ContentsItemAdded(object? sender, ItemAddedEventArgs<ILaminarStorageItem> e)
     {
         if (e.Item is not LaminarStorageItem newStorageItem) return;
         newStorageItem.SetParent(this);
-        _sizeOnDisk.Value += newStorageItem.SizeOnDisk.Value;
-        newStorageItem.SizeOnDisk.OnChanged += ChildSizeChanged;
-    }
-
-    private void ChildSizeChanged(object? sender, ObservableValueChangedEventArgs<long> e)
-    {
-        _sizeOnDisk.Value += e.NewValue - e.OldValue;
     }
 
     private IEnumerable<ILaminarStorageItem> GetChildren() 

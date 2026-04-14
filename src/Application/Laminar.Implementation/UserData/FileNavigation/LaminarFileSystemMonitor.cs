@@ -1,9 +1,13 @@
-﻿using Laminar.Contracts.UserData;
+﻿using Laminar.Contracts.Base;
+using Laminar.Contracts.UserData;
 using Laminar.Contracts.UserData.FileNavigation;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
@@ -16,6 +20,7 @@ internal class LaminarFileSystemMonitor : ILaminarFileSystemMonitor
     private readonly IDeletedStorageItemCache _deletedStorageItemCache;
     private readonly IFileSystem _fileSystem;
     private readonly ILaminarStorageItemFactory _factory;
+    private readonly IDispatcher _dispatcher;
     private readonly ILogger<ILaminarFileSystemMonitor> _logger;
     private readonly Channel<LaminarFileSystemEvent> _updateChannel = Channel.CreateUnbounded<LaminarFileSystemEvent>(
     new UnboundedChannelOptions
@@ -24,6 +29,7 @@ internal class LaminarFileSystemMonitor : ILaminarFileSystemMonitor
         SingleWriter = false,
     });
     private readonly HashSet<ILaminarStorageRootFolder> _outdatedFolders = [];
+    private readonly Lock _outdatedFoldersLock = new();
 
     private CancellationTokenSource? _refreshCts;
 
@@ -31,12 +37,14 @@ internal class LaminarFileSystemMonitor : ILaminarFileSystemMonitor
         IDeletedStorageItemCache deletedItemCache, 
         IFileSystem fileSystem, 
         ILaminarStorageItemFactory factory,
+        IDispatcher dispatcher,
         ILogger<ILaminarFileSystemMonitor> logger)
     {
         _deletedStorageItemCache = deletedItemCache;
         _fileSystem = fileSystem;
-        _logger = logger;
         _factory = factory;
+        _dispatcher = dispatcher;
+        _logger = logger;
 
         Task.Run(ProcessFileSystemEvents);
     }
@@ -86,7 +94,7 @@ internal class LaminarFileSystemMonitor : ILaminarFileSystemMonitor
         catch (Exception ex)
         {
             _logger.LogCritical(ex, "Error when processing file system changed events");
-            throw;
+            await _dispatcher.InvokeAsync(async () => ExceptionDispatchInfo.Capture(ex).Throw());
         }
     }
 
@@ -95,7 +103,11 @@ internal class LaminarFileSystemMonitor : ILaminarFileSystemMonitor
         _refreshCts?.Cancel();
         _refreshCts = new CancellationTokenSource();
 
-        _outdatedFolders.Add(laminarFileSystemEvent.OriginatingFolder);
+        lock (_outdatedFoldersLock)
+        {
+            _outdatedFolders.Add(laminarFileSystemEvent.OriginatingFolder);
+        }
+
         var e = laminarFileSystemEvent.EventArgs;
         switch (e.ChangeType)
         {
@@ -133,15 +145,29 @@ internal class LaminarFileSystemMonitor : ILaminarFileSystemMonitor
             {
                 await Task.Delay(FileSystemModifiedRefreshDelay, token);
                 _logger.LogTrace("Triggering file system refresh after scheduled move operations");
-                foreach (var folder in _outdatedFolders)
+
+                List<ILaminarStorageRootFolder> snapshot;
+
+                lock (_outdatedFoldersLock)
+                {
+                    snapshot = _outdatedFolders.ToList();
+                    _outdatedFolders.Clear();
+                }
+
+                foreach (var folder in snapshot)
                 {
                     folder.Refresh();
                 }
+
                 _outdatedFolders.Clear();
                 _deletedStorageItemCache.Clear();
             }
             catch (TaskCanceledException) { }
-        }, token);
+            catch (Exception ex)
+            {
+                await _dispatcher.InvokeAsync(async () => ExceptionDispatchInfo.Capture(ex).Throw());
+            }
+        });
     }
 
     private record struct LaminarFileSystemEvent(FileSystemEventArgs EventArgs, ILaminarStorageRootFolder OriginatingFolder);

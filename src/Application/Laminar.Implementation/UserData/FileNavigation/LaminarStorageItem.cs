@@ -21,8 +21,6 @@ internal abstract class LaminarStorageItem(IFileSystem fileSystem, ILogger<Lamin
     public virtual FileSystemPath Path => ParentFolder?.Path.ChildPath(_nameWithExtension) 
                                           ?? throw new InvalidOperationException("Non-root storage items must have a parent");
 
-    public abstract IObservableValue<long> SizeOnDisk { get; }
-    
     public virtual bool IsEnabled
     {
         get;
@@ -51,7 +49,7 @@ internal abstract class LaminarStorageItem(IFileSystem fileSystem, ILogger<Lamin
     public void Rename(string newNameWithExtension)
     {
         ArgumentNullException.ThrowIfNull(ParentFolder);
-        if (!string.IsNullOrWhiteSpace(_nameWithExtension)) 
+        if (fileSystem.Exists(Path)) 
         {
             fileSystem.Move(Path, ParentFolder.Path.ChildPath(newNameWithExtension));
         }
@@ -72,7 +70,7 @@ internal abstract class LaminarStorageItem(IFileSystem fileSystem, ILogger<Lamin
             oldParentContents.Remove(this);
         }
 
-        if (folder is not null && ParentFolder is not null)
+        if (folder is not null && ParentFolder is not null && fileSystem.Exists(Path))
         {
             var destinationPath = folder.Path.ChildPath(Path.NameAndExtension);
             fileSystem.Move(Path, destinationPath);

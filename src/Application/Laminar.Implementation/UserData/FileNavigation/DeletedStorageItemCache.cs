@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Laminar.Contracts.UserData;
 using Laminar.Contracts.UserData.FileNavigation;
 
 namespace Laminar.Implementation.UserData.FileNavigation;
@@ -28,9 +29,37 @@ internal class DeletedStorageItemCache : IDeletedStorageItemCache
 
     public void Clear() => _recentlyDeletedItems.Clear();
 
-    private int HashDeletedItem(ILaminarStorageItem item) => item switch
+    private static int HashDeletedItem(ILaminarStorageItem item)
     {
-        ILaminarStorageFolder folder => HashCode.Combine(folder.Path.NameAndExtension, folder.SizeOnDisk.Value, folder.Contents.Count),
-        _ => HashCode.Combine(item.Path.NameAndExtension, item.SizeOnDisk.Value)
-    };
+        int currentHash = item.Path.NameAndExtension.GetHashCode();
+
+        if (item is ILaminarStorageFolder folder)
+        {
+            int folderChildCount = 0;
+            int fileChildCount = 0;
+
+            foreach (var child in folder.Contents)
+            {
+                currentHash = HashCode.Combine(currentHash, child.Path.NameAndExtension);
+                if (child is ILaminarStorageFolder)
+                {
+                    folderChildCount++;
+                }
+                else if (child is ILaminarStorageFile childFile)
+                {
+                    fileChildCount++;
+                    currentHash = HashCode.Combine(currentHash, child.Path.NameAndExtension, childFile.SizeOnDisk);
+                }
+            }
+
+            return HashCode.Combine(currentHash, folderChildCount, fileChildCount);
+        }
+
+        if (item is ILaminarStorageFile file)
+        {
+            return HashCode.Combine(currentHash, file.SizeOnDisk);
+        }
+
+        throw new InvalidOperationException();
+    }
 }

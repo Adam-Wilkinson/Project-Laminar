@@ -1,5 +1,4 @@
 ﻿using Laminar.Contracts.Base.ActionSystem;
-using Laminar.Contracts.UserData;
 using Laminar.Contracts.UserData.FileNavigation;
 using Laminar.Implementation.Base.ActionSystem;
 using System;
@@ -25,8 +24,9 @@ internal class DeleteStorageItemAction(
 
     public Task<IUserActionResult> Execute()
     {
+        item.Refresh();
         return _internalAction.Execute();
     }
 
-    private static string GetDeletedName(string name) => $"({DateTime.UtcNow.Ticks}) {name}".Replace(':', '-');
+    private static string GetDeletedName(string name) => $"({DateTime.UtcNow.Ticks}) {name}";
 }
