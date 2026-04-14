@@ -46,7 +46,8 @@ public sealed class ValueInput<T> : IValueInput<T>, INotificationClient
     public IDisplayValue DisplayValue => _displayValue;
 
     public event EventHandler<LaminarExecutionContext>? ExecutionStarted;
-    public event PropertyChangedEventHandler? PropertyChanged;
+
+    public event PropertyChangedEventHandler? PropertyChanged { add { } remove { } }
 
     public void SetValueProvider(IValueProvider<T>? provider)
     {

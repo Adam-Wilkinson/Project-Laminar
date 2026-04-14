@@ -10,6 +10,6 @@ public interface INotificationSource
 
     private class NeverNotificationSource : INotificationSource
     {
-        public event EventHandler? OnNotification;
+        public event EventHandler? OnNotification { add { } remove { } }
     }
 }

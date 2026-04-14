@@ -48,7 +48,7 @@ public class SourcedObservableCollection<T> : IObservableCollection<T> where T :
     [SkipLocalsInit]
     public void SyncFromSource()
     {
-        IList<T> sourceList = _source as IList<T> ?? _source.ToList();
+        IList<T> sourceList = _source as IList<T> ?? [.._source];
         
         // Lives in the old index space, either the index things need moving to, or -1 for removals
         Span<int> targetIndices = stackalloc int[_internalList.Count];
@@ -210,7 +210,7 @@ public class SourcedObservableCollection<T> : IObservableCollection<T> where T :
 
     public void InsertRange(int index, IEnumerable<T> items)
     {
-        IList<T> itemsList = items is IList<T> and IList ? (IList<T>)items : items.ToList();
+        IList<T> itemsList = items is IList<T> and IList ? (IList<T>)items : [.. items];
         _internalList.InsertRange(index, itemsList);
         _matchesSource = false;
         CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, (IList)itemsList, index));
@@ -226,7 +226,7 @@ public class SourcedObservableCollection<T> : IObservableCollection<T> where T :
 
     public void RemoveRange(int index, int count)
     {
-        T[] oldItems =  _internalList.Skip(index).Take(count).ToArray();
+        T[] oldItems = [.. _internalList.Skip(index).Take(count)];
         _internalList.RemoveRange(index, count);
         _matchesSource = false;
         CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, oldItems, index));

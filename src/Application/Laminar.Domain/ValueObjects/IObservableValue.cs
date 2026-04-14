@@ -4,7 +4,7 @@ namespace Laminar.Domain.ValueObjects;
 
 public interface IObservableValue<T> : ICovariantObservableValue<T>
 {
-    public new event EventHandler<ObservableValueChangedEventArgs<T>>? OnChanged;
+    public event EventHandler<ObservableValueChangedEventArgs<T>>? OnChanged;
 }
 
 public interface ICovariantObservableValue<out T> : IObservableValueBase

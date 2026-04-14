@@ -83,7 +83,7 @@ public interface IObservableCollection<T> : IReadOnlyObservableCollection<T>, IL
 
     bool ICollection.IsSynchronized => false;
     
-    private static T ForceCast(object? inputObject, [CallerArgumentExpression("inputObject")] string inputObjectRaw = "input") 
+    private static T ForceCast(object? inputObject, [CallerArgumentExpression(nameof(inputObject))] string inputObjectRaw = "input") 
         => inputObject is T typedInput ? typedInput : throw new InvalidTypeException(inputObjectRaw);
     
     private class InvalidTypeException(string parameterName)

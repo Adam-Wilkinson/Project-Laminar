@@ -15,7 +15,7 @@ internal class SettingsDisplayValue<T>(string name, T value) : IDisplayValue
     public IUserInterfaceDefinition? InterfaceDefinition { get; } = null;
 
     public event PropertyChangedEventHandler? PropertyChanged;
-    public event EventHandler<LaminarExecutionContext>? ExecutionStarted;
+    public event EventHandler<LaminarExecutionContext>? ExecutionStarted { add { } remove { } }
 
     public void Refresh() => PropertyChanged?.Invoke(this, IDisplayValue.ValueChangedEventArgs);
 }

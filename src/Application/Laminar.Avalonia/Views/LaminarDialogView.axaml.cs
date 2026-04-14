@@ -36,7 +36,7 @@ public partial class LaminarDialogView : Window, IClosable
                 toFocus = contentPresenter.Child;
             }
 
-            var test = toFocus?.Focus();
+            toFocus?.Focus();
         }
     }
 

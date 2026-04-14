@@ -1,3 +1,7 @@
+using Laminar.Contracts.UserData;
+using Laminar.Domain.ValueObjects;
+using Laminar.Implementation.UserData.FileNavigation;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -6,13 +10,10 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using Laminar.Contracts.UserData;
-using Laminar.Domain.ValueObjects;
-using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.UserData;
 
-public class FileSystem(ILogger<File> fileLogger) : IFileSystem
+public partial class FileSystem(ILogger<IFileSystem> fileSystemLogger, ILogger<File> fileLogger) : IFileSystem
 {
     public bool Exists(FileSystemPath path) 
         => Directory.Exists(path.ToString()) || System.IO.File.Exists(path.ToString());
@@ -39,7 +40,7 @@ public class FileSystem(ILogger<File> fileLogger) : IFileSystem
     
     public void Move(FileSystemPath sourcePath, FileSystemPath destPath) 
     {
-        fileLogger.LogTrace("Moving an item from '{sourcePath}' to '{destPath}'", sourcePath, destPath);
+        LogFileSystemMove(fileSystemLogger, sourcePath, destPath);
         if (!Exists(sourcePath))
         {
             throw new InvalidOperationException("Attempt to move a storage item that does not exist");
@@ -98,4 +99,7 @@ public class FileSystem(ILogger<File> fileLogger) : IFileSystem
     
     public IFile GetFile(FileSystemPath path) 
         => new File(this, path, fileLogger);
+
+    [LoggerMessage(LogLevel.Trace, "Moving an item from '{sourcePath}' to '{destPath}'")]
+    static partial void LogFileSystemMove(ILogger<IFileSystem> fileSystemLogger, FileSystemPath sourcePath, FileSystemPath destPath);
 }

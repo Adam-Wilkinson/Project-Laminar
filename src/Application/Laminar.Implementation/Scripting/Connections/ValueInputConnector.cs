@@ -9,7 +9,7 @@ namespace Laminar.Implementation.Scripting.Connections;
 
 internal class ValueInputConnector<T>(ITypeInfoStore typeInfoStore) : IInputConnector<IValueInput<T>>
 {
-    public event PropertyChangedEventHandler? PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged { add { } remove { } }
 
     public string ColorHex => typeInfoStore.GetTypeInfoOrBlank(Input.InterfaceDefinition.ValueType).HexColor;
 

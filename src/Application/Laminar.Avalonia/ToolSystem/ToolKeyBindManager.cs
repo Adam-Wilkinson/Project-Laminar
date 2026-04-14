@@ -15,6 +15,7 @@ namespace Laminar.Avalonia.ToolSystem;
 public class ToolKeyBindManager(TopLevel defaultTopLevel) : IAfterApplicationBuiltTarget
 {
     private readonly List<KeyBinding> _keyBindings = [];
+    private readonly TopLevel _defaultToplevel = defaultTopLevel;
     
     private TopLevel _focusedTopLevel = defaultTopLevel;
     private Visual? _visualUnderCursor;
@@ -23,7 +24,7 @@ public class ToolKeyBindManager(TopLevel defaultTopLevel) : IAfterApplicationBui
     
     public void OnApplicationBuilt()
     {
-        defaultTopLevel.Resources.GetResourceObservable(Tool.ToolRootKey).Subscribe(new AnonymousObserver<object?>(
+        _defaultToplevel.Resources.GetResourceObservable(Tool.ToolRootKey).Subscribe(new AnonymousObserver<object?>(
             toolRoot =>
             {
                 if (toolRoot is Tool rootToolTemplate && rootToolTemplate != _rootTool)
@@ -81,12 +82,12 @@ public class ToolKeyBindManager(TopLevel defaultTopLevel) : IAfterApplicationBui
 
         if (_focusedTopLevel.FocusManager?.GetFocusedElement() is not Visual focusedVisual)
         {
-            return defaultTopLevel;
+            return _defaultToplevel;
         }
         
         if (TopLevel.GetTopLevel(focusedVisual) is not { } newTopLevel)
         {
-            return defaultTopLevel;
+            return _defaultToplevel;
         }
 
         return newTopLevel;
@@ -100,7 +101,7 @@ public class ToolKeyBindManager(TopLevel defaultTopLevel) : IAfterApplicationBui
             Command = new ExecuteToolAtCursor(tool, this),
         });
         
-        tool.DefaultPopupTarget ??= defaultTopLevel;
+        tool.DefaultPopupTarget ??= _defaultToplevel;
         
         if (tool.ChildTools is not null)
         {
@@ -146,7 +147,7 @@ public class ToolKeyBindManager(TopLevel defaultTopLevel) : IAfterApplicationBui
             }
         }
 
-        public event EventHandler? CanExecuteChanged;
+        public event EventHandler? CanExecuteChanged { add { } remove { } }
 
         private bool TryBuildTool(out ToolInstance? instance, object? parameter)
         {

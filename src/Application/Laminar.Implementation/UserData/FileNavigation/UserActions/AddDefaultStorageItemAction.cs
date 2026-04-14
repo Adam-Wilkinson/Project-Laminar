@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using Laminar.Contracts.Base.ActionSystem;
-using Laminar.Contracts.UserData;
 using Laminar.Contracts.UserData.FileNavigation;
 using Laminar.Domain.ValueObjects;
 
@@ -20,7 +19,7 @@ internal class AddDefaultStorageItemAction<T>(
         (typeof(ILaminarStorageItem), "Untitled Script.pls"),
     ];
 
-    public event EventHandler? CanExecuteChanged;
+    public event EventHandler? CanExecuteChanged { add { } remove { } }
 
     public bool CanExecute => true;
 

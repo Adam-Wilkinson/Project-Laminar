@@ -15,8 +15,8 @@ internal class RenameStorageItemAction(
     LaminarStorageItem item, 
     ILaminarStorageRootFolder recyclingBin) : IUserAction
 {
-    public event EventHandler? CanExecuteChanged;
-    
+    public event EventHandler? CanExecuteChanged { add { } remove { } }
+
     public bool CanExecute { get; } = item.Path.Name != newName;
 
     public Task<IUserActionResult> Execute()

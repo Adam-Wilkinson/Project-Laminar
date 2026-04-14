@@ -8,8 +8,8 @@ namespace Laminar.Implementation.Scripting.Actions;
 
 public class MoveNodeAction(IWrappedNode items, Point locationDelta) : IUserAction
 {
-    public event EventHandler? CanExecuteChanged;
-    
+    public event EventHandler? CanExecuteChanged { add { } remove { } }
+
     public bool CanExecute => true;
 
     public Task<IUserActionResult> Execute()

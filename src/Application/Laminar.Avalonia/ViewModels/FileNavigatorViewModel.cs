@@ -6,15 +6,13 @@ using Laminar.Avalonia.DragDrop;
 using Laminar.Avalonia.ViewModels.Services;
 using Laminar.Contracts.UserData.FileNavigation;
 using Laminar.Domain.Notification;
-using Microsoft.Extensions.Logging;
 
 namespace Laminar.Avalonia.ViewModels;
 
 public partial class FileNavigatorViewModel(
     ILaminarFileBrowser fileBrowser,
     DialogService dialogService,
-    Func<ILaminarStorageItem, FileNavigatorItemViewModel> fileNavigatorItemViewModelFactory,
-    ILogger<FileNavigatorViewModel> logger)
+    Func<ILaminarStorageItem, FileNavigatorItemViewModel> fileNavigatorItemViewModelFactory)
     : ViewModelBase
 {
     private static readonly TimeSpan ExpandHoveredOverFolderDelay = new(0, 0, 0, 0, 500);
@@ -24,10 +22,6 @@ public partial class FileNavigatorViewModel(
 
     public IReadOnlyObservableCollection<FileNavigatorItemViewModel> RootFiles { get; set; } = 
         fileBrowser.RootFolders.ObservableMap(fileNavigatorItemViewModelFactory);
-
-    public void OpenFilePicker()
-    {
-    }
 
     [RelayCommand]
     private void Refresh()

@@ -17,7 +17,7 @@ public class EstablishConnectionAction(
 {
     private IConnection? _connection;
 
-    public event EventHandler? CanExecuteChanged;
+    public event EventHandler? CanExecuteChanged { add { } remove { } }
 
     public bool CanExecute { get; } = connectorOne.CanConnectTo(connectorTwo) || connectorTwo.CanConnectTo(connectorOne);
 

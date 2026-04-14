@@ -9,8 +9,8 @@ namespace Laminar.Implementation.Scripting.Actions;
 public class DeleteNodeAction(IWrappedNode node, ICollection<IWrappedNode> nodeCollection)
     : IUserAction
 {
-    public event EventHandler? CanExecuteChanged;
-    
+    public event EventHandler? CanExecuteChanged { add { } remove { } }
+
     public bool CanExecute { get; } = nodeCollection.Contains(node);
 
     public Task<IUserActionResult> Execute()

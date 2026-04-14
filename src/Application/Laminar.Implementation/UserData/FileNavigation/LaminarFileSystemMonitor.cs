@@ -149,7 +149,7 @@ internal class LaminarFileSystemMonitor : ILaminarFileSystemMonitor
 
                 lock (_outdatedFoldersLock)
                 {
-                    snapshot = _outdatedFolders.ToList();
+                    snapshot = [.. _outdatedFolders];
                     _outdatedFolders.Clear();
                 }
 

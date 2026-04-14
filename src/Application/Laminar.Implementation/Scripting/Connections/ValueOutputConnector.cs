@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using Laminar.Contracts.Base;
 using Laminar.PluginFramework.NodeSystem;
@@ -11,7 +10,7 @@ namespace Laminar.Implementation.Scripting.Connections;
 internal class ValueOutputConnector<T>(ITypeInfoStore typeInfoStore, IValueOutput<T> output)
     : IOutputConnector<IValueOutput<T>>
 {
-    public event PropertyChangedEventHandler? PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged { add { } remove { } }
 
     public string ColorHex => typeInfoStore.GetTypeInfoOrBlank(Output.InterfaceDefinition.ValueType).HexColor;
 

@@ -9,7 +9,7 @@ namespace Laminar.Implementation.Scripting.Actions;
 public class SeverConnectionAction(IConnection connection, ICollection<IConnection> connectionCollection)
     : IUserAction
 {
-    public event EventHandler? CanExecuteChanged;
+    public event EventHandler? CanExecuteChanged { add { } remove { } }
 
     public bool CanExecute { get; } = true;
 
