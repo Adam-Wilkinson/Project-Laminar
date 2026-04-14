@@ -11,7 +11,7 @@ public class Configs
 {
     private readonly string _xmlDocPath;
     private State _state;
-    private XmlNode _configs;
+    private XmlNode? _configs;
 
     public Configs(string path)
     {
@@ -30,7 +30,7 @@ public class Configs
 
     public bool Valid => _state == State.Working;
 
-    public ReadOnlyCollection<string> PluginPaths { get; private set; }
+    public ReadOnlyCollection<string>? PluginPaths { get; private set; }
 
     public void Reload()
     {
@@ -62,10 +62,10 @@ public class Configs
 
     public void LoadPluginDirectories()
     {
-        if (Valid)
+        if (Valid && _configs is not null && _configs["PluginDirectories"] is { } pluginDirectories)
         {
-            List<string> output = new();
-            foreach (XmlNode path in _configs["PluginDirectories"])
+            List<string> output = [];
+            foreach (XmlNode path in pluginDirectories)
             {
                 if (Directory.Exists(path.InnerText))
                 {

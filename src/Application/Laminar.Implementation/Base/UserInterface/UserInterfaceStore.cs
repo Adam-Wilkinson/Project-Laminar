@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using Laminar.Contracts.Base.UserInterface;
 using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
@@ -7,7 +8,7 @@ namespace Laminar.Implementation.Base.UserInterface;
 
 internal class UserInterfaceStore : IUserInterfaceStore
 {
-    private readonly Dictionary<Type, Type> _userInterfacesByTypeDefinition = new();
+    private readonly Dictionary<Type, Type> _userInterfacesByTypeDefinition = [];
 
     public bool AddUserInterfaceImplementation<TDefinition, TUserInterface>()
         where TDefinition : IUserInterfaceDefinition
@@ -17,5 +18,15 @@ internal class UserInterfaceStore : IUserInterfaceStore
     }
 
     public bool HasImplementation(Type definitionType) => _userInterfacesByTypeDefinition.ContainsKey(definitionType);
-    public bool TryGetUserInterface(Type definitionType, out Type userInterfaceType) => _userInterfacesByTypeDefinition.TryGetValue(definitionType, out userInterfaceType);
+    public bool TryGetUserInterface(Type definitionType, out Type userInterfaceType) 
+    { 
+        if (_userInterfacesByTypeDefinition.TryGetValue(definitionType, out var interfaceType) && interfaceType is not null)
+        {
+            userInterfaceType = interfaceType;
+            return true;
+        }
+
+        userInterfaceType = typeof(object);
+        return false;
+    }
 }
