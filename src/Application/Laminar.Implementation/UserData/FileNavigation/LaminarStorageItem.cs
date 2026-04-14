@@ -49,7 +49,7 @@ internal abstract class LaminarStorageItem(IFileSystem fileSystem, ILogger<Lamin
     public void Rename(string newNameWithExtension)
     {
         ArgumentNullException.ThrowIfNull(ParentFolder);
-        if (fileSystem.Exists(Path)) 
+        if (!string.IsNullOrWhiteSpace(_nameWithExtension) && fileSystem.Exists(Path)) 
         {
             fileSystem.Move(Path, ParentFolder.Path.ChildPath(newNameWithExtension));
         }

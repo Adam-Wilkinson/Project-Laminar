@@ -7,6 +7,7 @@
              xmlns:dd="using:Laminar.Avalonia.DragDrop"
              ClipToBounds="False"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450" d:DataContext="{x:Static dvm:DesignViewModel.FileNavigator}"
+             dd:DropTargetHandler.DropCommand="{Binding DropCommand}"
              x:DataType="vm:FileNavigatorViewModel"
              x:Class="Laminar.Avalonia.Views.FileNavigatorView">
     
@@ -28,7 +29,6 @@
                   Margin="3,0"
                   dd:DropTargetHandler.DropAcceptor="{StaticResource TreeViewDropAcceptor}"
                   dd:DropTargetHandler.HoverEnterCommand="{Binding HoverCommand}"
-                  dd:DropTargetHandler.DropCommand="{Binding DropCommand}"
                   Background="Transparent">
             <TreeView.ItemTemplate>
                 <TreeDataTemplate DataType="{x:Type vm:FileNavigatorItemViewModel}"
