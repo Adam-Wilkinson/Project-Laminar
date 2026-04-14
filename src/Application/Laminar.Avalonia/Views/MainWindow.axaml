@@ -15,16 +15,23 @@
         xmlns:initializationTargets="clr-namespace:Laminar.Avalonia.InitializationTargets"
         xmlns:design="clr-namespace:Laminar.Avalonia.ViewModels.Design"
         Foreground="{DynamicResource {x:Static initializationTargets:ColorInitialization.LaminarForegroundKey}}"
-        Background="{DynamicResource LaminarBackground}">
+        Background="{DynamicResource LaminarBackground}"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaTitleBarHeightHint="35"
+        WindowDecorations="Full">
 	<Window.Styles>
 		<Style Selector="WindowDrawnDecorations /template/ Panel#PART_TitleTextPanel > TextBlock">
-		  <Setter Property="IsVisible" Value="False" />
+			<Setter Property="IsVisible" Value="False" />
 		</Style>
 	</Window.Styles>
 
 
 	<DockPanel VerticalAlignment="Stretch">
-			<ContentControl DockPanel.Dock="Top" Name="TitleBar" Content="{Binding TitleBar}" ZIndex="1000" WindowDecorationProperties.ElementRole="TitleBar"/>
+			<ContentControl DockPanel.Dock="Top" 
+			                Name="TitleBar" 
+			                Content="{Binding TitleBar}" 
+			                ZIndex="1000" 
+			                WindowDecorationProperties.ElementRole="User"/>
 			<Panel>
 				<ContentControl Name="SettingsMenu"
 				                Classes.IsOpen="{Binding SettingsOpen}"

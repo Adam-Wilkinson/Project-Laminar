@@ -61,6 +61,7 @@
 			  
 			<StackPanel HorizontalAlignment="Right"
 						DockPanel.Dock="Right"
+						Margin="0,0,185,0"
 						Orientation="Horizontal">
 				<Button DataContext="{Binding MainWindow, 
 										Converter={StaticResource ToolInstancer}, 
@@ -76,28 +77,28 @@
 					<PathIcon Data="M-1,0 v2 h-4 M-2,0"/>
 				</Button>
 			
-				<Button Name="MinimizeButton" Classes="TitleBarStyle"
-						ToolTip.Tip="Minimize">
-					<PathIcon Theme="{StaticResource {x:Type PathIcon}}" Margin="5" Data="M0,15 h-5 v0.02 h5 z"/>
-				</Button>
-
-				<Button Name="MaximizeButton" Classes="TitleBarStyle">
-				  <ToolTip.Tip>
-					<ToolTip Content="Maximize"
-							 Name="MaximizeToolTip"/>
-				  </ToolTip.Tip>
-					<PathIcon Name="MaximizeIcon"/>
-				</Button>
-
-			  <Button Name="CloseButton" Classes="TitleBarStyle"
-					  ToolTip.Tip="Close">
-				<Button.Styles>
-				  <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-					<Setter Property="Background" Value="Red"/>
-				  </Style>
-				</Button.Styles>
-				  <PathIcon Data="M1,1 L-1,-1 M-1,1 L1,-1"/>
-			  </Button>
+				<!-- <Button Name="MinimizeButton" Classes="TitleBarStyle" -->
+				<!-- 		ToolTip.Tip="Minimize"> -->
+				<!-- 	<PathIcon Theme="{StaticResource {x:Type PathIcon}}" Margin="5" Data="M0,15 h-5 v0.02 h5 z"/> -->
+				<!-- </Button> -->
+			 <!-- -->
+				<!-- <Button Name="MaximizeButton" Classes="TitleBarStyle"> -->
+				<!--   <ToolTip.Tip> -->
+				<!-- 	<ToolTip Content="Maximize" -->
+				<!-- 			 Name="MaximizeToolTip"/> -->
+				<!--   </ToolTip.Tip> -->
+				<!-- 	<PathIcon Name="MaximizeIcon"/> -->
+				<!-- </Button> -->
+			 <!-- -->
+			 <!--  <Button Name="CloseButton" Classes="TitleBarStyle" -->
+				<!-- 	  ToolTip.Tip="Close"> -->
+				<!-- <Button.Styles> -->
+				<!--   <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter"> -->
+				<!-- 	<Setter Property="Background" Value="Red"/> -->
+				<!--   </Style> -->
+				<!-- </Button.Styles> -->
+				<!--   <PathIcon Data="M1,1 L-1,-1 M-1,1 L1,-1"/> -->
+			 <!--  </Button> -->
 
 			</StackPanel>
 		  </DockPanel>
