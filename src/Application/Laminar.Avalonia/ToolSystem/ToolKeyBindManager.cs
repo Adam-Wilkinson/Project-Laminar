@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
@@ -7,6 +8,7 @@ using Avalonia.Controls.Presenters;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Reactive;
+using Avalonia.Rendering;
 using Avalonia.VisualTree;
 using Laminar.Avalonia.InitializationTargets;
 
@@ -14,94 +16,54 @@ namespace Laminar.Avalonia.ToolSystem;
 
 public class ToolKeyBindManager(TopLevel defaultTopLevel) : IAfterApplicationBuiltTarget
 {
-    private readonly List<KeyBinding> _keyBindings = [];
-    private readonly TopLevel _defaultToplevel = defaultTopLevel;
-    
-    private TopLevel _focusedTopLevel = defaultTopLevel;
+    private static KeyEventArgs? _mostRecentlyHandledKeyEvent;
+    private static readonly List<KeyBinding> AllKeybinds = [];
     private Visual? _visualUnderCursor;
-    private bool _keyChordHandled = false;
     private Tool? _rootTool;
+    
+    private IFocusManager FocusManager => defaultTopLevel.FocusManager;
+    
+    static ToolKeyBindManager()
+    {
+        InputElement.KeyDownEvent.AddClassHandler<InputElement>((_, e) =>
+        {
+            if (e.Equals(_mostRecentlyHandledKeyEvent)) return;
+            _mostRecentlyHandledKeyEvent = e;
+            foreach (KeyBinding keybind in AllKeybinds.Where(keybind => keybind.Gesture.Matches(e)))
+            {
+                keybind.TryHandle(e);
+            }
+        });
+    }
     
     public void OnApplicationBuilt()
     {
-        _defaultToplevel.Resources.GetResourceObservable(Tool.ToolRootKey).Subscribe(new AnonymousObserver<object?>(
+        defaultTopLevel.Resources.GetResourceObservable(Tool.ToolRootKey).Subscribe(new AnonymousObserver<object?>(
             toolRoot =>
             {
                 if (toolRoot is Tool rootToolTemplate && rootToolTemplate != _rootTool)
                 {
                     _rootTool = rootToolTemplate;
-                    _keyBindings.Clear();
+                    AllKeybinds.Clear();
                     BindTool(rootToolTemplate);
                 }
             }));
         
-        HookTopLevel(_focusedTopLevel);
-    }
-
-    private void HookTopLevel(TopLevel focusedTopLevel)
-    {
-        _focusedTopLevel = focusedTopLevel;
-        
-        focusedTopLevel.LostFocus += FocusedTopLevelLostFocus;
-        
-        focusedTopLevel.PointerMoved += (_, args) =>
+        defaultTopLevel.PointerMoved += (_, args) =>
         {
-            _visualUnderCursor = focusedTopLevel.GetVisualAt(args.GetPosition(focusedTopLevel));
+            _visualUnderCursor = defaultTopLevel.GetVisualAt(args.GetPosition(defaultTopLevel));
         };
-        
-        // Hack to stop Avalonia from focusing the menu when keybindings involving the Alt key are released.
-        // If the bug is fixed, remove this.
-        focusedTopLevel.AddHandler(InputElement.KeyUpEvent, (_, e) =>
-        {
-            if (_keyChordHandled) e.Handled = true;
-            if (e.KeyModifiers == KeyModifiers.None) _keyChordHandled = false;
-        }, RoutingStrategies.Bubble | RoutingStrategies.Tunnel);
-        
-        focusedTopLevel.KeyBindings.AddRange(_keyBindings);
-    }
-
-    private void FocusedTopLevelLostFocus(object? sender, EventArgs args)
-    {
-        var newTopLevel = GetFocusedTopLevel();
-        if (newTopLevel == _focusedTopLevel)
-        {
-            return;
-        }
-        
-        _focusedTopLevel.LostFocus -= FocusedTopLevelLostFocus;
-        _focusedTopLevel = newTopLevel;
-        HookTopLevel(newTopLevel);
-    }
-
-    private TopLevel GetFocusedTopLevel()
-    {
-        if (_focusedTopLevel.IsKeyboardFocusWithin)
-        {
-            return _focusedTopLevel;
-        }
-
-        if (_focusedTopLevel.FocusManager?.GetFocusedElement() is not Visual focusedVisual)
-        {
-            return _defaultToplevel;
-        }
-        
-        if (TopLevel.GetTopLevel(focusedVisual) is not { } newTopLevel)
-        {
-            return _defaultToplevel;
-        }
-
-        return newTopLevel;
     }
     
     private void BindTool(Tool tool)
     {
-        _keyBindings.Add(new KeyBinding
+        AllKeybinds.Add(new KeyBinding
         {
             [!KeyBinding.GestureProperty] = tool[!Tool.GestureProperty],
             Command = new ExecuteToolAtCursor(tool, this),
         });
         
-        tool.DefaultPopupTarget ??= _defaultToplevel;
+        tool.DefaultPopupTarget ??= defaultTopLevel;
         
         if (tool.ChildTools is not null)
         {
@@ -118,7 +80,7 @@ public class ToolKeyBindManager(TopLevel defaultTopLevel) : IAfterApplicationBui
 
         public bool CanExecute(object? parameter)
         {
-            if (keyBindManager._focusedTopLevel.FocusManager?.GetFocusedElement() is TextBox)
+            if (keyBindManager.FocusManager.GetFocusedElement() is TextBox)
             {
                 return false;
             }
@@ -134,7 +96,6 @@ public class ToolKeyBindManager(TopLevel defaultTopLevel) : IAfterApplicationBui
             {
                 _toolInstanceCache.Command.Execute(parameter);
                 _toolInstanceCache = null;
-                keyBindManager._keyChordHandled = true;
                 return;
             }
 
@@ -143,7 +104,6 @@ public class ToolKeyBindManager(TopLevel defaultTopLevel) : IAfterApplicationBui
                 && toolInstance.Command.CanExecute(parameter))
             {
                 toolInstance.Command.Execute(parameter);
-                keyBindManager._keyChordHandled = true;
             }
         }
 
@@ -161,7 +121,7 @@ public class ToolKeyBindManager(TopLevel defaultTopLevel) : IAfterApplicationBui
                 }
             }
             
-            if (TryBuildToolFromTarget(keyBindManager._focusedTopLevel.FocusManager?.GetFocusedElement()) is { } focusedElementTool && focusedElementTool.Command.CanExecute(parameter))
+            if (TryBuildToolFromTarget(keyBindManager.FocusManager.GetFocusedElement()) is { } focusedElementTool && focusedElementTool.Command.CanExecute(parameter))
             {
                 instance = focusedElementTool;
                 return true;
