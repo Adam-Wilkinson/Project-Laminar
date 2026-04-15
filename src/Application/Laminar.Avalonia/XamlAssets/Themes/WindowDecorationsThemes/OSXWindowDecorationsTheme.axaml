@@ -2,6 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:Laminar.Avalonia.ViewModels"
         xmlns:t="using:Laminar.Avalonia.ToolSystem"
+        xmlns:s="using:Laminar.Avalonia.Settings"
         xmlns:local="using:Laminar.Avalonia">
 
   <Styles.Resources>
@@ -63,14 +64,15 @@
             <!-- Overlay: only interactive caption buttons -->
             <Panel x:Name="PART_OverlayWrapper" 
                    IsVisible="{TemplateBinding HasTitleBar}"
+                   Height="{TemplateBinding TitleBarHeight}"
+                   VerticalAlignment="Top"
                    x:DataType="vm:MainWindowViewModel">
               <StackPanel Orientation="Horizontal"
                           Name="PART_OverlayPanel"
-                          Height="{TemplateBinding TitleBarHeight}"
                           HorizontalAlignment="Left"
-                          VerticalAlignment="Top"
+                          VerticalAlignment="Stretch"
                           Spacing="6"
-                          Margin="6,6,0,0"
+                          Margin="6,3,0,3"
                           Background="Transparent">
                 <StackPanel.Styles>
                   <Style Selector="StackPanel:pointerover Path">
@@ -84,12 +86,9 @@
                         WindowDecorationProperties.ElementRole="CloseButton"
                         HorizontalContentAlignment="Center"
                         VerticalContentAlignment="Center"
-                        VerticalAlignment="Center"
-                        Width="24"
-                        Height="24">
-                  <Button.Resources>
-                    <CornerRadius x:Key="ControlCornerRadius">12</CornerRadius>
-                  </Button.Resources>
+                        VerticalAlignment="Stretch"
+                        Width="{Binding $self.Bounds.Height}"
+                        CornerRadius="12">
                   <Button.Styles>
                     <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
                       <Setter Property="Background" Value="#99FF5D55"/>
@@ -103,19 +102,16 @@
                         Stroke="#4C0102"
                         StrokeThickness="1"
                         Width="12"
-                        Height="12"></Path>
+                        Height="12"/>
                 </Button>
 
                 <Button x:Name="PART_MinimizeButton"
                         HorizontalContentAlignment="Center"
                         VerticalContentAlignment="Center"
-                        VerticalAlignment="Center"
+                        VerticalAlignment="Stretch"
                         WindowDecorationProperties.ElementRole="MinimizeButton"
-                        Width="24"
-                        Height="24">
-                  <Button.Resources>
-                    <CornerRadius x:Key="ControlCornerRadius">12</CornerRadius>
-                  </Button.Resources>
+                        Width="{Binding $self.Bounds.Height}"
+                        CornerRadius="12">
                   <Button.Styles>
                     <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
                       <Setter Property="Background" Value="#99FFBC2E"/>
@@ -129,19 +125,16 @@
                         Stroke="#985712"
                         StrokeThickness="1"
                         Width="16"
-                        Height="1"></Path>
+                        Height="1"/>
                 </Button>
 
                 <Button WindowDecorationProperties.ElementRole="MaximizeButton"
                         x:Name="PART_MaximizeButton"
                         HorizontalContentAlignment="Center"
                         VerticalContentAlignment="Center"
-                        VerticalAlignment="Center"
-                        Width="24"
-                        Height="24">
-                  <Button.Resources>
-                    <CornerRadius x:Key="ControlCornerRadius">12</CornerRadius>
-                  </Button.Resources>
+                        VerticalAlignment="Stretch"
+                        Width="{Binding $self.Bounds.Height}"
+                        CornerRadius="12">
                   <Button.Styles>
                     <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
                       <Setter Property="Background" Value="#9928C83E"/>
@@ -164,7 +157,47 @@
                         Theme="{StaticResource ToolButton}"
                         WindowDecorationProperties.ElementRole="User"
                         Opacity="1"
-                        Width="50"/>
+                        VerticalAlignment="Stretch"
+                        HorizontalContentAlignment="Center"
+                        VerticalContentAlignment="Center"
+                        Cursor="Arrow"
+                        Width="{Binding $self.Bounds.Height}"
+                        CornerRadius="12">
+                  <Button.Styles>
+                    <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+                      <Setter Property="Background" Value="{DynamicResource SystemAccentColorDark1}"/>
+                    </Style>
+                    <Style Selector="Button:not(:pointerover) /template/ ContentPresenter#PART_ContentPresenter">
+                      <Setter Property="Background" Value="{DynamicResource SystemAccentColor}"/>
+                    </Style>
+                  </Button.Styles>
+
+                  <Path Data="M -3 0 L 3 6 L -3 12"
+                        DataContext="{Binding $parent[Panel].DataContext}"
+                        x:DataType="vm:MainWindowViewModel"
+                        Stroke="{DynamicResource SystemAccentColorDark3}"
+                        StrokeThickness="2"
+                        Classes.SidebarExpanded="{Binding SidebarExpanded}"
+                        RenderTransformOrigin="0,0"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Width="2"
+                        Height="13">
+                    <Path.Transitions>
+                      <Transitions>
+                        <TransformOperationsTransition Property="RenderTransform" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
+                      </Transitions>
+                    </Path.Transitions>
+                    <Path.Styles>
+                      <Style Selector="Path">
+                        <Setter Property="RenderTransform" Value="scalex(1)"/>
+                      </Style>
+                      <Style Selector="Path.SidebarExpanded">
+                        <Setter Property="RenderTransform" Value="scalex(-1)"/>
+                      </Style>
+                    </Path.Styles>
+                  </Path>
+                </Button>
 
               </StackPanel>
               
@@ -173,13 +206,11 @@
                         ConverterParameter={StaticResource Tools.Window.ToggleSettings}}"
                       x:DataType="t:ToolInstance"
                       Classes.accent="{Binding $parent[Panel].((vm:MainWindowViewModel)DataContext).SettingsOpen}"
-                      VerticalAlignment="Top"
+                      VerticalAlignment="Stretch"
                       HorizontalAlignment="Right"
-                      Height="{TemplateBinding TitleBarHeight}"
                       WindowDecorationProperties.ElementRole="User"
                       Theme="{StaticResource ToolButton}"
-                      Margin="5,0,5,0"
-                      Width="{TemplateBinding TitleBarHeight}"/>
+                      Width="{Binding $self.Bounds.Height}"/>
               <!-- -->
               <!-- <StackPanel -->
               <!--             VerticalAlignment="Top" -->

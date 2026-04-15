@@ -16,7 +16,7 @@
         Background="{DynamicResource LaminarBackground}"
         ExtendClientAreaToDecorationsHint="True">
 	<DockPanel VerticalAlignment="Stretch">
-		<Panel DockPanel.Dock="Top" Height="40"/>
+		<Panel DockPanel.Dock="Top" Height="30"/>
 		<ContentControl DockPanel.Dock="Top" 
 		                Name="TitleBar" 
 		                Content="{Binding TitleBar}" 
