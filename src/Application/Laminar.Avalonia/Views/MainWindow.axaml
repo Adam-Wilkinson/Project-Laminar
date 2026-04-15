@@ -17,11 +17,6 @@
         ExtendClientAreaToDecorationsHint="True">
 	<DockPanel VerticalAlignment="Stretch">
 		<Panel DockPanel.Dock="Top" Height="30"/>
-		<ContentControl DockPanel.Dock="Top" 
-		                Name="TitleBar" 
-		                Content="{Binding TitleBar}" 
-		                ZIndex="1000"
-		                WindowDecorationProperties.ElementRole="User"/>
 		<Panel>
 			<ContentControl Name="SettingsMenu"
 			                Classes.IsOpen="{Binding SettingsOpen}"

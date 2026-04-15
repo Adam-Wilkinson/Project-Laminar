@@ -1,5 +1,7 @@
 <Styles xmlns="https://github.com/avaloniaui"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:init="using:Laminar.Avalonia.InitializationTargets"
+                    xmlns:vm="using:Laminar.Avalonia.ViewModels">
 
   <Styles.Resources>
     <x:Double x:Key="CaptionButtonWidth">45</x:Double>
@@ -22,7 +24,7 @@
       </Setter>
 
       <Style Selector="^:pointerover /template/ ContentPresenter">
-        <Setter Property="Background" Value="{TemplateBinding Background}" />
+        <Setter Property="Background" Value="{DynamicResource UiLayer}" />
       </Style>
 
       <Style Selector="^:pressed /template/ ContentPresenter">
@@ -49,24 +51,87 @@
               <!-- Titlebar: background, title text, and drag area live in underlay -->
               <Panel x:Name="PART_TitleBar" VerticalAlignment="Top"
                      Height="{TemplateBinding TitleBarHeight}"
-                     Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
                      IsVisible="{TemplateBinding HasTitleBar}"
-                     WindowDecorationProperties.ElementRole="TitleBar" />
+                     WindowDecorationProperties.ElementRole="TitleBar">
+ 
+              </Panel>
 
-            </Panel>
+              </Panel>
           </WindowDrawnDecorationsContent.Underlay>
 
           <WindowDrawnDecorationsContent.Overlay>
             <!-- Overlay: only interactive caption buttons -->
-            <Panel x:Name="PART_OverlayWrapper">
+            <Panel x:Name="PART_OverlayWrapper" x:DataType="vm:MainWindowViewModel">
+              <Panel Name="PART_TitlebarVisual" 
+                     IsHitTestVisible="False" 
+                     Height="{TemplateBinding TitleBarHeight}" 
+                     VerticalAlignment="Top">
+                <Panel.Background>
+                  <LinearGradientBrush StartPoint="0,0" EndPoint="0,90">
+                    <GradientStop Offset="0" Color="{DynamicResource {x:Static init:ColorInitialization.LaminarAccentBackgroundKey}}"/>
+                    <GradientStop Offset="1" Color="#0555"/>
+                  </LinearGradientBrush>
+                </Panel.Background>
+                <TextBlock HorizontalAlignment="Center" IsHitTestVisible="False" VerticalAlignment="Center">
+                  <Run Classes="h2" FontWeight="Bold" FontSize="20" >Project: </Run> <Run Classes="h2" FontSize="20" FontWeight="SemiLight"> Laminar</Run>
+                </TextBlock>
+              </Panel>
+                
+              <StackPanel Orientation="Horizontal"
+                          VerticalAlignment="Top"
+                          Height="{TemplateBinding TitleBarHeight}"
+                          HorizontalAlignment="Left"
+                          WindowDecorationProperties.ElementRole="User">
+                <Button DataContext="{Binding Converter={StaticResource ToolInstancer}, ConverterParameter={StaticResource Tools.Window.ToggleSidebar}}"
+                        Theme="{StaticResource ToolButton}"
+                        Opacity="1"
+                        Width="50"/>
+                <Menu VerticalAlignment="Stretch">
+                  <Menu.Styles>
+                    <Style Selector=":is(MenuItem)">
+                      <Setter Property="FontSize" Value="18"/>
+                      <Setter Property="FontWeight" Value="350"/>
+                      <Setter Property="VerticalAlignment" Value="Stretch"/>
+                    </Style>
+                  </Menu.Styles>
+                  <MenuItem Header="File"/>
+                  <MenuItem Header="Edit" 
+                            ItemContainerTheme="{StaticResource ToolMenuItemTheme}" 
+                            ItemsSource="{Binding Converter={StaticResource ToolInstancer}, ConverterParameter={StaticResource Tools.Edit}}"/>
+                  <MenuItem Header="View"/>
+                </Menu>
+              </StackPanel>
+              
               <StackPanel x:Name="PART_OverlayPanel"
                           VerticalAlignment="Top"
                           HorizontalAlignment="Right"
                           Height="{TemplateBinding TitleBarHeight}"
                           IsVisible="{TemplateBinding HasTitleBar}"
+                          IsHitTestVisible="True"
                           Orientation="Horizontal"
                           Spacing="2"
-                          TextElement.FontSize="10">
+                          TextElement.FontSize="10"
+                          WindowDecorationProperties.ElementRole="User">
+                
+                <Button DataContext="{Binding Converter={StaticResource ToolInstancer}, ConverterParameter={StaticResource Tools.Window.ToggleSettings}}"
+                        Classes.accent="{Binding $parent[Panel].((vm:MainWindowViewModel)DataContext).SettingsOpen, FallbackValue={x:False}}"    
+                        VerticalAlignment="Stretch"
+                        Theme="{StaticResource ToolButton}"
+                        Margin="3,0,18,0"
+                        Width="45"/>
+                
+                <Button Name="SystemTrayButton" Classes="TitleBarStyle"
+                        Theme="{StaticResource FluentDrawnCaptionButton}"
+                        WindowDecorationProperties.ElementRole="User"
+                        ToolTip.Tip="Minimize to System Tray">
+                  <Viewbox Width="11" Margin="2">
+                    <Path Data="M-1,0 v3 h-6 M-2,0" 
+                          Stretch="UniformToFill" 
+                          Stroke="{DynamicResource CaptionButtonForeground}" 
+                          StrokeThickness="1"/>
+                  </Viewbox>
+                </Button>
+                
                 <Button x:Name="PART_FullScreenButton"
                         Theme="{StaticResource FluentDrawnCaptionButton}"
                         WindowDecorationProperties.ElementRole="FullScreenButton">
@@ -100,10 +165,14 @@
                   </Viewbox>
                 </Button>
                 <Button x:Name="PART_CloseButton"
-                        Background="#0000ff"
                         BorderBrush="#fff1707a"
                         Theme="{StaticResource FluentDrawnCaptionButton}"
                         WindowDecorationProperties.ElementRole="CloseButton">
+                  <Button.Styles>
+                    <Style Selector="Button:pointerover /template/ ContentPresenter">
+                      <Setter Property="Background" Value="#ffe81123"/>
+                    </Style>
+                  </Button.Styles>
                   <Viewbox Width="11" Margin="2">
                     <Path Stretch="UniformToFill"
                           Fill="{DynamicResource CaptionButtonForeground}"

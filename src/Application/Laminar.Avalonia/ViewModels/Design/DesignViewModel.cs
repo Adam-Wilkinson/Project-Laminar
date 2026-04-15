@@ -18,8 +18,6 @@ public static class DesignViewModel
     public static readonly FileNavigatorViewModel FileNavigator = DesignServiceProvider.GetRequiredService<FileNavigatorViewModel>();
     
     public static readonly MainControlViewModel MainControl = DesignServiceProvider.GetRequiredService<MainControlViewModel>();
-    
-    public static readonly TitleBarViewModel TitleBar = DesignServiceProvider.GetRequiredService<TitleBarViewModel>();
 
     public static readonly SettingsViewModel Settings = DesignServiceProvider.GetRequiredService<SettingsViewModel>();
     

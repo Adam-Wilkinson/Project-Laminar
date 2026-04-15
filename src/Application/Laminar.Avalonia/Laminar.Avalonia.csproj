@@ -49,12 +49,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Views\CustomTitleBars\MacosTitleBar.axaml.cs">
-      <DependentUpon>%(Filename)</DependentUpon>
-    </Compile>
-    <Compile Update="Views\CustomTitleBars\WindowsTitleBar.axaml.cs">
-      <DependentUpon>%(Filename)</DependentUpon>
-    </Compile>
     <Compile Update="Views\FileNavigatorView.axaml.cs">
       <DependentUpon>FileNavigatorView.axaml</DependentUpon>
       <SubType>Code</SubType>

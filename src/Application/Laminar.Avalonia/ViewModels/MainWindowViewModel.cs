@@ -7,15 +7,12 @@ public partial class MainWindowViewModel : ViewModelBase
 {
     public MainWindowViewModel(
         MainControlViewModel mainControl, 
-        TitleBarViewModel titlebar, 
         SettingsViewModel settings,
         IUserActionManager rootActionManager)
     {
         MainControl = mainControl;
-        TitleBar = titlebar;
         Settings = settings;
         UserActionManager = rootActionManager;
-        TitleBar.MainWindow = this;
         SidebarExpanded = MainControl.SidebarExpanded;
         MainControl.PropertyChanged += (_, args) =>
         {
@@ -23,9 +20,6 @@ public partial class MainWindowViewModel : ViewModelBase
                 SidebarExpanded = MainControl.SidebarExpanded;
         };
     }
-    
-    public TitleBarViewModel TitleBar { get; }
-
     public SettingsViewModel Settings { get; }
 
     public MainControlViewModel MainControl { get; }
