@@ -11,10 +11,6 @@ public partial class MacosTitleBar : LaminarTitleBar
     public MacosTitleBar()
     {
         InitializeComponent();
-
-        MinimizeButton.Click += MinimizeWindow;
-        ZoomButton.Click += MaximizeWindow;
-        CloseButton.Click += CloseWindow;
     }
 
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)

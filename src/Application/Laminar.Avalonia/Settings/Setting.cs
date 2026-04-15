@@ -49,11 +49,23 @@ public class Setting : SettingsItem, IInterfaceData
     public static readonly StyledProperty<IValueConverter?> DisplayValueConverterProperty = AvaloniaProperty.Register<Setting, IValueConverter?>(nameof(DisplayValueConverter));
     public static readonly StyledProperty<bool> DisplayToUserProperty = AvaloniaProperty.Register<Setting, bool>(nameof(DisplayToUser), defaultValue: true);
     public static readonly StyledProperty<ICommand> ResetCommandProperty = AvaloniaProperty.Register<Setting, ICommand>(nameof(ResetCommand));
-    
+    public static readonly StyledProperty<ICommand> OnChangedCommandProperty = AvaloniaProperty.Register<Setting, ICommand>(nameof(OnChangedCommand));
+
+    static Setting()
+    {
+        ValueProperty.Changed.AddClassHandler<Setting>((setting, _) => setting?.OnChangedCommand?.Execute(null));
+    }
+        
     public ICommand ResetCommand
     {
         get => GetValue(ResetCommandProperty);
         set => SetValue(ResetCommandProperty, value);
+    }
+
+    public ICommand OnChangedCommand
+    {
+        get => GetValue(OnChangedCommandProperty);
+        set => SetValue(OnChangedCommandProperty, value);
     }
     
     public virtual object Value

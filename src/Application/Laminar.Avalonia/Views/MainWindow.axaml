@@ -1,11 +1,9 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:Laminar.Avalonia.ViewModels"
-        xmlns:dvm="using:Laminar.Avalonia.ViewModels.Design"
         xmlns:v="using:Laminar.Avalonia.Views"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:init="using:Laminar.Avalonia.InitializationTargets"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450" d:DataContext="{x:Static design:DesignViewModel.MainWindow}"
         x:Class="Laminar.Avalonia.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
@@ -16,63 +14,55 @@
         xmlns:design="clr-namespace:Laminar.Avalonia.ViewModels.Design"
         Foreground="{DynamicResource {x:Static initializationTargets:ColorInitialization.LaminarForegroundKey}}"
         Background="{DynamicResource LaminarBackground}"
-        ExtendClientAreaToDecorationsHint="True"
-        ExtendClientAreaTitleBarHeightHint="35"
-        WindowDecorations="Full">
-	<Window.Styles>
-		<Style Selector="WindowDrawnDecorations /template/ Panel#PART_TitleTextPanel > TextBlock">
-			<Setter Property="IsVisible" Value="False" />
-		</Style>
-	</Window.Styles>
-
-
+        ExtendClientAreaToDecorationsHint="True">
 	<DockPanel VerticalAlignment="Stretch">
-			<ContentControl DockPanel.Dock="Top" 
-			                Name="TitleBar" 
-			                Content="{Binding TitleBar}" 
-			                ZIndex="1000" 
-			                WindowDecorationProperties.ElementRole="User"/>
-			<Panel>
-				<ContentControl Name="SettingsMenu"
-				                Classes.IsOpen="{Binding SettingsOpen}"
-				                Content="{Binding Settings}" 
-				                ZIndex="900"/>
-				<ContentControl Name="WindowCentralControl"
-								Content="{Binding MainControl}"
-				                Classes.IsFaded="{Binding SettingsOpen}"/>
-			</Panel>	
+		<Panel DockPanel.Dock="Top" Height="40"/>
+		<ContentControl DockPanel.Dock="Top" 
+		                Name="TitleBar" 
+		                Content="{Binding TitleBar}" 
+		                ZIndex="1000"
+		                WindowDecorationProperties.ElementRole="User"/>
+		<Panel>
+			<ContentControl Name="SettingsMenu"
+			                Classes.IsOpen="{Binding SettingsOpen}"
+			                Content="{Binding Settings}" 
+			                ZIndex="900"/>
+			<ContentControl Name="WindowCentralControl"
+							Content="{Binding MainControl}"
+			                Classes.IsFaded="{Binding SettingsOpen}"/>
+		</Panel>	
+		
+		<DockPanel.Styles>
+			<Style Selector="ContentControl#SettingsMenu">
+				<Setter Property="IsHitTestVisible" Value="False"/>
+				<Setter Property="RenderTransform" Value="{Binding $parent[v:MainWindow].HiddenSettingsRenderTransform}"/>
+				<Setter Property="Transitions">
+					<Transitions>
+						<TransformOperationsTransition Property="RenderTransform" Duration="{s:Setting InterfaceSettings.AnimationDuration}" Easing="{DynamicResource AnimationEasing}"/>
+					</Transitions>
+				</Setter>
+				<Style Selector="^.IsOpen">
+					<Setter Property="IsHitTestVisible" Value="True"/>
+					<Setter Property="RenderTransform">
+						<TransformGroup>
+							<TranslateTransform X="0" Y="0"/>
+						</TransformGroup>
+					</Setter>
+				</Style>
+			</Style>
 			
-			<DockPanel.Styles>
-				<Style Selector="ContentControl#SettingsMenu">
+			<Style Selector="ContentControl#WindowCentralControl">
+				<Setter Property="Opacity" Value="1.0"/>
+				<Setter Property="Transitions">
+					<Transitions>
+						<DoubleTransition Property="Opacity" Duration="{s:Setting InterfaceSettings.AnimationDuration}" Easing="{DynamicResource AnimationEasing}"/>
+					</Transitions>
+				</Setter>
+				<Style Selector="^.IsFaded">
+					<Setter Property="Opacity" Value="0"/>
 					<Setter Property="IsHitTestVisible" Value="False"/>
-					<Setter Property="RenderTransform" Value="{Binding $parent[v:MainWindow].HiddenSettingsRenderTransform}"/>
-					<Setter Property="Transitions">
-						<Transitions>
-							<TransformOperationsTransition Property="RenderTransform" Duration="{s:Setting InterfaceSettings.AnimationDuration}" Easing="{DynamicResource AnimationEasing}"/>
-						</Transitions>
-					</Setter>
-					<Style Selector="^.IsOpen">
-						<Setter Property="IsHitTestVisible" Value="True"/>
-						<Setter Property="RenderTransform">
-							<TransformGroup>
-								<TranslateTransform X="0" Y="0"/>
-							</TransformGroup>
-						</Setter>
-					</Style>
 				</Style>
-				
-				<Style Selector="ContentControl#WindowCentralControl">
-					<Setter Property="Opacity" Value="1.0"/>
-					<Setter Property="Transitions">
-						<Transitions>
-							<DoubleTransition Property="Opacity" Duration="{s:Setting InterfaceSettings.AnimationDuration}" Easing="{DynamicResource AnimationEasing}"/>
-						</Transitions>
-					</Setter>
-					<Style Selector="^.IsFaded">
-						<Setter Property="Opacity" Value="0"/>
-						<Setter Property="IsHitTestVisible" Value="False"/>
-					</Style>
-				</Style>
-			</DockPanel.Styles>
-		</DockPanel>
+			</Style>
+		</DockPanel.Styles>
+	</DockPanel>
 </Window>

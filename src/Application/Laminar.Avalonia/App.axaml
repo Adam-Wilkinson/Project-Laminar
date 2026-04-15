@@ -5,7 +5,9 @@
              xmlns:t="using:Laminar.Avalonia.ToolSystem"
              xmlns:s="using:Laminar.Avalonia.Settings"
              xmlns:dd="using:Laminar.Avalonia.DragDrop"
-             xmlns:conv="using:Laminar.Avalonia.Converters">
+             xmlns:r="using:System.Runtime.InteropServices"
+             xmlns:conv="using:Laminar.Avalonia.Converters"
+             xmlns:avalonia="clr-namespace:Laminar.Avalonia">
 
 	<Application.Resources>
 		<ResourceDictionary>
@@ -22,7 +24,9 @@
 				<ResourceInclude Source="XamlAssets/Themes/DragDropTreeViewTheme.axaml"/>
 				<ResourceInclude Source="XamlAssets/Themes/DragDropTreeViewItemTheme.axaml"/>
 				<ResourceInclude Source="XamlAssets/Themes/KeyGestureInterfaceTheme.axaml"/>
-				<!--<ResourceInclude Source="XamlAssets/Themes/WindowDrawnDecorationsTheme.axaml"/>-->
+				<!-- <ResourceInclude Source="XamlAssets/Themes/WindowDecorationsThemes/WindowsWindowDecorationsTheme.axaml"/> -->
+				<!-- <ResourceInclude Source="XamlAssets/Themes/WindowDecorationsThemes/LinuxWidowDecorationsTheme.axaml"/> -->
+				<!-- <ResourceInclude Source="XamlAssets/Themes/WindowDecorationsThemes/OSXWindowDecorationsTheme.axaml"/> -->
 			</ResourceDictionary.MergedDictionaries>
 			
 			<conv:FirstNotNullValueConverter x:Key="FirstNotNullValueConverter"/>
@@ -51,7 +55,27 @@
 		<StyleInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/Fluent/Fluent.xaml" />
 		<FluentTheme />
 		<StyleInclude Source="XamlAssets/Styles/FontStyles.axaml"/>
-	</Application.Styles>	
+		<StyleInclude Source="XamlAssets/Themes/WindowDecorationsThemes/LinuxWidowDecorationsTheme.axaml"/>
+		<StyleInclude Source="XamlAssets/Themes/WindowDecorationsThemes/WindowsWindowDecorationsTheme.axaml"/>
+		<StyleInclude Source="XamlAssets/Themes/WindowDecorationsThemes/OSXWindowDecorationsTheme.axaml"/>
+		<Style Selector="WindowDrawnDecorations">
+			<Setter Property="Classes.Windows" Value="{Binding Value, DataType={x:Type s:OptionsSetting}, Source={StaticResource SettingsRoot.InterfaceSettings.TitlebarTheme}, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static r:OSPlatform.Windows}}"/>
+			<Setter Property="Classes.Linux" Value="{Binding Value, DataType={x:Type s:OptionsSetting}, Source={StaticResource SettingsRoot.InterfaceSettings.TitlebarTheme}, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static r:OSPlatform.Linux}}"/>
+			<Setter Property="Classes.Osx" Value="{Binding Value, DataType={x:Type s:OptionsSetting}, Source={StaticResource SettingsRoot.InterfaceSettings.TitlebarTheme}, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static r:OSPlatform.OSX}}"/>
+		</Style>
+		<!-- <Style Selector="WindowDrawnDecorations"> -->
+		<!-- 	~1~ <Setter Property="Theme" Value="{StaticResource {x:Type WindowDrawnDecorations}}"> @1@ -->
+		<!-- 	~1~ 	~2~ <Setter.Value> @2@ @1@ -->
+		<!-- 	~1~ 	~2~ 	<MultiBinding Converter="{StaticResource SwitchConverter}" ConverterParameter="{StaticResource {x:Type WindowDrawnDecorations}}"> @2@ @1@ -->
+		<!-- 	~1~ 	~2~ 		<Binding Path="Value" DataType="s:OptionsSetting" Source="{StaticResource SettingsRoot.InterfaceSettings.TitlebarTheme}"/> @2@ @1@ -->
+		<!-- 	~1~ 	~2~ 		~3~ <Binding Source="{StaticResource WindowsWindowDecorationsTheme}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static r:OSPlatform.Windows}"/> @3@ @2@ @1@ -->
+		<!-- 	~1~ 	~2~ 		~3~ <Binding Source="{StaticResource LinuxWindowDecorationsTheme}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static r:OSPlatform.Linux}"/> @3@ @2@ @1@ -->
+		<!-- 	~1~ 	~2~ 		~3~ <Binding Source="{StaticResource OSXWindowDecorationsTheme}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static r:OSPlatform.OSX}"/> @3@ @2@ @1@ -->
+		<!-- 	~1~ 	~2~ 	</MultiBinding> @2@ @1@ -->
+		<!-- 	~1~ 	~2~ </Setter.Value> @2@ @1@ -->
+		<!-- 	~1~ </Setter> @1@ -->
+		<!-- </Style> -->
+	</Application.Styles>
 
 	<Application.DataTemplates>
 		<DataTemplate DataType="t:ToolInstance">

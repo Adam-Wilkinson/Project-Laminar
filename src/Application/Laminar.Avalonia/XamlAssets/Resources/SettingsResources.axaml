@@ -1,7 +1,9 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-
+					xmlns:e="using:Laminar.Domain.Enums"
                     xmlns:d="using:Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions"
+                    xmlns:r="using:System.Runtime.InteropServices"
+                    xmlns:local="using:Laminar.Avalonia"
                     xmlns:s="using:Laminar.Avalonia.Settings">
 	
 	<s:OptionsSetting x:Key="SettingsRoot.InterfaceSettings.ThemeVariant" Name="Theme" ValueIndex="0">
@@ -33,6 +35,15 @@
 	<s:ColorSetting x:Key="SettingsRoot.InterfaceSettings.ForegroundColor" Name="Foreground Colour" Value="#dbe5ff" DisplayToUser="{s:Setting InterfaceSettings.ColorsFromTheme}"/>
 	<s:ColorSetting x:Key="SettingsRoot.InterfaceSettings.BackgroundColor" Name="Background Colour" Value="#000002" DisplayToUser="{s:Setting InterfaceSettings.ColorsFromTheme}"/>
 	
+	<s:OptionsSetting x:Key="SettingsRoot.InterfaceSettings.TitlebarTheme" 
+	                  Name="Titlebar theme" 
+	                  Value="{x:Static local:App.Platform}"
+	                  OnChangedCommand="{Binding InvalidateWindowCommand, DataType={x:Type local:App}, Source={x:Static Application.Current}}">
+		<s:OptionsSettingValue Name="Windows" Value="{x:Static r:OSPlatform.Windows}"/>
+		<s:OptionsSettingValue Name="Linux" Value="{x:Static r:OSPlatform.Linux}"/>
+		<s:OptionsSettingValue Name="MacOS" Value="{x:Static r:OSPlatform.OSX}"/>
+	</s:OptionsSetting>
+	
 	<s:SettingsCategory x:Key="SettingsRoot" Name="Settings Root">
 		<StaticResource ResourceKey="SettingsRoot.InterfaceSettings.AnimationDuration"/>
 		<StaticResource ResourceKey="SettingsRoot.InterfaceSettings.ThemeVariant"/>
@@ -42,6 +53,7 @@
 		<StaticResource ResourceKey="SettingsRoot.InterfaceSettings.AccentColor"/>
 		<StaticResource ResourceKey="SettingsRoot.InterfaceSettings.ForegroundColor"/>
 		<StaticResource ResourceKey="SettingsRoot.InterfaceSettings.BackgroundColor"/>
+		<StaticResource ResourceKey="SettingsRoot.InterfaceSettings.TitlebarTheme"/>
 	</s:SettingsCategory>
 	
     <Easing x:Key="AnimationEasing">QuadraticEaseInOut</Easing>

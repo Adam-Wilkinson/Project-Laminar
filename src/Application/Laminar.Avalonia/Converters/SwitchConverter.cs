@@ -20,6 +20,6 @@ public class SwitchConverter : IMultiValueConverter
             }
         }
 
-        return null;
+        return parameter;
     }
 }

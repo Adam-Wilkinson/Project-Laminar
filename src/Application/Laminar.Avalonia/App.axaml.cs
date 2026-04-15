@@ -17,11 +17,19 @@ using Laminar.PluginFramework.Registration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using System;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using Avalonia.Controls.Chrome;
+using CommunityToolkit.Mvvm.Input;
 
 namespace Laminar.Avalonia;
 public partial class App : Application
 {
+    public static readonly OSPlatform Platform = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? OSPlatform.Linux :
+        RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? OSPlatform.OSX : OSPlatform.Windows;
+
+    public MainWindow? MainWindow { get; private set; }
+
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
@@ -35,8 +43,9 @@ public partial class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            desktop.MainWindow = new MainWindow();
-
+            MainWindow = new MainWindow();
+            desktop.MainWindow = MainWindow;
+            
             var services = new ServiceCollection()
                 .AddLaminarServices(FrontendDependency.Avalonia)
                 .AddViewModels()
@@ -59,7 +68,7 @@ public partial class App : Application
                 .AddUserActionHandlers()
                 .AddSingleton<Contracts.Base.IDispatcher, AvaloniaDispatcher>()
                 .BuildServiceProvider();
-
+            
             services.InitializeLaminar<App>();
             services.GetServices<IBeforeApplicationBuiltTarget>().Initialize();
             desktop.MainWindow.DataContext = services.GetRequiredService<MainWindowViewModel>();
@@ -72,5 +81,12 @@ public partial class App : Application
     private class AvaloniaDispatcher : Contracts.Base.IDispatcher
     {
         public Task InvokeAsync(Action action) => Dispatcher.UIThread.InvokeAsync(action).GetTask();
+    }
+
+    [RelayCommand]
+    private void InvalidateWindow()
+    {
+        MainWindow?.ExtendClientAreaToDecorationsHint = false;
+        MainWindow?.ExtendClientAreaToDecorationsHint = true;
     }
 }
