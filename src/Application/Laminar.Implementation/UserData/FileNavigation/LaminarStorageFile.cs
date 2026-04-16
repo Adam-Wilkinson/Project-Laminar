@@ -10,7 +10,11 @@ internal class LaminarStorageFile : LaminarStorageItem, ILaminarStorageFile
 {
     private readonly IFileSystem _fileSystem;
     
-    public LaminarStorageFile(FileSystemPath path, ILaminarStorageFolder parent, IFileSystem fileSystem, ILogger<LaminarStorageItem> logger) 
+    public LaminarStorageFile(
+        FileSystemPath path, 
+        ILaminarStorageFolder parent, 
+        IFileSystem fileSystem,
+        ILogger<LaminarStorageItem> logger) 
         : base(fileSystem, logger)
     {
         _fileSystem = fileSystem;

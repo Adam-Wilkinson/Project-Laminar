@@ -2,38 +2,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:Laminar.Avalonia.ViewModels"
         xmlns:t="using:Laminar.Avalonia.ToolSystem"
-        xmlns:s="using:Laminar.Avalonia.Settings"
-        xmlns:local="using:Laminar.Avalonia">
+        xmlns:s="using:Laminar.Avalonia.Settings">
 
-  <Styles.Resources>
-    <x:Double x:Key="CaptionButtonWidth">45</x:Double>
-    <x:Double x:Key="CaptionButtonHeight">30</x:Double>
-    
-    <ControlTheme x:Key="FluentDrawnCaptionButton" TargetType="Button">
-      <Setter Property="Background" Value="{DynamicResource CaptionButtonBackground}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource CaptionButtonBorderBrush}" />
-      <Setter Property="Foreground" Value="{DynamicResource CaptionButtonForeground}"/>
-      <Setter Property="Width" Value="{DynamicResource CaptionButtonWidth}"/>
-      <Setter Property="Height" Value="{DynamicResource CaptionButtonHeight}"/>
-      <Setter Property="VerticalAlignment" Value="Stretch"/>
-      <Setter Property="(WindowDecorationProperties.ElementRole)" Value="DecorationsElement"/>
-      <Setter Property="Template">
-        <ControlTemplate>
-          <ContentPresenter Name="PART_ContentPresenter"
-                            Background="Transparent"
-                            Content="{TemplateBinding Content}"/>
-        </ControlTemplate>
-      </Setter>
-
-      <Style Selector="^:pointerover /template/ ContentPresenter">
-        <Setter Property="Background" Value="{TemplateBinding Background}" />
-      </Style>
-
-      <Style Selector="^:pressed /template/ ContentPresenter">
-        <Setter Property="Background" Value="{TemplateBinding BorderBrush}" />
-      </Style>
-    </ControlTheme>
-  </Styles.Resources>
 
   <Style Selector="WindowDrawnDecorations.Osx">
     <Setter Property="DefaultTitleBarHeight" Value="30"/>
@@ -72,7 +42,7 @@
                           HorizontalAlignment="Left"
                           VerticalAlignment="Stretch"
                           Spacing="6"
-                          Margin="6,3,0,3"
+                          Margin="10,3,0,3"
                           Background="Transparent">
                 <StackPanel.Styles>
                   <Style Selector="StackPanel:pointerover Path">
@@ -81,14 +51,17 @@
                   <Style Selector="StackPanel:not(:pointerover) Path">
                     <Setter Property="IsVisible" Value="false"></Setter>
                   </Style>
+                  <Style Selector="Button">
+                    <Setter Property="CornerRadius" Value="12"/>
+                    <Setter Property="VerticalAlignment" Value="Stretch"/>
+                    <Setter Property="Width" Value="{Binding $self.Bounds.Height}"/>
+                    <Setter Property="VerticalContentAlignment" Value="Center"/>
+                    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                    <Setter Property="Margin" Value="0,3"/>
+                  </Style>
+                  
                 </StackPanel.Styles>
-                <Button x:Name="PART_CloseButton"
-                        WindowDecorationProperties.ElementRole="CloseButton"
-                        HorizontalContentAlignment="Center"
-                        VerticalContentAlignment="Center"
-                        VerticalAlignment="Stretch"
-                        Width="{Binding $self.Bounds.Height}"
-                        CornerRadius="12">
+                <Button x:Name="PART_CloseButton" WindowDecorationProperties.ElementRole="CloseButton">
                   <Button.Styles>
                     <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
                       <Setter Property="Background" Value="#99FF5D55"/>
@@ -98,20 +71,14 @@
                     </Style>
                   </Button.Styles>
 
-                  <Path Data="M 0,0 l 12,12 M 0,12 l 12,-12"
+                  <Path Data="M 0,0 l 8,8 M 0,8 l 8,-8"
                         Stroke="#4C0102"
                         StrokeThickness="1"
-                        Width="12"
-                        Height="12"/>
+                        Width="8"
+                        Height="8"/>
                 </Button>
 
-                <Button x:Name="PART_MinimizeButton"
-                        HorizontalContentAlignment="Center"
-                        VerticalContentAlignment="Center"
-                        VerticalAlignment="Stretch"
-                        WindowDecorationProperties.ElementRole="MinimizeButton"
-                        Width="{Binding $self.Bounds.Height}"
-                        CornerRadius="12">
+                <Button x:Name="PART_MinimizeButton" WindowDecorationProperties.ElementRole="MinimizeButton">
                   <Button.Styles>
                     <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
                       <Setter Property="Background" Value="#99FFBC2E"/>
@@ -121,20 +88,14 @@
                     </Style>
                   </Button.Styles>
 
-                  <Path Data="M 0,0 l 16,0"
+                  <Path Data="M 0,0 l 12,0"
                         Stroke="#985712"
                         StrokeThickness="1"
-                        Width="16"
+                        Width="12"
                         Height="1"/>
                 </Button>
 
-                <Button WindowDecorationProperties.ElementRole="MaximizeButton"
-                        x:Name="PART_MaximizeButton"
-                        HorizontalContentAlignment="Center"
-                        VerticalContentAlignment="Center"
-                        VerticalAlignment="Stretch"
-                        Width="{Binding $self.Bounds.Height}"
-                        CornerRadius="12">
+                <Button x:Name="PART_MaximizeButton" WindowDecorationProperties.ElementRole="MaximizeButton">
                   <Button.Styles>
                     <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
                       <Setter Property="Background" Value="#9928C83E"/>
@@ -144,11 +105,11 @@
                     </Style>
                   </Button.Styles>
 
-                  <Path Data="M 0,12 l 9,0 l -9,-9 l 0,9 M 12,0 l 0,9 l -9,-9 l 9,0"
+                  <Path Data="M 0,8 l 6,0 l -6,-6 l 0,6 M 8,0 l 0,6 l -6,-6 l 6,0"
                         Fill="#0A630C"
                         StrokeThickness="0"
-                        Width="12"
-                        Height="12"/>
+                        Width="8"
+                        Height="8"/>
                 </Button>
                 
                 <Button DataContext="{Binding 
@@ -157,12 +118,7 @@
                         Theme="{StaticResource ToolButton}"
                         WindowDecorationProperties.ElementRole="User"
                         Opacity="1"
-                        VerticalAlignment="Stretch"
-                        HorizontalContentAlignment="Center"
-                        VerticalContentAlignment="Center"
-                        Cursor="Arrow"
-                        Width="{Binding $self.Bounds.Height}"
-                        CornerRadius="12">
+                        Cursor="Arrow">
                   <Button.Styles>
                     <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
                       <Setter Property="Background" Value="{DynamicResource SystemAccentColorDark1}"/>
@@ -172,31 +128,65 @@
                     </Style>
                   </Button.Styles>
 
-                  <Path Data="M -3 0 L 3 6 L -3 12"
-                        DataContext="{Binding $parent[Panel].DataContext}"
-                        x:DataType="vm:MainWindowViewModel"
-                        Stroke="{DynamicResource SystemAccentColorDark3}"
-                        StrokeThickness="2"
-                        Classes.SidebarExpanded="{Binding SidebarExpanded}"
-                        RenderTransformOrigin="0,0"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center"
-                        Width="2"
-                        Height="13">
-                    <Path.Transitions>
-                      <Transitions>
-                        <TransformOperationsTransition Property="RenderTransform" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
-                      </Transitions>
-                    </Path.Transitions>
-                    <Path.Styles>
-                      <Style Selector="Path">
-                        <Setter Property="RenderTransform" Value="scalex(1)"/>
-                      </Style>
-                      <Style Selector="Path.SidebarExpanded">
-                        <Setter Property="RenderTransform" Value="scalex(-1)"/>
-                      </Style>
-                    </Path.Styles>
-                  </Path>
+                  <Panel DataContext="{Binding $parent[Panel].DataContext}"
+                         x:DataType="vm:MainWindowViewModel">
+                    <Path Data="M -3 0 L 3 6 L -3 12"
+                          Stroke="{DynamicResource SystemAccentColorDark3}"
+                          StrokeThickness="2"
+                          Classes.SidebarExpanded="{Binding SidebarExpanded}"
+                          RenderTransformOrigin="0,0"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Center"
+                          Width="2"
+                          Height="11">
+                      <Path.Transitions>
+                        <Transitions>
+                          <TransformOperationsTransition Property="RenderTransform" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
+                          <DoubleTransition Property="Opacity" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
+                        </Transitions>
+                      </Path.Transitions>
+                      <Path.Styles>
+                        <Style Selector="Path">
+                          <Setter Property="RenderTransform" Value="translatex(0px)"/>
+                          <Setter Property="Opacity" Value="1"/>
+                        </Style>
+                        <Style Selector="Path.SidebarExpanded">
+                          <Setter Property="RenderTransform" Value="translatex(10px)"/>
+                          <Setter Property="Opacity" Value="0"/>
+                        </Style>
+                      </Path.Styles>
+                    </Path>
+                    
+                    <Path Data="M 3 0 L -3 6 L 3 12"
+                          DataContext="{Binding $parent[Panel].DataContext}"
+                          x:DataType="vm:MainWindowViewModel"
+                          Stroke="{DynamicResource SystemAccentColorDark3}"
+                          StrokeThickness="2"
+                          Classes.SidebarExpanded="{Binding SidebarExpanded}"
+                          RenderTransformOrigin="0,0"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Center"
+                          Width="2"
+                          Height="11">
+                      <Path.Transitions>
+                        <Transitions>
+                          <TransformOperationsTransition Property="RenderTransform" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
+                          <DoubleTransition Property="Opacity" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
+                        </Transitions>
+                      </Path.Transitions>
+                      <Path.Styles>
+                        <Style Selector="Path">
+                          <Setter Property="RenderTransform" Value="translatex(-10px)"/>
+                          <Setter Property="Opacity" Value="0"/>
+                        </Style>
+                        <Style Selector="Path.SidebarExpanded">
+                          <Setter Property="RenderTransform" Value="translatex(0px)"/>
+                          <Setter Property="Opacity" Value="1"/>
+                        </Style>
+                      </Path.Styles>
+                    </Path>
+                  </Panel>
+                  
                 </Button>
 
               </StackPanel>
@@ -205,53 +195,12 @@
                         Converter={StaticResource ToolInstancer},
                         ConverterParameter={StaticResource Tools.Window.ToggleSettings}}"
                       x:DataType="t:ToolInstance"
-                      Classes.accent="{Binding $parent[Panel].((vm:MainWindowViewModel)DataContext).SettingsOpen}"
+                      Classes.accent="{Binding $parent[Panel].((vm:MainWindowViewModel)DataContext).SettingsOpen, FallbackValue={x:False}}"
                       VerticalAlignment="Stretch"
                       HorizontalAlignment="Right"
                       WindowDecorationProperties.ElementRole="User"
                       Theme="{StaticResource ToolButton}"
                       Width="{Binding $self.Bounds.Height}"/>
-              <!-- -->
-              <!-- <StackPanel -->
-              <!--             VerticalAlignment="Top" -->
-              <!--             HorizontalAlignment="Left" -->
-              <!-- -->
-              <!--             Orientation="Horizontal" -->
-              <!--             Spacing="2" -->
-              <!--             TextElement.FontSize="10"> -->
-              <!--   <Button  -->
-              <!--           Theme="{StaticResource FluentDrawnCaptionButton}"> -->
-              <!--     <Viewbox Width="11" Margin="2"> -->
-              <!--       <Path Stretch="UniformToFill" -->
-              <!--             Fill="{DynamicResource CaptionButtonForeground}" -->
-              <!--             Data="M2048 1229v-205h-2048v205h2048z" /> -->
-              <!--     </Viewbox> -->
-              <!--   </Button> -->
-              <!--   <Button  -->
-              <!--           Theme="{StaticResource FluentDrawnCaptionButton}" -->
-              <!--           > -->
-              <!--     <Viewbox Width="11" Margin="2"> -->
-              <!--       <Viewbox.RenderTransform> -->
-              <!--         <RotateTransform Angle="-90" /> -->
-              <!--       </Viewbox.RenderTransform> -->
-              <!--       <Path Name="RestoreButtonPath" -->
-              <!--             Stretch="UniformToFill" -->
-              <!--             Fill="{DynamicResource CaptionButtonForeground}" -->
-              <!--             Data="M2048 2048v-2048h-2048v2048h2048zM1843 1843h-1638v-1638h1638v1638z"/> -->
-              <!--     </Viewbox> -->
-              <!--   </Button> -->
-              <!--   <Button  -->
-              <!--           Background="#00ff00" -->
-              <!--           BorderBrush="#fff1707a" -->
-              <!--           Theme="{StaticResource FluentDrawnCaptionButton}" -->
-              <!--           > -->
-              <!--     <Viewbox Width="11" Margin="2"> -->
-              <!--       <Path Stretch="UniformToFill" -->
-              <!--             Fill="{DynamicResource CaptionButtonForeground}" -->
-              <!--             Data="M1169 1024l879 -879l-145 -145l-879 879l-879 -879l-145 145l879 879l-879 879l145 145l879 -879l879 879l145 -145z" /> -->
-              <!--     </Viewbox> --> 
-              <!--   </Button> -->
-              <!-- </StackPanel> -->
             </Panel>
           </WindowDrawnDecorationsContent.Overlay>
 

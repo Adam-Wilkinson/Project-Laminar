@@ -6,8 +6,6 @@ namespace Laminar.Contracts.UserData;
 
 public interface IPersistentDataStore
 {
-    protected static readonly PropertyChangedEventArgs ValueChangedArgs = new("Value");
-    
     public IPersistentDataStore GetOrCreateChild(string childDataStoreName);
     
     public DataReadResult<object?> GetItem(string key, Type type);
@@ -19,6 +17,8 @@ public interface IPersistentDataStore
     public IPersistentDataStore InitializeDefaultValue(string key, object? value, Type type, object? deserializationContext = null);
     
     public DataReadResult<object?> GetDefaultValue(string key);
+
+    public bool RemoveValue(string key);
 }
 
 public static class PersistentDataStoreExtensions

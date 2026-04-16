@@ -11,14 +11,13 @@ namespace Laminar.Implementation.UserData.FileNavigation;
 internal class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
 {
     private readonly ILaminarStorageItemFactory _factory;
+    private readonly IFileSystem _fileSystem;
     private bool _contentsInitialized;
     private readonly SourcedObservableCollection<ILaminarStorageItem> _contents = new([])
     {
         SyncMode = SourcedCollectionMode.SetEquality
     };
     
-    private readonly ObservableValue<long> _sizeOnDisk = new(0);
-    private readonly IFileSystem _fileSystem;
     
     public LaminarStorageFolder(FileSystemPath path,
         ILaminarStorageFolder parent, 
@@ -47,7 +46,7 @@ internal class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
         
         _contents.HelperInstance().ItemAdded += ContentsItemAdded;
     }
-    
+
     public IReadOnlyObservableCollection<ILaminarStorageItem> Contents
     {
         get

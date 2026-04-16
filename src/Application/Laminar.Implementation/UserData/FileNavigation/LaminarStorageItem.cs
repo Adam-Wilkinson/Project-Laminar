@@ -10,12 +10,15 @@ using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.UserData.FileNavigation;
 
-internal abstract class LaminarStorageItem(IFileSystem fileSystem, ILogger<LaminarStorageItem> logger) : ILaminarStorageItem
+internal abstract class LaminarStorageItem(
+    IFileSystem fileSystem,
+    ILogger<LaminarStorageItem> logger)
+    : ILaminarStorageItem
 {
     private string _nameWithExtension = "";
-    
+
     protected ILogger<LaminarStorageItem> Logger { get; } = logger;
-    
+
     public event PropertyChangedEventHandler? PropertyChanged;
 
     public virtual FileSystemPath Path => ParentFolder?.Path.ChildPath(_nameWithExtension) 
@@ -26,7 +29,7 @@ internal abstract class LaminarStorageItem(IFileSystem fileSystem, ILogger<Lamin
         get;
         set
         {
-            SetField(ref field, value);
+            if (!SetField(ref field, value)) return;
             OnEffectivelyEnabledChanged();
         }
     } = true;
@@ -39,11 +42,10 @@ internal abstract class LaminarStorageItem(IFileSystem fileSystem, ILogger<Lamin
 
     public void Refresh()
     {
-        if (fileSystem.Exists(Path))
-        {
-            RefreshOverride();
-            OnPropertyChanged(nameof(Path));
-        }
+        if (!fileSystem.Exists(Path)) return;
+        
+        RefreshOverride();
+        OnPropertyChanged(nameof(Path));
     }
 
     public void Rename(string newNameWithExtension)
@@ -75,7 +77,7 @@ internal abstract class LaminarStorageItem(IFileSystem fileSystem, ILogger<Lamin
             var destinationPath = folder.Path.ChildPath(Path.NameAndExtension);
             fileSystem.Move(Path, destinationPath);
         }
-
+        
         ParentFolder = folder;
         OnPropertyChanged(nameof(Path));
     }

@@ -31,9 +31,11 @@ internal class RenameStorageItemAction(
             return Task.FromResult(IUserActionResult.Error(new InvalidStorageItemNameException(newName)));
         }
 
-        if (parentFolder.Contents.FirstOrDefault(sibling => newName.Equals(sibling.Path.Name, StringComparison.OrdinalIgnoreCase)) is { } clash)
+        if (parentFolder.Contents.FirstOrDefault(sibling 
+                => newName.Equals(sibling.Path.Name, StringComparison.OrdinalIgnoreCase)) is { } clash)
         {
-            if (clash is not LaminarStorageItem internalItem) return Task.FromResult(IUserActionResult.Error(new InvalidOperationException("Clash with an item of a type I cannot handle")));
+            if (clash is not LaminarStorageItem internalItem) 
+                return Task.FromResult(IUserActionResult.Error(new InvalidOperationException("Clash with an item of a type I cannot handle")));
             return Task.FromResult<IUserActionResult>(new ResolvableError<NamingConflictResolution>
             {
                 Exception = new FileWithNameExistsException(newName),
@@ -43,7 +45,7 @@ internal class RenameStorageItemAction(
                     NamingConflictResolution.ReplaceItem => new AlternativeActionFound(new CompoundAction(new DeleteStorageItemAction(internalItem, recyclingBin), this)),
                     _ => throw new InvalidOperationException(),
                 },
-                OnCancelled = () => item.Refresh(),
+                OnCancelled = item.Refresh,
             });
         }
         

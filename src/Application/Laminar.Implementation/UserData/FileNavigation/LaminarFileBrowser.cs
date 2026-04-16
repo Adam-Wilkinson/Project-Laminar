@@ -30,37 +30,23 @@ internal class LaminarFileBrowser(
         .ToObservableCollection()
         .ObservableMap(factory.CreateRootFolder);
     
-    public Task<IUserActionResult> AddDefault<T>(ILaminarStorageFolder parentFolder) where T : class, ILaminarStorageItem
-    {
-        return actionManager.ExecuteAction(new AddDefaultStorageItemAction<T>(parentFolder, factory, _recyclingBin));
-    }
+    public Task<IUserActionResult> AddDefault<T>(ILaminarStorageFolder parentFolder) where T : class, ILaminarStorageItem 
+        => actionManager.ExecuteAction(new AddDefaultStorageItemAction<T>(parentFolder, factory, _recyclingBin));
 
-    public Task<IUserActionResult> Move(ILaminarStorageItem itemToMove, ILaminarStorageFolder destinationFolder, int destinationIndex)
-    {
-        if (itemToMove is not LaminarStorageItem internalItem)
-            return Task.FromResult(IUserActionResult.Invalid());
-        return actionManager.ExecuteAction(new MoveStorageItemAction(internalItem, destinationFolder, _recyclingBin, destinationIndex));
-    }
+    public Task<IUserActionResult> Move(ILaminarStorageItem itemToMove, ILaminarStorageFolder destinationFolder, int destinationIndex) 
+        => itemToMove is not LaminarStorageItem internalItem ? Task.FromResult(IUserActionResult.Invalid()) 
+            : actionManager.ExecuteAction(new MoveStorageItemAction(internalItem, destinationFolder, _recyclingBin, destinationIndex));
 
-    public Task<IUserActionResult> Delete(ILaminarStorageItem itemToDelete)
-    {
-        if (itemToDelete is not LaminarStorageItem internalItem)
-            return Task.FromResult(IUserActionResult.Invalid());
-        return actionManager.ExecuteAction(new DeleteStorageItemAction(internalItem, _recyclingBin)); 
-    }
+    public Task<IUserActionResult> Delete(ILaminarStorageItem itemToDelete) 
+        => itemToDelete is not LaminarStorageItem internalItem ? Task.FromResult(IUserActionResult.Invalid()) 
+            : actionManager.ExecuteAction(new DeleteStorageItemAction(internalItem, _recyclingBin));
 
-    public Task<IUserActionResult> Rename(ILaminarStorageItem itemToRename, string newName)
-    {
-        if (itemToRename is not LaminarStorageItem internalItem) 
-            return Task.FromResult(IUserActionResult.Invalid());
-        return actionManager.ExecuteAction(new RenameStorageItemAction(newName, internalItem, _recyclingBin));
-    }
+    public Task<IUserActionResult> Rename(ILaminarStorageItem itemToRename, string newName) 
+        => itemToRename is not LaminarStorageItem internalItem ? Task.FromResult(IUserActionResult.Invalid()) 
+            : actionManager.ExecuteAction(new RenameStorageItemAction(newName, internalItem, _recyclingBin));
 
-    public bool OpenInSystemFileBrowser(ILaminarStorageItem item)
-    {
-        return fileSystem.OpenInSystemFileBrowser(item.Path);
-    }
-    
+    public bool OpenInSystemFileBrowser(ILaminarStorageItem item) => fileSystem.OpenInSystemFileBrowser(item.Path);
+
     public void Dispose()
     {
         foreach (ILaminarStorageRootFolder rootFolder in RootFolders)
@@ -70,6 +56,4 @@ internal class LaminarFileBrowser(
 
         GC.SuppressFinalize(this);
     }
-
-    private static LaminarStorageItem? ToInternal(ILaminarStorageItem item) => item as LaminarStorageItem;
 }

@@ -15,8 +15,13 @@
         Foreground="{DynamicResource {x:Static initializationTargets:ColorInitialization.LaminarForegroundKey}}"
         Background="{DynamicResource LaminarBackground}"
         ExtendClientAreaToDecorationsHint="True">
+	<Window.Resources>
+		<WindowState x:Key="FullscreenWindowState">FullScreen</WindowState>
+	</Window.Resources>
 	<DockPanel VerticalAlignment="Stretch">
-		<Panel DockPanel.Dock="Top" Height="30"/>
+		<Panel DockPanel.Dock="Top" 
+		       Height="30" 
+		       IsVisible="{Binding $parent[Window].WindowState, Converter={x:Static ObjectConverters.NotEqual}, ConverterParameter={StaticResource FullscreenWindowState}}"/>
 		<Panel>
 			<ContentControl Name="SettingsMenu"
 			                Classes.IsOpen="{Binding SettingsOpen}"

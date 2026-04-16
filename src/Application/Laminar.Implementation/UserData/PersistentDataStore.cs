@@ -109,7 +109,14 @@ public class PersistentDataStore<TEncodedValue>(
         
         return new DataReadResult<object?>(persistentValue.DefaultValue);
     }
-    
+
+    public bool RemoveValue(string key)
+    {
+        var result = _serializedDataCache.Remove(key);
+        SyncToFile();
+        return result;
+    }
+
     private void SyncToFile()
     {
         _rawData = persistentDataTranscoder.EncodeDictionary(_serializedDataCache, eachValue => eachValue.EncodedValue);

@@ -36,9 +36,11 @@ internal class MoveStorageItemAction(
         }
         else
         {
-            if (destinationFolder.Contents.FirstOrDefault(x => item.Path.Name.Equals(x.Path.Name, StringComparison.OrdinalIgnoreCase)) is { } clash)
+            if (destinationFolder.Contents.FirstOrDefault(
+                    x => item.Path.Name.Equals(x.Path.Name, StringComparison.OrdinalIgnoreCase)) is { } clash)
             {
-                if (clash is not LaminarStorageItem internalItem) return Task.FromResult(IUserActionResult.Error(new InvalidOperationException("Clash with an item of a type I cannot handle")));
+                if (clash is not LaminarStorageItem internalItem) 
+                    return Task.FromResult(IUserActionResult.Error(new InvalidOperationException("Clash with an item of a type I cannot handle")));
                 return Task.FromResult<IUserActionResult>(new ResolvableError<NamingConflictResolution> 
                 {
                     Exception = new DestinationContainsItemOfThatNameException(destinationFolder.Path.Name, item.Path.Name),
