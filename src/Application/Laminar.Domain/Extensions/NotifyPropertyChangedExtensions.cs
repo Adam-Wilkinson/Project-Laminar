@@ -87,37 +87,26 @@ public static class NotifyPropertyChangedExtensions
 }
 
 public class PropertyChangedDependency<TObject, TValue>(TValue initialValue, Func<TObject, TValue> dependentValue, IEqualityComparer<TValue>? comparer) 
-    : IPropertyChangedDependency, IReadOnlyObservableValue<TValue>
+    : ObservableValue<TValue>(initialValue), IPropertyChangedDependency
 {
     private readonly IEqualityComparer<TValue> _comparer = comparer ?? EqualityComparer<TValue>.Default;
     private readonly Lock _computeChangeLock = new();
     
-    public event PropertyChangedEventHandler? PropertyChanged;
-    public event EventHandler? CovariantOnChanged;
-    public event EventHandler<ObservableValueChangedEventArgs<TValue>>? OnChanged;
-    
-    public TValue Value { get; private set; } = initialValue;
-    
     void IPropertyChangedDependency.InvokeIfChanged(object? sender, INotifyPropertyChanged notifyPropertyChanged)
     {
         if (notifyPropertyChanged is not TObject typedObject) return;
-        
+
         TValue newValue;
-        TValue oldValue;
         
         lock (_computeChangeLock)
         {
-            oldValue = Value;
+            TValue oldValue = Value;
             newValue = dependentValue(typedObject);
 
             if (_comparer.Equals(oldValue, newValue)) return;
-
-            Value = newValue;
         }
         
-        PropertyChanged?.Invoke(this, IObservableValueBase.ValueChangedEventArgs);
-        OnChanged?.Invoke(this, new ObservableValueChangedEventArgs<TValue>(oldValue, newValue));
-        CovariantOnChanged?.Invoke(this, EventArgs.Empty);
+        Value = newValue;
     }
 }
 
