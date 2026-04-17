@@ -6,6 +6,7 @@
                     xmlns:lang="using:Laminar.Avalonia.Assets.Lang"
                     xmlns:shapes="using:Laminar.Avalonia.Shapes"
                     xmlns:conv="using:Laminar.Avalonia.Converters"
+                    xmlns:fe="using:Laminar.Contracts.Storage.FileExplorer"
                     xmlns:init="using:Laminar.Avalonia.InitializationTargets">
     
     <!-- Edit Menu Tool -->
@@ -88,11 +89,11 @@
             <t:CommandTool NameKey="{x:Static lang:Resources.AddFolder}" 
                            DefaultIconGeometry="{x:Static shapes:PathData.FolderIcon}"
                            CommandBinding="{Binding AddItemCommand}"
-                           CommandParameter="{x:Type fi:LaminarStorageFolder}"/>
+                           CommandParameter="{x:Type fe:ILaminarStorageFolder}"/>
             <t:CommandTool NameKey="{x:Static lang:Resources.AddScript}" 
                            DefaultIconGeometry="{x:Static shapes:PathData.ScriptIcon}"
                            CommandBinding="{Binding AddItemCommand}"
-                           CommandParameter="{x:Type fi:LaminarStorageFile}"/>
+                           CommandParameter="{x:Type fe:ILaminarStorageFile}"/>
         </t:Toolbox>
         <t:CommandTool NameKey="{x:Static lang:Resources.Delete}"
                        DefaultIconGeometry="{x:Static shapes:PathData.DeleteIcon}"

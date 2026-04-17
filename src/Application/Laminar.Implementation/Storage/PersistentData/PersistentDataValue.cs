@@ -7,15 +7,28 @@ using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.Storage.PersistentData;
 
-public class PersistentDataValue(ISerializer serializer, ILogger<PersistentDataValue> logger) 
-    : ObservableValueBase<object>, IPersistentDataValue
+public class PersistentDataValue : ObservableValueBase<object>, IPersistentDataValue
 {
+    private readonly ISerializer _serializer;
+    private readonly ILogger<PersistentDataValue> _logger;
+    private readonly IPersistentDataValueOwner _owner;
+    
     private object? _value;
     private object? _defaultValue;
     private object? _encodedValue;
     private object? _deserializationContext;
     private Type? _typeSerializationKey;
-    
+
+    public PersistentDataValue(IPersistentDataValueOwner owner,
+        ISerializer serializer, 
+        ILogger<PersistentDataValue> logger)
+    {
+        _serializer = serializer;
+        _logger = logger;
+        _owner = owner;
+        _owner.TranscoderChanged += (_, _) => SetEncodedValueFromValue();
+    }
+
     public Type TypeSerializationKey => _typeSerializationKey ?? throw new ValueNotInitializedException(Name);
     
     public bool IsInitialized => _value is not null;
@@ -26,26 +39,6 @@ public class PersistentDataValue(ISerializer serializer, ILogger<PersistentDataV
     {
         if (!IsInitialized) throw new ValueNotInitializedException(Name);
         Value = DefaultValue;
-    }
-
-    public IPersistentDataValueOwner? Owner
-    {
-        get;
-        set
-        {
-            if (Equals(field, value)) return;
-            field = value;
-            
-            if (IsInitialized)
-            {
-                SetEncodedValueFromValue();
-            }
-            
-            if (Value is PersistentDataNode node)
-            {
-                node.Owner = Owner;
-            }
-        }
     }
 
     public override object Value
@@ -63,23 +56,24 @@ public class PersistentDataValue(ISerializer serializer, ILogger<PersistentDataV
             // We just had a valid update of value
             if (Value is PersistentDataNode node)
             {
-                node.Owner = Owner;
+                node.Owner = _owner;
             }
             
             SetEncodedValueFromValue();
         }
     }
 
-    public object? EncodedValue
+    public object EncodedValue
     {
-        get => _encodedValue;
+        get => _encodedValue ?? throw new ValueNotInitializedException(Name);
         set
         {
             if (Equals(value, _encodedValue)) return;
             _encodedValue = value;
 
-            if (!TrySetValueFromEncodedValue())
+            if (!TrySetValueFromEncodedValue() && IsInitialized)
             {
+                _logger.LogWarning("Error decoding value {name} from the encoded value {_encodedValue}. Syncing from known value {value}", Name, value, Value);
                 SetEncodedValueFromValue();
             }
         }
@@ -96,19 +90,25 @@ public class PersistentDataValue(ISerializer serializer, ILogger<PersistentDataV
         _typeSerializationKey = typeSerializationKey ?? DefaultValue.GetType();
         _deserializationContext = deserializationContext;
             
-        if (EncodedValue is not null && TrySetValueFromEncodedValue()) return;
+        if (TrySetValueFromEncodedValue()) return;
+
+        _value = defaultValue;
+        if (Value is PersistentDataNode node)
+        {
+            node.Owner = _owner;
+        }
             
-        Value = DefaultValue;
+        SetEncodedValueFromValue();
     }
 
     protected override void OnValueChanged()
     {
-        Owner?.OnChildChanged();
+        _owner.OnChildValueChanged();
     }
 
     private void SetEncodedValueFromValue()
     {
-        if (Owner?.Transcoder is null)
+        if (_owner.Transcoder is null)
         {
             return;
         }
@@ -118,30 +118,34 @@ public class PersistentDataValue(ISerializer serializer, ILogger<PersistentDataV
             throw new ValueNotInitializedException(Name);
         }
             
-        var serialized = serializer.SerializeObject(_value, TypeSerializationKey);
-        _encodedValue = Owner.Transcoder.EncodeValue(serialized);
+        var serialized = _serializer.SerializeObject(_value, TypeSerializationKey);
+        _encodedValue = _owner.Transcoder.EncodeElement(serialized);
     }
         
     private bool TrySetValueFromEncodedValue()
     {
-        if (Owner?.Transcoder is null || EncodedValue is null)
+        if (_owner.Transcoder is null || _encodedValue is null || _typeSerializationKey is null)
         {
             return false;
         }
         
-        if (Owner.Transcoder.DecodeValue(EncodedValue, serializer.GetSerializedType(TypeSerializationKey)) is not { } decodedValue)
+        if (_owner.Transcoder.DecodeElement(EncodedValue, _serializer.GetSerializedType(_typeSerializationKey)) is not { } decodedValue)
         {
-            logger.LogError("Error reading value {valueName}. Unable to decode value, the value will not be changed", Name);
+            _logger.LogError("Error reading value {valueName}. Unable to decode value, the value will not be changed", Name);
             return false;
         }
 
-        var newValue = serializer.DeserializeObject(decodedValue, TypeSerializationKey, _deserializationContext);
+        var newValue = _serializer.DeserializeObject(decodedValue, TypeSerializationKey, _deserializationContext);
         if (_value is not null)
         {
             return SetAndRaise(ref _value, newValue);
         }
 
         _value = newValue;
+        if (_value is PersistentDataNode node)
+        {
+            node.Owner = _owner;
+        }
         return true;
     }
 }

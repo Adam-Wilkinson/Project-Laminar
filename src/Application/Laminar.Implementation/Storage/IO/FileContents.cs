@@ -75,7 +75,7 @@ public partial class FileContents : IFileContents
 
     public FileSystemPath Path { get; }
 
-    public event EventHandler<EventArgs>? ContentsChanged;
+    public event EventHandler? ContentsChanged;
     
     public void CheckAccess()
     {

@@ -17,7 +17,7 @@ public interface IFileContents : IDisposable, IValueSink<byte[]>
     /// <summary>
     /// Raised when the contents of the file are changed, either by a file update or the setting of <see cref="Contents"/>
     /// </summary>
-    public event EventHandler<EventArgs>? ContentsChanged;
+    public event EventHandler? ContentsChanged;
 
     /// <summary>
     /// Ensures that the file is up to date, waits for all read/write tasks to be complete and synced up.

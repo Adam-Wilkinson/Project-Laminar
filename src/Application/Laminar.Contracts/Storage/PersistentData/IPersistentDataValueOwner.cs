@@ -4,5 +4,7 @@ public interface IPersistentDataValueOwner
 {
     public IPersistentDataTranscoder? Transcoder { get; }
 
-    public void OnChildChanged();
+    public event EventHandler? TranscoderChanged;
+    
+    public void OnChildValueChanged();
 }

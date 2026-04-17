@@ -39,7 +39,7 @@ public class PersistentDataManager(
 
         var newDataStore = dataStoreKey.DataType switch
         {
-            PersistentDataType.Json => new PersistentDataStore(serializer, new JsonPersistentDataTranscoder(jsonTranscoderLogger), valueLogger),
+            PersistentDataType.Json => new PersistentDataStore(new JsonPersistentDataTranscoder(jsonTranscoderLogger), file, serializer, valueLogger),
             var unknown => throw new UnknownDataTypeException(unknown),
         };
 

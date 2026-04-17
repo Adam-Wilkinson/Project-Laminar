@@ -2,11 +2,10 @@ using FluentAssertions;
 using Laminar.Contracts.Storage.IO;
 using Laminar.Domain.ValueObjects;
 using Laminar.Implementation.Storage.IO;
-using Laminar.Implementation.UserData;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 
-namespace Laminar.Implementation.UnitTests.UserData.UnitTests;
+namespace Laminar.Implementation.UnitTests.Storage.UnitTests.IO.UnitTests;
 
 public class FileContentsTests
 {

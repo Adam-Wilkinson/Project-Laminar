@@ -2,7 +2,6 @@ using System;
 using System.Runtime.CompilerServices;
 using Laminar.Contracts.Base.PluginLoading;
 using Laminar.Implementation.Base.PluginLoading;
-using Laminar.Implementation.UserData;
 using Laminar.PluginFramework;
 using Laminar.PluginFramework.Registration;
 using Laminar.PluginFramework.Serialization;

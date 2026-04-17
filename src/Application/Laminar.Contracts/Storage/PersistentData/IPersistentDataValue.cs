@@ -6,9 +6,7 @@ public interface IPersistentDataValue : IObservableValueWithDefault<object>
 {
     public void Initialize(object defaultValue, Type? typeSerializationKey = null, object? deserializationContext = null);
     
-    public IPersistentDataValueOwner? Owner { get; }
-    
-    public object? EncodedValue { get; set; }
+    public object EncodedValue { get; set; }
     
     public Type TypeSerializationKey { get; }
     

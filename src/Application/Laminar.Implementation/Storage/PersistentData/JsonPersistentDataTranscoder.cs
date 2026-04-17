@@ -1,6 +1,5 @@
 using System;
-using System.Collections.Generic;
-using System.IO;
+using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Unicode;
@@ -17,9 +16,16 @@ public class JsonPersistentDataTranscoder(JsonSerializerOptions jsonOptions, ILo
 
     public string FileExtension => ".json";
 
-    public object? EncodeValue(object value) => JsonSerializer.SerializeToElement(value, jsonOptions);
+    public byte[] ToBytes(object value)
+    {
+        return Encoding.UTF8.GetBytes(JsonSerializer.Serialize(value, jsonOptions));
+    }
+    
+    public T? FromBytes<T>(byte[] bytes) => JsonSerializer.Deserialize<T>(bytes, jsonOptions);
 
-    public object? DecodeValue(object value, Type targetType)
+    public object? EncodeElement(object value) => JsonSerializer.SerializeToElement(value, jsonOptions);
+
+    public object? DecodeElement(object value, Type targetType)
     {
         if (value is not JsonElement jsonElement) throw new InvalidOperationException();
         

@@ -4,8 +4,18 @@ public interface IPersistentDataTranscoder
 {
     public string FileExtension { get; }
     
-    public object? EncodeValue(object value);
-    public object? DecodeValue(object value, Type targetType);
+    public byte[] ToBytes(object value);
+    public object? EncodeElement(object value);
+    public object? DecodeElement(object value, Type targetType);
+    T? FromBytes<T>(byte[] bytes);
+}
+
+public static class IPersistentDataTranscoderExtensions
+{
+    extension(IPersistentDataTranscoder transcoder)
+    {
+        public T? DecodeValue<T>(object value) => transcoder.DecodeElement(value, typeof(T)) is T typedValue ? typedValue : default;
+    }
 }
 
 public interface IPersistentDataTranscoder<TEncodedValue>
