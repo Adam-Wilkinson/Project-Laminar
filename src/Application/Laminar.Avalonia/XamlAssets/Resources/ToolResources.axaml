@@ -2,7 +2,6 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:vm="using:Laminar.Avalonia.ViewModels"
                     xmlns:t="using:Laminar.Avalonia.ToolSystem"
-                    xmlns:fi="using:Laminar.Implementation.UserData.FileNavigation"
                     xmlns:s="using:Laminar.Avalonia.Settings"
                     xmlns:lang="using:Laminar.Avalonia.Assets.Lang"
                     xmlns:shapes="using:Laminar.Avalonia.Shapes"

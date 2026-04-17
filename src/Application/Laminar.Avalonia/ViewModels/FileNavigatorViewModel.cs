@@ -4,7 +4,7 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
 using Laminar.Avalonia.DragDrop;
 using Laminar.Avalonia.ViewModels.Services;
-using Laminar.Contracts.UserData.FileNavigation;
+using Laminar.Contracts.Storage.FileExplorer;
 using Laminar.Domain.Notification;
 
 namespace Laminar.Avalonia.ViewModels;

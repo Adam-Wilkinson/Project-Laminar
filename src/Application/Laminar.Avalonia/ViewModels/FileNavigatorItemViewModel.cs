@@ -4,9 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Threading;
-using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Laminar.Contracts.UserData.FileNavigation;
+using Laminar.Contracts.Base.ActionSystem;
+using Laminar.Contracts.Storage.FileExplorer;
 using Laminar.Domain.Extensions;
 using Laminar.Domain.Notification;
 
@@ -19,7 +19,6 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
     
     private readonly ILaminarFileBrowser _fileBrowser;
     private readonly SourcedObservableCollection<FileNavigatorItemViewModel>? _children;
-
     private readonly Func<ILaminarStorageItem, FileNavigatorItemViewModel> _factory;
 
     private bool _folderContentsInitialized;
@@ -44,21 +43,28 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
             _children = new SourcedObservableCollection<FileNavigatorItemViewModel>([], ContentsEqual);
             _children.HelperInstance().ItemAdded += (_, e) => e.Item.Parent = this;
         }
-
+        
         CoreItem.FilterPropertyChanged(nameof(ILaminarStorageItem.Path)).OnNotification += (_, _) =>
         {
             Name = CoreItem.Path.Name;
         };
 
+        CoreItem.FilterPropertyChanged(nameof(ILaminarStorageFolder.IsExpanded)).OnNotification += (_, _) =>
+        {
+            OnPropertyChanged(nameof(IsExpanded));
+        };
+
         CoreItem.GetDependentValue(item => item.ParentFolder?.IsEffectivelyEnabled ?? false).OnChanged +=
             (_, _) => OnPropertyChanged(nameof(CanChangeIsEnabled));
-
-        IsExpanded = CoreItem is ILaminarStorageRootFolder;
+        
     }
-    
-    [ObservableProperty]
-    public partial bool IsExpanded { get; set; }
-    
+
+    public bool IsExpanded
+    {
+        get => (CoreItem as ILaminarStorageFolder)?.IsExpanded ?? false; 
+        set => (CoreItem as ILaminarStorageFolder)?.IsExpanded = value;
+    }
+
     public FileNavigatorItemViewModel? Parent { get; private set; }
 
     public bool CanChangeIsEnabled => CoreItem.ParentFolder?.IsEffectivelyEnabled ?? true;
@@ -86,7 +92,7 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
             OnPropertyChanged();
             if (value != CoreItem.Path.Name)
             {
-                Dispatcher.UIThread.InvokeAsync(async () => _fileBrowser.Rename(CoreItem, Name));
+                Dispatcher.UIThread.InvokeAsync(async () => await _fileBrowser.Rename(CoreItem, Name));
             }
         }
     }
@@ -96,38 +102,39 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
     public string ItemTypeName => CoreItem switch
     {
         ILaminarStorageFolder => "folder",
-        ILaminarStorageItem => "script",
+        ILaminarStorageFile => "script",
         _ => "item"
     };
     
     [RelayCommand(CanExecute = nameof(IsFolder))]
-    public Task AddItem(Type itemType)
+    private Task<IUserActionResult> AddItem(Type itemType)
     {
-        if (CoreItem is not ILaminarStorageFolder folder) return Task.CompletedTask;
+        if (CoreItem is not ILaminarStorageFolder folder) return Task.FromResult(IUserActionResult.Invalid());
         if (itemType.IsAssignableTo(typeof(ILaminarStorageFolder)))
         {
             IsExpanded = true;
             return _fileBrowser.AddDefault<ILaminarStorageFolder>(folder);
         }
-        else if (itemType.IsAssignableTo(typeof(ILaminarStorageItem)))
+        
+        if (itemType.IsAssignableTo(typeof(ILaminarStorageItem)))
         {
             IsExpanded = true;
             return _fileBrowser.AddDefault<ILaminarStorageItem>(folder);
         }
 
-        return Task.CompletedTask;
+        return Task.FromResult(IUserActionResult.Invalid());
     }
 
     public bool IsFolder() => CoreItem is ILaminarStorageFolder;
 
     [RelayCommand]
-    public void Rename() => CoreItem.NeedsName = true;
+    private void Rename() => CoreItem.NeedsName = true;
 
     [RelayCommand]
-    public Task Delete() => _fileBrowser.Delete(CoreItem);
+    private Task<IUserActionResult> Delete() => _fileBrowser.Delete(CoreItem);
 
     [RelayCommand]
-    public void OpenInSystemFileBrowser() => _fileBrowser.OpenInSystemFileBrowser(CoreItem);
+    private void OpenInSystemFileBrowser() => _fileBrowser.OpenInSystemFileBrowser(CoreItem);
 
     public void Refresh()
     {
@@ -138,7 +145,7 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
             child.Refresh();
         }
     }
-    
+
     private class ContentsEqualComparer : IEqualityComparer<FileNavigatorItemViewModel>
     {
         public bool Equals(FileNavigatorItemViewModel? x, FileNavigatorItemViewModel? y) => Equals(x?.CoreItem.Path, y?.CoreItem.Path);

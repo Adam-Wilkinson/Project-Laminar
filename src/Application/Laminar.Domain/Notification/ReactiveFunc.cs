@@ -4,7 +4,7 @@ using Laminar.Domain.ValueObjects;
 namespace Laminar.Domain.Notification;
 
 /// <summary>
-/// Maps a regular function into one that returns an <see cref="IObservableValue{T}"/> which automatically updates when the appropriate properties are updates in the input
+/// Maps a regular function into one that returns an <see cref="IReadOnlyObservableValue{T}"/> which automatically updates when the appropriate properties are updates in the input
 /// </summary>
 /// <typeparam name="TInput">The input type of the function. The output will be reactive if this implements <see cref="INotifyPropertyChanged"/></typeparam>
 /// <typeparam name="TOutput">The output type of the function</typeparam>
@@ -31,9 +31,9 @@ public class ReactiveFunc<TInput, TOutput>
         _func = func;
     }
     
-    public Func<TInput, IObservableValue<TOutput>> AsFunc() => GetObservable; 
+    public Func<TInput, IReadOnlyObservableValue<TOutput>> AsFunc() => GetObservable; 
     
-    public IObservableValue<TOutput> GetObservable(TInput input)
+    public IReadOnlyObservableValue<TOutput> GetObservable(TInput input)
     {
         var result = new ObservableValue<TOutput>(_func(input));
         if (input is INotifyPropertyChanged notifier)

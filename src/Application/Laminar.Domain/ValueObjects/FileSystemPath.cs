@@ -39,4 +39,6 @@ public readonly struct FileSystemPath(string absolutePath) : IEquatable<FileSyst
     public static bool operator !=(FileSystemPath left, FileSystemPath right) => !left.Equals(right);
     
     public static implicit operator FileSystemPath(string path) => new(path);
+    
+    public static implicit operator string(FileSystemPath path) => path.ToString();
 }

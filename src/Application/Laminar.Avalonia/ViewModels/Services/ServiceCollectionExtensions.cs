@@ -1,6 +1,6 @@
 using System;
 using HanumanInstitute.MvvmDialogs;
-using Laminar.Contracts.UserData.FileNavigation;
+using Laminar.Contracts.Storage.FileExplorer;
 using Laminar.Implementation.Extensions.ServiceInitializers;
 using Microsoft.Extensions.DependencyInjection;
 

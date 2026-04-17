@@ -8,7 +8,7 @@ public static class NotifyPropertyChangedExtensions
 {
     private static readonly Dictionary<INotifyPropertyChanged, PropertyChangedHolder> Holders = [];
 
-    public static IObservableValue<TValue> GetDependentValue<TObject, TValue>(
+    public static IReadOnlyObservableValue<TValue> GetDependentValue<TObject, TValue>(
         this TObject notifyPropertyChanged, Func<TObject, TValue> dependent, IEqualityComparer<TValue>? equalityComparer = null)
         where TObject : INotifyPropertyChanged
     {
@@ -87,7 +87,7 @@ public static class NotifyPropertyChangedExtensions
 }
 
 public class PropertyChangedDependency<TObject, TValue>(TValue initialValue, Func<TObject, TValue> dependentValue, IEqualityComparer<TValue>? comparer) 
-    : IPropertyChangedDependency, IObservableValue<TValue>
+    : IPropertyChangedDependency, IReadOnlyObservableValue<TValue>
 {
     private readonly IEqualityComparer<TValue> _comparer = comparer ?? EqualityComparer<TValue>.Default;
     private readonly Lock _computeChangeLock = new();

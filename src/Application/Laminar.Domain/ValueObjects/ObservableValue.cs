@@ -1,37 +1,35 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 
 namespace Laminar.Domain.ValueObjects;
 
-/// <summary>
-/// A lightweight implementation of <see cref="INotifyPropertyChanged"/>
-/// </summary>
-/// <typeparam name="T">The type of the child value</typeparam>
-public class ObservableValue<T> : IObservableValue<T>, IValueSink<T>
+public class ObservableValue<T>(T value) : ObservableValueBase<T>
 {
-    public ObservableValue(T value)
-    {
-        Value = value;
-    }
+    public override T Value { get; set => SetAndRaise(ref field, value); } = value;
+}
 
-    public T Value
-    {
-        get;
-        set
-        {
-            if (EqualityComparer<T>.Default.Equals(field, value))
-                return;
-
-            T oldValue = field;
-            field = value;
-            PropertyChanged?.Invoke(this, IObservableValueBase.ValueChangedEventArgs);
-            OnChanged?.Invoke(this, new ObservableValueChangedEventArgs<T>(oldValue, field));
-            CovariantOnChanged?.Invoke(this, EventArgs.Empty);
-        }
-    }
-
-    public event EventHandler? CovariantOnChanged;
+public abstract class ObservableValueBase<T> : IObservableValue<T>
+{
+    public abstract T Value { get; set; }
 
     public event EventHandler<ObservableValueChangedEventArgs<T>>? OnChanged;
-    
+    public event EventHandler? CovariantOnChanged;
     public event PropertyChangedEventHandler? PropertyChanged;
+
+    protected bool SetAndRaise(ref T currentValue, T newValue)
+    {
+        if (EqualityComparer<T>.Default.Equals(currentValue, newValue)) return false;
+        T oldValue = currentValue;
+        currentValue = newValue;
+        
+        OnValueChanged();
+        OnChanged?.Invoke(this, new ObservableValueChangedEventArgs<T>(oldValue, newValue));
+        CovariantOnChanged?.Invoke(this, EventArgs.Empty);
+        PropertyChanged?.Invoke(this, IObservableValueBase.ValueChangedEventArgs);
+        return true;
+    }
+
+    protected virtual void OnValueChanged()
+    {
+        
+    }
 }

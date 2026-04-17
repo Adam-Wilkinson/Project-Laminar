@@ -5,16 +5,15 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Reactive;
 using Avalonia.Threading;
-using CommunityToolkit.Mvvm.Input;
 using Laminar.Avalonia.InitializationTargets;
-using Laminar.Contracts.UserData;
+using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.DataManagement;
 
 namespace Laminar.Avalonia.Settings;
 
 public class SettingsSerializer(TopLevel topLevel, IPersistentDataManager persistentDataManager) : IAfterApplicationBuiltTarget
 {
-    private readonly IPersistentDataStore _settingsDataStore = persistentDataManager.GetDataStore(DataStoreKey.Settings);
+    private readonly IPersistentDataNode _settingsDataStore = persistentDataManager.GetDataStore(DataStoreKey.Settings);
     private bool _initialized;
     
     public void OnApplicationBuilt()
@@ -54,10 +53,12 @@ public class SettingsSerializer(TopLevel topLevel, IPersistentDataManager persis
 
     private void SerializeSetting(Setting setting, string settingKey)
     {
-        _settingsDataStore.InitializeDefaultValue(settingKey, setting.Value, setting.Value.GetType());
-        setting.Value = _settingsDataStore.GetItem(settingKey, setting.Value.GetType()).Result!;
-            
-        _settingsDataStore.GetObservable(settingKey).OnChanged += (_, valueChangedArgs) =>
+        var newSettingObservable = _settingsDataStore
+            .InitializeDefaultValue(settingKey, setting.Value, serializationKeyOverride: setting.Value.GetType());
+
+        setting.Value = newSettingObservable.Value;
+        
+        newSettingObservable.OnChanged += (_, valueChangedArgs) =>
         {
             if (!Dispatcher.UIThread.CheckAccess())
             {
@@ -70,27 +71,25 @@ public class SettingsSerializer(TopLevel topLevel, IPersistentDataManager persis
         };
 
         setting.GetObservable(Setting.ValueProperty).Subscribe(new AnonymousObserver<object>(x =>
-            _settingsDataStore.SetItem(settingKey, x)));
+            _settingsDataStore.SetValue(settingKey, x)));
 
-        setting.ResetCommand = new ResetSettingCommand(_settingsDataStore, settingKey, setting);
+        setting.ResetCommand = new ResetSettingCommand(_settingsDataStore, settingKey);
     }
     
     private class ResetSettingCommand : ICommand
     {
-        private readonly IPersistentDataStore _settingsDataStore;
-        private readonly string _settingKey;
-        private readonly Setting _setting;
+        private readonly IObservableValueWithDefault<object> _settingObservable;
         private bool _canExecute;
 
-        public ResetSettingCommand(IPersistentDataStore settingsDataStore, string settingKey, Setting setting)
+        public ResetSettingCommand(IPersistentDataNode settingsDataStore, string settingKey)
         {
-            _settingsDataStore = settingsDataStore;
-            _settingKey = settingKey;
-            _setting = setting;
-            _settingsDataStore.GetObservable(settingKey).OnChanged += (_, newValue) =>
+            if (settingsDataStore.TryGetValue<object>(settingKey) is not { } settingObservable)
+                throw new InvalidOperationException($"Unable to find setting {settingKey}");
+            
+            _settingObservable = settingObservable;
+            _settingObservable.OnChanged += (_, _) =>
             {
-                var defaultVal = SettingDefaultValue();
-                bool canNowExecute = !Equals(newValue, defaultVal);
+                bool canNowExecute = !Equals(_settingObservable.Value, _settingObservable.DefaultValue);
                 if (_canExecute != canNowExecute)
                 {
                     CanExecuteChanged?.Invoke(this, EventArgs.Empty);
@@ -100,24 +99,12 @@ public class SettingsSerializer(TopLevel topLevel, IPersistentDataManager persis
 
         public bool CanExecute(object? parameter)
         {
-            var defaultVal = SettingDefaultValue();
-            _canExecute = !Equals(_setting.Value, defaultVal);
+            _canExecute = !Equals(_settingObservable.Value, _settingObservable.DefaultValue);
             return _canExecute;
         }
 
-        public void Execute(object? parameter) => _settingsDataStore.ResetToDefault(_settingKey);
+        public void Execute(object? parameter) => _settingObservable.Reset();
 
         public event EventHandler? CanExecuteChanged;
-
-        private object? SettingDefaultValue()
-        {
-            var defaultRead = _settingsDataStore.GetDefaultValue(_settingKey);
-            if (defaultRead.Status != DataIoStatus.Success)
-            {
-                throw new IOException("Invalid data read");
-            }
-            
-            return defaultRead.Result;
-        }
     }
 }

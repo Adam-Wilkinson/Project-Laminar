@@ -2,7 +2,12 @@ using System.ComponentModel;
 
 namespace Laminar.Domain.ValueObjects;
 
-public interface IObservableValue<T> : ICovariantObservableValue<T>
+public interface IObservableValue<T> : IReadOnlyObservableValue<T>, IValueSink<T>
+{   
+    public new T Value { get; set; }
+}
+
+public interface IReadOnlyObservableValue<T> : ICovariantObservableValue<T>
 {
     public event EventHandler<ObservableValueChangedEventArgs<T>>? OnChanged;
 }
@@ -16,7 +21,7 @@ public interface ICovariantObservableValue<out T> : IObservableValueBase
 
 public interface IObservableValueBase : INotifyPropertyChanged
 {
-    public static readonly PropertyChangedEventArgs ValueChangedEventArgs = new(nameof(IObservableValue<>.Value));
+    public static readonly PropertyChangedEventArgs ValueChangedEventArgs = new(nameof(ICovariantObservableValue<>.Value));
 }
 
 public readonly struct ObservableValueChangedEventArgs<T>(T oldValue, T newValue)
@@ -28,18 +33,18 @@ public readonly struct ObservableValueChangedEventArgs<T>(T oldValue, T newValue
 
 public static class ObservableValueExtensions
 {
-    extension<T>(IObservableValue<T> observableValue)
+    extension<T>(IReadOnlyObservableValue<T> readOnlyObservableValue)
     {
-        public IObservableValue<TOut> Cast<TOut>()
+        public IReadOnlyObservableValue<TOut> Cast<TOut>()
         {
-            if (observableValue.Value is not TOut typedValue)
+            if (readOnlyObservableValue.Value is not TOut typedValue)
             {
                 throw new InvalidCastException();
             }
 
             ObservableValue<TOut> output = new(typedValue);
 
-            observableValue.OnChanged += (_, e) =>
+            readOnlyObservableValue.OnChanged += (_, e) =>
             {
                 if (e.NewValue is not TOut newTypedValue)
                 {
@@ -52,11 +57,11 @@ public static class ObservableValueExtensions
             return output;
         }
 
-        public IObservableValue<TOut> Map<TOut>(Func<T, TOut> func)
+        public IReadOnlyObservableValue<TOut> Map<TOut>(Func<T, TOut> func)
         {
-            ObservableValue<TOut> output = new(func(observableValue.Value));
+            ObservableValue<TOut> output = new(func(readOnlyObservableValue.Value));
             
-            observableValue.OnChanged += (_, e) => output.Value = func(e.NewValue);
+            readOnlyObservableValue.OnChanged += (_, e) => output.Value = func(e.NewValue);
 
             return output;
         }

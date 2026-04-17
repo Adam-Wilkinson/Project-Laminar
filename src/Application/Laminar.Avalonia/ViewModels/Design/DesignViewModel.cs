@@ -2,7 +2,7 @@ using System;
 using HanumanInstitute.MvvmDialogs;
 using HanumanInstitute.MvvmDialogs.Avalonia;
 using Laminar.Avalonia.ViewModels.Services;
-using Laminar.Contracts.UserData.FileNavigation;
+using Laminar.Contracts.Storage.FileExplorer;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Laminar.Avalonia.ViewModels.Design;

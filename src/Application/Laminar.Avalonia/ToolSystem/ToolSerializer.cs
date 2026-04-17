@@ -5,7 +5,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Reactive;
 using Laminar.Avalonia.InitializationTargets;
-using Laminar.Contracts.UserData;
+using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.DataManagement;
 using Laminar.Domain.Extensions;
 using Laminar.PluginFramework.Serialization;
@@ -14,7 +14,7 @@ namespace Laminar.Avalonia.ToolSystem;
 
 public class ToolSerializer(TopLevel topLevel, IPersistentDataManager persistentDataManager) : IAfterApplicationBuiltTarget
 {    
-    private readonly IPersistentDataStore _toolDataStore = persistentDataManager.GetDataStore(DataStoreKey.ToolProperties);
+    private readonly IPersistentDataNode _toolDataStore = persistentDataManager.GetDataStore(DataStoreKey.ToolProperties);
     private bool _initialized;
     
     public void OnApplicationBuilt()
@@ -39,21 +39,21 @@ public class ToolSerializer(TopLevel topLevel, IPersistentDataManager persistent
         }
 
         var currentDataStore = _toolDataStore.GetOrCreateChild(uniqueToolKey);
-        currentDataStore.InitializeDefaultValue("Key Gesture", tool.Gesture);
-        tool.Gesture = currentDataStore.GetItem<KeyGesture>("Key Gesture").Result!;
+        var persistentGestureValue = currentDataStore.InitializeDefaultValue("Key Gesture", tool.Gesture);
+        tool.Gesture = persistentGestureValue.Value;
         tool.PropertyChanged += (_, _) =>
         {
-            currentDataStore.SetItem("Key Gesture", tool.Gesture);
+            currentDataStore.SetValue("Key Gesture", tool.Gesture);
         };
 
-        currentDataStore.GetObservable("Key Gesture").OnChanged += (_, _) =>
+        persistentGestureValue.OnChanged += (_, e) =>
         {
-            tool.Gesture = currentDataStore.GetItem<KeyGesture>("Key Gesture").Result!;
+            tool.Gesture = e.NewValue;
         };
         
         tool.ResetKeybindingRequested += (_, _) =>
         {
-            currentDataStore.ResetToDefault("Key Gesture");
+            persistentGestureValue.Reset();
         };
     }
 }
