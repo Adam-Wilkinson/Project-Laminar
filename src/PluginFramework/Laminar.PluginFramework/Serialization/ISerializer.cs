@@ -15,6 +15,8 @@ public interface ISerializer
     public void RegisterFactory(IConditionalSerializerFactory factory);
 
     public Type GetSerializedType(Type typeToSerialize);
+
+    public INotifySerializedValueChanged GetSerializedValueChangedNotifier(object target, Type overrideTypeKey);
 }
 
 public static class SerializerExtensions

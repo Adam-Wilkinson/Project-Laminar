@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Laminar.Contracts.Storage.PersistentData;
+using Laminar.Domain.Exceptions;
 using Laminar.Implementation.Storage.PersistentData;
 using Laminar.PluginFramework.Serialization;
 using Microsoft.Extensions.Logging;
@@ -101,6 +102,21 @@ public class PersistentDataValueTests
     
     public class TranscoderChanged
     {
+        [Fact]
+        public void ShouldNotHaveEffectWhenUninitialized()
+        {
+            var owner = Substitute.For<IPersistentDataValueOwner>();
+            var transcoder = Substitute.For<IPersistentDataTranscoder>();
+            var serializer = Substitute.For<ISerializer>();
+            owner.Transcoder.Returns(transcoder);
+
+            var sut = CreateValue(owner, serializer);
+
+            owner.TranscoderChanged += Raise.Event<EventHandler>(owner, EventArgs.Empty);
+
+            Assert.Throws<ValueNotInitializedException>(() => sut.Value);
+        }
+
         [Fact]
         public void ShouldReencodeWhenTranscoderChanges()
         {

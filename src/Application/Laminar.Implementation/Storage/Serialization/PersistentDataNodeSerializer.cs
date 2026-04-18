@@ -6,7 +6,8 @@ using Laminar.PluginFramework.Serialization;
 
 namespace Laminar.Implementation.Storage.Serialization;
 
-public class PersistentDataNodeSerializer : TypeSerializer<PersistentDataNode, Dictionary<string, object>>
+public class PersistentDataNodeSerializer : TypeSerializer<PersistentDataNode, Dictionary<string, object>>,
+    INotifyingConditionalSerializer
 {
     protected override Dictionary<string, object> SerializeTyped(PersistentDataNode toSerialize)
         => toSerialize.InternalValues.ToDictionary(x => x.Key, x => x.Value.EncodedValue);
@@ -22,5 +23,18 @@ public class PersistentDataNodeSerializer : TypeSerializer<PersistentDataNode, D
         }
         
         return returnValue;
+    }
+
+    public INotifySerializedValueChanged GetSerializedValueChangedNotifier(object target)
+        => new DataNodeChangedNotifier((PersistentDataNode)target);
+
+    private class DataNodeChangedNotifier : INotifySerializedValueChanged
+    {
+        public DataNodeChangedNotifier(PersistentDataNode node)
+        {
+            node.ChildValueChanged += (o, e) => SerializedValueChanged?.Invoke(o, e);
+        }
+
+        public event EventHandler? SerializedValueChanged;
     }
 }

@@ -19,10 +19,10 @@ public abstract partial class ViewModelBase : ObservableObject
     }
 
     [RelayCommand(CanExecute = nameof(HasUserActionManager))]
-    public Task Undo() => UserActionManager?.Undo() ?? Task.CompletedTask;
+    private Task Undo() => UserActionManager?.Undo() ?? Task.CompletedTask;
 
     [RelayCommand(CanExecute = nameof(HasUserActionManager))]
-    public Task Redo() => UserActionManager?.Redo() ?? Task.CompletedTask;
+    private Task Redo() => UserActionManager?.Redo() ?? Task.CompletedTask;
 
     public bool HasUserActionManager() => UserActionManager is not null;
 }

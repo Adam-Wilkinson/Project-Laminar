@@ -11,10 +11,16 @@ public class PersistentDataNode(ISerializer serializer, ILogger<PersistentDataVa
     public Dictionary<string, IPersistentDataValue> InternalValues { get; } = [];
 
     public IPersistentDataTranscoder? Transcoder => Owner?.Transcoder;
+
+    public event EventHandler? ChildValueChanged;
     
     public event EventHandler? TranscoderChanged;
 
-    public void OnChildValueChanged() => Owner?.OnChildValueChanged();
+    public void OnChildValueChanged()
+    {
+        ChildValueChanged?.Invoke(this, EventArgs.Empty);
+        Owner?.OnChildValueChanged();
+    }
 
     public IPersistentDataNode GetOrCreateChild(string childName)
     {

@@ -26,6 +26,7 @@ public class PersistentDataStore : IPersistentDataStore
             Owner = this,
         };
         _file = file;
+        FileToDataNode();
         // _file.ContentsChanged += (_, _) => FileToDataNode();
     }
 
@@ -42,6 +43,11 @@ public class PersistentDataStore : IPersistentDataStore
 
     private void FileToDataNode()
     {
+        if (_file.Contents.Length == 0)
+        {
+            return;
+        }
+        
         var decoded = Transcoder.FromBytes<Dictionary<string, object>>(_file.Contents);
         ArgumentNullException.ThrowIfNull(decoded);
         _serializer.DeserializeObject(decoded, typeof(PersistentDataNode), Root);

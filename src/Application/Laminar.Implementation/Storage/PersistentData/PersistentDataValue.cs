@@ -26,7 +26,10 @@ public class PersistentDataValue : ObservableValueBase<object>, IPersistentDataV
         _serializer = serializer;
         _logger = logger;
         _owner = owner;
-        _owner.TranscoderChanged += (_, _) => SetEncodedValueFromValue();
+        _owner.TranscoderChanged += (_, _) =>
+        {
+            if (IsInitialized) SetEncodedValueFromValue();
+        };
     }
 
     public Type TypeSerializationKey => _typeSerializationKey ?? throw new ValueNotInitializedException(Name);
@@ -90,6 +93,12 @@ public class PersistentDataValue : ObservableValueBase<object>, IPersistentDataV
         _typeSerializationKey = typeSerializationKey ?? DefaultValue.GetType();
         _deserializationContext = deserializationContext;
             
+        _serializer.GetSerializedValueChangedNotifier(defaultValue, TypeSerializationKey).SerializedValueChanged +=
+        (_, _) =>
+        {
+            SetEncodedValueFromValue();
+        };
+        
         if (TrySetValueFromEncodedValue()) return;
 
         _value = defaultValue;

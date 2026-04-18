@@ -9,14 +9,15 @@ namespace Laminar.Implementation.Storage.Serialization;
 
 public class Serializer : ISerializer
 {
+    private static readonly INotifySerializedValueChanged DefaultNotifier = new NullNotifier();
+    
     private readonly IServiceProvider _serviceProvider;
-
     private readonly HashSet<Assembly> _scannedAssemblies = [];
     private readonly DefaultSerializerFactory _defaultSerializerFactory; 
     private readonly Dictionary<Type, IConditionalSerializer> _typeSerializers = [];
     private readonly List<IConditionalSerializer> _conditionalSerializers = [];
     private readonly List<IConditionalSerializerFactory> _conditionalSerializerFactories = [];
-
+    
     public Serializer(IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;
@@ -51,7 +52,11 @@ public class Serializer : ISerializer
     {
         return GetSerializer(typeToSerialize).SerializedTypeOrNull(typeToSerialize)!;
     }
-    
+
+    public INotifySerializedValueChanged GetSerializedValueChangedNotifier(object target, Type? overrideTypeKey = null) =>
+        GetSerializer(overrideTypeKey ?? target.GetType()) is INotifyingConditionalSerializer notifier
+            ? notifier.GetSerializedValueChangedNotifier(target) : DefaultNotifier;
+
     private IConditionalSerializer GetSerializer(Type typeToSerialize)
     {
         // The Implementation assembly. If we do this in the constructor, the app doesn't start
@@ -112,5 +117,10 @@ public class Serializer : ISerializer
                 RegisterFactory(factory);
             }
         }
+    }
+
+    private class NullNotifier : INotifySerializedValueChanged
+    {
+        public event EventHandler? SerializedValueChanged { add { } remove { } }
     }
 }
