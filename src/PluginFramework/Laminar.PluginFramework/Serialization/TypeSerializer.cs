@@ -10,7 +10,7 @@ public abstract class TypeSerializer : IConditionalSerializer
     
     public abstract object Serialize(object toSerialize);
 
-    public abstract object DeSerialize(object serialized, object? deserializationContext = null);
+    public abstract object DeSerialize(DeserializationRequest request);
 }
 
 public abstract class TypeSerializer<T> : TypeSerializer
@@ -20,11 +20,13 @@ public abstract class TypeSerializer<T> : TypeSerializer
  
     public sealed override object Serialize(object toSerialize)
         => SerializeOverride((T)toSerialize);
+    
     protected abstract object SerializeOverride(T toSerialize);
     
-    public sealed override object DeSerialize(object serialized, object? context = null)
-        => DeSerializeOverride(serialized, context); 
-    protected abstract T DeSerializeOverride(object serialized, object? context = null);
+    public sealed override object DeSerialize(DeserializationRequest request) 
+        => DeSerializeOverride(request);
+    
+    protected abstract T DeSerializeOverride(DeserializationRequest request);
 }
 
 public abstract class TypeSerializer<T, TSerialized> : TypeSerializer<T>
@@ -36,8 +38,8 @@ public abstract class TypeSerializer<T, TSerialized> : TypeSerializer<T>
     
     protected abstract TSerialized SerializeTyped(T toSerialize);
     
-    protected sealed override T DeSerializeOverride(object serialized, object? deserializationContext = null)
-        => DeSerializeTyped((TSerialized)serialized, deserializationContext);
+    protected sealed override T DeSerializeOverride(DeserializationRequest request)
+        => DeSerializeTyped(new DeserializationRequest<T, TSerialized>(request));
     
-    protected abstract T DeSerializeTyped(TSerialized serialized, object? deserializationContext = null);
+    protected abstract T DeSerializeTyped(DeserializationRequest<T, TSerialized> request);
 }

@@ -45,8 +45,8 @@ public class Serializer : ISerializer
     public object SerializeObject(object toSerialize, Type? overrideTypeKey = null)
         => GetSerializer(overrideTypeKey ?? toSerialize.GetType()).Serialize(toSerialize);
 
-    public object DeserializeObject(object serialized, Type requestedType, object? context)
-        => GetSerializer(requestedType).DeSerialize(serialized, context);
+    public object DeserializeObject(DeserializationRequest request)
+        => GetSerializer(request.TargetType).DeSerialize(request);
 
     public Type GetSerializedType(Type typeToSerialize)
     {

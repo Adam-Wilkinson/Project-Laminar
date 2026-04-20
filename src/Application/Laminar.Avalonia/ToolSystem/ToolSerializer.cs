@@ -14,7 +14,7 @@ namespace Laminar.Avalonia.ToolSystem;
 
 public class ToolSerializer(TopLevel topLevel, IPersistentDataManager persistentDataManager) : IAfterApplicationBuiltTarget
 {    
-    private readonly IPersistentDataNode _toolDataStore = persistentDataManager.GetDataStore(DataStoreKey.ToolProperties);
+    private readonly IPersistentDictionary _toolDataStore = persistentDataManager.GetDataStore(DataStoreKey.ToolProperties);
     private bool _initialized;
     
     public void OnApplicationBuilt()
@@ -38,7 +38,7 @@ public class ToolSerializer(TopLevel topLevel, IPersistentDataManager persistent
             SerializeTool(childTool, uniqueToolKey);
         }
 
-        var currentDataStore = _toolDataStore.GetOrCreateChild(uniqueToolKey);
+        var currentDataStore = _toolDataStore.GetOrCreateChild<IPersistentDictionary>(uniqueToolKey);
         var persistentGestureValue = currentDataStore.InitializeDefaultValue("Key Gesture", tool.Gesture);
         tool.Gesture = persistentGestureValue.Value;
         tool.PropertyChanged += (_, _) =>

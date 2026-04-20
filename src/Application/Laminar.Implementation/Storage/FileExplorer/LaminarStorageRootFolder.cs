@@ -12,7 +12,7 @@ internal class LaminarStorageRootFolder : LaminarStorageFolder, ILaminarStorageR
 {
     private const string InfoFileName = ".project-laminar-data";
     private readonly IDisposable _monitor;
-    private readonly IPersistentDataNode _dataStore;
+    private readonly IPersistentDictionary _dataStore;
     
     public LaminarStorageRootFolder(
         FileSystemPath path, 

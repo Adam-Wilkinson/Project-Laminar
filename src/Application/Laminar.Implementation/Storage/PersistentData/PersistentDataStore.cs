@@ -5,6 +5,7 @@ using Laminar.Contracts.Base;
 using Laminar.Contracts.Storage.IO;
 using Laminar.Contracts.Storage.PersistentData;
 using Laminar.PluginFramework.Serialization;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.Storage.PersistentData;
@@ -15,18 +16,15 @@ public class PersistentDataStore : IPersistentDataStore
     private readonly ISerializer _serializer;
     
     public PersistentDataStore(
+        IServiceProvider serviceProvider,
         IPersistentDataTranscoder persistentDataTranscoder,
         IFileContents file,
-        IExceptionHandler exceptionHandler,
-        ISerializer serializer, 
-        ILogger<PersistentDataValue> valueLogger)
+        ISerializer serializer)
     {
         _serializer = serializer;
         Transcoder = persistentDataTranscoder;
-        Root = new PersistentDataNode(serializer, exceptionHandler, valueLogger)
-        {
-            Owner = this,
-        };
+        Root = ActivatorUtilities.CreateInstance<PersistentDictionary>(serviceProvider);
+        ((PersistentDictionary)Root).Owner = this;
         _file = file;
         FileToDataNode();
         // _file.ContentsChanged += (_, _) => FileToDataNode();
@@ -37,11 +35,11 @@ public class PersistentDataStore : IPersistentDataStore
 
     public void OnChildValueChanged()
     {
-        var serialized = _serializer.SerializeObject(Root, typeof(PersistentDataNode));
+        var serialized = _serializer.SerializeObject(Root, typeof(IPersistentDictionary));
         _file.Contents = Transcoder.ToBytes(serialized);
     }
 
-    public IPersistentDataNode Root { get; }
+    public IPersistentDictionary Root { get; }
 
     private void FileToDataNode()
     {
@@ -52,6 +50,11 @@ public class PersistentDataStore : IPersistentDataStore
         
         var decoded = Transcoder.FromBytes<Dictionary<string, object>>(_file.Contents);
         ArgumentNullException.ThrowIfNull(decoded);
-        _serializer.DeserializeObject(decoded, typeof(PersistentDataNode), Root);
+        _serializer.DeserializeObject(new DeserializationRequest
+        {
+            Serialized = decoded,
+            TargetType = typeof(IPersistentDictionary),
+            ExistingInstance = Root
+        });
     }
 }

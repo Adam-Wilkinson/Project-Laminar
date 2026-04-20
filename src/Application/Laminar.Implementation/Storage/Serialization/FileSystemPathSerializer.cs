@@ -8,6 +8,6 @@ public class FileSystemPathSerializer : TypeSerializer<FileSystemPath, string>
     protected override string SerializeTyped(FileSystemPath toSerialize) 
         => toSerialize.ToString();
 
-    protected override FileSystemPath DeSerializeTyped(string serialized, object? deserializationContext = null) 
-        => new(serialized);
+    protected override FileSystemPath DeSerializeTyped(DeserializationRequest<FileSystemPath, string> request) 
+        => new(request.Serialized);
 }

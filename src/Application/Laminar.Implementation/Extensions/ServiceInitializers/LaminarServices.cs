@@ -25,6 +25,8 @@ public static class LaminarServices
 {
     public static IServiceCollection AddLaminarServices(this IServiceCollection services, FrontendDependency frontendDependency) => services
             .AddSingleton<IPersistentDataManager, PersistentDataManager>()
+            .AddTransient<IPersistentDictionary, PersistentDictionary>()
+            .AddTransient<IPersistentList, PersistentList>()
             .AddSingleton<ISerializer, Serializer>()
             .AddScoped<IUserActionManager, UserActionManager>()
             .AddSingleton<IDataInterfaceFactory, DataInterfaceFactory>()

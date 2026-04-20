@@ -6,5 +6,5 @@ public interface IConditionalSerializer
     
     public object Serialize(object toSerialize);
 
-    public object DeSerialize(object serialized, object? deserializationContext = null);
+    public object DeSerialize(DeserializationRequest request);
 }

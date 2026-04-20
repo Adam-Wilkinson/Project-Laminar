@@ -39,8 +39,8 @@ public class SerializableSerializerInstance<TSerializable, TSerialized> : TypeSe
         return toSerialize.Serialize();
     }
 
-    protected override TSerializable DeSerializeTyped(TSerialized serialized, object? deserializationContext = null)
+    protected override TSerializable DeSerializeTyped(DeserializationRequest<TSerializable, TSerialized> request)
     {
-        return TSerializable.Deserialize(serialized, deserializationContext);
+        return TSerializable.Deserialize(request.Serialized, request.Context);
     }
 }

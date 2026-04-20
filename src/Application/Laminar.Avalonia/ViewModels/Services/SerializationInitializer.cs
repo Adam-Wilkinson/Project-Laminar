@@ -13,8 +13,9 @@ public class SerializationInitializer(IPersistentDataManager dataManager) : IVie
 {
     private readonly Dictionary<ViewModelBase, string> _serializationPrefixes = [];
     private readonly Dictionary<Type, Dictionary<string, ISerializedPropertyInfo>> _serializedPropertyInfos = [];
-    private readonly IPersistentDataNode _dataStore = 
-        dataManager.GetDataStore(DataStoreKey.PersistentData).GetOrCreateChild("UserInterface");
+    private readonly IPersistentDictionary _dataStore = dataManager
+        .GetDataStore(DataStoreKey.PersistentData)
+        .GetOrCreateChild<IPersistentDictionary>("UserInterface");
     
     public void Initialize(ViewModelBase? parentViewModel, ViewModelBase viewModel, string viewModelName)
     {
@@ -97,11 +98,11 @@ public interface ISerializedPropertyInfo
 
     public string ValueKey(string prefix);
     
-    public void InitializeToDataStore(string prefix, ViewModelBase deserializationContext, IPersistentDataNode dataStore);
+    public void InitializeToDataStore(string prefix, ViewModelBase deserializationContext, IPersistentDictionary dataStore);
 
-    public void DataStoreToProperty(string prefix, ViewModelBase target, IPersistentDataNode dataStore);
+    public void DataStoreToProperty(string prefix, ViewModelBase target, IPersistentDictionary dataStore);
     
-    public void PropertyToDataStore(string prefix, ViewModelBase target, IPersistentDataNode dataStore);
+    public void PropertyToDataStore(string prefix, ViewModelBase target, IPersistentDictionary dataStore);
 
     private readonly record struct SerializedPropertyInfo<TTarget, TValue>(
         string PropertyName,
@@ -119,12 +120,12 @@ public interface ISerializedPropertyInfo
 
         public string ValueKey(string prefix) => prefix + "." + PropertyName;
         
-        public void InitializeToDataStore(string prefix, ViewModelBase deserializationContext, IPersistentDataNode dataStore)
+        public void InitializeToDataStore(string prefix, ViewModelBase deserializationContext, IPersistentDictionary dataStore)
         {
             dataStore.InitializeDefaultValue(ValueKey(prefix), DefaultValue, deserializationContext: deserializationContext);
         }
 
-        public void DataStoreToProperty(string prefix, ViewModelBase target, IPersistentDataNode dataStore)
+        public void DataStoreToProperty(string prefix, ViewModelBase target, IPersistentDictionary dataStore)
         {
             if (target is not TTarget typedTarget)
                 throw new ArgumentException("Target is not of type " + typeof(TTarget).FullName);
@@ -138,7 +139,7 @@ public interface ISerializedPropertyInfo
             Setter(typedTarget, dataStoreValue);
         }
 
-        public void PropertyToDataStore(string prefix, ViewModelBase target, IPersistentDataNode dataStore)
+        public void PropertyToDataStore(string prefix, ViewModelBase target, IPersistentDictionary dataStore)
         {
             if (target is not TTarget typedTarget)
                 throw new ArgumentException("Target is not of type " + typeof(TTarget).FullName);

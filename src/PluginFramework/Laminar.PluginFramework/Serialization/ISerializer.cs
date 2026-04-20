@@ -8,7 +8,7 @@ public interface ISerializer
     
     public object SerializeObject(object toSerialize, Type? overrideTypeKey = null);
 
-    public object DeserializeObject(object serialized, Type requestedType, object? context = null);
+    public object DeserializeObject(DeserializationRequest request);
     
     public void RegisterSerializer(IConditionalSerializer serializer);
     
@@ -24,6 +24,18 @@ public static class SerializerExtensions
     extension(ISerializer serializer)
     {
         public T? TryDeserialize<T>(object serialized, object? deserializationContext = null)
-            => serializer.DeserializeObject(serialized, typeof(T), deserializationContext) is T typed ? typed : default;
+            => serializer.DeserializeObject(new DeserializationRequest
+            {
+                Serialized = serialized,
+                TargetType = typeof(T),
+                Context = deserializationContext,
+            }) is T typed ? typed : default;
+
+        public object Deserialize(object serialized, Type targetType) => serializer.DeserializeObject(
+            new DeserializationRequest
+            {
+                Serialized = serialized,
+                TargetType = targetType
+            });
     }
 }

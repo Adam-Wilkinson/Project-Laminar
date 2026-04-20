@@ -13,7 +13,7 @@ namespace Laminar.Avalonia.Settings;
 
 public class SettingsSerializer(TopLevel topLevel, IPersistentDataManager persistentDataManager) : IAfterApplicationBuiltTarget
 {
-    private readonly IPersistentDataNode _settingsDataStore = persistentDataManager.GetDataStore(DataStoreKey.Settings);
+    private readonly IPersistentDictionary _settingsDataStore = persistentDataManager.GetDataStore(DataStoreKey.Settings);
     private bool _initialized;
     
     public void OnApplicationBuilt()
@@ -81,7 +81,7 @@ public class SettingsSerializer(TopLevel topLevel, IPersistentDataManager persis
         private readonly IObservableValueWithDefault<object> _settingObservable;
         private bool _canExecute;
 
-        public ResetSettingCommand(IPersistentDataNode settingsDataStore, string settingKey)
+        public ResetSettingCommand(IPersistentDictionary settingsDataStore, string settingKey)
         {
             if (settingsDataStore.TryGetValue<object>(settingKey) is not { } settingObservable)
                 throw new InvalidOperationException($"Unable to find setting {settingKey}");

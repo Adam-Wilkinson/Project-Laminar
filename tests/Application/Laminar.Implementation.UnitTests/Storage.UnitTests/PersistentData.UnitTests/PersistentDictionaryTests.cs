@@ -8,7 +8,7 @@ using NSubstitute;
 
 namespace Laminar.Implementation.UnitTests.Storage.UnitTests.PersistentData.UnitTests;
 
-public class PersistentDataNodeTests
+public class PersistentDictionaryTests
 {
     [Fact]
     public void ChildNodeShouldHaveCorrectOwner()
@@ -20,7 +20,7 @@ public class PersistentDataNodeTests
 
         var child = node.GetOrCreateChild("child");
 
-        ((PersistentDataNode)child).Owner.Should().Be(node);
+        ((PersistentDictionary)child).Owner.Should().Be(node);
     }
     
     public class GetPersistentData
@@ -275,13 +275,13 @@ public class PersistentDataNodeTests
         }
     }
     
-    private static PersistentDataNode CreateNode(
+    private static PersistentDictionary CreateNode(
         ISerializer? serializer = null,
         ILogger<PersistentDataValue>? logger = null)
     {
         serializer ??= Substitute.For<ISerializer>();
         logger ??= Substitute.For<ILogger<PersistentDataValue>>();
 
-        return new PersistentDataNode(serializer, Substitute.For<IExceptionHandler>(), logger);
+        return new PersistentDictionary(serializer, Substitute.For<IExceptionHandler>(), logger);
     }
 }

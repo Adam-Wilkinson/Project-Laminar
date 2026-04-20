@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Laminar.PluginFramework.Serialization;
 
 namespace Laminar.Implementation.Storage.Serialization;
@@ -33,20 +34,19 @@ public class EnumerableSerializer<TElement, TSerialized, TEnumerable>(ISerialize
     : TypeSerializer<TEnumerable, SerializedEnumerable<TSerialized, TEnumerable>>
     where TEnumerable : IEnumerable<TElement> where TElement : notnull where TSerialized : notnull
 {
-    private readonly ISerializer _serializer = serializer;
-    protected override SerializedEnumerable<TSerialized, TEnumerable> SerializeTyped(TEnumerable toSerialize)
-    {
-        return new(toSerialize.Select(x => (TSerialized)_serializer.SerializeObject(x, typeof(TElement))));
-    }
+    private static readonly MethodInfo AddMethod = typeof(TEnumerable).GetMethod("Add")!;
+    
+    protected override SerializedEnumerable<TSerialized, TEnumerable> SerializeTyped(TEnumerable toSerialize) 
+        => new(toSerialize.Select(x => (TSerialized)serializer.SerializeObject(x, typeof(TElement))));
 
-    protected override TEnumerable DeSerializeTyped(SerializedEnumerable<TSerialized, TEnumerable> serialized, object? deserializationContext = null)
+    protected override TEnumerable DeSerializeTyped(
+        DeserializationRequest<TEnumerable, SerializedEnumerable<TSerialized, TEnumerable>> request)
     {
-        var enumerable = serialized.Select(x => _serializer.TryDeserialize<TElement>(x, deserializationContext));
+        var enumerable = request.Serialized.Select(x => serializer.TryDeserialize<TElement>(x, request.Context));
         var result = Activator.CreateInstance<TEnumerable>();
-        var addMethod = result!.GetType().GetMethod("Add");
         foreach (var element in enumerable)
         {
-            addMethod!.Invoke(result, [element]);
+            AddMethod.Invoke(result, [element]);
         }
 
         return result;

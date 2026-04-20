@@ -1,12 +1,8 @@
-using Laminar.Domain.ValueObjects;
-
 namespace Laminar.Contracts.Storage.PersistentData;
 
-public interface IPersistentDataNode : IPersistentDataValueOwner
+public interface IPersistentDictionary : IPersistentDataValueOwner
 {
-    public IPersistentDataNode GetOrCreateChild(string childName);
-    
-    public IPersistentDataValueOwner? Owner { get; }
+    public T GetOrCreateChild<T>(string childName) where T : class, IPersistentDataValueOwner;
     
     public IObservableValueWithDefault<T> InitializeDefaultValue<T>(string key, T defaultValue, 
         object? deserializationContext = null, Type? serializationKeyOverride = null) where T : notnull;

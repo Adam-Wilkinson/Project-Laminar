@@ -9,11 +9,11 @@ public class DensityStyleSerializer : TypeSerializer<DensityStyle, string>
 {
     protected override string SerializeTyped(DensityStyle toSerialize) => toSerialize.ToString();
 
-    protected override DensityStyle DeSerializeTyped(string serialized, object? deserializationContext = null) =>
-        serialized switch
+    protected override DensityStyle DeSerializeTyped(DeserializationRequest<DensityStyle, string> request) =>
+        request.Serialized switch
         {
             nameof(DensityStyle.Compact) => DensityStyle.Compact,
             nameof(DensityStyle.Normal) => DensityStyle.Normal,
-            _ => throw new DeserializationError(new ArgumentException($"Unknown density style {serialized}")),
+            var unknown => throw new DeserializationError(new ArgumentException($"Unknown density style {unknown}")),
         };
 }

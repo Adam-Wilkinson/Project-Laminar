@@ -51,7 +51,7 @@ public class PersistentDataStoreTests
             var serialized = new object();
             var bytes = new byte[] { 9, 9, 9 };
 
-            serializer.SerializeObject(root, typeof(PersistentDataNode))
+            serializer.SerializeObject(root, typeof(PersistentDictionary))
                 .Returns(serialized);
 
             transcoder.ToBytes(serialized).Returns(bytes);
@@ -79,7 +79,7 @@ public class PersistentDataStoreTests
 
             var store = CreateStore(transcoder, file, serializer);
 
-            serializer.Received(1).DeserializeObject(decoded, typeof(PersistentDataNode), store.Root);
+            serializer.Received(1).DeserializeObject(decoded, typeof(PersistentDictionary), store.Root);
         }
     }
     
@@ -97,14 +97,14 @@ public class PersistentDataStoreTests
             var serialized = new object();
             var bytes = new byte[] { 1, 2, 3 };
 
-            serializer.SerializeObject(store.Root, typeof(PersistentDataNode))
+            serializer.SerializeObject(store.Root, typeof(PersistentDictionary))
                 .Returns(serialized);
 
             transcoder.ToBytes(serialized).Returns(bytes);
 
             store.OnChildValueChanged();
 
-            serializer.Received(1).SerializeObject(store.Root, typeof(PersistentDataNode));
+            serializer.Received(1).SerializeObject(store.Root, typeof(PersistentDictionary));
             transcoder.Received(1).ToBytes(serialized);
             file.Contents = bytes;
         }
@@ -118,9 +118,9 @@ public class PersistentDataStoreTests
             var store = CreateStore();
 
             store.Root.Should().NotBeNull();
-            store.Root.Should().BeOfType<PersistentDataNode>();
+            store.Root.Should().BeOfType<PersistentDictionary>();
 
-            var root = (PersistentDataNode)store.Root;
+            var root = (PersistentDictionary)store.Root;
             root.Owner.Should().Be(store);
         }
 

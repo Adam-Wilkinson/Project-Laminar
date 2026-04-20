@@ -24,7 +24,7 @@ public class PersistentDataValue : ObservableValueBase<object>, IPersistentDataV
     private object? _deserializationContext;
     private Type? _typeSerializationKey;
 
-    public PersistentDataValue(IPersistentDataValueOwner owner,
+    public PersistentDataValue(IPersistentDataValueOwner owner, string name,
         ISerializer serializer, 
         IExceptionHandler exceptionHandler,
         ILogger<PersistentDataValue> logger)
@@ -33,6 +33,7 @@ public class PersistentDataValue : ObservableValueBase<object>, IPersistentDataV
         _logger = logger;
         _owner = owner;
         _exceptionHandler = exceptionHandler;
+        Name = name;
         _owner.TranscoderChanged += (_, _) =>
         {
             if (IsInitialized) SetEncodedValueFromValue();
@@ -108,10 +109,10 @@ public class PersistentDataValue : ObservableValueBase<object>, IPersistentDataV
             SetEncodedValueFromValue();
         };
         
+        _value = defaultValue;
         if (TrySetValueFromEncodedValue()) return;
 
-        _value = defaultValue;
-        _exceptionHandler.OnException(new ErrorDecodingValueException(Name, Value));
+        if (_encodedValue is not null) _exceptionHandler.OnException(new ErrorDecodingValueException(Name, Value));
         if (Value is PersistentDataNode node)
         {
             node.Owner = _owner;
@@ -143,6 +144,11 @@ public class PersistentDataValue : ObservableValueBase<object>, IPersistentDataV
         {
             return false;
         }
+
+        if (_value is null)
+        {
+            throw new InvalidOperationException("Cannot set value without an existing value");
+        }
         
         if (_owner.Transcoder.DecodeElement(EncodedValue, _serializer.GetSerializedType(_typeSerializationKey)) is not { } decodedValue)
         {
@@ -154,23 +160,24 @@ public class PersistentDataValue : ObservableValueBase<object>, IPersistentDataV
         
         try
         {
-            newValue = _serializer.DeserializeObject(decodedValue, TypeSerializationKey, _deserializationContext);
+            newValue = _serializer.DeserializeObject(new DeserializationRequest
+            {
+                Serialized = decodedValue,
+                TargetType = TypeSerializationKey,
+                ExistingInstance = _value,
+                Context = _deserializationContext
+            });
         }
         catch (DeserializationError)
         {
             return false;
         }
         
-        if (_value is not null)
-        {
-            return SetAndRaise(ref _value, newValue);
-        }
-
-        _value = newValue;
         if (_value is PersistentDataNode node)
         {
             node.Owner = _owner;
         }
+        SetAndRaise(ref _value, newValue);
         return true;
     }
 }

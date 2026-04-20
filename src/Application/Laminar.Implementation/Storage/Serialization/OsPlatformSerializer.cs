@@ -7,5 +7,6 @@ public class OsPlatformSerializer : TypeSerializer<OSPlatform, string>
 {
     protected override string SerializeTyped(OSPlatform toSerialize) => toSerialize.ToString();
 
-    protected override OSPlatform DeSerializeTyped(string serialized, object? deserializationContext = null) => OSPlatform.Create(serialized);
+    protected override OSPlatform DeSerializeTyped(DeserializationRequest<OSPlatform, string> request) 
+        => OSPlatform.Create(request.Serialized);
 }

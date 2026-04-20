@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Laminar.Contracts.Base;
 using Laminar.Contracts.Storage.IO;
@@ -5,21 +6,21 @@ using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.DataManagement;
 using Laminar.Domain.Exceptions;
 using Laminar.PluginFramework.Serialization;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.Storage.PersistentData;
 
 public class PersistentDataManager(
+    IServiceProvider serviceProvider,
     ISerializer serializer, 
     IFileSystem fileSystem, 
-    IExceptionHandler exceptionHandler,
-    ILogger<PersistentDataValue> valueLogger,
     ILogger<JsonPersistentDataTranscoder> jsonTranscoderLogger) 
     : IPersistentDataManager
 {
     private readonly Dictionary<DataStoreKey, IPersistentDataStore> _dataStores = new();
 
-    public IPersistentDataNode GetDataStore(DataStoreKey dataStoreKey)
+    public IPersistentDictionary GetDataStore(DataStoreKey dataStoreKey)
     {
         if (_dataStores.TryGetValue(dataStoreKey, out var dataStore))
         {
@@ -41,7 +42,7 @@ public class PersistentDataManager(
 
         var newDataStore = dataStoreKey.DataType switch
         {
-            PersistentDataType.Json => new PersistentDataStore(new JsonPersistentDataTranscoder(jsonTranscoderLogger), file, exceptionHandler, serializer, valueLogger),
+            PersistentDataType.Json => new PersistentDataStore(serviceProvider, new JsonPersistentDataTranscoder(jsonTranscoderLogger), file, serializer),
             var unknown => throw new UnknownDataTypeException(unknown),
         };
 
@@ -49,5 +50,5 @@ public class PersistentDataManager(
         return newDataStore.Root;
     }
 
-    public IPersistentDataNode GetHeadlessNode() => new PersistentDataNode(serializer, exceptionHandler, valueLogger);
+    public T GetHeadlessNode<T>() => ActivatorUtilities.CreateInstance<T>(serviceProvider);
 }

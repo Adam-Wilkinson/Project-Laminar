@@ -7,6 +7,6 @@ public class TimeSpanSerializer : TypeSerializer<TimeSpan, string>
 {
     protected override string SerializeTyped(TimeSpan toSerialize) => toSerialize.ToString();
 
-    protected override TimeSpan DeSerializeTyped(string serialized, object? deserializationContext = null) =>
-        TimeSpan.TryParse(serialized, out var result) ? result : throw new FormatException();
+    protected override TimeSpan DeSerializeTyped(DeserializationRequest<TimeSpan, string> request) =>
+        TimeSpan.TryParse(request.Serialized, out var result) ? result : throw new FormatException();
 }

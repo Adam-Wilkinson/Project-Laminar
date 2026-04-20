@@ -2,5 +2,5 @@ namespace Laminar.Contracts.Storage.PersistentData;
 
 public interface IPersistentDataStore : IPersistentDataValueOwner
 {
-    public IPersistentDataNode Root { get; }
+    public IPersistentDictionary Root { get; }
 }

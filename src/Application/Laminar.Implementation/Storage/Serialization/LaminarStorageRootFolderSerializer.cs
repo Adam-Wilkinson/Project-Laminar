@@ -2,9 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Laminar.Contracts.Storage.FileExplorer;
+using Laminar.Implementation.Storage.FileExplorer;
 using Laminar.PluginFramework.Serialization;
 
-namespace Laminar.Implementation.Storage.FileExplorer;
+namespace Laminar.Implementation.Storage.Serialization;
 
 internal class LaminarStorageRootFolderSerializer : TypeSerializer<LaminarStorageRootFolder, Dictionary<string, object>>
 {
@@ -16,13 +17,16 @@ internal class LaminarStorageRootFolderSerializer : TypeSerializer<LaminarStorag
     protected override Dictionary<string, object> SerializeTyped(LaminarStorageRootFolder toSerialize) 
         => SerializeLaminarStorageItem(toSerialize);
 
-    protected override LaminarStorageRootFolder DeSerializeTyped(Dictionary<string, object> serialized, object? deserializationContext = null)
+    protected override LaminarStorageRootFolder DeSerializeTyped(
+        DeserializationRequest<LaminarStorageRootFolder, Dictionary<string, object>> request)
     {
-        if (deserializationContext is not (LaminarStorageRootFolder folder, ILaminarStorageItemFactory factory))
+        if (!request.HasExistingValue || request.ExistingValue is not { } folder || request.Context is not ILaminarStorageItemFactory factory)
         {
             throw new ArgumentException("Deserializing LaminarStorageItem requires a deserialization context of type ILaminarStorageItemFactory");
         }
 
+        var serialized = request.Serialized;
+        
         folder.IsEnabled = (bool)serialized[IsEnabled];
         folder.IsExpanded = (bool)serialized[IsExpanded];
         folder.ContentsInternal.Clear();

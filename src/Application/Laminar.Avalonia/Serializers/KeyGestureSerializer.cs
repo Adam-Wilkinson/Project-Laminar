@@ -7,6 +7,6 @@ public class KeyGestureSerializer : TypeSerializer<KeyGesture, string>
 {
     protected override string SerializeTyped(KeyGesture toSerialize) => toSerialize.ToString();
 
-    protected override KeyGesture DeSerializeTyped(string serialized, object? deserializationContext = null) =>
-        KeyGesture.Parse(serialized);
+    protected override KeyGesture DeSerializeTyped(DeserializationRequest<KeyGesture, string> request) =>
+        KeyGesture.Parse(request.Serialized);
 }

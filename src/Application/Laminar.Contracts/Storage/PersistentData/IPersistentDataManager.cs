@@ -4,7 +4,7 @@ namespace Laminar.Contracts.Storage.PersistentData;
 
 public interface IPersistentDataManager
 {
-    public IPersistentDataNode GetDataStore(DataStoreKey dataStoreKey);
+    public IPersistentDictionary GetDataStore(DataStoreKey dataStoreKey);
 
-    public IPersistentDataNode GetHeadlessNode();
+    public T GetHeadlessNode<T>();
 }
