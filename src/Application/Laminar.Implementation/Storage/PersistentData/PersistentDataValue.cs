@@ -1,5 +1,9 @@
 using System;
+using System.Collections.Generic;
+using System.Runtime.ExceptionServices;
+using Laminar.Contracts.Base;
 using Laminar.Contracts.Storage.PersistentData;
+using Laminar.Domain;
 using Laminar.Domain.Exceptions;
 using Laminar.Domain.ValueObjects;
 using Laminar.PluginFramework.Serialization;
@@ -11,6 +15,7 @@ public class PersistentDataValue : ObservableValueBase<object>, IPersistentDataV
 {
     private readonly ISerializer _serializer;
     private readonly ILogger<PersistentDataValue> _logger;
+    private readonly IExceptionHandler _exceptionHandler;
     private readonly IPersistentDataValueOwner _owner;
     
     private object? _value;
@@ -21,11 +26,13 @@ public class PersistentDataValue : ObservableValueBase<object>, IPersistentDataV
 
     public PersistentDataValue(IPersistentDataValueOwner owner,
         ISerializer serializer, 
+        IExceptionHandler exceptionHandler,
         ILogger<PersistentDataValue> logger)
     {
         _serializer = serializer;
         _logger = logger;
         _owner = owner;
+        _exceptionHandler = exceptionHandler;
         _owner.TranscoderChanged += (_, _) =>
         {
             if (IsInitialized) SetEncodedValueFromValue();
@@ -74,9 +81,11 @@ public class PersistentDataValue : ObservableValueBase<object>, IPersistentDataV
             if (Equals(value, _encodedValue)) return;
             _encodedValue = value;
 
-            if (!TrySetValueFromEncodedValue() && IsInitialized)
+            if (!IsInitialized) return;
+            
+            if (!TrySetValueFromEncodedValue())
             {
-                _logger.LogWarning("Error decoding value {name} from the encoded value {_encodedValue}. Syncing from known value {value}", Name, value, Value);
+                _exceptionHandler.OnException(new ErrorDecodingValueException(Name, Value));
                 SetEncodedValueFromValue();
             }
         }
@@ -102,17 +111,13 @@ public class PersistentDataValue : ObservableValueBase<object>, IPersistentDataV
         if (TrySetValueFromEncodedValue()) return;
 
         _value = defaultValue;
+        _exceptionHandler.OnException(new ErrorDecodingValueException(Name, Value));
         if (Value is PersistentDataNode node)
         {
             node.Owner = _owner;
         }
             
         SetEncodedValueFromValue();
-    }
-
-    protected override void OnValueChanged()
-    {
-        _owner.OnChildValueChanged();
     }
 
     private void SetEncodedValueFromValue()
@@ -129,6 +134,7 @@ public class PersistentDataValue : ObservableValueBase<object>, IPersistentDataV
             
         var serialized = _serializer.SerializeObject(_value, TypeSerializationKey);
         _encodedValue = _owner.Transcoder.EncodeElement(serialized);
+        _owner.OnChildValueChanged();
     }
         
     private bool TrySetValueFromEncodedValue()
@@ -144,7 +150,17 @@ public class PersistentDataValue : ObservableValueBase<object>, IPersistentDataV
             return false;
         }
 
-        var newValue = _serializer.DeserializeObject(decodedValue, TypeSerializationKey, _deserializationContext);
+        object newValue;
+        
+        try
+        {
+            newValue = _serializer.DeserializeObject(decodedValue, TypeSerializationKey, _deserializationContext);
+        }
+        catch (DeserializationError)
+        {
+            return false;
+        }
+        
         if (_value is not null)
         {
             return SetAndRaise(ref _value, newValue);

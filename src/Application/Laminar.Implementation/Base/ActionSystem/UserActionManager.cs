@@ -2,12 +2,14 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Laminar.Contracts.Base;
+using Laminar.Domain;
 
 namespace Laminar.Implementation.Base.ActionSystem;
 
 internal class UserActionManager(
     IEnumerable<IUserActionErrorResolver> errorResolvers,
-    IEnumerable<IUnresolvedUserActionErrorSink> unresolvedErrorSinks) : IUserActionManager
+    IExceptionHandler exceptionHandler) : IUserActionManager
 {
     private readonly Stack<IUserAction> _undoList = [];
     private readonly Stack<IUserAction> _redoList = [];
@@ -81,10 +83,7 @@ internal class UserActionManager(
 
         if (result is UserActionError error)
         {
-            foreach (var errorSink in unresolvedErrorSinks)
-            {
-                await errorSink.OnError(action, error);
-            }
+            await exceptionHandler.OnExceptionAsync(error.Exception);
         }
 
         return result;

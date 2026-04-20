@@ -36,6 +36,7 @@ public static class LaminarServices
             .AddSingleton<IFileSystem, FileSystem>()
             .AddScoped<ILaminarFileBrowser, LaminarFileBrowser>()
             .AddSingleton<IPluginLoader>(provider => ActivatorUtilities.CreateInstance<PluginLoader>(provider, frontendDependency))
+            .AddSingleton<IExceptionHandler, ExceptionHandler>()
             .AddUserInterfaceServices()
             .AddScriptingServices();
 }

@@ -1,5 +1,6 @@
 using System;
 using Avalonia.Themes.Fluent;
+using Laminar.Domain.Exceptions;
 using Laminar.PluginFramework.Serialization;
 
 namespace Laminar.Avalonia.Serializers;
@@ -13,6 +14,6 @@ public class DensityStyleSerializer : TypeSerializer<DensityStyle, string>
         {
             nameof(DensityStyle.Compact) => DensityStyle.Compact,
             nameof(DensityStyle.Normal) => DensityStyle.Normal,
-            _ => throw new ArgumentException($"Unknown density style {serialized}"),
+            _ => throw new DeserializationError(new ArgumentException($"Unknown density style {serialized}")),
         };
 }

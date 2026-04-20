@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Laminar.Contracts.Base;
 using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Implementation.Storage.PersistentData;
 using Laminar.PluginFramework.Serialization;
@@ -281,6 +282,6 @@ public class PersistentDataNodeTests
         serializer ??= Substitute.For<ISerializer>();
         logger ??= Substitute.For<ILogger<PersistentDataValue>>();
 
-        return new PersistentDataNode(serializer, logger);
+        return new PersistentDataNode(serializer, Substitute.For<IExceptionHandler>(), logger);
     }
 }

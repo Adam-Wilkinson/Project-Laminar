@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Laminar.Contracts.Base;
 using Laminar.Contracts.Storage.IO;
 using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.DataManagement;
@@ -11,6 +12,7 @@ namespace Laminar.Implementation.Storage.PersistentData;
 public class PersistentDataManager(
     ISerializer serializer, 
     IFileSystem fileSystem, 
+    IExceptionHandler exceptionHandler,
     ILogger<PersistentDataValue> valueLogger,
     ILogger<JsonPersistentDataTranscoder> jsonTranscoderLogger) 
     : IPersistentDataManager
@@ -39,7 +41,7 @@ public class PersistentDataManager(
 
         var newDataStore = dataStoreKey.DataType switch
         {
-            PersistentDataType.Json => new PersistentDataStore(new JsonPersistentDataTranscoder(jsonTranscoderLogger), file, serializer, valueLogger),
+            PersistentDataType.Json => new PersistentDataStore(new JsonPersistentDataTranscoder(jsonTranscoderLogger), file, exceptionHandler, serializer, valueLogger),
             var unknown => throw new UnknownDataTypeException(unknown),
         };
 
@@ -47,5 +49,5 @@ public class PersistentDataManager(
         return newDataStore.Root;
     }
 
-    public IPersistentDataNode GetHeadlessNode() => new PersistentDataNode(serializer, valueLogger);
+    public IPersistentDataNode GetHeadlessNode() => new PersistentDataNode(serializer, exceptionHandler, valueLogger);
 }

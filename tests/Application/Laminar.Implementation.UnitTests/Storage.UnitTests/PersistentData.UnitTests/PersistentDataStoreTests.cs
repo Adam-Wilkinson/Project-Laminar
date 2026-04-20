@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Laminar.Contracts.Base;
 using Laminar.Contracts.Storage.IO;
 using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Implementation.Storage.PersistentData;
@@ -145,6 +146,6 @@ public class PersistentDataStoreTests
         serializer ??= Substitute.For<ISerializer>();
         logger ??= Substitute.For<ILogger<PersistentDataValue>>();
 
-        return new PersistentDataStore(transcoder, file, serializer, logger);
+        return new PersistentDataStore(transcoder, file, Substitute.For<IExceptionHandler>(), serializer, logger);
     }
 }

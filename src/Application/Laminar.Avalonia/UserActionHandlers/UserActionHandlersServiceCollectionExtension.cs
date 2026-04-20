@@ -1,4 +1,6 @@
-﻿using Laminar.Contracts.Base.ActionSystem;
+﻿using Laminar.Contracts.Base;
+using Laminar.Contracts.Base.ActionSystem;
+using Laminar.Domain;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Laminar.Avalonia.UserActionHandlers;
@@ -9,7 +11,7 @@ internal static class UserActionHandlersServiceCollectionExtension
     {
         public IServiceCollection AddUserActionHandlers() => collection
             .AddSingleton<IUserActionErrorResolver, UserPromptErrorResolver>()
-            .AddSingleton<IUnresolvedUserActionErrorSink, UserPromptErrorSink>()
-            .AddSingleton<IUnresolvedUserActionErrorSink, LogErrorSink>();
+            .AddSingleton<IExceptionSink, UserPromptExceptionSink>()
+            .AddSingleton<IExceptionSink, LogExceptionSink>();
     }
 }

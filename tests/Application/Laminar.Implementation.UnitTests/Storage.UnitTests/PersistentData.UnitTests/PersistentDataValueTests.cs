@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Laminar.Contracts.Base;
 using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.Exceptions;
 using Laminar.Implementation.Storage.PersistentData;
@@ -234,7 +235,7 @@ public class PersistentDataValueTests
         serializer ??= Substitute.For<ISerializer>();
         logger ??= Substitute.For<ILogger<PersistentDataValue>>();
 
-        return new PersistentDataValue(owner, serializer, logger)
+        return new PersistentDataValue(owner, serializer, Substitute.For<IExceptionHandler>(), logger)
         {
             Name = "Test"
         };

@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
+using Laminar.Contracts.Base;
 using Laminar.Contracts.Storage.PersistentData;
 using Laminar.PluginFramework.Serialization;
 using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.Storage.PersistentData;
 
-public class PersistentDataNode(ISerializer serializer, ILogger<PersistentDataValue> valueLogger) : IPersistentDataNode
+public class PersistentDataNode(ISerializer serializer, IExceptionHandler exceptionHandler, ILogger<PersistentDataValue> valueLogger) : IPersistentDataNode
 {
     public Dictionary<string, IPersistentDataValue> InternalValues { get; } = [];
 
@@ -27,7 +28,7 @@ public class PersistentDataNode(ISerializer serializer, ILogger<PersistentDataVa
         var persistentDataValue = GetPersistentData(childName);
         if (!persistentDataValue.IsInitialized)
         {
-            var newResult = new PersistentDataNode(serializer, valueLogger);
+            var newResult = new PersistentDataNode(serializer, exceptionHandler, valueLogger);
             persistentDataValue.Initialize(newResult, typeof(PersistentDataNode), newResult);
             return newResult;
         }
@@ -86,7 +87,7 @@ public class PersistentDataNode(ISerializer serializer, ILogger<PersistentDataVa
             return value;
         }
 
-        PersistentDataValue newValue = new(this, serializer, valueLogger)
+        PersistentDataValue newValue = new(this, serializer, exceptionHandler, valueLogger)
         {
             Name = key,
         };

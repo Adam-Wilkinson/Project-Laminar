@@ -14,7 +14,6 @@ internal class LaminarStorageRootFolder : LaminarStorageFolder, ILaminarStorageR
     private readonly IDisposable _monitor;
     private readonly IPersistentDataNode _dataStore;
     
-    
     public LaminarStorageRootFolder(
         FileSystemPath path, 
         ILaminarStorageItemFactory factory,
@@ -26,7 +25,7 @@ internal class LaminarStorageRootFolder : LaminarStorageFolder, ILaminarStorageR
         Path = path;
         _dataStore = persistentDataManager.GetDataStore(new DataStoreKey(InfoFileName, PersistentDataType.Json, path));
 
-        _dataStore.InitializeDefaultValue("RootFolder", this, (this, factory));
+        // _dataStore.InitializeDefaultValue("RootFolder", this, (this, factory));
         
         _monitor = monitor.StartMonitoring(this);
         Refresh();

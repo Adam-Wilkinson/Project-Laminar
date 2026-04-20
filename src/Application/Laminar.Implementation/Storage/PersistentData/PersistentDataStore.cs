@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using Laminar.Contracts.Base;
 using Laminar.Contracts.Storage.IO;
 using Laminar.Contracts.Storage.PersistentData;
 using Laminar.PluginFramework.Serialization;
@@ -16,12 +17,13 @@ public class PersistentDataStore : IPersistentDataStore
     public PersistentDataStore(
         IPersistentDataTranscoder persistentDataTranscoder,
         IFileContents file,
+        IExceptionHandler exceptionHandler,
         ISerializer serializer, 
         ILogger<PersistentDataValue> valueLogger)
     {
         _serializer = serializer;
         Transcoder = persistentDataTranscoder;
-        Root = new PersistentDataNode(serializer, valueLogger)
+        Root = new PersistentDataNode(serializer, exceptionHandler, valueLogger)
         {
             Owner = this,
         };
