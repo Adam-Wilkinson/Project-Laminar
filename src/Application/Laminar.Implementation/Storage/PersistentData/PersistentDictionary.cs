@@ -7,24 +7,20 @@ namespace Laminar.Implementation.Storage.PersistentData;
 public class PersistentDictionary(IServiceProvider serviceProvider) 
     : PersistentDataNode(serviceProvider), IPersistentDictionary
 {
-    internal Dictionary<string, IPersistentDataValue> InternalValues { get; } = [];
+    internal Dictionary<string, IPersistentDataPoint> InternalValues { get; } = [];
 
-    public IObservableValueWithDefault<T> InitializeValue<T>(string key, T defaultValue, 
-        object? deserializationContext = null, Type? serializationKeyOverride = null) where T : notnull
-    {
-        IPersistentDataValue returnValue = GetPersistentData(key);
-        returnValue.Initialize(defaultValue, serializationKeyOverride ?? typeof(T), deserializationContext);
-        return returnValue.Cast<object, T>();
-    }
+    public IPersistentValue<T> InitializeValue<T>(string key, T defaultValue, 
+        object? deserializationContext = null, Type? serializationKeyOverride = null) where T : notnull 
+        => GetPersistentData(key).Initialize(defaultValue, serializationKeyOverride ?? typeof(T), deserializationContext);
 
-    public IObservableValueWithDefault<T>? TryGetValue<T>(string key) where T : notnull
-        => InternalValues.TryGetValue(key, out var result) ? result.Cast<object, T>() : null;
+    public IPersistentValue<T>? TryGetValue<T>(string key) where T : notnull
+        => InternalValues.TryGetValue(key, out var result) ? result.GetValue<T>() : null;
     
     public bool SetValue<T>(string key, T value) where T : notnull
     {
         if (!InternalValues.TryGetValue(key, out var result)) return false;
         
-        result.Value = value;
+        result.GetValue<T>().Value = value;
         return true;
 
     }
@@ -35,9 +31,9 @@ public class PersistentDictionary(IServiceProvider serviceProvider)
         return InternalValues.Remove(key);
     }
     
-    public IPersistentDataValue GetPersistentData(string key)
+    public IPersistentDataPoint GetPersistentData(string key)
     {
-        if (InternalValues.TryGetValue(key, out IPersistentDataValue? value))
+        if (InternalValues.TryGetValue(key, out IPersistentDataPoint? value))
         {
             return value;
         }

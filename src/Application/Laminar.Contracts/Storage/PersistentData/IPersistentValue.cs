@@ -2,26 +2,26 @@ using Laminar.Domain.ValueObjects;
 
 namespace Laminar.Contracts.Storage.PersistentData;
 
-public interface IObservableValueWithDefault<T> : IObservableValue<T>
+public interface IPersistentValue<T> : IObservableValue<T>
 {
     public T DefaultValue { get; }
 
     public void Reset();
 }
 
-public static class IObservableValueWithDefaultExtensions
+public static class PersistentValueExtensions
 {
-    extension<T>(IObservableValueWithDefault<T> observableValue)
+    extension<T>(IPersistentValue<T> persistentValue)
     {
-        public IObservableValueWithDefault<TOut> Cast<TOut>() => new CastObservable<T, TOut>(observableValue);
+        public IPersistentValue<TOut> Cast<TOut>() => new CastPersistent<T, TOut>(persistentValue);
     }
 
-    private class CastObservable<TIn, TOut> : ObservableValueBase<TOut>, IObservableValueWithDefault<TOut>
+    private class CastPersistent<TIn, TOut> : ObservableValueBase<TOut>, IPersistentValue<TOut>
     {
-        private readonly IObservableValueWithDefault<TIn> _input;
+        private readonly IPersistentValue<TIn> _input;
         private TOut _value;
         
-        public CastObservable(IObservableValueWithDefault<TIn> input)
+        public CastPersistent(IPersistentValue<TIn> input)
         {
             _input = input;
             DefaultValue = ForceCast(_input.DefaultValue);

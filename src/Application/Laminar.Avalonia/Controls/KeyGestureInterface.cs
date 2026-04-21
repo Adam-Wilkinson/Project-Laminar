@@ -106,6 +106,8 @@ public class KeyGestureInterface : TemplatedControl
         {
             FinishFindingKeyGesture();
         }
+
+        e.Handled = true;
     }
 
     protected override void OnKeyUp(KeyEventArgs e)

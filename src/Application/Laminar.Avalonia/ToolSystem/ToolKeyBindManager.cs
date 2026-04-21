@@ -29,7 +29,7 @@ public class ToolKeyBindManager(TopLevel defaultTopLevel) : IAfterApplicationBui
         {
             if (e.Equals(_mostRecentlyHandledKeyEvent)) return;
             _mostRecentlyHandledKeyEvent = e;
-            foreach (KeyBinding keybind in AllKeybinds.Where(keybind => keybind.Gesture.Matches(e)))
+            foreach (var keybind in AllKeybinds.Where(keybind => keybind.Gesture.Matches(e)))
             {
                 keybind.TryHandle(e);
             }

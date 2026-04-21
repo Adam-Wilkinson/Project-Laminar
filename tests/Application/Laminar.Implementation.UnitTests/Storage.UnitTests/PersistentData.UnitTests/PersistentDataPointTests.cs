@@ -9,7 +9,7 @@ using NSubstitute;
 
 namespace Laminar.Implementation.UnitTests.Storage.UnitTests.PersistentData.UnitTests;
 
-public class PersistentDataValueTests
+public class PersistentDataPointTests
 {
     public class Reset
     {
@@ -227,15 +227,15 @@ public class PersistentDataValueTests
         }
     }
     
-    private static PersistentDataValue CreateValue(
+    private static PersistentDataPoint CreateValue(
         IPersistentDataValueOwner owner,
         ISerializer? serializer = null,
-        ILogger<PersistentDataValue>? logger = null)
+        ILogger<PersistentDataPoint>? logger = null)
     {
         serializer ??= Substitute.For<ISerializer>();
-        logger ??= Substitute.For<ILogger<PersistentDataValue>>();
+        logger ??= Substitute.For<ILogger<PersistentDataPoint>>();
 
-        return new PersistentDataValue(owner, serializer, Substitute.For<IExceptionHandler>(), logger)
+        return new PersistentDataPoint(owner, serializer, Substitute.For<IExceptionHandler>(), logger)
         {
             Name = "Test"
         };

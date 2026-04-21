@@ -139,12 +139,12 @@ public class PersistentDataStoreTests
         IPersistentDataTranscoder? transcoder = null,
         IFileContents? file = null,
         ISerializer? serializer = null,
-        ILogger<PersistentDataValue>? logger = null)
+        ILogger<PersistentDataPoint>? logger = null)
     {
         transcoder ??= Substitute.For<IPersistentDataTranscoder>();
         file ??= Substitute.For<IFileContents>();
         serializer ??= Substitute.For<ISerializer>();
-        logger ??= Substitute.For<ILogger<PersistentDataValue>>();
+        logger ??= Substitute.For<ILogger<PersistentDataPoint>>();
 
         return new PersistentDataStore(transcoder, file, Substitute.For<IExceptionHandler>(), serializer, logger);
     }

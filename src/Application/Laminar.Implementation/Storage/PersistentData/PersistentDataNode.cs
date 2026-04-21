@@ -39,12 +39,12 @@ public abstract class PersistentDataNode(IServiceProvider serviceProvider) : IPe
         Owner?.OnChildValueChanged();
     }
 
-    protected IPersistentDataValue CreateValue() =>
-        ActivatorUtilities.CreateInstance<PersistentDataValue>(serviceProvider, this);
+    protected IPersistentDataPoint CreateValue() =>
+        ActivatorUtilities.CreateInstance<PersistentDataPoint>(serviceProvider, this);
 
-    protected void RemoveValue(IPersistentDataValue value)
+    protected void RemoveValue(IPersistentDataPoint point)
     {
-        value.OnDeletion();
+        point.OnDeletion();
     }
     
     private void OnOwnerTranscoderChanged(object? sender, EventArgs e)

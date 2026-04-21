@@ -277,10 +277,10 @@ public class PersistentDictionaryTests
     
     private static PersistentDictionary CreateNode(
         ISerializer? serializer = null,
-        ILogger<PersistentDataValue>? logger = null)
+        ILogger<PersistentDataPoint>? logger = null)
     {
         serializer ??= Substitute.For<ISerializer>();
-        logger ??= Substitute.For<ILogger<PersistentDataValue>>();
+        logger ??= Substitute.For<ILogger<PersistentDataPoint>>();
 
         return new PersistentDictionary(serializer, Substitute.For<IExceptionHandler>(), logger);
     }

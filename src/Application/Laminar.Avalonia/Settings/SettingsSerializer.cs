@@ -78,7 +78,7 @@ public class SettingsSerializer(TopLevel topLevel, IPersistentDataManager persis
     
     private class ResetSettingCommand : ICommand
     {
-        private readonly IObservableValueWithDefault<object> _settingObservable;
+        private readonly IPersistentValue<object> _settingPersistent;
         private bool _canExecute;
 
         public ResetSettingCommand(IPersistentDictionary settingsDataStore, string settingKey)
@@ -86,10 +86,10 @@ public class SettingsSerializer(TopLevel topLevel, IPersistentDataManager persis
             if (settingsDataStore.TryGetValue<object>(settingKey) is not { } settingObservable)
                 throw new InvalidOperationException($"Unable to find setting {settingKey}");
             
-            _settingObservable = settingObservable;
-            _settingObservable.OnChanged += (_, _) =>
+            _settingPersistent = settingObservable;
+            _settingPersistent.OnChanged += (_, _) =>
             {
-                bool canNowExecute = !Equals(_settingObservable.Value, _settingObservable.DefaultValue);
+                bool canNowExecute = !Equals(_settingPersistent.Value, _settingPersistent.DefaultValue);
                 if (_canExecute != canNowExecute)
                 {
                     CanExecuteChanged?.Invoke(this, EventArgs.Empty);
@@ -99,11 +99,11 @@ public class SettingsSerializer(TopLevel topLevel, IPersistentDataManager persis
 
         public bool CanExecute(object? parameter)
         {
-            _canExecute = !Equals(_settingObservable.Value, _settingObservable.DefaultValue);
+            _canExecute = !Equals(_settingPersistent.Value, _settingPersistent.DefaultValue);
             return _canExecute;
         }
 
-        public void Execute(object? parameter) => _settingObservable.Reset();
+        public void Execute(object? parameter) => _settingPersistent.Reset();
 
         public event EventHandler? CanExecuteChanged;
     }
