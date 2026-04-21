@@ -26,8 +26,8 @@ internal class LaminarFileBrowser(
     
     public IReadOnlyObservableCollection<ILaminarStorageRootFolder> RootFolders { get; } = dataManager
         .GetDataStore(DataStoreKey.PersistentData)
-        .GetOrCreateChild<IPersistentDictionary>("FileBrowser")
-        .InitializeDefaultValue<List<FileSystemPath>>(nameof(RootFolders), [RoamingDataFolder.ChildPath("Default")])
+        .InitializeValue("FileBrowser", dataManager.GetHeadlessNode<IPersistentDictionary>()).Value
+        .InitializeValue<List<FileSystemPath>>(nameof(RootFolders), [RoamingDataFolder.ChildPath("Default")])
         .ToObservableCollection()
         .ObservableMap(factory.CreateRootFolder);
     

@@ -1,9 +1,6 @@
 using System;
-using System.Collections.Generic;
-using System.Runtime.ExceptionServices;
 using Laminar.Contracts.Base;
 using Laminar.Contracts.Storage.PersistentData;
-using Laminar.Domain;
 using Laminar.Domain.Exceptions;
 using Laminar.Domain.ValueObjects;
 using Laminar.PluginFramework.Serialization;
@@ -24,7 +21,7 @@ public class PersistentDataValue : ObservableValueBase<object>, IPersistentDataV
     private object? _deserializationContext;
     private Type? _typeSerializationKey;
 
-    public PersistentDataValue(IPersistentDataValueOwner owner, string name,
+    public PersistentDataValue(IPersistentDataValueOwner owner,
         ISerializer serializer, 
         IExceptionHandler exceptionHandler,
         ILogger<PersistentDataValue> logger)
@@ -33,33 +30,38 @@ public class PersistentDataValue : ObservableValueBase<object>, IPersistentDataV
         _logger = logger;
         _owner = owner;
         _exceptionHandler = exceptionHandler;
-        Name = name;
         _owner.TranscoderChanged += (_, _) =>
         {
             if (IsInitialized) SetEncodedValueFromValue();
         };
     }
 
-    public Type TypeSerializationKey => _typeSerializationKey ?? throw new ValueNotInitializedException(Name);
+    public Type TypeSerializationKey => _typeSerializationKey ?? throw new ValueNotInitializedException();
     
     public bool IsInitialized => _value is not null;
-
-    public required string Name { get; init; }
+    
+    public void OnDeletion()
+    {
+        if (Value is PersistentDataNode node)
+        {
+            node.Owner = null;
+        }
+    }
 
     public void Reset()
     {
-        if (!IsInitialized) throw new ValueNotInitializedException(Name);
+        if (!IsInitialized) throw new ValueNotInitializedException();
         Value = DefaultValue;
     }
 
     public override object Value
     {
-        get => _value ?? throw new ValueNotInitializedException(Name);
+        get => _value ?? throw new ValueNotInitializedException();
         set
         {
             if (_value is null)
             {
-                throw new ValueNotInitializedException(Name);
+                throw new ValueNotInitializedException();
             }
             
             if (!SetAndRaise(ref _value, value)) return;
@@ -76,7 +78,7 @@ public class PersistentDataValue : ObservableValueBase<object>, IPersistentDataV
 
     public object EncodedValue
     {
-        get => _encodedValue ?? throw new ValueNotInitializedException(Name);
+        get => _encodedValue ?? throw new ValueNotInitializedException();
         set
         {
             if (Equals(value, _encodedValue)) return;
@@ -86,13 +88,13 @@ public class PersistentDataValue : ObservableValueBase<object>, IPersistentDataV
             
             if (!TrySetValueFromEncodedValue())
             {
-                _exceptionHandler.OnException(new ErrorDecodingValueException(Name, Value));
+                _exceptionHandler.OnException(new ErrorDecodingValueException(Value));
                 SetEncodedValueFromValue();
             }
         }
     }
     
-    public object DefaultValue => _defaultValue ?? throw new ValueNotInitializedException(Name);
+    public object DefaultValue => _defaultValue ?? throw new ValueNotInitializedException();
     
     public void Initialize(object defaultValue, Type? typeSerializationKey = null, object? deserializationContext = null)
     {
@@ -112,7 +114,7 @@ public class PersistentDataValue : ObservableValueBase<object>, IPersistentDataV
         _value = defaultValue;
         if (TrySetValueFromEncodedValue()) return;
 
-        if (_encodedValue is not null) _exceptionHandler.OnException(new ErrorDecodingValueException(Name, Value));
+        if (_encodedValue is not null) _exceptionHandler.OnException(new ErrorDecodingValueException(Value));
         if (Value is PersistentDataNode node)
         {
             node.Owner = _owner;
@@ -130,7 +132,7 @@ public class PersistentDataValue : ObservableValueBase<object>, IPersistentDataV
         
         if (_value is null)
         {
-            throw new ValueNotInitializedException(Name);
+            throw new ValueNotInitializedException();
         }
             
         var serialized = _serializer.SerializeObject(_value, TypeSerializationKey);
@@ -152,7 +154,7 @@ public class PersistentDataValue : ObservableValueBase<object>, IPersistentDataV
         
         if (_owner.Transcoder.DecodeElement(EncodedValue, _serializer.GetSerializedType(_typeSerializationKey)) is not { } decodedValue)
         {
-            _logger.LogError("Error reading value {valueName}. Unable to decode value, the value will not be changed", Name);
+            _logger.LogError("Error reading value. Unable to decode value, the value will not be changed");
             return false;
         }
 

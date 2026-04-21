@@ -143,7 +143,7 @@ public class PersistentDictionaryTests
         {
             var sut = CreateNode();
 
-            sut.InitializeDefaultValue("key", 10);
+            sut.InitializeValue("key", 10);
 
             var result = sut.RemoveValue("key");
 
@@ -179,7 +179,7 @@ public class PersistentDictionaryTests
         {
             var sut = CreateNode();
 
-            sut.InitializeDefaultValue("key", 10);
+            sut.InitializeValue("key", 10);
 
             var result = sut.SetValue("key", 20);
 
@@ -205,7 +205,7 @@ public class PersistentDictionaryTests
         {
             var sut = CreateNode();
 
-            sut.InitializeDefaultValue("key", 42);
+            sut.InitializeValue("key", 42);
 
             var result = sut.TryGetValue<int>("key");
 
@@ -221,7 +221,7 @@ public class PersistentDictionaryTests
         {
             var sut = CreateNode();
 
-            var result = sut.InitializeDefaultValue("key", 10);
+            var result = sut.InitializeValue("key", 10);
 
             result.Value.Should().Be(10);
             sut.InternalValues.Should().ContainKey("key");
@@ -232,9 +232,9 @@ public class PersistentDictionaryTests
         {
             var sut = CreateNode();
 
-            sut.InitializeDefaultValue("key", 10);
+            sut.InitializeValue("key", 10);
 
-            sut.Invoking(x => x.InitializeDefaultValue("key", 20))
+            sut.Invoking(x => x.InitializeValue("key", 20))
                 .Should().Throw<InvalidOperationException>();
         }
     }

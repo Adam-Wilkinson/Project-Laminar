@@ -2,13 +2,17 @@ namespace Laminar.Contracts.Storage.PersistentData;
 
 public interface IPersistentList : IPersistentDataValueOwner
 {
-    public T GetOrCreateChild<T>(int index) where T : notnull;
+    public int Count { get; }
+    
+    public IObservableValueWithDefault<T> AddAndInitialize<T>(T initialValue, object? deserializationContext = null,
+        Type? serializationKeyOverride = null) where T : notnull;
 
-    public IObservableValueWithDefault<T> Initialize<T>(int index, T initialValue, object? deserializationContext = null);
+    public IObservableValueWithDefault<T> InsertAndInitialize<T>(int index, T initialValue,
+        object? deserializationContext = null, Type? serializationKeyOverride = null) where T : notnull;
     
-    public IObservableValueWithDefault<T> Get<T>(int index);
+    public IObservableValueWithDefault<T> GetValue<T>(int index);
     
-    public void Set<T>(int index, T value);
+    public void SetValue<T>(int index, T value) where T : notnull;
     
-    public void Remove(int index);
+    public void RemoveValue(int index);
 }

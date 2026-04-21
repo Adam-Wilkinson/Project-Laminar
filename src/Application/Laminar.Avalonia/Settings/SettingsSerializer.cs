@@ -54,7 +54,7 @@ public class SettingsSerializer(TopLevel topLevel, IPersistentDataManager persis
     private void SerializeSetting(Setting setting, string settingKey)
     {
         var newSettingObservable = _settingsDataStore
-            .InitializeDefaultValue(settingKey, setting.Value, serializationKeyOverride: setting.Value.GetType());
+            .InitializeValue(settingKey, setting.Value, serializationKeyOverride: setting.Value.GetType());
 
         setting.Value = newSettingObservable.Value;
         

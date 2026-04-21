@@ -56,7 +56,7 @@ public class PersistentDataStoreTests
 
             transcoder.ToBytes(serialized).Returns(bytes);
 
-            root.InitializeDefaultValue("key", 10);
+            root.InitializeValue("key", 10);
             root.SetValue("key", 20);
 
             file.Received().Contents = bytes;

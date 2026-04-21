@@ -6,5 +6,5 @@ public interface IPersistentDataManager
 {
     public IPersistentDictionary GetDataStore(DataStoreKey dataStoreKey);
 
-    public T GetHeadlessNode<T>();
+    public T GetHeadlessNode<T>() where T : IPersistentDataValueOwner;
 }

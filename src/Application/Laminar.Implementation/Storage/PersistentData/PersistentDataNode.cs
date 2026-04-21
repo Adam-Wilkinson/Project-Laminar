@@ -1,9 +1,10 @@
 using System;
 using Laminar.Contracts.Storage.PersistentData;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Laminar.Implementation.Storage.PersistentData;
 
-public abstract class PersistentDataNode : IPersistentDataValueOwner
+public abstract class PersistentDataNode(IServiceProvider serviceProvider) : IPersistentDataValueOwner
 {
     public IPersistentDataTranscoder? Transcoder => Owner?.Transcoder;
 
@@ -36,6 +37,14 @@ public abstract class PersistentDataNode : IPersistentDataValueOwner
     {
         ChildValueChanged?.Invoke(this, EventArgs.Empty);
         Owner?.OnChildValueChanged();
+    }
+
+    protected IPersistentDataValue CreateValue() =>
+        ActivatorUtilities.CreateInstance<PersistentDataValue>(serviceProvider, this);
+
+    protected void RemoveValue(IPersistentDataValue value)
+    {
+        value.OnDeletion();
     }
     
     private void OnOwnerTranscoderChanged(object? sender, EventArgs e)

@@ -1,5 +1,3 @@
-using Laminar.Domain.ValueObjects;
-
 namespace Laminar.Contracts.Storage.PersistentData;
 
 public interface IPersistentDataValue : IObservableValueWithDefault<object>
@@ -11,6 +9,6 @@ public interface IPersistentDataValue : IObservableValueWithDefault<object>
     public Type TypeSerializationKey { get; }
     
     public bool IsInitialized { get; }
-    
-    public string Name { get; init; }
+
+    public void OnDeletion();
 }

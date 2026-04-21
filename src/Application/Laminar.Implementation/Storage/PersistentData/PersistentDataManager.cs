@@ -50,5 +50,5 @@ public class PersistentDataManager(
         return newDataStore.Root;
     }
 
-    public T GetHeadlessNode<T>() => ActivatorUtilities.CreateInstance<T>(serviceProvider);
+    public T GetHeadlessNode<T>() where T : IPersistentDataValueOwner => serviceProvider.GetRequiredService<T>();
 }
