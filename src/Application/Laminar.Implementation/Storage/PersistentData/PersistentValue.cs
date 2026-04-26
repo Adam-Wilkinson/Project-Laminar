@@ -13,9 +13,28 @@ public class PersistentValue<T> : ObservableValueBase<T>, IPersistentValue<T>, I
     private readonly ISerializer _serializer;
     private readonly PersistentDataPoint _parent;
     private readonly object? _deserializationContext;
+    private readonly T? _defaultValue = default;
     
     private T _value;
-
+    
+    public static PersistentValue<T> FromEncodedValue(
+        object encodedValue,
+        Type? typeSerializationKeyOverride, 
+        object? deserializationContext,
+        PersistentDataPoint parent,
+        ISerializer serializer,
+        IPersistentDataTranscoder transcoder)
+    {
+        T initialValue = GetValueFromEncoded(encodedValue, serializer, transcoder,
+            typeSerializationKeyOverride ?? typeof(T), deserializationContext, null);
+        
+        return new PersistentValue<T>(initialValue, typeSerializationKeyOverride, deserializationContext, parent,
+            serializer)
+        {
+            HasDefaultValue = false,
+        };
+    }
+    
     public PersistentValue(
         T value,
         Type? typeSerializationKeyOverride,
@@ -28,14 +47,12 @@ public class PersistentValue<T> : ObservableValueBase<T>, IPersistentValue<T>, I
         _deserializationContext = deserializationContext;
         _parent = parent;
         _serializer = serializer;
-        DefaultValue = value;
+        _defaultValue = value;
 
         _serializer.GetSerializedValueChangedNotifier(_value, TypeSerializationKey).SerializedValueChanged += (_, _) =>
         {
-            _parent.UpdateEncodedFromValue();
+            if (_parent.IsInitialized) _parent.UpdateEncodedFromValue();
         };
-        
-        SetDataOwner(_parent.Owner);
     }
 
     public Type TypeSerializationKey { get; }
@@ -50,10 +67,15 @@ public class PersistentValue<T> : ObservableValueBase<T>, IPersistentValue<T>, I
             _parent.UpdateEncodedFromValue();
         }
     }
-    
-    public T DefaultValue { get; }
 
-    public void Reset() => Value = DefaultValue;
+    public bool HasDefaultValue { get; private init; } = true;
+
+    public T DefaultValue => _defaultValue ?? throw new Exception("This persistent value does not have a default");
+
+    public void Reset()
+    {
+        if (_defaultValue is not null) Value = _defaultValue;
+    }
 
     public object GetEncoded(IPersistentDataTranscoder transcoder)
     {
@@ -63,24 +85,10 @@ public class PersistentValue<T> : ObservableValueBase<T>, IPersistentValue<T>, I
 
     public bool TrySetFromEncoded(object encodedValue, IPersistentDataTranscoder transcoder)
     {
-        var decoded = transcoder.DecodeElement(encodedValue, _serializer.GetSerializedType(TypeSerializationKey));
-
-        if (decoded is null) return false;
+        T newValue = GetValueFromEncoded(encodedValue, _serializer, transcoder, TypeSerializationKey,
+            _deserializationContext, _value);
         
-        var newValue = _serializer.DeserializeObject(new DeserializationRequest
-        {
-            Serialized = decoded,
-            TargetType = TypeSerializationKey,
-            ExistingInstance = _value,
-            Context = _deserializationContext
-        });
-
-        if (newValue is not T typedValue)
-        {
-            throw new DeserializationError(new InvalidCastException());
-        }
-        
-        SetAndRaise(ref _value, typedValue);
+        SetAndRaise(ref _value, newValue);
         return true;
     }
     
@@ -89,22 +97,55 @@ public class PersistentValue<T> : ObservableValueBase<T>, IPersistentValue<T>, I
         SetDataOwner(_parent.Owner);
     }
 
-    public void SetDataOwner(IPersistentDataValueOwner? newOwner)
+    public void SetDataOwner(PersistentDataNode? newOwner)
     {
         switch (Value)
         {
             case PersistentDataNode node:
-                node.Owner = newOwner;
+                SetOwner(node, newOwner);
                 break;
             case IEnumerable<PersistentDataNode> nodes:
             {
                 foreach (var eachNode in nodes)
                 {
-                    eachNode.Owner = newOwner;
+                    SetOwner(eachNode, newOwner);
                 }
 
                 break;
             }
         }
+    }
+
+    private void SetOwner(PersistentDataNode childNode, PersistentDataNode? newOwner)
+    {
+        // This can happen if the data node is added to a new tree before it is removed from the old one.
+        // We do not want to nullify the new owner in this case
+        if (newOwner is null && !ReferenceEquals(_parent.Owner, childNode.Owner)) return;
+        
+        (childNode.Owner as PersistentDataNode)?.RemoveChildNode(childNode);
+        newOwner?.RegisterChildNode(childNode);
+    }
+
+    private static T GetValueFromEncoded(object encodedValue, ISerializer serializer, IPersistentDataTranscoder transcoder, Type typeSerializationKey,
+        object? deserializationContext, object? existingValue)
+    {
+        var decoded = transcoder.DecodeElement(encodedValue, serializer.GetSerializedType(typeSerializationKey));
+
+        if (decoded is null) throw new DeserializationError(new InvalidCastException());
+        
+        var newValue = serializer.DeserializeObject(new DeserializationRequest
+        {
+            Serialized = decoded,
+            TargetType = typeSerializationKey,
+            ExistingInstance = existingValue,
+            Context = deserializationContext
+        });
+
+        if (newValue is not T typedValue)
+        {
+            throw new DeserializationError(new InvalidCastException());
+        }
+
+        return typedValue;
     }
 }

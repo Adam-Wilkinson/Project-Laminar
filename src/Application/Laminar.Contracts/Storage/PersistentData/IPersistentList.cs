@@ -1,8 +1,8 @@
 namespace Laminar.Contracts.Storage.PersistentData;
 
-public interface IPersistentList : IPersistentDataValueOwner
+public interface IPersistentList : IPersistentDataValueOwner, IList<IPersistentDataPoint> 
 {
-    public int Count { get; }
+    public event EventHandler? ContentsChanged;
     
     public IPersistentValue<T> AddAndInitialize<T>(T initialValue, object? deserializationContext = null,
         Type? serializationKeyOverride = null) where T : notnull;
@@ -10,9 +10,7 @@ public interface IPersistentList : IPersistentDataValueOwner
     public IPersistentValue<T> InsertAndInitialize<T>(int index, T initialValue,
         object? deserializationContext = null, Type? serializationKeyOverride = null) where T : notnull;
     
-    public IPersistentValue<T> GetValue<T>(int index);
+    public IPersistentValue<T> GetValue<T>(int index) where T : notnull;
     
     public void SetValue<T>(int index, T value) where T : notnull;
-    
-    public void RemoveValue(int index);
 }

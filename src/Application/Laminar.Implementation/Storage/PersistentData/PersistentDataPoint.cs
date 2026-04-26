@@ -16,7 +16,7 @@ public class PersistentDataPoint : IPersistentDataPoint
     private IPersistentValueInternal? _persistentValue;
     private object? _encodedValue;
 
-    public PersistentDataPoint(IPersistentDataValueOwner owner,
+    public PersistentDataPoint(PersistentDataNode owner,
         ISerializer serializer, 
         IExceptionHandler exceptionHandler,
         ILogger<PersistentDataPoint> logger)
@@ -31,13 +31,13 @@ public class PersistentDataPoint : IPersistentDataPoint
         };
     }
 
-    public IPersistentDataValueOwner Owner { get; }
-    
-    public bool IsInitialized => _persistentValue is not null;
+    public PersistentDataNode Owner { get; }
+
+    public bool IsInitialized { get; private set; }
 
     public object EncodedValue
     {
-        get => _encodedValue ?? throw new ValueNotInitializedException();
+        get => _encodedValue ?? throw new InvalidCastException();
         set
         {
             if (Equals(value, _encodedValue)) return;
@@ -53,15 +53,21 @@ public class PersistentDataPoint : IPersistentDataPoint
         }
     }
     
-    public IPersistentValue<T> Initialize<T>(T defaultValue, Type? typeSerializationKey = null, 
+    public IPersistentValue<T> SetDefaultAndGet<T>(T defaultValue, Type? serializationKeyOverride = null, 
         object? deserializationContext = null) where T : notnull
     {
         if (IsInitialized)
             throw new InvalidOperationException("This function can only be called on uninitialized data");
 
-        var newValue = new PersistentValue<T>(defaultValue, typeSerializationKey, deserializationContext, this,
+        Owner.ChildIsInitializing = true;
+        
+        var newValue = new PersistentValue<T>(defaultValue, serializationKeyOverride, deserializationContext, this,
             _serializer);
         _persistentValue = newValue;
+        _persistentValue.SetDataOwner(Owner);
+
+        IsInitialized = true;
+        Owner.ChildIsInitializing = false;
         
         if (!UpdateValueFromEncoded())
         {
@@ -79,23 +85,40 @@ public class PersistentDataPoint : IPersistentDataPoint
         _persistentValue?.SetDataOwner(null);
     }
 
-    public IPersistentValue<T> GetValue<T>() => _persistentValue switch
+    public IPersistentValue<T> GetValue<T>() where T : notnull
     {
-        null => throw new ValueNotInitializedException(),
-        IPersistentValue<T> typed => typed,
-        _ => throw new InvalidCastException()
-    };
+        if (IsInitialized)
+        {
+            return _persistentValue as IPersistentValue<T> ?? throw new InvalidCastException();
+        }
+
+        if (_encodedValue is null)
+        {
+            throw new InvalidOperationException("Uninitialized values need an encoded value to be retrieved");
+        }
+
+        if (Owner.Transcoder is null)
+        {
+            throw new InvalidOperationException("Cannot read encoded value without a transcoder");
+        }
+
+        Owner.ChildIsInitializing = true;
+        
+        var newValue = PersistentValue<T>.FromEncodedValue(_encodedValue, null,
+            null, this, _serializer, Owner.Transcoder);
+        _persistentValue = newValue;
+        _persistentValue.SetDataOwner(Owner);
+        
+        IsInitialized = true;
+        Owner.ChildIsInitializing = false;
+        return newValue;
+    }
 
     public void UpdateEncodedFromValue()
     {
-        if (Owner.Transcoder is null)
+        if (Owner.Transcoder is null || !IsInitialized || _persistentValue is null)
         {
             return;
-        }
-        
-        if (_persistentValue is null)
-        {
-            throw new ValueNotInitializedException();
         }
 
         _encodedValue = _persistentValue.GetEncoded(Owner.Transcoder);

@@ -4,6 +4,8 @@ namespace Laminar.Contracts.Storage.PersistentData;
 
 public interface IPersistentValue<T> : IObservableValue<T>
 {
+    public bool HasDefaultValue { get; }
+    
     public T DefaultValue { get; }
 
     public void Reset();
@@ -32,6 +34,8 @@ public static class PersistentValueExtensions
 
         public override TOut Value { get => _value; set => SetAndRaise(ref _value, value); }
 
+        public bool HasDefaultValue => _input.HasDefaultValue;
+        
         public TOut DefaultValue { get; }
 
         public void Reset() => _input.Reset();

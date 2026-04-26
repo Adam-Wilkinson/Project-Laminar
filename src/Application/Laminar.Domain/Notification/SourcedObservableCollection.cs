@@ -24,18 +24,23 @@ public class SourcedObservableCollection<T> : IObservableCollection<T> where T :
     
     private IEnumerable<T> _source = [];
     private bool _matchesSource = true;
+    private SourcedCollectionMode _mode = SourcedCollectionMode.SequenceEquality;
     
-    public SourcedObservableCollection(IEnumerable<T> source, IEqualityComparer<T>? equalityCheck = null)
+    public SourcedObservableCollection(
+        IEnumerable<T> source, 
+        IEqualityComparer<T>? equalityCheck = null,
+        SourcedCollectionMode mode = SourcedCollectionMode.SequenceEquality)
     {
         _equalityComparer = equalityCheck ?? EqualityComparer<T>.Default;
-        ChangeSourceTo(source);
+        ChangeSourceTo(source, mode);
     }
 
-    public void ChangeSourceTo(IEnumerable<T> source)
+    public void ChangeSourceTo(IEnumerable<T> source, SourcedCollectionMode mode = SourcedCollectionMode.SequenceEquality)
     {
         _source = source;
         _matchesSource = false;
-
+        _mode = mode;
+        
         if (source is INotifyCollectionChanged notifyingSource)
         {
             notifyingSource.CollectionChanged += NotifyingSourceChanged;
@@ -125,7 +130,7 @@ public class SourcedObservableCollection<T> : IObservableCollection<T> where T :
         }
 
         // The move pass involves expensive calculations to minimize move operations; best avoid if we can
-        if (!listsHaveSameOrdering && SyncMode == SourcedCollectionMode.SequenceEquality)
+        if (!listsHaveSameOrdering && _mode == SourcedCollectionMode.SequenceEquality)
         {
             // movePassTargetIndices now needs a longest increasing subsequence (LIS) calculation to find
             // the minimum number of move operations required to sync the lists
@@ -180,9 +185,7 @@ public class SourcedObservableCollection<T> : IObservableCollection<T> where T :
         
         _matchesSource = true;
     }
-
-    public SourcedCollectionMode SyncMode { get; set; } = SourcedCollectionMode.SequenceEquality;
-
+    
     public void Add(T item)
     {
         _internalList.Add(item);

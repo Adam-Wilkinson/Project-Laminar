@@ -1,19 +1,16 @@
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using Avalonia.Controls;
-using Avalonia.Input;
 using Avalonia.Reactive;
 using Laminar.Avalonia.InitializationTargets;
 using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.DataManagement;
-using Laminar.Domain.Extensions;
-using Laminar.PluginFramework.Serialization;
 
 namespace Laminar.Avalonia.ToolSystem;
 
 public class ToolSerializer(TopLevel topLevel, IPersistentDataManager persistentDataManager) : IAfterApplicationBuiltTarget
 {    
+    private const string KeyGesture = "Key Gesture";
+    
     private readonly IPersistentDictionary _toolDataStore = persistentDataManager.GetDataStore(DataStoreKey.ToolProperties);
     private bool _initialized;
     
@@ -38,13 +35,13 @@ public class ToolSerializer(TopLevel topLevel, IPersistentDataManager persistent
             SerializeTool(childTool, uniqueToolKey);
         }
         
-        var currentDataStore = _toolDataStore
-            .InitializeValue(uniqueToolKey, persistentDataManager.GetHeadlessNode<IPersistentDictionary>()).Value;
-        var persistentGestureValue = currentDataStore.InitializeValue("Key Gesture", tool.Gesture);
+        var currentDataStore = _toolDataStore[uniqueToolKey]
+            .SetDefaultAndGet(persistentDataManager.GetHeadlessNode<IPersistentDictionary>()).Value;
+        var persistentGestureValue = currentDataStore[KeyGesture].SetDefaultAndGet(tool.Gesture);
         tool.Gesture = persistentGestureValue.Value;
         tool.PropertyChanged += (_, _) =>
         {
-            currentDataStore.SetValue("Key Gesture", tool.Gesture);
+            currentDataStore.SetValue(KeyGesture, tool.Gesture);
         };
 
         persistentGestureValue.OnChanged += (_, e) =>

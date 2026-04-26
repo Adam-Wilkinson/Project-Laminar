@@ -11,8 +11,11 @@ namespace Laminar.Implementation.Storage.FileExplorer;
 internal class LaminarStorageRootFolder : LaminarStorageFolder, ILaminarStorageRootFolder
 {
     private const string InfoFileName = ".project-laminar-data";
-    private readonly IDisposable _monitor;
-    private readonly IPersistentDictionary _dataStore;
+    private readonly IFileSystem _fileSystem;
+    private readonly ILaminarFileSystemMonitor _fileSystemMonitor;
+
+    private FileSystemPath _path;
+    private IDisposable _currentMonitor;
     
     public LaminarStorageRootFolder(
         FileSystemPath path, 
@@ -20,22 +23,41 @@ internal class LaminarStorageRootFolder : LaminarStorageFolder, ILaminarStorageR
         IFileSystem fileSystem,
         IPersistentDataManager persistentDataManager,
         ILaminarFileSystemMonitor monitor,
-        ILogger<LaminarStorageItem> logger) : base(path, factory, fileSystem, logger)
+        ILogger<LaminarStorageItem> logger) 
+        : base(path, factory, fileSystem, 
+            persistentDataManager.GetDataStore(new DataStoreKey(InfoFileName, PersistentDataType.Json, path)), persistentDataManager, logger)
     {
-        Path = path;
-        _dataStore = persistentDataManager.GetDataStore(new DataStoreKey(InfoFileName, PersistentDataType.Json, path));
-
-        // _dataStore.InitializeDefaultValue("RootFolder", this, (this, factory));
-        
-        _monitor = monitor.StartMonitoring(this);
+        _path = path;
+        _fileSystem = fileSystem;
+        _fileSystemMonitor = monitor;
+        _currentMonitor = monitor.StartMonitoring(this);
         Refresh();
     }
 
-    public override FileSystemPath Path { get; }
+    public override FileSystemPath Path => _path;
 
+    public override void Rename(string newNameWithExtension)
+    {
+        if (Path.NameAndExtension == newNameWithExtension || ParentFolder is null) return;
+        
+        if (Path.Parent is not { } parentPath) 
+            throw new InvalidOperationException();
+
+        var oldPath = Path;
+        var newPath = parentPath.ChildPath(newNameWithExtension);
+        
+        _fileSystem.Move(oldPath, newPath);
+        _path = newPath;
+        OnPropertyChanged(nameof(Path));
+        PersistentStorage.SetValue(nameof(NameKey), newNameWithExtension);
+        
+        _currentMonitor.Dispose();
+        _currentMonitor = _fileSystemMonitor.StartMonitoring(this);
+    }
+    
     public void Dispose()
     {
-        _monitor.Dispose();
+        _currentMonitor.Dispose();
         GC.SuppressFinalize(this);
     }
 }

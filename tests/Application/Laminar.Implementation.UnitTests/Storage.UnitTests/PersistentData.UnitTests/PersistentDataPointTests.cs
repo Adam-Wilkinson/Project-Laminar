@@ -26,7 +26,7 @@ public class PersistentDataPointTests
             transcoder.EncodeElement(10).Returns(10);
 
             var sut = CreateValue(owner, serializer);
-            sut.Initialize(10, typeof(int));
+            sut.SetDefaultAndGet(10, typeof(int));
 
             sut.Value = 20;
             sut.Reset();
@@ -54,7 +54,7 @@ public class PersistentDataPointTests
             var sut = CreateValue(owner, serializer);
             sut.EncodedValue = 999;
 
-            sut.Initialize(10, typeof(int));
+            sut.SetDefaultAndGet(10, typeof(int));
 
             sut.EncodedValue.Should().Be(10);
         }
@@ -78,7 +78,7 @@ public class PersistentDataPointTests
             var sut = CreateValue(owner, serializer);
             sut.EncodedValue = 50;
 
-            sut.Initialize(0, typeof(int));
+            sut.SetDefaultAndGet(0, typeof(int));
 
             sut.Value.Should().Be(50);
         }
@@ -93,7 +93,7 @@ public class PersistentDataPointTests
             owner.Transcoder.Returns(transcoder);
 
             var sut = CreateValue(owner, serializer);
-            sut.Initialize(10, typeof(int));
+            sut.SetDefaultAndGet(10, typeof(int));
 
             sut.EncodedValue = 99;
 
@@ -131,7 +131,7 @@ public class PersistentDataPointTests
             transcoder.EncodeElement(25).Returns(25);
 
             var sut = CreateValue(owner, serializer);
-            sut.Initialize(10, typeof(int));
+            sut.SetDefaultAndGet(10, typeof(int));
 
             sut.Value = 25;
 
@@ -156,7 +156,7 @@ public class PersistentDataPointTests
             transcoder.EncodeElement(20).Returns(20);
 
             var sut = CreateValue(owner, serializer);
-            sut.Initialize(10, typeof(int));
+            sut.SetDefaultAndGet(10, typeof(int));
 
             sut.Value = 20;
 
@@ -174,7 +174,7 @@ public class PersistentDataPointTests
             var serializer = Substitute.For<ISerializer>();
 
             var sut = CreateValue(owner, serializer);
-            sut.Initialize(10, typeof(int));
+            sut.SetDefaultAndGet(10, typeof(int));
 
             sut.Value = 20;
 
@@ -190,7 +190,7 @@ public class PersistentDataPointTests
             var owner = Substitute.For<IPersistentDataValueOwner>();
             var sut = CreateValue(owner);
 
-            sut.Initialize(10);
+            sut.SetDefaultAndGet(10);
 
             sut.Value.Should().Be(10);
         }
@@ -211,7 +211,7 @@ public class PersistentDataPointTests
             var sut = CreateValue(owner, serializer);
             sut.EncodedValue = 42;
 
-            sut.Initialize(0);
+            sut.SetDefaultAndGet(0);
 
             sut.Value.Should().Be(42);
         }
@@ -221,9 +221,9 @@ public class PersistentDataPointTests
         {
             var sut = CreateValue(Substitute.For<IPersistentDataValueOwner>());
 
-            sut.Initialize(1);
+            sut.SetDefaultAndGet(1);
 
-            Assert.Throws<InvalidOperationException>(() => sut.Initialize(2));
+            Assert.Throws<InvalidOperationException>(() => sut.SetDefaultAndGet(2));
         }
     }
     

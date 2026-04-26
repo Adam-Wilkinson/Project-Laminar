@@ -14,6 +14,7 @@ public class PersistentDataStore : IPersistentDataStore
 {
     private readonly IFileContents _file;
     private readonly ISerializer _serializer;
+    private readonly bool _isInitialized = false;
     
     public PersistentDataStore(
         IServiceProvider serviceProvider,
@@ -22,10 +23,11 @@ public class PersistentDataStore : IPersistentDataStore
         ISerializer serializer)
     {
         _serializer = serializer;
+        _file = file;
         Transcoder = persistentDataTranscoder;
         Root = ActivatorUtilities.CreateInstance<PersistentDictionary>(serviceProvider);
         ((PersistentDictionary)Root).Owner = this;
-        _file = file;
+        _isInitialized = true;
         FileToDataNode();
         // _file.ContentsChanged += (_, _) => FileToDataNode();
     }
@@ -35,6 +37,7 @@ public class PersistentDataStore : IPersistentDataStore
 
     public void OnChildValueChanged()
     {
+        if (!_isInitialized) return;
         var serialized = _serializer.SerializeObject(Root, typeof(IPersistentDictionary));
         _file.Contents = Transcoder.ToBytes(serialized);
     }

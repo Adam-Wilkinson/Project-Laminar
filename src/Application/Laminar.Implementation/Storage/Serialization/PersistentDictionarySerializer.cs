@@ -2,12 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Laminar.Contracts.Storage.PersistentData;
+using Laminar.Domain.Exceptions;
 using Laminar.Implementation.Storage.PersistentData;
 using Laminar.PluginFramework.Serialization;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Laminar.Implementation.Storage.Serialization;
 
-public class PersistentDictionarySerializer : TypeSerializer<IPersistentDictionary, Dictionary<string, object>>,
+public class PersistentDictionarySerializer(IServiceProvider serviceProvider) : TypeSerializer<IPersistentDictionary, Dictionary<string, object>>,
     INotifyingConditionalSerializer
 {
     protected override Dictionary<string, object> SerializeTyped(IPersistentDictionary toSerialize)
@@ -16,16 +18,17 @@ public class PersistentDictionarySerializer : TypeSerializer<IPersistentDictiona
 
     protected override PersistentDictionary DeSerializeTyped(DeserializationRequest<IPersistentDictionary, Dictionary<string, object>> request)
     {
-        if (!request.HasExistingValue) throw new InvalidOperationException();
-        
-        PersistentDictionary persistentDictionary = ForceCast(request.ExistingValue);
+        PersistentDictionary returnValue = request.HasExistingValue
+            ? request.ExistingValue as PersistentDictionary ?? throw new DeserializationError(
+                new ArgumentException("Deserialization requires an existing PersistentDictionary", nameof(request)))
+            : ActivatorUtilities.CreateInstance<PersistentDictionary>(serviceProvider); 
         
         foreach (var (key, value) in request.Serialized)
         {
-            persistentDictionary.GetPersistentData(key).EncodedValue = value;
+            returnValue.GetPersistentData(key).EncodedValue = value;
         }
         
-        return persistentDictionary;
+        return returnValue;
     }
 
     public INotifySerializedValueChanged GetSerializedValueChangedNotifier(object target)

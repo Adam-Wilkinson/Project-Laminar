@@ -1,13 +1,11 @@
-using System.Diagnostics.CodeAnalysis;
-
 namespace Laminar.Contracts.Storage.PersistentData;
 
 public interface IPersistentDataPoint
 {
-    public IPersistentValue<T> Initialize<T>(T defaultValue, Type? typeSerializationKey = null, 
+    public IPersistentValue<T> SetDefaultAndGet<T>(T defaultValue, Type? serializationKeyOverride = null, 
         object? deserializationContext = null) where T : notnull;
 
-    public IPersistentValue<T> GetValue<T>(); 
+    public IPersistentValue<T> GetValue<T>() where T : notnull; 
     
     public object EncodedValue { get; set; }
     

@@ -9,7 +9,7 @@ public interface IPersistentValueInternal
 
     public bool TrySetFromEncoded(object encodedValue, IPersistentDataTranscoder transcoder);
 
-    public void SetDataOwner(IPersistentDataValueOwner? newOwner);
+    public void SetDataOwner(PersistentDataNode? newOwner);
 
     public Type TypeSerializationKey { get; }
 }

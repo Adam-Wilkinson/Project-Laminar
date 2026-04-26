@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using Laminar.Contracts.Storage.FileExplorer;
+using Laminar.Contracts.Storage.IO;
+using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.Extensions;
 using Laminar.Domain.ValueObjects;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,11 +10,49 @@ using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.Storage.FileExplorer;
 
-internal partial class LaminarStorageItemFactory(IServiceProvider provider, IDeletedStorageItemCache deletedItemCache, ILogger<LaminarStorageItem> logger)
+internal partial class LaminarStorageItemFactory(
+    IServiceProvider provider,
+    IFileSystem fileSystem,
+    IPersistentDataManager persistentDataManager,
+    IDeletedStorageItemCache deletedItemCache, 
+    ILogger<LaminarStorageItem> logger)
     : ILaminarStorageItemFactory
 {
     private readonly Dictionary<FileSystemPath, ILaminarStorageItem> _allStorageItems = [];
 
+    public ILaminarStorageItem FromPersistentData(IPersistentDictionary persistentDictionary, ILaminarStorageFolder parent)
+    {
+        if (parent is not LaminarStorageFolder internalParent) throw new InvalidOperationException("Parent is not LaminarStorageFolder");
+        
+        string name = persistentDictionary[LaminarStorageItem.NameKey].GetValue<string>().Value;
+        FileSystemPath newItemPath = parent.Path.ChildPath(name);
+
+        if (_allStorageItems.TryGetValue(newItemPath, out _))
+        {
+            throw new InvalidOperationException("Attempt to deserialize existing storage item");
+        }
+
+        ILaminarStorageItem newItem = string.IsNullOrWhiteSpace(newItemPath.Extension)
+            ? new LaminarStorageFolder(internalParent, this, fileSystem, persistentDictionary, persistentDataManager, logger)
+            : new LaminarStorageFile(internalParent, fileSystem, persistentDictionary, logger);
+
+        if (deletedItemCache.TryFind(newItem) is { } recentDeletion)
+        {
+            LogRequestedFileMatchesRecentDeletion(logger, newItemPath);
+            _allStorageItems[newItemPath] = recentDeletion;
+            return recentDeletion;
+        }
+        
+        _allStorageItems[newItemPath] = newItem;
+        newItem.GetDependentValue(x => x.Path).OnChanged += (_, e) =>
+        {
+            _allStorageItems.Remove(e.OldValue);
+            _allStorageItems[e.NewValue] = newItem;
+        };
+
+        return newItem;
+    }
+    
     public ILaminarStorageItem FromPath(FileSystemPath path, ILaminarStorageFolder parent)
     {
         if (_allStorageItems.TryGetValue(path, out ILaminarStorageItem? item))
@@ -20,25 +60,9 @@ internal partial class LaminarStorageItemFactory(IServiceProvider provider, IDel
             return item;
         }
 
-        ILaminarStorageItem newItem = string.IsNullOrWhiteSpace(path.Extension)
-            ? ActivatorUtilities.CreateInstance<LaminarStorageFolder>(provider, path, parent)
-            : ActivatorUtilities.CreateInstance<LaminarStorageFile>(provider, path, parent);
-
-        if (deletedItemCache.TryFind(newItem) is { } cachedItem)
-        {
-            LogRequestedFileMatchesRecentDeletion(logger, path);
-            _allStorageItems[path] = cachedItem;
-            return cachedItem;
-        }
-        
-        _allStorageItems[path] = newItem;
-        newItem.GetDependentValue(x => x.Path).OnChanged += (_, e) =>
-        {
-            _allStorageItems.Remove(e.OldValue);
-            _allStorageItems[e.NewValue] = newItem;
-        };
-        
-        return newItem;
+        IPersistentDictionary persistentData = persistentDataManager.GetHeadlessNode<IPersistentDictionary>();
+        persistentData[LaminarStorageItem.NameKey].SetDefaultAndGet(path.NameAndExtension);
+        return FromPersistentData(persistentData, parent);
     }
 
     public ILaminarStorageItem? TryGetExisting(FileSystemPath path) =>  _allStorageItems.GetValueOrDefault(path);

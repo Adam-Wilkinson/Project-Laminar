@@ -4,36 +4,70 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Laminar.Contracts.Storage.FileExplorer;
 using Laminar.Contracts.Storage.IO;
+using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.Notification;
 using Laminar.Domain.ValueObjects;
 using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.Storage.FileExplorer;
 
-internal abstract class LaminarStorageItem(
-    IFileSystem fileSystem,
-    ILogger<LaminarStorageItem> logger)
-    : ILaminarStorageItem
+internal abstract class LaminarStorageItem : ILaminarStorageItem
 {
-    private string _nameWithExtension = "";
+    public const string NameKey = "Name";
+    private readonly IFileSystem _fileSystem;
+    private string _nameWithExtension;
+    private bool _isEnabled;
 
-    protected ILogger<LaminarStorageItem> Logger { get; } = logger;
+    protected LaminarStorageItem(IFileSystem fileSystem,
+        ILogger<LaminarStorageItem> logger,
+        IPersistentDictionary persistentData,
+        string? nameWithExtension = null)
+    {
+        _fileSystem = fileSystem;
+        PersistentStorage = persistentData;
+        Logger = logger;
+        if (!PersistentStorage.ContainsKey(NameKey))
+        {
+            ArgumentNullException.ThrowIfNull(nameWithExtension);
+            PersistentStorage[NameKey].SetDefaultAndGet(nameWithExtension);
+        }
+
+        _nameWithExtension = PersistentStorage[NameKey].GetValue<string>().Value;
+        _isEnabled = PersistentStorage[nameof(IsEnabled)].SetDefaultAndGet(true).Value;
+    }
+    
+    protected LaminarStorageItem(
+        IFileSystem fileSystem, 
+        IPersistentDataManager persistentDataManager, 
+        ILogger<LaminarStorageItem> logger,
+        string nameWithExtension)
+    {
+        _fileSystem = fileSystem;
+        PersistentStorage = persistentDataManager.GetHeadlessNode<IPersistentDictionary>();
+        Logger = logger;
+        _nameWithExtension = nameWithExtension;
+    }
+
+    protected ILogger<LaminarStorageItem> Logger { get; }
+
+    internal IPersistentDictionary PersistentStorage { get; }
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
     public virtual FileSystemPath Path => ParentFolder?.Path.ChildPath(_nameWithExtension) 
                                           ?? throw new InvalidOperationException("Non-root storage items must have a parent");
 
-    public virtual bool IsEnabled
+    public bool IsEnabled
     {
-        get;
+        get => _isEnabled;
         set
         {
-            if (!SetField(ref field, value)) return;
+            if (!SetField(ref _isEnabled, value)) return;
+            PersistentStorage.SetValue(nameof(IsEnabled), value);
             OnEffectivelyEnabledChanged();
         }
-    } = true;
-    
+    }
+
     public virtual bool IsEffectivelyEnabled => IsEnabled && (ParentFolder is null || ParentFolder.IsEffectivelyEnabled);
     
     public bool NeedsName { get; set => SetField(ref field, value); }
@@ -42,21 +76,23 @@ internal abstract class LaminarStorageItem(
 
     public void Refresh()
     {
-        if (!fileSystem.Exists(Path)) return;
+        if (!_fileSystem.Exists(Path)) return;
         
         RefreshOverride();
         OnPropertyChanged(nameof(Path));
     }
 
-    public void Rename(string newNameWithExtension)
+    public virtual void Rename(string newNameWithExtension)
     {
+        if (_nameWithExtension == newNameWithExtension) return;
         ArgumentNullException.ThrowIfNull(ParentFolder);
-        if (!string.IsNullOrWhiteSpace(_nameWithExtension) && fileSystem.Exists(Path)) 
+        if (!string.IsNullOrWhiteSpace(_nameWithExtension) && _fileSystem.Exists(Path)) 
         {
-            fileSystem.Move(Path, ParentFolder.Path.ChildPath(newNameWithExtension));
+            _fileSystem.Move(Path, ParentFolder.Path.ChildPath(newNameWithExtension));
         }
 
         _nameWithExtension = newNameWithExtension;
+        PersistentStorage.SetValue(nameof(NameKey), _nameWithExtension);
         OnPropertyChanged(nameof(Path));
     }
 
@@ -72,13 +108,14 @@ internal abstract class LaminarStorageItem(
             oldParentContents.Remove(this);
         }
 
-        if (folder is not null && ParentFolder is not null && fileSystem.Exists(Path))
+        if (folder is not null && ParentFolder is not null && _fileSystem.Exists(Path))
         {
             var destinationPath = folder.Path.ChildPath(Path.NameAndExtension);
-            fileSystem.Move(Path, destinationPath);
+            _fileSystem.Move(Path, destinationPath);
         }
         
         ParentFolder = folder;
+        OnParentChanged();
         OnPropertyChanged(nameof(Path));
     }
     
@@ -87,6 +124,10 @@ internal abstract class LaminarStorageItem(
         OnPropertyChanged(nameof(IsEffectivelyEnabled));
     }
 
+    protected virtual void OnParentChanged()
+    {
+    }
+    
     protected abstract void RefreshOverride();
 
     protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
@@ -100,5 +141,29 @@ internal abstract class LaminarStorageItem(
         field = value;
         OnPropertyChanged(propertyName);
         return true;
+    }
+    
+    protected virtual void OnPersistentStorageChanged(IPersistentDictionary? oldDictionary, IPersistentDictionary newDictionary)
+    {
+        oldDictionary?.TryGetValue<bool>(nameof(IsEnabled))?.OnChanged -= OnPersistentIsEnabledChanged;
+        oldDictionary?.TryGetValue<string>(NameKey)?.OnChanged -= OnPersistentNameChanged;
+        
+        var newPersistentIsEnabled = newDictionary[nameof(IsEnabled)].SetDefaultAndGet(IsEnabled);
+        newPersistentIsEnabled.OnChanged += OnPersistentIsEnabledChanged;
+        IsEnabled = newPersistentIsEnabled.Value;
+        
+        var newPersistentName = newDictionary[NameKey].SetDefaultAndGet(_nameWithExtension);
+        newPersistentName.OnChanged += OnPersistentNameChanged;
+        Rename(newPersistentName.Value);
+    }
+
+    private void OnPersistentNameChanged(object? sender, ObservableValueChangedEventArgs<string> e)
+    {
+        Rename(e.NewValue);
+    }
+
+    private void OnPersistentIsEnabledChanged(object? sender, ObservableValueChangedEventArgs<bool> e)
+    {
+        IsEnabled = e.NewValue;
     }
 }

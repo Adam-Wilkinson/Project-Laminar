@@ -269,7 +269,7 @@ public class PersistentDictionaryTests
             var sut = CreateNode();
 
             var value = sut.GetPersistentData("child");
-            value.Initialize(123, typeof(int));
+            value.SetDefaultAndGet(123, typeof(int));
 
             Assert.Throws<ArgumentException>(() => sut.GetOrCreateChild("child"));
         }
