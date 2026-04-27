@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
@@ -17,10 +16,9 @@ internal class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
     private readonly IFileSystem _fileSystem;
     private readonly IPersistentDataManager _persistentDataManager;
     
-    private bool _contentsInitialized;
     private bool _persistentContentsDirty = true;
     
-    public SourcedObservableCollection<ILaminarStorageItem> ContentsInternal { get; }
+    public SourcedObservableCollection<ILaminarStorageItem>? ContentsInternal { get; private set; }
 
     protected LaminarStorageFolder(
         FileSystemPath fileSystemPath,
@@ -43,12 +41,6 @@ internal class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
         SetParent(parent);
         
         IsExpanded = PersistentStorage[nameof(IsExpanded)].SetDefaultAndGet(false).Value;
-        
-        ContentsInternal = new SourcedObservableCollection<ILaminarStorageItem>(PersistentStorage[nameof(Contents)]
-            .SetDefaultAndGet(persistentDataManager.GetHeadlessNode<IPersistentList>()).Value
-            .Select(x 
-                => _factory.FromPersistentData(x.GetValue<IPersistentDictionary>().Value, this)));
-        ContentsInternal.CollectionChanged += OnContentsChanged;
     }
     
     public LaminarStorageFolder(
@@ -63,6 +55,22 @@ internal class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
     {
         Refresh();
     }
+    
+    public IReadOnlyObservableCollection<ILaminarStorageItem> Contents
+    {
+        get
+        {
+            if (ContentsInternal is not null) return ContentsInternal;
+
+            ContentsInternal = new SourcedObservableCollection<ILaminarStorageItem>(PersistentStorage[nameof(Contents)]
+                .SetDefaultAndGet(_persistentDataManager.GetHeadlessNode<IPersistentList>()).Value
+                .Select(x => _factory.FromPersistentData(x.GetValue<IPersistentDictionary>().Value, this)));
+            
+            ContentsInternal.CollectionChanged += OnContentsChanged;
+            Refresh();
+            return ContentsInternal;
+        }
+    }
 
     private void OnContentsChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
@@ -73,18 +81,6 @@ internal class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
         }
         
         SyncContentsToPersistentData();
-    }
-
-    public IReadOnlyObservableCollection<ILaminarStorageItem> Contents
-    {
-        get
-        {
-            if (_contentsInitialized) return ContentsInternal;
-
-            _contentsInitialized = true;
-            Refresh();
-            return ContentsInternal;
-        }
     }
 
     public bool IsExpanded
@@ -109,7 +105,7 @@ internal class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
 
     protected override void RefreshOverride()
     { 
-        if (!_contentsInitialized) return;
+        if (ContentsInternal is null) return;
         ContentsInternal.ChangeSourceTo(GetChildren(), SourcedCollectionMode.SetEquality);
         foreach (var child in Contents)
         {
@@ -121,7 +117,7 @@ internal class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
 
     private void SyncContentsToPersistentData()
     {
-        if (!_persistentContentsDirty) return;
+        if (!_persistentContentsDirty || ContentsInternal is null) return;
         
         var newPersistentList = _persistentDataManager.GetHeadlessNode<IPersistentList>();
         foreach (var child in ContentsInternal.Cast<LaminarStorageItem>())
