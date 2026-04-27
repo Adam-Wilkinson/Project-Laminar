@@ -7,8 +7,6 @@ public interface IPersistentValueInternal
     public object GetEncoded(IPersistentDataTranscoder transcoder);
 
     public bool TrySetFromEncoded(object encodedValue, IPersistentDataTranscoder transcoder);
-
-    public void SetDataOwner(PersistentDataNode? newOwner);
-
+    
     public void Delete();
 }

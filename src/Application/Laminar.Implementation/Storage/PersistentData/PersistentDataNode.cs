@@ -29,11 +29,11 @@ public abstract class PersistentDataNode(IServiceProvider serviceProvider) : IPe
         }
     }
     
-    public void OnChildValueChanged()
+    public void OnChildValueInvalidated()
     {
         if (_transcoderChanging || ChildIsInitializing) return;
         ChildValueChanged?.Invoke(this, EventArgs.Empty);
-        Owner?.OnChildValueChanged();
+        Owner?.OnChildValueInvalidated();
     }
 
     public IPersistentDataPoint CreateValue() =>
@@ -42,8 +42,6 @@ public abstract class PersistentDataNode(IServiceProvider serviceProvider) : IPe
     public void RegisterChildNode(PersistentDataNode child) => _children.Add(child);
 
     public void RemoveChildNode(PersistentDataNode child) => _children.Remove(child);
-    
-    protected abstract void BeforeTranscoderChangedEvent();
     
     protected void RemoveValue(IPersistentDataPoint point)
     {
@@ -62,6 +60,6 @@ public abstract class PersistentDataNode(IServiceProvider serviceProvider) : IPe
         TranscoderChanged?.Invoke(this, EventArgs.Empty);
         
         _transcoderChanging = false;
-        OnChildValueChanged();
+        OnChildValueInvalidated();
     }
 }

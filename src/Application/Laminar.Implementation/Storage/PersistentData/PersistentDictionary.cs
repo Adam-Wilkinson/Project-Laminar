@@ -77,12 +77,4 @@ public class PersistentDictionary(IServiceProvider serviceProvider)
 
     public ICollection<string> Keys => InternalValues.Keys;
     public ICollection<IPersistentDataPoint> Values => InternalValues.Values;
-    
-    protected override void BeforeTranscoderChangedEvent()
-    {
-        foreach (var child in InternalValues.Values.Cast<PersistentDataPoint>())
-        {
-            child.UpdateEncodedFromValue();
-        }
-    }
 }

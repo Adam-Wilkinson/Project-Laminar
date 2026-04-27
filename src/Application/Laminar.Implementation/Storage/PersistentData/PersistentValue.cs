@@ -51,8 +51,7 @@ public class PersistentValue<T> : ObservableValueBase<T>, IPersistentValue<T>, I
         _serializer = serializer;
         _defaultValue = value;
 
-        _serializedValueChangedNotifier = _serializer.GetSerializedValueChangedNotifier(_value, _typeSerializationKey);
-        _serializedValueChangedNotifier.SerializedValueChanged += OnSerializedValueChanged;
+        EstablishValue();
     }
 
     public override T Value
@@ -85,23 +84,13 @@ public class PersistentValue<T> : ObservableValueBase<T>, IPersistentValue<T>, I
         return true;
     }
 
-    protected override void BeforeValueChanged()
-    {
-        _serializedValueChangedNotifier?.SerializedValueChanged -= OnSerializedValueChanged;
-        _serializedValueChangedNotifier?.Dispose();
-        _serializedValueChangedNotifier = null;
-        SetDataOwner(null);
-    }
+    public void Delete() => CleanupValue();
 
-    protected override void AfterValueChanged()
-    {
-        _serializedValueChangedNotifier = _serializer.GetSerializedValueChangedNotifier(Value, _typeSerializationKey);
-        _serializedValueChangedNotifier.SerializedValueChanged += OnSerializedValueChanged;
-        SetDataOwner(_parent.Owner);
-        _parent.UpdateEncodedFromValue();
-    }
-
-    public void SetDataOwner(PersistentDataNode? newOwner)
+    protected override void BeforeValueChanged() => CleanupValue();
+    
+    protected override void AfterValueChanged() => EstablishValue();
+    
+    private void SetDataOwner(PersistentDataNode? newOwner)
     {
         switch (Value)
         {
@@ -120,15 +109,7 @@ public class PersistentValue<T> : ObservableValueBase<T>, IPersistentValue<T>, I
         }
     }
 
-    public void Delete()
-    {
-        _serializedValueChangedNotifier?.SerializedValueChanged -= OnSerializedValueChanged;
-        _serializedValueChangedNotifier?.Dispose();
-        _serializedValueChangedNotifier = null;
-        SetDataOwner(null);
-    }
-
-    private void OnSerializedValueChanged(object? sender, EventArgs e) => _parent.UpdateEncodedFromValue();
+    private void OnSerializedValueChanged(object? sender, EventArgs e) => _parent.InvalidateEncodedValue();
     
     private void SetOwner(PersistentDataNode childNode, PersistentDataNode? newOwner)
     {
@@ -139,6 +120,25 @@ public class PersistentValue<T> : ObservableValueBase<T>, IPersistentValue<T>, I
         (childNode.Owner as PersistentDataNode)?.RemoveChildNode(childNode);
         childNode.Owner = newOwner;
         newOwner?.RegisterChildNode(childNode);
+    }
+    
+    private void CleanupValue()
+    {
+        _serializedValueChangedNotifier?.SerializedValueChanged -= OnSerializedValueChanged;
+        _serializedValueChangedNotifier?.Dispose();
+        _serializedValueChangedNotifier = null;
+        SetDataOwner(null);
+    }
+    
+    private void EstablishValue()
+    {
+        if (_serializedValueChangedNotifier is not null)
+            throw new InvalidOperationException("A previous value was not correctly cleaned");
+        
+        _serializedValueChangedNotifier = _serializer.GetSerializedValueChangedNotifier(Value, _typeSerializationKey);
+        _serializedValueChangedNotifier.SerializedValueChanged += OnSerializedValueChanged;
+        SetDataOwner(_parent.Owner);
+        _parent.InvalidateEncodedValue();
     }
 
     private static T GetValueFromEncoded(object encodedValue, ISerializer serializer, IPersistentDataTranscoder transcoder, Type typeSerializationKey,

@@ -1,4 +1,5 @@
 using System;
+using System.Resources;
 using Laminar.Contracts.Base;
 using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.Exceptions;
@@ -25,10 +26,7 @@ public class PersistentDataPoint : IPersistentDataPoint
         _logger = logger;
         Owner = owner;
         _exceptionHandler = exceptionHandler;
-        Owner.TranscoderChanged += (_, _) =>
-        {
-            if (State == DataPointState.Active) UpdateEncodedFromValue();
-        };
+        Owner.TranscoderChanged += (_, _) => InvalidateEncodedValue();
     }
 
     public PersistentDataNode Owner { get; }
@@ -37,7 +35,18 @@ public class PersistentDataPoint : IPersistentDataPoint
 
     public object EncodedValue
     {
-        get => _encodedValue ?? throw new InvalidCastException();
+        get
+        {
+            if (_encodedValue is not null) return _encodedValue;
+            
+            if (Owner.Transcoder is null || State is not DataPointState.Active || _persistentValue is null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            _encodedValue = _persistentValue.GetEncoded(Owner.Transcoder);
+            return _encodedValue;
+        }
         set
         {
             if (Equals(value, _encodedValue)) return;
@@ -48,7 +57,7 @@ public class PersistentDataPoint : IPersistentDataPoint
             if (!UpdateValueFromEncoded())
             {
                 _exceptionHandler.OnException(new ErrorDecodingValueException());
-                UpdateEncodedFromValue();
+                InvalidateEncodedValue();
             }
         }
     }
@@ -63,8 +72,8 @@ public class PersistentDataPoint : IPersistentDataPoint
         {
             if (_encodedValue is not null) 
                 _exceptionHandler.OnException(new ErrorDecodingValueException());
-            
-            UpdateEncodedFromValue();
+
+            InvalidateEncodedValue();
         }
         
         return newValue;
@@ -102,17 +111,13 @@ public class PersistentDataPoint : IPersistentDataPoint
         State = DataPointState.Deleted;
     }
 
-    public void UpdateEncodedFromValue()
+    public void InvalidateEncodedValue()
     {
-        if (Owner.Transcoder is null || State is not DataPointState.Active || _persistentValue is null)
-        {
-            return;
-        }
-
-        _encodedValue = _persistentValue.GetEncoded(Owner.Transcoder);
-        Owner.OnChildValueChanged();
+        if (State is not DataPointState.Active) return;
+        _encodedValue = null;
+        Owner.OnChildValueInvalidated();
     }
-        
+
     private bool UpdateValueFromEncoded()
     {
         if (Owner.Transcoder is null || _encodedValue is null || _persistentValue is null)
@@ -140,7 +145,6 @@ public class PersistentDataPoint : IPersistentDataPoint
         
         T value = initializer();
         _persistentValue = value;
-        value.SetDataOwner(Owner);
 
         State = DataPointState.Active;
         Owner.ChildIsInitializing = false;

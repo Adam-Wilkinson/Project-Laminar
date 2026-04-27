@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
+using System.Text;
 using Laminar.Contracts.Storage.FileExplorer;
 using Laminar.Contracts.Storage.IO;
 using Laminar.Contracts.Storage.PersistentData;
@@ -16,8 +17,9 @@ internal class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
     private readonly IFileSystem _fileSystem;
     private readonly IPersistentDataManager _persistentDataManager;
     
-    private bool _persistentContentsDirty = true;
     private SourcedObservableCollection<ILaminarStorageItem>? _contentsInternal;
+    private bool _persistentContentsDirty = true;
+    private bool _isRefreshing;
     
     protected LaminarStorageFolder(
         FileSystemPath fileSystemPath,
@@ -74,6 +76,7 @@ internal class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
 
     private void OnContentsChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
+        if (_isRefreshing) return;
         _persistentContentsDirty = true;
         foreach (var item in e.NewItems?.Cast<LaminarStorageItem>() ?? [])
         {
@@ -106,12 +109,14 @@ internal class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
     protected override void RefreshOverride()
     { 
         if (_contentsInternal is null) return;
+        _isRefreshing = true;
         _contentsInternal.ChangeSourceTo(GetChildren(), SourcedCollectionMode.SetEquality);
         foreach (var child in Contents)
         {
             child.Refresh();
         }
-        
+
+        _isRefreshing = false;
         SyncContentsToPersistentData();
     }
 

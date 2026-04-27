@@ -88,12 +88,4 @@ public class PersistentList(IServiceProvider serviceProvider) : PersistentDataNo
             OnContentsChanged();
         }
     }
-
-    protected override void BeforeTranscoderChangedEvent()
-    {
-        foreach (var child in InternalValues.Cast<PersistentDataPoint>())
-        {
-            child.UpdateEncodedFromValue();
-        }
-    }
 }

@@ -6,5 +6,5 @@ public interface IPersistentDataValueOwner
     
     public event EventHandler? TranscoderChanged;
     
-    public void OnChildValueChanged();
+    public void OnChildValueInvalidated();
 }

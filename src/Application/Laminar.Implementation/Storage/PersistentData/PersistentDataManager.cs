@@ -13,7 +13,6 @@ namespace Laminar.Implementation.Storage.PersistentData;
 
 public class PersistentDataManager(
     IServiceProvider serviceProvider,
-    ISerializer serializer, 
     IFileSystem fileSystem, 
     ILogger<JsonPersistentDataTranscoder> jsonTranscoderLogger) 
     : IPersistentDataManager
@@ -42,7 +41,7 @@ public class PersistentDataManager(
 
         var newDataStore = dataStoreKey.DataType switch
         {
-            PersistentDataType.Json => new PersistentDataStore(serviceProvider, new JsonPersistentDataTranscoder(jsonTranscoderLogger), file, serializer),
+            PersistentDataType.Json => ActivatorUtilities.CreateInstance<PersistentDataStore>(serviceProvider, new JsonPersistentDataTranscoder(jsonTranscoderLogger), file),
             var unknown => throw new UnknownDataTypeException(unknown),
         };
 

@@ -58,9 +58,9 @@ public class PersistentDictionaryTests
 
             sut.Owner = owner;
 
-            sut.OnChildValueChanged();
+            sut.OnChildValueInvalidated();
 
-            owner.Received(1).OnChildValueChanged();
+            owner.Received(1).OnChildValueInvalidated();
         }
 
         [Fact]
@@ -68,7 +68,7 @@ public class PersistentDictionaryTests
         {
             var sut = CreateNode();
 
-            sut.Invoking(x => x.OnChildValueChanged())
+            sut.Invoking(x => x.OnChildValueInvalidated())
                 .Should().NotThrow();
         }
     }

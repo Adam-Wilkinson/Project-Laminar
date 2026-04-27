@@ -102,7 +102,7 @@ public class PersistentDataStoreTests
 
             transcoder.ToBytes(serialized).Returns(bytes);
 
-            store.OnChildValueChanged();
+            store.OnChildValueInvalidated();
 
             serializer.Received(1).SerializeObject(store.Root, typeof(PersistentDictionary));
             transcoder.Received(1).ToBytes(serialized);
