@@ -1,5 +1,6 @@
 using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Domain.Notification;
+using Laminar.Domain.ValueObjects;
 
 namespace Laminar.Contracts.Storage.FileExplorer;
 
@@ -21,4 +22,6 @@ public interface ILaminarFileBrowser
     public Task<IUserActionResult> Rename(ILaminarStorageItem itemToRename, string newName);
     
     public bool OpenInSystemFileBrowser(ILaminarStorageItem item);
+    Task<IUserActionResult> RemoveRootFolder(FileSystemPath rootFolderPath);
+    Task<IUserActionResult> AddRootFolder(FileSystemPath newRootFolderPath);
 }

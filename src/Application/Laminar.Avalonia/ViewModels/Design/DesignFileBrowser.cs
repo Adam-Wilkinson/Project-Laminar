@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.Storage.FileExplorer;
 using Laminar.Domain.Notification;
+using Laminar.Domain.ValueObjects;
 
 namespace Laminar.Avalonia.ViewModels.Design;
 
@@ -25,4 +26,10 @@ public class DesignFileBrowser : ILaminarFileBrowser
         => IUserActionResult.Invalid();
 
     public bool OpenInSystemFileBrowser(ILaminarStorageItem item) => false;
+
+    public async Task<IUserActionResult> RemoveRootFolder(FileSystemPath rootFolderPath)
+        => IUserActionResult.Invalid();
+
+    public async Task<IUserActionResult> AddRootFolder(FileSystemPath newRootFolderPath)
+        => IUserActionResult.Invalid();
 }

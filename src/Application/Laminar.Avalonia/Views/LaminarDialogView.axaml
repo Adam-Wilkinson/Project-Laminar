@@ -15,7 +15,7 @@
         WindowStartupLocation="CenterOwner"
         Title="{Binding Title}">
   <StackPanel Margin="15" Spacing="15">
-      <TextBlock Text="{Binding Message, FallbackValue='This is the default message how fun'}" HorizontalAlignment="Center"/>
+      <TextBlock TextAlignment="Center" Text="{Binding Message, FallbackValue='This is the default message how fun'}" HorizontalAlignment="Center"/>
         <CheckBox IsChecked="{Binding RememberAnswer}" IsVisible="{Binding ShowRememberAnswer}">
             <TextBlock Text="Remember Answer" Classes="b2" VerticalAlignment="Center"/>
         </CheckBox>

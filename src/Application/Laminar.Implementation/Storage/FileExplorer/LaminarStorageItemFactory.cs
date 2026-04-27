@@ -18,7 +18,7 @@ internal partial class LaminarStorageItemFactory(
     ILogger<LaminarStorageItem> logger)
     : ILaminarStorageItemFactory
 {
-    private readonly Dictionary<FileSystemPath, ILaminarStorageItem> _allStorageItems = [];
+    private readonly Dictionary<FileSystemPath, LaminarStorageItem> _allStorageItems = [];
 
     public ILaminarStorageItem FromPersistentData(IPersistentDictionary persistentDictionary, ILaminarStorageFolder parent)
     {
@@ -27,19 +27,21 @@ internal partial class LaminarStorageItemFactory(
         string name = persistentDictionary[LaminarStorageItem.NameKey].GetValue<string>().Value;
         FileSystemPath newItemPath = parent.Path.ChildPath(name);
 
-        if (_allStorageItems.TryGetValue(newItemPath, out _))
+        if (_allStorageItems.TryGetValue(newItemPath, out var existing))
         {
-            throw new InvalidOperationException("Attempt to deserialize existing storage item");
+            return ReferenceEquals(existing.PersistentStorage, persistentDictionary) 
+                ? existing 
+                : throw new InvalidOperationException("Attempt to deserialize existing storage item");
         }
 
-        if (deletedItemCache.TryFind(newItemPath) is { } recentDeletion)
+        if (deletedItemCache.TryFind(newItemPath) is LaminarStorageItem recentDeletion)
         {
             LogRequestedFileMatchesRecentDeletion(logger, newItemPath);
             _allStorageItems[newItemPath] = recentDeletion;
             return recentDeletion;
         }
         
-        ILaminarStorageItem newItem = string.IsNullOrWhiteSpace(newItemPath.Extension)
+        LaminarStorageItem newItem = string.IsNullOrWhiteSpace(newItemPath.Extension)
             ? new LaminarStorageFolder(internalParent, this, fileSystem, persistentDictionary, persistentDataManager, logger)
             : new LaminarStorageFile(internalParent, fileSystem, persistentDictionary, logger);
         
@@ -50,12 +52,14 @@ internal partial class LaminarStorageItemFactory(
             _allStorageItems[e.NewValue] = newItem;
         };
 
+        newItem.RootFolderDisposed += (_, _) => _allStorageItems.Remove(newItem.Path);
+
         return newItem;
     }
     
     public ILaminarStorageItem FromPath(FileSystemPath path, ILaminarStorageFolder parent)
     {
-        if (_allStorageItems.TryGetValue(path, out ILaminarStorageItem? item))
+        if (_allStorageItems.TryGetValue(path, out var item))
         {
             return item;
         }

@@ -13,7 +13,7 @@ namespace Laminar.Implementation.Storage.FileExplorer.UserActions;
 internal class RenameStorageItemAction(
     string newName, 
     LaminarStorageItem item, 
-    ILaminarStorageRootFolder recyclingBin) : IUserAction
+    FileExplorerActionDependencies dependencies) : IUserAction
 {
     public event EventHandler? CanExecuteChanged { add { } remove { } }
 
@@ -41,8 +41,8 @@ internal class RenameStorageItemAction(
                 Exception = new FileWithNameExistsException(newName),
                 Resolve = resolution => resolution switch
                 {
-                    NamingConflictResolution.IncrementName => new AlternativeActionFound(new RenameStorageItemAction(newName + " (1)", item, recyclingBin)),
-                    NamingConflictResolution.ReplaceItem => new AlternativeActionFound(new CompoundAction(new DeleteStorageItemAction(internalItem, recyclingBin), this)),
+                    NamingConflictResolution.IncrementName => new AlternativeActionFound(new RenameStorageItemAction(newName + " (1)", item, dependencies)),
+                    NamingConflictResolution.ReplaceItem => new AlternativeActionFound(new CompoundAction(new DeleteStorageItemAction(internalItem, dependencies), this)),
                     _ => throw new InvalidOperationException(),
                 },
                 OnCancelled = item.Refresh,
@@ -60,6 +60,6 @@ internal class RenameStorageItemAction(
             return Task.FromResult(IUserActionResult.Error(exception));
         }
         
-        return Task.FromResult(IUserActionResult.Success(new RenameStorageItemAction(oldName, item, recyclingBin)));
+        return Task.FromResult(IUserActionResult.Success(new RenameStorageItemAction(oldName, item, dependencies)));
     }
 }

@@ -14,39 +14,64 @@ using static Laminar.Domain.DataManagement.DataLocations;
 
 namespace Laminar.Implementation.Storage.FileExplorer;
 
-internal class LaminarFileBrowser(
-    IUserActionManager actionManager,
-    ILaminarStorageItemFactory factory,
-    IPersistentDataManager dataManager,
-    IFileSystem fileSystem)
-    : ILaminarFileBrowser, IDisposable
+internal class LaminarFileBrowser : ILaminarFileBrowser, IDisposable
 {
-    private readonly ILaminarStorageRootFolder _recyclingBin 
-        = factory.CreateRootFolder(LocalDataFolder.ChildPath("Recycling Bin"));
+    private readonly ILaminarStorageRootFolder _recyclingBin;
+    private readonly IUserActionManager _actionManager;
+    private readonly IFileSystem _fileSystem;
+    private readonly FileExplorerActionDependencies _actionDependencies;
     
-    public IReadOnlyObservableCollection<ILaminarStorageRootFolder> RootFolders { get; } = dataManager
-        .GetDataStore(DataStoreKey.PersistentData)
-        ["FileBrowser"].SetDefaultAndGet(dataManager.GetHeadlessNode<IPersistentDictionary>()).Value
-        ["RootFolders"].SetDefaultAndGet<List<FileSystemPath>>([RoamingDataFolder.ChildPath("Default")])
-        .ToObservableCollection()
-        .ObservableMap(factory.CreateRootFolder);
     
+    public LaminarFileBrowser(IUserActionManager actionManager,
+        ILaminarStorageItemFactory factory,
+        IPersistentDataManager dataManager,
+        IFileSystem fileSystem)
+    {
+        _actionManager = actionManager;
+        _fileSystem = fileSystem;
+        _recyclingBin = factory.CreateRootFolder(LocalDataFolder.ChildPath("Recycling Bin"));
+
+        var rootFolderPaths = dataManager
+            .GetDataStore(DataStoreKey.PersistentData)
+            ["FileBrowser"].SetDefaultAndGet(dataManager.GetHeadlessNode<IPersistentDictionary>()).Value
+            ["RootFolders"].SetDefaultAndGet<List<FileSystemPath>>([RoamingDataFolder.ChildPath("Default")]);
+        
+        RootFolders = rootFolderPaths.ToObservableCollection().ObservableMap(factory.CreateRootFolder);
+        RootFolders.HelperInstance().ItemRemoved += (_, e) 
+            => e.Item.Dispose();
+
+        _actionDependencies = new()
+        {
+            RecyclingBin = _recyclingBin,
+            RootFolders = rootFolderPaths,
+            StorageItemFactory = factory
+        };
+    }
+
+    public IReadOnlyObservableCollection<ILaminarStorageRootFolder> RootFolders { get; }
+
+    public Task<IUserActionResult> RemoveRootFolder(FileSystemPath rootFolderPath) 
+        => _actionManager.ExecuteAction(new RemoveRootFolderAction(rootFolderPath, _actionDependencies));
+
+    public Task<IUserActionResult> AddRootFolder(FileSystemPath newRootFolderPath) 
+        => _actionManager.ExecuteAction(new AddRootFolderAction(newRootFolderPath, _actionDependencies));
+
     public Task<IUserActionResult> AddDefault<T>(ILaminarStorageFolder parentFolder) where T : class, ILaminarStorageItem 
-        => actionManager.ExecuteAction(new AddDefaultStorageItemAction<T>(parentFolder, factory, _recyclingBin));
+        => _actionManager.ExecuteAction(new AddDefaultStorageItemAction<T>(parentFolder, _actionDependencies));
 
     public Task<IUserActionResult> Move(ILaminarStorageItem itemToMove, ILaminarStorageFolder destinationFolder, int destinationIndex) 
         => itemToMove is not LaminarStorageItem internalItem ? Task.FromResult(IUserActionResult.Invalid()) 
-            : actionManager.ExecuteAction(new MoveStorageItemAction(internalItem, destinationFolder, _recyclingBin, destinationIndex));
+            : _actionManager.ExecuteAction(new MoveStorageItemAction(internalItem, destinationFolder, destinationIndex, _actionDependencies));
 
     public Task<IUserActionResult> Delete(ILaminarStorageItem itemToDelete) 
         => itemToDelete is not LaminarStorageItem internalItem ? Task.FromResult(IUserActionResult.Invalid()) 
-            : actionManager.ExecuteAction(new DeleteStorageItemAction(internalItem, _recyclingBin));
+            : _actionManager.ExecuteAction(new DeleteStorageItemAction(internalItem, _actionDependencies));
 
     public Task<IUserActionResult> Rename(ILaminarStorageItem itemToRename, string newName) 
         => itemToRename is not LaminarStorageItem internalItem ? Task.FromResult(IUserActionResult.Invalid()) 
-            : actionManager.ExecuteAction(new RenameStorageItemAction(newName, internalItem, _recyclingBin));
+            : _actionManager.ExecuteAction(new RenameStorageItemAction(newName, internalItem, _actionDependencies));
 
-    public bool OpenInSystemFileBrowser(ILaminarStorageItem item) => fileSystem.OpenInSystemFileBrowser(item.Path);
+    public bool OpenInSystemFileBrowser(ILaminarStorageItem item) => _fileSystem.OpenInSystemFileBrowser(item.Path);
 
     public void Dispose()
     {
@@ -54,7 +79,8 @@ internal class LaminarFileBrowser(
         {
             rootFolder.Dispose();
         }
-
+        
+        _recyclingBin.Dispose();
         GC.SuppressFinalize(this);
     }
 }

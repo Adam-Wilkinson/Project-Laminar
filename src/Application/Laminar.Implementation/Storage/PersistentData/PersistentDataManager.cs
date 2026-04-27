@@ -1,11 +1,9 @@
 using System;
 using System.Collections.Generic;
-using Laminar.Contracts.Base;
 using Laminar.Contracts.Storage.IO;
 using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.DataManagement;
 using Laminar.Domain.Exceptions;
-using Laminar.PluginFramework.Serialization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -17,7 +15,7 @@ public class PersistentDataManager(
     ILogger<JsonPersistentDataTranscoder> jsonTranscoderLogger) 
     : IPersistentDataManager
 {
-    private readonly Dictionary<DataStoreKey, IPersistentDataStore> _dataStores = new();
+    private readonly Dictionary<DataStoreKey, PersistentDataStore> _dataStores = new();
 
     public IPersistentDictionary GetDataStore(DataStoreKey dataStoreKey)
     {
@@ -49,5 +47,24 @@ public class PersistentDataManager(
         return newDataStore.Root;
     }
 
+    public void ForgetDataStore(DataStoreKey dataStoreKey)
+    {
+        if (_dataStores.TryGetValue(dataStoreKey, out var dataStore))
+        {
+            dataStore.Dispose();
+            _dataStores.Remove(dataStoreKey);
+        }
+    }
+
     public T GetHeadlessNode<T>() where T : IPersistentDataValueOwner => serviceProvider.GetRequiredService<T>();
+
+    public void Dispose()
+    {
+        foreach (var child in _dataStores.Values)
+        {
+            child.Dispose();
+        }
+        
+        GC.SuppressFinalize(this);
+    }
 }

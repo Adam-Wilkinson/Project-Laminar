@@ -11,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Laminar.Implementation.Storage.PersistentData;
 
-public class PersistentDataStore : IPersistentDataStore
+public class PersistentDataStore : IPersistentDataStore, IDisposable
 {
     private static readonly TimeSpan FlushDelay = TimeSpan.FromMilliseconds(200);
     
@@ -20,7 +20,8 @@ public class PersistentDataStore : IPersistentDataStore
     private readonly bool _isInitialized = false;
     private readonly IDispatcher _dispatcher;
     
-    private CancellationTokenSource? _flushCts; 
+    private CancellationTokenSource? _flushCts;
+    private bool _isDisposed;
     
     public PersistentDataStore(
         IPersistentDataTranscoder persistentDataTranscoder,
@@ -44,7 +45,7 @@ public class PersistentDataStore : IPersistentDataStore
 
     public void OnChildValueInvalidated()
     {
-        if (!_isInitialized) return;
+        if (!_isInitialized || _isDisposed) return;
         ScheduleFlush();
     }
 
@@ -88,5 +89,13 @@ public class PersistentDataStore : IPersistentDataStore
             TargetType = typeof(IPersistentDictionary),
             ExistingInstance = Root
         });
+    }
+
+    public void Dispose()
+    {
+        _file.Dispose();
+        _flushCts?.Dispose();
+        _isDisposed = true;
+        GC.SuppressFinalize(this);
     }
 }

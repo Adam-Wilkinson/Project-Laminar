@@ -2,9 +2,11 @@ using Laminar.Domain.DataManagement;
 
 namespace Laminar.Contracts.Storage.PersistentData;
 
-public interface IPersistentDataManager
+public interface IPersistentDataManager : IDisposable
 {
     public IPersistentDictionary GetDataStore(DataStoreKey dataStoreKey);
 
+    public void ForgetDataStore(DataStoreKey dataStoreKey);
+    
     public T GetHeadlessNode<T>() where T : IPersistentDataValueOwner;
 }

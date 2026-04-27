@@ -2,17 +2,18 @@
 using System.Threading.Tasks;
 using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.Storage.FileExplorer;
+using Laminar.Domain.Enums.ActionResolutions;
+using Laminar.Domain.Exceptions;
 using Laminar.Implementation.Base.ActionSystem;
 
 namespace Laminar.Implementation.Storage.FileExplorer.UserActions;
 
-internal class DeleteStorageItemAction(
-    LaminarStorageItem item,
-    ILaminarStorageRootFolder recyclingBin) : IUserAction
+internal class DeleteStorageItemAction(LaminarStorageItem item, FileExplorerActionDependencies dependencies) 
+    : IUserAction
 {
     private readonly CompoundAction _internalAction = new(
-        new RenameStorageItemAction(GetDeletedName(item.Path.Name), item, recyclingBin), 
-        new MoveStorageItemAction(item, recyclingBin, recyclingBin));
+        new RenameStorageItemAction(GetDeletedName(item.Path.Name), item, dependencies), 
+        new MoveStorageItemAction(item, dependencies.RecyclingBin, null, dependencies));
 
     public bool CanExecute => _internalAction.CanExecute;
 
@@ -25,6 +26,21 @@ internal class DeleteStorageItemAction(
     public Task<IUserActionResult> Execute()
     {
         item.Refresh();
+        
+        if (item is ILaminarStorageRootFolder rootFolder)
+        {
+            return Task.FromResult<IUserActionResult>(new ResolvableError<DeleteRootFolderConfirmation>
+            {
+                Exception = new DeleteRootFolderException(rootFolder.Path),
+                Resolve = confirmation => confirmation switch
+                {
+                    DeleteRootFolderConfirmation.DeleteRootFolder => new AlternativeActionFound(_internalAction),
+                    DeleteRootFolderConfirmation.RemoveRootFolder => new AlternativeActionFound(new RemoveRootFolderAction(rootFolder.Path, dependencies)),
+                    _ => throw new InvalidOperationException()
+                }
+            });
+        }
+        
         return _internalAction.Execute();
     }
 

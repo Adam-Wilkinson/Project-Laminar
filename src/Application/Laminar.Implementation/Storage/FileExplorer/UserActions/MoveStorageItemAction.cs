@@ -14,8 +14,8 @@ namespace Laminar.Implementation.Storage.FileExplorer.UserActions;
 internal class MoveStorageItemAction(
      LaminarStorageItem item, 
      ILaminarStorageFolder destinationFolder,
-     ILaminarStorageRootFolder recyclingBin,
-     int? targetIndex = null)
+     int? targetIndex,
+     FileExplorerActionDependencies dependencies)
      : IUserAction
 {
      public event EventHandler? CanExecuteChanged { add { } remove { } }
@@ -46,8 +46,8 @@ internal class MoveStorageItemAction(
                     Exception = new DestinationContainsItemOfThatNameException(destinationFolder.Path.Name, item.Path.Name),
                     Resolve = resolution => resolution switch
                     {
-                        NamingConflictResolution.ReplaceItem => new AlternativeActionFound(new CompoundAction(new DeleteStorageItemAction(internalItem, recyclingBin), this)),
-                        NamingConflictResolution.IncrementName => new AlternativeActionFound(new CompoundAction(new RenameStorageItemAction(item.Path.Name + " (1)", item, recyclingBin), this)),
+                        NamingConflictResolution.ReplaceItem => new AlternativeActionFound(new CompoundAction(new DeleteStorageItemAction(internalItem, dependencies), this)),
+                        NamingConflictResolution.IncrementName => new AlternativeActionFound(new CompoundAction(new RenameStorageItemAction(item.Path.Name + " (1)", item, dependencies), this)),
                         _ => throw new InvalidOperationException(),
                     },
                     OnCancelled = () =>
@@ -69,6 +69,6 @@ internal class MoveStorageItemAction(
             }
         }
 
-        return Task.FromResult(IUserActionResult.Success(new MoveStorageItemAction(item, oldFolder, recyclingBin, indexInOldFolder)));
+        return Task.FromResult(IUserActionResult.Success(new MoveStorageItemAction(item, oldFolder, indexInOldFolder, dependencies)));
     }
 }

@@ -13,7 +13,8 @@ internal class LaminarStorageRootFolder : LaminarStorageFolder, ILaminarStorageR
     private const string InfoFileName = ".project-laminar-data";
     private readonly IFileSystem _fileSystem;
     private readonly ILaminarFileSystemMonitor _fileSystemMonitor;
-
+    private readonly IPersistentDataManager _persistentDataManager;
+    
     private FileSystemPath _path;
     private IDisposable _currentMonitor;
     
@@ -30,6 +31,7 @@ internal class LaminarStorageRootFolder : LaminarStorageFolder, ILaminarStorageR
         _path = path;
         _fileSystem = fileSystem;
         _fileSystemMonitor = monitor;
+        _persistentDataManager = persistentDataManager;
         _currentMonitor = monitor.StartMonitoring(this);
         Refresh();
     }
@@ -58,6 +60,8 @@ internal class LaminarStorageRootFolder : LaminarStorageFolder, ILaminarStorageR
     public void Dispose()
     {
         _currentMonitor.Dispose();
+        _persistentDataManager.ForgetDataStore(new DataStoreKey(InfoFileName, PersistentDataType.Json, Path));
+        OnParentRootFolderDisposed(this, EventArgs.Empty);
         GC.SuppressFinalize(this);
     }
 }

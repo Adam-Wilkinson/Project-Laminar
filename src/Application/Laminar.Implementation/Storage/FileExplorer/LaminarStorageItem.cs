@@ -72,6 +72,10 @@ internal abstract class LaminarStorageItem : ILaminarStorageItem
     
     public bool NeedsName { get; set => SetField(ref field, value); }
     
+    public event EventHandler? RootFolderDisposed;
+
+    protected void OnParentRootFolderDisposed(object? sender, EventArgs e) => RootFolderDisposed?.Invoke(sender, e);
+
     public ILaminarStorageFolder? ParentFolder { get; private set; }
 
     public void Refresh()
@@ -108,6 +112,8 @@ internal abstract class LaminarStorageItem : ILaminarStorageItem
             oldParentContents.Remove(this);
         }
 
+        (ParentFolder as LaminarStorageItem)?.RootFolderDisposed -= OnParentRootFolderDisposed;
+
         if (folder is not null && ParentFolder is not null && _fileSystem.Exists(Path))
         {
             var destinationPath = folder.Path.ChildPath(Path.NameAndExtension);
@@ -115,7 +121,7 @@ internal abstract class LaminarStorageItem : ILaminarStorageItem
         }
         
         ParentFolder = folder;
-        OnParentChanged();
+        (ParentFolder as LaminarStorageItem)?.RootFolderDisposed += OnParentRootFolderDisposed;
         OnPropertyChanged(nameof(Path));
     }
     
@@ -124,10 +130,6 @@ internal abstract class LaminarStorageItem : ILaminarStorageItem
         OnPropertyChanged(nameof(IsEffectivelyEnabled));
     }
 
-    protected virtual void OnParentChanged()
-    {
-    }
-    
     protected abstract void RefreshOverride();
 
     protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)

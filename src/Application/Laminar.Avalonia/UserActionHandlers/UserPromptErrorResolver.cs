@@ -37,6 +37,19 @@ public class UserPromptErrorResolver(DialogService dialogService) : IUserActionE
             SelectedOptionIndex = 2,
             CancelledOptionIndex = 0,
         }),
+        ResolvableError<DeleteRootFolderConfirmation>
+        {
+            Exception: DeleteRootFolderException deleteRootFolderException
+        } deleteRootFolderConfirmation => ResolveError(deleteRootFolderConfirmation, new LaminarDialogViewModel
+        {
+            Options = [
+                DialogOption.Cancel, 
+                new DialogOption<DeleteRootFolderConfirmation>(DeleteRootFolderConfirmation.RemoveRootFolder, "Remove from root folders"),
+                new DialogOption<DeleteRootFolderConfirmation>(DeleteRootFolderConfirmation.DeleteRootFolder, "Delete permanently")],
+            Message = $"You are attempting to delete the folder '{deleteRootFolderException.FolderPath.Name}'. This will permanently delete this folder and all its children.\r\n\r\nYou can also remove this folder from Project: Laminar without deleting it from your file system",
+            SelectedOptionIndex = 1,
+            CancelledOptionIndex = 0,
+        }),
         _ => Task.FromResult<IUserActionErrorResolution?>(null),
     };
 

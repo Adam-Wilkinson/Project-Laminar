@@ -8,8 +8,7 @@ namespace Laminar.Implementation.Storage.FileExplorer.UserActions;
 
 internal class AddDefaultStorageItemAction<T>(
     ILaminarStorageFolder parentFolder, 
-    ILaminarStorageItemFactory factory,
-    ILaminarStorageRootFolder recyclingBin) 
+    FileExplorerActionDependencies dependencies) 
     : IUserAction where T : class, ILaminarStorageItem
 {
     private static readonly (Type, string)[] DefaultItemNames =
@@ -25,13 +24,13 @@ internal class AddDefaultStorageItemAction<T>(
     public Task<IUserActionResult> Execute()
     {
         FileSystemPath newItemPath = parentFolder.Path.ChildPath(GetDefaultItemName());
-        if (factory.FromPath(newItemPath, parentFolder) is not LaminarStorageItem newItem) 
+        if (dependencies.StorageItemFactory.FromPath(newItemPath, parentFolder) is not LaminarStorageItem newItem) 
         {
             return Task.FromResult(IUserActionResult.Error(new InvalidOperationException()));
         }
 
         newItem.NeedsName = true;
-        return Task.FromResult(IUserActionResult.Success(new DeleteStorageItemAction(newItem, recyclingBin)));
+        return Task.FromResult(IUserActionResult.Success(new DeleteStorageItemAction(newItem, dependencies)));
     }
     
     private static string GetDefaultItemName()
