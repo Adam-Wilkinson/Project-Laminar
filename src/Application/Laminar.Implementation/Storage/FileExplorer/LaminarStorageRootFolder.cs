@@ -32,7 +32,8 @@ internal class LaminarStorageRootFolder : LaminarStorageFolder, ILaminarStorageR
         _fileSystem = fileSystem;
         _fileSystemMonitor = monitor;
         _persistentDataManager = persistentDataManager;
-        _currentMonitor = monitor.StartMonitoring(this);
+        // TODO: .json should not be hard-coded
+        _currentMonitor = monitor.StartMonitoring(this, [ path.ChildPath(InfoFileName + ".json") ]);
         Refresh();
     }
 

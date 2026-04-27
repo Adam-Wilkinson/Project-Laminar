@@ -35,11 +35,6 @@
                           MinHeight="{TemplateBinding MinHeight}"
                           TemplatedControl.IsTemplateFocusTarget="True"
                           Margin="0,0,0,4">
-                        <!-- <Border.Transitions> -->
-                        <!--     <Transitions> -->
-                        <!--         <BrushTransition Property="Background" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/> -->
-                        <!--     </Transitions> -->
-                        <!-- </Border.Transitions> -->
                         <Grid Name="PART_Header" ColumnDefinitions="Auto, *">
                             <Button Name="PART_ExpandCollapseChevron"
                                     Grid.Column="0" Grid.Row="0"

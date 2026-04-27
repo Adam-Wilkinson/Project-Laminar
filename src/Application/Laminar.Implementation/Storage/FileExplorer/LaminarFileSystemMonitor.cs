@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Laminar.Contracts.Base;
 using Laminar.Contracts.Storage.FileExplorer;
 using Laminar.Contracts.Storage.IO;
+using Laminar.Domain.ValueObjects;
 using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.Storage.FileExplorer;
@@ -35,25 +36,31 @@ internal partial class LaminarFileSystemMonitor(
     private Task? _processFileSystemEventsTask;
     private CancellationTokenSource? _refreshCts;
 
-    public IDisposable StartMonitoring(ILaminarStorageRootFolder folder)
+    public IDisposable StartMonitoring(ILaminarStorageRootFolder folder, FileSystemPath[]? excludedPaths = null)
     {
         _processFileSystemEventsTask ??= Task.Run(ProcessFileSystemEvents);
+        excludedPaths ??= [];
         
         var folderWatcher = fileSystem.CreateFileWatcher(folder.Path);
         folderWatcher.IncludeSubdirectories = true;
         folderWatcher.EnableRaisingEvents = true;
 
-        folderWatcher.Renamed += (_, e) => OnFileSystemEvent(e, folder);
-        folderWatcher.Created += (_, e) => OnFileSystemEvent(e, folder);
-        folderWatcher.Deleted += (_, e) => OnFileSystemEvent(e, folder);
-        folderWatcher.Changed += (_, e) => OnFileSystemEvent(e, folder);
+        folderWatcher.Renamed += (_, e) => OnFileSystemEvent(e, folder, excludedPaths);
+        folderWatcher.Created += (_, e) => OnFileSystemEvent(e, folder, excludedPaths);
+        folderWatcher.Deleted += (_, e) => OnFileSystemEvent(e, folder, excludedPaths);
+        folderWatcher.Changed += (_, e) => OnFileSystemEvent(e, folder, excludedPaths);
         folderWatcher.Error += (_, e) => OnFileSystemError(e, folder);
         _monitors.Add(folderWatcher);
         return folderWatcher;
     }
 
-    private void OnFileSystemEvent(FileSystemEventArgs e, ILaminarStorageRootFolder folder)
+    private void OnFileSystemEvent(FileSystemEventArgs e, ILaminarStorageRootFolder folder, FileSystemPath[] excludedPaths)
     {
+        if (excludedPaths.Contains(new FileSystemPath(e.FullPath)))
+        {
+            return;
+        }
+        
         _updateChannel.Writer.TryWrite(new LaminarFileSystemEvent(e, folder));
     }
 
@@ -141,7 +148,7 @@ internal partial class LaminarFileSystemMonitor(
             try
             {
                 await Task.Delay(FileSystemModifiedRefreshDelay, token);
-                logger.LogTrace("Triggering file system refresh after scheduled move operations");
+                logger.LogTrace("Triggering file system refresh after detected change");
 
                 List<ILaminarStorageRootFolder> snapshot;
                 lock (_outdatedFoldersLock)
