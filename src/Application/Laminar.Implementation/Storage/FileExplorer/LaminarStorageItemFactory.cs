@@ -32,16 +32,16 @@ internal partial class LaminarStorageItemFactory(
             throw new InvalidOperationException("Attempt to deserialize existing storage item");
         }
 
-        ILaminarStorageItem newItem = string.IsNullOrWhiteSpace(newItemPath.Extension)
-            ? new LaminarStorageFolder(internalParent, this, fileSystem, persistentDictionary, persistentDataManager, logger)
-            : new LaminarStorageFile(internalParent, fileSystem, persistentDictionary, logger);
-
-        if (deletedItemCache.TryFind(newItem) is { } recentDeletion)
+        if (deletedItemCache.TryFind(newItemPath) is { } recentDeletion)
         {
             LogRequestedFileMatchesRecentDeletion(logger, newItemPath);
             _allStorageItems[newItemPath] = recentDeletion;
             return recentDeletion;
         }
+        
+        ILaminarStorageItem newItem = string.IsNullOrWhiteSpace(newItemPath.Extension)
+            ? new LaminarStorageFolder(internalParent, this, fileSystem, persistentDictionary, persistentDataManager, logger)
+            : new LaminarStorageFile(internalParent, fileSystem, persistentDictionary, logger);
         
         _allStorageItems[newItemPath] = newItem;
         newItem.GetDependentValue(x => x.Path).OnChanged += (_, e) =>

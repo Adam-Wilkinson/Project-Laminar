@@ -8,8 +8,17 @@ namespace Laminar.Domain.ValueObjects;
 /// <param name="absolutePath">The absolute path that is being manipulated</param>
 public readonly struct FileSystemPath(string absolutePath) : IEquatable<FileSystemPath>
 {
+    public static readonly StringComparison RuntimeStringComparison = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+        ? StringComparison.OrdinalIgnoreCase
+        : StringComparison.Ordinal;
+    
+    public static readonly StringComparer RuntimeStringComparer = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+        ? StringComparer.OrdinalIgnoreCase
+        : StringComparer.Ordinal;
+    
+    
     private readonly string _path = Path.GetFullPath(absolutePath) ?? throw new ArgumentNullException(nameof(absolutePath));
-
+    
     public FileSystemPath ChildPath(string childName) => new(Path.Join(_path, childName));
 
     public FileSystemPath? Parent => Path.GetDirectoryName(_path) is { } parent ? new(parent) : null;
@@ -22,18 +31,14 @@ public readonly struct FileSystemPath(string absolutePath) : IEquatable<FileSyst
     
     public override string ToString() => _path;
 
-    public bool Equals(FileSystemPath other) => RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-        ? string.Equals(_path, other._path, StringComparison.OrdinalIgnoreCase)
-        : string.Equals(_path, other._path, StringComparison.Ordinal);
+    public bool Equals(FileSystemPath other) => string.Equals(_path, other._path, RuntimeStringComparison);
 
     public override bool Equals(object? obj)
     {
         return obj is FileSystemPath other && Equals(other);
     }
 
-    public override int GetHashCode() => RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-        ? StringComparer.OrdinalIgnoreCase.GetHashCode(_path)
-        : StringComparer.Ordinal.GetHashCode(_path);
+    public override int GetHashCode() => RuntimeStringComparer.GetHashCode(_path);
 
     public static bool operator ==(FileSystemPath left, FileSystemPath right) => left.Equals(right);
     public static bool operator !=(FileSystemPath left, FileSystemPath right) => !left.Equals(right);

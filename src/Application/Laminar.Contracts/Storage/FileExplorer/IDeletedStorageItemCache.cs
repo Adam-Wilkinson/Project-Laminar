@@ -1,10 +1,12 @@
+using Laminar.Domain.ValueObjects;
+
 namespace Laminar.Contracts.Storage.FileExplorer;
 
 public interface IDeletedStorageItemCache
 {
     public void RegisterPotentialDeletion(ILaminarStorageItem potentialDeletion);
 
-    public void Clear();
+    public ILaminarStorageItem? TryFind(FileSystemPath mightExist);
     
-    public ILaminarStorageItem? TryFind(ILaminarStorageItem mightExist);
+    public void Clear();
 }
