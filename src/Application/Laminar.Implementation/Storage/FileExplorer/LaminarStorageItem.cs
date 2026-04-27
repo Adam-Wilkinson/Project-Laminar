@@ -35,18 +35,6 @@ internal abstract class LaminarStorageItem : ILaminarStorageItem
         _nameWithExtension = PersistentStorage[NameKey].GetValue<string>().Value;
         _isEnabled = PersistentStorage[nameof(IsEnabled)].SetDefaultAndGet(true).Value;
     }
-    
-    protected LaminarStorageItem(
-        IFileSystem fileSystem, 
-        IPersistentDataManager persistentDataManager, 
-        ILogger<LaminarStorageItem> logger,
-        string nameWithExtension)
-    {
-        _fileSystem = fileSystem;
-        PersistentStorage = persistentDataManager.GetHeadlessNode<IPersistentDictionary>();
-        Logger = logger;
-        _nameWithExtension = nameWithExtension;
-    }
 
     protected ILogger<LaminarStorageItem> Logger { get; }
 
@@ -143,29 +131,5 @@ internal abstract class LaminarStorageItem : ILaminarStorageItem
         field = value;
         OnPropertyChanged(propertyName);
         return true;
-    }
-    
-    protected virtual void OnPersistentStorageChanged(IPersistentDictionary? oldDictionary, IPersistentDictionary newDictionary)
-    {
-        oldDictionary?.TryGetValue<bool>(nameof(IsEnabled))?.OnChanged -= OnPersistentIsEnabledChanged;
-        oldDictionary?.TryGetValue<string>(NameKey)?.OnChanged -= OnPersistentNameChanged;
-        
-        var newPersistentIsEnabled = newDictionary[nameof(IsEnabled)].SetDefaultAndGet(IsEnabled);
-        newPersistentIsEnabled.OnChanged += OnPersistentIsEnabledChanged;
-        IsEnabled = newPersistentIsEnabled.Value;
-        
-        var newPersistentName = newDictionary[NameKey].SetDefaultAndGet(_nameWithExtension);
-        newPersistentName.OnChanged += OnPersistentNameChanged;
-        Rename(newPersistentName.Value);
-    }
-
-    private void OnPersistentNameChanged(object? sender, ObservableValueChangedEventArgs<string> e)
-    {
-        Rename(e.NewValue);
-    }
-
-    private void OnPersistentIsEnabledChanged(object? sender, ObservableValueChangedEventArgs<bool> e)
-    {
-        IsEnabled = e.NewValue;
     }
 }

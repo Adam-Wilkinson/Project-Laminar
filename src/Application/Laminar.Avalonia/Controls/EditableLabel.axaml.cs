@@ -11,7 +11,6 @@ using Avalonia.Input;
 using Avalonia.Input.Platform;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
-using Avalonia.Media;
 using Avalonia.Threading;
 using Laminar.Domain.Extensions;
 

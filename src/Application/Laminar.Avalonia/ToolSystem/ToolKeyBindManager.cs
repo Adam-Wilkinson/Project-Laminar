@@ -114,14 +114,14 @@ public class ToolKeyBindManager(TopLevel defaultTopLevel) : IAfterApplicationBui
             var allVisualsUnderCursor = keyBindManager._visualUnderCursor?.GetVisualAncestors() ?? [];
             foreach (var visual in allVisualsUnderCursor)
             {
-                if (TryBuildToolFromTarget(visual) is { } hoveredVisualTool && hoveredVisualTool.Command.CanExecute(parameter))
+                if (tool.TryFindTargetAndBuild(visual) is { } hoveredVisualTool && hoveredVisualTool.Command.CanExecute(parameter))
                 {
                     instance = hoveredVisualTool;
                     return true;
                 }
             }
             
-            if (TryBuildToolFromTarget(keyBindManager.FocusManager.GetFocusedElement()) is { } focusedElementTool && focusedElementTool.Command.CanExecute(parameter))
+            if (tool.TryFindTargetAndBuild(keyBindManager.FocusManager.GetFocusedElement()) is { } focusedElementTool && focusedElementTool.Command.CanExecute(parameter))
             {
                 instance = focusedElementTool;
                 return true;
@@ -130,14 +130,5 @@ public class ToolKeyBindManager(TopLevel defaultTopLevel) : IAfterApplicationBui
             instance = null;
             return false;
         }
-
-        private ToolInstance? TryBuildToolFromTarget(object? target) => target switch
-        {
-            not null when tool.Build(target) is { } instance => instance,
-            ContentPresenter contentPresenter when tool.Build(contentPresenter.Content) is { } instance => instance,
-            ContentControl contentControl when tool.Build(contentControl.Content) is { } instance => instance,
-            StyledElement styledElement when tool.Build(styledElement.DataContext) is { } instance => instance,
-            _ => null,
-        };
     }
 }

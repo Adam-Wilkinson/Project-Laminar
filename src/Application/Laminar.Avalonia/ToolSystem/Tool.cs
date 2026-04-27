@@ -6,6 +6,7 @@ using System.Linq;
 using Avalonia;
 using Avalonia.Collections;
 using Avalonia.Controls;
+using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Templates;
 using Avalonia.Data;
 using Avalonia.Input;
@@ -144,6 +145,15 @@ public class Tool : StyledElement, ITemplate<object?, ToolInstance?>, IEnumerabl
     {
         Gesture = new(Key.None);
     }
+    
+    public ToolInstance? TryFindTargetAndBuild(object? targetFinder) => targetFinder switch
+    {
+        not null when Build(targetFinder) is { } instance => instance,
+        ContentPresenter contentPresenter when Build(contentPresenter.Content) is { } instance => instance,
+        ContentControl contentControl when Build(contentControl.Content) is { } instance => instance,
+        StyledElement styledElement when Build(styledElement.DataContext) is { } instance => instance,
+        _ => null,
+    };
     
     public ToolInstance? Build(object? param)
     {

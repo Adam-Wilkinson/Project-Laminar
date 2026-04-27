@@ -4,12 +4,21 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:Laminar.Avalonia.ViewModels"
              xmlns:dvm="using:Laminar.Avalonia.ViewModels.Design"
+             xmlns:t="using:Laminar.Avalonia.ToolSystem"
              xmlns:dd="using:Laminar.Avalonia.DragDrop"
              ClipToBounds="False"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450" d:DataContext="{x:Static dvm:DesignViewModel.FileNavigator}"
              dd:DropTargetHandler.DropCommand="{Binding DropCommand}"
              x:DataType="vm:FileNavigatorViewModel"
-             x:Class="Laminar.Avalonia.Views.FileNavigatorView">
+             x:Class="Laminar.Avalonia.Views.FileNavigatorView"
+             t:ToolMenu.ContextToolbox="{StaticResource FileNavigatorRightClick}">
+    
+    <UserControl.Resources>
+        <t:Toolbox x:Key="FileNavigatorRightClick" NameKey="File Explorer" DataType="vm:FileNavigatorViewModel">
+            <StaticResource ResourceKey="Tools.FileSystem.Browser.Refresh"/>
+            <StaticResource ResourceKey="Tools.FileSystem.Browser.AddRootFolder"/>
+        </t:Toolbox>
+    </UserControl.Resources>
     
     <DockPanel MinWidth="1" Name="FileNavigator">
         <ItemsControl DockPanel.Dock="Bottom" Height="35" HorizontalAlignment="Center"

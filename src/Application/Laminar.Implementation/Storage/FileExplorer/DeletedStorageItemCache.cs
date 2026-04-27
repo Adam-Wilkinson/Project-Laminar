@@ -35,6 +35,8 @@ internal class DeletedStorageItemCache(IFileSystem fileSystem) : IDeletedStorage
 
     public ILaminarStorageItem? TryFind(FileSystemPath path)
     {
+        if (!fileSystem.Exists(path)) return null;
+        
         var descriptor = StorageItemDescriptor.FromPath(path, fileSystem);
 
         // If descriptor has no children for a folder, you still allow it,

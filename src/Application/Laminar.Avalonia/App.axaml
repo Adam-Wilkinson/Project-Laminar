@@ -22,6 +22,7 @@
 				<ResourceInclude Source="XamlAssets/Themes/DragDropTreeViewTheme.axaml"/>
 				<ResourceInclude Source="XamlAssets/Themes/DragDropTreeViewItemTheme.axaml"/>
 				<ResourceInclude Source="XamlAssets/Themes/KeyGestureInterfaceTheme.axaml"/>
+				<ResourceInclude Source="XamlAssets/Themes/ToolMenuTheme.axaml"/>
 			</ResourceDictionary.MergedDictionaries>
 			
 			<conv:FirstNotNullValueConverter x:Key="FirstNotNullValueConverter"/>
@@ -57,6 +58,12 @@
 			<Setter Property="Classes.Windows" Value="{Binding Value, DataType={x:Type s:OptionsSetting}, Source={StaticResource SettingsRoot.InterfaceSettings.TitlebarTheme}, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static r:OSPlatform.Windows}}"/>
 			<Setter Property="Classes.Linux" Value="{Binding Value, DataType={x:Type s:OptionsSetting}, Source={StaticResource SettingsRoot.InterfaceSettings.TitlebarTheme}, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static r:OSPlatform.Linux}}"/>
 			<Setter Property="Classes.Osx" Value="{Binding Value, DataType={x:Type s:OptionsSetting}, Source={StaticResource SettingsRoot.InterfaceSettings.TitlebarTheme}, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static r:OSPlatform.OSX}}"/>
+		</Style>
+		
+		<Style Selector="FlyoutPresenter.no-border-flyout">
+			<Setter Property="Padding" Value="0"/>
+			<Setter Property="Margin" Value="0"/>
+			<Setter Property="BorderThickness" Value="0"/>
 		</Style>
 	</Application.Styles>
 

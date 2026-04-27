@@ -1,0 +1,37 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:t="using:Laminar.Avalonia.ToolSystem">
+    <Design.PreviewWith>
+        <Border Padding="5">
+            <t:ToolMenu>
+                <StaticResource ResourceKey="Tools.FileSystem.StorageItem"/>
+                <StaticResource ResourceKey="Tools.Edit"/>
+            </t:ToolMenu>
+        </Border>
+    </Design.PreviewWith>
+    
+    <ControlTheme TargetType="t:ToolMenu" x:Key="{x:Type t:ToolMenu}">
+        <Setter Property="Margin" Value="0"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="ItemTemplate">
+            <DataTemplate DataType="t:ToolInstance">
+                <StackPanel>
+                    <Grid ColumnDefinitions="*,Auto,*" Margin="0,10,0,0">
+                        <Separator Grid.Column="0"/>
+                        <TextBlock Grid.Column="1" Text="{Binding Tool.NameKey}"/>
+                        <Separator Grid.Column="2"/>
+                    </Grid>
+                    <MenuFlyoutPresenter ItemsSource="{Binding ChildTools}"
+                                         Margin="0" Padding="0" BorderThickness="0"
+                                         ItemContainerTheme="{StaticResource ToolMenuItemTheme}"/>
+                </StackPanel>
+            </DataTemplate>
+        </Setter>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <ItemsPresenter/>
+            </ControlTemplate>
+        </Setter>
+    </ControlTheme>
+</ResourceDictionary>

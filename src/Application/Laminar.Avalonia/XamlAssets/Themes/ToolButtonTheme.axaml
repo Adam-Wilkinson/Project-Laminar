@@ -12,12 +12,6 @@
     <Thickness x:Key="ButtonPadding">0</Thickness>
     <Thickness x:Key="ButtonBorderThemeThickness">0</Thickness>
     
-    <ControlTheme x:Key="NoBorderFlyoutPresenter" TargetType="FlyoutPresenter" BasedOn="{StaticResource {x:Type FlyoutPresenter}}">
-        <Setter Property="Padding" Value="0"/>
-        <Setter Property="Margin" Value="0"/>
-        <Setter Property="BorderThickness" Value="0"/>
-    </ControlTheme>
-    
     <ControlTheme x:Key="IconButton"
                   TargetType="Button">
         <Setter Property="Background" Value="{DynamicResource ThemeControlMidBrush}" />
@@ -114,7 +108,7 @@
         <Style Selector="^.HasChildren">
             <Setter Property="Flyout">
                 <!-- There is a MenuFlyout which does this simpler, but the bindings don't work. If that's fixed, this can be simplified-->
-                <Flyout FlyoutPresenterTheme="{StaticResource NoBorderFlyoutPresenter}">
+                <Flyout FlyoutPresenterClasses="no-border-flyout">
                     <MenuFlyoutPresenter ItemsSource="{Binding ChildTools}" Margin="0" Padding="0" BorderThickness="0"
                                          ItemContainerTheme="{DynamicResource ToolMenuItemTheme}" Cursor="Arrow">
                     </MenuFlyoutPresenter>

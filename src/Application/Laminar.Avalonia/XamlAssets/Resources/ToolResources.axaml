@@ -56,6 +56,66 @@
 	    </t:Tool.IconTemplate>
     </t:PropertySetterTool>
     
+    <t:CommandTool x:Key="Tools.FileSystem.StorageItem.Rename" x:DataType="vm:FileNavigatorItemViewModel" 
+                   NameKey="{x:Static lang:Resources.Rename}" 
+                   DefaultIconGeometry="{x:Static shapes:PathData.RenameIcon}"
+                   CommandBinding="{Binding RenameCommand}"/>
+    
+    <t:Toolbox x:Key="Tools.FileSystem.StorageItem.AddChild" x:DataType="vm:FileNavigatorItemViewModel" 
+               NameKey="{x:Static lang:Resources.AddStorageItem}"
+               DefaultIconGeometry="{x:Static shapes:PathData.AddIcon}">
+	    <t:CommandTool NameKey="{x:Static lang:Resources.AddFolder}" 
+	                   DefaultIconGeometry="{x:Static shapes:PathData.FolderIcon}"
+	                   CommandBinding="{Binding AddItemCommand}"
+	                   CommandParameter="{x:Type fe:ILaminarStorageFolder}"/>
+	    <t:CommandTool NameKey="{x:Static lang:Resources.AddScript}" 
+	                   DefaultIconGeometry="{x:Static shapes:PathData.ScriptIcon}"
+	                   CommandBinding="{Binding AddItemCommand}"
+	                   CommandParameter="{x:Type fe:ILaminarStorageFile}"/>
+    </t:Toolbox>
+    
+    <t:CommandTool x:Key="Tools.FileSystem.StorageItem.Delete" x:DataType="vm:FileNavigatorItemViewModel" 
+                   NameKey="{x:Static lang:Resources.Delete}"
+                   DefaultIconGeometry="{x:Static shapes:PathData.DeleteIcon}"
+                   CommandBinding="{Binding DeleteCommand}">
+	    <t:Tool.DescriptionBinding>
+		    <MultiBinding Converter="{StaticResource SwitchConverter}">
+			    <Binding Path="ItemTypeName"/>
+			    <Binding Source="{x:Static lang:Resources.DeleteFolder}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="folder"/>
+			    <Binding Source="{x:Static lang:Resources.DeleteScript}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="script"/>
+		    </MultiBinding>
+	    </t:Tool.DescriptionBinding>
+    </t:CommandTool>
+    
+    <t:PropertySetterTool x:Key="Tools.FileSystem.StorageItem.ToggleEnabled" x:DataType="vm:FileNavigatorItemViewModel" 
+                          NameKey="{x:Static lang:Resources.ToggleEnabled}"
+                          Gesture="Alt+E"
+                          PropertyBinding="{Binding CoreItem.IsEnabled}"
+                          CanChangeValueBinding="{Binding CanChangeIsEnabled}">
+	    <t:Tool.DescriptionBinding>
+		    <MultiBinding Converter="{StaticResource SwitchConverter}">
+			    <MultiBinding StringFormat="Is Enabled: {0}, Item Type: {1}">
+				    <Binding Path="CoreItem.IsEnabled"/>
+				    <Binding Path="ItemTypeName"/>
+			    </MultiBinding>
+			    <conv:SwitchItemBinding SwitchKey="Is Enabled: True, Item Type: folder" Source="{x:Static lang:Resources.DisableFolder}"/>
+			    <conv:SwitchItemBinding SwitchKey="Is Enabled: True, Item Type: script" Source="{x:Static lang:Resources.DisableScript}"/>
+			    <conv:SwitchItemBinding SwitchKey="Is Enabled: False, Item Type: folder" Source="{x:Static lang:Resources.EnableFolder}"/>
+			    <conv:SwitchItemBinding SwitchKey="Is Enabled: False, Item Type: script" Source="{x:Static lang:Resources.EnableScript}"/>
+		    </MultiBinding>
+	    </t:Tool.DescriptionBinding>
+	    <t:Tool.IconTemplate>
+		    <DataTemplate DataType="vm:FileNavigatorItemViewModel">
+			    <t:SwitchIcon IsOn="{Binding CoreItem.IsEffectivelyEnabled}"/>
+		    </DataTemplate>
+	    </t:Tool.IconTemplate>
+    </t:PropertySetterTool>
+    
+    <t:CommandTool x:Key="Tools.FileSystem.StorageItem.OpenInFileBrowser" x:DataType="vm:FileNavigatorItemViewModel" 
+                   NameKey="OpenInFileBrowser"
+                   CommandBinding="{Binding OpenInSystemFileBrowserCommand}"
+                   DefaultIconGeometry="{x:Static shapes:PathData.OpenExternalIcon}"/>
+    
     <!-- File Navigator Tool -->
     <t:Toolbox x:Key="Tools.FileSystem.StorageItem" 
                NameKey="{x:Static lang:Resources.StorageItemTools}" 
@@ -81,68 +141,27 @@
             </DataTemplate>
         </t:Tool.IconTemplate>
 	    
-        <t:CommandTool NameKey="{x:Static lang:Resources.Rename}" 
-                       DefaultIconGeometry="{x:Static shapes:PathData.RenameIcon}"
-                       CommandBinding="{Binding RenameCommand}"/>
-        <t:Toolbox NameKey="{x:Static lang:Resources.AddStorageItem}"
-                   DefaultIconGeometry="{x:Static shapes:PathData.AddIcon}">
-            <t:CommandTool NameKey="{x:Static lang:Resources.AddFolder}" 
-                           DefaultIconGeometry="{x:Static shapes:PathData.FolderIcon}"
-                           CommandBinding="{Binding AddItemCommand}"
-                           CommandParameter="{x:Type fe:ILaminarStorageFolder}"/>
-            <t:CommandTool NameKey="{x:Static lang:Resources.AddScript}" 
-                           DefaultIconGeometry="{x:Static shapes:PathData.ScriptIcon}"
-                           CommandBinding="{Binding AddItemCommand}"
-                           CommandParameter="{x:Type fe:ILaminarStorageFile}"/>
-        </t:Toolbox>
-        <t:CommandTool NameKey="{x:Static lang:Resources.Delete}"
-                       DefaultIconGeometry="{x:Static shapes:PathData.DeleteIcon}"
-                       CommandBinding="{Binding DeleteCommand}">
-	        <t:Tool.DescriptionBinding>
-		        <MultiBinding Converter="{StaticResource SwitchConverter}">
-			        <Binding Path="ItemTypeName"/>
-			        <Binding Source="{x:Static lang:Resources.DeleteFolder}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="folder"/>
-			        <Binding Source="{x:Static lang:Resources.DeleteScript}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="script"/>
-		        </MultiBinding>
-	        </t:Tool.DescriptionBinding>
-        </t:CommandTool>
-        <t:PropertySetterTool NameKey="{x:Static lang:Resources.ToggleEnabled}"
-                              Gesture="Alt+E"
-                              PropertyBinding="{Binding CoreItem.IsEnabled}"
-                              CanChangeValueBinding="{Binding CanChangeIsEnabled}">
-	        <t:Tool.DescriptionBinding>
-		        <MultiBinding Converter="{StaticResource SwitchConverter}">
-			        <MultiBinding StringFormat="Is Enabled: {0}, Item Type: {1}">
-				        <Binding Path="CoreItem.IsEnabled"/>
-				        <Binding Path="ItemTypeName"/>
-			        </MultiBinding>
-			        <conv:SwitchItemBinding SwitchKey="Is Enabled: True, Item Type: folder" Source="{x:Static lang:Resources.DisableFolder}"/>
-			        <conv:SwitchItemBinding SwitchKey="Is Enabled: True, Item Type: script" Source="{x:Static lang:Resources.DisableScript}"/>
-			        <conv:SwitchItemBinding SwitchKey="Is Enabled: False, Item Type: folder" Source="{x:Static lang:Resources.EnableFolder}"/>
-			        <conv:SwitchItemBinding SwitchKey="Is Enabled: False, Item Type: script" Source="{x:Static lang:Resources.EnableScript}"/>
-		        </MultiBinding>
-	        </t:Tool.DescriptionBinding>
-	        <t:Tool.IconTemplate>
-                <DataTemplate DataType="vm:FileNavigatorItemViewModel">
-                    <t:SwitchIcon IsOn="{Binding CoreItem.IsEffectivelyEnabled}"/>
-                </DataTemplate>
-            </t:Tool.IconTemplate>
-        </t:PropertySetterTool>
-        <t:CommandTool NameKey="OpenInFileBrowser"
-                       CommandBinding="{Binding OpenInSystemFileBrowserCommand}"
-                       DefaultIconGeometry="{x:Static shapes:PathData.OpenExternalIcon}"/>
+		<StaticResource ResourceKey="Tools.FileSystem.StorageItem.Rename"/>
+		<StaticResource ResourceKey="Tools.FileSystem.StorageItem.AddChild"/>
+		<StaticResource ResourceKey="Tools.FileSystem.StorageItem.Delete"/>
+		<StaticResource ResourceKey="Tools.FileSystem.StorageItem.ToggleEnabled"/>
+		<StaticResource ResourceKey="Tools.FileSystem.StorageItem.OpenInFileBrowser"/>
     </t:Toolbox>
     
+    <t:CommandTool x:Key="Tools.FileSystem.Browser.Refresh" x:DataType="vm:FileNavigatorViewModel" NameKey="Refresh" 
+                   CommandBinding="{Binding RefreshCommand}"
+                   DefaultIconGeometry="{x:Static shapes:PathData.RefreshIcon}"/>
+    
+    <t:CommandTool x:Key="Tools.FileSystem.Browser.AddRootFolder" x:DataType="vm:FileNavigatorViewModel" 
+                   NameKey="Add root folder" 
+                   CommandBinding="{Binding AddRootFolderCommand}"
+                   DefaultIconGeometry="{x:Static shapes:PathData.AddIcon}"/>
     
     <t:Toolbox NameKey="Browser" DefaultIconGeometry="{x:Static shapes:PathData.FileNavigatorIcon}"
                x:Key="Tools.FileSystem.Browser" 
                x:DataType="vm:FileNavigatorViewModel">
-	    <t:CommandTool NameKey="Refresh" 
-	                   CommandBinding="{Binding RefreshCommand}"
-	                   DefaultIconGeometry="{x:Static shapes:PathData.RefreshIcon}"/>
-	    <t:CommandTool NameKey="Add root folder" 
-	                   CommandBinding="{Binding AddRootFolderCommand}"
-	                   DefaultIconGeometry="{x:Static shapes:PathData.AddIcon}"/>
+	    <StaticResource ResourceKey="Tools.FileSystem.Browser.Refresh"/>
+	    <StaticResource ResourceKey="Tools.FileSystem.Browser.AddRootFolder"/>
     </t:Toolbox>
     
     <t:Toolbox NameKey="{x:Static lang:Resources.FileNavigatorTools}" x:Key="Tools.FileSystem"

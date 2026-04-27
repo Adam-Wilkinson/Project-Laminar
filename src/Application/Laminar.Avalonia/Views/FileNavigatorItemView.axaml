@@ -4,10 +4,39 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:Laminar.Avalonia.ViewModels"
              xmlns:c="using:Laminar.Avalonia.Controls"
+             xmlns:t="using:Laminar.Avalonia.ToolSystem"
              xmlns:shapes="using:Laminar.Avalonia.Shapes"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Laminar.Avalonia.Views.FileNavigatorItemView"
-             x:DataType="vm:FileNavigatorItemViewModel">
+             x:DataType="vm:FileNavigatorItemViewModel"
+             t:ToolMenu.QuickAccessKey="{Binding ItemTypeName}">
+    
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <t:Toolbox x:Key="FileContextMenu" DataType="vm:FileNavigatorItemViewModel" NameKey="File">
+                <StaticResource ResourceKey="Tools.FileSystem.StorageItem.Rename"/>
+                <StaticResource ResourceKey="Tools.FileSystem.StorageItem.ToggleEnabled"/>
+                <StaticResource ResourceKey="Tools.FileSystem.StorageItem.Delete"/>
+            </t:Toolbox>
+            
+            <t:Toolbox x:Key="FolderContextMenu" DataType="vm:FileNavigatorItemViewModel" NameKey="Folder">
+                <StaticResource ResourceKey="Tools.FileSystem.StorageItem.Rename"/>
+                <StaticResource ResourceKey="Tools.FileSystem.StorageItem.ToggleEnabled"/>
+                <StaticResource ResourceKey="Tools.FileSystem.StorageItem.Delete"/>
+                <StaticResource ResourceKey="Tools.FileSystem.StorageItem.AddChild"/>
+                <StaticResource ResourceKey="Tools.FileSystem.StorageItem.OpenInFileBrowser"/>
+            </t:Toolbox>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    
+    <t:ToolMenu.ContextToolbox>
+        <MultiBinding Converter="{StaticResource SwitchConverter}">
+            <Binding Path="ItemTypeName"/>
+            <Binding Source="{StaticResource FileContextMenu}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="script"/>
+            <Binding Source="{StaticResource FolderContextMenu}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="folder"/>
+        </MultiBinding>
+    </t:ToolMenu.ContextToolbox>
+    
     <DockPanel Tag="{Binding ItemTypeName}"
                HorizontalAlignment="Stretch"
                Background="Transparent"
