@@ -27,13 +27,13 @@ public class PersistentDataPoint : IPersistentDataPoint
         _exceptionHandler = exceptionHandler;
         Owner.TranscoderChanged += (_, _) =>
         {
-            if (IsInitialized) UpdateEncodedFromValue();
+            if (State == DataPointState.Active) UpdateEncodedFromValue();
         };
     }
 
     public PersistentDataNode Owner { get; }
 
-    public bool IsInitialized { get; private set; }
+    public DataPointState State { get; private set; }
 
     public object EncodedValue
     {
@@ -43,7 +43,7 @@ public class PersistentDataPoint : IPersistentDataPoint
             if (Equals(value, _encodedValue)) return;
             _encodedValue = value;
 
-            if (!IsInitialized) return;
+            if (State is not DataPointState.Active) return;
             
             if (!UpdateValueFromEncoded())
             {
@@ -56,18 +56,8 @@ public class PersistentDataPoint : IPersistentDataPoint
     public IPersistentValue<T> SetDefaultAndGet<T>(T defaultValue, Type? serializationKeyOverride = null, 
         object? deserializationContext = null) where T : notnull
     {
-        if (IsInitialized)
-            throw new InvalidOperationException("This function can only be called on uninitialized data");
-
-        Owner.ChildIsInitializing = true;
-        
-        var newValue = new PersistentValue<T>(defaultValue, serializationKeyOverride, deserializationContext, this,
-            _serializer);
-        _persistentValue = newValue;
-        _persistentValue.SetDataOwner(Owner);
-
-        IsInitialized = true;
-        Owner.ChildIsInitializing = false;
+        var newValue = Initialize(() => new PersistentValue<T>(defaultValue, serializationKeyOverride,
+            deserializationContext, this, _serializer));
         
         if (!UpdateValueFromEncoded())
         {
@@ -79,15 +69,15 @@ public class PersistentDataPoint : IPersistentDataPoint
         
         return newValue;
     }
-    
-    public void OnDeletion()
-    {
-        _persistentValue?.SetDataOwner(null);
-    }
 
     public IPersistentValue<T> GetValue<T>() where T : notnull
     {
-        if (IsInitialized)
+        if (State == DataPointState.Deleted)
+        {
+            throw new InvalidOperationException("Cannot get deleted data point value");
+        }
+        
+        if (State == DataPointState.Active)
         {
             return _persistentValue as IPersistentValue<T> ?? throw new InvalidCastException();
         }
@@ -102,21 +92,19 @@ public class PersistentDataPoint : IPersistentDataPoint
             throw new InvalidOperationException("Cannot read encoded value without a transcoder");
         }
 
-        Owner.ChildIsInitializing = true;
-        
-        var newValue = PersistentValue<T>.FromEncodedValue(_encodedValue, null,
-            null, this, _serializer, Owner.Transcoder);
-        _persistentValue = newValue;
-        _persistentValue.SetDataOwner(Owner);
-        
-        IsInitialized = true;
-        Owner.ChildIsInitializing = false;
-        return newValue;
+        return Initialize(() => PersistentValue<T>.FromEncodedValue(_encodedValue, null,
+            null, this, _serializer, Owner.Transcoder));
+    }
+    
+    public void OnDeletion()
+    {
+        _persistentValue?.Delete();
+        State = DataPointState.Deleted;
     }
 
     public void UpdateEncodedFromValue()
     {
-        if (Owner.Transcoder is null || !IsInitialized || _persistentValue is null)
+        if (Owner.Transcoder is null || State is not DataPointState.Active || _persistentValue is null)
         {
             return;
         }
@@ -141,5 +129,21 @@ public class PersistentDataPoint : IPersistentDataPoint
             _exceptionHandler.OnException(exception);
             return false;
         }
+    }
+
+    private T Initialize<T>(Func<T> initializer) where T : IPersistentValueInternal
+    {
+        if (State is not DataPointState.Uninitialized)
+            throw new InvalidOperationException("This function can only be called on uninitialized data");
+        
+        Owner.ChildIsInitializing = true;
+        
+        T value = initializer();
+        _persistentValue = value;
+        value.SetDataOwner(Owner);
+
+        State = DataPointState.Active;
+        Owner.ChildIsInitializing = false;
+        return value;
     }
 }

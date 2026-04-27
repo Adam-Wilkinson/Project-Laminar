@@ -13,8 +13,10 @@ public class PersistentValue<T> : ObservableValueBase<T>, IPersistentValue<T>, I
     private readonly ISerializer _serializer;
     private readonly PersistentDataPoint _parent;
     private readonly object? _deserializationContext;
-    private readonly T? _defaultValue = default;
+    private readonly T? _defaultValue;
+    private readonly Type _typeSerializationKey;
     
+    private INotifySerializedValueChanged? _serializedValueChangedNotifier;
     private T _value;
     
     public static PersistentValue<T> FromEncodedValue(
@@ -43,29 +45,20 @@ public class PersistentValue<T> : ObservableValueBase<T>, IPersistentValue<T>, I
         ISerializer serializer)
     {
         _value = value;
-        TypeSerializationKey = typeSerializationKeyOverride ?? typeof(T);
+        _typeSerializationKey = typeSerializationKeyOverride ?? typeof(T);
         _deserializationContext = deserializationContext;
         _parent = parent;
         _serializer = serializer;
         _defaultValue = value;
 
-        _serializer.GetSerializedValueChangedNotifier(_value, TypeSerializationKey).SerializedValueChanged += (_, _) =>
-        {
-            if (_parent.IsInitialized) _parent.UpdateEncodedFromValue();
-        };
+        _serializedValueChangedNotifier = _serializer.GetSerializedValueChangedNotifier(_value, _typeSerializationKey);
+        _serializedValueChangedNotifier.SerializedValueChanged += OnSerializedValueChanged;
     }
-
-    public Type TypeSerializationKey { get; }
 
     public override T Value
     {
         get => _value;
-        set
-        {
-            if (!SetAndRaise(ref _value, value)) return;
-            
-            _parent.UpdateEncodedFromValue();
-        }
+        set => SetAndRaise(ref _value, value);
     }
 
     public bool HasDefaultValue { get; private init; } = true;
@@ -79,22 +72,33 @@ public class PersistentValue<T> : ObservableValueBase<T>, IPersistentValue<T>, I
 
     public object GetEncoded(IPersistentDataTranscoder transcoder)
     {
-        var serialized = _serializer.SerializeObject(Value, TypeSerializationKey);
+        var serialized = _serializer.SerializeObject(Value, _typeSerializationKey);
         return transcoder.EncodeElement(serialized) ?? throw new Exception();
     }
 
     public bool TrySetFromEncoded(object encodedValue, IPersistentDataTranscoder transcoder)
     {
-        T newValue = GetValueFromEncoded(encodedValue, _serializer, transcoder, TypeSerializationKey,
-            _deserializationContext, _value);
-        
-        SetAndRaise(ref _value, newValue);
+        T newValue = GetValueFromEncoded(encodedValue, _serializer, transcoder, _typeSerializationKey,
+            _deserializationContext, Value);
+
+        Value = newValue;
         return true;
     }
-    
-    protected override void OnValueChanged()
+
+    protected override void BeforeValueChanged()
     {
+        _serializedValueChangedNotifier?.SerializedValueChanged -= OnSerializedValueChanged;
+        _serializedValueChangedNotifier?.Dispose();
+        _serializedValueChangedNotifier = null;
+        SetDataOwner(null);
+    }
+
+    protected override void AfterValueChanged()
+    {
+        _serializedValueChangedNotifier = _serializer.GetSerializedValueChangedNotifier(Value, _typeSerializationKey);
+        _serializedValueChangedNotifier.SerializedValueChanged += OnSerializedValueChanged;
         SetDataOwner(_parent.Owner);
+        _parent.UpdateEncodedFromValue();
     }
 
     public void SetDataOwner(PersistentDataNode? newOwner)
@@ -116,6 +120,16 @@ public class PersistentValue<T> : ObservableValueBase<T>, IPersistentValue<T>, I
         }
     }
 
+    public void Delete()
+    {
+        _serializedValueChangedNotifier?.SerializedValueChanged -= OnSerializedValueChanged;
+        _serializedValueChangedNotifier?.Dispose();
+        _serializedValueChangedNotifier = null;
+        SetDataOwner(null);
+    }
+
+    private void OnSerializedValueChanged(object? sender, EventArgs e) => _parent.UpdateEncodedFromValue();
+    
     private void SetOwner(PersistentDataNode childNode, PersistentDataNode? newOwner)
     {
         // This can happen if the data node is added to a new tree before it is removed from the old one.
@@ -123,6 +137,7 @@ public class PersistentValue<T> : ObservableValueBase<T>, IPersistentValue<T>, I
         if (newOwner is null && !ReferenceEquals(_parent.Owner, childNode.Owner)) return;
         
         (childNode.Owner as PersistentDataNode)?.RemoveChildNode(childNode);
+        childNode.Owner = newOwner;
         newOwner?.RegisterChildNode(childNode);
     }
 

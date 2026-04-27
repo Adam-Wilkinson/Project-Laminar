@@ -18,7 +18,11 @@ public class PersistentList(IServiceProvider serviceProvider) : PersistentDataNo
         OnContentsChanged();
     }
 
-    public void Clear() => InternalValues.Clear();
+    public void Clear()
+    {
+        InternalValues.Clear();
+        OnContentsChanged();
+    }
 
     public bool Contains(IPersistentDataPoint item) => InternalValues.Contains(item);
 

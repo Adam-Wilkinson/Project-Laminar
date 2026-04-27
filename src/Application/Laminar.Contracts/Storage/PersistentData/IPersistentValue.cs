@@ -40,7 +40,7 @@ public static class PersistentValueExtensions
 
         public void Reset() => _input.Reset();
 
-        protected override void OnValueChanged()
+        protected override void AfterValueChanged()
         {
             _input.Value = Value is TIn input ? input : throw new InvalidCastException();
         }

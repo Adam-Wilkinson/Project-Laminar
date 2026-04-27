@@ -15,9 +15,11 @@ internal class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
 {
     private readonly ILaminarStorageItemFactory _factory;
     private readonly IFileSystem _fileSystem;
+    private readonly IPersistentDataManager _persistentDataManager;
     
     private bool _contentsInitialized;
-
+    private bool _persistentContentsDirty = true;
+    
     public SourcedObservableCollection<ILaminarStorageItem> ContentsInternal { get; }
 
     protected LaminarStorageFolder(
@@ -32,6 +34,7 @@ internal class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
     {
         _fileSystem = fileSystem;
         _factory = factory;
+        _persistentDataManager = persistentDataManager;
         
         if (!fileSystem.Exists(fileSystemPath))
         {
@@ -63,6 +66,7 @@ internal class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
 
     private void OnContentsChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
+        _persistentContentsDirty = true;
         foreach (var item in e.NewItems?.Cast<LaminarStorageItem>() ?? [])
         {
             item.SetParent(this);
@@ -111,16 +115,23 @@ internal class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
         {
             child.Refresh();
         }
+        
+        SyncContentsToPersistentData();
     }
 
     private void SyncContentsToPersistentData()
     {
-        var persistentList = PersistentStorage[nameof(Contents)].GetValue<IPersistentList>().Value;
-        persistentList.Clear();
+        if (!_persistentContentsDirty) return;
+        
+        var newPersistentList = _persistentDataManager.GetHeadlessNode<IPersistentList>();
         foreach (var child in ContentsInternal.Cast<LaminarStorageItem>())
         {
-            persistentList.AddAndInitialize(child.PersistentStorage);
+            newPersistentList.AddAndInitialize(child.PersistentStorage);
         }
+        
+        PersistentStorage[nameof(Contents)].GetValue<IPersistentList>().Value = newPersistentList;
+
+        _persistentContentsDirty = false;
     }
     
     private IEnumerable<ILaminarStorageItem> GetChildren() 

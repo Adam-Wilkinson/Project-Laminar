@@ -36,12 +36,25 @@ public class PersistentDictionarySerializer(IServiceProvider serviceProvider) : 
 
     private class DataNodeChangedNotifier : INotifySerializedValueChanged
     {
+        private readonly PersistentDictionary _node;
+        
         public DataNodeChangedNotifier(PersistentDictionary node)
         {
-            node.ChildValueChanged += (o, e) => SerializedValueChanged?.Invoke(o, e);
+            _node = node;
+            _node.ChildValueChanged += OnSerializedValueChanged;
         }
 
         public event EventHandler? SerializedValueChanged;
+        
+        private void OnSerializedValueChanged(object? sender, EventArgs e)
+        {
+            SerializedValueChanged?.Invoke(sender, e);
+        }
+        
+        public void Dispose()
+        {
+            _node.ChildValueChanged -= OnSerializedValueChanged; 
+        }
     }
     
     private static PersistentDictionary ForceCast(IPersistentDictionary? persistentDictionary)

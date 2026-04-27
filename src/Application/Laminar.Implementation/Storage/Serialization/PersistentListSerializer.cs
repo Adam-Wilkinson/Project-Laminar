@@ -43,12 +43,26 @@ public class PersistentListSerializer(IServiceProvider serviceProvider) :
 
     private class PersistentListChangedNotifier : INotifySerializedValueChanged
     {
+        private readonly PersistentList _node;
+        
         public PersistentListChangedNotifier(PersistentList persistentList)
         {
-            persistentList.ChildValueChanged += (_, _) => SerializedValueChanged?.Invoke(this, EventArgs.Empty);
-            persistentList.ContentsChanged += (_, _) => SerializedValueChanged?.Invoke(this, EventArgs.Empty);
+            _node = persistentList;
+            _node.ChildValueChanged += OnSerializedValueChanged;
+            _node.ContentsChanged += OnSerializedValueChanged;
         }
-
+        
         public event EventHandler? SerializedValueChanged;
+
+        private void OnSerializedValueChanged(object? sender, EventArgs e)
+        {
+            SerializedValueChanged?.Invoke(sender, e);
+        }
+        
+        public void Dispose()
+        {
+            _node.ChildValueChanged -= OnSerializedValueChanged;
+            _node.ContentsChanged -= OnSerializedValueChanged;
+        }
     }
 }

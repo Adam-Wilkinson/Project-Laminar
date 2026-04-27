@@ -122,5 +122,9 @@ public class Serializer : ISerializer
     private class NullNotifier : INotifySerializedValueChanged
     {
         public event EventHandler? SerializedValueChanged { add { } remove { } }
+
+        public void Dispose()
+        {
+        }
     }
 }

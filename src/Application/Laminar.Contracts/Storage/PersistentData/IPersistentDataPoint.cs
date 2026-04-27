@@ -9,7 +9,14 @@ public interface IPersistentDataPoint
     
     public object EncodedValue { get; set; }
     
-    public bool IsInitialized { get; }
+    public DataPointState State { get; }
 
     public void OnDeletion();
+}
+
+public enum DataPointState
+{
+    Uninitialized = 0,
+    Active = 1,
+    Deleted = 2,
 }

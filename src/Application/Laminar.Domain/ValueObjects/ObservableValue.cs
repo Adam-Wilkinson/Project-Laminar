@@ -19,19 +19,26 @@ public abstract class ObservableValueBase<T> : IObservableValue<T>
     {
         if (EqualityComparer<T>.Default.Equals(currentValue, newValue)) return false;
         T oldValue = currentValue;
+        
+        BeforeValueChanged();
         currentValue = newValue;
-
-        OnValueChanged();
+        AfterValueChanged();
+        
         OnChanged?.Invoke(this, new ObservableValueChangedEventArgs<T>(oldValue, newValue));
         CovariantOnChanged?.Invoke(this, EventArgs.Empty);
         PropertyChanged?.Invoke(this, IObservableValueBase.ValueChangedEventArgs);
         return true;
     }
+
+    protected virtual void BeforeValueChanged()
+    {
+        
+    }
     
     /// <summary>
     /// Called by SetAndRaise after the value has been updated, but before any events are fired
     /// </summary>
-    protected virtual void OnValueChanged()
+    protected virtual void AfterValueChanged()
     {
         
     }

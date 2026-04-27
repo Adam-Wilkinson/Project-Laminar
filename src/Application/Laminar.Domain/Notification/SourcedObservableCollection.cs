@@ -241,7 +241,7 @@ public class SourcedObservableCollection<T> : IObservableCollection<T> where T :
         _internalList.RemoveAt(oldIndex);
         _internalList.Insert(newIndex, item);
         _matchesSource = false;
-        CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, item, oldIndex, newIndex));
+        CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, item, newIndex, oldIndex));
     }
 
     public void Replace(int index, T newItem)

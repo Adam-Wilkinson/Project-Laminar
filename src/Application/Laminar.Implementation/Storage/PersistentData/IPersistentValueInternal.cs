@@ -1,4 +1,3 @@
-using System;
 using Laminar.Contracts.Storage.PersistentData;
 
 namespace Laminar.Implementation.Storage.PersistentData;
@@ -11,5 +10,5 @@ public interface IPersistentValueInternal
 
     public void SetDataOwner(PersistentDataNode? newOwner);
 
-    public Type TypeSerializationKey { get; }
+    public void Delete();
 }

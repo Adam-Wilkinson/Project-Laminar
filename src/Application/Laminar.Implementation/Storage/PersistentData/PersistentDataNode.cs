@@ -39,11 +39,7 @@ public abstract class PersistentDataNode(IServiceProvider serviceProvider) : IPe
     public IPersistentDataPoint CreateValue() =>
         ActivatorUtilities.CreateInstance<PersistentDataPoint>(serviceProvider, this);
 
-    public void RegisterChildNode(PersistentDataNode child)
-    {
-        _children.Add(child);
-        child.Owner = this;
-    }
+    public void RegisterChildNode(PersistentDataNode child) => _children.Add(child);
 
     public void RemoveChildNode(PersistentDataNode child) => _children.Remove(child);
     
