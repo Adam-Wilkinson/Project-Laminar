@@ -1,15 +1,21 @@
+using System.ComponentModel;
 using System.Linq;
+using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Data;
+using Avalonia.Input;
 using Avalonia.Reactive;
 using Laminar.Avalonia.InitializationTargets;
 using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.DataManagement;
+using Laminar.Domain.ValueObjects;
 
 namespace Laminar.Avalonia.ToolSystem;
 
 public class ToolSerializer(TopLevel topLevel, IPersistentDataManager persistentDataManager) : IAfterApplicationBuiltTarget
 {    
     private const string KeyGesture = "Key Gesture";
+    private const string QuickAccess = "Quick Access";
     
     private readonly IPersistentDictionary _toolDataStore = persistentDataManager.GetDataStore(DataStoreKey.ToolProperties);
     private bool _initialized;
@@ -35,23 +41,50 @@ public class ToolSerializer(TopLevel topLevel, IPersistentDataManager persistent
             SerializeTool(childTool, uniqueToolKey);
         }
         
-        var currentDataStore = _toolDataStore[uniqueToolKey]
+        var currentToolDataStore = _toolDataStore[uniqueToolKey]
             .SetDefaultAndGet(persistentDataManager.GetHeadlessNode<IPersistentDictionary>()).Value;
-        var persistentGestureValue = currentDataStore[KeyGesture].SetDefaultAndGet(tool.Gesture);
-        tool.Gesture = persistentGestureValue.Value;
-        tool.PropertyChanged += (_, _) =>
-        {
-            currentDataStore.SetValue(KeyGesture, tool.Gesture);
-        };
-
-        persistentGestureValue.OnChanged += (_, e) =>
-        {
-            tool.Gesture = e.NewValue;
-        };
         
+        var persistentGestureValue = currentToolDataStore[KeyGesture].SetDefaultAndGet(tool.Gesture);
+
+        tool[!Tool.GestureProperty] = persistentGestureValue.ToBinding();
+
         tool.ResetKeybindingRequested += (_, _) =>
         {
             persistentGestureValue.Reset();
         };
+        
+        var persistentQuickAccess = currentToolDataStore[QuickAccess]
+            .SetDefaultAndGet(tool.QuickAccess);
+        
+        tool.QuickAccess.Clear();
+        tool.QuickAccess.AddRange(persistentQuickAccess.Value);
+        bool quickAccessChanging = false;
+        
+        tool.QuickAccess.PropertyChanged += (_, _) =>
+        {
+            if (quickAccessChanging) return;
+            quickAccessChanging = true;
+            persistentQuickAccess.Value.Clear();
+            persistentQuickAccess.Value.AddRange(tool.QuickAccess);
+            quickAccessChanging = false;
+        };
+
+        persistentQuickAccess.Value.PropertyChanged += PersistentQuickAccessOnPropertyChanged;
+
+        persistentQuickAccess.OnChanged += (_, e) =>
+        {
+            e.OldValue.PropertyChanged -= PersistentQuickAccessOnPropertyChanged;
+            e.NewValue.PropertyChanged += PersistentQuickAccessOnPropertyChanged;
+        };
+        
+        return;
+        void PersistentQuickAccessOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (quickAccessChanging) return;
+            quickAccessChanging = true;
+            tool.QuickAccess.Clear();
+            tool.QuickAccess.AddRange(persistentQuickAccess.Value);
+            quickAccessChanging = false;
+        }
     }
 }

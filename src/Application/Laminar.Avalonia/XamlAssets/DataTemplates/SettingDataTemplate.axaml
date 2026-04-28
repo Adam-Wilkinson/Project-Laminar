@@ -1,8 +1,16 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:s="using:Laminar.Avalonia.Settings">
+                    xmlns:s="using:Laminar.Avalonia.Settings"
+                    xmlns:t="using:Laminar.Avalonia.ToolSystem">
     <DataTemplate x:Key="SettingDataTemplate" x:DataType="s:Setting">
         <Grid HorizontalAlignment="Stretch" IsVisible="{Binding DisplayToUser}">
+            
+            <t:ToolMenu.ContextToolbox>
+                <t:Toolbox NameKey="Setting" DataType="s:Setting">
+                    <StaticResource ResourceKey="Tools.Settings.ResetSettingTool"/>
+                </t:Toolbox>
+            </t:ToolMenu.ContextToolbox>
+            
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto" SharedSizeGroup="ResetSetting"/>

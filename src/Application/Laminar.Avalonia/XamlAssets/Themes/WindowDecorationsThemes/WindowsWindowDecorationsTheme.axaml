@@ -97,7 +97,9 @@
                   <MenuItem Header="File"/>
                   <MenuItem Header="Edit" 
                             ItemContainerTheme="{StaticResource ToolMenuItemTheme}" 
-                            ItemsSource="{Binding Converter={StaticResource ToolInstancer}, ConverterParameter={StaticResource Tools.Edit}}"/>
+                            ItemsSource="{Binding 
+                            Converter={StaticResource ToolInstancer}, 
+                            ConverterParameter={StaticResource Tools.Edit}}"/>
                   <MenuItem Header="View"/>
                 </Menu>
               </StackPanel>

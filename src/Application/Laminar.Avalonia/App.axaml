@@ -41,6 +41,7 @@
 			<conv:MultiMultiplyConverter x:Key="MultiMultiplyConverter"/>
 			<conv:AndConverter x:Key="AndConverter"/>
 			<conv:ConcatenateStringsConverter x:Key="ConcatenateStringsConverter"/>
+			<conv:CollectionContainsConverter x:Key="CollectionContainsConverter"/>
 			
 			<dd:TreeViewDropAcceptor x:Key="TreeViewDropAcceptor"/>
 			<dd:StackPanelDropAcceptor x:Key="StackPanelDropAcceptor"/>
@@ -64,6 +65,7 @@
 			<Setter Property="Padding" Value="0"/>
 			<Setter Property="Margin" Value="0"/>
 			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="BorderBrush" Value="Transparent"/>
 		</Style>
 	</Application.Styles>
 

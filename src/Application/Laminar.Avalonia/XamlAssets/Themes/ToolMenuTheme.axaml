@@ -1,6 +1,7 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:t="using:Laminar.Avalonia.ToolSystem">
+                    xmlns:t="using:Laminar.Avalonia.ToolSystem"
+                    xmlns:shapes="using:Laminar.Avalonia.Shapes">
     <Design.PreviewWith>
         <Border Padding="5">
             <t:ToolMenu>
@@ -10,21 +11,87 @@
         </Border>
     </Design.PreviewWith>
     
+    <ControlTheme TargetType="MenuItem" x:Key="ContextMenuItem" BasedOn="{StaticResource ToolMenuItemTheme}"
+                  x:DataType="t:ToolInstance">
+        <Setter Property="ToggleType" Value="CheckBox"/>
+        <Setter Property="Margin" Value="0,0,10,0"/>
+        <Setter Property="Padding" Value="0"/>
+        <Style Selector="^:toggle /template/ ContentControl#PART_ToggleIconPresenter">
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="Width" Value="30"/>
+            <Setter Property="Height" Value="35"/>
+            <Setter Property="VerticalAlignment" Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+            <Setter Property="IsVisible" Value="True"/>
+            <Setter Property="Opacity" Value="{Binding 
+                $parent[StackPanel].((t:ToolMenuSection)DataContext).QuickAccessKey, 
+                Converter={x:Static ObjectConverters.IsNotNull}, 
+                FallbackValue=1}"/>
+            <Setter Property="IsHitTestVisible" Value="{Binding 
+                $parent[StackPanel].((t:ToolMenuSection)DataContext).QuickAccessKey, 
+                Converter={x:Static ObjectConverters.IsNotNull}, 
+                FallbackValue={x:False}}"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="Content">
+                <Template>
+                    <Button Theme="{StaticResource ToolButton}"
+                            CommandParameter="{Binding $parent[StackPanel].((t:ToolMenuSection)DataContext).QuickAccessKey}"
+                            Background="Transparent"
+                            VerticalAlignment="Stretch"
+                            VerticalContentAlignment="Stretch"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch"
+                            Width="30"
+                            Height="35"
+                            Padding="0"
+                            Margin="0"
+                            DataContext="{Binding Tool,
+                             Converter={StaticResource ToolInstancer},
+                             ConverterParameter={StaticResource Tools.ToolTools.ToggleQuickAccess}}">
+                        <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Padding="7">
+                            <Viewbox Name="PART_PointOverSource" Margin="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                                <t:GeometryIcon Name="Icon" Margin="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Padding="0">
+                                    <Classes.IsQuickAccess>
+                                        <MultiBinding Converter="{StaticResource CollectionContainsConverter}" TargetNullValue="{x:False}">
+                                            <Binding Path="((t:ToolInstance)DataContext).Tool.QuickAccess" RelativeSource="{RelativeSource AncestorType=MenuItem}"/>
+                                            <Binding Path="((t:ToolMenuSection)DataContext).QuickAccessKey" RelativeSource="{RelativeSource AncestorType=StackPanel}"/>
+                                        </MultiBinding>
+                                    </Classes.IsQuickAccess>
+                                </t:GeometryIcon>
+                            </Viewbox>
+                        </Border>
+                        <Button.Styles>
+                            <Style Selector="t|GeometryIcon#Icon.IsQuickAccess">
+                                <Setter Property="Data" Value="{x:Static shapes:PathData.Eye}"/>
+                            </Style>
+                    
+                            <Style Selector="t|GeometryIcon#Icon">
+                                <Setter Property="Data" Value="{x:Static shapes:PathData.EyeOff}"/>
+                            </Style>
+                        </Button.Styles>
+                    </Button>
+                </Template>
+            </Setter>
+        </Style>
+    </ControlTheme>
+    
     <ControlTheme TargetType="t:ToolMenu" x:Key="{x:Type t:ToolMenu}">
         <Setter Property="Margin" Value="0"/>
         <Setter Property="Padding" Value="0"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="ItemTemplate">
-            <DataTemplate DataType="t:ToolInstance">
-                <StackPanel>
+            <DataTemplate DataType="t:ToolMenuSection">
+                <StackPanel Name="PART_MenuSection">
                     <Grid ColumnDefinitions="*,Auto,*" Margin="0,10,0,0">
                         <Separator Grid.Column="0"/>
-                        <TextBlock Grid.Column="1" Text="{Binding Tool.NameKey}"/>
+                        <TextBlock Grid.Column="1" Text="{Binding ToolboxInstance.Tool.NameKey}"/>
                         <Separator Grid.Column="2"/>
                     </Grid>
-                    <MenuFlyoutPresenter ItemsSource="{Binding ChildTools}"
-                                         Margin="0" Padding="0" BorderThickness="0"
-                                         ItemContainerTheme="{StaticResource ToolMenuItemTheme}"/>
+                    <MenuFlyoutPresenter Classes="no-border-flyout"
+                                         ItemsSource="{Binding ToolboxInstance.ChildTools}"
+                                         ItemContainerTheme="{StaticResource ContextMenuItem}"/>
                 </StackPanel>
             </DataTemplate>
         </Setter>

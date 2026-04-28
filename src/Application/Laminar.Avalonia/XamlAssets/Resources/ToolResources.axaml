@@ -12,7 +12,7 @@
     <!-- Edit Menu Tool -->
     
     <t:Toolbox NameKey="{x:Static lang:Resources.Edit}" 
-               x:Key="Tools.Edit" 
+               x:Key="Tools.Edit" x:DataType="vm:ViewModelBase" 
                DefaultIconGeometry="{x:Static shapes:PathData.EditIcon}"
                Gesture="Ctrl+e">
         <t:CommandTool NameKey="{x:Static lang:Resources.Undo}" x:DataType="vm:ViewModelBase" 
@@ -63,7 +63,8 @@
     
     <t:Toolbox x:Key="Tools.FileSystem.StorageItem.AddChild" x:DataType="vm:FileNavigatorItemViewModel" 
                NameKey="{x:Static lang:Resources.AddStorageItem}"
-               DefaultIconGeometry="{x:Static shapes:PathData.AddIcon}">
+               DefaultIconGeometry="{x:Static shapes:PathData.AddIcon}"
+               QuickAccess="folder">
 	    <t:CommandTool NameKey="{x:Static lang:Resources.AddFolder}" 
 	                   DefaultIconGeometry="{x:Static shapes:PathData.FolderIcon}"
 	                   CommandBinding="{Binding AddItemCommand}"
@@ -91,7 +92,8 @@
                           NameKey="{x:Static lang:Resources.ToggleEnabled}"
                           Gesture="Alt+E"
                           PropertyBinding="{Binding CoreItem.IsEnabled}"
-                          CanChangeValueBinding="{Binding CanChangeIsEnabled}">
+                          CanChangeValueBinding="{Binding CanChangeIsEnabled}"
+                          QuickAccess="folder script">
 	    <t:Tool.DescriptionBinding>
 		    <MultiBinding Converter="{StaticResource SwitchConverter}">
 			    <MultiBinding StringFormat="Is Enabled: {0}, Item Type: {1}">
@@ -114,7 +116,8 @@
     <t:CommandTool x:Key="Tools.FileSystem.StorageItem.OpenInFileBrowser" x:DataType="vm:FileNavigatorItemViewModel" 
                    NameKey="OpenInFileBrowser"
                    CommandBinding="{Binding OpenInSystemFileBrowserCommand}"
-                   DefaultIconGeometry="{x:Static shapes:PathData.OpenExternalIcon}"/>
+                   DefaultIconGeometry="{x:Static shapes:PathData.OpenExternalIcon}"
+                   QuickAccess="folder"/>
     
     <!-- File Navigator Tool -->
     <t:Toolbox x:Key="Tools.FileSystem.StorageItem" 
@@ -344,18 +347,27 @@
 		</t:Tool.IconTemplate>	    
     </t:PropertySetterTool>
     
+    <t:Toolbox x:Key="Tools.Window" NameKey="Window">
+	    <StaticResource ResourceKey="Tools.Window.ToggleSettings"/>
+	    <StaticResource ResourceKey="Tools.Window.ToggleSidebar"/>
+    </t:Toolbox>
     
-    <t:PropertySetterTool x:Key="Tools.Windows.ChangeKeybinding" NameKey="Change Keybinding"
+    
+    <t:PropertySetterTool x:Key="Tools.ToolTools.ChangeKeybinding" NameKey="Change Keybinding"
                           x:DataType="t:ToolInstance"
                           Gesture="Ctrl+Shift+B"
                           PropertyBinding="{Binding Tool.Gesture}"/>
     
-    <t:Toolbox x:Key="Tools.Window" NameKey="Window">
-	    <StaticResource ResourceKey="Tools.Window.ToggleSettings"/>
-	    <StaticResource ResourceKey="Tools.Window.ToggleSidebar"/>
-	    <StaticResource ResourceKey="Tools.Windows.ChangeKeybinding"/>
+    <t:CommandTool x:Key="Tools.ToolTools.ToggleQuickAccess" NameKey="Toggle quick access" x:DataType="t:Tool" 
+                   CommandBinding="{Binding ToggleQuickAccessKeyCommand}" 
+                   DefaultIconGeometry="{x:Static shapes:PathData.AddIcon}"/>
+    
+    <t:Toolbox x:Key="Tools.ToolTools">
+	    <StaticResource ResourceKey="Tools.ToolTools.ChangeKeybinding"/>
+	    <StaticResource ResourceKey="Tools.ToolTools.ToggleQuickAccess"/>
     </t:Toolbox>
-
+    
+    
     <t:CommandTool x:Key="Tools.Settings.ResetSettingTool" 
             x:DataType="s:Setting" 
             Gesture="r"
@@ -374,11 +386,13 @@
 	    <StaticResource ResourceKey="Tools.Settings.ChangeSettingTool"/>
     </t:Toolbox>
     
+    
     <t:Toolbox x:Key="{x:Static t:Tool.ToolRootKey}" NameKey="LaminarToolRoot">
         <StaticResource ResourceKey="Tools.Edit"/>
         <StaticResource ResourceKey="Tools.FileSystem"/>
         <StaticResource ResourceKey="Tools.Window"/>
         <StaticResource ResourceKey="Tools.ExpandCollapseTreeViewTool"/>
         <StaticResource ResourceKey="Tools.Settings"/>
+        <StaticResource ResourceKey="Tools.ToolTools"/>
     </t:Toolbox>
 </ResourceDictionary>

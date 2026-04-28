@@ -27,14 +27,15 @@ public class ToolMenu : ItemsControl
                 _currentMenu = null;
             }
             
-            List<ToolInstance> allToolboxes = [];
+            List<ToolMenuSection> allToolboxes = [];
 
             Visual current = control;
             while (current.GetVisualParent() is { } parent)
             {
-                if (GetContextToolbox(current) is { } toolbox && toolbox.TryFindTargetAndBuild(current) is { } instance)
+                if (GetContextToolbox(current) is { } toolbox 
+                    && toolbox.TryFindTargetAndBuild(current) is { ChildTools.Count: > 0 } instance)
                 {
-                    allToolboxes.Add(instance);
+                    allToolboxes.Add(new ToolMenuSection(instance, GetQuickAccessKey(current)));
                 }
 
                 current = parent;
@@ -42,9 +43,11 @@ public class ToolMenu : ItemsControl
 
             if (allToolboxes.Count == 0) return;
 
-            var menu = new ToolMenu();
-            menu.ItemsSource = allToolboxes;
-            
+            var menu = new ToolMenu
+            {
+                ItemsSource = allToolboxes
+            };
+
             Flyout generatedFlyout = new()
             {
                 Content = menu,
@@ -65,3 +68,5 @@ public class ToolMenu : ItemsControl
         });
     }
 }
+
+public record class ToolMenuSection(ToolInstance ToolboxInstance, string? QuickAccessKey);

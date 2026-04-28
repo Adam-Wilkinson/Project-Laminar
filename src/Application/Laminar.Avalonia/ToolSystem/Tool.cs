@@ -69,7 +69,7 @@ public class CommandTool : Tool
     protected override BindingBase? GetCommandBinding() => CommandBinding;
 }
 
-public class Tool : StyledElement, ITemplate<object?, ToolInstance?>, IEnumerable<Tool>
+public partial class Tool : StyledElement, ITemplate<object?, ToolInstance?>, IEnumerable<Tool>
 {
     public const string ToolRootKey = "ToolRoot"; 
     
@@ -82,6 +82,9 @@ public class Tool : StyledElement, ITemplate<object?, ToolInstance?>, IEnumerabl
     public static readonly StyledProperty<object?> CommandParameterProperty = AvaloniaProperty.Register<Tool, object?>(nameof(CommandParameter));
     
     public static readonly StyledProperty<Type?> DataTypeProperty = AvaloniaProperty.Register<Tool, Type?>(nameof(DataType), inherits: true);
+
+    public static readonly DirectProperty<Tool, Classes> QuickAccessProperty = AvaloniaProperty
+        .RegisterDirect<Tool, Classes>(nameof(QuickAccess), tool => tool.QuickAccess);
     
     public string NameKey { get; set; } = string.Empty;
 
@@ -134,7 +137,17 @@ public class Tool : StyledElement, ITemplate<object?, ToolInstance?>, IEnumerabl
 
     public AvaloniaList<Tool>? ChildTools { get; protected init; }
 
+    public Classes QuickAccess { get; } = [];
+
     public event EventHandler? ResetKeybindingRequested;
+
+    [RelayCommand]
+    private void ToggleQuickAccessKey(string? key)
+    {
+        if (key is null) return;
+        QuickAccess.Set(key, !QuickAccess.Contains(key));
+        RaisePropertyChanged(QuickAccessProperty, QuickAccess, QuickAccess);
+    }
     
     public void ResetGesture()
     {

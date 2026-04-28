@@ -65,13 +65,13 @@
                     <TextBlock Classes="b2"
                                IsVisible="{Binding Gesture, 
                                         DataType=t:Tool,
-                                        Source={StaticResource Tools.Windows.ChangeKeybinding},
+                                        Source={StaticResource Tools.ToolTools.ChangeKeybinding},
                                         Mode=OneWay,
                                         Converter={StaticResource HasValueConverter}}">
                         Press <Run Classes="Emphasis" 
                                    FontWeight="Normal" 
                                    Text="{Binding Gesture,
-                                        Source={StaticResource Tools.Windows.ChangeKeybinding}, 
+                                        Source={StaticResource Tools.ToolTools.ChangeKeybinding}, 
                                         Converter={StaticResource ToStringConverter}, 
                                         Mode=OneWay,
                                         DataType=t:Tool}"/> to change binding
