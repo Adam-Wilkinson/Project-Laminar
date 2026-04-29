@@ -43,13 +43,16 @@
                VerticalAlignment="Stretch"
                IsHitTestVisible="True">
         <ItemsControl DockPanel.Dock="Right"
-                      Name="PART_QuickAccess"
                       Height="{Binding #ItemNameLabel.Bounds.Height}"
-                      ItemsSource="{Binding 
-                                        Converter={StaticResource ToolInstancer}, 
-                                        ConverterParameter={StaticResource Tools.FileSystem.StorageItem}}"
                       VerticalAlignment="Stretch"
                       HorizontalAlignment="Right">
+            <ItemsControl.ItemsSource>
+                <MultiBinding Converter="{StaticResource QuickAccessInstancerConverter}">
+                    <Binding/>
+                    <Binding Source="{StaticResource QuickAccessRepository}"/>
+                    <Binding Path="ItemTypeName"/>
+                </MultiBinding>
+            </ItemsControl.ItemsSource>
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch"/>

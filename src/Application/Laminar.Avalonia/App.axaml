@@ -5,7 +5,8 @@
              xmlns:s="using:Laminar.Avalonia.Settings"
              xmlns:dd="using:Laminar.Avalonia.DragDrop"
              xmlns:r="using:System.Runtime.InteropServices"
-             xmlns:conv="using:Laminar.Avalonia.Converters">
+             xmlns:conv="using:Laminar.Avalonia.Converters"
+             xmlns:generic="clr-namespace:System.Collections.Generic;assembly=System.Collections">
 
 	<Application.Resources>
 		<ResourceDictionary>
@@ -42,9 +43,13 @@
 			<conv:AndConverter x:Key="AndConverter"/>
 			<conv:ConcatenateStringsConverter x:Key="ConcatenateStringsConverter"/>
 			<conv:CollectionContainsConverter x:Key="CollectionContainsConverter"/>
+			<conv:DictionaryGetter x:Key="DictionaryGetter"/>
+			<conv:QuickAccessInstancerConverter x:Key="QuickAccessInstancerConverter"/>
 			
 			<dd:TreeViewDropAcceptor x:Key="TreeViewDropAcceptor"/>
 			<dd:StackPanelDropAcceptor x:Key="StackPanelDropAcceptor"/>
+			
+			<generic:Dictionary x:TypeArguments="x:String, t:Toolbox" x:Key="QuickAccessRepository"/>
 		</ResourceDictionary>
 	</Application.Resources>
 

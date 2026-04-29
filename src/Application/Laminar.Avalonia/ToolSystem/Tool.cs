@@ -48,6 +48,9 @@ public class Toolbox : Tool
                     LogicalChildren[index] = child;
                 }
                 break;
+            case NotifyCollectionChangedAction.Reset:
+                LogicalChildren.Clear();
+                break;
             default:
                 throw new NotSupportedException();
         }
@@ -83,8 +86,11 @@ public partial class Tool : StyledElement, ITemplate<object?, ToolInstance?>, IE
     
     public static readonly StyledProperty<Type?> DataTypeProperty = AvaloniaProperty.Register<Tool, Type?>(nameof(DataType), inherits: true);
 
-    public static readonly DirectProperty<Tool, Classes> QuickAccessProperty = AvaloniaProperty
-        .RegisterDirect<Tool, Classes>(nameof(QuickAccess), tool => tool.QuickAccess);
+    public static readonly DirectProperty<Tool, Classes> QuickAccessProperty 
+        = AvaloniaProperty.RegisterDirect<Tool, Classes>(nameof(QuickAccess), tool => tool.QuickAccess);
+    
+    public static readonly DirectProperty<Tool, AvaloniaList<Tool>?> ChildToolsProperty 
+        = AvaloniaProperty.RegisterDirect<Tool, AvaloniaList<Tool>?>(nameof(ChildTools), tool => tool.ChildTools);
     
     public string NameKey { get; set; } = string.Empty;
 
@@ -141,11 +147,14 @@ public partial class Tool : StyledElement, ITemplate<object?, ToolInstance?>, IE
 
     public event EventHandler? ResetKeybindingRequested;
 
+    public event EventHandler<(string key, bool added)>? QuickAccessChanged;
+    
     [RelayCommand]
     private void ToggleQuickAccessKey(string? key)
     {
         if (key is null) return;
         QuickAccess.Set(key, !QuickAccess.Contains(key));
+        QuickAccessChanged?.Invoke(this, (key, QuickAccess.Contains(key)));
         RaisePropertyChanged(QuickAccessProperty, QuickAccess, QuickAccess);
     }
     

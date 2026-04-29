@@ -1,10 +1,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
+using CommunityToolkit.Mvvm.ComponentModel.__Internals;
 
 namespace Laminar.Avalonia.ToolSystem;
 
@@ -20,11 +23,20 @@ public class ToolInstance : StyledElement, IEnumerable<ToolInstance>
     
     static ToolInstance()
     {
-        ToolProperty.Changed.AddClassHandler<ToolInstance>((o, e) => o.TemplateChanged(e));
+        ToolProperty.Changed.AddClassHandler<ToolInstance>((o, e) => o.ToolChanged(e));
     }
 
-    private void TemplateChanged(AvaloniaPropertyChangedEventArgs _)
+    private void ToolChanged(AvaloniaPropertyChangedEventArgs e)
     {
+        var (oldValue, newValue) = e.GetOldAndNewValue<Tool?>();
+        oldValue?.ChildTools?.CollectionChanged -= ToolCollectionChanged;
+        newValue?.ChildTools?.CollectionChanged += ToolCollectionChanged;
+        ToolCollectionChanged(null, null);
+    }
+
+    private void ToolCollectionChanged(object? sender, NotifyCollectionChangedEventArgs? e)
+    {
+        Debug.WriteLine($"Tool {Tool.NameKey} children has changed");
         ChildTools = Tool.ChildTools?.Select(x =>
         {
             var childTool = x.Build(DataContext);

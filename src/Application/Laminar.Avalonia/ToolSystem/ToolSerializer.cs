@@ -1,14 +1,12 @@
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Data;
-using Avalonia.Input;
 using Avalonia.Reactive;
 using Laminar.Avalonia.InitializationTargets;
 using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.DataManagement;
-using Laminar.Domain.ValueObjects;
 
 namespace Laminar.Avalonia.ToolSystem;
 
@@ -19,9 +17,20 @@ public class ToolSerializer(TopLevel topLevel, IPersistentDataManager persistent
     
     private readonly IPersistentDictionary _toolDataStore = persistentDataManager.GetDataStore(DataStoreKey.ToolProperties);
     private bool _initialized;
+
+    private Dictionary<string, Toolbox>? _quickAccess;
     
     public void OnApplicationBuilt()
     {
+        topLevel.GetResourceObservable("QuickAccessRepository").Subscribe(new AnonymousObserver<object?>(x =>
+        {
+            if (x is Dictionary<string, Toolbox> dictionary)
+            {
+                _quickAccess = dictionary;
+            }
+        }));
+     
+        
         topLevel.GetResourceObservable(Tool.ToolRootKey).Subscribe(new AnonymousObserver<object?>(x =>
         {
             if (x is Tool tool && !_initialized)
@@ -76,6 +85,23 @@ public class ToolSerializer(TopLevel topLevel, IPersistentDataManager persistent
             e.OldValue.PropertyChanged -= PersistentQuickAccessOnPropertyChanged;
             e.NewValue.PropertyChanged += PersistentQuickAccessOnPropertyChanged;
         };
+
+        foreach (var key in tool.QuickAccess.Where(key => !string.IsNullOrEmpty(key)))
+        {
+            GetQuickAccess(key).ChildrenContent.Add(tool);
+        }
+
+        tool.QuickAccessChanged += (_, e) =>
+        {
+            if (e.added)
+            {
+                GetQuickAccess(e.key).ChildrenContent.Add(tool);
+            }
+            else
+            {
+                GetQuickAccess(e.key).ChildrenContent.Remove(tool);
+            }
+        };
         
         return;
         void PersistentQuickAccessOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -86,5 +112,15 @@ public class ToolSerializer(TopLevel topLevel, IPersistentDataManager persistent
             tool.QuickAccess.AddRange(persistentQuickAccess.Value);
             quickAccessChanging = false;
         }
+    }
+
+    private Toolbox GetQuickAccess(string key)
+    {
+        ArgumentNullException.ThrowIfNull(_quickAccess);
+        if (_quickAccess.TryGetValue(key, out var toolbox)) return toolbox;
+        
+        toolbox = new Toolbox();
+        _quickAccess.Add(key, toolbox);
+        return toolbox;
     }
 }
