@@ -44,12 +44,12 @@
 			<conv:ConcatenateStringsConverter x:Key="ConcatenateStringsConverter"/>
 			<conv:CollectionContainsConverter x:Key="CollectionContainsConverter"/>
 			<conv:DictionaryGetter x:Key="DictionaryGetter"/>
-			<conv:QuickAccessInstancerConverter x:Key="QuickAccessInstancerConverter"/>
 			
 			<dd:TreeViewDropAcceptor x:Key="TreeViewDropAcceptor"/>
 			<dd:StackPanelDropAcceptor x:Key="StackPanelDropAcceptor"/>
 			
-			<generic:Dictionary x:TypeArguments="x:String, t:Toolbox" x:Key="QuickAccessRepository"/>
+			<generic:Dictionary x:TypeArguments="x:String, t:Toolbox" 
+			                    x:Key="{x:Static t:QuickAccessExtension.QuickAccessRepositoryKey}"/>
 		</ResourceDictionary>
 	</Application.Resources>
 

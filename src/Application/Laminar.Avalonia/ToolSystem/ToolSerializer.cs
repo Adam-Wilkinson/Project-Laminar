@@ -22,7 +22,8 @@ public class ToolSerializer(TopLevel topLevel, IPersistentDataManager persistent
     
     public void OnApplicationBuilt()
     {
-        topLevel.GetResourceObservable("QuickAccessRepository").Subscribe(new AnonymousObserver<object?>(x =>
+        topLevel.GetResourceObservable(QuickAccessExtension.QuickAccessRepositoryKey)
+            .Subscribe(new AnonymousObserver<object?>(x =>
         {
             if (x is Dictionary<string, Toolbox> dictionary)
             {
@@ -119,7 +120,7 @@ public class ToolSerializer(TopLevel topLevel, IPersistentDataManager persistent
         ArgumentNullException.ThrowIfNull(_quickAccess);
         if (_quickAccess.TryGetValue(key, out var toolbox)) return toolbox;
         
-        toolbox = new Toolbox();
+        toolbox = new Toolbox { NameKey = $"Quick access: '{key}'"};
         _quickAccess.Add(key, toolbox);
         return toolbox;
     }

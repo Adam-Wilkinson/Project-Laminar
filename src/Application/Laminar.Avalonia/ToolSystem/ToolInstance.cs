@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -6,8 +5,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Windows.Input;
 using Avalonia;
+using Avalonia.Collections;
 using Avalonia.Controls;
-using CommunityToolkit.Mvvm.ComponentModel.__Internals;
 
 namespace Laminar.Avalonia.ToolSystem;
 
@@ -19,7 +18,7 @@ public class ToolInstance : StyledElement, IEnumerable<ToolInstance>
     
     public static readonly StyledProperty<Tool> ToolProperty = AvaloniaProperty.Register<ToolInstance, Tool>(nameof(Tool));
 
-    public static readonly StyledProperty<List<ToolInstance>?> ChildToolsProperty = AvaloniaProperty.Register<ToolInstance, List<ToolInstance>?>(nameof(ChildTools), defaultValue: []);
+    // public static readonly StyledProperty<List<ToolInstance>?> ChildToolsProperty = AvaloniaProperty.Register<ToolInstance, List<ToolInstance>?>(nameof(ChildTools), defaultValue: []);
     
     static ToolInstance()
     {
@@ -37,20 +36,19 @@ public class ToolInstance : StyledElement, IEnumerable<ToolInstance>
     private void ToolCollectionChanged(object? sender, NotifyCollectionChangedEventArgs? e)
     {
         Debug.WriteLine($"Tool {Tool.NameKey} children has changed");
-        ChildTools = Tool.ChildTools?.Select(x =>
+        ChildTools?.Clear();
+        if (Tool.ChildTools is not { } newToolChildren) return;
+        
+        ChildTools?.AddRange(newToolChildren.Select(x =>
         {
             var childTool = x.Build(DataContext);
             ((ISetInheritanceParent)childTool)?.SetParent(this);
             return childTool;
-        }).OfType<ToolInstance>().ToList();
+        }).OfType<ToolInstance>());
     }
 
-    public List<ToolInstance>? ChildTools
-    {
-        get => GetValue(ChildToolsProperty);
-        set => SetValue(ChildToolsProperty, value);
-    }
-    
+    public AvaloniaList<ToolInstance>? ChildTools { get; } = [];
+
     public ICommand Command
     {
         get => GetValue(CommandProperty);

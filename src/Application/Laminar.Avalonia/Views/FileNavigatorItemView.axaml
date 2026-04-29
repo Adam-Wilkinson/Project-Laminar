@@ -45,14 +45,8 @@
         <ItemsControl DockPanel.Dock="Right"
                       Height="{Binding #ItemNameLabel.Bounds.Height}"
                       VerticalAlignment="Stretch"
-                      HorizontalAlignment="Right">
-            <ItemsControl.ItemsSource>
-                <MultiBinding Converter="{StaticResource QuickAccessInstancerConverter}">
-                    <Binding/>
-                    <Binding Source="{StaticResource QuickAccessRepository}"/>
-                    <Binding Path="ItemTypeName"/>
-                </MultiBinding>
-            </ItemsControl.ItemsSource>
+                      HorizontalAlignment="Right"
+                      ItemsSource="{t:QuickAccess {Binding ItemTypeName}}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch"/>
