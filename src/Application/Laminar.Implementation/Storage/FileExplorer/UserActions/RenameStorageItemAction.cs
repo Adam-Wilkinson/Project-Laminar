@@ -6,6 +6,7 @@ using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.Storage.FileExplorer;
 using Laminar.Domain.Enums.ActionResolutions;
 using Laminar.Domain.Exceptions;
+using Laminar.Domain.ValueObjects;
 using Laminar.Implementation.Base.ActionSystem;
 
 namespace Laminar.Implementation.Storage.FileExplorer.UserActions;
@@ -17,11 +18,14 @@ internal class RenameStorageItemAction(
 {
     public event EventHandler? CanExecuteChanged { add { } remove { } }
 
-    public bool CanExecute { get; } = item.Path.Name != newName;
+    public bool CanExecute { get; } = !dependencies.FileSystem.GetNameWithoutExtension(item.Path).Equals(newName);
 
     public Task<IUserActionResult> Execute()
     {
-        if (item.ParentFolder is not { } parentFolder || Equals(item.Path.Name, newName))
+        var oldName = dependencies.FileSystem.GetNameWithoutExtension(item.Path);
+        var itemExtension = dependencies.FileSystem.GetExtension(oldName);
+        
+        if (item.ParentFolder is not { } parentFolder || Equals(oldName, newName))
         {
             return Task.FromResult(IUserActionResult.Invalid());
         }
@@ -31,8 +35,9 @@ internal class RenameStorageItemAction(
             return Task.FromResult(IUserActionResult.Error(new InvalidStorageItemNameException(newName)));
         }
 
-        if (parentFolder.Contents.FirstOrDefault(sibling 
-                => newName.Equals(sibling.Path.Name, StringComparison.OrdinalIgnoreCase)) is { } clash)
+        if (parentFolder.Contents.FirstOrDefault(sibling => newName.Equals(
+                dependencies.FileSystem.GetNameWithoutExtension(sibling.Path), FileSystemPath.RuntimeStringComparison)) 
+            is { } clash)
         {
             if (clash is not LaminarStorageItem internalItem) 
                 return Task.FromResult(IUserActionResult.Error(new InvalidOperationException("Clash with an item of a type I cannot handle")));
@@ -49,11 +54,9 @@ internal class RenameStorageItemAction(
             });
         }
         
-        var oldName = item.Path.Name;
-
         try
         {
-            item.Rename(newName + item.Path.Extension);
+            item.Rename(newName + itemExtension);
         }
         catch (IOException exception)
         {

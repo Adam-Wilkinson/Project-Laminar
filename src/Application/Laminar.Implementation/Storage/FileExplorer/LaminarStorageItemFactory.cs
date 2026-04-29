@@ -45,14 +45,7 @@ internal partial class LaminarStorageItemFactory(
             ? new LaminarStorageFolder(internalParent, this, fileSystem, persistentDictionary, persistentDataManager, logger)
             : new LaminarStorageFile(internalParent, fileSystem, persistentDictionary, logger);
         
-        _allStorageItems[newItemPath] = newItem;
-        newItem.GetDependentValue(x => x.Path).OnChanged += (_, e) =>
-        {
-            _allStorageItems.Remove(e.OldValue);
-            _allStorageItems[e.NewValue] = newItem;
-        };
-
-        newItem.RootFolderDisposed += (_, _) => _allStorageItems.Remove(newItem.Path);
+        RegisterNewItem(newItem);
 
         return newItem;
     }
@@ -71,8 +64,24 @@ internal partial class LaminarStorageItemFactory(
 
     public ILaminarStorageItem? TryGetExisting(FileSystemPath path) =>  _allStorageItems.GetValueOrDefault(path);
 
-    public ILaminarStorageRootFolder CreateRootFolder(FileSystemPath path) 
-        => ActivatorUtilities.CreateInstance<LaminarStorageRootFolder>(provider, path);
+    public ILaminarStorageRootFolder CreateRootFolder(FileSystemPath path)
+    {
+        var newRootFolder = ActivatorUtilities.CreateInstance<LaminarStorageRootFolder>(provider, path);
+        RegisterNewItem(newRootFolder);
+        return newRootFolder;
+    }
+
+    private void RegisterNewItem(LaminarStorageItem newItem)
+    {
+        _allStorageItems[newItem.Path] = newItem;
+        newItem.GetDependentValue(x => x.Path).OnChanged += (_, e) =>
+        {
+            _allStorageItems.Remove(e.OldValue);
+            _allStorageItems[e.NewValue] = newItem;
+        };
+
+        newItem.RootFolderDisposed += (_, _) => _allStorageItems.Remove(newItem.Path);
+    }
 
     [LoggerMessage(LogLevel.Trace, "A file at path '{path}' was already cached, returning cached value")]
     static partial void LogRequestedItemMatchesExistingItem(ILogger<LaminarStorageItem> logger, FileSystemPath path);

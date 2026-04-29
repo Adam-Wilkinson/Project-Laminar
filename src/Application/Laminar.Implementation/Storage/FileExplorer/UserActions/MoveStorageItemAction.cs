@@ -7,6 +7,7 @@ using Laminar.Contracts.Storage.FileExplorer;
 using Laminar.Domain.Enums.ActionResolutions;
 using Laminar.Domain.Exceptions;
 using Laminar.Domain.Notification;
+using Laminar.Domain.ValueObjects;
 using Laminar.Implementation.Base.ActionSystem;
 
 namespace Laminar.Implementation.Storage.FileExplorer.UserActions;
@@ -36,18 +37,18 @@ internal class MoveStorageItemAction(
         }
         else
         {
-            if (destinationFolder.Contents.FirstOrDefault(
-                    x => item.Path.Name.Equals(x.Path.Name, StringComparison.OrdinalIgnoreCase)) is { } clash)
+            if (destinationFolder.Contents.FirstOrDefault(NameEqualsItemName) is { } clash)
             {
                 if (clash is not LaminarStorageItem internalItem) 
                     return Task.FromResult(IUserActionResult.Error(new InvalidOperationException("Clash with an item of a type I cannot handle")));
                 return Task.FromResult<IUserActionResult>(new ResolvableError<NamingConflictResolution> 
                 {
-                    Exception = new DestinationContainsItemOfThatNameException(destinationFolder.Path.Name, item.Path.Name),
+                    Exception = new DestinationContainsItemOfThatNameException(destinationFolder.UserFriendlyName, item.UserFriendlyName),
                     Resolve = resolution => resolution switch
                     {
                         NamingConflictResolution.ReplaceItem => new AlternativeActionFound(new CompoundAction(new DeleteStorageItemAction(internalItem, dependencies), this)),
-                        NamingConflictResolution.IncrementName => new AlternativeActionFound(new CompoundAction(new RenameStorageItemAction(item.Path.Name + " (1)", item, dependencies), this)),
+                        NamingConflictResolution.IncrementName => new AlternativeActionFound(new CompoundAction(
+                            new RenameStorageItemAction(dependencies.FileSystem.GetNameWithoutExtension(item.Path) + " (1)", item, dependencies), this)),
                         _ => throw new InvalidOperationException(),
                     },
                     OnCancelled = () =>
@@ -71,4 +72,7 @@ internal class MoveStorageItemAction(
 
         return Task.FromResult(IUserActionResult.Success(new MoveStorageItemAction(item, oldFolder, indexInOldFolder, dependencies)));
     }
+
+    private bool NameEqualsItemName(ILaminarStorageItem comparisonItem)
+        => item.UserFriendlyName.Equals(comparisonItem.UserFriendlyName, FileSystemPath.RuntimeStringComparison);
 }

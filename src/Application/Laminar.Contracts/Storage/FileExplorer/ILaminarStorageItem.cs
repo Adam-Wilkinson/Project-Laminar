@@ -10,7 +10,9 @@ namespace Laminar.Contracts.Storage.FileExplorer;
 public interface ILaminarStorageItem : INotifyPropertyChanged
 {
     public FileSystemPath Path { get; }
-    
+
+    public string UserFriendlyName { get; }
+
     public bool IsEnabled { get; set; }
     
     public bool IsEffectivelyEnabled { get; }

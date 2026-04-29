@@ -43,6 +43,7 @@ internal class LaminarFileBrowser : ILaminarFileBrowser, IDisposable
         _actionDependencies = new()
         {
             RecyclingBin = _recyclingBin,
+            FileSystem = _fileSystem,
             RootFolders = rootFolderPaths,
             StorageItemFactory = factory
         };
@@ -51,7 +52,7 @@ internal class LaminarFileBrowser : ILaminarFileBrowser, IDisposable
     public IReadOnlyObservableCollection<ILaminarStorageRootFolder> RootFolders { get; }
 
     public Task<IUserActionResult> RemoveRootFolder(FileSystemPath rootFolderPath) 
-        => _actionManager.ExecuteAction(new RemoveRootFolderAction(rootFolderPath, _actionDependencies));
+        => _actionManager.ExecuteAction(new RemoveRootFolderAction(rootFolderPath, false, _actionDependencies));
 
     public Task<IUserActionResult> AddRootFolder(FileSystemPath newRootFolderPath) 
         => _actionManager.ExecuteAction(new AddRootFolderAction(newRootFolderPath, _actionDependencies));

@@ -47,7 +47,7 @@ public partial class FileContents : IFileContents
             throw new Exception("File must have a parent path");
         }
         
-        _fileWatcher = fileSystem.CreateFileWatcher(parent, Path.Name);
+        _fileWatcher = fileSystem.CreateFileWatcher(parent, Path.NameAndExtension);
         _fileWatcher.NotifyFilter = NotifyFilters.LastWrite;
         _fileWatcher.EnableRaisingEvents = true;
         _fileWatcher.Changed += FileChanged;

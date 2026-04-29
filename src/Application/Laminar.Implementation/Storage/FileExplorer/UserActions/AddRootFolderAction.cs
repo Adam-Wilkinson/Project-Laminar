@@ -17,6 +17,6 @@ public class AddRootFolderAction(FileSystemPath folderPath, FileExplorerActionDe
     {
         var currentList = new List<FileSystemPath>(dependencies.RootFolders.Value) { folderPath };
         dependencies.RootFolders.Value = currentList;
-        return Task.FromResult(IUserActionResult.Success(new RemoveRootFolderAction(folderPath, dependencies)));
+        return Task.FromResult(IUserActionResult.Success(new RemoveRootFolderAction(folderPath, true, dependencies)));
     }
 }

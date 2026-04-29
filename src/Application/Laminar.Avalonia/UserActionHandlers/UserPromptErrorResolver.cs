@@ -10,8 +10,8 @@ namespace Laminar.Avalonia.UserActionHandlers;
 
 public class UserPromptErrorResolver(DialogService dialogService) : IUserActionErrorResolver
 {
-    private readonly DialogOption<NamingConflictResolution> ReplaceExistingFile = new(NamingConflictResolution.ReplaceItem, "Replace file");
-    private readonly DialogOption<NamingConflictResolution> IncrementFileName = new(NamingConflictResolution.IncrementName, "Increment name");
+    private static readonly ValueDialogOption<NamingConflictResolution> ReplaceExistingFile = new(NamingConflictResolution.ReplaceItem, "Replace file");
+    private static readonly ValueDialogOption<NamingConflictResolution> IncrementFileName = new(NamingConflictResolution.IncrementName, "Increment name");
 
     public Task<IUserActionErrorResolution?> TryResolve(IUserActionResult result) => result switch
     {
@@ -39,26 +39,42 @@ public class UserPromptErrorResolver(DialogService dialogService) : IUserActionE
         }),
         ResolvableError<DeleteRootFolderConfirmation>
         {
-            Exception: DeleteRootFolderException deleteRootFolderException
+            Exception: DeleteRootFolderException { FolderPath: var deletedFolderPath }
         } deleteRootFolderConfirmation => ResolveError(deleteRootFolderConfirmation, new LaminarDialogViewModel
         {
             Options = [
                 DialogOption.Cancel, 
-                new DialogOption<DeleteRootFolderConfirmation>(DeleteRootFolderConfirmation.RemoveRootFolder, "Remove from root folders"),
-                new DialogOption<DeleteRootFolderConfirmation>(DeleteRootFolderConfirmation.DeleteRootFolder, "Delete permanently")],
-            Message = $"You are attempting to delete the folder '{deleteRootFolderException.FolderPath.Name}'. This will permanently delete this folder and all its children.\r\n\r\nYou can also remove this folder from Project: Laminar without deleting it from your file system",
+                DialogOption.WithValue(DeleteRootFolderConfirmation.RemoveRootFolder, "Forget root folder"),
+                // DialogOption.WithValue(DeleteRootFolderConfirmation.RemoveRootFolderAndCleanup, "Forget root folder and related information"),
+                DialogOption.WithValue(DeleteRootFolderConfirmation.DeleteRootFolder, "Delete permanently")],
+            Message = $"You are attempting to delete the folder '{deletedFolderPath.NameAndExtension}'. This will permanently delete this folder and all its children.\r\n\r\nYou can also remove this folder from Project: Laminar without deleting it from your file system",
+            AdditionalCheckboxText = "Also delete related information",
+            AdditionalCheckboxChecked = true,
             SelectedOptionIndex = 1,
             CancelledOptionIndex = 0,
+        }, (answer, isChecked) => (answer, isChecked) switch
+        {
+            (DeleteRootFolderConfirmation.DeleteRootFolder, _) => DeleteRootFolderConfirmation.DeleteRootFolder,
+            (DeleteRootFolderConfirmation.RemoveRootFolder, true) => DeleteRootFolderConfirmation.RemoveRootFolderAndCleanup,
+            (DeleteRootFolderConfirmation.RemoveRootFolder, false) => DeleteRootFolderConfirmation.RemoveRootFolder,
+            _ => throw new NotImplementedException()
         }),
         _ => Task.FromResult<IUserActionErrorResolution?>(null),
     };
 
-    private async Task<IUserActionErrorResolution?> ResolveError<T>(ResolvableError<T> resolvable, LaminarDialogViewModel dialog)
+    private async Task<IUserActionErrorResolution?> ResolveError<T>(
+        ResolvableError<T> resolvable, 
+        LaminarDialogViewModel dialog,
+        Func<T, bool, T>? isCheckedFilter = null)
     {
         var parameterDialogOption = await dialogService.PromptUserResponse(dialog);
-        if (parameterDialogOption is DialogOption<T> typedCorrectly)
+        if (parameterDialogOption is ValueDialogOption<T> typedCorrectly)
         {
-            return resolvable.Resolve(typedCorrectly.Value);
+            var result = isCheckedFilter is null
+                ? typedCorrectly.Value
+                : isCheckedFilter(typedCorrectly.Value, dialog.AdditionalCheckboxChecked);
+            
+            return resolvable.Resolve(result);
         }
 
         if (parameterDialogOption == DialogOption.Cancel)

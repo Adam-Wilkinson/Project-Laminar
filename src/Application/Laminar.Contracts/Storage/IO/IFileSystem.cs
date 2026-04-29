@@ -33,4 +33,6 @@ public interface IFileSystem
     public IEnumerable<FileSystemPath> EnumerateChildren(FileSystemPath path);
     
     public void Delete(FileSystemPath path);
+    string GetNameWithoutExtension(FileSystemPath path);
+    string GetExtension(FileSystemPath path);
 }

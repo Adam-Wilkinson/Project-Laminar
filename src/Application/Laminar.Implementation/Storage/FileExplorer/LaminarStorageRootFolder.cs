@@ -14,6 +14,7 @@ internal class LaminarStorageRootFolder : LaminarStorageFolder, ILaminarStorageR
     private readonly IFileSystem _fileSystem;
     private readonly ILaminarFileSystemMonitor _fileSystemMonitor;
     private readonly IPersistentDataManager _persistentDataManager;
+    private readonly FileSystemPath _infoFilePath;
     
     private FileSystemPath _path;
     private IDisposable _currentMonitor;
@@ -29,11 +30,12 @@ internal class LaminarStorageRootFolder : LaminarStorageFolder, ILaminarStorageR
             persistentDataManager.GetDataStore(new DataStoreKey(InfoFileName, PersistentDataType.Json, path)), persistentDataManager, logger)
     {
         _path = path;
+        // TODO: .json probably should not be hard-coded
+        _infoFilePath = path.ChildPath(InfoFileName + ".json");
         _fileSystem = fileSystem;
         _fileSystemMonitor = monitor;
         _persistentDataManager = persistentDataManager;
-        // TODO: .json should not be hard-coded
-        _currentMonitor = monitor.StartMonitoring(this, [ path.ChildPath(InfoFileName + ".json") ]);
+        _currentMonitor = monitor.StartMonitoring(this, [ _infoFilePath ]);
         Refresh();
     }
 
@@ -56,6 +58,12 @@ internal class LaminarStorageRootFolder : LaminarStorageFolder, ILaminarStorageR
         
         _currentMonitor.Dispose();
         _currentMonitor = _fileSystemMonitor.StartMonitoring(this);
+    }
+    
+    public void Dispose(bool removeInfoFile)
+    {
+        _fileSystem.Delete(_infoFilePath);
+        Dispose();
     }
     
     public void Dispose()

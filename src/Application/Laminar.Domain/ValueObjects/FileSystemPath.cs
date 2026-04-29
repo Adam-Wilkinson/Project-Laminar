@@ -16,16 +16,14 @@ public readonly struct FileSystemPath(string absolutePath) : IEquatable<FileSyst
         ? StringComparer.OrdinalIgnoreCase
         : StringComparer.Ordinal;
     
-    
     private readonly string _path = Path.GetFullPath(absolutePath) ?? throw new ArgumentNullException(nameof(absolutePath));
     
     public FileSystemPath ChildPath(string childName) => new(Path.Join(_path, childName));
 
     public FileSystemPath? Parent => Path.GetDirectoryName(_path) is { } parent ? new(parent) : null;
 
-    public string Extension => Path.GetExtension(_path);
-    public string Name => Path.GetFileNameWithoutExtension(_path);
     public string NameAndExtension => Path.GetFileName(_path);
+    
     public string[] SplitAfter(FileSystemPath relativeTo) 
         => Path.GetRelativePath(relativeTo._path, _path).Split('/', '\\');
     

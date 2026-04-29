@@ -36,7 +36,7 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
             return result;
         };
         CoreItem = coreItem;
-        Name = CoreItem.Path.Name;
+        Name = CoreItem.UserFriendlyName;
 
         if (coreItem is ILaminarStorageFolder)
         {
@@ -46,7 +46,7 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
         
         CoreItem.FilterPropertyChanged(nameof(ILaminarStorageItem.Path)).OnNotification += (_, _) =>
         {
-            Name = CoreItem.Path.Name;
+            Name = CoreItem.UserFriendlyName;
         };
 
         CoreItem.FilterPropertyChanged(nameof(ILaminarStorageFolder.IsExpanded)).OnNotification += (_, _) =>
@@ -90,7 +90,7 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
             if (value == field) return;
             field = value;
             OnPropertyChanged();
-            if (value != CoreItem.Path.Name)
+            if (value != CoreItem.UserFriendlyName)
             {
                 Dispatcher.UIThread.InvokeAsync(async () => await _fileBrowser.Rename(CoreItem, Name));
             }

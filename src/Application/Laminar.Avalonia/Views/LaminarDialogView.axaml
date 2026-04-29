@@ -15,38 +15,48 @@
         WindowStartupLocation="CenterOwner"
         Title="{Binding Title}">
   <StackPanel Margin="15" Spacing="15">
-      <TextBlock TextAlignment="Center" Text="{Binding Message, FallbackValue='This is the default message how fun'}" HorizontalAlignment="Center"/>
-        <CheckBox IsChecked="{Binding RememberAnswer}" IsVisible="{Binding ShowRememberAnswer}">
-            <TextBlock Text="Remember Answer" Classes="b2" VerticalAlignment="Center"/>
-        </CheckBox>
-      <ItemsControl ItemsSource="{Binding Options}" 
-                    HorizontalAlignment="Center" 
-                    XYFocus.NavigationModes="Enabled" 
-                    KeyboardNavigation.TabNavigation="Once"
-                    Name="ButtonsContainer">
-		  <ItemsControl.ItemTemplate>
-			  <DataTemplate DataType="vm:DialogOption">
-				  <Button Content="{Binding UiText}" 
-                          Command="{Binding $parent[ItemsControl].((vm:LaminarDialogViewModel)DataContext).SelectOptionCommand}"
-                          Background="{DynamicResource UiLayer}"
-                          HorizontalAlignment="Stretch"
-                          HorizontalContentAlignment="Center"
-                          BorderThickness="3"
-                          Padding="20,5"
-                          CommandParameter="{Binding}">
-                      <Button.Styles>
-						  <Style Selector="Button:focus-within">
-							  <Setter Property="Background" Value="{DynamicResource {x:Static init:ColorInitialization.LaminarAccentBackgroundKey}}"/>
-                          </Style>
-                      </Button.Styles>
-                  </Button>
-              </DataTemplate>
-          </ItemsControl.ItemTemplate>
-          <ItemsControl.ItemsPanel>
-			  <ItemsPanelTemplate>
-				  <UniformGrid Rows="1" ColumnSpacing="5"/>
-              </ItemsPanelTemplate>
-          </ItemsControl.ItemsPanel>
-      </ItemsControl>
+      <TextBlock TextAlignment="Center" 
+                 Text="{Binding Message, FallbackValue='This is the default message how fun'}" 
+                 HorizontalAlignment="Center"/>
+      
+      <StackPanel HorizontalAlignment="Center"
+                  Spacing="15">
+          <CheckBox IsChecked="{Binding AdditionalCheckboxChecked}" 
+                    HorizontalAlignment="Center"
+                    IsVisible="{Binding AdditionalCheckboxText, Converter={StaticResource HasValueConverter}}">
+              <TextBlock Text="{Binding AdditionalCheckboxText}" 
+                         Classes="b2" 
+                         VerticalAlignment="Center"/>
+          </CheckBox>
+          <ItemsControl ItemsSource="{Binding Options}" 
+                        HorizontalAlignment="Center" 
+                        XYFocus.NavigationModes="Enabled" 
+                        KeyboardNavigation.TabNavigation="Once"
+                        Name="ButtonsContainer">
+		      <ItemsControl.ItemTemplate>
+			      <DataTemplate DataType="vm:DialogOption">
+				      <Button Content="{Binding UiText}" 
+                              Command="{Binding $parent[ItemsControl].((vm:LaminarDialogViewModel)DataContext).SelectOptionCommand}"
+                              Background="{DynamicResource UiLayer}"
+                              HorizontalAlignment="Stretch"
+                              HorizontalContentAlignment="Center"
+                              BorderThickness="3"
+                              Padding="20,5"
+                              CommandParameter="{Binding}">
+                          <Button.Styles>
+						      <Style Selector="Button:focus-within">
+							      <Setter Property="Background" Value="{DynamicResource {x:Static init:ColorInitialization.LaminarAccentBackgroundKey}}"/>
+                              </Style>
+                          </Button.Styles>
+                      </Button>
+                  </DataTemplate>
+              </ItemsControl.ItemTemplate>
+              <ItemsControl.ItemsPanel>
+			      <ItemsPanelTemplate>
+				      <UniformGrid Rows="1" ColumnSpacing="5"/>
+                  </ItemsPanelTemplate>
+              </ItemsControl.ItemsPanel>
+          </ItemsControl>
+      </StackPanel>
   </StackPanel>
 </Window>

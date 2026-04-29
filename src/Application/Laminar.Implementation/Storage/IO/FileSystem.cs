@@ -20,8 +20,14 @@ public partial class FileSystem(ILogger<IFileSystem> fileSystemLogger, ILogger<F
     public bool IsDirectory(FileSystemPath path) 
         => Exists(path) 
             ? File.GetAttributes(path.ToString()).HasFlag(FileAttributes.Directory)
-            : string.IsNullOrWhiteSpace(path.Extension);
+            : string.IsNullOrWhiteSpace(Path.GetExtension(path));
 
+    public string GetNameWithoutExtension(FileSystemPath path)
+        => IsDirectory(path) ? path.NameAndExtension : Path.GetFileNameWithoutExtension(path);
+    
+    public string GetExtension(FileSystemPath path) 
+        => IsDirectory(path) ? "" : Path.GetExtension(path.ToString());
+    
     public void Delete(FileSystemPath path) 
     {
         if (IsDirectory(path))

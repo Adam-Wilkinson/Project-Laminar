@@ -26,9 +26,9 @@ public partial class LaminarDialogViewModel : ViewModelBase, IModalDialogViewMod
     public partial int SelectedOptionIndex { get; set; }
 
     [ObservableProperty]
-    public partial bool RememberAnswer { get; set; }
+    public partial bool AdditionalCheckboxChecked { get; set; }
 
-    public bool ShowRememberAnswer { get; set; }
+    public string? AdditionalCheckboxText { get; set; }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(DialogResult))]
@@ -81,10 +81,12 @@ public partial class LaminarDialogViewModel : ViewModelBase, IModalDialogViewMod
     }
 }
 
-public record DialogOption<T>(T Value, string UiText, bool? DialogResult = null) : DialogOption(UiText, DialogResult);
+public record ValueDialogOption<T>(T Value, string UiText, bool? DialogResult = null) : DialogOption(UiText, DialogResult);
 
 public record DialogOption(string UiText, bool? DialogResult = null)
 {
+    public static ValueDialogOption<T> WithValue<T>(T value, string uiText) => new(value, uiText);
+    
     public static readonly DialogOption Ok = new("Ok", true);
 
     public static readonly DialogOption Cancel = new("Cancel", null);

@@ -8,6 +8,11 @@ public enum DeleteRootFolderConfirmation
     RemoveRootFolder,
     
     /// <summary>
+    /// The folder should be forgotten, and any information stored about it should be deleted
+    /// </summary>
+    RemoveRootFolderAndCleanup,
+    
+    /// <summary>
     /// The folder should be deleted from disk
     /// </summary>
     DeleteRootFolder,

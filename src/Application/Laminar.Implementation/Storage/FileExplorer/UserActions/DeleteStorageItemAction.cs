@@ -12,7 +12,7 @@ internal class DeleteStorageItemAction(LaminarStorageItem item, FileExplorerActi
     : IUserAction
 {
     private readonly CompoundAction _internalAction = new(
-        new RenameStorageItemAction(GetDeletedName(item.Path.Name), item, dependencies), 
+        new RenameStorageItemAction(GetDeletedName(dependencies.FileSystem.GetNameWithoutExtension(item.Path)), item, dependencies), 
         new MoveStorageItemAction(item, dependencies.RecyclingBin, null, dependencies));
 
     public bool CanExecute => _internalAction.CanExecute;
@@ -35,7 +35,8 @@ internal class DeleteStorageItemAction(LaminarStorageItem item, FileExplorerActi
                 Resolve = confirmation => confirmation switch
                 {
                     DeleteRootFolderConfirmation.DeleteRootFolder => new AlternativeActionFound(_internalAction),
-                    DeleteRootFolderConfirmation.RemoveRootFolder => new AlternativeActionFound(new RemoveRootFolderAction(rootFolder.Path, dependencies)),
+                    DeleteRootFolderConfirmation.RemoveRootFolder => new AlternativeActionFound(new RemoveRootFolderAction(rootFolder.Path, false, dependencies)),
+                    DeleteRootFolderConfirmation.RemoveRootFolderAndCleanup => new AlternativeActionFound(new RemoveRootFolderAction(rootFolder.Path, true, dependencies)),
                     _ => throw new InvalidOperationException()
                 }
             });

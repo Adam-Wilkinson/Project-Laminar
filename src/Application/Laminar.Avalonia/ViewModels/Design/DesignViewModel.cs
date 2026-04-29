@@ -28,6 +28,6 @@ public static class DesignViewModel
         Title = "A dialog box",
         Message = "This is a message to describe what the dialog does",
         Options = [new DialogOption("No"), new DialogOption("Yes"), new DialogOption("This is longer")],
-        ShowRememberAnswer = true,
+        AdditionalCheckboxText = "Remember Answer?",
     };
 }
