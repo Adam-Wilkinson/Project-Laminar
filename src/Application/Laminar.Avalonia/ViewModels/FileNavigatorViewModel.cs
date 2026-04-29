@@ -1,11 +1,13 @@
 using System;
 using System.Threading.Tasks;
+using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
 using Laminar.Avalonia.DragDrop;
 using Laminar.Avalonia.ViewModels.Services;
 using Laminar.Contracts.Storage.FileExplorer;
 using Laminar.Domain.Notification;
+using Laminar.Domain.ValueObjects;
 
 namespace Laminar.Avalonia.ViewModels;
 
@@ -35,17 +37,9 @@ public partial class FileNavigatorViewModel(
     [RelayCommand]
     private async Task AddRootFolder()
     {
-        var selected = await dialogService.PromptUserResponse(new LaminarDialogViewModel
-        {
-            Options = [new DialogOption("Testing One"), new DialogOption("Two"), new DialogOption("Ok")],
-            Title = "is this a title?",
-            Message = "this might be a message",
-            ShowRememberAnswer = true,
-            CancelledOptionIndex = 1,
-            SelectedOptionIndex = 2,
-        });
-
-        await dialogService.PromptError("Result", $"You cleasrly selected {selected}");
+        FileSystemPath? possibleFolder = await dialogService.PromptForFolder(WellKnownFolder.Documents);
+        if (possibleFolder is not { } selectedFolder) return;
+        await fileBrowser.AddRootFolder(selectedFolder);
     }
     
     [RelayCommand]

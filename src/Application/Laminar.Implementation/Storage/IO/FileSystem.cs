@@ -12,14 +12,14 @@ using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.Storage.IO;
 
-public partial class FileSystem(ILogger<IFileSystem> fileSystemLogger, ILogger<Storage.IO.FileContents> fileLogger) : IFileSystem
+public partial class FileSystem(ILogger<IFileSystem> fileSystemLogger, ILogger<FileContents> fileLogger) : IFileSystem
 {
     public bool Exists(FileSystemPath path) 
-        => Directory.Exists(path.ToString()) || System.IO.File.Exists(path.ToString());
+        => Directory.Exists(path.ToString()) || File.Exists(path.ToString());
     
     public bool IsDirectory(FileSystemPath path) 
         => Exists(path) 
-            ? System.IO.File.GetAttributes(path.ToString()).HasFlag(FileAttributes.Directory)
+            ? File.GetAttributes(path.ToString()).HasFlag(FileAttributes.Directory)
             : string.IsNullOrWhiteSpace(path.Extension);
 
     public void Delete(FileSystemPath path) 
@@ -30,7 +30,7 @@ public partial class FileSystem(ILogger<IFileSystem> fileSystemLogger, ILogger<S
         }
         else
         {
-            System.IO.File.Delete(path.ToString());
+            File.Delete(path.ToString());
         }
     }
 
@@ -51,7 +51,7 @@ public partial class FileSystem(ILogger<IFileSystem> fileSystemLogger, ILogger<S
         }
         else
         {
-            System.IO.File.Move(sourcePath.ToString(), destPath.ToString());            
+            File.Move(sourcePath.ToString(), destPath.ToString());            
         }
     }
 
@@ -85,10 +85,10 @@ public partial class FileSystem(ILogger<IFileSystem> fileSystemLogger, ILogger<S
         => FileStream.Create(path);
     
     public Task WriteBytes(FileSystemPath path, byte[] bytes, CancellationToken cancellationToken = default) 
-        => System.IO.File.WriteAllBytesAsync(path.ToString(), bytes, cancellationToken);
+        => File.WriteAllBytesAsync(path.ToString(), bytes, cancellationToken);
 
     public byte[] ReadBytes(FileSystemPath path) 
-        => System.IO.File.ReadAllBytes(path.ToString());
+        => File.ReadAllBytes(path.ToString());
 
     public long GetFileSize(FileSystemPath path)
         => new FileInfo(path.ToString()).Length;
@@ -97,7 +97,7 @@ public partial class FileSystem(ILogger<IFileSystem> fileSystemLogger, ILogger<S
         => Directory.CreateDirectory(path.ToString());
     
     public IFileContents GetFile(FileSystemPath path) 
-        => new Storage.IO.FileContents(this, path, fileLogger);
+        => new FileContents(this, path, fileLogger);
 
     [LoggerMessage(LogLevel.Trace, "Moving an item from '{sourcePath}' to '{destPath}'")]
     static partial void LogFileSystemMove(ILogger<IFileSystem> fileSystemLogger, FileSystemPath sourcePath, FileSystemPath destPath);

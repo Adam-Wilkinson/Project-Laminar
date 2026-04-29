@@ -3,6 +3,11 @@ using HanumanInstitute.MvvmDialogs;
 using System;
 using System.ComponentModel;
 using System.Threading.Tasks;
+using Avalonia.Platform.Storage;
+using HanumanInstitute.MvvmDialogs.Avalonia;
+using HanumanInstitute.MvvmDialogs.FileSystem;
+using HanumanInstitute.MvvmDialogs.FrameworkDialogs;
+using Laminar.Domain.ValueObjects;
 
 namespace Laminar.Avalonia.ViewModels.Services;
 
@@ -43,4 +48,23 @@ public class DialogService(TopLevel topLevel, IDialogService dialogService)
         Title = title,
         Message = message,
     });
+
+    public async Task<FileSystemPath?> PromptForFolder(WellKnownFolder? startingLocation = null)
+    {
+        var selected = await dialogService.ShowOpenFolderDialogAsync(TopLevelViewModel, new OpenFolderDialogSettings
+        {
+            SuggestedStartLocation = await GetWellKnownFolder(startingLocation)
+        });
+
+        if (selected is null) return null;
+        return new FileSystemPath(selected.Path.AbsolutePath);
+    }
+    
+    private async Task<IDialogStorageFolder?> GetWellKnownFolder(WellKnownFolder? startingLocation)
+    {
+        if (startingLocation is not { } knownStart) return null;
+        
+        var result = await topLevel.StorageProvider.TryGetWellKnownFolderAsync(knownStart);
+        return result?.ToDialog();
+    }
 }

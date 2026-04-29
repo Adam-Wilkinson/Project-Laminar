@@ -10,7 +10,6 @@
                     xmlns:init="using:Laminar.Avalonia.InitializationTargets">
     
     <!-- Edit Menu Tool -->
-    
     <t:Toolbox NameKey="{x:Static lang:Resources.Edit}" 
                x:Key="Tools.Edit" x:DataType="vm:ViewModelBase" 
                DefaultIconGeometry="{x:Static shapes:PathData.EditIcon}"

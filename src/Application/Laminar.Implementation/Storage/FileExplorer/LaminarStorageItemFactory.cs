@@ -41,7 +41,7 @@ internal partial class LaminarStorageItemFactory(
             return recentDeletion;
         }
         
-        LaminarStorageItem newItem = string.IsNullOrWhiteSpace(newItemPath.Extension)
+        LaminarStorageItem newItem = fileSystem.IsDirectory(newItemPath)
             ? new LaminarStorageFolder(internalParent, this, fileSystem, persistentDictionary, persistentDataManager, logger)
             : new LaminarStorageFile(internalParent, fileSystem, persistentDictionary, logger);
         
