@@ -98,6 +98,7 @@ internal class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
     public override void OnEffectivelyEnabledChanged()
     {
         base.OnEffectivelyEnabledChanged();
+        if (!ContentsIsInitialized) return; 
         foreach (var storageItem in Contents)
         {
             if (storageItem is not LaminarStorageItem laminarStorageItem) return;
