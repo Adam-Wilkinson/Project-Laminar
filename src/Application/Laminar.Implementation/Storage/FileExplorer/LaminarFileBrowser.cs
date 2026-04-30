@@ -57,9 +57,9 @@ internal class LaminarFileBrowser : ILaminarFileBrowser, IDisposable
     public Task<IUserActionResult> AddRootFolder(FileSystemPath newRootFolderPath) 
         => _actionManager.ExecuteAction(new AddRootFolderAction(newRootFolderPath, _actionDependencies));
 
-    public Task<IUserActionResult> Add(string itemName, ILaminarStorageFolder parent, StorageItemType type)
+    public Task<IUserActionResult> Add(string itemName, ILaminarStorageFolder parent, int indexInParent, StorageItemType type)
         => parent is not LaminarStorageFolder internalParent ? Task.FromResult(IUserActionResult.Invalid()) :
-            _actionManager.ExecuteAction(new AddStorageItemAction(itemName, internalParent, type, _actionDependencies));
+            _actionManager.ExecuteAction(new AddStorageItemAction(itemName, internalParent, indexInParent, type, _actionDependencies));
 
     public Task<IUserActionResult> Move(ILaminarStorageItem itemToMove, ILaminarStorageFolder destinationFolder, int destinationIndex) 
         => itemToMove is not LaminarStorageItem internalItem ? Task.FromResult(IUserActionResult.Invalid()) 

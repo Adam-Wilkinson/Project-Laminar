@@ -12,7 +12,7 @@ public interface ILaminarFileBrowser
 {
     public IReadOnlyObservableCollection<ILaminarStorageRootFolder> RootFolders { get; }
     
-    public Task<IUserActionResult> Add(string itemName, ILaminarStorageFolder parent, StorageItemType type);
+    public Task<IUserActionResult> Add(string itemName, ILaminarStorageFolder parent, int indexInParent, StorageItemType type);
     
     public Task<IUserActionResult> Move(ILaminarStorageItem itemToMove, ILaminarStorageFolder destinationFolder, int destinationIndex);
 

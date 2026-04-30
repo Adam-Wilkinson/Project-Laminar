@@ -2,13 +2,15 @@ using System;
 using System.Threading.Tasks;
 using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.Storage.FileExplorer;
+using Laminar.Domain.Notification;
 
 namespace Laminar.Implementation.Storage.FileExplorer.UserActions;
 
 internal class AddStorageItemAction(
     string newItemName, 
     LaminarStorageFolder parent, 
-    StorageItemType itemType, 
+    int indexInParent,
+    StorageItemType itemType,
     FileExplorerActionDependencies dependencies) 
     : IUserAction
 {
@@ -20,6 +22,9 @@ internal class AddStorageItemAction(
     {
         var result = dependencies.StorageItemFactory.CreateChild(newItemName + GetExtension(itemType), parent,
             itemType is StorageItemType.Folder);
+        
+        (parent.Contents as IObservableCollection<ILaminarStorageItem>)?.Insert(indexInParent, result);
+        
         if (result is not LaminarStorageItem storageItemInternal) throw new InvalidOperationException();
         return Task.FromResult(IUserActionResult.Success(result, new DeleteStorageItemAction(storageItemInternal, dependencies)));
     }

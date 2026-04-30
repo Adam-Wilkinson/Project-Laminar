@@ -90,7 +90,7 @@
     <t:PropertySetterTool x:Key="Tools.FileSystem.StorageItem.ToggleEnabled" x:DataType="vm:FileNavigatorItemViewModel" 
                           NameKey="{x:Static lang:Resources.ToggleEnabled}"
                           Gesture="Alt+E"
-                          PropertyBinding="{Binding CoreItem?.IsEnabled}"
+                          PropertyBinding="{Binding IsEnabled}"
                           CanChangeValueBinding="{Binding CanChangeIsEnabled}"
                           QuickAccess="Folder Script">
 	    <t:Tool.DescriptionBinding>
@@ -107,7 +107,7 @@
 	    </t:Tool.DescriptionBinding>
 	    <t:Tool.IconTemplate>
 		    <DataTemplate DataType="vm:FileNavigatorItemViewModel">
-			    <t:SwitchIcon IsOn="{Binding CoreItem?.IsEffectivelyEnabled}"/>
+			    <t:SwitchIcon IsOn="{Binding IsEffectivelyEnabled}"/>
 		    </DataTemplate>
 	    </t:Tool.IconTemplate>
     </t:PropertySetterTool>

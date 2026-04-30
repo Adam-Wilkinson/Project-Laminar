@@ -131,6 +131,8 @@ public class PropertySetterCommand : ICommand
     public void Execute(object? parameter)
     {
         if (!CanExecute(parameter)) return;
+
+        ArgumentNullException.ThrowIfNull(_boundPropertyContainer.Value);
         
         if (_boundPropertyContainer.Value is bool booleanValue)
         {

@@ -136,6 +136,6 @@ internal class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
     }
 
     private IEnumerable<ILaminarStorageItem> GetChildren()
-        => _fileSystem.EnumerateChildren(Path)
-            .Select(x => _factory.CreateChild(x.NameAndExtension, this, _fileSystem.IsDirectory(Path)));
+        => _fileSystem.EnumerateChildren(Path).Select(childPath =>
+            _factory.CreateChild(childPath.NameAndExtension, this, _fileSystem.IsDirectory(childPath)));
 }
