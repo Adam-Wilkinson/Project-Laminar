@@ -5,10 +5,11 @@ namespace Laminar.Contracts.Storage.FileExplorer;
 
 public interface ILaminarStorageItemFactory
 {
-    public ILaminarStorageItem FromPath(FileSystemPath path, ILaminarStorageFolder parent);
+    public ILaminarStorageItem CreateChild(string itemNameAndExtension, ILaminarStorageFolder parent, bool isFolder);
 
     public ILaminarStorageItem? TryGetExisting(FileSystemPath path);
     
     public ILaminarStorageRootFolder CreateRootFolder(FileSystemPath path);
+    
     ILaminarStorageItem FromPersistentData(IPersistentDictionary persistentDictionary, ILaminarStorageFolder parent);
 }

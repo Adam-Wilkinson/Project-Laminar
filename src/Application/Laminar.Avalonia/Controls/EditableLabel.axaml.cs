@@ -74,12 +74,12 @@ public partial class EditableLabel : UserControl
 
         Editor.LostFocus += (_, _) =>
         {
-            if (DateTime.Now - _editingStartedTime < EditingStartedCooldown)
-            {
-                Editor.SelectAll();
-                Editor.Focus();
-                return;
-            }
+            // if (DateTime.Now - _editingStartedTime < EditingStartedCooldown)
+            // {
+            //     Editor.SelectAll();
+            //     Editor.Focus();
+            //     return;
+            // }
             IsBeingEdited = false;
         };
     }
@@ -199,8 +199,7 @@ public partial class EditableLabel : UserControl
                char.GetUnicodeCategory(c) != UnicodeCategory.PrivateUse &&
                char.GetUnicodeCategory(c) != UnicodeCategory.Surrogate;
     }
-
-
+    
     private void DisallowedCharsChanged()
     {
         IEnumerable<Run> disallowedCharsInline = DisallowedChars

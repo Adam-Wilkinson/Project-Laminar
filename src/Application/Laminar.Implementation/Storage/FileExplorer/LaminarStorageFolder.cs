@@ -134,7 +134,8 @@ internal class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
 
         _persistentContentsDirty = false;
     }
-    
-    private IEnumerable<ILaminarStorageItem> GetChildren() 
-        => _fileSystem.EnumerateChildren(Path).Select(x => _factory.FromPath(x, this));
+
+    private IEnumerable<ILaminarStorageItem> GetChildren()
+        => _fileSystem.EnumerateChildren(Path)
+            .Select(x => _factory.CreateChild(x.NameAndExtension, this, _fileSystem.IsDirectory(Path)));
 }

@@ -16,6 +16,11 @@ public class DesignFileBrowser : ILaminarFileBrowser
         where T : class, ILaminarStorageItem
         => IUserActionResult.Invalid();
 
+    public Task<IUserActionResult> Add(string itemName, ILaminarStorageFolder parentFolder, StorageItemType type)
+    {
+        throw new System.NotImplementedException();
+    }
+
     public async Task<IUserActionResult> Move(ILaminarStorageItem itemToMove, ILaminarStorageFolder destinationFolder, int destinationIndex) 
         => IUserActionResult.Invalid();
 

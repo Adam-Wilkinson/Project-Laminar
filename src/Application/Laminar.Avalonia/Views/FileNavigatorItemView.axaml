@@ -5,6 +5,7 @@
              xmlns:vm="using:Laminar.Avalonia.ViewModels"
              xmlns:c="using:Laminar.Avalonia.Controls"
              xmlns:t="using:Laminar.Avalonia.ToolSystem"
+             xmlns:fe="using:Laminar.Contracts.Storage.FileExplorer"
              xmlns:shapes="using:Laminar.Avalonia.Shapes"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Laminar.Avalonia.Views.FileNavigatorItemView"
@@ -33,8 +34,8 @@
     <t:ToolMenu.ContextToolbox>
         <MultiBinding Converter="{StaticResource SwitchConverter}">
             <Binding Path="Type"/>
-            <Binding Source="{StaticResource ScriptContextMenu}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static vm:FileNavigatorItemType.Script}"/>
-            <Binding Source="{StaticResource FolderContextMenu}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static vm:FileNavigatorItemType.Folder}"/>
+            <Binding Source="{StaticResource ScriptContextMenu}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static fe:StorageItemType.Script}"/>
+            <Binding Source="{StaticResource FolderContextMenu}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static fe:StorageItemType.Folder}"/>
         </MultiBinding>
     </t:ToolMenu.ContextToolbox>
     
@@ -62,8 +63,8 @@
                 <PathIcon.Data>
                     <MultiBinding Converter="{StaticResource SwitchConverter}">
                         <Binding Path="Type"/>
-                        <Binding Source="{x:Static shapes:PathData.FolderIcon}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static vm:FileNavigatorItemType.Folder}"/>
-                        <Binding Source="{x:Static shapes:PathData.ScriptIcon}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static vm:FileNavigatorItemType.Script}"/>
+                        <Binding Source="{x:Static shapes:PathData.FolderIcon}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static fe:StorageItemType.Folder}"/>
+                        <Binding Source="{x:Static shapes:PathData.ScriptIcon}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static fe:StorageItemType.Script}"/>
                     </MultiBinding>
                 </PathIcon.Data>
             </PathIcon>
@@ -72,7 +73,7 @@
                          VerticalAlignment="Center" 
                          Text="{Binding Name, Mode=TwoWay}"
                          DisallowedChars="{x:Static vm:FileNavigatorItemViewModel.InvalidFileNameChars}"
-                         IsBeingEdited="{Binding CoreItem.NeedsName, Mode=TwoWay}"
+                         IsBeingEdited="{Binding NameBeingSet, Mode=TwoWay}"
                          Padding="3"/>
         
         <DockPanel.Styles>

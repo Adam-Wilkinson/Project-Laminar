@@ -4,6 +4,8 @@ public interface IUserActionResult
 {
     public static IUserActionResult Success(IUserAction inverse) => new UserActionSuccess(inverse);
     
+    public static IUserActionResult Success<T>(T returnValue, IUserAction inverseAction) => new UserActionSuccess<T>(returnValue, inverseAction);
+    
     public static IUserActionResult Invalid() => new UserActionInvalid();
     
     public static IUserActionResult Error(Exception exception) =>  new UserActionError(exception);
@@ -24,6 +26,8 @@ public class ResolvableError<TParam> : IResolvableError
 
     public required Exception Exception { get; init; }
 }
+
+public record UserActionSuccess<T>(T ReturnValue, IUserAction InverseAction) : UserActionSuccess(InverseAction);
 
 public record UserActionSuccess(IUserAction InverseAction) : IUserActionResult;
 

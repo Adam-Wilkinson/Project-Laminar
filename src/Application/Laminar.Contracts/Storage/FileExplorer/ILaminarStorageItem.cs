@@ -17,8 +17,6 @@ public interface ILaminarStorageItem : INotifyPropertyChanged
     
     public bool IsEffectivelyEnabled { get; }
     
-    public bool NeedsName { get; set; }
-    
     public ILaminarStorageFolder? ParentFolder { get; }
     
     public void Refresh();

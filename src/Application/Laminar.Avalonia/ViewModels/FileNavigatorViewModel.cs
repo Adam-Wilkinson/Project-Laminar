@@ -81,7 +81,8 @@ public partial class FileNavigatorViewModel(
             targetItem.CoreItem is not ILaminarStorageFolder targetFolder) return;
         if (eventArgs.DraggingControl.DataContext is not FileNavigatorItemViewModel draggedItem) return;
         
-        await fileBrowser.Move(draggedItem.CoreItem, targetFolder, targetIndex);
+        if (draggedItem.CoreItem is not null)
+            await fileBrowser.Move(draggedItem.CoreItem, targetFolder, targetIndex);
         
         _currentHoverMove = null;
         _proposedHoveredItem = null;

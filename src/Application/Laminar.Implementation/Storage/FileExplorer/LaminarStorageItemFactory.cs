@@ -18,8 +18,9 @@ internal partial class LaminarStorageItemFactory(
     ILogger<LaminarStorageItem> logger)
     : ILaminarStorageItemFactory
 {
+    private const string IsFolder = "Is Folder";
     private readonly Dictionary<FileSystemPath, LaminarStorageItem> _allStorageItems = [];
-
+    
     public ILaminarStorageItem FromPersistentData(IPersistentDictionary persistentDictionary, ILaminarStorageFolder parent)
     {
         if (parent is not LaminarStorageFolder internalParent) throw new InvalidOperationException("Parent is not LaminarStorageFolder");
@@ -41,7 +42,12 @@ internal partial class LaminarStorageItemFactory(
             return recentDeletion;
         }
         
-        LaminarStorageItem newItem = fileSystem.IsDirectory(newItemPath)
+        if (persistentDictionary.TryGetValue<bool>(IsFolder) is not { } isFolder)
+        {
+            isFolder = persistentDictionary[IsFolder].SetDefaultAndGet(fileSystem.IsDirectory(newItemPath));
+        }
+        
+        LaminarStorageItem newItem = isFolder.Value
             ? new LaminarStorageFolder(internalParent, this, fileSystem, persistentDictionary, persistentDataManager, logger)
             : new LaminarStorageFile(internalParent, fileSystem, persistentDictionary, logger);
         
@@ -50,19 +56,21 @@ internal partial class LaminarStorageItemFactory(
         return newItem;
     }
     
-    public ILaminarStorageItem FromPath(FileSystemPath path, ILaminarStorageFolder parent)
+    public ILaminarStorageItem CreateChild(string itemNameAndExtension, ILaminarStorageFolder parent, bool isFolder)
     {
-        if (_allStorageItems.TryGetValue(path, out var item))
+        var newItemPath = parent.Path.ChildPath(itemNameAndExtension);
+        if (_allStorageItems.TryGetValue(newItemPath, out var item))
         {
             return item;
         }
 
         IPersistentDictionary persistentData = persistentDataManager.GetHeadlessNode<IPersistentDictionary>();
-        persistentData[LaminarStorageItem.NameKey].SetDefaultAndGet(path.NameAndExtension);
+        persistentData[LaminarStorageItem.NameKey].SetDefaultAndGet(itemNameAndExtension);
+        persistentData[IsFolder].SetDefaultAndGet(isFolder);
         return FromPersistentData(persistentData, parent);
     }
 
-    public ILaminarStorageItem? TryGetExisting(FileSystemPath path) =>  _allStorageItems.GetValueOrDefault(path);
+    public ILaminarStorageItem? TryGetExisting(FileSystemPath path) => _allStorageItems.GetValueOrDefault(path);
 
     public ILaminarStorageRootFolder CreateRootFolder(FileSystemPath path)
     {
