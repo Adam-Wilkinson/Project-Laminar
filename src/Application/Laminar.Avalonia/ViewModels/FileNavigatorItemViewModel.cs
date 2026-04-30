@@ -99,30 +99,24 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
 
     public ILaminarStorageItem CoreItem { get; }
 
-    public string ItemTypeName => CoreItem switch
+    public FileNavigatorItemType Type => CoreItem switch
     {
-        ILaminarStorageFolder => "folder",
-        ILaminarStorageFile => "script",
-        _ => "item"
+        ILaminarStorageFolder => FileNavigatorItemType.Folder,
+        ILaminarStorageFile => FileNavigatorItemType.Script,
+        _ => throw new InvalidOperationException()
     };
     
     [RelayCommand(CanExecute = nameof(IsFolder))]
-    private Task<IUserActionResult> AddItem(Type itemType)
+    private Task<IUserActionResult> AddItem(FileNavigatorItemType itemType)
     {
         if (CoreItem is not ILaminarStorageFolder folder) return Task.FromResult(IUserActionResult.Invalid());
-        if (itemType.IsAssignableTo(typeof(ILaminarStorageFolder)))
+        IsExpanded = true;
+        return itemType switch
         {
-            IsExpanded = true;
-            return _fileBrowser.AddDefault<ILaminarStorageFolder>(folder);
-        }
-        
-        if (itemType.IsAssignableTo(typeof(ILaminarStorageItem)))
-        {
-            IsExpanded = true;
-            return _fileBrowser.AddDefault<ILaminarStorageItem>(folder);
-        }
-
-        return Task.FromResult(IUserActionResult.Invalid());
+            FileNavigatorItemType.Folder => _fileBrowser.AddDefault<ILaminarStorageFolder>(folder),
+            FileNavigatorItemType.Script => _fileBrowser.AddDefault<ILaminarStorageFile>(folder),
+            _ => Task.FromResult(IUserActionResult.Invalid())
+        };
     }
 
     public bool IsFolder() => CoreItem is ILaminarStorageFolder;
@@ -152,4 +146,10 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
 
         public int GetHashCode(FileNavigatorItemViewModel obj) => obj.CoreItem.Path.GetHashCode();
     }
+}
+
+public enum FileNavigatorItemType
+{
+    Folder,
+    Script,
 }

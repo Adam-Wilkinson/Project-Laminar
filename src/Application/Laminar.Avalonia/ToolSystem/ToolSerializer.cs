@@ -18,19 +18,18 @@ public class ToolSerializer(TopLevel topLevel, IPersistentDataManager persistent
     private readonly IPersistentDictionary _toolDataStore = persistentDataManager.GetDataStore(DataStoreKey.ToolProperties);
     private bool _initialized;
 
-    private Dictionary<string, Toolbox>? _quickAccess;
+    private QuickAccessRepository? _quickAccess;
     
     public void OnApplicationBuilt()
     {
         topLevel.GetResourceObservable(QuickAccessExtension.QuickAccessRepositoryKey)
             .Subscribe(new AnonymousObserver<object?>(x =>
         {
-            if (x is Dictionary<string, Toolbox> dictionary)
+            if (x is QuickAccessRepository dictionary)
             {
                 _quickAccess = dictionary;
             }
         }));
-     
         
         topLevel.GetResourceObservable(Tool.ToolRootKey).Subscribe(new AnonymousObserver<object?>(x =>
         {
@@ -44,6 +43,8 @@ public class ToolSerializer(TopLevel topLevel, IPersistentDataManager persistent
 
     private void SerializeTool(Tool tool, string prefix)
     {
+        if (_quickAccess is null) throw new NullReferenceException();
+        
         var uniqueToolKey = $"{prefix}.{tool.NameKey}";
 
         foreach (var childTool in tool.ChildTools ?? Enumerable.Empty<Tool>())
@@ -89,18 +90,18 @@ public class ToolSerializer(TopLevel topLevel, IPersistentDataManager persistent
 
         foreach (var key in tool.QuickAccess.Where(key => !string.IsNullOrEmpty(key)))
         {
-            GetQuickAccess(key).ChildrenContent.Add(tool);
+            _quickAccess.FromKey(key).ChildrenContent.Add(tool);
         }
 
         tool.QuickAccessChanged += (_, e) =>
         {
             if (e.added)
             {
-                GetQuickAccess(e.key).ChildrenContent.Add(tool);
+                _quickAccess.FromKey(e.key).ChildrenContent.Add(tool);
             }
             else
             {
-                GetQuickAccess(e.key).ChildrenContent.Remove(tool);
+                _quickAccess.FromKey(e.key).ChildrenContent.Remove(tool);
             }
         };
         
@@ -113,15 +114,5 @@ public class ToolSerializer(TopLevel topLevel, IPersistentDataManager persistent
             tool.QuickAccess.AddRange(persistentQuickAccess.Value);
             quickAccessChanging = false;
         }
-    }
-
-    private Toolbox GetQuickAccess(string key)
-    {
-        ArgumentNullException.ThrowIfNull(_quickAccess);
-        if (_quickAccess.TryGetValue(key, out var toolbox)) return toolbox;
-        
-        toolbox = new Toolbox { NameKey = $"Quick access: '{key}'"};
-        _quickAccess.Add(key, toolbox);
-        return toolbox;
     }
 }

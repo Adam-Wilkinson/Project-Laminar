@@ -48,8 +48,7 @@
 			<dd:TreeViewDropAcceptor x:Key="TreeViewDropAcceptor"/>
 			<dd:StackPanelDropAcceptor x:Key="StackPanelDropAcceptor"/>
 			
-			<generic:Dictionary x:TypeArguments="x:String, t:Toolbox" 
-			                    x:Key="{x:Static t:QuickAccessExtension.QuickAccessRepositoryKey}"/>
+			<t:QuickAccessRepository x:Key="{x:Static t:QuickAccessExtension.QuickAccessRepositoryKey}"/>
 		</ResourceDictionary>
 	</Application.Resources>
 

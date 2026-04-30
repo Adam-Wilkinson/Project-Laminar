@@ -27,7 +27,7 @@ public class QuickAccessExtension : MarkupExtension
 
     public override BindingBase ProvideValue(IServiceProvider serviceProvider)
     {
-        if (new StaticResourceExtension(QuickAccessRepositoryKey).ProvideValue(serviceProvider) is not Dictionary<string, Toolbox> repository)
+        if (new StaticResourceExtension(QuickAccessRepositoryKey).ProvideValue(serviceProvider) is not QuickAccessRepository repository)
             throw new InvalidOperationException("Quick access markup extension requires a repository");
 
         return new MultiBinding
@@ -41,10 +41,10 @@ public class QuickAccessExtension : MarkupExtension
     {
         public object? Convert(IList<object?> values, Type targetType, object? parameter, CultureInfo culture)
         {
-            if (values[0] is not { } target || values[1] is not Dictionary<string, Toolbox> repository || values[2] is not string key)
+            if (values[0] is not { } target || values[1] is not QuickAccessRepository repository || values[2] is not string key)
                 return new BindingNotification(new InvalidCastException(), BindingErrorType.Error);
 
-            return repository[key].Build(target)?.ChildTools;
+            return repository.FromKey(key).Build(target)?.ChildTools;
         }
     }
 }

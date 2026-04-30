@@ -9,11 +9,12 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Laminar.Avalonia.Views.FileNavigatorItemView"
              x:DataType="vm:FileNavigatorItemViewModel"
-             t:ToolMenu.QuickAccessKey="{Binding ItemTypeName}">
+             t:ToolMenu.QuickAccessKey="{Binding Type, 
+             Converter={StaticResource ToStringConverter}}">
     
     <UserControl.Resources>
         <ResourceDictionary>
-            <t:Toolbox x:Key="FileContextMenu" DataType="vm:FileNavigatorItemViewModel" NameKey="File">
+            <t:Toolbox x:Key="ScriptContextMenu" DataType="vm:FileNavigatorItemViewModel" NameKey="Script">
                 <StaticResource ResourceKey="Tools.FileSystem.StorageItem.Rename"/>
                 <StaticResource ResourceKey="Tools.FileSystem.StorageItem.ToggleEnabled"/>
                 <StaticResource ResourceKey="Tools.FileSystem.StorageItem.Delete"/>
@@ -31,14 +32,13 @@
     
     <t:ToolMenu.ContextToolbox>
         <MultiBinding Converter="{StaticResource SwitchConverter}">
-            <Binding Path="ItemTypeName"/>
-            <Binding Source="{StaticResource FileContextMenu}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="script"/>
-            <Binding Source="{StaticResource FolderContextMenu}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="folder"/>
+            <Binding Path="Type"/>
+            <Binding Source="{StaticResource ScriptContextMenu}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static vm:FileNavigatorItemType.Script}"/>
+            <Binding Source="{StaticResource FolderContextMenu}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static vm:FileNavigatorItemType.Folder}"/>
         </MultiBinding>
     </t:ToolMenu.ContextToolbox>
     
-    <DockPanel Tag="{Binding ItemTypeName}"
-               HorizontalAlignment="Stretch"
+    <DockPanel HorizontalAlignment="Stretch"
                Background="Transparent"
                VerticalAlignment="Stretch"
                IsHitTestVisible="True">
@@ -46,7 +46,7 @@
                       Height="{Binding #ItemNameLabel.Bounds.Height}"
                       VerticalAlignment="Stretch"
                       HorizontalAlignment="Right"
-                      ItemsSource="{t:QuickAccess {Binding ItemTypeName}}">
+                      ItemsSource="{t:QuickAccess {Binding Type, Converter={StaticResource ToStringConverter}}}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch"/>
@@ -61,9 +61,9 @@
                       DockPanel.Dock="Left">
                 <PathIcon.Data>
                     <MultiBinding Converter="{StaticResource SwitchConverter}">
-                        <Binding Path="ItemTypeName"/>
-                        <Binding Source="{x:Static shapes:PathData.FolderIcon}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="folder"/>
-                        <Binding Source="{x:Static shapes:PathData.ScriptIcon}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="script"/>
+                        <Binding Path="Type"/>
+                        <Binding Source="{x:Static shapes:PathData.FolderIcon}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static vm:FileNavigatorItemType.Folder}"/>
+                        <Binding Source="{x:Static shapes:PathData.ScriptIcon}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static vm:FileNavigatorItemType.Script}"/>
                     </MultiBinding>
                 </PathIcon.Data>
             </PathIcon>

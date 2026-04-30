@@ -63,15 +63,15 @@
     <t:Toolbox x:Key="Tools.FileSystem.StorageItem.AddChild" x:DataType="vm:FileNavigatorItemViewModel" 
                NameKey="{x:Static lang:Resources.AddStorageItem}"
                DefaultIconGeometry="{x:Static shapes:PathData.AddIcon}"
-               QuickAccess="folder">
+               QuickAccess="Folder">
 	    <t:CommandTool NameKey="{x:Static lang:Resources.AddFolder}" 
 	                   DefaultIconGeometry="{x:Static shapes:PathData.FolderIcon}"
 	                   CommandBinding="{Binding AddItemCommand}"
-	                   CommandParameter="{x:Type fe:ILaminarStorageFolder}"/>
+	                   CommandParameter="{x:Static vm:FileNavigatorItemType.Folder}"/>
 	    <t:CommandTool NameKey="{x:Static lang:Resources.AddScript}" 
 	                   DefaultIconGeometry="{x:Static shapes:PathData.ScriptIcon}"
 	                   CommandBinding="{Binding AddItemCommand}"
-	                   CommandParameter="{x:Type fe:ILaminarStorageFile}"/>
+	                   CommandParameter="{x:Static vm:FileNavigatorItemType.Script}"/>
     </t:Toolbox>
     
     <t:CommandTool x:Key="Tools.FileSystem.StorageItem.Delete" x:DataType="vm:FileNavigatorItemViewModel" 
@@ -80,9 +80,9 @@
                    CommandBinding="{Binding DeleteCommand}">
 	    <t:Tool.DescriptionBinding>
 		    <MultiBinding Converter="{StaticResource SwitchConverter}">
-			    <Binding Path="ItemTypeName"/>
-			    <Binding Source="{x:Static lang:Resources.DeleteFolder}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="folder"/>
-			    <Binding Source="{x:Static lang:Resources.DeleteScript}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="script"/>
+			    <Binding Path="Type"/>
+			    <Binding Source="{x:Static lang:Resources.DeleteFolder}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static vm:FileNavigatorItemType.Folder}"/>
+			    <Binding Source="{x:Static lang:Resources.DeleteScript}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static vm:FileNavigatorItemType.Script}"/>
 		    </MultiBinding>
 	    </t:Tool.DescriptionBinding>
     </t:CommandTool>
@@ -92,17 +92,17 @@
                           Gesture="Alt+E"
                           PropertyBinding="{Binding CoreItem.IsEnabled}"
                           CanChangeValueBinding="{Binding CanChangeIsEnabled}"
-                          QuickAccess="folder script">
+                          QuickAccess="Folder Script">
 	    <t:Tool.DescriptionBinding>
 		    <MultiBinding Converter="{StaticResource SwitchConverter}">
 			    <MultiBinding StringFormat="Is Enabled: {0}, Item Type: {1}">
 				    <Binding Path="CoreItem.IsEnabled"/>
-				    <Binding Path="ItemTypeName"/>
+				    <Binding Path="Type" Converter="{StaticResource ToStringConverter}"/>
 			    </MultiBinding>
-			    <conv:SwitchItemBinding SwitchKey="Is Enabled: True, Item Type: folder" Source="{x:Static lang:Resources.DisableFolder}"/>
-			    <conv:SwitchItemBinding SwitchKey="Is Enabled: True, Item Type: script" Source="{x:Static lang:Resources.DisableScript}"/>
-			    <conv:SwitchItemBinding SwitchKey="Is Enabled: False, Item Type: folder" Source="{x:Static lang:Resources.EnableFolder}"/>
-			    <conv:SwitchItemBinding SwitchKey="Is Enabled: False, Item Type: script" Source="{x:Static lang:Resources.EnableScript}"/>
+			    <conv:SwitchItemBinding SwitchKey="Is Enabled: True, Item Type: Folder" Source="{x:Static lang:Resources.DisableFolder}"/>
+			    <conv:SwitchItemBinding SwitchKey="Is Enabled: True, Item Type: Script" Source="{x:Static lang:Resources.DisableScript}"/>
+			    <conv:SwitchItemBinding SwitchKey="Is Enabled: False, Item Type: Folder" Source="{x:Static lang:Resources.EnableFolder}"/>
+			    <conv:SwitchItemBinding SwitchKey="Is Enabled: False, Item Type: Script" Source="{x:Static lang:Resources.EnableScript}"/>
 		    </MultiBinding>
 	    </t:Tool.DescriptionBinding>
 	    <t:Tool.IconTemplate>
@@ -116,7 +116,7 @@
                    NameKey="OpenInFileBrowser"
                    CommandBinding="{Binding OpenInSystemFileBrowserCommand}"
                    DefaultIconGeometry="{x:Static shapes:PathData.OpenExternalIcon}"
-                   QuickAccess="folder"/>
+                   QuickAccess="Folder"/>
     
     <!-- File Navigator Tool -->
     <t:Toolbox x:Key="Tools.FileSystem.StorageItem" 
@@ -124,9 +124,9 @@
                x:DataType="vm:FileNavigatorItemViewModel">
 	    <t:Tool.DescriptionBinding>
 		    <MultiBinding Converter="{StaticResource SwitchConverter}">
-			    <Binding Path="ItemTypeName"/>
-			    <Binding Source="{x:Static lang:Resources.FolderTools}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="folder"/>
-			    <Binding Source="{x:Static lang:Resources.ScriptTools}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="script"/>
+			    <Binding Path="Type"/>
+			    <Binding Source="{x:Static lang:Resources.FolderTools}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static vm:FileNavigatorItemType.Folder}"/>
+			    <Binding Source="{x:Static lang:Resources.ScriptTools}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static vm:FileNavigatorItemType.Script}"/>
 		    </MultiBinding>
 	    </t:Tool.DescriptionBinding>
 	    <t:Tool.IconTemplate>
@@ -134,9 +134,9 @@
                 <PathIcon>
 	                <PathIcon.Data>
 		                <MultiBinding Converter="{StaticResource SwitchConverter}">
-			                <Binding Path="ItemTypeName"/>
-			                <Binding Source="{x:Static shapes:PathData.FolderIcon}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="folder"/>
-			                <Binding Source="{x:Static shapes:PathData.ScriptIcon}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="script"/>
+			                <Binding Path="Type"/>
+			                <Binding Source="{x:Static shapes:PathData.FolderIcon}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static vm:FileNavigatorItemType.Folder}"/>
+			                <Binding Source="{x:Static shapes:PathData.ScriptIcon}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static vm:FileNavigatorItemType.Script}"/>
 		                </MultiBinding>
 	                </PathIcon.Data>
                 </PathIcon>
