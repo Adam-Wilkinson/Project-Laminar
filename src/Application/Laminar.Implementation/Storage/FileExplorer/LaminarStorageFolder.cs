@@ -55,7 +55,7 @@ internal class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
         Refresh();
     }
     
-    public bool ContentsIsInitialized => _contentsInternal is null;
+    public bool ContentsIsInitialized => _contentsInternal is not null;
     
     public IReadOnlyObservableCollection<ILaminarStorageItem> Contents
     {
