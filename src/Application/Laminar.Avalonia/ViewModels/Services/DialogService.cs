@@ -57,7 +57,7 @@ public class DialogService(TopLevel topLevel, IDialogService dialogService)
         });
 
         if (selected is null) return null;
-        return new FileSystemPath(selected.Path.AbsolutePath);
+        return new FileSystemPath(selected.LocalPath);
     }
     
     private async Task<IDialogStorageFolder?> GetWellKnownFolder(WellKnownFolder? startingLocation)

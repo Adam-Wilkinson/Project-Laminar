@@ -15,8 +15,10 @@ public readonly struct FileSystemPath(string absolutePath) : IEquatable<FileSyst
     public static readonly StringComparer RuntimeStringComparer = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
         ? StringComparer.OrdinalIgnoreCase
         : StringComparer.Ordinal;
-    
-    private readonly string _path = Path.GetFullPath(absolutePath) ?? throw new ArgumentNullException(nameof(absolutePath));
+
+    private readonly string _path = (string.IsNullOrEmpty(Path.GetFileName(absolutePath))
+        ? Path.GetDirectoryName(absolutePath)
+        : absolutePath) ?? throw new ArgumentNullException(nameof(absolutePath));
     
     public FileSystemPath ChildPath(string childName) => new(Path.Join(_path, childName));
 
