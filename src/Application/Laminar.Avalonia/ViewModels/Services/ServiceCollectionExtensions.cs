@@ -18,6 +18,7 @@ public static class ServiceCollectionExtensions
                 itemType => ActivatorUtilities.CreateInstance<FileNavigatorItemViewModel>(sp, itemType))
             .AddDescendantsScoped<IViewModelInitializer>()
             .AddSingleton<IViewLocator, ViewLocator>()
+            .AddSingleton<FileExplorerLoadingQueue>()
             .AddSingleton<DialogService>();
     }
 }

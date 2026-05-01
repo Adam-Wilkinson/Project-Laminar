@@ -23,8 +23,13 @@ public partial class FileNavigatorViewModel(
     private (FileNavigatorItemViewModel moveItem, int moveIndex)? _currentHoverMove;
 
     public IReadOnlyObservableCollection<FileNavigatorItemViewModel> RootFiles { get; set; } = 
-        fileBrowser.RootFolders.ObservableMap(fileNavigatorItemViewModelFactory);
-
+        fileBrowser.RootFolders.ObservableMap(x =>
+        {
+            var result = fileNavigatorItemViewModelFactory(x);
+            result.IsExpanded = true;
+            return result;
+        });
+    
     [RelayCommand]
     private void Refresh()
     {

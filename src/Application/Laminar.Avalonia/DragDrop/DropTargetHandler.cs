@@ -18,7 +18,7 @@ public class DropTargetHandler : Interactive
     public static ICommand? GetDropCommand(Visual visual) => visual.GetValue(DropCommandProperty);
     public static void SetDropCommand(Visual visual, ICommand? command) => visual.SetValue(DropCommandProperty, command);
     
-    public static readonly AttachedProperty<ICommand?> HoverEnterCommandProperty = AvaloniaProperty.RegisterAttached<DropTargetHandler, Visual, ICommand?>("HoverEnterCommand");
+    public static readonly AttachedProperty<ICommand?> HoverEnterCommandProperty = AvaloniaProperty.RegisterAttached<DropTargetHandler, Visual, ICommand?>("HoverEnterCommand", inherits: false);
     public static ICommand? GetHoverEnterCommand(Visual visual) => visual.GetValue(HoverEnterCommandProperty);
     public static void SetHoverEnterCommand(Visual visual, ICommand? command) => visual.SetValue(HoverEnterCommandProperty, command);
     
@@ -26,7 +26,7 @@ public class DropTargetHandler : Interactive
     public static ICommand? GetHoverLeaveCommand(Visual visual) => visual.GetValue(HoverLeaveCommandProperty);
     public static void SetHoverLeaveCommand(Visual visual, ICommand? command) => visual.SetValue(HoverLeaveCommandProperty, command);
     
-    public static readonly AttachedProperty<DropAcceptor> DropAcceptorProperty = AvaloniaProperty.RegisterAttached<DropTargetHandler, Visual, DropAcceptor>(nameof(DropAcceptor), defaultValue: new DropAcceptor());
+    public static readonly AttachedProperty<DropAcceptor> DropAcceptorProperty = AvaloniaProperty.RegisterAttached<DropTargetHandler, Visual, DropAcceptor>(nameof(DropAcceptor), defaultValue: new DropAcceptor(), inherits: false);
     public static DropAcceptor GetDropAcceptor(Visual visual) => visual.GetValue(DropAcceptorProperty);
     public static void SetDropAcceptor(Visual visual, DropAcceptor value) => visual.SetValue(DropAcceptorProperty, value);
     

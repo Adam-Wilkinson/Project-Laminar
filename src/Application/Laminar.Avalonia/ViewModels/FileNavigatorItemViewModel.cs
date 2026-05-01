@@ -10,6 +10,7 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Laminar.Avalonia.Shapes;
+using Laminar.Avalonia.ViewModels.Services;
 using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.Storage.FileExplorer;
 using Laminar.Domain.Extensions;
@@ -26,19 +27,22 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
     private readonly SourcedObservableCollection<FileNavigatorItemViewModel>? _children;
     private readonly Func<ILaminarStorageItem, FileNavigatorItemViewModel> _fromCoreItemFactory;
     private readonly Func<StorageItemType, FileNavigatorItemViewModel> _fromItemTypeFactory;
-    private readonly Lock _childrenStateLock = new();
-    
-    private ChildrenState _childrenState = ChildrenState.Uninitialized;
+    private readonly Lock _stateLock = new();
+    private readonly FileExplorerLoadingQueue _loadingQueue;
+
+
     private string _name;
 
     public FileNavigatorItemViewModel(
         StorageItemType itemType,
         ILaminarFileBrowser fileBrowser,
+        FileExplorerLoadingQueue loadingQueue,
         Func<StorageItemType, FileNavigatorItemViewModel> factory)
     {
         Type = itemType;
         NameBeingSet = true;
         _fileBrowser = fileBrowser;
+        _loadingQueue = loadingQueue;
         _fromItemTypeFactory = type =>
         {
             var result = factory(type);
@@ -70,15 +74,36 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
     public FileNavigatorItemViewModel(
         ILaminarStorageItem coreItem, 
         ILaminarFileBrowser fileBrowser, 
-        Func<StorageItemType, FileNavigatorItemViewModel> factory) : this(TypeOf(coreItem), fileBrowser, factory)
+        FileExplorerLoadingQueue loadingQueue,
+        Func<StorageItemType, FileNavigatorItemViewModel> factory) : this(TypeOf(coreItem), fileBrowser, loadingQueue, factory)
     {
         CoreItem = coreItem;
     }
 
+    public TreeViewInitializationState InitializationState { get; private set; } = TreeViewInitializationState.Uninitialized;
+    
     public bool IsExpanded
     {
-        get => (CoreItem as ILaminarStorageFolder)?.IsExpanded ?? false; 
-        set => (CoreItem as ILaminarStorageFolder)?.IsExpanded = value;
+        get => (CoreItem as ILaminarStorageFolder)?.IsExpanded ?? false;
+        set
+        {
+            if (CoreItem is not ILaminarStorageFolder folder) return;
+
+            if (value)
+            {
+                EnsureChildrenLoaded();
+            }
+            
+            if (folder.IsExpanded == value)
+                return;
+
+            folder.IsExpanded = value;
+        }
+    }
+
+    private void EnsureChildrenLoaded()
+    {
+        _loadingQueue.Queue(this);
     }
 
     public Geometry? IconGeometry => (Type, IsExpanded) switch
@@ -112,24 +137,7 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
 
     public bool IsEffectivelyEnabled => CoreItem?.IsEffectivelyEnabled ?? false;
 
-    public IObservableCollection<FileNavigatorItemViewModel>? Children
-    {
-        get
-        {
-            ILaminarStorageFolder folder;
-            lock (_childrenStateLock)
-            {
-                if (CoreItem is not ILaminarStorageFolder coreFolder || _childrenState == ChildrenState.Initializing) return null;
-                if (_childrenState == ChildrenState.Initialized) return _children;
-                folder = coreFolder;
-                _childrenState = ChildrenState.Initializing;
-            }
-
-            _ = LoadChildrenAsync(folder);
-            
-            return null;
-        }
-    }
+    public IObservableCollection<FileNavigatorItemViewModel>? Children => _children;
     
     public string Name
     {
@@ -144,7 +152,7 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
                 Dispatcher.UIThread.InvokeAsync(async () => await InitializeFromName(Name));
                 return;
             }
-            
+                
             if (value != CoreItem.UserFriendlyName)
             {
                 Dispatcher.UIThread.InvokeAsync(async () => await _fileBrowser.Rename(CoreItem, Name));
@@ -168,14 +176,14 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
         
             field.FilterPropertyChanged(nameof(ILaminarStorageItem.Path)).OnNotification += 
                 (_, _) => Name = field.UserFriendlyName;
-
+            
             field.FilterPropertyChanged(nameof(ILaminarStorageFolder.IsExpanded)).OnNotification +=
                 (_, _) =>
                 {
                     OnPropertyChanged(nameof(IsExpanded));
                     OnPropertyChanged(nameof(IconGeometry));
                 };
-
+            
             field.FilterPropertyChanged(nameof(ILaminarStorageItem.IsEnabled)).OnNotification +=
                 (_, _) => OnPropertyChanged(nameof(IsEnabled));
             
@@ -188,6 +196,11 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
             OnPropertyChanged(nameof(CanChangeIsEnabled));
             OnPropertyChanged(nameof(IsEffectivelyEnabled));
             OnPropertyChanged(nameof(IsEnabled));
+
+            if (IsExpanded)
+            {
+                EnsureChildrenLoaded();
+            }
         }
     }
 
@@ -256,39 +269,70 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
         public int GetHashCode(FileNavigatorItemViewModel obj) => obj.Name.GetHashCode();
     }
 
-    private async Task LoadChildrenAsync(ILaminarStorageFolder folder)
+    public async Task LoadContentsAsync()
     {
-        try
+        ILaminarStorageFolder folder;
+        lock (_stateLock)
         {
-            var mapped = await Task.Run(() => folder.Contents.ObservableMap(_fromCoreItemFactory));
-
-            await Dispatcher.UIThread.InvokeAsync(() =>
+            if (InitializationState is not TreeViewInitializationState.Uninitialized) return;
+            if (CoreItem is not ILaminarStorageFolder coreFolder)
             {
-                _children?.ChangeSourceTo(mapped);
-                
-                lock (_childrenStateLock)
-                {
-                    _childrenState = ChildrenState.Initialized;
-                }
-
-                OnPropertyChanged(nameof(Children));
-            });
-        }
-        catch (Exception ex)
-        {
-            lock (_childrenStateLock)
-            {
-                _childrenState = ChildrenState.Uninitialized;
+                InitializationState = TreeViewInitializationState.ChildrenContentsLoaded;
+                return;
             }
 
-            ExceptionDispatchInfo.Capture(ex).Throw();
+            folder = coreFolder;
+            InitializationState = TreeViewInitializationState.ChildrenLoading;
+        }
+            
+        var mapped = folder.Contents.ObservableMap(_fromCoreItemFactory);
+        await Dispatcher.UIThread.InvokeAsync(() => _children?.ChangeSourceTo(mapped));
+
+        lock (_stateLock)
+        {
+            InitializationState = TreeViewInitializationState.ChildrenContentsUnloaded;
         }
     }
     
-    private enum ChildrenState
+    public async Task LoadChildrenContentsAsync()
     {
-        Uninitialized,
-        Initializing,
-        Initialized
+        lock (_stateLock)
+        {
+            if (Children is null)
+            {
+                InitializationState = TreeViewInitializationState.ChildrenContentsLoaded;
+                return;
+            }
+
+            if (InitializationState != TreeViewInitializationState.ChildrenContentsUnloaded) return;
+            InitializationState = TreeViewInitializationState.ChildrenContentsLoading;
+        }
+        
+        foreach (var child in Children)
+        {
+            await child.LoadContentsAsync();
+        }
+
+        lock (_stateLock)
+        {
+            InitializationState = TreeViewInitializationState.ChildrenContentsLoaded;
+        }
     }
+
+    public void ResetLoadState()
+    {
+        lock (_stateLock)
+        {
+            InitializationState = TreeViewInitializationState.Uninitialized;
+        }
+    }
+}
+    
+public enum TreeViewInitializationState
+{
+    Uninitialized,
+    ChildrenLoading,
+    ChildrenContentsUnloaded,
+    ChildrenContentsLoading,
+    ChildrenContentsLoaded,
 }

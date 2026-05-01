@@ -56,22 +56,10 @@
             </ItemsControl.ItemsPanel>
         </ItemsControl>
         <c:EditableLabel Name="ItemNameLabel"
-                         VerticalAlignment="Center" 
+                         VerticalAlignment="Center"
                          Text="{Binding Name, Mode=TwoWay}"
                          DisallowedChars="{x:Static vm:FileNavigatorItemViewModel.InvalidFileNameChars}"
                          IsBeingEdited="{Binding NameBeingSet, Mode=TwoWay}"
                          Padding="3"/>
-        
-        <DockPanel.Styles>
-            <Style Selector="DockPanel > ItemsControl#QuickAccess">
-                <Setter Property="Opacity" Value="0"/>
-                <Setter Property="IsHitTestVisible" Value="False"/>
-            </Style>
-            
-            <Style Selector="DockPanel:pointerover > ItemsControl#QuickAccess">
-                <Setter Property="Opacity" Value="1"/>
-                <Setter Property="IsHitTestVisible" Value="True"/>
-            </Style>
-        </DockPanel.Styles>
     </DockPanel>
 </UserControl>
