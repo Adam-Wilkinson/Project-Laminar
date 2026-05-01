@@ -40,9 +40,10 @@
                                     DataContext="{TemplateBinding DataContext,
                                         Converter={StaticResource ToolInstancer}, 
                                         ConverterParameter={StaticResource Tools.ExpandCollapseTreeViewTool}}"
+                                    Classes.UsesDefaultIcon="{Binding $parent[Border].((vm:ITreeViewItemViewModel)DataContext).IconGeometry, Converter={x:Static ObjectConverters.IsNull}}"
                                     Theme="{StaticResource ToolButton}" 
                                     VerticalAlignment="Stretch"
-                                    Width = "{s:UiScaled 24}"
+                                    Width = "{s:UiScaled 32}"
                                     Padding="3,0,0,0">
                                 <Button.Transitions>
                                     <Transitions>
@@ -89,13 +90,17 @@
         </Setter>
         
         <Style Selector="^ /template/ Button#PART_ExpandCollapseChevron">
-            <Setter Property="Opacity" Value="1"/>
             <Setter Property="IsHitTestVisible" Value="True"/>
+            <Style Selector="^.UsesDefaultIcon">
+                <Setter Property="Opacity" Value="1"/>
+            </Style>
         </Style>
         
         <Style Selector="^:empty /template/ Button#PART_ExpandCollapseChevron">
-            <Setter Property="Opacity" Value="0" />
             <Setter Property="IsHitTestVisible" Value="False"/>
+            <Style Selector="^.UsesDefaultIcon">
+                <Setter Property="Opacity" Value="0"/>
+            </Style>
         </Style>
         
         

@@ -86,11 +86,7 @@ public partial class Tool : StyledElement, ITemplate<object?, ToolInstance?>, IE
     
     public static readonly StyledProperty<Type?> DataTypeProperty = AvaloniaProperty.Register<Tool, Type?>(nameof(DataType), inherits: true);
 
-    public static readonly DirectProperty<Tool, Classes> QuickAccessProperty 
-        = AvaloniaProperty.RegisterDirect<Tool, Classes>(nameof(QuickAccess), tool => tool.QuickAccess);
-    
-    public static readonly DirectProperty<Tool, AvaloniaList<Tool>?> ChildToolsProperty 
-        = AvaloniaProperty.RegisterDirect<Tool, AvaloniaList<Tool>?>(nameof(ChildTools), tool => tool.ChildTools);
+    public static readonly DirectProperty<Tool, Classes> QuickAccessProperty = AvaloniaProperty.RegisterDirect<Tool, Classes>(nameof(QuickAccess), tool => tool.QuickAccess);
     
     public string NameKey { get; set; } = string.Empty;
 
@@ -132,7 +128,7 @@ public partial class Tool : StyledElement, ITemplate<object?, ToolInstance?>, IE
         set
         {
             field = value;
-            if (value is not null && IconTemplate is null)
+            if (value is not null)
             {
                 IconTemplate = new FuncDataTemplate(_ => true, (_, _) => new GeometryIcon { Data = value });   
             }

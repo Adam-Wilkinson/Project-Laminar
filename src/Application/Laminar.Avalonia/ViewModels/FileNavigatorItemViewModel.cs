@@ -5,9 +5,11 @@ using System.Linq;
 using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia.Media;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Laminar.Avalonia.Shapes;
 using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.Storage.FileExplorer;
 using Laminar.Domain.Extensions;
@@ -78,6 +80,14 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
         get => (CoreItem as ILaminarStorageFolder)?.IsExpanded ?? false; 
         set => (CoreItem as ILaminarStorageFolder)?.IsExpanded = value;
     }
+
+    public Geometry? IconGeometry => (Type, IsExpanded) switch
+    {
+        (StorageItemType.Script, _) => PathData.ScriptIcon,
+        (StorageItemType.Folder, false) => PathData.FolderIcon,
+        (StorageItemType.Folder, true) => PathData.FolderOpenIcon,
+        _ => PathData.ExclamationMark,
+    };
 
     public FileNavigatorItemViewModel? Parent { get; private set; }
 
@@ -159,8 +169,12 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
             field.FilterPropertyChanged(nameof(ILaminarStorageItem.Path)).OnNotification += 
                 (_, _) => Name = field.UserFriendlyName;
 
-            field.FilterPropertyChanged(nameof(ILaminarStorageFolder.IsExpanded)).OnNotification += 
-                (_, _) => OnPropertyChanged(nameof(IsExpanded));
+            field.FilterPropertyChanged(nameof(ILaminarStorageFolder.IsExpanded)).OnNotification +=
+                (_, _) =>
+                {
+                    OnPropertyChanged(nameof(IsExpanded));
+                    OnPropertyChanged(nameof(IconGeometry));
+                };
 
             field.FilterPropertyChanged(nameof(ILaminarStorageItem.IsEnabled)).OnNotification +=
                 (_, _) => OnPropertyChanged(nameof(IsEnabled));

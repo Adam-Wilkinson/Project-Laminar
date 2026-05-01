@@ -12,8 +12,9 @@ internal class UserPromptExceptionSink(DialogService dialogService) : IException
     {
         (string errorTitle, string errorMessage) = exception switch
         {
-            InvalidStorageItemNameException storageItemName => ("Item rename error", $"Invalid storage item name: '{storageItemName.Name}'"),
-            ErrorDecodingValueException decodingValue => ("Error decoding value", $"A value could not be properly decoded from file. Overriding with old value"),
+            InvalidStorageItemNameException {Name: var name} => ("Item rename error", $"Invalid storage item name: '{name}'"),
+            ErrorDecodingValueException => ("Error decoding value", $"A value could not be properly decoded from file. Overriding with old value"),
+            CannotMoveRootFolderException {FolderName: var folderName} => ("Cannot move item", $"The storage item '{folderName}' is a root folder, and therefore cannot be moved"),
             _ => ("Error executing action", exception.Message)
         };
 

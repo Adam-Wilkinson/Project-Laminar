@@ -70,8 +70,11 @@ public partial class FileNavigatorViewModel(
         }
 
         _currentHoverMove = (targetParent, targetIndex);
-        draggedItem.Parent?.Children?.Remove(draggedItem);
-        targetParent.Children?.Insert(targetIndex, draggedItem);   
+        if (draggedItem.Parent is not null)
+        {
+            draggedItem.Parent.Children?.Remove(draggedItem);
+            targetParent.Children?.Insert(targetIndex, draggedItem);   
+        }
     }
 
     [RelayCommand]
@@ -106,9 +109,9 @@ public partial class FileNavigatorViewModel(
     
     private static bool IsValidMove(FileNavigatorItemViewModel draggedItem, FileNavigatorItemViewModel targetParent, int targetIndex)
     {
-        if (targetParent.Children is null) return false;
+        if (targetParent.Children is null || draggedItem.Parent is null) return false;
         
-        int? indexInParent = draggedItem.Parent?.Children?.IndexOf(draggedItem); 
+        int? indexInParent = draggedItem.Parent.Children?.IndexOf(draggedItem); 
         
         // The parent does not contain its child, or this hover does not constitute a move
         if (indexInParent == -1 || (indexInParent == targetIndex && Equals(draggedItem.Parent, targetParent))) return false;

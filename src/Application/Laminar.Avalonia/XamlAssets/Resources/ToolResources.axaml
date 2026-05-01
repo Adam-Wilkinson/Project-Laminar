@@ -27,30 +27,35 @@
     <!-- Tool that toggles whether a TreeViewItem is expanded -->
     <t:PropertySetterTool NameKey="Toggle Expanded" 
                           x:DataType="vm:ITreeViewItemViewModel" 
-                          x:Key="Tools.ExpandCollapseTreeViewTool" 
+                          x:Key="Tools.ExpandCollapseTreeViewTool"
                           PropertyBinding="{Binding IsExpanded}">
 	    <t:Tool.IconTemplate>
 		    <DataTemplate DataType="vm:ITreeViewItemViewModel">
-			    <Path Stroke="{DynamicResource {x:Static init:ColorInitialization.LaminarForegroundKey}}"
-			          StrokeThickness="2"
-			          Margin="5"
-			          Data="M 1,0 10,10 l -9,10 -1,-1 L 8,10 -0,1 Z"
-			          Name="PART_ExpandCollapseChevron"
-			          Classes.IsExpanded="{Binding IsExpanded}">
-				    <Path.Styles>
-					    <Style Selector="Path:not(.IsExpanded)">
-						    <Setter Property="RenderTransform" Value="rotate(0deg)"/>
-					    </Style>
-					    <Style Selector="Path.IsExpanded">
-						    <Setter Property="RenderTransform" Value="rotate(90deg)"/>
-					    </Style>
-				    </Path.Styles>
-				    <Path.Transitions>
-					    <Transitions>
-						    <TransformOperationsTransition Property="RenderTransform" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
-					    </Transitions>
-				    </Path.Transitions>
-			    </Path>
+			    <Panel>
+				    <t:GeometryIcon Data="{Binding IconGeometry}"
+				                    IsVisible="{Binding IconGeometry, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+				    <Path Stroke="{DynamicResource {x:Static init:ColorInitialization.LaminarForegroundKey}}"
+				          IsVisible="{Binding IconGeometry, Converter={x:Static ObjectConverters.IsNull}}"
+				          StrokeThickness="2"
+				          Margin="5"
+				          Data="M 1,0 10,10 l -9,10 -1,-1 L 8,10 -0,1 Z"
+				          Name="PART_ExpandCollapseChevron"
+				          Classes.IsExpanded="{Binding IsExpanded}">
+					    <Path.Styles>
+						    <Style Selector="Path:not(.IsExpanded)">
+							    <Setter Property="RenderTransform" Value="rotate(0deg)"/>
+						    </Style>
+						    <Style Selector="Path.IsExpanded">
+							    <Setter Property="RenderTransform" Value="rotate(90deg)"/>
+						    </Style>
+					    </Path.Styles>
+					    <Path.Transitions>
+						    <Transitions>
+							    <TransformOperationsTransition Property="RenderTransform" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
+						    </Transitions>
+					    </Path.Transitions>
+				    </Path>
+			    </Panel>
 		    </DataTemplate>
 	    </t:Tool.IconTemplate>
     </t:PropertySetterTool>

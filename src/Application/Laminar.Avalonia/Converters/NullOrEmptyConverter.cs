@@ -14,7 +14,7 @@ public class NullOrEmptyConverter : IValueConverter
             ICollection collection => collection.Count > 0,
             string str => string.IsNullOrWhiteSpace(str),
             KeyGesture keyGesture => keyGesture is { Key: Key.None, KeyModifiers: KeyModifiers.None },
-            _ => value is not null
+            _ => value is null
         };
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)

@@ -80,7 +80,7 @@ public class DragDropHandler(ILogger<DragDropHandler> logger) : IAfterApplicatio
         
         if (_state != DragDropState.Drag || _currentDragInfo is not { } currentDragInfo || !e.NewValue.HasValue || e.NewValue == MouseButton.None) return;
 
-        if (e.Sender is not Control senderControl || !Equals(senderControl.DataContext, currentDragInfo.EventArgs.DraggingControl.DataContext)) return;
+        if (e.Sender is not Control senderControl || currentDragInfo.EventArgs.DraggingControl.IsLoaded || !Equals(senderControl.DataContext, currentDragInfo.EventArgs.DraggingControl.DataContext)) return;
         
         PositionAnimation.SetDuration(senderControl, TimeSpan.Zero);
         _currentDragInfo = currentDragInfo with

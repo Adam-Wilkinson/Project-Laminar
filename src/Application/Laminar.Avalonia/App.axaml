@@ -57,13 +57,7 @@
 		<StyleInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/Fluent/Fluent.xaml" />
 		<FluentTheme />
 		<StyleInclude Source="XamlAssets/Styles/FontStyles.axaml"/>
-		
-		<Style Selector="FlyoutPresenter.no-border-flyout">
-			<Setter Property="Padding" Value="0"/>
-			<Setter Property="Margin" Value="0"/>
-			<Setter Property="BorderThickness" Value="0"/>
-			<Setter Property="BorderBrush" Value="Transparent"/>
-		</Style>
+		<StyleInclude Source="XamlAssets/Styles/NoBorderFlyoutStyles.axaml"/>
 	</Application.Styles>
 
 	<Application.DataTemplates>

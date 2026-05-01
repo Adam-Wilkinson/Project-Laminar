@@ -55,21 +55,6 @@
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
         </ItemsControl>
-        <Viewbox Width="{Binding #ItemNameLabel.Bounds.Height}"
-                 Height="{Binding #ItemNameLabel.Bounds.Height}">
-            <PathIcon VerticalAlignment="Stretch" 
-                      HorizontalAlignment="Stretch"
-                      Margin="10,5"
-                      DockPanel.Dock="Left">
-                <PathIcon.Data>
-                    <MultiBinding Converter="{StaticResource SwitchConverter}">
-                        <Binding Path="Type"/>
-                        <Binding Source="{x:Static shapes:PathData.FolderIcon}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static fe:StorageItemType.Folder}"/>
-                        <Binding Source="{x:Static shapes:PathData.ScriptIcon}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static fe:StorageItemType.Script}"/>
-                    </MultiBinding>
-                </PathIcon.Data>
-            </PathIcon>
-        </Viewbox>
         <c:EditableLabel Name="ItemNameLabel"
                          VerticalAlignment="Center" 
                          Text="{Binding Name, Mode=TwoWay}"
@@ -78,12 +63,12 @@
                          Padding="3"/>
         
         <DockPanel.Styles>
-            <Style Selector="DockPanel > ItemsControl#PART_QuickAccess">
+            <Style Selector="DockPanel > ItemsControl#QuickAccess">
                 <Setter Property="Opacity" Value="0"/>
                 <Setter Property="IsHitTestVisible" Value="False"/>
             </Style>
             
-            <Style Selector="DockPanel:pointerover > ItemsControl#PART_QuickAccess">
+            <Style Selector="DockPanel:pointerover > ItemsControl#QuickAccess">
                 <Setter Property="Opacity" Value="1"/>
                 <Setter Property="IsHitTestVisible" Value="True"/>
             </Style>
