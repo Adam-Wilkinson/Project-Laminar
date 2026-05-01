@@ -35,7 +35,6 @@ public class ToolInstance : StyledElement, IEnumerable<ToolInstance>
 
     private void ToolCollectionChanged(object? sender, NotifyCollectionChangedEventArgs? e)
     {
-        Debug.WriteLine($"Tool {Tool.NameKey} children has changed");
         ChildTools?.Clear();
         if (Tool.ChildTools is not { } newToolChildren) return;
         
