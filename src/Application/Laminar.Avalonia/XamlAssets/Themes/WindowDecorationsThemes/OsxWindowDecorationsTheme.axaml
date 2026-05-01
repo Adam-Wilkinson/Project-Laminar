@@ -1,11 +1,10 @@
-<Styles xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:vm="using:Laminar.Avalonia.ViewModels"
-        xmlns:t="using:Laminar.Avalonia.ToolSystem"
-        xmlns:s="using:Laminar.Avalonia.Settings">
-
-
-  <Style Selector="WindowDrawnDecorations.Osx">
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:vm="using:Laminar.Avalonia.ViewModels"
+                    xmlns:t="using:Laminar.Avalonia.ToolSystem"
+                    xmlns:s="using:Laminar.Avalonia.Settings">
+  
+  <ControlTheme TargetType="WindowDrawnDecorations" x:Key="OsxWindowDecorations">
     <Setter Property="DefaultTitleBarHeight" Value="30"/>
     <Setter Property="DefaultFrameThickness" Value="1"/>
     <Setter Property="DefaultShadowThickness" Value="8"/>
@@ -264,5 +263,5 @@
     <Style Selector="^:fullscreen /template/ Panel#PART_TitleBar">
       <Setter Property="IsVisible" Value="False" />
     </Style>
-  </Style>
-</Styles>
+  </ControlTheme>
+</ResourceDictionary>

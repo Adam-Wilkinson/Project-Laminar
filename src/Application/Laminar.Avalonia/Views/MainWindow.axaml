@@ -1,24 +1,33 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:Laminar.Avalonia.ViewModels"
-        xmlns:v="using:Laminar.Avalonia.Views"
+        xmlns:r="using:System.Runtime.InteropServices"
         xmlns:t="using:Laminar.Avalonia.ToolSystem"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:s="using:Laminar.Avalonia.Settings"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:initializationTargets="clr-namespace:Laminar.Avalonia.InitializationTargets"
+        xmlns:design="clr-namespace:Laminar.Avalonia.ViewModels.Design"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450" d:DataContext="{x:Static design:DesignViewModel.MainWindow}"
         x:Class="Laminar.Avalonia.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/ProjectLaminarLogo.png"
         Title="Project: Laminar"
-        xmlns:s="using:Laminar.Avalonia.Settings"
-        xmlns:initializationTargets="clr-namespace:Laminar.Avalonia.InitializationTargets"
-        xmlns:design="clr-namespace:Laminar.Avalonia.ViewModels.Design"
         Foreground="{DynamicResource {x:Static initializationTargets:ColorInitialization.LaminarForegroundKey}}"
         Background="{DynamicResource LaminarBackground}"
         ExtendClientAreaToDecorationsHint="True">
 	<Window.Resources>
 		<WindowState x:Key="FullscreenWindowState">FullScreen</WindowState>
 	</Window.Resources>
+	
+	<Window.WindowDecorationsTheme>
+		<MultiBinding Converter="{StaticResource SwitchConverter}">
+			<Binding Path="Value" DataType="s:OptionsSetting" Source="{StaticResource SettingsRoot.InterfaceSettings.TitlebarTheme}"/>
+			<Binding Source="{StaticResource WindowsWindowDecorations}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static r:OSPlatform.Windows}"/>
+			<Binding Source="{StaticResource OsxWindowDecorations}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static r:OSPlatform.OSX}"/>
+			<Binding Source="{StaticResource LinuxWindowDecorations}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static r:OSPlatform.Linux}"/>
+		</MultiBinding>
+	</Window.WindowDecorationsTheme>
 	
 	<t:ToolMenu.ContextToolbox>
 		<t:Toolbox NameKey="Window" DataType="vm:MainWindowViewModel">
@@ -44,19 +53,18 @@
 		<DockPanel.Styles>
 			<Style Selector="ContentControl#SettingsMenu">
 				<Setter Property="IsHitTestVisible" Value="False"/>
-				<Setter Property="RenderTransform" Value="{Binding $parent[v:MainWindow].HiddenSettingsRenderTransform}"/>
+				<Setter Property="Opacity" Value="0"/>
+				<Setter Property="RenderTransform" Value="translatey(-225px)"/>
 				<Setter Property="Transitions">
 					<Transitions>
 						<TransformOperationsTransition Property="RenderTransform" Duration="{s:Setting InterfaceSettings.AnimationDuration}" Easing="{DynamicResource AnimationEasing}"/>
+						<DoubleTransition Property="Opacity" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
 					</Transitions>
 				</Setter>
 				<Style Selector="^.IsOpen">
 					<Setter Property="IsHitTestVisible" Value="True"/>
-					<Setter Property="RenderTransform">
-						<TransformGroup>
-							<TranslateTransform X="0" Y="0"/>
-						</TransformGroup>
-					</Setter>
+					<Setter Property="Opacity" Value="1"/>
+					<Setter Property="RenderTransform" Value="translatey(0px)"/>
 				</Style>
 			</Style>
 			

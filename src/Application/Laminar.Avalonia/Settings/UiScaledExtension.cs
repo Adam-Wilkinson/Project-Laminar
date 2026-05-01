@@ -1,30 +1,36 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Transactions;
 using Avalonia;
 using Avalonia.Data;
 using Avalonia.Data.Converters;
 using Avalonia.Markup.Xaml;
 using Avalonia.Markup.Xaml.MarkupExtensions;
-using Laminar.Avalonia.Converters;
 
 namespace Laminar.Avalonia.Settings;
 
 public class UiScaledExtension : MarkupExtension
 {
     private static readonly MultiplyBindingsConverter Converter = new();
-    private readonly BindingBase? _valueToScaleBinding;
     private readonly StaticResourceExtension? _valueToScaleResource;
-
-    public UiScaledExtension(double valueToScale)
-    {
-        _valueToScaleBinding = CompiledBinding.Create<double, double>(x => x, source: valueToScale);        
-    }
+    private readonly BindingBase? _valueToScaleBinding;
     
-    public UiScaledExtension(string valueToScale)
+    private BindingBase? _uiScaleBinding;
+
+    public UiScaledExtension(object valueToScale)
     {
-        _valueToScaleBinding = CompiledBinding.Create<string, string>(x => x, source: valueToScale);
+        switch (valueToScale)
+        {
+            case BindingBase valueToScaleBinding:
+                _valueToScaleBinding = valueToScaleBinding;
+                break;
+            case StaticResourceExtension valueToScaleResource:
+                _valueToScaleResource = valueToScaleResource;
+                break;
+            default:
+                _valueToScaleBinding = CompiledBinding.Create<object, object>(x => x, source: valueToScale);
+                break;
+        }
     }
 
     public UiScaledExtension(BindingBase valueToScaleBinding)
@@ -39,10 +45,13 @@ public class UiScaledExtension : MarkupExtension
     
     public override BindingBase ProvideValue(IServiceProvider serviceProvider)
     {
-        if (new StaticResourceExtension("SettingsRoot.InterfaceSettings.UiScale").ProvideValue(serviceProvider) is not DoubleSetting uiScaleSetting)
-            throw new InvalidOperationException();
+        if (_uiScaleBinding is null)
+        {
+            if (new StaticResourceExtension("SettingsRoot.InterfaceSettings.UiScale").ProvideValue(serviceProvider) is not DoubleSetting uiScaleSetting)
+                throw new InvalidOperationException();
 
-        BindingBase uiScaleBinding = CompiledBinding.Create<Setting, object>(x => x.Value, source: uiScaleSetting);
+            _uiScaleBinding = CompiledBinding.Create<Setting, object>(x => x.Value, source: uiScaleSetting);   
+        }
         
         BindingBase? valueToScaleBinding = _valueToScaleBinding;
         if (valueToScaleBinding is null)
@@ -53,7 +62,7 @@ public class UiScaledExtension : MarkupExtension
 
         return new MultiBinding
         {
-            Bindings = [valueToScaleBinding, uiScaleBinding],
+            Bindings = [valueToScaleBinding, _uiScaleBinding],
             Converter = Converter
         };
     }

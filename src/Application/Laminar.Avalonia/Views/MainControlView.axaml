@@ -52,7 +52,7 @@
                         <Panel ClipToBounds="False">
                             <Rectangle Name="PART_DefaultResizeZone"
                                        MinHeight="2"
-                                       MinWidth="6"
+                                       MinWidth="4"
                                        Cursor="SizeWestEast"
                                        Fill="#0000"/>
                         </Panel>

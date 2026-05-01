@@ -47,6 +47,7 @@
                       Height="{Binding #ItemNameLabel.Bounds.Height}"
                       VerticalAlignment="Stretch"
                       HorizontalAlignment="Right"
+                      ClipToBounds="True"
                       ItemsSource="{t:QuickAccess {Binding Type, Converter={StaticResource ToStringConverter}}}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
