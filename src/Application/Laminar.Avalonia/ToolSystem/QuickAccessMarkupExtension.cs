@@ -29,7 +29,7 @@ public class QuickAccessExtension : MarkupExtension
     {
         if (new StaticResourceExtension(QuickAccessRepositoryKey).ProvideValue(serviceProvider) is not QuickAccessRepository repository)
             throw new InvalidOperationException("Quick access markup extension requires a repository");
-
+        
         return new MultiBinding
         {
             Bindings = [new CompiledBinding(), new CompiledBinding { Source = repository }, _valueKeyBinding ],

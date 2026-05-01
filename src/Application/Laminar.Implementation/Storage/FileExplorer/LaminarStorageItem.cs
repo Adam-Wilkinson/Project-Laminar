@@ -45,7 +45,14 @@ internal abstract class LaminarStorageItem : ILaminarStorageItem
     public virtual FileSystemPath Path => ParentFolder?.Path.ChildPath(_nameWithExtension) 
                                           ?? throw new InvalidOperationException("Non-root storage items must have a parent");
 
-    public string UserFriendlyName => _fileSystem.GetNameWithoutExtension(Path);
+    public string UserFriendlyName
+    {
+        get
+        {
+            var possible = _fileSystem.GetNameWithoutExtension(Path);
+            return string.IsNullOrWhiteSpace(possible) ? Path.NameAndExtension : possible;
+        }
+    }
 
     public bool IsEnabled
     {

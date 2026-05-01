@@ -39,10 +39,9 @@ public class PersistentDataPoint : IPersistentDataPoint
         {
             if (_encodedValue is not null) return _encodedValue;
             
-            if (Owner.Transcoder is null || State is not DataPointState.Active || _persistentValue is null)
-            {
-                throw new InvalidOperationException();
-            }
+            if (Owner.Transcoder is null) throw new InvalidOperationException("Cannot read encoded value without a transcoder");
+            if (State is not DataPointState.Active) throw new InvalidOperationException("Cannot read encoded value without a data point state");
+            if (_persistentValue is null) throw new  InvalidOperationException("Cannot read encoded value without a persistent data point");
 
             _encodedValue = _persistentValue.GetEncoded(Owner.Transcoder);
             return _encodedValue;

@@ -21,7 +21,9 @@
                                   TransitionEasing="{DynamicResource AnimationEasing}"
                                   ZIndex="400"
                                   ClipToBounds="False">
-            <ContentControl Name="FileNavigator" 
+            <ContentControl Name="FileNavigator"
+                            CornerRadius="10"
+                            Background="{DynamicResource UiLayer}"
                             Content="{Binding FileNavigator}" 
                             asp:ResizeWidget.TargetSize="{Binding CurrentSidebarWidth, Mode=TwoWay}">
                 <ContentControl.Tag>
@@ -50,7 +52,7 @@
                         <Panel ClipToBounds="False">
                             <Rectangle Name="PART_DefaultResizeZone"
                                        MinHeight="2"
-                                       MinWidth="2"
+                                       MinWidth="6"
                                        Cursor="SizeWestEast"
                                        Fill="#0000"/>
                         </Panel>

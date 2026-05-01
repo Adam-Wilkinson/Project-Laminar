@@ -1,29 +1,114 @@
 using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.Transactions;
+using Avalonia;
 using Avalonia.Data;
+using Avalonia.Data.Converters;
 using Avalonia.Markup.Xaml;
 using Avalonia.Markup.Xaml.MarkupExtensions;
 using Laminar.Avalonia.Converters;
 
 namespace Laminar.Avalonia.Settings;
 
-public class UiScaledExtension(string valueToScale) : MarkupExtension
+public class UiScaledExtension : MarkupExtension
 {
-    private static readonly MultiplyConverter Converter = new();
+    private static readonly MultiplyBindingsConverter Converter = new();
+    private readonly BindingBase? _valueToScaleBinding;
+    private readonly StaticResourceExtension? _valueToScaleResource;
+
+    public UiScaledExtension(double valueToScale)
+    {
+        _valueToScaleBinding = CompiledBinding.Create<double, double>(x => x, source: valueToScale);        
+    }
+    
+    public UiScaledExtension(string valueToScale)
+    {
+        _valueToScaleBinding = CompiledBinding.Create<string, string>(x => x, source: valueToScale);
+    }
+
+    public UiScaledExtension(BindingBase valueToScaleBinding)
+    {
+        _valueToScaleBinding = valueToScaleBinding;
+    }
+
+    public UiScaledExtension(StaticResourceExtension staticResource)
+    {
+        _valueToScaleResource = staticResource;
+    }
     
     public override BindingBase ProvideValue(IServiceProvider serviceProvider)
     {
         if (new StaticResourceExtension("SettingsRoot.InterfaceSettings.UiScale").ProvideValue(serviceProvider) is not DoubleSetting uiScaleSetting)
             throw new InvalidOperationException();
 
-        return new ReflectionBinding(nameof(Setting.Value))
+        BindingBase uiScaleBinding = CompiledBinding.Create<Setting, object>(x => x.Value, source: uiScaleSetting);
+        
+        BindingBase? valueToScaleBinding = _valueToScaleBinding;
+        if (valueToScaleBinding is null)
         {
-            Source = uiScaleSetting,
-            Converter = Converter,
-            ConverterParameter = valueToScale
+            ArgumentNullException.ThrowIfNull(_valueToScaleResource);
+            valueToScaleBinding = CompiledBinding.Create<object, object>(x => x, source: _valueToScaleResource.ProvideValue(serviceProvider)); 
+        }
+
+        return new MultiBinding
+        {
+            Bindings = [valueToScaleBinding, uiScaleBinding],
+            Converter = Converter
         };
-         
-            //CompiledBinding.Create<DoubleSetting, object>(setting => setting.Value, converter: Converter,
-            //converterParameter: valueToScale, source: uiScaleSetting);
     }
+
+    private class MultiplyBindingsConverter : IMultiValueConverter
+    {
+        private static readonly BindingNotification NotSupportedNotification
+            = new(new NotSupportedException(), BindingErrorType.Error);
+        
+        public object? Convert(IList<object?> values, Type targetType, object? parameter, CultureInfo culture)
+        {
+            if (targetType == typeof(double))
+            {
+                return (values[0], values[1]) switch
+                {
+                    (double d1, double d2) => d1 * d2,
+                    (string s, double d) => double.Parse(s) * d,
+                    (double d, string s) => double.Parse(s) * d,
+                    (string s1, string s2) => double.Parse(s1) * double.Parse(s2),
+                    _ => NotSupportedNotification,
+                };
+            }
+            
+            if (targetType == typeof(Thickness))
+            {
+                return (values[0], values[1]) switch
+                {
+                    (Thickness t, double d) => t * d,
+                    (double d, Thickness t) => t * d,
+                    (string s, double d) => Thickness.Parse(s) * d,
+                    (double d, string s) => Thickness.Parse(s) * d,
+                    (Thickness t, string s) => t * double.Parse(s),
+                    (string s, Thickness t) => t * double.Parse(s),
+                    _ => NotSupportedNotification
+                };
+            }
+
+            if (targetType == typeof(CornerRadius))
+            {
+                return (values[0], values[1]) switch
+                {
+                    (CornerRadius c, double d) => Multiply(c, d),
+                    (double d, CornerRadius c) => Multiply(c, d),
+                    (string s, double d) => Multiply(CornerRadius.Parse(s), d),
+                    (double d, string s) => Multiply(CornerRadius.Parse(s), d),
+                    (CornerRadius c, string s) => Multiply(c, double.Parse(s)),
+                    (string s, CornerRadius c) => Multiply(c, double.Parse(s)),
+                    _ => NotSupportedNotification,
+                };
+            }
+
+            return NotSupportedNotification;
+        }
+    }
+    
+    private static CornerRadius Multiply(CornerRadius radius, double factor) => new(radius.TopLeft * factor,
+        radius.TopRight * factor, radius.BottomRight * factor, radius.BottomLeft * factor);
 }
