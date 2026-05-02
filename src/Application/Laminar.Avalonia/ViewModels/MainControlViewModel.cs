@@ -8,11 +8,14 @@ public partial class MainControlViewModel : ViewModelBase, IDisposable
 {
     private readonly ScopedViewModel<FileNavigatorViewModel> _scopedFileNavigator;
     
-    public MainControlViewModel(IServiceProvider serviceProvider)
+    public MainControlViewModel(IServiceProvider serviceProvider, NodePickerViewModel nodePicker)
     {
         _scopedFileNavigator = new ScopedViewModel<FileNavigatorViewModel>(serviceProvider);
+        NodePicker = nodePicker;
         OnExpandedSidebarWidthChanged(ExpandedSidebarWidth);
     }
+
+    public NodePickerViewModel NodePicker { get; }
     
     [Persistent, ObservableProperty]
     public partial bool SidebarExpanded { get; set; } = true;

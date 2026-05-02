@@ -42,16 +42,30 @@
                 </ContentControl.Styles>
             </ContentControl>
         </asp:AdjustableStackPanel>
-        <Border CornerRadius="10" Background="{DynamicResource UiLayer}">
-            <TextBlock Classes="h2" HorizontalAlignment="Center" VerticalAlignment="Center">The script editor</TextBlock>
-        </Border>
+        <DockPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <asp:AdjustableStackPanel DockPanel.Dock="Top"
+                                      HorizontalAlignment="Stretch"
+                                      VerticalAlignment="Top"
+                                      TransitionDuration="{s:Setting InterfaceSettings.AnimationDuration}"
+                                      TransitionEasing="{DynamicResource AnimationEasing}">
+                <ContentControl Content="{Binding NodePicker}"
+                                CornerRadius="10" 
+                                Background="{DynamicResource UiLayer}"
+                                HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                                asp:ResizeWidget.TargetSize="{Binding NodePicker.Height, Mode=TwoWay}"/>
+            </asp:AdjustableStackPanel>
+            
+            <Border CornerRadius="10" Background="{DynamicResource UiLayer}">
+                <TextBlock Classes="h2" HorizontalAlignment="Center" VerticalAlignment="Center">The script editor</TextBlock>
+            </Border>
+        </DockPanel>
         <DockPanel.Resources>
             <ControlTheme x:Key="{x:Type asp:ResizeWidget}" TargetType="{x:Type asp:ResizeWidget}">
                 <Setter Property="Template">
                     <ControlTemplate>
                         <Panel ClipToBounds="False">
                             <Rectangle Name="PART_DefaultResizeZone"
-                                       MinHeight="2"
+                                       MinHeight="4"
                                        MinWidth="4"
                                        Cursor="SizeWestEast"
                                        Fill="#0000"/>
