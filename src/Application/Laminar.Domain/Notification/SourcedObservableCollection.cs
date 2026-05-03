@@ -178,12 +178,53 @@ public class SourcedObservableCollection<T> : IObservableCollection<T> where T :
         }
         
         // Finally, Add pass:
-        for (int i = 0; i < numberOfNewItems; i++)
+        if (numberOfNewItems <= 0)
         {
-            Insert(newItemIndices[i], sourceList[newItemIndices[i]]);
+            _matchesSource = true;
+            return;
         }
         
+        int rangeStart = newItemIndices[0];
+        int previous = rangeStart;
+        int contiguousCount = 1;
+
+        for (int i = 1; i < numberOfNewItems; i++)
+        {
+            int current = newItemIndices[i];
+
+            if (current == previous + 1)
+            {
+                contiguousCount++;
+            }
+            else
+            {
+                EmitRange(rangeStart, contiguousCount);
+
+                rangeStart = current;
+                contiguousCount = 1;
+            }
+
+            previous = current;
+        }
+
+        EmitRange(rangeStart, contiguousCount);
+        
         _matchesSource = true;
+        return;
+
+        void EmitRange(int start, int emitCount)
+        {
+            if (emitCount == 1)
+            {
+                Insert(start, sourceList[start]);
+            }
+            else
+            {
+                InsertRange(
+                    start,
+                    sourceList.Skip(start).Take(emitCount));
+            }
+        }
     }
     
     public void Add(T item)

@@ -286,7 +286,7 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
         }
             
         var mapped = folder.Contents.ObservableMap(_fromCoreItemFactory);
-        await Dispatcher.UIThread.InvokeAsync(() => _children?.ChangeSourceTo(mapped));
+        await Dispatcher.UIThread.InvokeAsync(() => _children?.ChangeSourceTo(mapped), DispatcherPriority.ContextIdle);
 
         lock (_stateLock)
         {
