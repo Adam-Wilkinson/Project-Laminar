@@ -1,6 +1,6 @@
 ﻿using System.Linq;
-using Laminar.Contracts.Notification;
 using Laminar.Contracts.Scripting.NodeWrapping;
+using Laminar.Domain.Notification;
 using Laminar.PluginFramework;
 using Laminar.PluginFramework.NodeSystem;
 using Laminar.PluginFramework.NodeSystem.Components;

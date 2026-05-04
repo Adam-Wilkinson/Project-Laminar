@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using Laminar.Contracts.Notification;
+using Laminar.Domain.Notification;
 using Laminar.PluginFramework.NodeSystem;
 using Laminar.PluginFramework.NodeSystem.IO.Value;
 using Laminar.PluginFramework.UserInterface;

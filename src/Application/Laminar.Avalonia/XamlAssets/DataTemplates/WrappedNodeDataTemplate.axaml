@@ -1,0 +1,31 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:s="using:Laminar.Contracts.Scripting.NodeWrapping"
+                    xmlns:comp="using:Laminar.PluginFramework.NodeSystem.Components"
+                    xmlns:init="using:Laminar.Avalonia.InitializationTargets"
+                    xmlns:c="using:Laminar.Avalonia.Controls">
+    <DataTemplate DataType="comp:INodeRow" x:Key="NodeRowDataTemplate">
+        <Panel>
+            <Rectangle Fill="{Binding InputConnector?.ColorHex, TargetNullValue={x:Static Brushes.White}}" 
+                       Width="5" 
+                       Height="5" 
+                       HorizontalAlignment="Left" 
+                       IsVisible="{Binding InputConnector, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+            <Rectangle Fill="{Binding OutputConnector?.ColorHex, TargetNullValue={x:Static Brushes.White}}" 
+                       Width="5" 
+                       Height="5" 
+                       HorizontalAlignment="Left" 
+                       IsVisible="{Binding OutputConnector, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+            <ContentControl Content="{Binding CentralDisplay}"/>
+        </Panel>
+    </DataTemplate>
+    
+    <DataTemplate DataType="s:IWrappedNode" x:Key="WrappedNodeDataTemplate">
+        <DockPanel>
+            <ContentControl DockPanel.Dock="Top"
+                            Content="{Binding NameRow}" 
+                            Background="{DynamicResource {x:Static init:ColorInitialization.LaminarAccentBackgroundKey}}"/> 
+            <ItemsControl ItemsSource="{Binding Rows}"/>
+        </DockPanel>
+    </DataTemplate>
+</ResourceDictionary>

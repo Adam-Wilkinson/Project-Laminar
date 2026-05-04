@@ -1,4 +1,4 @@
-﻿using Laminar.Contracts.Notification;
+﻿using Laminar.Domain.Notification;
 using Laminar.PluginFramework.NodeSystem;
 
 namespace Laminar.Contracts.Scripting.NodeWrapping;

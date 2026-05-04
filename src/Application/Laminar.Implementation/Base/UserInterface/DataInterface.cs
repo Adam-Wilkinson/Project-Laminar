@@ -2,7 +2,6 @@ using System;
 using System.ComponentModel;
 using Laminar.Contracts.Base.UserInterface;
 using Laminar.PluginFramework.UserInterface;
-using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
 namespace Laminar.Implementation.Base.UserInterface;
 

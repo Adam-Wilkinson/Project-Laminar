@@ -10,6 +10,7 @@
 		<ResourceDictionary>
 			<ResourceDictionary.MergedDictionaries>
 				<ResourceInclude Source="XamlAssets/DataTemplates/SettingDataTemplate.axaml"/>
+				<ResourceInclude Source="XamlAssets/DataTemplates/WrappedNodeDataTemplate.axaml"/>
 				<ResourceInclude Source="XamlAssets/Resources/LaminarColorResources.axaml"/>
 				<ResourceInclude Source="XamlAssets/Resources/ToolResources.axaml"/>
 				<ResourceInclude Source="XamlAssets/Resources/SettingsResources.axaml"/>
@@ -65,6 +66,8 @@
 		<DataTemplate DataType="t:ToolInstance">
 			<Button Theme="{StaticResource ToolButton}"/>
 		</DataTemplate>
+		<StaticResource ResourceKey="NodeRowDataTemplate"/>
+		<StaticResource ResourceKey="WrappedNodeDataTemplate"/>
 	</Application.DataTemplates>
 	
 	<Application.RequestedThemeVariant>

@@ -1,7 +1,7 @@
 ﻿using System;
 using Laminar.Contracts.Base;
 using Laminar.Contracts.Base.UserInterface;
-using Laminar.Contracts.Notification;
+using Laminar.Domain.Notification;
 using Laminar.Implementation.Scripting.Connections;
 using Laminar.PluginFramework.NodeSystem;
 using Laminar.PluginFramework.NodeSystem.Connectors;

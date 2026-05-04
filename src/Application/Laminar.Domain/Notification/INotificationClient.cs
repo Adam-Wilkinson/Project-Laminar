@@ -1,4 +1,4 @@
-﻿namespace Laminar.Contracts.Notification;
+﻿namespace Laminar.Domain.Notification;
 
 public interface INotificationClient
 {

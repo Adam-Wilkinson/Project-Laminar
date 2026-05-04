@@ -1,5 +1,4 @@
-﻿using System;
-using Laminar.PluginFramework.NodeSystem.Connectors;
+﻿using Laminar.PluginFramework.NodeSystem.Connectors;
 
 namespace Laminar.PluginFramework.NodeSystem.Components;
 

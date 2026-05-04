@@ -1,5 +1,4 @@
 ﻿using System;
-using Laminar.Contracts.Notification;
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Domain.Notification;
 using Laminar.Domain.ValueObjects;
