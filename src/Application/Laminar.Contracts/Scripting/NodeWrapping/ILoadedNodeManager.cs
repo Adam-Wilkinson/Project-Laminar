@@ -7,5 +7,5 @@ public interface ILoadedNodeManager
 {
     public ItemCategory<IWrappedNode> LoadedNodes { get; }
 
-    public void AddNodeToCatagory<TNode>(TNode newNode, string catagoryPath) where TNode : INode, new();
+    public void AddNodeToCategory<TNode>(TNode newNode, string categoryPath) where TNode : INode, new();
 }

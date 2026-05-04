@@ -109,7 +109,7 @@
             <Setter Property="Flyout">
                 <!-- There is a MenuFlyout which does this simpler, but the bindings don't work. If that's fixed, this can be simplified-->
                 <Flyout FlyoutPresenterClasses="no-border-flyout">
-                    <MenuFlyoutPresenter ItemsSource="{Binding ChildTools}" Margin="0" Padding="0" BorderThickness="0"
+                    <MenuFlyoutPresenter ItemsSource="{Binding ChildTools}"
                                          ItemContainerTheme="{DynamicResource ToolMenuItemTheme}" Cursor="Arrow">
                     </MenuFlyoutPresenter>
                 </Flyout>

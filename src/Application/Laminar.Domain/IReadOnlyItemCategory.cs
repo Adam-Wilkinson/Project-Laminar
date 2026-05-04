@@ -1,8 +1,8 @@
 ﻿namespace Laminar.Domain;
 
-public interface IReadOnlyItemCategory<T>
+public interface IReadOnlyItemCategory<out T>
 {
-    public IReadOnlyList<ItemCategory<T>> SubCategories { get; }
+    public IReadOnlyList<IReadOnlyItemCategory<T>> SubCategories { get; }
 
     public IReadOnlyList<T> Items { get; }
 

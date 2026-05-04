@@ -6,6 +6,7 @@
              xmlns:dvm="using:Laminar.Avalonia.ViewModels.Design"
              xmlns:asp="using:Laminar.Avalonia.AdjustableStackPanel"
              xmlns:s="using:Laminar.Avalonia.Settings"
+             xmlns:c="using:Laminar.Avalonia.Controls"
              HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450" d:DataContext="{x:Static dvm:DesignViewModel.MainControl}"
              x:DataType="vm:MainControlViewModel"
@@ -48,11 +49,11 @@
                                       VerticalAlignment="Top"
                                       TransitionDuration="{s:Setting InterfaceSettings.AnimationDuration}"
                                       TransitionEasing="{DynamicResource AnimationEasing}">
-                <ContentControl Content="{Binding NodePicker}"
-                                CornerRadius="10" 
-                                Background="{DynamicResource UiLayer}"
-                                HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
-                                asp:ResizeWidget.TargetSize="{Binding NodePicker.Height, Mode=TwoWay}"/>
+                <Border CornerRadius="10"
+                        Background="{DynamicResource UiLayer}"
+                        asp:ResizeWidget.TargetSize="{Binding NodePickerHeight, Mode=TwoWay}">
+                    <c:ItemPicker ItemsCategory="{Binding LoadedNodes}"/>
+                </Border>
             </asp:AdjustableStackPanel>
             
             <Border CornerRadius="10" Background="{DynamicResource UiLayer}">

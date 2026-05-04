@@ -1,0 +1,80 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:s="using:System"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:c="using:Laminar.Avalonia.Controls"
+                    xmlns:init="using:Laminar.Avalonia.InitializationTargets"
+                    xmlns:d="using:Laminar.Domain">
+    
+    <ControlTheme TargetType="MenuItem" x:Key="ItemPickerMenuItem"
+                  BasedOn="{StaticResource {x:Type MenuItem}}"
+                  x:DataType="c:IObjectItemCategory">
+        <Setter Property="Header" Value="{Binding CategoryName}"/>
+        <Setter Property="ItemsSource" Value="{Binding SubCategories}"/>
+        <Setter Property="Command" Value="{Binding $parent[c:ItemPicker].MenuItemSelectedCommand}"/>
+        <Setter Property="CommandParameter" Value="{Binding Items}"/>
+    </ControlTheme>
+    
+    <ControlTheme TargetType="MenuItem" x:Key="ItemPickerToplevelMenuItem" 
+                  BasedOn="{StaticResource FluentTopLevelMenuItem}"
+                  x:DataType="c:IObjectItemCategory">
+        <Setter Property="Header" Value="{Binding CategoryName}"/>
+        <Setter Property="ItemsSource" Value="{Binding SubCategories}"/>
+        <Setter Property="ItemContainerTheme" Value="{StaticResource ItemPickerMenuItem}"/>
+        <!-- <Setter Property="Background" Value="{DynamicResource {x:Static init:ColorInitialization.LaminarAccentBackgroundKey}}"/> -->
+        <Setter Property="BorderThickness" Value="2"/>
+        <Setter Property="Padding" Value="5"/>
+        <Setter Property="HeaderTemplate">
+            <DataTemplate DataType="x:String">
+                <TextBlock HorizontalAlignment="Center" Text="{Binding}" Classes="h2"/>
+            </DataTemplate>
+        </Setter>
+        <Setter Property="Command" Value="{Binding $parent[c:ItemPicker].MenuItemSelectedCommand}"/>
+        <Setter Property="CommandParameter" Value="{Binding Items}"/>
+    </ControlTheme>
+    
+    <ControlTheme TargetType="c:ItemPicker" x:Key="{x:Type c:ItemPicker}">
+        <Setter Property="Template">
+            <ControlTemplate>
+                <DockPanel>
+                    <Menu DockPanel.Dock="Top" 
+                          ItemsSource="{Binding ItemsCategory.SubCategories, RelativeSource={RelativeSource TemplatedParent}}"
+                          HorizontalAlignment="Stretch">
+                        <Menu.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Rows="1" HorizontalAlignment="Stretch"/>
+                            </ItemsPanelTemplate>
+                        </Menu.ItemsPanel>
+                        <Menu.Theme>
+                            <ControlTheme TargetType="Menu">
+                                <Setter Property="Background" Value="Transparent" />
+                                <Setter Property="ItemContainerTheme" Value="{StaticResource ItemPickerToplevelMenuItem}" />
+                                <Setter Property="Template">
+                                    <ControlTemplate>
+                                        <Border Background="{TemplateBinding Background}"
+                                                BorderBrush="{TemplateBinding BorderBrush}"
+                                                BorderThickness="{TemplateBinding BorderThickness}"
+                                                CornerRadius="{TemplateBinding CornerRadius}"
+                                                HorizontalAlignment="Stretch"
+                                                Padding="{TemplateBinding Padding}">
+                                            <ItemsPresenter Name="PART_ItemsPresenter"
+                                                            ItemsPanel="{TemplateBinding ItemsPanel}"
+                                                            VerticalAlignment="Stretch"
+                                                            KeyboardNavigation.TabNavigation="Continue" />
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter>
+                            </ControlTheme>
+                        </Menu.Theme>
+                    </Menu>
+                    <ItemsPresenter>
+                        <ItemsPresenter.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal" Spacing="5"/>
+                            </ItemsPanelTemplate>
+                        </ItemsPresenter.ItemsPanel>
+                    </ItemsPresenter>
+                </DockPanel>
+            </ControlTemplate>
+        </Setter>
+    </ControlTheme>
+</ResourceDictionary>

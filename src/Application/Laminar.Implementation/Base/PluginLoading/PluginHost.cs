@@ -27,7 +27,7 @@ public class PluginHost(
     {
         TNode node = new();
         registeredPlugin.RegisterNode(node);
-        loadedNodeManager.AddNodeToCatagory(node, subItemName is null ? menuItemName : $"{menuItemName}{ItemCategory<IWrappedNode>.SeparationChar}{subItemName}");
+        loadedNodeManager.AddNodeToCategory(node, subItemName is null ? menuItemName : $"{menuItemName}{ItemCategory<IWrappedNode>.SeparationChar}{subItemName}");
     }
 
     public bool RegisterDataInterface<TInterfaceDefinition, TData, TInterface>() where TInterfaceDefinition : IUserInterfaceDefinition, new() where TData : notnull

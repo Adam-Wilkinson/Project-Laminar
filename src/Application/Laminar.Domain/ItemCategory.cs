@@ -8,7 +8,7 @@ public class ItemCategory<T>(string categoryName) : IReadOnlyItemCategory<T>
     private readonly List<T> _items = [];
     private readonly List<ItemCategory<T>> _subCategories = [];
 
-    public IReadOnlyList<ItemCategory<T>> SubCategories => _subCategories;
+    public IReadOnlyList<IReadOnlyItemCategory<T>> SubCategories => _subCategories;
 
     public IReadOnlyList<T> Items => _items;
 
@@ -45,6 +45,6 @@ public class ItemCategory<T>(string categoryName) : IReadOnlyItemCategory<T>
             _subCategories.Insert(index, new ItemCategory<T>(subCategoryKey));
         }
 
-        SubCategories[index].AddItem(item, pathInSubCategory);
+        _subCategories[index].AddItem(item, pathInSubCategory);
     }
 }

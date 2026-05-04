@@ -1,6 +1,8 @@
 using System;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Laminar.Avalonia.ViewModels.Services;
+using Laminar.Contracts.Scripting.NodeWrapping;
+using Laminar.Domain;
 
 namespace Laminar.Avalonia.ViewModels;
 
@@ -8,14 +10,17 @@ public partial class MainControlViewModel : ViewModelBase, IDisposable
 {
     private readonly ScopedViewModel<FileNavigatorViewModel> _scopedFileNavigator;
     
-    public MainControlViewModel(IServiceProvider serviceProvider, NodePickerViewModel nodePicker)
+    public MainControlViewModel(IServiceProvider serviceProvider, ILoadedNodeManager loadedNodeManager)
     {
         _scopedFileNavigator = new ScopedViewModel<FileNavigatorViewModel>(serviceProvider);
-        NodePicker = nodePicker;
         OnExpandedSidebarWidthChanged(ExpandedSidebarWidth);
+        LoadedNodes = loadedNodeManager.LoadedNodes;
     }
 
-    public NodePickerViewModel NodePicker { get; }
+    public IReadOnlyItemCategory<object> LoadedNodes { get; }
+
+    [Persistent, ObservableProperty] 
+    public partial double NodePickerHeight { get; set; } = 250;
     
     [Persistent, ObservableProperty]
     public partial bool SidebarExpanded { get; set; } = true;
