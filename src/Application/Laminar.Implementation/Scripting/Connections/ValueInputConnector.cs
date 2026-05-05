@@ -7,7 +7,7 @@ using Laminar.PluginFramework.NodeSystem.IO.Value;
 
 namespace Laminar.Implementation.Scripting.Connections;
 
-internal class ValueInputConnector<T>(ITypeInfoStore typeInfoStore) : IInputConnector<IValueInput<T>>
+internal class ValueInputConnector<T>(ITypeInfoStore typeInfoStore) : IInputConnector<IValueInput<T>> where T : notnull
 {
     public event PropertyChangedEventHandler? PropertyChanged { add { } remove { } }
 

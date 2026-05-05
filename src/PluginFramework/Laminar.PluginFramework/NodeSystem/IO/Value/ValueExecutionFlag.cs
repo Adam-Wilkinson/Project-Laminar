@@ -2,7 +2,15 @@
 
 public static class ValueExecutionFlag
 {
-    public static readonly int Value = ExecutionFlags.ReserveNextFlagValue();
+    public static readonly ExecutionFlags Value = ExecutionFlags.ReserveNext();
 
-    public static bool HasValueFlag(this ExecutionFlags flags) => ExecutionFlags.HasFlag(flags, Value);
+    extension(ExecutionFlags)
+    {
+        public static ExecutionFlags ValueChanged => Value;
+    }
+
+    extension(ExecutionFlags flags)
+    {
+        public bool HasValueFlag => flags.HasFlag(Value);
+    }
 }

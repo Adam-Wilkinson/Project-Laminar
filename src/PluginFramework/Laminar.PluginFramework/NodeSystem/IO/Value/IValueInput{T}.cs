@@ -1,11 +1,15 @@
-﻿namespace Laminar.PluginFramework.NodeSystem.IO.Value;
+﻿using Laminar.PluginFramework.UserInterface;
 
-public interface IValueInput<T> : IValueInput
+namespace Laminar.PluginFramework.NodeSystem.IO.Value;
+
+public interface IValueInput<T> : IValueInput where T : notnull
 {
+    public ISourcedInterfaceData<T> InterfaceData { get; }
+    
     public T Value { get; }
 
     /// <summary>
-    /// <para>If <paramref name="valueProvider"/> is <see cref="IValueProvider{T}" of the correct type, returns true and sets value provider/></para>
+    /// <para>If <paramref name="valueProvider"/> is <see cref="IValueProvider{T}"/> of the correct type, returns true and sets value provider</para>
     /// <para>If <paramref name="valueProvider"/> is null, removes the current value provider and uses the internally stored value and returns true</para>
     /// </summary>
     public void SetValueProvider(IValueProvider<T>? valueProvider);

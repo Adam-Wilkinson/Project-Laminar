@@ -5,7 +5,7 @@
                     xmlns:init="using:Laminar.Avalonia.InitializationTargets"
                     xmlns:c="using:Laminar.Avalonia.Controls">
     <DataTemplate DataType="comp:INodeRow" x:Key="NodeRowDataTemplate">
-        <Panel>
+        <Panel Margin="3">
             <Rectangle Fill="{Binding InputConnector?.ColorHex, TargetNullValue={x:Static Brushes.White}}" 
                        Width="5" 
                        Height="5" 
@@ -14,18 +14,23 @@
             <Rectangle Fill="{Binding OutputConnector?.ColorHex, TargetNullValue={x:Static Brushes.White}}" 
                        Width="5" 
                        Height="5" 
-                       HorizontalAlignment="Left" 
+                       HorizontalAlignment="Right" 
                        IsVisible="{Binding OutputConnector, Converter={x:Static ObjectConverters.IsNotNull}}"/>
             <ContentControl Content="{Binding CentralDisplay}"/>
         </Panel>
     </DataTemplate>
     
     <DataTemplate DataType="s:IWrappedNode" x:Key="WrappedNodeDataTemplate">
-        <DockPanel>
-            <ContentControl DockPanel.Dock="Top"
-                            Content="{Binding NameRow}" 
-                            Background="{DynamicResource {x:Static init:ColorInitialization.LaminarAccentBackgroundKey}}"/> 
-            <ItemsControl ItemsSource="{Binding Rows}"/>
-        </DockPanel>
+        <Border BorderBrush="{DynamicResource UiLayerHighlight}" 
+                BorderThickness="2">
+            <DockPanel Width="200">
+                <ContentControl DockPanel.Dock="Top"
+                                Content="{Binding NameRow}" 
+                                Background="{DynamicResource {x:Static init:ColorInitialization.LaminarAccentBackgroundKey}}"
+                                Padding="5"/> 
+                <ItemsControl ItemsSource="{Binding Rows}">
+                </ItemsControl>
+            </DockPanel>
+        </Border>
     </DataTemplate>
 </ResourceDictionary>

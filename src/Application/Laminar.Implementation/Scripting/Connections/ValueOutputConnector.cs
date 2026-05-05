@@ -8,7 +8,7 @@ using Laminar.PluginFramework.NodeSystem.IO.Value;
 namespace Laminar.Implementation.Scripting.Connections;
 
 internal class ValueOutputConnector<T>(ITypeInfoStore typeInfoStore, IValueOutput<T> output)
-    : IOutputConnector<IValueOutput<T>>
+    : IOutputConnector<IValueOutput<T>> where T : notnull
 {
     public event PropertyChangedEventHandler? PropertyChanged { add { } remove { } }
 
@@ -35,7 +35,7 @@ internal class ValueOutputConnector<T>(ITypeInfoStore typeInfoStore, IValueOutpu
 
     public PassUpdateOption PassUpdate(ExecutionFlags executionFlags)
     {
-        if (!executionFlags.HasValueFlag()) return PassUpdateOption.NeverPasses;
+        if (!executionFlags.HasValueFlag) return PassUpdateOption.NeverPasses;
         return Output.AlwaysPassUpdate ? PassUpdateOption.AlwaysPasses : PassUpdateOption.CurrentlyDoesNotPass;
     }
 }

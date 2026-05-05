@@ -70,7 +70,7 @@ public class WrappedNode<T> : IWrappedNode where T : INode, new()
 
         _coreNode.Evaluate();
 
-        if (!context.ExecutionFlags.HasUIUpdateFlag()) return;
+        if (!context.ExecutionFlags.IsUiUpdate) return;
         
         foreach (var field in Rows)
         {

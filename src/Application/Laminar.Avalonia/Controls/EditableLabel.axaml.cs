@@ -6,7 +6,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Converters;
 using Avalonia.Controls.Documents;
+using Avalonia.Data;
+using Avalonia.Data.Converters;
 using Avalonia.Input;
 using Avalonia.Input.Platform;
 using Avalonia.Interactivity;
@@ -21,7 +24,8 @@ public partial class EditableLabel : UserControl
     public static readonly StyledProperty<bool> IsBeingEditedProperty = AvaloniaProperty.Register<EditableLabel, bool>(nameof(IsBeingEdited));
     public static readonly StyledProperty<string> TextProperty = AvaloniaProperty.Register<EditableLabel, string>(nameof(Text));
     public static readonly StyledProperty<char[]> DisallowedCharsProperty = AvaloniaProperty.Register<EditableLabel, char[]>(nameof(DisallowedChars));
-
+    public static readonly StyledProperty<string?> DisplayStringFormatProperty = AvaloniaProperty.Register<EditableLabel, string?>(nameof(DisplayStringFormat));
+    
     private static readonly TimeSpan InvalidCharHintDuration = new(0, 0, 5);
     private static readonly TimeSpan EditingStartedCooldown = new(0, 0, 0, 0, 100);
 
@@ -39,8 +43,9 @@ public partial class EditableLabel : UserControl
     {
         IsBeingEditedProperty.Changed.AddClassHandler<EditableLabel>((label, args) => label.IsBeingEditedChanged(args));
         DisallowedCharsProperty.Changed.AddClassHandler<EditableLabel>((label, args) => label.DisallowedCharsChanged());
+        DisplayStringFormatProperty.Changed.AddClassHandler<EditableLabel>((label, args) => label.DisplayStringFormatChanged());
     }
-
+    
     public EditableLabel()
     {
         InitializeComponent();
@@ -58,7 +63,7 @@ public partial class EditableLabel : UserControl
         };
         
         Display.DoubleTapped += (_, _) => IsBeingEdited = true;
-        Display[!TextBlock.TextProperty] = this[!TextProperty];
+        DisplayStringFormatChanged();
         
         Editor.KeyDown += Entry_KeyDown;
         Editor.AddHandler(TextInputEvent, Editor_TextInput, RoutingStrategies.Tunnel);
@@ -100,6 +105,20 @@ public partial class EditableLabel : UserControl
     {
         get => GetValue(DisallowedCharsProperty);
         set => SetValue(DisallowedCharsProperty, value);
+    }
+
+    public string? DisplayStringFormat
+    {
+        get => GetValue(DisplayStringFormatProperty);
+        set => SetValue(DisplayStringFormatProperty, value);
+    }
+
+    private void DisplayStringFormatChanged()
+    {
+        Display[!TextBlock.TextProperty] = DisplayStringFormat is null
+            ? this[!TextProperty]
+            : CompiledBinding.Create<EditableLabel, string>(el => el.Text, source: this,
+                converter: new FuncValueConverter<string, string>(s => string.Format(DisplayStringFormat, s)));
     }
 
     private void IsBeingEditedChanged(AvaloniaPropertyChangedEventArgs args)

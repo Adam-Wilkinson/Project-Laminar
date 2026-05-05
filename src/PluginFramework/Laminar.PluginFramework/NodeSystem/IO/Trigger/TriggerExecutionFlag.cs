@@ -2,7 +2,15 @@
 
 public static class TriggerExecutionFlag
 {
-    public static readonly int Value = ExecutionFlags.ReserveNextFlagValue();
+    public static readonly ExecutionFlags Value = ExecutionFlags.ReserveNext();
 
-    public static bool HasTriggerFlag(this ExecutionFlags flags) => ExecutionFlags.HasFlag(flags, Value);
+    extension(ExecutionFlags)
+    {
+        public static ExecutionFlags Trigger => Value;
+    }
+
+    extension(ExecutionFlags flags)
+    {
+        public bool HasTriggerFlag => flags.HasFlag(Value);
+    }
 }

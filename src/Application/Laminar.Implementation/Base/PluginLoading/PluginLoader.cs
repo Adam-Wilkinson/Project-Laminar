@@ -41,7 +41,7 @@ public class PluginLoader(FrontendDependency frontend, IPluginHostFactory plugin
                 }
                 catch (Exception e)
                 {
-                    Debug.WriteLine($"Error loading module {module.Name}: {e}");
+                    logger.LogError(e, "Error loading module '{moduleName}'", module.Name);
                 }
             }
         }

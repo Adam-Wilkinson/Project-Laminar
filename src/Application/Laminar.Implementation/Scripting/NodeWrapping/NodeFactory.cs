@@ -4,6 +4,7 @@ using Laminar.Domain.Notification;
 using Laminar.PluginFramework;
 using Laminar.PluginFramework.NodeSystem;
 using Laminar.PluginFramework.NodeSystem.Components;
+using Laminar.PluginFramework.UserInterface;
 using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
 namespace Laminar.Implementation.Scripting.NodeWrapping;
@@ -35,10 +36,12 @@ public class NodeFactory : INodeFactory
         return newNode;
     }
 
-    private static INodeRow CreateNameRowFor(INode node)
-    {
-        var nameLabel = LaminarFactory.NodeIO.ValueInput("", node.NodeName);
-        nameLabel.InterfaceDefinition.Editor = new EditableLabel();
-        return LaminarFactory.Component.CreateSingleRow(null, nameLabel.DisplayValue, null);
-    }
+    private static INodeRow CreateNameRowFor(INode node) => 
+        LaminarFactory.Component.CreateSingleRow(null, 
+            new InterfaceData<EditableLabel, string>
+            {
+                Name = "", 
+                Definition = new EditableLabel(), 
+                Value = node.NodeName
+            }, null);
 }

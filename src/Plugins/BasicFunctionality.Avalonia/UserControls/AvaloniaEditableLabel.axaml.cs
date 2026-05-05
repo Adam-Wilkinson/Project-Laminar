@@ -1,5 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Laminar.PluginFramework.UserInterface;
 using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
@@ -13,6 +14,10 @@ public partial class AvaloniaEditableLabel : UserControl
     public AvaloniaEditableLabel()
     {
         InitializeComponent();
+    }
+
+    protected override void OnLoaded(RoutedEventArgs e)
+    {
         Display.DoubleTapped += AvaloniaEditableLabel_DoubleTapped;
 
         Editor.KeyDown += Entry_KeyDown;

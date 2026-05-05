@@ -8,5 +8,5 @@ public interface INodeComponentFactory
 {
     public INodeComponentCloner<T> Cloner<T>(Func<T> componentGenerator, int initialComponentCount) where T : INodeComponent;
 
-    public INodeRow CreateSingleRow(IInput? input, IDisplayValue displayValue, IOutput? output);
+    public INodeRow CreateSingleRow(IInput? input, IInterfaceData interfaceData, IOutput? output);
 }

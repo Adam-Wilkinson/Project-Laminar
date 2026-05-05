@@ -24,14 +24,15 @@ public class ConditionalExecutionBranch : IConditionalExecutionBranch
 
     public void Execute(LaminarExecutionContext context)
     {
-        if (_startingConnector is null || _startingConnector.PassUpdate(context.ExecutionFlags) is PassUpdateOption.AlwaysPasses or PassUpdateOption.CurrentlyPasses)
+        if (_startingConnector is not null &&
+            _startingConnector.PassUpdate(context.ExecutionFlags) is not (PassUpdateOption.AlwaysPasses or PassUpdateOption.CurrentlyPasses)) 
+            return;
+        
+        ReadOnlySpan<IWrappedNode> nodes = _nodes;
+        double length = nodes.Length;
+        for (int i = 0; i < length; i++)
         {
-            ReadOnlySpan<IWrappedNode> nodes = _nodes;
-            double length = nodes.Length;
-            for (int i = 0; i < length; i++)
-            {
-                nodes[i].Update(context);
-            }
+            nodes[i].Update(context);
         }
     }
 }

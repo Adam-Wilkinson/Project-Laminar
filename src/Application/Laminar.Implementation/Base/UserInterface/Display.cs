@@ -7,8 +7,7 @@ using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
 namespace Laminar.Implementation.Base.UserInterface;
 
-internal class Display(IDisplayValue displayValue, IUserInterfaceProvider userInterfaceProvider)
-    : IDisplay
+internal class Display(IDisplayValue displayValue, IUserInterfaceProvider userInterfaceProvider) : IDisplay
 {
     private object? _lastDisplayValue;
     private IUserInterfaceDefinition? _interfaceDefinition;

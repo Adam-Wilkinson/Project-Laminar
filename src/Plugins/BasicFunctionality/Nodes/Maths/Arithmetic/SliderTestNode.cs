@@ -11,9 +11,9 @@ namespace BasicFunctionality.Nodes.Maths.Arithmetic;
 
 public partial class SliderTestNode : INode
 {
-    [ShowInNode] private readonly ManualNodeRow<None, IDisplayValue, IValueOutput<double>> SliderRow =
+    [ShowInNode] private readonly ManualNodeRow<None, InterfaceData<Slider, double>, IValueOutput<double>> SliderRow =
         Component.ManualOutputRow(
-            NodeIO.ValueInput("Test Slider", 2.0, new Slider { Min = 0.0, Max = 5.0 }).DisplayValue,
+            new InterfaceData<Slider,double> { Definition = new Slider { Min = 0.0, Max = 5.0 }, Value = 2, Name = "Test Slider Display" },
             NodeIO.ValueOutput("Test Slider Output", 0.0));
 
     public string NodeName { get; } = "Slider Test";

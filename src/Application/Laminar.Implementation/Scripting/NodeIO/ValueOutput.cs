@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using Laminar.Contracts.Base;
 using Laminar.Contracts.Base.UserInterface;
 using Laminar.Domain.Notification;
@@ -7,22 +8,29 @@ using Laminar.PluginFramework.NodeSystem;
 using Laminar.PluginFramework.NodeSystem.Connectors;
 using Laminar.PluginFramework.NodeSystem.IO.Value;
 using Laminar.PluginFramework.UserInterface;
+using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
 namespace Laminar.Implementation.Scripting.NodeIO;
 
-public class ValueOutput<T> : IValueOutput<T>, INotificationClient
+public class ValueOutput<T> : IValueOutput<T>, INotificationClient where T : notnull
 {
     readonly LaminarExecutionContext _contextCache;
     readonly DisplayValue<T> _displayValue;
 
-    public ValueOutput(IUserInterfaceProvider uiProvider, ITypeInfoStore typeInfoStore, string name, T initialValue)
+    public ValueOutput(IUserInterfaceProvider uiProvider, ITypeInfoStore typeInfoStore, T initialValue, string name, ISourcedInterfaceData<T> interfaceData)
     {
         InterfaceDefinition = new ValueInterfaceDefinition<T>(typeInfoStore, uiProvider);
-
+        InterfaceData = interfaceData;
+        
         _displayValue = new DisplayValue<T>(this, InterfaceDefinition, initialValue) { Name = name };
 
         Connector = new ValueOutputConnector<T>(typeInfoStore, this);
+        
+        Name = name;
+        Value = initialValue;
 
+        InterfaceData.ExecutionStarted += OnInterfaceValueChanged;
+        
         _contextCache = new LaminarExecutionContext
         {
             ExecutionFlags = ValueExecutionFlag.Value,
@@ -30,14 +38,16 @@ public class ValueOutput<T> : IValueOutput<T>, INotificationClient
         };
     }
 
+    public string Name { get; }
+
+    public ISourcedInterfaceData<T> InterfaceData { get; }
+
     public T Value
     {
-        get => _displayValue.TypedValue;
-        set => _displayValue.TypedValue = value;
+        get => InterfaceData.Value;
+        set => InterfaceData.Value = value;
     }
-
-    public Func<T> GetterOverride { get => _displayValue.GetterOverride; set => _displayValue.GetterOverride = value; }
-
+    
     public Action? PreEvaluateAction => null;
 
     public IOutputConnector Connector { get; }
@@ -61,4 +71,9 @@ public class ValueOutput<T> : IValueOutput<T>, INotificationClient
     }
 
     protected void FireValueChange() => ExecutionStarted?.Invoke(this, _contextCache);
+
+    private void OnInterfaceValueChanged(object? _, LaminarExecutionContext args)
+    {
+        ExecutionStarted?.Invoke(this, args);
+    }
 }

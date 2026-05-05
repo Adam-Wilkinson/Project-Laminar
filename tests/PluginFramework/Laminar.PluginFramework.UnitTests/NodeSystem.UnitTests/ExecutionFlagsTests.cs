@@ -72,14 +72,14 @@ public class ExecutionFlagsTests
 
     private static class TestFlagOne
     {
-        public static readonly int Value = ExecutionFlags.ReserveNextFlagValue();
+        public static readonly int Value = ExecutionFlags.ReserveNext();
 
         public static bool HasTestFlagOne(ExecutionFlags executionFlags) => ExecutionFlags.HasFlag(executionFlags, Value);
     }
 
     private static class TestFlagTwo
     {
-        public static readonly int Value = ExecutionFlags.ReserveNextFlagValue();
+        public static readonly int Value = ExecutionFlags.ReserveNext();
 
         public static bool HasTestFlagTwo(ExecutionFlags executionFlags) => ExecutionFlags.HasFlag(executionFlags, Value);
     }

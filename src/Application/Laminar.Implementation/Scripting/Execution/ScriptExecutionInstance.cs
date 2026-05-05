@@ -2,21 +2,12 @@
 using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Scripting.Execution;
 using Laminar.PluginFramework.NodeSystem;
-using Laminar.PluginFramework.NodeSystem.Connectors;
 
 namespace Laminar.Implementation.Scripting.Execution;
 
-internal class ScriptExecutionInstance : IScriptExecutionInstance
+internal class ScriptExecutionInstance(IEditableScript editableScript, IExecutionOrderFinder orderFinder)
+    : IScriptExecutionInstance
 {
-    private readonly IEditableScript _editableScript;
-    private readonly IExecutionOrderFinder _orderFinder;
-
-    public ScriptExecutionInstance(IEditableScript editableScript, IExecutionOrderFinder orderFinder)
-    {
-        _editableScript = editableScript;
-        _orderFinder = orderFinder;
-    }
-
     public ScriptState State { get; private set; } = ScriptState.Active;
 
     public bool IsShownInUI { get; set; } = true;
@@ -27,10 +18,10 @@ internal class ScriptExecutionInstance : IScriptExecutionInstance
 
         if (IsShownInUI)
         {
-            context = context with { ExecutionFlags = context.ExecutionFlags & UIUpdateExecutionFlag.Value };
+            context = context with { ExecutionFlags = context.ExecutionFlags & UiUpdateExecutionFlag.Value };
         }
 
-        ReadOnlySpan<IConditionalExecutionBranch> iter = new(_orderFinder.GetExecutionBranchesFrom(context, _editableScript.NodeTree));
+        ReadOnlySpan<IConditionalExecutionBranch> iter = new(orderFinder.GetExecutionBranchesFrom(context, editableScript.NodeTree));
 
         if (iter.Length == 1)
         {

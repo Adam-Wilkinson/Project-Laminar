@@ -16,7 +16,11 @@ public class DataInterfaceTemplate(TopLevel topLevel, IDataInterfaceFactory data
         // Caching the value is required because sometimes Avalonia data coercion changes the value before data validation is fully initialized
         var valueCache = result.InterfaceData.Value;
         result.InterfaceFrontend.DataContext = result.InterfaceData;
-        (result.InterfaceFrontend.DataContext as IInterfaceData)!.Value = valueCache;
+        if (result.InterfaceData.IsUserEditable)
+        {
+            result.InterfaceData.Value = valueCache;
+        }
+        
         return result.InterfaceFrontend;
     }
 

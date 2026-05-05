@@ -1,7 +1,11 @@
-﻿namespace Laminar.PluginFramework.NodeSystem.IO.Value;
+﻿using Laminar.PluginFramework.UserInterface;
 
-public interface IValueOutput<T> : IValueOutput, IValueProvider<T>
+namespace Laminar.PluginFramework.NodeSystem.IO.Value;
+
+public interface IValueOutput<T> : IValueOutput, IValueProvider<T> where T : notnull
 {
+    public ISourcedInterfaceData<T> InterfaceData { get; }
+    
     public new T Value { get; set; }
 
     public bool AlwaysPassUpdate { get; }

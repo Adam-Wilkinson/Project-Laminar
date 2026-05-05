@@ -14,5 +14,6 @@ public class DataInterfaceRegistration(IDataInterfaceFactory interfaceFactory, I
         typeInfoStore.RegisterType(typeof(KeyGesture),
             new TypeInfo("Key Gesture", new PluginFramework.UserInterface.UserInterfaceDefinitions.KeyGestureEditor(), new StringEditor(), "#FF5533", null));
         interfaceFactory.RegisterInterface<PluginFramework.UserInterface.UserInterfaceDefinitions.KeyGestureEditor, KeyGesture, KeyGestureEditor>();
+        interfaceFactory.RegisterInterface<PluginFramework.UserInterface.UserInterfaceDefinitions.EditableLabel, string, EditableLabelDataInterface>();
     }
 }

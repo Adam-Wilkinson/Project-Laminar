@@ -35,7 +35,7 @@ public class PluginFront : IPlugin
         host.RegisterInterface<Slider, SliderEditor, Control>();
         host.RegisterInterface<ToggleSwitch, UserControls.ToggleSwitch, Control>();
         host.RegisterInterface<Checkbox, UserControls.CheckBox, Control>();
-        host.RegisterInterface<EditableLabel, AvaloniaEditableLabel, Control>();
+//         host.RegisterInterface<EditableLabel, AvaloniaEditableLabel, Control>();
         host.RegisterInterface<ColorViewer, UserControls.ColorViewer, Control>();
         host.RegisterInterface<ColorEditor, UserControls.ColorEditor, Control>();
         
@@ -48,7 +48,7 @@ public class PluginFront : IPlugin
         host.RegisterDataInterface<ToggleSwitch, bool, UserControls.ToggleSwitch>();
         host.RegisterDataInterface<Checkbox, bool, UserControls.CheckBox>();
         host.RegisterDataInterface<BoolTwoButton, bool, BoolEditor>();
-        host.RegisterDataInterface<EditableLabel, string, AvaloniaEditableLabel>();
+        // host.RegisterDataInterface<EditableLabel, string, AvaloniaEditableLabel>();
         host.RegisterDataInterface<ColorViewer, DrawingColor, UserControls.ColorViewer>();
         host.RegisterDataInterface<ColorEditor, DrawingColor, UserControls.ColorEditor>();
         host.RegisterDataInterface<ColorViewer, AvaloniaColor, UserControls.ColorViewer>();

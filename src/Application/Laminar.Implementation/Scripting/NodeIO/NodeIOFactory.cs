@@ -1,10 +1,11 @@
 ﻿using System;
 using Laminar.Contracts.Base;
 using Laminar.Contracts.Base.UserInterface;
-using Laminar.Domain;
+using Laminar.Domain.Exceptions;
+using Laminar.Implementation.Base.UserInterface;
+using Laminar.PluginFramework.NodeSystem;
 using Laminar.PluginFramework.NodeSystem.IO;
 using Laminar.PluginFramework.NodeSystem.IO.Value;
-using Laminar.PluginFramework.UserInterface;
 using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
 namespace Laminar.Implementation.Scripting.NodeIO;
@@ -12,40 +13,63 @@ namespace Laminar.Implementation.Scripting.NodeIO;
 internal class NodeIOFactory(IUserInterfaceProvider uiProvider, ITypeInfoStore typeInfoStore) : INodeIOFactory
 {
     public IValueInput<T> ValueInput<T>(string valueName, T? initialValue, IUserInterfaceDefinition? editor, IUserInterfaceDefinition? viewer, Action<T>? valueSetter)
+        where T : notnull
     {
-        if (initialValue is null && typeInfoStore.TryGetTypeInfo(typeof(T), out var typeInfo) && typeInfo.DefaultValue is T defaultValue)
-        {
-            initialValue = defaultValue;
-        }
+        initialValue ??=
+            typeInfoStore.TryGetTypeInfo(typeof(T), out var typeInfo) && typeInfo.DefaultValue is T defaultInitialValue
+                ? defaultInitialValue
+                : throw new TypeNotRegisteredException(typeof(T));
 
-        ValueInput<T> newInput = new(uiProvider, typeInfoStore, valueName, initialValue!);
-        newInput.InterfaceDefinition.Editor = editor;
-        newInput.InterfaceDefinition.Viewer = viewer;
+        ValueInput<T> newInput = new(uiProvider, typeInfoStore, valueName, initialValue)
+        {
+            InterfaceDefinition =
+            {
+                Editor = editor,
+                Viewer = viewer
+            },
+            InterfaceData = new SourcedDataInterface<T>(editor, viewer)
+            {
+                Name = valueName,
+                Value = initialValue
+            }
+        };
 
         if (valueSetter is not null)
         {
-            newInput.PreEvaluateAction = () => { valueSetter(newInput.Value); };
+            newInput.PreEvaluateAction = () => { valueSetter(newInput.InterfaceData.Value); };
         }
 
         return newInput;
     }
 
     public IValueOutput<T> ValueOutput<T>(string valueName, T? initialValue, IUserInterfaceDefinition? viewer, IUserInterfaceDefinition? editor, bool isUserEditable, Func<T>? getter)
+        where T : notnull
     {
-        if (initialValue is null && typeInfoStore.TryGetTypeInfo(typeof(T), out var typeInfo) && typeInfo.DefaultValue is T defaultValue)
-        {
-            initialValue = defaultValue;
-        }
+        initialValue ??=
+            typeInfoStore.TryGetTypeInfo(typeof(T), out var typeInfo) && typeInfo.DefaultValue is T defaultInitialValue
+                ? defaultInitialValue
+                : throw new TypeNotRegisteredException(typeof(T));
 
-        ValueOutput<T> newOutput = new(uiProvider, typeInfoStore, valueName, initialValue!);
-        newOutput.InterfaceDefinition.Viewer = viewer;
-        newOutput.InterfaceDefinition.Editor = editor;
-        newOutput.InterfaceDefinition.IsUserEditable = isUserEditable;
+        SourcedDataInterface<T> outputInterface = new(editor, viewer)
+        {
+            Value = initialValue,
+            Name = valueName,
+        };
 
         if (getter is not null)
         {
-            newOutput.GetterOverride = getter;
+            outputInterface.ValueProvider = new FuncValueProvider<T>(getter);
         }
+        
+        ValueOutput<T> newOutput = new(uiProvider, typeInfoStore, initialValue, valueName, outputInterface)
+            {
+                InterfaceDefinition =
+                {
+                    Viewer = viewer,
+                    Editor = editor,
+                    IsUserEditable = isUserEditable
+                }
+            };
 
         return newOutput;
     }

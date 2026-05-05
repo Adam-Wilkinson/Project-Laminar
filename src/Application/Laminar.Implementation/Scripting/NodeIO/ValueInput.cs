@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel;
 using Laminar.Contracts.Base;
 using Laminar.Contracts.Base.UserInterface;
 using Laminar.Domain.Notification;
@@ -11,7 +10,7 @@ using Laminar.PluginFramework.UserInterface;
 
 namespace Laminar.Implementation.Scripting.NodeIO;
 
-public sealed class ValueInput<T> : IValueInput<T>, INotificationClient
+public sealed class ValueInput<T> : IValueInput<T>, INotificationClient where T : notnull
 {
     private readonly LaminarExecutionContext _contextCache;
     private readonly DisplayValue<T> _displayValue;
@@ -21,6 +20,7 @@ public sealed class ValueInput<T> : IValueInput<T>, INotificationClient
         InterfaceDefinition = new ValueInterfaceDefinition<T>(typeInfoStore, uiProvider) { IsUserEditable = true };
 
         _displayValue = new DisplayValue<T>(this, InterfaceDefinition, defaultValue ) { Name = name };
+        Name = name;
 
         Connector = new ValueInputConnector<T>(typeInfoStore) { Input = this };
 
@@ -31,12 +31,16 @@ public sealed class ValueInput<T> : IValueInput<T>, INotificationClient
         };
     }
 
+    public string Name { get; }
+
+    public required ISourcedInterfaceData<T> InterfaceData { get; init; }
+
     public T Value
     {
-        get => _displayValue.TypedValue;
-        set => _displayValue.TypedValue = value;
+        get => InterfaceData.Value;
+        set => InterfaceData.Value = value;
     }
-
+    
     public IInputConnector Connector { get; }
 
     public Action? PreEvaluateAction { get; set; }
@@ -45,21 +49,20 @@ public sealed class ValueInput<T> : IValueInput<T>, INotificationClient
 
     public IDisplayValue DisplayValue => _displayValue;
 
-    public event EventHandler<LaminarExecutionContext>? ExecutionStarted;
-
-    public event PropertyChangedEventHandler? PropertyChanged { add { } remove { } }
-
+    public event EventHandler<LaminarExecutionContext>? ExecutionStarted
+    {
+        add => InterfaceData.ExecutionStarted += value;
+        remove => InterfaceData.ExecutionStarted -= value;
+    }
+    
     public void SetValueProvider(IValueProvider<T>? provider)
     {
         _displayValue.ValueProvider = provider;
         InterfaceDefinition.IsUserEditable = _displayValue.ValueProvider is null;
-        FireValueChange();
+        InterfaceData.ValueProvider = provider;
     }
 
     public void TriggerNotification()
     {
-        FireValueChange();
     }
-
-    private void FireValueChange() => ExecutionStarted?.Invoke(this, _contextCache);
 }
