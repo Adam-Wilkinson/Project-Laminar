@@ -43,7 +43,7 @@ public partial class ItemPicker : ItemsControl
         MenuItemSelected(initialItems);
         
     }
-
+    
     public IReadOnlyItemCategory<object> ItemsCategory
     {
         get => GetValue(ItemsCategoryProperty);

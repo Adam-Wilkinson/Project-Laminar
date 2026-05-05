@@ -21,7 +21,7 @@
                                IsVisible="{Binding Description, Converter={x:Static ObjectConverters.IsNotNull}}"/>
                     <TextBlock Classes="b2">Press <Run FontWeight="Normal" 
                                                        Classes="Emphasis"
-                                                       Text="{Binding Gesture, 
+                                                       Text="{CompiledBindingExtension Gesture, 
                                                         Source={StaticResource Tools.ToolTools.ChangeKeybinding}, 
                                                         Converter={StaticResource ToStringConverter},
                                                         DataType=t:Tool}"/> to change binding</TextBlock>

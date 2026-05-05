@@ -38,7 +38,7 @@
 	<s:OptionsSetting x:Key="SettingsRoot.InterfaceSettings.TitlebarTheme" 
 	                  Name="Titlebar theme" 
 	                  Value="{x:Static local:App.Platform}"
-	                  OnChangedCommand="{Binding InvalidateWindowCommand, DataType={x:Type local:App}, Source={x:Static Application.Current}}">
+	                  OnChangedCommand="{CompiledBindingExtension InvalidateWindowCommand, DataType={x:Type local:App}, Source={x:Static Application.Current}}">
 		<s:OptionsSettingValue Name="Windows" Value="{x:Static r:OSPlatform.Windows}"/>
 		<s:OptionsSettingValue Name="Linux" Value="{x:Static r:OSPlatform.Linux}"/>
 		<s:OptionsSettingValue Name="MacOS" Value="{x:Static r:OSPlatform.OSX}"/>

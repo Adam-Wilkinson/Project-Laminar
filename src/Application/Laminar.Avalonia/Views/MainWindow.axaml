@@ -22,7 +22,7 @@
 	
 	<Window.WindowDecorationsTheme>
 		<MultiBinding Converter="{StaticResource SwitchConverter}">
-			<Binding Path="Value" DataType="s:OptionsSetting" Source="{StaticResource SettingsRoot.InterfaceSettings.TitlebarTheme}"/>
+			<CompiledBindingExtension Path="Value" DataType="s:OptionsSetting" Source="{StaticResource SettingsRoot.InterfaceSettings.TitlebarTheme}"/>
 			<Binding Source="{StaticResource WindowsWindowDecorations}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static r:OSPlatform.Windows}"/>
 			<Binding Source="{StaticResource OsxWindowDecorations}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static r:OSPlatform.OSX}"/>
 			<Binding Source="{StaticResource LinuxWindowDecorations}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static r:OSPlatform.Linux}"/>

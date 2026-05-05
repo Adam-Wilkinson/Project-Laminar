@@ -16,7 +16,7 @@
     </Style>
     
     <Style Selector="TextBlock.h1">
-        <Setter Property="FontSize" Value="{Binding Value, 
+        <Setter Property="FontSize" Value="{CompiledBindingExtension Value, 
             Source={StaticResource SettingsRoot.InterfaceSettings.UiScale},
             DataType=s:DoubleSetting,
             Converter={StaticResource MultiplyConverter}, ConverterParameter={StaticResource H1FontSize}}"/>
@@ -25,7 +25,7 @@
     </Style>
         
     <Style Selector="TextBlock.h2">
-        <Setter Property="FontSize" Value="{Binding Value, 
+        <Setter Property="FontSize" Value="{CompiledBindingExtension Value, 
             Source={StaticResource SettingsRoot.InterfaceSettings.UiScale},
             DataType=s:DoubleSetting,
             Converter={StaticResource MultiplyConverter}, ConverterParameter={StaticResource H2FontSize}}"/>
@@ -34,7 +34,7 @@
     </Style>
         
     <Style Selector="TextBlock">
-        <Setter Property="FontSize" Value="{Binding Value, 
+        <Setter Property="FontSize" Value="{CompiledBindingExtension Value, 
             Source={StaticResource SettingsRoot.InterfaceSettings.UiScale},
             DataType=s:DoubleSetting,
             Converter={StaticResource MultiplyConverter}, ConverterParameter={StaticResource P1FontSize}}"/>
@@ -43,7 +43,7 @@
     </Style>
         
     <Style Selector="TextBlock.b2">
-        <Setter Property="FontSize" Value="{Binding Value, 
+        <Setter Property="FontSize" Value="{CompiledBindingExtension Value, 
             Source={StaticResource SettingsRoot.InterfaceSettings.UiScale},
             DataType=s:DoubleSetting,
             Converter={StaticResource MultiplyConverter}, ConverterParameter={StaticResource P2FontSize}}"/>
@@ -53,7 +53,7 @@
     </Style>
         
     <Style Selector=":is(TemplatedControl).h1">
-        <Setter Property="FontSize" Value="{Binding Value, 
+        <Setter Property="FontSize" Value="{CompiledBindingExtension Value, 
             Source={StaticResource SettingsRoot.InterfaceSettings.UiScale},
             DataType=s:DoubleSetting,
             Converter={StaticResource MultiplyConverter}, ConverterParameter={StaticResource H1FontSize}}"/>
@@ -62,7 +62,7 @@
     </Style>
         
     <Style Selector=":is(TemplatedControl).h2">
-        <Setter Property="FontSize" Value="{Binding Value, 
+        <Setter Property="FontSize" Value="{CompiledBindingExtension Value, 
             Source={StaticResource SettingsRoot.InterfaceSettings.UiScale},
             DataType=s:DoubleSetting,
             Converter={StaticResource MultiplyConverter}, ConverterParameter={StaticResource H2FontSize}}"/>
@@ -71,7 +71,7 @@
     </Style>
         
     <Style Selector=":is(TemplatedControl)">
-        <Setter Property="FontSize" Value="{Binding Value, 
+        <Setter Property="FontSize" Value="{CompiledBindingExtension Value, 
             Source={StaticResource SettingsRoot.InterfaceSettings.UiScale},
             DataType=s:DoubleSetting,
             Converter={StaticResource MultiplyConverter}, ConverterParameter={StaticResource P1FontSize}}"/>
@@ -80,7 +80,7 @@
     </Style>
         
     <Style Selector=":is(TemplatedControl).b2">
-        <Setter Property="FontSize" Value="{Binding Value, 
+        <Setter Property="FontSize" Value="{CompiledBindingExtension Value, 
             Source={StaticResource SettingsRoot.InterfaceSettings.UiScale},
             DataType=s:DoubleSetting,
             Converter={StaticResource MultiplyConverter}, ConverterParameter={StaticResource P2FontSize}}"/>

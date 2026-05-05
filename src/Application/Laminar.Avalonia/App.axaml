@@ -72,6 +72,6 @@
 	</Application.DataTemplates>
 	
 	<Application.RequestedThemeVariant>
-		<Binding Path="Value" DataType="s:OptionsSetting" Source="{StaticResource SettingsRoot.InterfaceSettings.ThemeVariant}"/>
+		<CompiledBindingExtension Path="Value" DataType="s:OptionsSetting" Source="{StaticResource SettingsRoot.InterfaceSettings.ThemeVariant}"/>
 	</Application.RequestedThemeVariant>
 </Application>

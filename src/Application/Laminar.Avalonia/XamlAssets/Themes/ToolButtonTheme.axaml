@@ -63,14 +63,14 @@
                         Currently bound to <Run Classes="Emphasis" FontWeight="Normal" Text="{Binding Tool.Gesture}"/>
                     </TextBlock>
                     <TextBlock Classes="b2"
-                               IsVisible="{Binding Gesture, 
+                               IsVisible="{CompiledBindingExtension Gesture, 
                                         DataType=t:Tool,
                                         Source={StaticResource Tools.ToolTools.ChangeKeybinding},
                                         Mode=OneWay,
                                         Converter={StaticResource HasValueConverter}}">
                         Press <Run Classes="Emphasis" 
                                    FontWeight="Normal" 
-                                   Text="{Binding Gesture,
+                                   Text="{CompiledBindingExtension Gesture,
                                         Source={StaticResource Tools.ToolTools.ChangeKeybinding}, 
                                         Converter={StaticResource ToStringConverter}, 
                                         Mode=OneWay,
