@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Templates;
+using Avalonia.Layout;
 using CommunityToolkit.Mvvm.Input;
 using Laminar.Domain;
 
@@ -8,12 +10,20 @@ namespace Laminar.Avalonia.Controls;
 
 public partial class ItemPicker : ItemsControl
 {
+    private static readonly FuncTemplate<Panel?> DefaultPanel = new(() => new StackPanel
+    {
+        Orientation = Orientation.Horizontal,
+        HorizontalAlignment = HorizontalAlignment.Stretch,
+        Spacing = 5
+    });
+    
     public static readonly StyledProperty<IReadOnlyItemCategory<object>> ItemsCategoryProperty 
         = AvaloniaProperty.Register<ItemPicker, IReadOnlyItemCategory<object>>(nameof(ItemsCategory));
 
     static ItemPicker()
     {
         ItemsCategoryProperty.Changed.AddClassHandler<ItemPicker>((p, args) => p.ItemsCategoryChanged(args));
+        ItemsPanelProperty.OverrideDefaultValue<ItemPicker>(DefaultPanel);
     }
 
     private void ItemsCategoryChanged(AvaloniaPropertyChangedEventArgs args)
@@ -38,6 +48,16 @@ public partial class ItemPicker : ItemsControl
     {
         get => GetValue(ItemsCategoryProperty);
         set => SetValue(ItemsCategoryProperty, value);
+    }
+
+    protected override Control CreateContainerForItemOverride(object? item, int index, object? recycleKey)
+    {
+        return new ItemPickerItem();
+    }
+
+    protected override bool NeedsContainerOverride(object? item, int index, out object? recycleKey)
+    {
+        return NeedsContainer<ItemPickerItem>(item, out recycleKey);
     }
 
     [RelayCommand]

@@ -20,6 +20,7 @@
 				<ResourceInclude Source="XamlAssets/Themes/SwitchIconTheme.axaml"/>
 				<ResourceInclude Source="XamlAssets/Themes/LineIconTheme.axaml"/>
 				<ResourceInclude Source="XamlAssets/Themes/ItemPickerTheme.axaml"/>
+				<ResourceInclude Source="XamlAssets/Themes/ItemPickerItemTheme.axaml"/>
 				<ResourceInclude Source="XamlAssets/Themes/DragDropTreeViewTheme.axaml"/>
 				<ResourceInclude Source="XamlAssets/Themes/DragDropTreeViewItemTheme.axaml"/>
 				<ResourceInclude Source="XamlAssets/Themes/KeyGestureInterfaceTheme.axaml"/>

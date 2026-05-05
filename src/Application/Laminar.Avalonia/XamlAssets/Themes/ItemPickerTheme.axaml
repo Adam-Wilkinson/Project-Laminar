@@ -65,14 +65,10 @@
                                 </Setter>
                             </ControlTheme>
                         </Menu.Theme>
-                    </Menu>
-                    <ItemsPresenter Margin="10">
-                        <ItemsPresenter.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <StackPanel Orientation="Horizontal" Spacing="5"/>
-                            </ItemsPanelTemplate>
-                        </ItemsPresenter.ItemsPanel>
-                    </ItemsPresenter>
+                    </Menu> 
+                    <ItemsPresenter Name="PART_ItemsPresenter" 
+                                    Margin="10"
+                                    ItemsPanel="{TemplateBinding ItemsPanel}"/>
                 </DockPanel>
             </ControlTemplate>
         </Setter>
