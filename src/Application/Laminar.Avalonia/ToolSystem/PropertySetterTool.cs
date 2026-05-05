@@ -150,28 +150,9 @@ public class PropertySetterCommand : ICommand
             MinWidth = 250,
             Content = _boundPropertyContainer.Value is IInterfaceData ? _boundPropertyContainer.Value : _boundPropertyContainer,
         };
-
-        void KeyDown(object? sender, KeyEventArgs e) => flyoutContent.Presenter?.Child?.RaiseEvent(e);
-
-        void KeyUp(object? sender, KeyEventArgs e) => flyoutContent.Presenter?.Child?.RaiseEvent(e);
-
-        var keyboardSource = TopLevel.GetTopLevel(_popupTarget)?.FocusManager?.GetFocusedElement() is { } focused ? focused : _popupTarget;
-        keyboardSource.KeyDown += KeyDown;
-        keyboardSource.KeyUp += KeyUp;
-        
         var flyout = new Flyout { Content = flyoutContent, Placement = PlacementMode.Pointer };
         
-        FlyoutBase.SetAttachedFlyout(_popupTarget, flyout);
-        
-        FlyoutBase.ShowAttachedFlyout(_popupTarget);
-
-        flyoutContent.Focus();
-        
-        flyout.Closed += (_, _) =>
-        {
-            _popupTarget.KeyDown -= KeyDown;
-            _popupTarget.KeyUp -= KeyUp;
-        };
+        flyout.ShowAt(_popupTarget, true);
     }
 
     public event EventHandler? CanExecuteChanged;

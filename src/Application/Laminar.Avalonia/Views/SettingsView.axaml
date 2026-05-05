@@ -52,7 +52,7 @@
 						<TextBlock Grid.Column="0" Margin="0,15,0,0"
 						           Text="{Binding NameKey}"/>
 						<Separator Grid.Column="1" VerticalAlignment="Bottom"/>
-						<c:KeyGestureInterface Grid.Column="2" Name="MainKeyGestureInterface"
+						<c:KeyGestureEditor Grid.Column="2" Name="MainKeyGestureInterface"
 						                       CornerRadius="{s:UiScaled 10}"
 						                       Width="300"
 						                       Gesture="{Binding Gesture, Mode=TwoWay}" 

@@ -9,19 +9,19 @@ using Avalonia.Reactive;
 namespace Laminar.Avalonia.Controls;
 
 [PseudoClasses(":isBeingEdited")]
-public class KeyGestureInterface : TemplatedControl
+public class KeyGestureEditor : TemplatedControl
 {
     public static readonly StyledProperty<string?> FormatStringProperty =
-        AvaloniaProperty.Register<KeyGestureInterface, string?>(nameof(FormatString));
+        AvaloniaProperty.Register<KeyGestureEditor, string?>(nameof(FormatString));
 
     public static readonly StyledProperty<KeyGestureInterfaceState> StateProperty =
-        AvaloniaProperty.Register<KeyGestureInterface, KeyGestureInterfaceState>(nameof(State));
+        AvaloniaProperty.Register<KeyGestureEditor, KeyGestureInterfaceState>(nameof(State));
 
     public static readonly StyledProperty<KeyGesture> GestureProperty =
-        AvaloniaProperty.Register<KeyGestureInterface, KeyGesture>(nameof(Gesture), new(Key.None));
+        AvaloniaProperty.Register<KeyGestureEditor, KeyGesture>(nameof(Gesture), new(Key.None));
         
-    public static readonly DirectProperty<KeyGestureInterface, string> TextProperty =
-        AvaloniaProperty.RegisterDirect<KeyGestureInterface, string>(nameof(Text), kgi => kgi.Text);
+    public static readonly DirectProperty<KeyGestureEditor, string> TextProperty =
+        AvaloniaProperty.RegisterDirect<KeyGestureEditor, string>(nameof(Text), kgi => kgi.Text);
     
     private static readonly KeyGestureFormatInfo FormatInfo = new(new Dictionary<Key, string>
     {
@@ -38,7 +38,7 @@ public class KeyGestureInterface : TemplatedControl
     
     private KeyGesture _currentGesture = new(Key.None);
     
-    public KeyGestureInterface()
+    public KeyGestureEditor()
     {
         this.GetObservable(GestureProperty).Subscribe(new AnonymousObserver<KeyGesture>(newValue =>
         {

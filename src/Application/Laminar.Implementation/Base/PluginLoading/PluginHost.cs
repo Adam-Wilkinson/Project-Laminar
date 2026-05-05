@@ -30,7 +30,19 @@ public class PluginHost(
         loadedNodeManager.AddNodeToCategory(node, subItemName is null ? menuItemName : $"{menuItemName}{ItemCategory<IWrappedNode>.SeparationChar}{subItemName}");
     }
 
-    public bool RegisterDataInterface<TInterfaceDefinition, TData, TInterface>() where TInterfaceDefinition : IUserInterfaceDefinition, new() where TData : notnull
+    public bool RegisterDataInterfaceFactory<TInterfaceDefinition, TData, TInterface>(Func<TInterface> factory)
+        where TInterfaceDefinition : IUserInterfaceDefinition, new()
+        where TData : notnull
+        where TInterface : class
+    {
+        dataInterfaceFactory.RegisterInterfaceFactory<TInterfaceDefinition, TData, TInterface>(factory);
+        return true;
+    }
+    
+    public bool RegisterDataInterface<TInterfaceDefinition, TData, TInterface>() 
+        where TInterfaceDefinition : IUserInterfaceDefinition, new() 
+        where TData : notnull
+        where TInterface : class, new()
     {
         dataInterfaceFactory.RegisterInterface<TInterfaceDefinition, TData, TInterface>();
         return true;

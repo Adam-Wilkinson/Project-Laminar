@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Laminar.Contracts.Base;
 using Laminar.Contracts.Base.UserInterface;
@@ -16,11 +17,12 @@ public partial class DataInterfaceFactory(ITypeInfoStore typeInfoStore, ILogger<
     private delegate IInterfaceData? GenericDataFactory(IInterfaceData inputData, IUserInterfaceDefinition userInterfaceDefinition);
     
     private readonly Dictionary<Type, List<(Type valueType, GenericDataFactory factory)>> _interfaceFactories = [];
-    private readonly Dictionary<Type, List<Type>> _frontendImplementations = [];
-    
-    public void RegisterInterface<TInterfaceDefinition, TValue, TInterface>()
+    private readonly Dictionary<Type, List<FrontendInfo>> _frontendImplementations = [];
+
+    public void RegisterInterfaceFactory<TInterfaceDefinition, TValue, TInterface>(Func<TInterface> factory)
         where TInterfaceDefinition : IUserInterfaceDefinition, new()
         where TValue : notnull
+        where TInterface : class
     {
         if (!_interfaceFactories.ContainsKey(typeof(TInterfaceDefinition)))
         {
@@ -33,8 +35,14 @@ public partial class DataInterfaceFactory(ITypeInfoStore typeInfoStore, ILogger<
             _frontendImplementations.Add(typeof(TInterfaceDefinition), []);
         }
         
-        _frontendImplementations[typeof(TInterfaceDefinition)].Add(typeof(TInterface));
+        _frontendImplementations[typeof(TInterfaceDefinition)].Add(new FrontendInfo(typeof(TInterface), factory));
     }
+    
+    public void RegisterInterface<TInterfaceDefinition, TValue, TInterface>()
+        where TInterfaceDefinition : IUserInterfaceDefinition, new()
+        where TInterface : class, new()
+        where TValue : notnull 
+        => RegisterInterfaceFactory<TInterfaceDefinition, TValue, TInterface>(() => new TInterface());
 
     public IDataInterface<TFrontend> GetDataInterface<TFrontend>(IInterfaceData interfaceData)
         where TFrontend : class, new() => new DataInterface<TFrontend>(interfaceData, this);
@@ -114,16 +122,16 @@ public partial class DataInterfaceFactory(ITypeInfoStore typeInfoStore, ILogger<
     private TFrontend? GetFrontendFromData<TFrontend>(IInterfaceData interfaceData) 
         where TFrontend : class, new()
     {
-        if (interfaceData.Definition is null || !_frontendImplementations.TryGetValue(interfaceData.Definition.GetType(), out var frontendTypes))
+        if (interfaceData.Definition is null || !_frontendImplementations.TryGetValue(interfaceData.Definition.GetType(), out var frontendInfos))
         {
             return null;
         }
         
-        foreach (var frontendType in frontendTypes)
+        foreach (var (frontendType, frontendFactory) in frontendInfos)
         {
-            if (typeof(TFrontend).IsAssignableFrom(frontendType) && Activator.CreateInstance(frontendType) is TFrontend frontend)
+            if (typeof(TFrontend).IsAssignableFrom(frontendType))
             {
-                return frontend;
+                return (TFrontend)frontendFactory();
             }
         }
 
@@ -139,12 +147,14 @@ public partial class DataInterfaceFactory(ITypeInfoStore typeInfoStore, ILogger<
             not null => new InterfaceDataGenericWrapper<TInterfaceDefinition, TValue>(interfaceData, (TInterfaceDefinition)interfaceDefinition),
             _ => null,
         };
-
+    
     [LoggerMessage(LogLevel.Error, "The requested data interface {definitionType} has implementations, but none of them are for the correct frontend type {frontendType}. System will fall back along default interfaces")]
     static partial void LogRequestedDataInterfaceNoFrontend(ILogger<DataInterfaceFactory> logger, Type definitionType, Type frontendType);
 
     [LoggerMessage(LogLevel.Error, "The requested data interface type {definitionType} has no implementations. System will fall back along default interfaces")]
     static partial void LogRequestedDataInterfaceNoImplementations(ILogger<DataInterfaceFactory> logger, Type definitionType);
+    
+    private record struct FrontendInfo(Type FrontendType, Func<object> Factory);
 }
 
 public class InterfaceDataGenericWrapper<TInterfaceDefinition, TValue> : IInterfaceData<TInterfaceDefinition, TValue>

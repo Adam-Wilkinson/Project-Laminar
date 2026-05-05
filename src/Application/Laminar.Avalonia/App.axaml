@@ -23,7 +23,7 @@
 				<ResourceInclude Source="XamlAssets/Themes/ItemPickerItemTheme.axaml"/>
 				<ResourceInclude Source="XamlAssets/Themes/DragDropTreeViewTheme.axaml"/>
 				<ResourceInclude Source="XamlAssets/Themes/DragDropTreeViewItemTheme.axaml"/>
-				<ResourceInclude Source="XamlAssets/Themes/KeyGestureInterfaceTheme.axaml"/>
+				<ResourceInclude Source="XamlAssets/Themes/KeyGestureEditorTheme.axaml"/>
 				<ResourceInclude Source="XamlAssets/Themes/ToolMenuTheme.axaml"/>
 				<ResourceInclude Source="XamlAssets/Themes/WindowDecorationsThemes/LinuxWidowDecorationsTheme.axaml"/>
 				<ResourceInclude Source="XamlAssets/Themes/WindowDecorationsThemes/WindowsWindowDecorationsTheme.axaml"/>
