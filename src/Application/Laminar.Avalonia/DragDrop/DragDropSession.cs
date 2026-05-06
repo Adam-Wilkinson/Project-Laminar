@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.LogicalTree;
@@ -11,6 +12,8 @@ using Avalonia.Media;
 using Avalonia.Rendering.Composition;
 using Avalonia.VisualTree;
 using Laminar.Avalonia.Animations;
+using Laminar.Domain.ValueObjects;
+using Point = Avalonia.Point;
 
 namespace Laminar.Avalonia.DragDrop;
 
@@ -18,26 +21,29 @@ public class DragDropSession : IDisposable
 {
     private const double SquaredMinimumDragDistance = 40;
 
+    private static readonly CompiledBinding ZIndexBinding =
+        CompiledBinding.Create<int, int>(x => x, source: int.MaxValue, priority: BindingPriority.Animation);
+    private static readonly CompiledBinding ClipToBoundsBinding =
+        CompiledBinding.Create<bool, bool>(x => x, source: false, priority: BindingPriority.Animation);
+    private static readonly CompiledBinding OffsetAnimationDurationBinding =
+        CompiledBinding.Create<TimeSpan, TimeSpan>(x => x, source: TimeSpan.Zero, priority: BindingPriority.Animation);
+
     private readonly PointerPressedEventArgs _startingEvent;
     private readonly Point _localClickOffset;
-    private readonly Point _globalOriginalClickPoint;
     private readonly DropTargetEventArgs _hoverEnterEventArgs;
     private readonly DropTargetEventArgs _hoverLeaveEventArgs;
     private readonly DropTargetEventArgs _dropEventArgs;
+    private readonly CompositeDisposable _avaloniaValueOverrides = [];
     
     private State _state;
-    private int _draggingControlOriginalZIndex;
-    private bool _draggingControlOriginalClipToBounds;
-    private TimeSpan _draggingControlOriginalOffsetDuration;
     private PointerEventArgs? _mostRecentMoveEvent;
     private TopLevel? _topLevel;
     
     public DragDropSession(Control senderControl, PointerPressedEventArgs startingEvent)
     {
         _localClickOffset = startingEvent.GetPosition(senderControl);
-        _globalOriginalClickPoint = startingEvent.GetPosition(null);
         _startingEvent = startingEvent;
-
+        
         _hoverEnterEventArgs = DropTargetEventArgs.HoverEnter(this);
         _hoverLeaveEventArgs = DropTargetEventArgs.HoverLeave(this);
         _dropEventArgs = DropTargetEventArgs.Drop(this);
@@ -61,15 +67,14 @@ public class DragDropSession : IDisposable
             
             field = value;
 
-            _draggingControlOriginalZIndex = value.ZIndex;
-            value.ZIndex = int.MaxValue;
-
-            _draggingControlOriginalClipToBounds = value.ClipToBounds;
-            value.ClipToBounds = false;
-
-            _draggingControlOriginalOffsetDuration = PositionAnimation.GetDuration(value);
-            PositionAnimation.SetDuration(value, TimeSpan.Zero);
-
+            foreach (var parent in value.GetSelfAndVisualAncestors())
+            {
+                if (parent is TopLevel) break;
+                _avaloniaValueOverrides.Add(parent.Bind(Visual.ZIndexProperty, ZIndexBinding));
+                _avaloniaValueOverrides.Add(parent.Bind(Visual.ClipToBoundsProperty, ClipToBoundsBinding));
+                _avaloniaValueOverrides.Add(parent.Bind(PositionAnimation.DurationProperty, OffsetAnimationDurationBinding));
+            }
+            
             if (!value.IsLoaded)
             {
                 value.Loaded += (_, _) => UpdateTopLevel(TopLevel.GetTopLevel(value));
@@ -83,7 +88,7 @@ public class DragDropSession : IDisposable
             {
                 _startingEvent.Pointer.Capture(value);
                 BeingDraggedHandler.StartDrag(DraggingControl);
-                // if (_mostRecentMoveEvent is not null) PointerMoved(null, _mostRecentMoveEvent);
+                if (_mostRecentMoveEvent is not null) UpdateActiveControlPosition();
             }
         }
     }
@@ -93,8 +98,7 @@ public class DragDropSession : IDisposable
         if (_state is State.None or State.AnimateHome) return;
 
         _mostRecentMoveEvent = e;
-        Point currentGlobalMousePosition = e.GetPosition(null);
-        Vector totalMouseMovement = _globalOriginalClickPoint - currentGlobalMousePosition;
+        Vector totalMouseMovement = _mostRecentMoveEvent.GetPosition(DraggingControl) - _localClickOffset;
 
         if (_state == State.ClickWithoutDrag && totalMouseMovement.SquaredLength < SquaredMinimumDragDistance) return;
 
@@ -107,17 +111,16 @@ public class DragDropSession : IDisposable
             BeingDraggedHandler.StartDrag(DraggingControl);
         }
         
-        var visualTranslationVector = e.GetPosition(DraggingControl) - _localClickOffset;
-        ElementComposition.GetElementVisual(DraggingControl)?.Translation = new Vector3D(visualTranslationVector.X, visualTranslationVector.Y, 10);
+        UpdateActiveControlPosition();
         
-        if (CurrentHoverInfo is { } hoverInfo && hoverInfo.TopLevelReceptacleGeometry.FillContains(currentGlobalMousePosition))
+        if (CurrentHoverInfo is { } hoverInfo && hoverInfo.TopLevelReceptacleGeometry.FillContains(e.GetPosition(null)))
         {
             return;
         }
         
         HoverInfo? previousHoverInfo = CurrentHoverInfo;
         if (!HandlePotentialHoverChange(e)) return;
-
+        
         if (previousHoverInfo is null)
         {
             DraggingControl.RaiseEvent(BeingDraggedEventArgs.HoverStarted(DraggingControl));
@@ -153,6 +156,13 @@ public class DragDropSession : IDisposable
         _ = AnimateHome();
     }
 
+    private void UpdateActiveControlPosition()
+    {
+        if (_mostRecentMoveEvent is null) throw new InvalidOperationException();
+        var visualTranslationVector = _mostRecentMoveEvent.GetPosition(DraggingControl) - _localClickOffset;
+        ElementComposition.GetElementVisual(DraggingControl)?.Translation = new Vector3D(visualTranslationVector.X, visualTranslationVector.Y, 0);
+    }
+    
     public event EventHandler? Completed;
 
     private async Task AnimateHome()
@@ -163,7 +173,7 @@ public class DragDropSession : IDisposable
             _state = State.AnimateHome;
             BeingDraggedHandler.TriggerOnAnimateHome(DraggingControl);
             TranslationAnimation.SetDuration(DraggingControl, DragDrop.AnimateHomeAnimationDuration);
-            ElementComposition.GetElementVisual(DraggingControl)?.Translation = new Vector3D(0, 0, 0);
+            ElementComposition.GetElementVisual(DraggingControl)?.Translation = default;
             await Task.Delay(DragDrop.AnimateHomeAnimationDuration);
             TranslationAnimation.SetDuration(DraggingControl, TimeSpan.Zero);
         }
@@ -182,7 +192,9 @@ public class DragDropSession : IDisposable
         CleanupDraggingControl(DraggingControl);
         UpdateTopLevel(null);
         BeingDraggedHandler.EndDrag(DraggingControl);
+        ElementComposition.GetElementVisual(DraggingControl)?.Translation = default;
         DebugRenderer?.EndAll();
+        _avaloniaValueOverrides.Dispose();
         _state = State.None;
         GC.SuppressFinalize(this);
     }
@@ -283,9 +295,7 @@ public class DragDropSession : IDisposable
         BeingDraggedHandler.EndDrag(control);
         control.RemoveHandler(InputElement.PointerReleasedEvent, PointerReleased);
         control.RemoveHandler(InputElement.PointerMovedEvent, PointerMoved);
-        control.ZIndex = _draggingControlOriginalZIndex;
-        control.ClipToBounds = _draggingControlOriginalClipToBounds;
-        PositionAnimation.SetDuration(control, _draggingControlOriginalOffsetDuration);
+        _avaloniaValueOverrides.Clear();
     }
     
     private enum State

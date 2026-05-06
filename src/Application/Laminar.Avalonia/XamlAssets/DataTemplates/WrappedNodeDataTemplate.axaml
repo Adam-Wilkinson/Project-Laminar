@@ -21,6 +21,7 @@
     
     <DataTemplate DataType="s:IWrappedNode" x:Key="WrappedNodeDataTemplate">
         <Border BorderBrush="{DynamicResource UiLayerHighlight}" 
+                Background="{DynamicResource {x:Static init:ColorInitialization.LaminarNonForegroundKey}}"
                 VerticalAlignment="Top"
                 BorderThickness="2">
             <DockPanel Width="200">

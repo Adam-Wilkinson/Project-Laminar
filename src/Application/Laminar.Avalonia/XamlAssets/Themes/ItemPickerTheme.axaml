@@ -33,6 +33,7 @@
     </ControlTheme>
     
     <ControlTheme TargetType="c:ItemPicker" x:Key="{x:Type c:ItemPicker}">
+        <Setter Property="ClipToBounds" Value="False"/>
         <Setter Property="Template">
             <ControlTemplate>
                 <DockPanel>
@@ -68,6 +69,7 @@
                     </Menu> 
                     <ItemsPresenter Name="PART_ItemsPresenter" 
                                     Margin="10"
+                                    ClipToBounds="False"
                                     ItemsPanel="{TemplateBinding ItemsPanel}"/>
                 </DockPanel>
             </ControlTemplate>

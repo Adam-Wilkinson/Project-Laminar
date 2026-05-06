@@ -14,6 +14,7 @@ public class ColorInitialization(Application topLevel) : IAfterApplicationBuiltT
 {
     public const string LaminarAccentKey = "LaminarAccent";
     public const string LaminarForegroundKey = "LaminarForeground";
+    public const string LaminarNonForegroundKey = "LaminarNonForeground";
     public const string LaminarAccentForegroundKey = "LaminarAccentForeground";
     public const string LaminarAccentBackgroundKey = "LaminarAccentBackground";
     public const string LaminarAccenterBackgroundKey = "LaminarAccenterBackground";
@@ -117,6 +118,14 @@ public class ColorInitialization(Application topLevel) : IAfterApplicationBuiltT
             Mix(foregroundHsl.L, accentHsl.L));
 
         topLevel.Resources[LaminarAccentForegroundKey] = accentForeground.ToRgb();
+
+        var oppositeForForeground = new HslColor(
+            1,
+            foregroundHsl.H,
+            foregroundHsl.S * 0.1,
+            1 - foregroundHsl.L);
+        
+        topLevel.Resources[LaminarNonForegroundKey] = oppositeForForeground.ToRgb();
     }
     
     private static double Mix(double foreground, double accent) 
