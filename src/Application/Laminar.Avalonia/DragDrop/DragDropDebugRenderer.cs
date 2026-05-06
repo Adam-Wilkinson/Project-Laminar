@@ -28,7 +28,7 @@ public class DragDropDebugRenderer
     
     public bool EnsureAttachedAndUpdated(Control control)
     {
-        if (AdornerLayer.GetAdornerLayer(control) is not { } adornerLayer 
+        if (OverlayLayer.GetOverlayLayer(control) is not { } overlayLayer 
             || !ShouldDebugControl(control))
         {
             return false;
@@ -41,20 +41,20 @@ public class DragDropDebugRenderer
         }
 
         RendererControl renderer = new(control);
-        adornerLayer.Children.Add(renderer);
+        overlayLayer.Children.Add(renderer);
         _allDebugRenderers.Add(control, renderer);
         return true;
     }
 
     public bool Detach(Control control)
     {
-        if (AdornerLayer.GetAdornerLayer(control) is not { } adornerLayer 
+        if (OverlayLayer.GetOverlayLayer(control) is not { } overlayLayer 
             || !_allDebugRenderers.TryGetValue(control, out RendererControl? renderer))
         {
             return false;
         }
 
-        adornerLayer.Children.Remove(renderer);
+        overlayLayer.Children.Remove(renderer);
         renderer.IsVisible = false;
         _allDebugRenderers.Remove(control);
         return true;

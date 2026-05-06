@@ -11,9 +11,9 @@ public class DragDropInitialization(TopLevel topLevel) : IAfterApplicationBuiltT
     {
         Setting<TimeSpan>.OnChange(topLevel, "SettingsRoot.InterfaceSettings.AnimationDuration", duration =>
         {
-            if (DragDropHandler.AnimateHomeAnimationDuration != duration)
+            if (DragDrop.AnimateHomeAnimationDuration != duration)
             {
-                DragDropHandler.AnimateHomeAnimationDuration = duration;
+                DragDrop.AnimateHomeAnimationDuration = duration;
             }
         });
     }

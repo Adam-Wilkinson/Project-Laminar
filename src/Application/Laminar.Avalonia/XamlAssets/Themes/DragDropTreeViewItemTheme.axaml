@@ -15,7 +15,7 @@
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="IsExpanded" Value="{Binding IsExpanded}"/>
         
-        <Setter Property="dd:DragDropHandler.TriggerMouseButton" Value="Left"/>
+        <Setter Property="dd:DragDrop.TriggerMouseButton" Value="Left"/>
         <Setter Property="dd:BeingDraggedHandler.DragStartedCommand" Value="{x:Static dd:TreeViewItemDrag.StartedCommand}"/>
         <Setter Property="dd:BeingDraggedHandler.AnimateHomeStartedCommand" Value="{x:Static dd:TreeViewItemDrag.AnimateHomeCommand}"/>
         

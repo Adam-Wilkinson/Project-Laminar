@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
@@ -60,7 +61,7 @@ public partial class FileNavigatorViewModel(
         _proposedHoveredItem = targetParent;
         
         if (!IsValidMove(draggedItem, targetParent, targetIndex)) return;
-
+        
         // A closed folder cannot take children, but should be expanded after a certain amount of time
         if (!targetParent.IsExpanded)
         {

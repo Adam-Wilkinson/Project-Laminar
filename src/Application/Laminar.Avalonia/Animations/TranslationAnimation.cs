@@ -4,18 +4,14 @@ using Avalonia.Rendering.Composition;
 
 namespace Laminar.Avalonia.Animations;
 
-/// <summary>
-/// Animates the Offset property of the CompositionVisual that represents a control. The offset property is used by
-/// the internal layout system
-/// </summary>
-public class PositionAnimation
+public class TranslationAnimation
 {
     public static readonly AttachedProperty<TimeSpan> DurationProperty =
         AvaloniaProperty.RegisterAttached<PositionAnimation, Visual, TimeSpan>("Duration", TimeSpan.Zero);
     public static TimeSpan GetDuration(Visual visual) => visual.GetValue(DurationProperty);
     public static void SetDuration(Visual visual, TimeSpan value) => visual.SetValue(DurationProperty, value);
     
-    static PositionAnimation()
+    static TranslationAnimation()
     {
         DurationProperty.Changed.AddClassHandler<Visual>(OnDurationChanged);
     }
@@ -38,7 +34,7 @@ public class PositionAnimation
     private static void RemoveTransitionFrom(Visual visual)
     {
         if (ElementComposition.GetElementVisual(visual) is not { } compositionVisual) return;
-        compositionVisual.SetImplicitOffsetAnimation(null);
+        compositionVisual.SetImplicitTranslationAnimation(null);
     }
 
     private static void AddTransitionTo(Visual visual, TimeSpan duration)
@@ -52,9 +48,9 @@ public class PositionAnimation
         if (ElementComposition.GetElementVisual(visual) is not { } compositionVisual) return;
         Compositor compositor = compositionVisual.Compositor;
         Vector3KeyFrameAnimation offsetAnimation = compositor.CreateVector3KeyFrameAnimation();
-        offsetAnimation.Target = nameof(CompositionVisual.Offset);
+        offsetAnimation.Target = nameof(CompositionVisual.Translation);
         offsetAnimation.InsertExpressionKeyFrame(1.0f, "this.FinalValue");
         offsetAnimation.Duration = duration;
-        compositionVisual.SetImplicitOffsetAnimation(offsetAnimation);
+        compositionVisual.SetImplicitTranslationAnimation(offsetAnimation);
     }
 }

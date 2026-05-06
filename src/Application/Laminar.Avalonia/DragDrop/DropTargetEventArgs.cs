@@ -7,32 +7,30 @@ namespace Laminar.Avalonia.DragDrop;
 
 public class DropTargetEventArgs : RoutedEventArgs
 {
-    public static DropTargetEventArgs HoverEnter(Control draggingVisual, PointerPressedEventArgs clickEvent, Interactive? currentHoverInteractive = null, object? receptacleTag = null)
-        => new(DropTargetHandler.HoverEnterEvent, draggingVisual)
-            { OriginalClickEventArgs = clickEvent, DraggingControl = draggingVisual, CurrentHoverOver = currentHoverInteractive, ReceptacleTag = receptacleTag, EventType =  DropTargetEventType.HoverEnter };
+    public static DropTargetEventArgs HoverEnter(DragDropSession session)
+        => new(DropTargetHandler.HoverEnterEvent, session) { EventType =  DropTargetEventType.HoverEnter };
 
-    public static DropTargetEventArgs HoverLeave(Control draggingVisual, PointerPressedEventArgs clickEvent, Interactive? currentHoverInteractive = null, object? receptacleTag = null) 
-        => new(DropTargetHandler.HoverLeaveEvent, draggingVisual)
-            { OriginalClickEventArgs = clickEvent, DraggingControl = draggingVisual, CurrentHoverOver = currentHoverInteractive, ReceptacleTag = receptacleTag, EventType =  DropTargetEventType.HoverLeave };
+    public static DropTargetEventArgs HoverLeave(DragDropSession session) 
+        => new(DropTargetHandler.HoverLeaveEvent, session) { EventType =  DropTargetEventType.HoverLeave };
     
-    public static DropTargetEventArgs Drop(Control draggingVisual, PointerPressedEventArgs clickEvent, Interactive? currentHoverInteractive = null, object? receptacleTag = null)
-        => new(DropTargetHandler.DropEvent, draggingVisual)
-            { OriginalClickEventArgs = clickEvent, DraggingControl = draggingVisual, CurrentHoverOver = currentHoverInteractive, ReceptacleTag = receptacleTag, EventType =  DropTargetEventType.Drop };
+    public static DropTargetEventArgs Drop(DragDropSession session)
+        => new(DropTargetHandler.DropEvent, session) { EventType =  DropTargetEventType.Drop };
+
+    private readonly DragDropSession _session;
     
-    private DropTargetEventArgs(RoutedEvent<DropTargetEventArgs> routedEvent, Visual draggingControl)
-        :base(routedEvent, draggingControl)
+    private DropTargetEventArgs(RoutedEvent<DropTargetEventArgs> routedEvent, DragDropSession session)
+        :base(routedEvent, session.DraggingControl)
     {
+        _session = session;
     }
 
-    public required Control DraggingControl { get; init; }
+    public Control DraggingControl => _session.DraggingControl;
 
-    public required PointerPressedEventArgs OriginalClickEventArgs { get; init; }
+    public Interactive? CurrentHoverOver => _session.CurrentHoverInfo?.HoverTarget;
 
-    public Interactive? CurrentHoverOver { get; set; }
+    public object? ReceptacleTag => _session.CurrentHoverInfo?.ReceptacleTag;
 
-    public object? ReceptacleTag { get; set; }
-
-    public DropTargetEventType EventType { get; init; }
+    public DropTargetEventType EventType { get; private init; }
 }
 
 public enum DropTargetEventType
