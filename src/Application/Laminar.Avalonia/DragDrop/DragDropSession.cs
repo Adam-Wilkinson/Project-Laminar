@@ -7,9 +7,11 @@ using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Layout;
 using Avalonia.LogicalTree;
 using Avalonia.Media;
 using Avalonia.Rendering.Composition;
+using Avalonia.Threading;
 using Avalonia.VisualTree;
 using Laminar.Avalonia.Animations;
 using Laminar.Domain.ValueObjects;
@@ -84,7 +86,6 @@ public class DragDropSession : IDisposable
             {
                 _startingEvent.Pointer.Capture(value);
                 BeingDraggedHandler.StartDrag(DraggingControl);
-                if (_mostRecentMoveEvent is not null) UpdateActiveControlPosition();
             }
         }
     }
@@ -155,8 +156,11 @@ public class DragDropSession : IDisposable
     private void UpdateActiveControlPosition()
     {
         if (_mostRecentMoveEvent is null) throw new InvalidOperationException();
-        var visualTranslationVector = _mostRecentMoveEvent.GetPosition(DraggingControl) - _localClickOffset;
-        ElementComposition.GetElementVisual(DraggingControl)?.Translation = new Vector3D(visualTranslationVector.X, visualTranslationVector.Y, 0);
+        Dispatcher.UIThread.Post(() =>
+        {
+            var visualTranslationVector = _mostRecentMoveEvent.GetPosition(DraggingControl) - _localClickOffset;
+            ElementComposition.GetElementVisual(DraggingControl)?.Translation = new Vector3D(visualTranslationVector.X, visualTranslationVector.Y, 0);
+        }, DispatcherPriority.Loaded);
     }
     
     public event EventHandler? Completed;
@@ -278,14 +282,32 @@ public class DragDropSession : IDisposable
     {
         if (sender is not Visual attached) throw new InvalidOperationException();
         UpdateTopLevel(TopLevel.GetTopLevel(attached));
+        if (_mostRecentMoveEvent is not null) UpdateActiveControlPosition();
+        (attached as Layoutable)?.LayoutUpdated += DraggingControlLayoutUpdated;
+        
         foreach (var parent in attached.GetSelfAndVisualAncestors())
         {
             if (parent is TopLevel) break;
             _avaloniaValueOverrides.Add(parent.Bind(Visual.ZIndexProperty, ZIndexBinding));
             _avaloniaValueOverrides.Add(parent.Bind(Visual.ClipToBoundsProperty, ClipToBoundsBinding));
         }
-
+        
         attached.AttachedToVisualTree -= DraggingControlAttachedToVisualTree;
+    }
+
+    private void CleanupDraggingControl(Control? control)
+    {
+        if (control is null) return;
+        BeingDraggedHandler.EndDrag(control);
+        control.LayoutUpdated -= DraggingControlLayoutUpdated;
+        control.RemoveHandler(InputElement.PointerReleasedEvent, PointerReleased);
+        control.RemoveHandler(InputElement.PointerMovedEvent, PointerMoved);
+        _avaloniaValueOverrides.Clear();
+    }
+
+    private void DraggingControlLayoutUpdated(object? sender, EventArgs e)
+    {
+        if (_mostRecentMoveEvent is not null) UpdateActiveControlPosition();
     }
     
     private void UpdateTopLevel(TopLevel? topLevel)
@@ -297,15 +319,6 @@ public class DragDropSession : IDisposable
         topLevel?.AddHandler(InputElement.PointerReleasedEvent, PointerReleased, handledEventsToo: true);
         topLevel?.AddHandler(InputElement.PointerMovedEvent, PointerMoved,  handledEventsToo: true);
         _topLevel = topLevel;
-    }
-    
-    private void CleanupDraggingControl(Control? control)
-    {
-        if (control is null) return;
-        BeingDraggedHandler.EndDrag(control);
-        control.RemoveHandler(InputElement.PointerReleasedEvent, PointerReleased);
-        control.RemoveHandler(InputElement.PointerMovedEvent, PointerMoved);
-        _avaloniaValueOverrides.Clear();
     }
     
     private enum State

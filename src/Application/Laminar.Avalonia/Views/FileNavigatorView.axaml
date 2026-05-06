@@ -18,7 +18,7 @@
         </t:Toolbox>
     </UserControl.Resources>
     
-    <DockPanel MinWidth="1" Name="FileNavigator">
+    <DockPanel MinWidth="1" Name="FileNavigator" VerticalAlignment="Stretch">
         <ItemsControl DockPanel.Dock="Bottom" Height="35" HorizontalAlignment="Center"
                       ItemsSource="{Binding 
                         Converter={StaticResource ToolInstancer},
@@ -37,19 +37,13 @@
                   dd:DropTargetHandler.DropAcceptor="{StaticResource TreeViewDropAcceptor}"
                   dd:DropTargetHandler.HoverEnterCommand="{Binding HoverCommand}"
                   dd:DropTargetHandler.DropCommand="{Binding DropCommand}"
-                  VerticalAlignment="Stretch"
-                  Background="Transparent">
+                  VerticalAlignment="Stretch">
             <TreeView.ItemTemplate>
                 <TreeDataTemplate DataType="{x:Type vm:FileNavigatorItemViewModel}"
                                   ItemsSource="{Binding Children}">
                     <ContentControl Content="{Binding}"/>
                 </TreeDataTemplate>
             </TreeView.ItemTemplate>
-            <TreeView.Styles>
-                <Style Selector="TreeViewItem">
-                    <Setter Property="MinHeight" Value="0"/>
-                </Style>
-            </TreeView.Styles>
         </TreeView>
     </DockPanel>
 </UserControl>

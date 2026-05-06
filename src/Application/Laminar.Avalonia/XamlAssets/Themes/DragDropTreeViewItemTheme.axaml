@@ -20,6 +20,8 @@
         
         <Setter Property="anim:PositionAnimation.Duration" Value="{s:Setting InterfaceSettings.AnimationDuration}"/>
         
+        <Setter Property="ClipToBounds" Value="False"/>
+        
         <Setter Property="Template">
             <ControlTemplate>
                 <StackPanel>
