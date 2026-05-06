@@ -6,7 +6,6 @@
              xmlns:dvm="using:Laminar.Avalonia.ViewModels.Design"
              xmlns:t="using:Laminar.Avalonia.ToolSystem"
              xmlns:dd="using:Laminar.Avalonia.DragDrop"
-             ClipToBounds="False"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450" d:DataContext="{x:Static dvm:DesignViewModel.FileNavigator}"
              x:DataType="vm:FileNavigatorViewModel"
              x:Class="Laminar.Avalonia.Views.FileNavigatorView"
@@ -31,7 +30,7 @@
             </ItemsControl.ItemsPanel>
         </ItemsControl>
         
-        <TreeView Theme="{StaticResource DragDropTreeViewTheme}"
+        <TreeView ItemContainerTheme="{StaticResource DragDropTreeViewItemTheme}"
                   ItemsSource="{Binding RootFiles}" 
                   SelectionMode="Multiple" 
                   Margin="3,0"

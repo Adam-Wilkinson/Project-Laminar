@@ -12,37 +12,21 @@
              x:DataType="vm:MainControlViewModel"
              Margin="4"
              x:Class="Laminar.Avalonia.Views.MainControlView">
-    <DockPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ClipToBounds="False">
+    <DockPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
         <asp:AdjustableStackPanel DockPanel.Dock="Left" 
                                   HorizontalAlignment="Left" 
                                   VerticalAlignment="Stretch" 
                                   Orientation="Horizontal" 
                                   Name="SidebarStackPanel" 
                                   TransitionDuration="{s:Setting InterfaceSettings.AnimationDuration}" 
-                                  TransitionEasing="{DynamicResource AnimationEasing}"
-                                  ZIndex="400"
-                                  ClipToBounds="False">
+                                  TransitionEasing="{DynamicResource AnimationEasing}">
             <ContentControl Name="FileNavigator"
                             CornerRadius="10"
                             Background="{DynamicResource UiLayer}"
                             Content="{Binding FileNavigator}" 
-                            asp:ResizeWidget.TargetSize="{Binding CurrentSidebarWidth, Mode=TwoWay}">
-                <ContentControl.Tag>
-                    <MultiBinding Converter="{StaticResource AreEqualConverter}">
-                        <Binding Path="ExpandedSidebarWidth"/>
-                        <Binding Path="$self.(asp:ResizeWidget.AnimatedSize)"/>
-                    </MultiBinding>
-                </ContentControl.Tag>
-                <ContentControl.Styles>
-                    <Style Selector="ContentControl[Tag=True]">
-                        <Setter Property="ClipToBounds" Value="False"/>
-                    </Style>
-                    <Style Selector="ContentControl">
-                        <Setter Property="ClipToBounds" Value="True"/>
-                    </Style>
-                </ContentControl.Styles>
-            </ContentControl>
+                            asp:ResizeWidget.TargetSize="{Binding CurrentSidebarWidth, Mode=TwoWay}"/>
         </asp:AdjustableStackPanel>
+        
         <DockPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <asp:AdjustableStackPanel DockPanel.Dock="Top"
                                       HorizontalAlignment="Stretch"
@@ -60,6 +44,7 @@
                 <TextBlock Classes="h2" HorizontalAlignment="Center" VerticalAlignment="Center">The script editor</TextBlock>
             </Border>
         </DockPanel>
+        
         <DockPanel.Resources>
             <ControlTheme x:Key="{x:Type asp:ResizeWidget}" TargetType="{x:Type asp:ResizeWidget}">
                 <Setter Property="Template">

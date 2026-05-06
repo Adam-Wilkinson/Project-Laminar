@@ -17,6 +17,8 @@ using Point = Avalonia.Point;
 
 namespace Laminar.Avalonia.DragDrop;
 
+public record struct HoverInfo(Interactive HoverTarget, object? ReceptacleTag, Geometry TopLevelReceptacleGeometry);
+
 public class DragDropSession : IDisposable
 {
     private const double SquaredMinimumDragDistance = 40;
@@ -66,22 +68,16 @@ public class DragDropSession : IDisposable
             CleanupDraggingControl(field);
             
             field = value;
-
-            foreach (var parent in value.GetSelfAndVisualAncestors())
-            {
-                if (parent is TopLevel) break;
-                _avaloniaValueOverrides.Add(parent.Bind(Visual.ZIndexProperty, ZIndexBinding));
-                _avaloniaValueOverrides.Add(parent.Bind(Visual.ClipToBoundsProperty, ClipToBoundsBinding));
-                _avaloniaValueOverrides.Add(parent.Bind(PositionAnimation.DurationProperty, OffsetAnimationDurationBinding));
-            }
             
-            if (!value.IsLoaded)
+            _avaloniaValueOverrides.Add(value.Bind(PositionAnimation.DurationProperty, OffsetAnimationDurationBinding));
+            
+            if (value.IsAttachedToVisualTree())
             {
-                value.Loaded += (_, _) => UpdateTopLevel(TopLevel.GetTopLevel(value));
+                DraggingControlAttachedToVisualTree(value, null);
             }
             else
             {   
-                UpdateTopLevel(TopLevel.GetTopLevel(value));
+                value.AttachedToVisualTree += DraggingControlAttachedToVisualTree;
             }
 
             if (_state is State.Drag)
@@ -278,6 +274,20 @@ public class DragDropSession : IDisposable
         }
     }
     
+    private void DraggingControlAttachedToVisualTree(object? sender, VisualTreeAttachmentEventArgs? _)
+    {
+        if (sender is not Visual attached) throw new InvalidOperationException();
+        UpdateTopLevel(TopLevel.GetTopLevel(attached));
+        foreach (var parent in attached.GetSelfAndVisualAncestors())
+        {
+            if (parent is TopLevel) break;
+            _avaloniaValueOverrides.Add(parent.Bind(Visual.ZIndexProperty, ZIndexBinding));
+            _avaloniaValueOverrides.Add(parent.Bind(Visual.ClipToBoundsProperty, ClipToBoundsBinding));
+        }
+
+        attached.AttachedToVisualTree -= DraggingControlAttachedToVisualTree;
+    }
+    
     private void UpdateTopLevel(TopLevel? topLevel)
     {
         if (Equals(_topLevel, topLevel)) return;
@@ -305,7 +315,4 @@ public class DragDropSession : IDisposable
         Drag,
         AnimateHome,
     }
-
 }
-    
-public record struct HoverInfo(Interactive HoverTarget, object? ReceptacleTag, Geometry TopLevelReceptacleGeometry);
