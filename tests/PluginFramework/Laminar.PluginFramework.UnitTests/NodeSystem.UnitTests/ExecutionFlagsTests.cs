@@ -10,77 +10,65 @@ public class ExecutionFlagsTests
     public void ExecutionFlags_ShouldNotHaveTestFlagOne_WhenNoFlags()
     {
         ExecutionFlags sut = ExecutionFlags.None;
-
-        TestFlagOne.HasTestFlagOne(sut).Should().BeFalse();
+        sut.HasFlag(TestFlagOne.Value).Should().BeFalse();
     }
 
     [Fact]
     public void ExecutionFlags_ShouldNotHaveTestFlagTwo_WhenNoFlags()
     {
         ExecutionFlags sut = ExecutionFlags.None;
-
-        TestFlagTwo.HasTestFlagTwo(sut).Should().BeFalse();
+        sut.HasFlag(TestFlagTwo.Value).Should().BeFalse();
     }
 
     [Fact]
     public void ExecutionFlags_ShouldHaveTestFlagOne_WhenOnlyFlagOne()
     {
         ExecutionFlags sut = TestFlagOne.Value;
-
-        TestFlagOne.HasTestFlagOne(sut).Should().BeTrue();
+        sut.HasFlag(TestFlagOne.Value).Should().BeTrue();
     }
 
     [Fact]
     public void ExecutionFlags_ShouldHaveTestFlagTwo_WhenOnlyFlagTwo()
     {
         ExecutionFlags sut = TestFlagTwo.Value;
-
-        TestFlagTwo.HasTestFlagTwo(sut).Should().BeTrue();
+        sut.HasFlag(TestFlagTwo.Value).Should().BeTrue();
     }
 
     [Fact]
     public void ExecutionFlags_ShouldNotHaveTestFlagOne_WhenOnlyFlagTwo()
     {
         ExecutionFlags sut = TestFlagTwo.Value;
-
-        TestFlagOne.HasTestFlagOne(sut).Should().BeFalse();
+        sut.HasFlag(TestFlagOne.Value).Should().BeFalse();
     }
 
     [Fact]
     public void ExecutionFlags_ShouldNotHaveTestFlagTwo_WhenOnlyFlagOne()
     {
         ExecutionFlags sut = TestFlagOne.Value;
-
-        TestFlagTwo.HasTestFlagTwo(sut).Should().BeFalse();
+        sut.HasFlag(TestFlagTwo.Value).Should().BeFalse();
     }
 
     [Fact]
     public void ExecutionFlags_ShouldHaveTestFlagOne_WhenBothFlags()
     {
-        ExecutionFlags sut = TestFlagOne.Value + TestFlagTwo.Value;
-
-        TestFlagOne.HasTestFlagOne(sut).Should().BeTrue();
+        ExecutionFlags sut = TestFlagOne.Value | TestFlagTwo.Value;
+        sut.HasFlag(TestFlagOne.Value).Should().BeTrue();
     }
 
     [Fact]
     public void ExecutionFlags_ShouldHaveTestFlagTwo_WhenBothFlags()
     {
-        ExecutionFlags sut = TestFlagOne.Value + TestFlagTwo.Value;
-
-        TestFlagTwo.HasTestFlagTwo(sut).Should().BeTrue();
+        ExecutionFlags sut = TestFlagOne.Value | TestFlagTwo.Value;
+        sut.HasFlag(TestFlagTwo.Value).Should().BeTrue();
     }
 
     private static class TestFlagOne
     {
-        public static readonly int Value = ExecutionFlags.ReserveNext();
-
-        public static bool HasTestFlagOne(ExecutionFlags executionFlags) => ExecutionFlags.HasFlag(executionFlags, Value);
+        public static readonly ExecutionFlags Value = ExecutionFlags.ReserveNext();
     }
 
     private static class TestFlagTwo
     {
-        public static readonly int Value = ExecutionFlags.ReserveNext();
-
-        public static bool HasTestFlagTwo(ExecutionFlags executionFlags) => ExecutionFlags.HasFlag(executionFlags, Value);
+        public static readonly ExecutionFlags Value = ExecutionFlags.ReserveNext();
     }
 }

@@ -1,9 +1,13 @@
-﻿namespace Laminar.PluginFramework.NodeSystem;
+﻿using System.Runtime.ExceptionServices;
+
+namespace Laminar.PluginFramework.NodeSystem;
 
 public readonly struct ExecutionFlags
 {
-    public static readonly ExecutionFlags None = ReserveNext();
-    
+    private static ExecutionFlags? _none;
+    public static ExecutionFlags None => _none ?? (_none = ReserveNext()).Value;
+
+    private static readonly Lock ReserveNextLock = new();
     private static int _highestIndex = -1;
     
     private ExecutionFlags(int intValue)
@@ -13,7 +17,13 @@ public readonly struct ExecutionFlags
 
     public int AsNumber { get; }
 
-    public static ExecutionFlags ReserveNext() => new(1 << _highestIndex++);
+    public static ExecutionFlags ReserveNext()
+    {
+        lock (ReserveNextLock)
+        {
+            return new(1 << _highestIndex++);
+        }
+    }
 
     public bool HasFlag(ExecutionFlags potentialFlags) => (AsNumber & potentialFlags.AsNumber) != 0;
     
@@ -25,4 +35,7 @@ public readonly struct ExecutionFlags
     {
         return AsNumber.GetHashCode();
     }
+
+    public static ExecutionFlags operator |(ExecutionFlags first, ExecutionFlags second) =>
+        new(first.AsNumber + second.AsNumber);
 }
