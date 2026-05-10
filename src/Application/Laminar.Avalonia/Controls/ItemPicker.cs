@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Metadata;
+using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Templates;
 using Avalonia.Layout;
 using CommunityToolkit.Mvvm.Input;
@@ -8,6 +10,7 @@ using Laminar.Domain;
 
 namespace Laminar.Avalonia.Controls;
 
+[TemplatePart("PART_ScrollViewer", typeof(IScrollable))]
 public partial class ItemPicker : ItemsControl
 {
     private static readonly FuncTemplate<Panel?> DefaultPanel = new(() => new StackPanel
@@ -19,6 +22,12 @@ public partial class ItemPicker : ItemsControl
     
     public static readonly StyledProperty<IReadOnlyItemCategory<object>> ItemsCategoryProperty 
         = AvaloniaProperty.Register<ItemPicker, IReadOnlyItemCategory<object>>(nameof(ItemsCategory));
+
+    /// <summary>
+    /// Defines the <see cref="Scroll"/> property.
+    /// </summary>
+    public static readonly DirectProperty<ItemPicker, IScrollable?> ScrollProperty =
+        AvaloniaProperty.RegisterDirect<ItemPicker, IScrollable?>(nameof(Scroll), o => o.Scroll);
 
     static ItemPicker()
     {
@@ -50,6 +59,18 @@ public partial class ItemPicker : ItemsControl
         set => SetValue(ItemsCategoryProperty, value);
     }
 
+    public IScrollable? Scroll
+    {
+        get;
+        private set => SetAndRaise(ScrollProperty, ref field, value);
+    }
+
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
+    {
+        base.OnApplyTemplate(e);
+        Scroll = e.NameScope.Find<IScrollable>("PART_ScrollViewer");
+    }
+    
     protected override Control CreateContainerForItemOverride(object? item, int index, object? recycleKey)
     {
         return new ItemPickerItem();

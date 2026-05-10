@@ -67,10 +67,12 @@
                             </ControlTheme>
                         </Menu.Theme>
                     </Menu> 
-                    <ItemsPresenter Name="PART_ItemsPresenter" 
-                                    Margin="10"
-                                    ClipToBounds="False"
-                                    ItemsPanel="{TemplateBinding ItemsPanel}"/>
+                    <ScrollViewer Name="PART_ScrollViewer" HorizontalScrollBarVisibility="Auto">
+                        <ItemsPresenter Name="PART_ItemsPresenter" 
+                                        Margin="10"
+                                        ClipToBounds="False"
+                                        ItemsPanel="{TemplateBinding ItemsPanel}"/>
+                    </ScrollViewer>
                 </DockPanel>
             </ControlTemplate>
         </Setter>

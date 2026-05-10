@@ -48,7 +48,7 @@
                     VerticalAlignment="Top"
                     ClipToBounds="False"
                     BorderThickness="3">
-                <DockPanel Width="200">
+                <DockPanel Width="250">
                     <ContentControl DockPanel.Dock="Top"
                                     Content="{Binding NameRow}" 
                                     ClipToBounds="False"
