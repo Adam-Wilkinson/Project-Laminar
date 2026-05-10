@@ -60,6 +60,7 @@
 		<FluentTheme />
 		<StyleInclude Source="XamlAssets/Styles/FontStyles.axaml"/>
 		<StyleInclude Source="XamlAssets/Styles/NoBorderFlyoutStyles.axaml"/>
+		<StyleInclude Source="XamlAssets/Styles/UiLayerStyles.axaml"/>
 	</Application.Styles>
 
 	<Application.DataTemplates>

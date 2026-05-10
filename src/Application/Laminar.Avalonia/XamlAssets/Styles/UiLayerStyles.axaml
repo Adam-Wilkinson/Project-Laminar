@@ -1,0 +1,29 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Design.PreviewWith>
+        <Border Padding="20">
+            <Border Classes="UiLayer">
+                <TextBlock>Some element</TextBlock>
+            </Border>
+        </Border>
+    </Design.PreviewWith>
+
+    <Style Selector="Border.UiLayer">
+        <Setter Property="Background" Value="{DynamicResource UiLayer}"/>
+        <Setter Property="CornerRadius" Value="10"/>
+        <Setter Property="BorderThickness" Value="2"/>
+        <Setter Property="ClipToBounds" Value="True"/>
+        <Style Selector="^:focus-within">
+            <Setter Property="BorderBrush" Value="{DynamicResource UiLayerHighlight}"/>
+        </Style>
+    </Style>
+    
+    <Style Selector=":is(TemplatedControl).UiLayer">
+        <Setter Property="Background" Value="{DynamicResource UiLayer}"/>
+        <Setter Property="CornerRadius" Value="10"/>
+        <Setter Property="BorderThickness" Value="2"/>
+        <Style Selector="^:focus-within">
+            <Setter Property="BorderBrush" Value="{DynamicResource UiLayerHighlight}"/>
+        </Style>
+    </Style>
+</Styles>

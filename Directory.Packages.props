@@ -7,6 +7,7 @@
     <PackageVersion Include="HanumanInstitute.MvvmDialogs" Version="2.3.0" />
     <PackageVersion Include="HanumanInstitute.MvvmDialogs.Avalonia" Version="2.3.0" />
     <PackageVersion Include="HanumanInstitute.MvvmDialogs.Avalonia.MessageBox" Version="2.2.0" />
+    <PackageVersion Include="Laminar.Avalonia.SelectAndMove" Version="2.3.6" />
     <PackageVersion Include="MessageBox.Avalonia" Version="3.3.1.1" />
     <PackageVersion Include="Microsoft.Extensions.Logging" Version="10.0.7" />
     <PackageVersion Include="Serilog" Version="4.3.1" />

@@ -1,0 +1,25 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:Laminar.Avalonia.ViewModels"
+             xmlns:sam="using:Laminar.Avalonia.SelectAndMove"
+             xmlns:s="using:Laminar.Contracts.Scripting.NodeWrapping"
+             xmlns:init="using:Laminar.Avalonia.InitializationTargets"
+             xmlns:dd="using:Laminar.Avalonia.DragDrop"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="Laminar.Avalonia.Views.ScriptEditorView"
+             x:DataType="vm:ScriptEditorViewModel"
+             Background="Transparent"
+             IsHitTestVisible="True">
+    <sam:SelectAndMove ItemsSource="{Binding Nodes}" 
+                       ClipToBounds="True"
+                       dd:DropTargetHandler.DropCommand="{Binding DropCommand}">
+        <sam:SelectAndMove.Styles>
+            <Style Selector="sam|SelectAndMove > ContentPresenter" x:DataType="s:IWrappedNode">
+                <Setter Property="Canvas.Left" Value="{Binding Location.Value.X}"/>
+                <Setter Property="Canvas.Top" Value="{Binding Location.Value.Y}"/>
+            </Style>
+        </sam:SelectAndMove.Styles>
+    </sam:SelectAndMove>
+</UserControl>

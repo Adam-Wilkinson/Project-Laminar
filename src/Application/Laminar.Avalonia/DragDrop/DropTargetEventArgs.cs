@@ -26,10 +26,16 @@ public class DropTargetEventArgs : RoutedEventArgs
 
     public Control DraggingControl => _session.DraggingControl;
 
+    public PointerEventArgs? PointerEventArgs { get; set; }
+
+    public bool AnimateHome { get; set; } = true;
+
     public Interactive? CurrentHoverOver => _session.CurrentHoverInfo?.HoverTarget;
 
     public object? ReceptacleTag => _session.CurrentHoverInfo?.ReceptacleTag;
 
+    public Vector OriginalClickOffset => _session.OriginalClickOffset;
+    
     public DropTargetEventType EventType { get; private init; }
 }
 

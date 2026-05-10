@@ -5,8 +5,10 @@
              xmlns:vm="using:Laminar.Avalonia.ViewModels"
              xmlns:dvm="using:Laminar.Avalonia.ViewModels.Design"
              xmlns:asp="using:Laminar.Avalonia.AdjustableStackPanel"
+             xmlns:sam="using:Laminar.Avalonia.SelectAndMove"
              xmlns:s="using:Laminar.Avalonia.Settings"
              xmlns:c="using:Laminar.Avalonia.Controls"
+             xmlns:init="using:Laminar.Avalonia.InitializationTargets"
              HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450" d:DataContext="{x:Static dvm:DesignViewModel.MainControl}"
              x:DataType="vm:MainControlViewModel"
@@ -20,9 +22,8 @@
                                   Name="SidebarStackPanel" 
                                   TransitionDuration="{s:Setting InterfaceSettings.AnimationDuration}" 
                                   TransitionEasing="{DynamicResource AnimationEasing}">
-            <ContentControl Name="FileNavigator"
-                            CornerRadius="10"
-                            Background="{DynamicResource UiLayer}"
+            <ContentControl Name="FileNavigator" 
+                            Classes="UiLayer"
                             Content="{Binding FileNavigator}" 
                             asp:ResizeWidget.TargetSize="{Binding CurrentSidebarWidth, Mode=TwoWay}"/>
         </asp:AdjustableStackPanel>
@@ -33,16 +34,14 @@
                                       VerticalAlignment="Top"
                                       TransitionDuration="{s:Setting InterfaceSettings.AnimationDuration}"
                                       TransitionEasing="{DynamicResource AnimationEasing}">
-                <Border CornerRadius="10"
-                        Background="{DynamicResource UiLayer}"
+                <Border Classes="UiLayer"
                         asp:ResizeWidget.TargetSize="{Binding NodePickerHeight, Mode=TwoWay}">
                     <c:ItemPicker ItemsCategory="{Binding LoadedNodes}"/>
                 </Border>
             </asp:AdjustableStackPanel>
             
-            <Border CornerRadius="10" Background="{DynamicResource UiLayer}">
-                <TextBlock Classes="h2" HorizontalAlignment="Center" VerticalAlignment="Center">The script editor</TextBlock>
-            </Border>
+            <ContentControl Classes="UiLayer"
+                            Content="{Binding ScriptEditor}"/>
         </DockPanel>
         
         <DockPanel.Resources>

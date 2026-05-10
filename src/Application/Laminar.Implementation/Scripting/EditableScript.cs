@@ -9,12 +9,12 @@ namespace Laminar.Implementation.Scripting;
 
 internal class EditableScript : IEditableScript
 {
-    public EditableScript(IScriptExecutionManager executionManager, INotifyCollectionChangedHelper notifyCollectionChangedHelper, IConnectionCollection connectionCollection, INodeCollection nodeCollection)
+    public EditableScript(IScriptExecutionManager executionManager, IConnectionCollection connectionCollection, INodeCollection nodeCollection)
     {
         ExecutionInstance = executionManager.CreateExecutionInstance(this);
         Connections = connectionCollection;
         Nodes = nodeCollection;
-        NodeTree = new NodeTree(this, notifyCollectionChangedHelper);
+        NodeTree = new NodeTree(this);
     }
 
     public string Name { get; set; } = "Unnamed Script";

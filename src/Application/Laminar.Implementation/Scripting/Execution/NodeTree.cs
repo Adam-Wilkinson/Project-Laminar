@@ -12,24 +12,20 @@ namespace Laminar.Implementation.Scripting.Execution;
 
 public class NodeTree : INodeTree
 {
-    readonly INotifyCollectionChangedHelper _notifyHelper;
-
-    readonly Dictionary<IOutputConnector, List<IWrappedNode>> _connections = new();
-    readonly Dictionary<IIOConnector, IWrappedNode> _connectorParents = new();
-    readonly Dictionary<IWrappedNode, EventHandler<ItemAddedEventArgs<INodeRow>>> _nodeRowAddedDelegates = new();
-    readonly Dictionary<IWrappedNode, EventHandler<ItemRemovedEventArgs<INodeRow>>> _nodeRowRemovedDelegates = new();
+    private readonly Dictionary<IOutputConnector, List<IWrappedNode>> _connections = new();
+    private readonly Dictionary<IIOConnector, IWrappedNode> _connectorParents = new();
+    private readonly Dictionary<IWrappedNode, EventHandler<ItemAddedEventArgs<INodeRow>>> _nodeRowAddedDelegates = new();
+    private readonly Dictionary<IWrappedNode, EventHandler<ItemRemovedEventArgs<INodeRow>>> _nodeRowRemovedDelegates = new();
 
     public event EventHandler? Changed;
 
-    public NodeTree(IScript script, INotifyCollectionChangedHelper notificationHelper)
-    {
-        _notifyHelper = notificationHelper;
+    public NodeTree(IScript script)
+    { 
+        script.Nodes.HelperInstance().ItemAdded += NodeAdded;
+        script.Nodes.HelperInstance().ItemRemoved += NodeRemoved;
 
-        notificationHelper.HelperInstance(script.Nodes).ItemAdded += NodeAdded;
-        notificationHelper.HelperInstance(script.Nodes).ItemRemoved += NodeRemoved;
-
-        notificationHelper.HelperInstance(script.Connections).ItemAdded += ConnectionAdded;
-        notificationHelper.HelperInstance(script.Connections).ItemRemoved += ConnectionRemoved;
+        script.Connections.HelperInstance().ItemAdded += ConnectionAdded;
+        script.Connections.HelperInstance().ItemRemoved += ConnectionRemoved;
     }
 
     public IWrappedNode GetParentNode(IIOConnector connector) => _connectorParents[connector];
@@ -38,9 +34,9 @@ public class NodeTree : INodeTree
 
     private void NodeRemoved(object? sender, ItemRemovedEventArgs<IWrappedNode> e)
     {
-        _notifyHelper.HelperInstance(e.Item.Rows).ItemAdded -= _nodeRowAddedDelegates[e.Item];
+        e.Item.Rows.HelperInstance().ItemAdded -= _nodeRowAddedDelegates[e.Item];
         _nodeRowAddedDelegates.Remove(e.Item);
-        _notifyHelper.HelperInstance(e.Item.Rows).ItemRemoved -= _nodeRowRemovedDelegates[e.Item];
+        e.Item.Rows.HelperInstance().ItemRemoved -= _nodeRowRemovedDelegates[e.Item];
         _nodeRowRemovedDelegates.Remove(e.Item);
 
         foreach (INodeRow row in e.Item.Rows)
@@ -51,10 +47,10 @@ public class NodeTree : INodeTree
 
     private void NodeAdded(object? sender, ItemAddedEventArgs<IWrappedNode> e)
     {
-        _nodeRowAddedDelegates[e.Item] = (object? _, ItemAddedEventArgs<INodeRow> newRow) => RowAdded(e.Item, newRow.Item);
-        _notifyHelper.HelperInstance(e.Item.Rows).ItemAdded += _nodeRowAddedDelegates[e.Item];
-        _nodeRowRemovedDelegates[e.Item] = (object? _, ItemRemovedEventArgs<INodeRow> removedRow) => RowRemoved(e.Item, removedRow.Item);
-        _notifyHelper.HelperInstance(e.Item.Rows).ItemRemoved += _nodeRowRemovedDelegates[e.Item];
+        _nodeRowAddedDelegates[e.Item] = (_, newRow) => RowAdded(e.Item, newRow.Item);
+        e.Item.Rows.HelperInstance().ItemAdded += _nodeRowAddedDelegates[e.Item];
+        _nodeRowRemovedDelegates[e.Item] = (_, removedRow) => RowRemoved(e.Item, removedRow.Item);
+        e.Item.Rows.HelperInstance().ItemRemoved += _nodeRowRemovedDelegates[e.Item];
 
         foreach (INodeRow row in e.Item.Rows)
         {

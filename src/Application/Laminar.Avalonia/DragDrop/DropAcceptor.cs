@@ -1,11 +1,9 @@
-using System;
 using System.Collections.Generic;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.VisualTree;
-using Microsoft.Extensions.Logging;
 
 namespace Laminar.Avalonia.DragDrop;
 
@@ -44,7 +42,7 @@ public class DropAcceptor
     
     protected virtual IEnumerable<Receptacle> GetReceptacles(Visual visual)
     {
-        yield return new Receptacle(new RectangleGeometry(visual.Bounds), null);
+        yield return new Receptacle(new RectangleGeometry(visual.Bounds.WithX(0).WithY(0)), null);
     }
 
     public record struct Receptacle(Geometry AcceptsDropRegion, object? Tag);

@@ -40,6 +40,7 @@
     <PackageReference Include="HanumanInstitute.MvvmDialogs" />
     <PackageReference Include="HanumanInstitute.MvvmDialogs.Avalonia" />
     <PackageReference Include="Laminar.Avalonia.AdjustableStackPanel" />
+    <PackageReference Include="Laminar.Avalonia.SelectAndMove" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
     <PackageReference Include="Serilog" />
     <PackageReference Include="Serilog.Extensions.Logging" />

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
@@ -14,6 +15,8 @@ using Avalonia.Rendering.Composition;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using Laminar.Avalonia.Animations;
+using Laminar.Avalonia.ViewModels;
+using Laminar.Avalonia.Views;
 using Laminar.Domain.ValueObjects;
 using Point = Avalonia.Point;
 
@@ -33,7 +36,6 @@ public class DragDropSession : IDisposable
         CompiledBinding.Create<TimeSpan, TimeSpan>(x => x, source: TimeSpan.Zero, priority: BindingPriority.Animation);
 
     private readonly PointerPressedEventArgs _startingEvent;
-    private readonly Point _localClickOffset;
     private readonly DropTargetEventArgs _hoverEnterEventArgs;
     private readonly DropTargetEventArgs _hoverLeaveEventArgs;
     private readonly DropTargetEventArgs _dropEventArgs;
@@ -45,7 +47,7 @@ public class DragDropSession : IDisposable
     
     public DragDropSession(Control senderControl, PointerPressedEventArgs startingEvent)
     {
-        _localClickOffset = startingEvent.GetPosition(senderControl);
+        OriginalClickOffset = startingEvent.GetPosition(senderControl);
         _startingEvent = startingEvent;
         
         _hoverEnterEventArgs = DropTargetEventArgs.HoverEnter(this);
@@ -62,6 +64,8 @@ public class DragDropSession : IDisposable
     
     public HoverInfo? CurrentHoverInfo { get; private set; }
 
+    public Point OriginalClickOffset { get; }
+    
     public Control DraggingControl
     {
         get;
@@ -95,7 +99,7 @@ public class DragDropSession : IDisposable
         if (_state is State.None or State.AnimateHome) return;
 
         _mostRecentMoveEvent = e;
-        Vector totalMouseMovement = _mostRecentMoveEvent.GetPosition(DraggingControl) - _localClickOffset;
+        Vector totalMouseMovement = _mostRecentMoveEvent.GetPosition(DraggingControl) - OriginalClickOffset;
 
         if (_state == State.ClickWithoutDrag && totalMouseMovement.SquaredLength < SquaredMinimumDragDistance) return;
 
@@ -149,8 +153,36 @@ public class DragDropSession : IDisposable
         e.Handled = true;
         e.PreventGestureRecognition();
         e.Pointer.Capture(null);
-        DropTargetHandler.RaiseEvent(_dropEventArgs);
-        _ = AnimateHome();
+        _dropEventArgs.PointerEventArgs = e;
+        
+        if (CurrentHoverInfo is null && _topLevel is not null)
+        {
+            _dropEventArgs.Handled = false;
+            foreach (var interactive in GetAllElementsAtPoint<Interactive>(e, _topLevel))
+            {
+                if (DropTargetHandler.GetDropAcceptor(interactive).AcceptDrop(interactive, e) is not { } receptacle)
+                {
+                    continue;
+                }
+                
+                CurrentHoverInfo = new(interactive, receptacle.Tag, receptacle.AcceptsDropRegion);
+                DropTargetHandler.RaiseEvent(_dropEventArgs);
+                if (e.Handled) break;
+            }
+        }
+        else
+        {
+            DropTargetHandler.RaiseEvent(_dropEventArgs);
+        }
+
+        if (_dropEventArgs.AnimateHome)
+        {
+            _ = AnimateHome();
+        }
+        else
+        {
+            Completed?.Invoke(this, EventArgs.Empty);
+        }
     }
 
     private void UpdateActiveControlPosition()
@@ -158,7 +190,7 @@ public class DragDropSession : IDisposable
         if (_mostRecentMoveEvent is null) throw new InvalidOperationException();
         Dispatcher.UIThread.Post(() =>
         {
-            var visualTranslationVector = _mostRecentMoveEvent.GetPosition(DraggingControl) - _localClickOffset;
+            var visualTranslationVector = _mostRecentMoveEvent.GetPosition(DraggingControl) - OriginalClickOffset;
             ElementComposition.GetElementVisual(DraggingControl)?.Translation = new Vector3D(visualTranslationVector.X, visualTranslationVector.Y, 0);
         }, DispatcherPriority.Loaded);
     }
@@ -210,34 +242,31 @@ public class DragDropSession : IDisposable
         HoverInfo? hoverInfoCache = CurrentHoverInfo;
         _hoverEnterEventArgs.Handled = false;
         
-        foreach (Visual visualAtPoint in GetAllElementsAtPoint<Visual>(pointerEventArgs, _topLevel))
+        foreach (var interactive in GetAllElementsAtPoint<Interactive>(pointerEventArgs, _topLevel))
         {
-            if (Equals(visualAtPoint, DraggingControl))
+            if (Equals(interactive, DraggingControl))
             {
                 continue;
             }
             
-            if (DebugRenderer is not null && visualAtPoint is Control control)
+            if (DebugRenderer is not null && interactive is Control control)
             {
                 DebugRenderer.EnsureAttachedAndUpdated(control);
             }
             
-            if (DropTargetHandler.GetDropAcceptor(visualAtPoint).AcceptDrop(visualAtPoint, pointerEventArgs) is not { } receptacle)
+            if (DropTargetHandler.GetDropAcceptor(interactive).AcceptDrop(interactive, pointerEventArgs) is not { } receptacle)
             {
                 continue;
             }
             
-            if (Equals(visualAtPoint, CurrentHoverInfo?.HoverTarget) && Equals(receptacle.Tag, CurrentHoverInfo?.ReceptacleTag))
+            if (Equals(interactive, CurrentHoverInfo?.HoverTarget) && Equals(receptacle.Tag, CurrentHoverInfo?.ReceptacleTag))
             {
                 CurrentHoverInfo = hoverInfoCache;
                 return false;
             }
             
-            if (visualAtPoint is Interactive interactiveAtPoint)
-            {
-                CurrentHoverInfo = new(interactiveAtPoint, receptacle.Tag, receptacle.AcceptsDropRegion);
-                DropTargetHandler.RaiseEvent(_hoverEnterEventArgs);
-            }
+            CurrentHoverInfo = new(interactive, receptacle.Tag, receptacle.AcceptsDropRegion);
+            DropTargetHandler.RaiseEvent(_hoverEnterEventArgs);
             
             if (_hoverEnterEventArgs.Handled)
             {
@@ -268,8 +297,13 @@ public class DragDropSession : IDisposable
     {
         foreach (Visual visual in topLevel.GetVisualsAt(args.GetPosition(topLevel)))
         {
-            foreach (ILogical ancestor in visual.GetLogicalAncestors())
+            if (args.Source is Visual sourceVisual && visual.GetSelfAndVisualAncestors().Contains(sourceVisual))
             {
+                continue;
+            }
+            
+            foreach (var ancestor in visual.GetVisualAncestors())
+            {                
                 if (ancestor is T correctType)
                 {
                     yield return correctType;

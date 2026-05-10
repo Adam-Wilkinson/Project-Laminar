@@ -2,6 +2,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:s="using:Laminar.Contracts.Scripting.NodeWrapping"
                     xmlns:comp="using:Laminar.PluginFramework.NodeSystem.Components"
+                    xmlns:sam="using:Laminar.Avalonia.SelectAndMove"
                     xmlns:init="using:Laminar.Avalonia.InitializationTargets">
     <DataTemplate DataType="comp:INodeRow" x:Key="NodeRowDataTemplate">
         <Panel Margin="3">
@@ -20,17 +21,43 @@
     </DataTemplate>
     
     <DataTemplate DataType="s:IWrappedNode" x:Key="WrappedNodeDataTemplate">
-        <Border BorderBrush="{DynamicResource UiLayerHighlight}" 
-                Background="{DynamicResource {x:Static init:ColorInitialization.LaminarNonForegroundKey}}"
-                VerticalAlignment="Top"
-                BorderThickness="2">
-            <DockPanel Width="200">
-                <ContentControl DockPanel.Dock="Top"
-                                Content="{Binding NameRow}" 
-                                Background="{DynamicResource {x:Static init:ColorInitialization.LaminarAccentBackgroundKey}}"
-                                Padding="5"/> 
-                <ItemsControl ItemsSource="{Binding Rows}"/>
-            </DockPanel>
-        </Border>
+        <Panel Name="NodeRoot">
+            <Border Name="MainPanelBorder"
+                    Background="{DynamicResource {x:Static init:ColorInitialization.LaminarNonForegroundKey}}"
+                    VerticalAlignment="Top"
+                    BorderThickness="2">
+                <DockPanel Width="200">
+                    <ContentControl DockPanel.Dock="Top"
+                                    Content="{Binding NameRow}" 
+                                    Background="{DynamicResource {x:Static init:ColorInitialization.LaminarAccentBackgroundKey}}"
+                                    Padding="5"/> 
+                    <ItemsControl ItemsSource="{Binding Rows}"/>
+                </DockPanel>
+            </Border>
+            
+            <Rectangle Name="HoverHighlight" 
+                       HorizontalAlignment="Stretch"
+                       VerticalAlignment="Stretch"
+                       IsHitTestVisible="False"
+                       Fill="Gray"/>
+            
+            <Panel.Styles>
+                <Style Selector="Panel#NodeRoot Rectangle#HoverHighlight">
+                    <Setter Property="Opacity" Value="0"/>
+                </Style>
+                
+                <Style Selector="Panel#NodeRoot:pointerover Rectangle#HoverHighlight">
+                    <Setter Property="Opacity" Value="0.1"/>
+                </Style>
+                
+                <Style Selector="Panel#NodeRoot[(sam|Selection.IsSelected)=True] Border#MainPanelBorder">
+                    <Setter Property="BorderBrush" Value="Gray"/>
+                </Style>
+                
+                <Style Selector="Panel#NodeRoot[(sam|Selection.IsSelected)=False] Border#MainPanelBorder">
+                    <Setter Property="BorderBrush" Value="{DynamicResource {x:Static init:ColorInitialization.LaminarNonForegroundKey}}"/>
+                </Style>
+            </Panel.Styles>
+        </Panel>
     </DataTemplate>
 </ResourceDictionary>

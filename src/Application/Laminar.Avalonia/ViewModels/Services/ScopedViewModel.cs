@@ -10,10 +10,10 @@ public class ScopedViewModel<T> : IDisposable where T : notnull
 
     public T ViewModel { get; }
 
-    public ScopedViewModel(IServiceProvider provider)
+    public ScopedViewModel(IServiceProvider provider, params object[] constructorArgs)
     {
         _scope = provider.CreateScope();
-        ViewModel = _scope.ServiceProvider.GetRequiredService<T>();
+        ViewModel = ActivatorUtilities.CreateInstance<T>(_scope.ServiceProvider, constructorArgs);
         if (ViewModel is ViewModelBase vm)
         {
             vm.UserActionManager = _scope.ServiceProvider.GetRequiredService<IUserActionManager>();
