@@ -4,8 +4,10 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:Laminar.Avalonia.ViewModels"
              xmlns:sam="using:Laminar.Avalonia.SelectAndMove"
-             xmlns:s="using:Laminar.Contracts.Scripting.NodeWrapping"
+             xmlns:scr="using:Laminar.Contracts.Scripting.NodeWrapping"
+             xmlns:s="using:Laminar.Avalonia.Settings"
              xmlns:init="using:Laminar.Avalonia.InitializationTargets"
+             xmlns:anim="using:Laminar.Avalonia.Animations"
              xmlns:dd="using:Laminar.Avalonia.DragDrop"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Laminar.Avalonia.Views.ScriptEditorView"
@@ -16,9 +18,10 @@
                        ClipToBounds="True"
                        dd:DropTargetHandler.DropCommand="{Binding DropCommand}">
         <sam:SelectAndMove.Styles>
-            <Style Selector="sam|SelectAndMove > ContentPresenter" x:DataType="s:IWrappedNode">
+            <Style Selector="sam|SelectAndMove > ContentPresenter" x:DataType="scr:IWrappedNode">
                 <Setter Property="Canvas.Left" Value="{Binding Location.Value.X}"/>
                 <Setter Property="Canvas.Top" Value="{Binding Location.Value.Y}"/>
+                <Setter Property="anim:ScaleAnimation.Duration" Value="{s:Setting InterfaceSettings.AnimationDuration}"/>
             </Style>
         </sam:SelectAndMove.Styles>
     </sam:SelectAndMove>

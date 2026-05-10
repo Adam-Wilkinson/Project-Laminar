@@ -22,8 +22,9 @@ public partial class SliderEditor : UserControl
             if (slider.FindAncestorOfType<SliderEditor>() is { } sliderEditor)
             {
                 sliderEditor._pointerDownPoint = args.GetPosition(sliderEditor);
+                args.Handled = true;
             }
-        }, handledEventsToo: true);
+        });
 
         PointerReleasedEvent.AddClassHandler<Slider>((slider, args) =>
         {
@@ -34,11 +35,12 @@ public partial class SliderEditor : UserControl
                     slider.Value = sliderEditor._sliderPositionBeforePointerDown;
                     sliderEditor.NumberEntry.Value = (decimal)sliderEditor.MainSlider.Value;
                     sliderEditor.SetIsEnteringValue(true);
+                    args.Handled = true;
                 }
 
                 sliderEditor._sliderPositionBeforePointerDown = slider.Value;
             }
-        }, handledEventsToo: true);
+        });
     }
     
     public SliderEditor()
@@ -47,24 +49,23 @@ public partial class SliderEditor : UserControl
 
         MainSlider.PointerWheelChanged += (_, e) =>
         {
+            if (e.Handled) return;
             MainSlider.Value += e.Delta.Y - e.Delta.X;
+            e.Handled = true;
         };
 
-        NumberEntry.Classes.CollectionChanged += (_, e) =>
+        NumberEntry.LostFocus += (_, _) =>
         {
-            if (e.Action == NotifyCollectionChangedAction.Remove && e.OldItems!.Contains(":focus-within"))
+            if (NumberEntry.Value.HasValue)
             {
-                if (NumberEntry.Value.HasValue)
-                {
-                    MainSlider.Value = (double)NumberEntry.Value;
-                }
-                SetIsEnteringValue(false);
+                MainSlider.Value = (double)NumberEntry.Value;
             }
+
+            SetIsEnteringValue(false);
         };
         
         NumberEntry.KeyUp += (_, args) =>
         {
-            Debug.WriteLine(args.Key);
             if (args.Key == Key.Enter)
             {
                 if (NumberEntry.Value.HasValue)
@@ -80,7 +81,7 @@ public partial class SliderEditor : UserControl
             }
         };
 
-        NumberDisplay[!TextBlock.TextProperty] = new Binding { Path = nameof(IInterfaceData.Value),  };
+        OnDataContextChanged(EventArgs.Empty);
     }
 
     private void SetIsEnteringValue(bool isEnteringValue)
@@ -100,7 +101,7 @@ public partial class SliderEditor : UserControl
     {
         if (DataContext is IInterfaceData { Definition: Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions.Slider sliderDefinition })
         {
-            NumberDisplay[!TextBlock.TextProperty] = new Binding { Path = nameof(IInterfaceData.Value), StringFormat = sliderDefinition.FormatString };
+            NumberDisplay[!TextBlock.TextProperty] = CompiledBinding.Create<IInterfaceData, object>(x => x.Value, stringFormat: sliderDefinition.FormatString);
         }
     }
 }
