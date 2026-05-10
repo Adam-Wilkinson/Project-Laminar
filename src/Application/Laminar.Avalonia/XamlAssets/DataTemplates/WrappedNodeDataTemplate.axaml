@@ -1,37 +1,61 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:s="using:Laminar.Contracts.Scripting.NodeWrapping"
+                    xmlns:scr="using:Laminar.Contracts.Scripting.NodeWrapping"
                     xmlns:comp="using:Laminar.PluginFramework.NodeSystem.Components"
+                    xmlns:conn="using:Laminar.PluginFramework.NodeSystem.Connectors"
                     xmlns:sam="using:Laminar.Avalonia.SelectAndMove"
+                    xmlns:s="using:Laminar.Avalonia.Settings"
                     xmlns:init="using:Laminar.Avalonia.InitializationTargets">
+    <ControlTheme TargetType="Path" x:Key="IoConnectorPath" x:DataType="conn:IIOConnector">
+        <Setter Property="IsVisible" Value="{Binding Converter={x:Static ObjectConverters.IsNotNull}}"/>
+        <Setter Property="Fill" Value="{Binding ColorHex, TargetNullValue={x:Static Brushes.White}}"/>
+        <Setter Property="Data" Value="M 0,0 L 15,7 L 0,14 Z"/>
+        <Setter Property="Stroke" Value="Gray"/>
+        <Setter Property="StrokeThickness" Value="1.5"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="RenderTransform" Value="scale(1)"/>
+        <Setter Property="Transitions">
+            <Transitions>
+                <TransformOperationsTransition Property="RenderTransform" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
+            </Transitions>
+        </Setter>
+        
+        <Style Selector="^:pointerover">
+            <Setter Property="RenderTransform" Value="scale(1.15)"/>
+        </Style>
+    </ControlTheme>
+    
     <DataTemplate DataType="comp:INodeRow" x:Key="NodeRowDataTemplate">
-        <Panel Margin="3">
-            <Rectangle Fill="{Binding InputConnector?.ColorHex, TargetNullValue={x:Static Brushes.White}}" 
-                       Width="5" 
-                       Height="5" 
-                       HorizontalAlignment="Left" 
-                       IsVisible="{Binding InputConnector, Converter={x:Static ObjectConverters.IsNotNull}}"/>
-            <Rectangle Fill="{Binding OutputConnector?.ColorHex, TargetNullValue={x:Static Brushes.White}}" 
-                       Width="5" 
-                       Height="5" 
-                       HorizontalAlignment="Right" 
-                       IsVisible="{Binding OutputConnector, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+        <Panel Margin="6">
+            <Decorator RenderTransform="translatex(-14px)">
+                <Path DataContext="{Binding InputConnector}"
+                      Theme="{StaticResource IoConnectorPath}"
+                      HorizontalAlignment="Left"/>
+            </Decorator>
+            <Decorator RenderTransform="translatex(12px)">
+                <Path DataContext="{Binding OutputConnector}"
+                      Theme="{StaticResource IoConnectorPath}"
+                      HorizontalAlignment="Right"/>
+            </Decorator>
             <ContentControl Content="{Binding CentralDisplay}"/>
         </Panel>
     </DataTemplate>
     
-    <DataTemplate DataType="s:IWrappedNode" x:Key="WrappedNodeDataTemplate">
+    <DataTemplate DataType="scr:IWrappedNode" x:Key="WrappedNodeDataTemplate">
         <Panel Name="NodeRoot">
             <Border Name="MainPanelBorder"
                     Background="{DynamicResource {x:Static init:ColorInitialization.LaminarNonForegroundKey}}"
                     VerticalAlignment="Top"
-                    BorderThickness="2">
+                    ClipToBounds="False"
+                    BorderThickness="3">
                 <DockPanel Width="200">
                     <ContentControl DockPanel.Dock="Top"
                                     Content="{Binding NameRow}" 
+                                    ClipToBounds="False"
                                     Background="{DynamicResource {x:Static init:ColorInitialization.LaminarAccentBackgroundKey}}"
                                     Padding="5"/> 
-                    <ItemsControl ItemsSource="{Binding Rows}"/>
+                    <ItemsControl ItemsSource="{Binding Rows}"
+                                  ClipToBounds="False"/>
                 </DockPanel>
             </Border>
             

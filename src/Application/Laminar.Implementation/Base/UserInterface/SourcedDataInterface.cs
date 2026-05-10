@@ -31,7 +31,7 @@ public class SourcedDataInterface<T>(IUserInterfaceDefinition? editor, IUserInte
         set
         {
             if (!IsUserEditable || !SetField(ref field, value)) return;
-            ExecutionStarted?.Invoke(this, new LaminarExecutionContext(this, ExecutionFlags.ValueChanged));
+            ExecutionStarted?.Invoke(this, new LaminarExecutionContext(null, ExecutionFlags.ValueChanged));
         }
     }
 

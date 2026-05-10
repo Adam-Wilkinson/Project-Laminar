@@ -45,7 +45,7 @@ public class Identifier<T> : IEquatable<Identifier<T>>
         return _value.ToString();
     }
 
-    public static bool operator ==(Identifier<T> lhs, Identifier<T> rhs)
+    public static bool operator ==(Identifier<T>? lhs, Identifier<T>? rhs)
     {
         return lhs is null ? rhs is null : lhs.Equals(rhs);
     }

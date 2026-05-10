@@ -116,5 +116,11 @@ public class WrappedNode<T> : IWrappedNode where T : INode, new()
         row.StartExecution += Row_StartExecution;
     }
 
-    private void Row_StartExecution(object? sender, LaminarExecutionContext e) => TriggerNotification(e);
+    private void Row_StartExecution(object? sender, LaminarExecutionContext e)
+    {
+        if (e.ExecutionSource is null)
+        {
+            TriggerNotification(e with { ExecutionSource = this });
+        }
+    }
 }
