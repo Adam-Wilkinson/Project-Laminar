@@ -14,7 +14,7 @@
              x:DataType="vm:ScriptEditorViewModel"
              Background="Transparent"
              IsHitTestVisible="True">
-    <sam:SelectAndMove ItemsSource="{Binding Nodes}" 
+    <sam:SelectAndMove ItemsSource="{Binding VisualElements}" 
                        ClipToBounds="True"
                        dd:DropTargetHandler.DropCommand="{Binding DropCommand}">
         <sam:SelectAndMove.Styles>

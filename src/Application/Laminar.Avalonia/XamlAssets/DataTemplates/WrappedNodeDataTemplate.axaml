@@ -6,6 +6,7 @@
                     xmlns:sam="using:Laminar.Avalonia.SelectAndMove"
                     xmlns:s="using:Laminar.Avalonia.Settings"
                     xmlns:init="using:Laminar.Avalonia.InitializationTargets"
+                    xmlns:conv="using:Laminar.Avalonia.Converters"
                     xmlns:anim="using:Laminar.Avalonia.Animations">
     <ControlTheme TargetType="Path" x:Key="IoConnectorPath" x:DataType="conn:IIOConnector">
         <Setter Property="IsVisible" Value="{Binding Converter={x:Static ObjectConverters.IsNotNull}}"/>
@@ -28,12 +29,14 @@
     
     <DataTemplate DataType="comp:INodeRow" x:Key="NodeRowDataTemplate">
         <Panel Margin="6">
-            <Decorator RenderTransform="translatex(-14px)">
+            <Decorator RenderTransform="translatex(-14px)"
+                       conv:ConnectorToVisualConverter.RegisteredConnector="{Binding InputConnector}">
                 <Path DataContext="{Binding InputConnector}"
                       Theme="{StaticResource IoConnectorPath}"
                       HorizontalAlignment="Left"/>
             </Decorator>
-            <Decorator RenderTransform="translatex(12px)">
+            <Decorator RenderTransform="translatex(12px)"
+                       conv:ConnectorToVisualConverter.RegisteredConnector="{Binding OutputConnector}">
                 <Path DataContext="{Binding OutputConnector}"
                       Theme="{StaticResource IoConnectorPath}"
                       HorizontalAlignment="Right"/>
@@ -54,9 +57,7 @@
                                     Content="{Binding NameRow}" 
                                     ClipToBounds="False"
                                     Background="{DynamicResource {x:Static init:ColorInitialization.LaminarAccentBackgroundKey}}"
-                                    Padding="5"/> 
-                    <Slider DockPanel.Dock="Bottom"
-                            Minimum="0" Maximum="10"/>
+                                    Padding="5"/>
                     <ItemsControl ItemsSource="{Binding Rows}"
                                   ClipToBounds="False"/>
                 </DockPanel>
