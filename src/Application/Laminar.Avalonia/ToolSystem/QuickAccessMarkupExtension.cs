@@ -17,7 +17,7 @@ public class QuickAccessExtension : MarkupExtension
     
     public QuickAccessExtension(string valueKey)
     {
-        _valueKeyBinding = CompiledBinding.Create<object, string>(x => valueKey);
+        _valueKeyBinding = valueKey.AsStaticBinding();
     }
 
     public QuickAccessExtension(BindingBase valueKeyBinding)
@@ -32,8 +32,9 @@ public class QuickAccessExtension : MarkupExtension
         
         return new MultiBinding
         {
-            Bindings = [new CompiledBinding(), new CompiledBinding { Source = repository }, _valueKeyBinding ],
+            Bindings = [new CompiledBinding(), _valueKeyBinding ],
             Converter = _converter,
+            ConverterParameter = repository
         };
     }
     
@@ -41,7 +42,7 @@ public class QuickAccessExtension : MarkupExtension
     {
         public object? Convert(IList<object?> values, Type targetType, object? parameter, CultureInfo culture)
         {
-            if (values[0] is not { } target || values[1] is not QuickAccessRepository repository || values[2] is not string key)
+            if (values[0] is not { } target || values[1] is not string key || parameter is not QuickAccessRepository repository)
                 return new BindingNotification(new InvalidCastException(), BindingErrorType.Error);
 
             return repository.FromKey(key).Build(target)?.ChildTools;

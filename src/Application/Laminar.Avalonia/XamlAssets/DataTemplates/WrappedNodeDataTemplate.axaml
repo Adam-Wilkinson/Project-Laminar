@@ -46,6 +46,10 @@
                       Theme="{StaticResource IoConnectorPath}"
                       HorizontalAlignment="Right"/>
             </Decorator>
+            <Line StartPoint="{m:ConnectorLocation {Binding InputConnector}}"
+                  EndPoint="0,0"
+                  Stroke="White"
+                  StrokeThickness="3"/>
             <ContentControl Content="{Binding CentralDisplay}"/>
         </Panel>
     </DataTemplate>

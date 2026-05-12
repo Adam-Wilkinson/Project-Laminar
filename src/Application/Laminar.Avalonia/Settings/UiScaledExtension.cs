@@ -28,7 +28,7 @@ public class UiScaledExtension : MarkupExtension
                 _valueToScaleResource = valueToScaleResource;
                 break;
             default:
-                _valueToScaleBinding = CompiledBinding.Create<object, object>(x => x, source: valueToScale);
+                _valueToScaleBinding = valueToScale.AsStaticBinding();
                 break;
         }
     }
@@ -57,7 +57,7 @@ public class UiScaledExtension : MarkupExtension
         if (valueToScaleBinding is null)
         {
             ArgumentNullException.ThrowIfNull(_valueToScaleResource);
-            valueToScaleBinding = CompiledBinding.Create<object, object>(x => x, source: _valueToScaleResource.ProvideValue(serviceProvider)); 
+            valueToScaleBinding = _valueToScaleResource.ProvideValue(serviceProvider).AsStaticBinding(); 
         }
 
         return new MultiBinding

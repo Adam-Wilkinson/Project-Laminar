@@ -13,7 +13,6 @@ public static class BindingHelpers
 
     extension<T>(T value)
     {
-        public CompiledBinding AsStaticBinding()
-            => CompiledBinding.Create<object, object>(x => x, source: value);
+        public CompiledBinding AsStaticBinding() => new() { Source = value };
     }
 }

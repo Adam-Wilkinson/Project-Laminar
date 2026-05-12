@@ -45,14 +45,16 @@ public class ConnectorRegistry
 
     private void RemoveConnectorVisual(IIOConnector connector) => _internalDictionary.Remove(connector);
     
-    private void SetConnectorVisual(IIOConnector connector, Visual value)
+    private void SetConnectorVisual(IIOConnector connector, Visual visual)
     {
         if (_internalDictionary.TryGetValue(connector, out var oldOwner))
         {
+            if (Equals(oldOwner, visual)) return;
+            
             SetRegisteredConnector(oldOwner, null);
         }
         
-        _internalDictionary[connector] = value;
+        _internalDictionary[connector] = visual;
     }
     
     private class VisualTracker : IDisposable
@@ -68,8 +70,6 @@ public class ConnectorRegistry
                 .Subscribe(new AnonymousObserver<object?>(ConnectorRegistryChanged));
 
             _visual.DetachedFromVisualTree += OnDetachedFromVisualTree;
-            
-            Registry = visual.TryFindResource(Key, out var reg) ? reg as ConnectorRegistry : null; 
         }
 
         public ConnectorRegistry? Registry { get; private set; }
