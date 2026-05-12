@@ -5,6 +5,7 @@
                     xmlns:conn="using:Laminar.PluginFramework.NodeSystem.Connectors"
                     xmlns:sam="using:Laminar.Avalonia.SelectAndMove"
                     xmlns:s="using:Laminar.Avalonia.Settings"
+                    xmlns:m="using:Laminar.Avalonia.Markup"
                     xmlns:init="using:Laminar.Avalonia.InitializationTargets"
                     xmlns:conv="using:Laminar.Avalonia.Converters"
                     xmlns:anim="using:Laminar.Avalonia.Animations">
@@ -28,15 +29,19 @@
     </ControlTheme>
     
     <DataTemplate DataType="comp:INodeRow" x:Key="NodeRowDataTemplate">
-        <Panel Margin="6">
+        <Panel Margin="6" Opacity="{Binding Opacity.Value}">
+            <Panel.Resources>
+                <m:ConnectorRegistry x:Key="{x:Static m:ConnectorRegistry.Key}"/>
+            </Panel.Resources>
+            
             <Decorator RenderTransform="translatex(-14px)"
-                       conv:ConnectorToVisualConverter.RegisteredConnector="{Binding InputConnector}">
+                       m:ConnectorRegistry.RegisteredConnector="{Binding InputConnector}">
                 <Path DataContext="{Binding InputConnector}"
                       Theme="{StaticResource IoConnectorPath}"
                       HorizontalAlignment="Left"/>
             </Decorator>
             <Decorator RenderTransform="translatex(12px)"
-                       conv:ConnectorToVisualConverter.RegisteredConnector="{Binding OutputConnector}">
+                       m:ConnectorRegistry.RegisteredConnector="{Binding OutputConnector}">
                 <Path DataContext="{Binding OutputConnector}"
                       Theme="{StaticResource IoConnectorPath}"
                       HorizontalAlignment="Right"/>

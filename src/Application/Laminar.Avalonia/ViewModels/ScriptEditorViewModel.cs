@@ -13,13 +13,9 @@ namespace Laminar.Avalonia.ViewModels;
 
 public partial class ScriptEditorViewModel(IScript script, IScriptEditor editor) : ViewModelBase
 {
-    public IReadOnlyObservableCollection<object> VisualElements => new FlattenedObservableTree<object>(
-        new INotifyCollectionChanged[] { 
-            script.Nodes,
-            script.Connections
-        });
+    public IReadOnlyObservableCollection<IWrappedNode> VisualElements => script.Nodes;
 
-[RelayCommand]
+    [RelayCommand]
     private void OnDrop(DropTargetEventArgs args)
     {
         if (args.DraggingControl.DataContext is not IWrappedNode droppedNode 

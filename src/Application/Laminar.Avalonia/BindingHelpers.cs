@@ -3,11 +3,17 @@ using Laminar.Domain.ValueObjects;
 
 namespace Laminar.Avalonia;
 
-public static class ObservableValueBinding
+public static class BindingHelpers
 {
     extension<T>(IObservableValue<T> observable)
     {
         public CompiledBinding ToBinding() 
             => CompiledBinding.Create<IObservableValue<T>, T>(x => x.Value, source: observable, mode: BindingMode.TwoWay);   
+    }
+
+    extension<T>(T value)
+    {
+        public CompiledBinding AsStaticBinding()
+            => CompiledBinding.Create<object, object>(x => x, source: value);
     }
 }

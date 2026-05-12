@@ -5,7 +5,7 @@ namespace Laminar.PluginFramework.UserInterface;
 
 public class Opacity : INotifyPropertyChanged
 {
-    private readonly static PropertyChangedEventArgs OpacityPropertyChangedArgs = new(nameof(Value));
+    private static readonly PropertyChangedEventArgs OpacityPropertyChangedArgs = new(nameof(Value));
 
     private double _internalValue;
     private double _totalFactorsValue = 1.0;

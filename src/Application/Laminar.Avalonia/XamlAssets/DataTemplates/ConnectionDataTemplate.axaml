@@ -1,10 +1,9 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:c="using:Laminar.Avalonia.Controls"
-                    xmlns:conv="using:Laminar.Avalonia.Converters"
-                    xmlns:conn="using:Laminar.Contracts.Scripting.Connection">
-    <DataTemplate DataType="conn:IConnection">
-        <c:Connection StartVisual="{Binding InputConnector, Converter={x:Static conv:ConnectorToVisualConverter.Instance}}"
-                      EndVisual="{Binding OutputConnector, Converter={x:Static conv:ConnectorToVisualConverter.Instance}}"/>
+                    xmlns:conn="using:Laminar.Contracts.Scripting.Connection"
+                    xmlns:m="using:Laminar.Avalonia.Markup"
+                    x:CompileBindings="True">
+    <DataTemplate DataType="conn:IConnection" x:Key="ConnectionDataTemplate">
+        <Line StartPoint="{m:ConnectorLocation {CompiledBinding InputConnector}}"/>
     </DataTemplate>
 </ResourceDictionary>

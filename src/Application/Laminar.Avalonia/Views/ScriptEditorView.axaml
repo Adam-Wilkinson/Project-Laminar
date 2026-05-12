@@ -7,6 +7,7 @@
              xmlns:scr="using:Laminar.Contracts.Scripting.NodeWrapping"
              xmlns:s="using:Laminar.Avalonia.Settings"
              xmlns:init="using:Laminar.Avalonia.InitializationTargets"
+             xmlns:m="using:Laminar.Avalonia.Markup"
              xmlns:anim="using:Laminar.Avalonia.Animations"
              xmlns:dd="using:Laminar.Avalonia.DragDrop"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
@@ -14,6 +15,10 @@
              x:DataType="vm:ScriptEditorViewModel"
              Background="Transparent"
              IsHitTestVisible="True">
+    <UserControl.Resources>
+        <m:ConnectorRegistry x:Key="{x:Static m:ConnectorRegistry.Key}"/>
+    </UserControl.Resources>
+    
     <sam:SelectAndMove ItemsSource="{Binding VisualElements}" 
                        ClipToBounds="True"
                        dd:DropTargetHandler.DropCommand="{Binding DropCommand}">
