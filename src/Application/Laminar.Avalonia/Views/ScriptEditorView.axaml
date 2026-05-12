@@ -9,7 +9,9 @@
              xmlns:init="using:Laminar.Avalonia.InitializationTargets"
              xmlns:m="using:Laminar.Avalonia.Markup"
              xmlns:anim="using:Laminar.Avalonia.Animations"
+             xmlns:g="using:Laminar.Avalonia.SelectAndMove.GestureRecognizers"
              xmlns:dd="using:Laminar.Avalonia.DragDrop"
+             xmlns:toolSystem="clr-namespace:Laminar.Avalonia.ToolSystem"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Laminar.Avalonia.Views.ScriptEditorView"
              x:DataType="vm:ScriptEditorViewModel"
@@ -19,14 +21,23 @@
         <m:ConnectorRegistry x:Key="{x:Static m:ConnectorRegistry.Key}"/>
     </UserControl.Resources>
     
-    <sam:SelectAndMove ItemsSource="{Binding VisualElements}" 
+    <sam:SelectAndMove ItemsSource="{Binding VisualElements}"
                        ClipToBounds="True"
                        dd:DropTargetHandler.DropCommand="{Binding DropCommand}">
+        
+        <sam:SelectAndMove.ItemTemplate>
+            <DataTemplate DataType="vm:ScriptEditorItemModel">
+                <ContentControl Content="{Binding CoreElement}"/>
+            </DataTemplate>
+        </sam:SelectAndMove.ItemTemplate>
+        
         <sam:SelectAndMove.Styles>
-            <Style Selector="sam|SelectAndMove > ContentPresenter" x:DataType="scr:IWrappedNode">
-                <Setter Property="Canvas.Left" Value="{Binding Location.Value.X}"/>
-                <Setter Property="Canvas.Top" Value="{Binding Location.Value.Y}"/>
-                <Setter Property="anim:ScaleAnimation.Duration" Value="{s:Setting InterfaceSettings.AnimationDuration}"/>
+            <Style Selector="sam|SelectAndMove > ContentPresenter" x:DataType="vm:ScriptEditorItemModel">
+                <Setter Property="Canvas.Left" Value="{Binding Position.X}"/>
+                <Setter Property="Canvas.Top" Value="{Binding Position.Y}"/>
+                <Setter Property="sam:Selection.IsSelectable" Value="{Binding IsSelectable}"/>
+                <Setter Property="sam:Selection.IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
+                <Setter Property="sam:SelectAndMove.IsMovable" Value="{Binding IsMovable}"/>
             </Style>
         </sam:SelectAndMove.Styles>
     </sam:SelectAndMove>

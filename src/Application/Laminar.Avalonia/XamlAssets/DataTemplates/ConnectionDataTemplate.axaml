@@ -1,9 +1,11 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:conn="using:Laminar.Contracts.Scripting.Connection"
-                    xmlns:m="using:Laminar.Avalonia.Markup"
-                    x:CompileBindings="True">
+                    xmlns:m="using:Laminar.Avalonia.Markup">
     <DataTemplate DataType="conn:IConnection" x:Key="ConnectionDataTemplate">
-        <Line StartPoint="{m:ConnectorLocation {CompiledBinding InputConnector}}"/>
+        <Line StartPoint="{m:ConnectorLocation {CompiledBinding InputConnector}}"
+              EndPoint="{m:ConnectorLocation {CompiledBinding OutputConnector}}"
+              Stroke="{Binding InputConnector.ColorHex}"
+              StrokeThickness="3"/>
     </DataTemplate>
 </ResourceDictionary>

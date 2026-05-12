@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics;
 using Avalonia;
@@ -13,7 +15,11 @@ namespace Laminar.Avalonia.ViewModels;
 
 public partial class ScriptEditorViewModel(IScript script, IScriptEditor editor) : ViewModelBase
 {
-    public IReadOnlyObservableCollection<IWrappedNode> VisualElements => script.Nodes;
+    public IReadOnlyObservableCollection<ScriptEditorItemModel> VisualElements { get; } = new FlattenedObservableTree<ScriptEditorItemModel>(
+        new IEnumerable<ScriptEditorItemModel>[] {
+        script.Nodes.ObservableMap(x => new ScriptEditorItemModel(x)),
+        script.Connections.ObservableMap(connection => new ScriptEditorItemModel(connection)),
+    });
 
     [RelayCommand]
     private void OnDrop(DropTargetEventArgs args)

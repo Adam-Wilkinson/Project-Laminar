@@ -17,6 +17,7 @@
         <Setter Property="StrokeThickness" Value="1.5"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="RenderTransform" Value="scale(1)"/>
+        <Setter Property="m:ConnectorRegistry.RegisteredConnector" Value="{Binding}"/>
         <Setter Property="Transitions">
             <Transitions>
                 <TransformOperationsTransition Property="RenderTransform" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
@@ -31,16 +32,14 @@
     <DataTemplate DataType="comp:INodeRow" x:Key="NodeRowDataTemplate">
         <Panel Margin="6" Opacity="{Binding Opacity.Value}">
             <Decorator RenderTransform="translatex(-14px)"
-                       m:ConnectorRegistry.RegisteredConnector="{Binding InputConnector}">
-                <Path DataContext="{Binding InputConnector}"
-                      Theme="{StaticResource IoConnectorPath}"
-                      HorizontalAlignment="Left"/>
+                       HorizontalAlignment="Left"
+                       DataContext="{Binding InputConnector}">
+                <Path Theme="{StaticResource IoConnectorPath}"/>
             </Decorator>
             <Decorator RenderTransform="translatex(12px)"
-                       m:ConnectorRegistry.RegisteredConnector="{Binding OutputConnector}">
-                <Path DataContext="{Binding OutputConnector}"
-                      Theme="{StaticResource IoConnectorPath}"
-                      HorizontalAlignment="Right"/>
+                       HorizontalAlignment="Right"
+                       DataContext="{Binding OutputConnector}">
+                <Path Theme="{StaticResource IoConnectorPath}"/>
             </Decorator>
             <ContentControl Content="{Binding CentralDisplay}"/>
         </Panel>
