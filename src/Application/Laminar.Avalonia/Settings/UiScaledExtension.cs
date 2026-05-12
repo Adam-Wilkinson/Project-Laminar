@@ -45,13 +45,7 @@ public class UiScaledExtension : MarkupExtension
     
     public override BindingBase ProvideValue(IServiceProvider serviceProvider)
     {
-        if (_uiScaleBinding is null)
-        {
-            if (new StaticResourceExtension("SettingsRoot.InterfaceSettings.UiScale").ProvideValue(serviceProvider) is not DoubleSetting uiScaleSetting)
-                throw new InvalidOperationException();
-
-            _uiScaleBinding = CompiledBinding.Create<Setting, object>(x => x.Value, source: uiScaleSetting);   
-        }
+        _uiScaleBinding ??= new SettingExtension("InterfaceSettings.UiScale").ProvideValue(serviceProvider);
         
         BindingBase? valueToScaleBinding = _valueToScaleBinding;
         if (valueToScaleBinding is null)

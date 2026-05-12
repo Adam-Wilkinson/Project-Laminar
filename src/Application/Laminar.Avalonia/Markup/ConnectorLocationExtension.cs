@@ -107,6 +107,7 @@ public class TransformedCenterObservable(Visual owner, ConnectorRegistry registr
             
             _ownerVisual.DetachedFromVisualTree += OwnerDetachedFromVisualTree; 
             _root._subscriptions.Add(this);
+            observer.OnNext(default);
             UpdateTrackedVisual(trackedVisual);
         }
 
