@@ -1,47 +1,50 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:scr="using:Laminar.Contracts.Scripting.NodeWrapping"
+                    xmlns:c="using:Laminar.Avalonia.Controls"
                     xmlns:comp="using:Laminar.PluginFramework.NodeSystem.Components"
                     xmlns:conn="using:Laminar.PluginFramework.NodeSystem.Connectors"
                     xmlns:sam="using:Laminar.Avalonia.SelectAndMove"
                     xmlns:s="using:Laminar.Avalonia.Settings"
                     xmlns:m="using:Laminar.Avalonia.Markup"
-                    xmlns:init="using:Laminar.Avalonia.InitializationTargets"
-                    xmlns:conv="using:Laminar.Avalonia.Converters"
-                    xmlns:anim="using:Laminar.Avalonia.Animations">
-    <ControlTheme TargetType="Path" x:Key="IoConnectorPath" x:DataType="conn:IIOConnector">
+                    xmlns:init="using:Laminar.Avalonia.InitializationTargets">
+    <ControlTheme TargetType="c:Connector" x:Key="IoConnectorPath" x:DataType="conn:IIOConnector">
         <Setter Property="IsVisible" Value="{Binding Converter={x:Static ObjectConverters.IsNotNull}}"/>
         <Setter Property="Fill" Value="{Binding ColorHex, TargetNullValue={x:Static Brushes.White}}"/>
-        <Setter Property="Data" Value="M 0,0 L 15,7 L 0,14 Z"/>
         <Setter Property="Stroke" Value="Gray"/>
         <Setter Property="StrokeThickness" Value="1.5"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
-        <Setter Property="RenderTransform" Value="scale(1)"/>
+        <Setter Property="ConnectionWidth" Value="14"/>
         <Setter Property="m:ConnectorRegistry.RegisteredConnector" Value="{Binding}"/>
+        <Setter Property="Width" Value="0"/>
+        <Setter Property="Height" Value="0"/>
+        <Setter Property="ClipToBounds" Value="False"/>
         <Setter Property="Transitions">
             <Transitions>
-                <TransformOperationsTransition Property="RenderTransform" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
+                <DoubleTransition Property="ConnectionWidth" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
             </Transitions>
         </Setter>
         
         <Style Selector="^:pointerover">
-            <Setter Property="RenderTransform" Value="scale(1.2)"/>
+            <Setter Property="ConnectionWidth" Value="18"/>
         </Style>
     </ControlTheme>
     
     <DataTemplate DataType="comp:INodeRow" x:Key="NodeRowDataTemplate">
         <Panel Margin="6" Opacity="{Binding Opacity.Value}">
-            <Decorator RenderTransform="translatex(-14px)"
-                       HorizontalAlignment="Left"
-                       DataContext="{Binding InputConnector}">
-                <Path Theme="{StaticResource IoConnectorPath}"/>
-            </Decorator>
-            <Decorator RenderTransform="translatex(12px)"
-                       HorizontalAlignment="Right"
-                       DataContext="{Binding OutputConnector}">
-                <Path Theme="{StaticResource IoConnectorPath}"/>
-            </Decorator>
             <ContentControl Content="{Binding CentralDisplay}"/>
+            
+            <c:Connector Theme="{StaticResource IoConnectorPath}" 
+                         RenderTransform="translatex(-14px)"
+                         HorizontalAlignment="Left"
+                         DragMode="MoveStart"
+                         DataContext="{Binding InputConnector}"/>
+            
+            <c:Connector Theme="{StaticResource IoConnectorPath}"
+                         RenderTransform="translatex(4px)"
+                         HorizontalAlignment="Right"
+                         DragMode="MoveEnd"
+                         DataContext="{Binding OutputConnector}"/>
         </Panel>
     </DataTemplate>
     

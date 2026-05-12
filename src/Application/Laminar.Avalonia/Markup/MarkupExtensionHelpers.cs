@@ -13,13 +13,16 @@ public static class MarkupExtensionHelpers
     extension(IServiceProvider serviceProvider)
     {
         public BindingBase UsingStaticResource<T>(string key, Func<T, BindingBase> bindingProvider)
+            => serviceProvider.UsingStaticResource<T>(key, (t, _) => bindingProvider(t));
+        
+        public BindingBase UsingStaticResource<T>(string key, Func<T, object, BindingBase> bindingProvider)
         {
             var provideValueTarget = serviceProvider.GetRequiredService<IProvideValueTarget>();
             
             if (provideValueTarget.TargetObject is not StyledElement { IsInitialized: false } uninitializedElement)
             {
                 return new StaticResourceExtension(key).ProvideValue(serviceProvider) is T correctType
-                    ? bindingProvider(correctType)
+                    ? bindingProvider(correctType, provideValueTarget.TargetObject)
                     : throw new InvalidCastException();
             }
 
@@ -45,7 +48,7 @@ public static class MarkupExtensionHelpers
                     throw new InvalidCastException();
                 }
                 
-                uninitializedElement.Bind(avaloniaProperty, bindingProvider(correctType));
+                uninitializedElement.Bind(avaloniaProperty, bindingProvider(correctType, uninitializedElement));
                 uninitializedElement.Initialized -= TargetInitialized;
             }
         }

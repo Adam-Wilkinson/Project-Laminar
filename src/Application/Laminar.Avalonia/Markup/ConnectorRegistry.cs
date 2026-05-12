@@ -1,14 +1,22 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Interactivity;
 using Avalonia.Reactive;
 using Laminar.PluginFramework.NodeSystem.Connectors;
 
 namespace Laminar.Avalonia.Markup;
 
-public class ConnectorRegistry
+public class ConnectorRegistrationEventArgs(RoutedEvent routedEvent, object? sender) : RoutedEventArgs(routedEvent, sender)
+{
+    public required IIOConnector Connector { get; init; }
+    public required Visual Visual { get; init; }
+}
+
+public class ConnectorRegistry : Interactive
 {
     public const string Key = "ConnectorRegistry";
     
@@ -18,6 +26,20 @@ public class ConnectorRegistry
     public static IIOConnector? GetRegisteredConnector(Visual obj) => obj.GetValue(RegisteredConnectorProperty);
     public static void SetRegisteredConnector(Visual obj, IIOConnector? value) => obj.SetValue(RegisteredConnectorProperty, value);
     
+    public static readonly RoutedEvent<ConnectorRegistrationEventArgs> ConnectorRegisteredEvent = RoutedEvent.Register<ConnectorRegistry, ConnectorRegistrationEventArgs>(nameof(ConnectorRegistered), RoutingStrategies.Direct);
+    public event EventHandler<ConnectorRegistrationEventArgs>? ConnectorRegistered
+    {
+        add => AddHandler(ConnectorRegisteredEvent, value);
+        remove => RemoveHandler(ConnectorRegisteredEvent, value);
+    }
+    
+    public static readonly RoutedEvent<ConnectorRegistrationEventArgs> ConnectorUnregisteredEvent = RoutedEvent.Register<ConnectorRegistry, ConnectorRegistrationEventArgs>(nameof(ConnectorUnregistered), RoutingStrategies.Direct);
+    public event EventHandler<ConnectorRegistrationEventArgs>? ConnectorUnregistered
+    {
+        add => AddHandler(ConnectorUnregisteredEvent, value);
+        remove => RemoveHandler(ConnectorUnregisteredEvent, value);
+    }
+
     static ConnectorRegistry()
     {
         RegisteredConnectorProperty.Changed.AddClassHandler<Visual>(RegisteredConnectorChanged);
@@ -43,7 +65,19 @@ public class ConnectorRegistry
     
     public Visual GetVisualForConnector(IIOConnector connector) =>  _internalDictionary[connector];
 
-    private void RemoveConnectorVisual(IIOConnector connector) => _internalDictionary.Remove(connector);
+    private void RemoveConnectorVisual(IIOConnector connector)
+    {
+        if (_internalDictionary.TryGetValue(connector, out var oldOwner))
+        {
+            RaiseEvent(new ConnectorRegistrationEventArgs(ConnectorUnregisteredEvent, this)
+            {
+                Connector = connector,
+                Visual = oldOwner,
+            });
+        }
+        
+        _internalDictionary.Remove(connector);
+    }
     
     private void SetConnectorVisual(IIOConnector connector, Visual visual)
     {
@@ -55,6 +89,11 @@ public class ConnectorRegistry
         }
         
         _internalDictionary[connector] = visual;
+        RaiseEvent(new ConnectorRegistrationEventArgs(ConnectorRegisteredEvent, this)
+        {
+            Connector = connector,
+            Visual = visual,
+        });
     }
     
     private class VisualTracker : IDisposable
@@ -65,7 +104,7 @@ public class ConnectorRegistry
         public VisualTracker(Visual visual)
         {
             _visual = visual;
-
+            
             _subscription = visual.GetResourceObservable(Key)
                 .Subscribe(new AnonymousObserver<object?>(ConnectorRegistryChanged));
 

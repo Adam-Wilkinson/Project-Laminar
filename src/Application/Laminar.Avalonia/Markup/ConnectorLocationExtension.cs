@@ -6,10 +6,8 @@ using Avalonia.Data;
 using Avalonia.Data.Converters;
 using Avalonia.Layout;
 using Avalonia.Markup.Xaml;
-using Avalonia.Markup.Xaml.MarkupExtensions;
 using Avalonia.VisualTree;
 using Laminar.PluginFramework.NodeSystem.Connectors;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Laminar.Avalonia.Markup;
 
@@ -21,17 +19,16 @@ public class ConnectorLocationExtension : MarkupExtension
     {
         _connectorBinding = connector.AsStaticBinding();
     }
-
+    
     public ConnectorLocationExtension(BindingBase connectorBinding)
     {
         _connectorBinding = connectorBinding;
     }
 
     public override BindingBase ProvideValue(IServiceProvider serviceProvider) =>
-        serviceProvider.UsingStaticResource<ConnectorRegistry>(ConnectorRegistry.Key, registry =>
+        serviceProvider.UsingStaticResource<ConnectorRegistry>(ConnectorRegistry.Key, (registry, target) =>
         {
-            var target = serviceProvider.GetRequiredService<IProvideValueTarget>();
-            if (target.TargetObject is not Visual targetVisual)
+            if (target is not Visual targetVisual)
             {
                 throw new InvalidOperationException("ConnectorLocationExtension can only target visuals");
             }

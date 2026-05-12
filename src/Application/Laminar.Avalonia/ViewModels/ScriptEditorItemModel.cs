@@ -2,6 +2,7 @@ using Avalonia;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Laminar.Contracts.Scripting.Connection;
 using Laminar.Contracts.Scripting.NodeWrapping;
+using LaminarPoint = Laminar.Domain.ValueObjects.Point;
 
 namespace Laminar.Avalonia.ViewModels;
 
@@ -28,7 +29,7 @@ public partial class ScriptEditorItemModel : ObservableObject
         {
             if (args.PropertyName == nameof(Position))
             {
-                nodeModel.Location.Value = new Domain.ValueObjects.Point { X = Position.X, Y = Position.Y };
+                nodeModel.Location.Value = new LaminarPoint { X = Position.X, Y = Position.Y };
             }
         };
     }

@@ -1,25 +1,35 @@
-using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Diagnostics;
 using Avalonia;
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.Input;
 using Laminar.Avalonia.DragDrop;
+using Laminar.Avalonia.ViewModels.Services;
 using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Domain.Notification;
-using Point = Laminar.Domain.ValueObjects.Point;
+using Laminar.PluginFramework.NodeSystem.Connectors;
+using LaminarPoint = Laminar.Domain.ValueObjects.Point;
 
 namespace Laminar.Avalonia.ViewModels;
 
-public partial class ScriptEditorViewModel(IScript script, IScriptEditor editor) : ViewModelBase
+public partial class ScriptEditorViewModel : ViewModelBase, IConnectionInteractionHandler
 {
-    public IReadOnlyObservableCollection<ScriptEditorItemModel> VisualElements { get; } = new FlattenedObservableTree<ScriptEditorItemModel>(
-        new IEnumerable<ScriptEditorItemModel>[] {
-        script.Nodes.ObservableMap(x => new ScriptEditorItemModel(x)),
-        script.Connections.ObservableMap(connection => new ScriptEditorItemModel(connection)),
-    });
+    private readonly IScript _script;
+    private readonly IScriptEditor _editor;
+
+    public ScriptEditorViewModel(IScript script, IScriptEditor editor)
+    {
+        _script = script;
+        _editor = editor;
+        VisualElements = new FlattenedObservableTree<ScriptEditorItemModel>(
+            new IEnumerable<ScriptEditorItemModel>[] {
+                script.Nodes.ObservableMap(node => new ScriptEditorItemModel(node)),
+                script.Connections.ObservableMap(connection => new ScriptEditorItemModel(connection))
+            });
+    }
+
+    public IReadOnlyObservableCollection<ScriptEditorItemModel> VisualElements { get; }
 
     [RelayCommand]
     private void OnDrop(DropTargetEventArgs args)
@@ -31,10 +41,25 @@ public partial class ScriptEditorViewModel(IScript script, IScriptEditor editor)
         args.Handled = true;
         args.AnimateHome = false;
         
-        var newNode = editor.AddCopyOfNode(script, droppedNode);
+        var newNode = _editor.AddCopyOfNode(_script, droppedNode);
 
         var positionReference = hoverVisual is ItemsControl { ItemsPanelRoot: { } panelRoot } ? panelRoot : hoverVisual;
         var dropPosition = pointerEvent.GetPosition(positionReference) - args.OriginalClickOffset;
-        newNode.Location.Value = new Point { X = dropPosition.X, Y = dropPosition.Y };
+        newNode.Location.Value = new LaminarPoint { X = dropPosition.X, Y = dropPosition.Y };
+    }
+
+    public void HoverConnection(IIOConnector first, IIOConnector second)
+    {
+        Debug.WriteLine($"Potential connection between {first} and {second}");
+    }
+
+    public void CancelConnection()
+    {
+        Debug.WriteLine("Never mind");
+    }
+
+    public void ConfirmConnection()
+    {
+        Debug.WriteLine("Confirmed connection");
     }
 }
