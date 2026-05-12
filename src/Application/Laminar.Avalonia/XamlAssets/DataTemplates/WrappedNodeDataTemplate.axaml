@@ -30,10 +30,6 @@
     
     <DataTemplate DataType="comp:INodeRow" x:Key="NodeRowDataTemplate">
         <Panel Margin="6" Opacity="{Binding Opacity.Value}">
-            <Panel.Resources>
-                <m:ConnectorRegistry x:Key="{x:Static m:ConnectorRegistry.Key}"/>
-            </Panel.Resources>
-            
             <Decorator RenderTransform="translatex(-14px)"
                        m:ConnectorRegistry.RegisteredConnector="{Binding InputConnector}">
                 <Path DataContext="{Binding InputConnector}"
@@ -46,10 +42,6 @@
                       Theme="{StaticResource IoConnectorPath}"
                       HorizontalAlignment="Right"/>
             </Decorator>
-            <Line StartPoint="{m:ConnectorLocation {Binding InputConnector}}"
-                  EndPoint="0,0"
-                  Stroke="White"
-                  StrokeThickness="3"/>
             <ContentControl Content="{Binding CentralDisplay}"/>
         </Panel>
     </DataTemplate>

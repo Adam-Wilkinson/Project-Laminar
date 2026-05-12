@@ -1,21 +1,20 @@
 using System;
 using Avalonia.Data;
 using Avalonia.Markup.Xaml;
-using Avalonia.Markup.Xaml.MarkupExtensions;
+using Avalonia.Metadata;
+using Laminar.Avalonia.Markup;
 
 namespace Laminar.Avalonia.Settings;
 
 public class SettingExtension(string settingKey) : MarkupExtension
 {
-    public override CompiledBinding ProvideValue(IServiceProvider serviceProvider)
-    {
-        if (new StaticResourceExtension($"SettingsRoot.{settingKey}").ProvideValue(serviceProvider) is not Setting setting)
-            throw new InvalidOperationException();
+    public override BindingBase ProvideValue(IServiceProvider serviceProvider)
+        => serviceProvider.UsingStaticResource<Setting>($"SettingsRoot.{settingKey}", setting =>
+        {
+            DataType = setting.Value.GetType();
+            return setting.CreateValueBinding();
+        });
 
-        DataType = setting.Value.GetType();
-
-        return CompiledBinding.Create<Setting, object>(s => s.Value, source: setting);
-    }
-
+    [DataType]
     public Type? DataType { get; set; }
 }

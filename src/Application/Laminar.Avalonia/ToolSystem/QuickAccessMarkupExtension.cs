@@ -5,6 +5,7 @@ using Avalonia.Data;
 using Avalonia.Data.Converters;
 using Avalonia.Markup.Xaml;
 using Avalonia.Markup.Xaml.MarkupExtensions;
+using Laminar.Avalonia.Markup;
 
 namespace Laminar.Avalonia.ToolSystem;
 
@@ -26,17 +27,13 @@ public class QuickAccessExtension : MarkupExtension
     }
 
     public override BindingBase ProvideValue(IServiceProvider serviceProvider)
-    {
-        if (new StaticResourceExtension(QuickAccessRepositoryKey).ProvideValue(serviceProvider) is not QuickAccessRepository repository)
-            throw new InvalidOperationException("Quick access markup extension requires a repository");
-        
-        return new MultiBinding
-        {
-            Bindings = [new CompiledBinding(), _valueKeyBinding ],
-            Converter = _converter,
-            ConverterParameter = repository
-        };
-    }
+        => serviceProvider.UsingStaticResource<QuickAccessRepository>(QuickAccessRepositoryKey, 
+            repository => new MultiBinding
+            {
+                Bindings = [new CompiledBinding(), _valueKeyBinding ],
+                Converter = _converter,
+                ConverterParameter = repository
+            });
     
     private class QuickAccessInstancerConverter : IMultiValueConverter
     {

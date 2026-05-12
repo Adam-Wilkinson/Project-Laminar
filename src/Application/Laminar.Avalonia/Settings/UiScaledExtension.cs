@@ -6,6 +6,7 @@ using Avalonia.Data;
 using Avalonia.Data.Converters;
 using Avalonia.Markup.Xaml;
 using Avalonia.Markup.Xaml.MarkupExtensions;
+using Laminar.Avalonia.Markup;
 
 namespace Laminar.Avalonia.Settings;
 
@@ -42,24 +43,25 @@ public class UiScaledExtension : MarkupExtension
     {
         _valueToScaleResource = staticResource;
     }
-    
-    public override BindingBase ProvideValue(IServiceProvider serviceProvider)
-    {
-        _uiScaleBinding ??= new SettingExtension("InterfaceSettings.UiScale").ProvideValue(serviceProvider);
-        
-        BindingBase? valueToScaleBinding = _valueToScaleBinding;
-        if (valueToScaleBinding is null)
-        {
-            ArgumentNullException.ThrowIfNull(_valueToScaleResource);
-            valueToScaleBinding = _valueToScaleResource.ProvideValue(serviceProvider).AsStaticBinding(); 
-        }
 
-        return new MultiBinding
+    public override BindingBase ProvideValue(IServiceProvider serviceProvider)
+        => serviceProvider.UsingStaticResource<Setting>("SettingsRoot.InterfaceSettings.UiScale", uiScaleSetting =>
         {
-            Bindings = [valueToScaleBinding, _uiScaleBinding],
-            Converter = Converter
-        };
-    }
+            _uiScaleBinding = uiScaleSetting.CreateValueBinding();
+            
+            BindingBase? valueToScaleBinding = _valueToScaleBinding;
+            if (valueToScaleBinding is null)
+            {
+                ArgumentNullException.ThrowIfNull(_valueToScaleResource);
+                valueToScaleBinding = _valueToScaleResource.ProvideValue(serviceProvider).AsStaticBinding(); 
+            }
+
+            return new MultiBinding
+            {
+                Bindings = [valueToScaleBinding, _uiScaleBinding],
+                Converter = Converter
+            };
+        });
 
     private class MultiplyBindingsConverter : IMultiValueConverter
     {

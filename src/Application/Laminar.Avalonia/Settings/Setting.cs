@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Data;
 using Avalonia.Data.Converters;
 using Avalonia.Media;
 using Avalonia.Metadata;
@@ -24,7 +25,10 @@ public class Setting<T> : Setting where T : notnull
         get => (T)base.Value;
         set => base.Value = value;
     }
-    
+
+    public override CompiledBinding CreateValueBinding() =>
+        CompiledBinding.Create<Setting<T>, T>(x => x.Value, source: this);
+
     public static void OnChange(IResourceHost resourceHost, string settingKey, Action<T> onChange)
     {
         resourceHost.GetResourceObservable(settingKey).Subscribe(
@@ -87,7 +91,10 @@ public class Setting : SettingsItem, IInterfaceData
         get => GetValue(DisplayValueConverterProperty);
         set => SetValue(DisplayValueConverterProperty, value);
     }
-    
+
+    public virtual CompiledBinding CreateValueBinding() 
+        => CompiledBinding.Create<Setting, object>(x => x.Value, source: this);
+
     [Content]
     public IUserInterfaceDefinition? Definition
     {

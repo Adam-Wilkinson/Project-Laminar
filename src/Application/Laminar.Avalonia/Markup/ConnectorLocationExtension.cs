@@ -27,33 +27,28 @@ public class ConnectorLocationExtension : MarkupExtension
         _connectorBinding = connectorBinding;
     }
 
-    public override BindingBase ProvideValue(IServiceProvider serviceProvider)
-    {
-        if (new StaticResourceExtension(ConnectorRegistry.Key).ProvideValue(serviceProvider) is not ConnectorRegistry
-            registry)
+    public override BindingBase ProvideValue(IServiceProvider serviceProvider) =>
+        serviceProvider.UsingStaticResource<ConnectorRegistry>(ConnectorRegistry.Key, registry =>
         {
-            throw new InvalidOperationException("ConnectorLocationExtension requires a ConnectorRegistry resource");
-        }
-        
-        var target = serviceProvider.GetRequiredService<IProvideValueTarget>();
-        if (target.TargetObject is not Visual targetVisual)
-        {
-            throw new InvalidOperationException("ConnectorLocationExtension can only target visuals");
-        }
+            var target = serviceProvider.GetRequiredService<IProvideValueTarget>();
+            if (target.TargetObject is not Visual targetVisual)
+            {
+                throw new InvalidOperationException("ConnectorLocationExtension can only target visuals");
+            }
 
-        var transformedCenterObserver = new TransformedCenterObservable(targetVisual, registry);
-        
-        return new MultiBinding
-        {
-            Bindings = 
+            var transformedCenterObserver = new TransformedCenterObservable(targetVisual, registry);
+    
+            return new MultiBinding
+            {
+                Bindings = 
                 [
                     _connectorBinding, 
                     transformedCenterObserver.ToBinding(),
                 ],
-            Converter = new TransformedCenterValueConverter(),
-            ConverterParameter = transformedCenterObserver
-        };
-    }
+                Converter = new TransformedCenterValueConverter(),
+                ConverterParameter = transformedCenterObserver
+            };
+        });
 }
 
 public class TransformedCenterValueConverter : IMultiValueConverter
