@@ -134,6 +134,7 @@ public class DragDropSession : IDisposable
         
         if (previousHoverInfo is { } previous)
         {
+            _hoverLeaveEventArgs.PointerEventArgs = e;
             DropTargetHandler.RaiseEvent(_hoverLeaveEventArgs);
         }
     }
@@ -167,7 +168,7 @@ public class DragDropSession : IDisposable
                 
                 CurrentHoverInfo = new(interactive, receptacle.Tag, receptacle.AcceptsDropRegion);
                 DropTargetHandler.RaiseEvent(_dropEventArgs);
-                if (e.Handled) break;
+                if (_dropEventArgs.Handled) break;
             }
         }
         else
@@ -175,7 +176,7 @@ public class DragDropSession : IDisposable
             DropTargetHandler.RaiseEvent(_dropEventArgs);
         }
 
-        if (_dropEventArgs.AnimateHome)
+        if (CurrentHoverInfo?.HoverTarget.GetValue(DropTargetHandler.AnimateHomeOnDropProperty) is true)
         {
             _ = AnimateHome();
         }
@@ -241,6 +242,7 @@ public class DragDropSession : IDisposable
         if (_topLevel is null) return false;
         HoverInfo? hoverInfoCache = CurrentHoverInfo;
         _hoverEnterEventArgs.Handled = false;
+        _hoverEnterEventArgs.PointerEventArgs = pointerEventArgs;
         
         foreach (var interactive in GetAllElementsAtPoint<Interactive>(pointerEventArgs, _topLevel))
         {

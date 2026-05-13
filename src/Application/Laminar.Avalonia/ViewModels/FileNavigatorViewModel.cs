@@ -9,6 +9,7 @@ using Laminar.Avalonia.ViewModels.Services;
 using Laminar.Contracts.Storage.FileExplorer;
 using Laminar.Domain.Notification;
 using Laminar.Domain.ValueObjects;
+using Point = Avalonia.Point;
 
 namespace Laminar.Avalonia.ViewModels;
 
@@ -16,7 +17,7 @@ public partial class FileNavigatorViewModel(
     ILaminarFileBrowser fileBrowser,
     DialogService dialogService,
     Func<ILaminarStorageItem, FileNavigatorItemViewModel> fileNavigatorItemViewModelFactory)
-    : ViewModelBase
+    : DropTargetViewModel
 {
     private static readonly TimeSpan ExpandHoveredOverFolderDelay = new(0, 0, 0, 0, 500);
 
@@ -47,72 +48,59 @@ public partial class FileNavigatorViewModel(
         if (possibleFolder is not { } selectedFolder) return;
         await fileBrowser.AddRootFolder(selectedFolder);
     }
-    
-    [RelayCommand]
-    private void OnHover(DropTargetEventArgs eventArgs)
+
+    public override bool HoverEnter(object? payload, Point location, object? receptacleTag)
     {
-        if (GetMoveFromDragInfo(eventArgs) is not var (draggedItem, targetParent, targetIndex))
-        {
-            return;
-        }
-        
-        eventArgs.Handled = true;
-        
-        _proposedHoveredItem = targetParent;
-        
-        if (!IsValidMove(draggedItem, targetParent, targetIndex)) return;
-        
-        // A closed folder cannot take children, but should be expanded after a certain amount of time
-        if (!targetParent.IsExpanded)
-        {
-            Dispatcher.UIThread.InvokeAsync(async () => {
-                await Task.Delay(ExpandHoveredOverFolderDelay);
-                if (!Equals(_proposedHoveredItem, targetParent)) return;
-                targetParent.IsExpanded = true;
-                OnHover(eventArgs);
-            });
-
-            return;
-        }
-
-        _currentHoverMove = (targetParent, targetIndex);
-        if (draggedItem.Parent is not null)
-        {
-            draggedItem.Parent.Children?.Remove(draggedItem);
-            targetParent.Children?.Insert(targetIndex, draggedItem);   
-        }
-    }
-
-    [RelayCommand]
-    private async Task OnDrop(DropTargetEventArgs eventArgs)
-    {
-        if (_currentHoverMove is not var (targetItem, targetIndex) ||
-            targetItem.CoreItem is not ILaminarStorageFolder targetFolder) return;
-        if (eventArgs.DraggingControl.DataContext is not FileNavigatorItemViewModel draggedItem) return;
-        
-        if (draggedItem.CoreItem is not null)
-            await fileBrowser.Move(draggedItem.CoreItem, targetFolder, targetIndex);
-        
-        _currentHoverMove = null;
-        _proposedHoveredItem = null;
-    }
-
-    private static (FileNavigatorItemViewModel draggedItem, FileNavigatorItemViewModel targetParent, int targetIndex)? GetMoveFromDragInfo(DropTargetEventArgs eventArgs)
-    {
-        if (eventArgs.ReceptacleTag is not TreeViewDropAcceptor.TreeViewItemReceptacleInfo
+        if (payload is not FileNavigatorItemViewModel draggedItem) return false;
+        if (receptacleTag is not TreeViewDropAcceptor.TreeViewItemReceptacleInfo
             {
                 ReceptacleParentDataContext: FileNavigatorItemViewModel targetParent,
                 ReceptacleIndex: var targetIndex
             })
         {
-            return null;
+            return false;
         }
         
-        if (eventArgs.DraggingControl.DataContext is not FileNavigatorItemViewModel draggedItem) return null;
+        if (!IsValidMove(draggedItem, targetParent, targetIndex)) return false;
 
-        return (draggedItem, targetParent, targetIndex);
+        if (!targetParent.IsExpanded)
+        {
+            if (Equals(_proposedHoveredItem, targetParent)) return true;
+            
+            _proposedHoveredItem = targetParent;
+            Dispatcher.UIThread.InvokeAsync(async () => {
+                await Task.Delay(ExpandHoveredOverFolderDelay);
+                if (!Equals(_proposedHoveredItem, targetParent)) return;
+                targetParent.IsExpanded = true;
+                HoverEnter(draggedItem, location, receptacleTag);
+            });
+
+            return true;
+        }
+        
+        _currentHoverMove = (targetParent, targetIndex);
+        if (draggedItem.Parent is null) return false;
+        
+        draggedItem.Parent.Children?.Remove(draggedItem);
+        targetParent.Children?.Insert(targetIndex, draggedItem);
+        return true;
+
     }
-    
+
+    public override bool Drop(object? payload, Point location, object? receptacleTag)
+    {
+        if (_currentHoverMove is not var (targetItem, targetIndex) ||
+            targetItem.CoreItem is not ILaminarStorageFolder targetFolder) return false;
+        if (payload is not FileNavigatorItemViewModel draggedItem) return false;
+        
+        if (draggedItem.CoreItem is not null)
+            _ = fileBrowser.Move(draggedItem.CoreItem, targetFolder, targetIndex);
+        
+        _currentHoverMove = null;
+        _proposedHoveredItem = null;
+        return true;
+    }
+
     private static bool IsValidMove(FileNavigatorItemViewModel draggedItem, FileNavigatorItemViewModel targetParent, int targetIndex)
     {
         if (targetParent.Children is null || draggedItem.Parent is null) return false;

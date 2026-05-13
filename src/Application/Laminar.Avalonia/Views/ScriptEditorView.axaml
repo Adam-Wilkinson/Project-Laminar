@@ -19,7 +19,9 @@
     <sam:SelectAndMove Name="SelectAndMove"
                        ItemsSource="{Binding VisualElements}"
                        ClipToBounds="True"
-                       dd:DropTargetHandler.DropCommand="{Binding DropCommand}">
+                       dd:DropTargetHandler.DropPositionRelativeTo="{Binding $self.TransformRoot}"
+                       dd:DropTargetHandler.DropTarget="{Binding}"
+                       dd:DropTargetHandler.AnimateHomeOnDrop="False">
         <sam:SelectAndMove.ItemTemplate>
             <DataTemplate DataType="vm:ScriptEditorItemModel">
                 <ContentControl Content="{Binding CoreElement}"
@@ -34,7 +36,7 @@
                 <Setter Property="ClipToBounds" Value="False"/>
                 <Setter Property="sam:Selection.IsSelectable" Value="{Binding IsSelectable}"/>
                 <Setter Property="sam:Selection.IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
-                <Setter Property="sam:SelectAndMove.IsMovable" Value="{Binding IsMovable}"/>
+                <Setter Property="sam:MoveSelectionGesture.IsMovable" Value="{Binding IsMovable}"/>
             </Style>
         </sam:SelectAndMove.Styles>
     </sam:SelectAndMove>

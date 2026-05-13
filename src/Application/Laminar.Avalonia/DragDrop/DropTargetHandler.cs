@@ -30,6 +30,18 @@ public class DropTargetHandler : Interactive
     public static DropAcceptor GetDropAcceptor(Visual visual) => visual.GetValue(DropAcceptorProperty);
     public static void SetDropAcceptor(Visual visual, DropAcceptor value) => visual.SetValue(DropAcceptorProperty, value);
     
+    public static readonly AttachedProperty<IDropTarget?> DropTargetProperty = AvaloniaProperty.RegisterAttached<DropTargetHandler, Visual, IDropTarget?>("DropTarget");
+    public static IDropTarget? GetDropTarget(Visual visual) => visual.GetValue(DropTargetProperty);
+    public static void SetDropTarget(Visual visual, IDropTarget? value) => visual.SetValue(DropTargetProperty, value);
+    
+    public static readonly AttachedProperty<bool> AnimateHomeOnDropProperty = AvaloniaProperty.RegisterAttached<DropTargetHandler, Visual, bool>("AnimateHomeOnDrop", defaultValue: true);
+    public static bool GetAnimateHomeOnDrop(Visual visual) => visual.GetValue(AnimateHomeOnDropProperty);
+    public static void SetAnimateHomeOnDrop(Visual visual, bool value) => visual.SetValue(AnimateHomeOnDropProperty, value);
+    
+    public static readonly AttachedProperty<Visual?> DropPositionRelativeToProperty = AvaloniaProperty.RegisterAttached<DropTargetHandler, Visual, Visual?>("DropPositionRelativeTo");
+    public static Visual? GetDropPositionRelativeTo(Visual visual) => visual.GetValue(DropPositionRelativeToProperty);
+    public static void SetDropPositionRelativeTo(Visual visual, Visual? value) => visual.SetValue(DropPositionRelativeToProperty, value);
+    
     public event EventHandler<DropTargetEventArgs> OnHoverLeave
     {
         add => AddHandler(HoverLeaveEvent, value);
@@ -53,13 +65,31 @@ public class DropTargetHandler : Interactive
         if (eventArgs.CurrentHoverOver is null) return;
         eventArgs.CurrentHoverOver.RaiseEvent(eventArgs);
 
-        ICommand? command = eventArgs.EventType switch
+        ICommand? command = null;
+
+        Visual dropPositionRelativeTo = GetDropPositionRelativeTo(eventArgs.CurrentHoverOver) ?? eventArgs.CurrentHoverOver;
+        
+        object? payload = eventArgs.DraggingControl.DataContext;
+        Point location =
+            eventArgs.PointerEventArgs!.GetPosition(dropPositionRelativeTo) - eventArgs.OriginalClickOffset;
+        object receptacleTag = eventArgs.ReceptacleTag;
+        
+        
+        switch (eventArgs.EventType)
         {
-            DropTargetEventType.Drop => GetDropCommand(eventArgs.CurrentHoverOver),
-            DropTargetEventType.HoverEnter => GetHoverEnterCommand(eventArgs.CurrentHoverOver),
-            DropTargetEventType.HoverLeave => GetHoverLeaveCommand(eventArgs.CurrentHoverOver),
-            _ => null
-        };
+            case DropTargetEventType.Drop:
+                command = GetDropCommand(eventArgs.CurrentHoverOver);
+                eventArgs.Handled = GetDropTarget(eventArgs.CurrentHoverOver)?.Drop(payload, location, receptacleTag) ?? false;
+                break;
+            case DropTargetEventType.HoverEnter:
+                command = GetHoverEnterCommand(eventArgs.CurrentHoverOver);
+                eventArgs.Handled = GetDropTarget(eventArgs.CurrentHoverOver)?.HoverEnter(payload, location, receptacleTag) ?? false;
+                break;
+            case DropTargetEventType.HoverLeave:
+                command = GetHoverLeaveCommand(eventArgs.CurrentHoverOver);
+                eventArgs.Handled = GetDropTarget(eventArgs.CurrentHoverOver)?.HoverLeave(payload, location, receptacleTag) ?? false;
+                break;
+        }
         
         if (command?.CanExecute(eventArgs) is true)
         {

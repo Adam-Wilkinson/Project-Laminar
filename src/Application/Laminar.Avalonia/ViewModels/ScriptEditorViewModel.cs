@@ -1,9 +1,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using Avalonia;
-using Avalonia.Controls;
-using CommunityToolkit.Mvvm.Input;
-using Laminar.Avalonia.DragDrop;
 using Laminar.Avalonia.ViewModels.Services;
 using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Scripting.NodeWrapping;
@@ -13,7 +10,7 @@ using LaminarPoint = Laminar.Domain.ValueObjects.Point;
 
 namespace Laminar.Avalonia.ViewModels;
 
-public partial class ScriptEditorViewModel : ViewModelBase, IConnectionInteractionHandler
+public partial class ScriptEditorViewModel : DropTargetViewModel, IConnectionInteractionHandler
 {
     private readonly IScript _script;
     private readonly IScriptEditor _editor;
@@ -30,22 +27,14 @@ public partial class ScriptEditorViewModel : ViewModelBase, IConnectionInteracti
     }
 
     public IReadOnlyObservableCollection<ScriptEditorItemModel> VisualElements { get; }
-
-    [RelayCommand]
-    private void OnDrop(DropTargetEventArgs args)
+    
+    public override bool Drop(object? payload, Point location, object? receptacleTag)
     {
-        if (args.DraggingControl.DataContext is not IWrappedNode droppedNode 
-            || args.PointerEventArgs is not { } pointerEvent
-            || args.CurrentHoverOver is not Visual hoverVisual) return;
-        
-        args.Handled = true;
-        args.AnimateHome = false;
-        
-        var newNode = _editor.AddCopyOfNode(_script, droppedNode);
+        if (payload is not IWrappedNode wrapped) return false;
 
-        var positionReference = hoverVisual is ItemsControl { ItemsPanelRoot: { } panelRoot } ? panelRoot : hoverVisual;
-        var dropPosition = pointerEvent.GetPosition(positionReference) - args.OriginalClickOffset;
-        newNode.Location.Value = new LaminarPoint { X = dropPosition.X, Y = dropPosition.Y };
+        var newNode = _editor.AddCopyOfNode(_script, wrapped);
+        newNode.Location.Value = new LaminarPoint { X = location.X, Y = location.Y };
+        return true;
     }
 
     public void HoverConnection(IIOConnector first, IIOConnector second)

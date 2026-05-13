@@ -7,7 +7,7 @@
     <PackageVersion Include="HanumanInstitute.MvvmDialogs" Version="2.3.0" />
     <PackageVersion Include="HanumanInstitute.MvvmDialogs.Avalonia" Version="2.3.0" />
     <PackageVersion Include="HanumanInstitute.MvvmDialogs.Avalonia.MessageBox" Version="2.2.0" />
-    <PackageVersion Include="Laminar.Avalonia.SelectAndMove" Version="2.3.10" />
+    <PackageVersion Include="Laminar.Avalonia.SelectAndMove" Version="3.0.7-alpha" />
     <PackageVersion Include="MessageBox.Avalonia" Version="3.3.1.1" />
     <PackageVersion Include="Microsoft.Extensions.Logging" Version="10.0.7" />
     <PackageVersion Include="Serilog" Version="4.3.1" />
@@ -25,7 +25,7 @@
     <PackageVersion Include="Avalonia.Themes.Fluent" Version="12.0.3" />
     <PackageVersion Include="Avalonia.Fonts.Inter" Version="12.0.3" />
     <PackageVersion Include="Avalonia.Controls.ColorPicker" Version="12.0.3" />
-    <PackageVersion Include="FluentAssertions" Version="8.9.0" />
+    <PackageVersion Include="FluentAssertions" Version="8.10.0" />
     <PackageVersion Include="xunit" Version="2.9.3" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />
     <PackageVersion Include="NSubstitute" Version="5.3.0" />

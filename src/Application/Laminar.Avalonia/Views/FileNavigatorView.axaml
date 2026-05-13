@@ -35,8 +35,7 @@
                   SelectionMode="Multiple" 
                   Margin="3,0"
                   dd:DropTargetHandler.DropAcceptor="{StaticResource TreeViewDropAcceptor}"
-                  dd:DropTargetHandler.HoverEnterCommand="{Binding HoverCommand}"
-                  dd:DropTargetHandler.DropCommand="{Binding DropCommand}"
+                  dd:DropTargetHandler.DropTarget="{Binding}"
                   VerticalAlignment="Stretch">
             <TreeView.ItemTemplate>
                 <TreeDataTemplate DataType="{x:Type vm:FileNavigatorItemViewModel}"
