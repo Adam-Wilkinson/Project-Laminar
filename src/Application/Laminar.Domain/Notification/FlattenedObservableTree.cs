@@ -12,6 +12,10 @@ public class FlattenedObservableTree<T> : ReadOnlyObservableCollectionBase<T>
 
     private readonly FlattenedObservableTree<T>? _parent;
 
+    public FlattenedObservableTree(params object[] root) : this((IEnumerable)root)
+    {
+    }
+
     public FlattenedObservableTree(IEnumerable rootList)
     {
         if (rootList is INotifyCollectionChanged collectionNotifier)

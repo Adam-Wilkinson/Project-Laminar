@@ -64,6 +64,12 @@ internal class ScriptEditor(
         return null;
     }
 
+    public IUserAction DeleteConnectionAction(IScript script, IConnection connection)
+        => new SeverConnectionAction(connection, ((IEditableScript)script).Connections);
+
+    public IUserAction DeleteNodeAction(IScript script, IWrappedNode node)
+        => new DeleteNodeAction(node, ((IEditableScript)script).Nodes);
+
     private IUserAction? FindBridgeActionOrdered(IEditableScript editableScript, IInputConnector inputConnector, IOutputConnector outputConnector)
     {
         foreach (IConnectionBridger bridger in connectionBridgers)

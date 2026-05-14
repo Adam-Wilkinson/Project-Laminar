@@ -1,9 +1,14 @@
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using Avalonia;
+using Avalonia.Collections;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Laminar.Avalonia.ViewModels.Services;
 using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.Scripting;
+using Laminar.Contracts.Scripting.Connection;
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Domain.Notification;
 using Laminar.PluginFramework.NodeSystem.Connectors;
@@ -15,14 +20,14 @@ public partial class ScriptEditorViewModel(IScript script, IScriptEditor editor,
     : DropTargetViewModel, IConnectionInteractionHandler
 {
     private IUserActionSession? _userActionSession;
-    
+
+    [ObservableProperty]
+    public partial IAvaloniaReadOnlyList<object>? CurrentSelection { get; set; }
+
     public IReadOnlyObservableCollection<ScriptEditorItemModel> VisualElements { get; } =
         new FlattenedObservableTree<ScriptEditorItemModel>(
-            new IEnumerable<ScriptEditorItemModel>[]
-            {
                 script.Nodes.ObservableMap(node => new ScriptEditorItemModel(node)),
-                script.Connections.ObservableMap(connection => new ScriptEditorItemModel(connection))
-            });
+                script.Connections.ObservableMap(connection => new ScriptEditorItemModel(connection)));
     
     public override bool Drop(object? payload, Point location, object? receptacleTag)
     {
@@ -44,6 +49,27 @@ public partial class ScriptEditorViewModel(IScript script, IScriptEditor editor,
 
     }
 
+    [RelayCommand(CanExecute = nameof(CanDeleteSelection))]
+    private void DeleteSelection()
+    {
+        if (CurrentSelection is null || CurrentSelection.Count == 0) return;
+
+        using var session = userActionManager.BeginSession();
+        foreach (var connection in CurrentSelection.Select(x => (x as ScriptEditorItemModel)?.CoreElement)
+                     .OfType<IConnection>())
+        {
+            session.ExecuteAction(editor.DeleteConnectionAction(script, connection));
+        }
+
+        foreach (var connection in CurrentSelection.Select(x => (x as ScriptEditorItemModel)?.CoreElement)
+                     .OfType<IWrappedNode>())
+        {
+            session.ExecuteAction(editor.DeleteNodeAction(script, connection));
+        }
+    }
+
+    public bool CanDeleteSelection => CurrentSelection is not null && CurrentSelection.Count > 0; 
+
     public void CancelConnection()
     {
         _userActionSession?.Reset();
@@ -53,5 +79,10 @@ public partial class ScriptEditorViewModel(IScript script, IScriptEditor editor,
     {
         _userActionSession?.Dispose();
         _userActionSession = null;
+    }
+
+    partial void OnCurrentSelectionChanged(IAvaloniaReadOnlyList<object>? value)
+    {
+        OnPropertyChanged(nameof(CanDeleteSelection));
     }
 }

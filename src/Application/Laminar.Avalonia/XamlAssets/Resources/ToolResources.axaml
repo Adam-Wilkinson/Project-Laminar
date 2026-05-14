@@ -390,6 +390,16 @@
 	    <StaticResource ResourceKey="Tools.Settings.ChangeSettingTool"/>
     </t:Toolbox>
     
+    <t:CommandTool x:Key="Tools.ScriptEditor.DeleteSelection" x:DataType="vm:ScriptEditorViewModel"
+                   Gesture="Delete"
+                   NameKey="Delete"
+                   CommandBinding="{Binding DeleteSelectionCommand}"
+                   DefaultIconGeometry="{x:Static shapes:PathData.DeleteIcon}"/>
+    
+    <t:Toolbox x:Key="Tools.ScriptEditor" x:DataType="vm:ScriptEditorViewModel"
+               NameKey="Script Editor Tools">
+	    <StaticResource ResourceKey="Tools.ScriptEditor.DeleteSelection"/>
+    </t:Toolbox>
     
     <t:Toolbox x:Key="{x:Static t:Tool.ToolRootKey}" NameKey="LaminarToolRoot">
         <StaticResource ResourceKey="Tools.Edit"/>
@@ -398,5 +408,6 @@
         <StaticResource ResourceKey="Tools.ExpandCollapseTreeViewTool"/>
         <StaticResource ResourceKey="Tools.Settings"/>
         <StaticResource ResourceKey="Tools.ToolTools"/>
+        <StaticResource ResourceKey="Tools.ScriptEditor"/>
     </t:Toolbox>
 </ResourceDictionary>

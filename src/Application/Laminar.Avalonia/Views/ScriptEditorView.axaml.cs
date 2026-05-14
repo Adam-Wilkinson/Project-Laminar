@@ -91,6 +91,6 @@ public partial class ScriptEditorView : UserControl
             ? null
             : new ConnectorTarget(ConnectorRegistry.GetRegisteredConnector(match)!, match);
     }
-    
+
     private record ConnectorTarget(IIOConnector Connector, Visual Visual);
 }
