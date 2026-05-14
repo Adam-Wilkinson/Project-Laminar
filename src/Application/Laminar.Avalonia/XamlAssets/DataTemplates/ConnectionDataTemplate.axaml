@@ -6,12 +6,11 @@
                     xmlns:init="using:Laminar.Avalonia.InitializationTargets"
                     xmlns:m="using:Laminar.Avalonia.Markup">
     <DataTemplate DataType="conn:IConnection" x:Key="ConnectionDataTemplate">
-        <shapes:Connection Startpoint="{m:ConnectorLocation {CompiledBinding InputConnector}}"
-                           Endpoint="{m:ConnectorLocation {CompiledBinding OutputConnector}}"
-                           Fill="{Binding InputConnector.ColorHex}"
-                           StrokeThickness="1.5"
-                           ZIndex="-10"
-                           ConnectionWidth="12">
+        <shapes:Connection Startpoint="{m:ConnectorLocation {CompiledBinding OutputConnector}}"
+                           Endpoint="{m:ConnectorLocation {CompiledBinding InputConnector}}"
+                           Fill="{Binding OutputConnector.ColorHex}"
+                           StrokeThickness="2"
+                           ConnectionWidth="10">
             <shapes:Connection.Styles>
                 <Style Selector="shapes|Connection">
                     <Setter Property="Stroke" Value="Gray"/>

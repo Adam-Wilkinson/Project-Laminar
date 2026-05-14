@@ -12,21 +12,22 @@
         <Setter Property="IsVisible" Value="{Binding Converter={x:Static ObjectConverters.IsNotNull}}"/>
         <Setter Property="Fill" Value="{Binding ColorHex, TargetNullValue={x:Static Brushes.White}}"/>
         <Setter Property="Stroke" Value="Gray"/>
-        <Setter Property="StrokeThickness" Value="1.5"/>
+        <Setter Property="StrokeThickness" Value="2"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
-        <Setter Property="ConnectionWidth" Value="14"/>
+        <Setter Property="ConnectionWidth" Value="12"/>
+        <Setter Property="TipLength" Value="10"/>
         <Setter Property="m:ConnectorRegistry.RegisteredConnector" Value="{Binding}"/>
         <Setter Property="Width" Value="0"/>
         <Setter Property="Height" Value="0"/>
         <Setter Property="ClipToBounds" Value="False"/>
         <Setter Property="Transitions">
             <Transitions>
-                <DoubleTransition Property="ConnectionWidth" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
+                <DoubleTransition Property="TipLength" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
             </Transitions>
         </Setter>
         
         <Style Selector="^:pointerover">
-            <Setter Property="ConnectionWidth" Value="18"/>
+            <Setter Property="TipLength" Value="15"/>
         </Style>
     </ControlTheme>
     
@@ -35,7 +36,7 @@
             <ContentControl Content="{Binding CentralDisplay}"/>
             
             <c:Connector Theme="{StaticResource IoConnectorPath}" 
-                         RenderTransform="translatex(-14px)"
+                         RenderTransform="translatex(-16px)"
                          HorizontalAlignment="Left"
                          DragMode="{Binding $self.(m:ConnectorRegistry.ConnectorGestureLive), 
                             Converter={StaticResource ParameterOrNullConverter}, 
@@ -44,7 +45,7 @@
                          DataContext="{Binding InputConnector}"/>
             
             <c:Connector Theme="{StaticResource IoConnectorPath}"
-                         RenderTransform="translatex(4px)"
+                         RenderTransform="translatex(2px)"
                          HorizontalAlignment="Right"
                          DragMode="{Binding $self.(m:ConnectorRegistry.ConnectorGestureLive), 
                             Converter={StaticResource ParameterOrNullConverter}, 

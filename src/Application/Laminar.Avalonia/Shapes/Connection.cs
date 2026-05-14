@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Avalonia;
 using Avalonia.Controls.Shapes;
@@ -51,7 +52,8 @@ public class Connection : Shape
     
     public static Geometry Generate(Point startPoint, Point endPoint, double width, double tipLength)
     {
-        Point shiftedEnd = endPoint + new Vector(6, 0);
+        double minimumPushOut = Math.Min(Math.Abs(startPoint.Y - endPoint.Y) * 1.5, 150);
+        Point shiftedEnd = endPoint + new Vector(10, 0);
         double horizontalMidpoint = (startPoint.X + endPoint.X) / 2;
         
         StreamGeometry connectionLine = new();
@@ -59,8 +61,8 @@ public class Connection : Shape
         {
             connectionLineContext.BeginFigure(startPoint);
             connectionLineContext.CubicBezierTo(
-                new Point(horizontalMidpoint, startPoint.Y),
-                new Point(horizontalMidpoint, endPoint.Y),
+                new Point(Math.Max(horizontalMidpoint, startPoint.X + minimumPushOut), startPoint.Y),
+                new Point(Math.Min(horizontalMidpoint, endPoint.X - minimumPushOut), endPoint.Y),
                 shiftedEnd);
             connectionLineContext.EndFigure(false);
         }
