@@ -44,38 +44,37 @@ internal class ScriptEditor(
         userActionManager.ExecuteAction(moveNodesAction);
     }
 
-    public bool TryBridgeConnectors(IScript script, IIOConnector connectorOne, IIOConnector connectorTwo)
+    public IUserAction? FindBridgeConnectorsAction(IScript script, IIOConnector connectorOne, IIOConnector connectorTwo)
     {
         if (script is not IEditableScript editableScript)
         {
-            return false;
+            return null;
         }
 
         if (connectorOne is IInputConnector inputConnectorOne && connectorTwo is IOutputConnector outputConnectorTwo)
         {
-            return TryGetBridgeDisposableOrdered(editableScript, inputConnectorOne, outputConnectorTwo);
+            return FindBridgeActionOrdered(editableScript, inputConnectorOne, outputConnectorTwo);
         }
 
         if (connectorOne is IOutputConnector outputConnectorOne && connectorTwo is IInputConnector inputConnectorTwo)
         {
-            return TryGetBridgeDisposableOrdered(editableScript, inputConnectorTwo, outputConnectorOne);
+            return FindBridgeActionOrdered(editableScript, inputConnectorTwo, outputConnectorOne);
         }
 
-        return false;
+        return null;
     }
 
-    private bool TryGetBridgeDisposableOrdered(IEditableScript editableScript, IInputConnector inputConnector, IOutputConnector outputConnector)
+    private IUserAction? FindBridgeActionOrdered(IEditableScript editableScript, IInputConnector inputConnector, IOutputConnector outputConnector)
     {
         foreach (IConnectionBridger bridger in connectionBridgers)
         {
-            if (bridger.TryBridge(outputConnector, inputConnector, this, editableScript.Connections) is { } action)
-            {
-                userActionManager.ExecuteAction(action);
-                return true;
-            }
+            if (bridger.TryGetBridgeAction(outputConnector, inputConnector, this, editableScript.Connections) is not
+                { } action) continue;
+            
+            return action;
         }
 
-        return false;
+        return null;
     }
 
     private static void RemoveConnectionsTo(IEditableScript script, IWrappedNode node)

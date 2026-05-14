@@ -28,15 +28,19 @@ public static class LaminarServices
             .AddTransient<IPersistentDictionary, PersistentDictionary>()
             .AddTransient<IPersistentList, PersistentList>()
             .AddSingleton<ISerializer, Serializer>()
+            
             .AddScoped<IUserActionManager, UserActionManager>()
             .AddSingleton<IDataInterfaceFactory, DataInterfaceFactory>()
             .AddSingleton<ITypeInfoStore, TypeInfoStore>()
+            
             .AddSingleton<IPluginHostFactory, PluginHostFactory>()
+            
             .AddSingleton<ILaminarStorageItemFactory, LaminarStorageItemFactory>()
             .AddSingleton<IDeletedStorageItemCache, DeletedStorageItemCache>()
             .AddSingleton<ILaminarFileSystemMonitor, LaminarFileSystemMonitor>()
             .AddSingleton<IFileSystem, FileSystem>()
             .AddScoped<ILaminarFileBrowser, LaminarFileBrowser>()
+            
             .AddSingleton<IPluginLoader>(provider => ActivatorUtilities.CreateInstance<PluginLoader>(provider, frontendDependency))
             .AddSingleton<IExceptionHandler, ExceptionHandler>()
             .AddUserInterfaceServices()

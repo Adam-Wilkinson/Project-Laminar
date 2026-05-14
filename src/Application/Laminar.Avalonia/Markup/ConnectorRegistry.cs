@@ -21,6 +21,10 @@ public class ConnectorRegistry : Interactive
     public const string Key = "ConnectorRegistry";
     
     private static readonly ConditionalWeakTable<Visual, VisualTracker> TrackedVisuals = [];
+
+    public static readonly AttachedProperty<bool> ConnectorGestureLiveProperty = AvaloniaProperty.RegisterAttached<ConnectorRegistry, Visual, bool>("ConnectorGestureLive", defaultValue: true);
+    public static bool GetConnectorGestureLive(Visual visual) => visual.GetValue(ConnectorGestureLiveProperty);
+    public static void SetConnectorGestureLive(Visual visual, bool value) => visual.SetValue(ConnectorGestureLiveProperty, value);
     
     public static readonly AttachedProperty<IIOConnector?> RegisteredConnectorProperty = AvaloniaProperty.RegisterAttached<ConnectorRegistry, Visual, IIOConnector?>("RegisteredConnector");
     public static IIOConnector? GetRegisteredConnector(Visual obj) => obj.GetValue(RegisteredConnectorProperty);

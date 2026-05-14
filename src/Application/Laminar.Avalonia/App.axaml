@@ -11,6 +11,7 @@
 			<ResourceDictionary.MergedDictionaries>
 				<ResourceInclude Source="XamlAssets/DataTemplates/SettingDataTemplate.axaml"/>
 				<ResourceInclude Source="XamlAssets/DataTemplates/WrappedNodeDataTemplate.axaml"/>
+				<ResourceInclude Source="XamlAssets/DataTemplates/ConnectionDataTemplate.axaml"/>
 				<ResourceInclude Source="XamlAssets/Resources/LaminarColorResources.axaml"/>
 				<ResourceInclude Source="XamlAssets/Resources/ToolResources.axaml"/>
 				<ResourceInclude Source="XamlAssets/Resources/SettingsResources.axaml"/>
@@ -46,6 +47,7 @@
 			<conv:AndConverter x:Key="AndConverter"/>
 			<conv:ConcatenateStringsConverter x:Key="ConcatenateStringsConverter"/>
 			<conv:CollectionContainsConverter x:Key="CollectionContainsConverter"/>
+			<conv:ParameterOrNullConverter x:Key="ParameterOrNullConverter"/>
 			<conv:DictionaryGetter x:Key="DictionaryGetter"/>
 			
 			<dd:TreeViewDropAcceptor x:Key="TreeViewDropAcceptor"/>
@@ -69,6 +71,7 @@
 		</DataTemplate>
 		<StaticResource ResourceKey="NodeRowDataTemplate"/>
 		<StaticResource ResourceKey="WrappedNodeDataTemplate"/>
+		<StaticResource ResourceKey="ConnectionDataTemplate"/>
 	</Application.DataTemplates>
 	
 	<Application.RequestedThemeVariant>

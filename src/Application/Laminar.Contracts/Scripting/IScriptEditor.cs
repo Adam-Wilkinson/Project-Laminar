@@ -13,5 +13,5 @@ public interface IScriptEditor
 
     public void MoveNodes(IScript script, IEnumerable<IWrappedNode> nodes, Point delta);
 
-    public bool TryBridgeConnectors(IScript script, IIOConnector connectorOne, IIOConnector connectorTwo);
+    public IUserAction? FindBridgeConnectorsAction(IScript script, IIOConnector connectorOne, IIOConnector connectorTwo);
 }

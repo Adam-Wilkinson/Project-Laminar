@@ -8,7 +8,7 @@ namespace Laminar.Implementation.Scripting.Connections;
 
 internal class DefaultConnectionBridger : IConnectionBridger
 {
-    public IUserAction TryBridge(IOutputConnector outputConnector, IInputConnector inputConnector, IScriptEditor scriptEditor, IConnectionCollection connections)
+    public IUserAction TryGetBridgeAction(IOutputConnector outputConnector, IInputConnector inputConnector, IScriptEditor scriptEditor, IConnectionCollection connections)
     {
         return new EstablishConnectionAction(outputConnector, inputConnector, connections);
     }

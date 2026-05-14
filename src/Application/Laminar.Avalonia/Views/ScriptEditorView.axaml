@@ -37,6 +37,7 @@
                 <Setter Property="sam:Selection.IsSelectable" Value="{Binding IsSelectable}"/>
                 <Setter Property="sam:Selection.IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
                 <Setter Property="sam:MoveSelectionGesture.IsMovable" Value="{Binding IsMovable}"/>
+                <Setter Property="sam:ZIndexLayerManger.ZIndexLayer" Value="{Binding LayerIndex}"/>
             </Style>
         </sam:SelectAndMove.Styles>
     </sam:SelectAndMove>

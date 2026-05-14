@@ -1,6 +1,4 @@
-﻿using Laminar.Contracts.Base.ActionSystem;
-using Laminar.Contracts.Base.UserInterface;
-using Laminar.Implementation.Base.ActionSystem;
+﻿using Laminar.Contracts.Base.UserInterface;
 using Laminar.Implementation.Base.UserInterface;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -14,8 +12,6 @@ internal static class UserInterfaceServices
         serviceCollection.AddSingleton<IReadOnlyUserInterfaceStore>(x => x.GetRequiredService<IUserInterfaceStore>());
         serviceCollection.AddSingleton<IUserInterfaceProvider, UserInterfaceProvider>();
         serviceCollection.AddSingleton<IDisplayFactory, DisplayFactory>();
-
-        serviceCollection.AddSingleton<IUserActionManager, UserActionManager>();
 
         return serviceCollection;
     }

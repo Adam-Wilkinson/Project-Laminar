@@ -13,8 +13,8 @@ public partial class ScriptEditorView : UserControl
 {
     public static readonly StyledProperty<IConnectionInteractionHandler?> ConnectionInteractionHandlerProperty = AvaloniaProperty.Register<ScriptEditorView, IConnectionInteractionHandler?>(nameof(ConnectionInteractionHandler));
     
-    private IIOConnector? _firstClickedConnector;
-    private IIOConnector? _potentialSecondConnector;
+    private ConnectorTarget? _firstClickedConnector;
+    private ConnectorTarget? _potentialSecondConnector;
 
     static ScriptEditorView()
     {
@@ -37,23 +37,29 @@ public partial class ScriptEditorView : UserControl
     {
         if (_firstClickedConnector is null) return;
 
-        if (FindConnectorFromEvent(e, c => !Equals(c, _firstClickedConnector)) is not { } hoverConnector)
+        if (FindConnectorFromEvent(e, c => !Equals(c, _firstClickedConnector?.Connector)) is not { } hoverConnector)
         {
             if (_potentialSecondConnector is null) return;
             
             ConnectionInteractionHandler?.CancelConnection();
+            ConnectorRegistry.SetConnectorGestureLive(_firstClickedConnector.Visual, true);
             _potentialSecondConnector = null;
             return;   
         }
         
-        if (Equals(_potentialSecondConnector, hoverConnector)) return;
+        if (Equals(_potentialSecondConnector?.Connector, hoverConnector.Connector)) return;
 
         if (_potentialSecondConnector is not null)
         {
             ConnectionInteractionHandler?.CancelConnection();
+            ConnectorRegistry.SetConnectorGestureLive(_firstClickedConnector.Visual, true);
         }
+
+        bool connectionMade =
+            ConnectionInteractionHandler?.HoverConnection(_firstClickedConnector.Connector, hoverConnector.Connector) ??
+            false; 
         
-        ConnectionInteractionHandler?.HoverConnection(_firstClickedConnector, hoverConnector);
+        ConnectorRegistry.SetConnectorGestureLive(_firstClickedConnector.Visual, !connectionMade);
         _potentialSecondConnector = hoverConnector;
     }
 
@@ -61,7 +67,11 @@ public partial class ScriptEditorView : UserControl
     {
         if (_firstClickedConnector is null) return;
         ConnectionInteractionHandler?.ConfirmConnection();
+        ConnectorRegistry.SetConnectorGestureLive(_firstClickedConnector.Visual, true);
         _firstClickedConnector = null;
+        
+        if (_potentialSecondConnector is null) return;
+        ConnectorRegistry.SetConnectorGestureLive(_potentialSecondConnector.Visual, true);
         _potentialSecondConnector = null;
     }
 
@@ -70,13 +80,17 @@ public partial class ScriptEditorView : UserControl
         _firstClickedConnector = FindConnectorFromEvent(args);
     }
 
-    private IIOConnector? FindConnectorFromEvent(PointerEventArgs e, Predicate<IIOConnector>? predicate = null)
+    private ConnectorTarget? FindConnectorFromEvent(PointerEventArgs e, Predicate<IIOConnector>? predicate = null)
     {
-        return (SelectAndMove.ItemsPanelRoot?
+        return SelectAndMove.ItemsPanelRoot?
             .GetInputElementsAt(e.GetPosition(SelectAndMove.ItemsPanelRoot))
-            .FirstOrDefault(x => 
+            .FirstOrDefault(x =>
                 x is InputElement element
                 && ConnectorRegistry.GetRegisteredConnector(element) is { } potential
-                && (predicate?.Invoke(potential) ?? true)) as StyledElement)?.DataContext as IIOConnector;
+                && (predicate?.Invoke(potential) ?? true)) is not InputElement match
+            ? null
+            : new ConnectorTarget(ConnectorRegistry.GetRegisteredConnector(match)!, match);
     }
+    
+    private record ConnectorTarget(IIOConnector Connector, Visual Visual);
 }

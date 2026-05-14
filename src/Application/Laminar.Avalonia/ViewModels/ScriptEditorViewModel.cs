@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Avalonia;
 using Laminar.Avalonia.ViewModels.Services;
+using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Domain.Notification;
@@ -10,45 +11,47 @@ using LaminarPoint = Laminar.Domain.ValueObjects.Point;
 
 namespace Laminar.Avalonia.ViewModels;
 
-public partial class ScriptEditorViewModel : DropTargetViewModel, IConnectionInteractionHandler
+public partial class ScriptEditorViewModel(IScript script, IScriptEditor editor, IUserActionManager userActionManager)
+    : DropTargetViewModel, IConnectionInteractionHandler
 {
-    private readonly IScript _script;
-    private readonly IScriptEditor _editor;
-
-    public ScriptEditorViewModel(IScript script, IScriptEditor editor)
-    {
-        _script = script;
-        _editor = editor;
-        VisualElements = new FlattenedObservableTree<ScriptEditorItemModel>(
-            new IEnumerable<ScriptEditorItemModel>[] {
+    private IUserActionSession? _userActionSession;
+    
+    public IReadOnlyObservableCollection<ScriptEditorItemModel> VisualElements { get; } =
+        new FlattenedObservableTree<ScriptEditorItemModel>(
+            new IEnumerable<ScriptEditorItemModel>[]
+            {
                 script.Nodes.ObservableMap(node => new ScriptEditorItemModel(node)),
                 script.Connections.ObservableMap(connection => new ScriptEditorItemModel(connection))
             });
-    }
-
-    public IReadOnlyObservableCollection<ScriptEditorItemModel> VisualElements { get; }
     
     public override bool Drop(object? payload, Point location, object? receptacleTag)
     {
         if (payload is not IWrappedNode wrapped) return false;
 
-        var newNode = _editor.AddCopyOfNode(_script, wrapped);
+        var newNode = editor.AddCopyOfNode(script, wrapped);
         newNode.Location.Value = new LaminarPoint { X = location.X, Y = location.Y };
         return true;
     }
 
-    public void HoverConnection(IIOConnector first, IIOConnector second)
+    public bool HoverConnection(IIOConnector first, IIOConnector second)
     {
-        Debug.WriteLine($"Potential connection between {first} and {second}");
+        _userActionSession ??= userActionManager.BeginSession();
+
+        if (editor.FindBridgeConnectorsAction(script, first, second) is not { } bridgeAction) return false;
+        
+        _userActionSession.ExecuteAction(bridgeAction);
+        return true;
+
     }
 
     public void CancelConnection()
     {
-        Debug.WriteLine("Never mind");
+        _userActionSession?.Reset();
     }
 
     public void ConfirmConnection()
     {
-        Debug.WriteLine("Confirmed connection");
+        _userActionSession?.Dispose();
+        _userActionSession = null;
     }
 }

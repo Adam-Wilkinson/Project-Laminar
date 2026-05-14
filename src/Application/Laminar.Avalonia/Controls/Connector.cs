@@ -3,6 +3,7 @@ using Avalonia;
 using Avalonia.Controls.Shapes;
 using Avalonia.Input;
 using Avalonia.Media;
+using Laminar.Avalonia.Markup;
 using Laminar.Avalonia.Shapes;
 
 namespace Laminar.Avalonia.Controls;
@@ -16,19 +17,19 @@ public enum ConnectorDragMode
 
 public class Connector : Shape
 {
-    public static readonly StyledProperty<Point> StartpointProperty = AvaloniaProperty.Register<Connector, Point>(nameof(Startpoint), new Point(0, 0));
+    public static readonly StyledProperty<Point> StartpointProperty = Connection.StartpointProperty.AddOwner<Connector>();
     
-    public static readonly StyledProperty<Point> EndpointProperty = AvaloniaProperty.Register<Connector, Point>(nameof(Endpoint), new Point(0, 0));
+    public static readonly StyledProperty<Point> EndpointProperty = Connection.EndpointProperty.AddOwner<Connector>();
 
+    public static readonly StyledProperty<double> ConnectionWidthProperty = Connection.ConnectionWidthProperty.AddOwner<Connector>();
+
+    public static readonly StyledProperty<double> TipLengthProperty = Connection.TipLengthProperty.AddOwner<Connector>();
+    
     public static readonly StyledProperty<ConnectorDragMode> DragModeProperty = AvaloniaProperty.Register<Connector, ConnectorDragMode>(nameof(DragMode)); 
-    
-    public static readonly StyledProperty<double> ConnectionWidthProperty = AvaloniaProperty.Register<Connector, double>(nameof(ConnectionWidth), 15);
-
-    public static readonly StyledProperty<double> TipLengthProperty = AvaloniaProperty.Register<Connector, double>(nameof(TipLength), 10);
     
     static Connector()
     {
-        AffectsGeometry<Connector>(StartpointProperty, EndpointProperty, ConnectionWidthProperty, TipLengthProperty);
+        AffectsGeometry<Connector>(StartpointProperty, EndpointProperty, ConnectionWidthProperty, TipLengthProperty, DragModeProperty);
     }
 
     private bool _isDragging;
@@ -81,13 +82,18 @@ public class Connector : Shape
     {
         if (!_isDragging || _originalClickOffset is not { } originalClickOffset) return;
 
-        if (DragMode is ConnectorDragMode.MoveEnd)
+        switch (DragMode)
         {
-            Endpoint = e.GetPosition(this) - originalClickOffset;
-        }
-        else if (DragMode is ConnectorDragMode.MoveStart)
-        {
-            Startpoint = e.GetPosition(this) - originalClickOffset;
+            case ConnectorDragMode.MoveEnd:
+                Endpoint = e.GetPosition(this) - originalClickOffset;
+                break;
+            case ConnectorDragMode.MoveStart:
+                Startpoint = e.GetPosition(this) - originalClickOffset;
+                break;
+            case ConnectorDragMode.None:
+                Startpoint = new Point(0, 0);
+                Endpoint = new Point(0, 0);
+                break;
         }
     }
 

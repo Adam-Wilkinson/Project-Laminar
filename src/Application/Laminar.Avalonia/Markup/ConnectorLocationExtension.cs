@@ -52,6 +52,11 @@ public class TransformedCenterValueConverter : IMultiValueConverter
 {
     public object Convert(IList<object?> values, Type targetType, object? parameter, CultureInfo culture)
     {
+        if (Equals(values[0], AvaloniaProperty.UnsetValue) || Equals(values[1], AvaloniaProperty.UnsetValue))
+        {
+            return AvaloniaProperty.UnsetValue;
+        }
+        
         if (parameter is not TransformedCenterObservable observer || values[0] is not IIOConnector connector || values[1] is not Point returnValue)
             return new BindingNotification(new InvalidCastException(), BindingErrorType.Error);
 
@@ -96,11 +101,18 @@ public class TransformedCenterObservable(Visual owner, ConnectorRegistry registr
             _root = root;
             _observer = observer;
             _ownerVisual = ownerVisual;
+            _trackedVisual = trackedVisual;
             
             _ownerVisual.DetachedFromVisualTree += OwnerDetachedFromVisualTree; 
             _root._subscriptions.Add(this);
-            observer.OnNext(default);
-            UpdateTrackedVisual(trackedVisual);
+            if (_trackedVisual is null)
+            {
+                _observer.OnNext(default);
+            }
+            else
+            {
+                UpdateTrackedVisual(_trackedVisual);
+            }
         }
 
         private void OwnerDetachedFromVisualTree(object? sender, VisualTreeAttachmentEventArgs e) => Dispose();
@@ -134,10 +146,12 @@ public class TransformedCenterObservable(Visual owner, ConnectorRegistry registr
 
         private void PublishCurrentPosition()
         {
-            if (_disposed || _trackedVisual?.TransformToVisual(_ownerVisual) is not { } transform) 
+            if (_disposed || _trackedVisual?.GetVisualParent()?.TransformToVisual(_ownerVisual) is not { } transform) 
                 return;
+
+            var next = _trackedVisual.Bounds.Center.Transform(transform);
             
-            _observer.OnNext(_trackedVisual.Bounds.Center.Transform(transform));
+            _observer.OnNext(next);
         }
         
         public void Dispose()

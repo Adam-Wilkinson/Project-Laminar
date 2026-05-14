@@ -52,7 +52,7 @@ public class ValuePassingBenchmark
         for (var i = 0; i < nodeCount; i++)
         {
             var nextNode = _scriptEditor.AddCopyOfNode(script, originalNode);
-            _scriptEditor.TryBridgeConnectors(script, previousNode.Rows[1].OutputConnector!, nextNode.Rows[0].InputConnector!);
+            _scriptEditor.FindBridgeConnectorsAction(script, previousNode.Rows[1].OutputConnector!, nextNode.Rows[0].InputConnector!);
             previousNode = nextNode;
         }
         (script.Nodes[0].Rows[0].CentralDisplay as IDisplay)!.DisplayValue.Value = 3.0;

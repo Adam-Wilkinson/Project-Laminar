@@ -24,6 +24,5 @@ public class Instance
         .AddScriptingServices()
         .AddUserInterfaceServices()
         .AddPluginServices()
-        .AddEnvironmentServices()
         .BuildServiceProvider();
 }

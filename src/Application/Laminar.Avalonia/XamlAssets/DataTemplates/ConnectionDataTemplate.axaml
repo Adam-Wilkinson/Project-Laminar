@@ -1,11 +1,26 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:conn="using:Laminar.Contracts.Scripting.Connection"
+                    xmlns:shapes="using:Laminar.Avalonia.Shapes"
+                    xmlns:sam="using:Laminar.Avalonia.SelectAndMove"
+                    xmlns:init="using:Laminar.Avalonia.InitializationTargets"
                     xmlns:m="using:Laminar.Avalonia.Markup">
     <DataTemplate DataType="conn:IConnection" x:Key="ConnectionDataTemplate">
-        <Line StartPoint="{m:ConnectorLocation {CompiledBinding InputConnector}}"
-              EndPoint="{m:ConnectorLocation {CompiledBinding OutputConnector}}"
-              Stroke="{Binding InputConnector.ColorHex}"
-              StrokeThickness="3"/>
+        <shapes:Connection Startpoint="{m:ConnectorLocation {CompiledBinding InputConnector}}"
+                           Endpoint="{m:ConnectorLocation {CompiledBinding OutputConnector}}"
+                           Fill="{Binding InputConnector.ColorHex}"
+                           StrokeThickness="1.5"
+                           ZIndex="-10"
+                           ConnectionWidth="12">
+            <shapes:Connection.Styles>
+                <Style Selector="shapes|Connection">
+                    <Setter Property="Stroke" Value="Gray"/>
+                </Style>
+                
+                <Style Selector="shapes|Connection[(sam|Selection.IsSelected)=True]">
+                    <Setter Property="Stroke" Value="{DynamicResource {x:Static init:ColorInitialization.LaminarForegroundKey}}"/>
+                </Style>
+            </shapes:Connection.Styles>
+        </shapes:Connection>
     </DataTemplate>
 </ResourceDictionary>

@@ -13,6 +13,7 @@ public partial class ScriptEditorItemModel : ObservableObject
         CoreElement = connectionModel;
         IsSelectable = true;
         IsMovable = false;
+        LayerIndex = 0;
     }
 
     public ScriptEditorItemModel(IWrappedNode nodeModel)
@@ -20,6 +21,8 @@ public partial class ScriptEditorItemModel : ObservableObject
         CoreElement = nodeModel;
         IsSelectable = true;
         IsMovable = true;
+        LayerIndex = 10;
+        
         nodeModel.Location.OnChanged += (_, changedArgs) =>
         {
             Position = new Point(changedArgs.NewValue.X, changedArgs.NewValue.Y);
@@ -43,6 +46,8 @@ public partial class ScriptEditorItemModel : ObservableObject
     public bool IsSelectable { get; }
 
     public bool IsMovable { get; }
+
+    public int LayerIndex { get; }
 
     public object CoreElement { get; }
 }

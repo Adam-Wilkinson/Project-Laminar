@@ -20,7 +20,7 @@ internal class UserActionManager(
 
         if (actionResult is UserActionSuccess { InverseAction: { } inverse })
         {
-            _undoList.Push(inverse);
+            RegisterUndoAction(inverse);
         }
 
         return actionResult;
@@ -51,8 +51,15 @@ internal class UserActionManager(
 
         return actionResult;
     }
+    
+    public void RegisterUndoAction(IUserAction action)
+    {
+        _undoList.Push(action);
+    }
 
-    private async Task<IUserActionResult> ResolveExecutionAsync(IUserAction action)
+    public IUserActionSession BeginSession() => new UserActionSession(this);
+
+    public async Task<IUserActionResult> ResolveExecutionAsync(IUserAction action)
     {
         if (!action.CanExecute) return IUserActionResult.Invalid();
         var result = await action.Execute();
