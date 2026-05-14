@@ -22,7 +22,7 @@ public partial class ScriptEditorViewModel(IScript script, IScriptEditor editor,
     private IUserActionSession? _userActionSession;
 
     [ObservableProperty]
-    public partial IAvaloniaReadOnlyList<object>? CurrentSelection { get; set; }
+    public partial IReadOnlyList<object>? CurrentSelection { get; set; }
 
     public IReadOnlyObservableCollection<ScriptEditorItemModel> VisualElements { get; } =
         new FlattenedObservableTree<ScriptEditorItemModel>(
@@ -81,7 +81,7 @@ public partial class ScriptEditorViewModel(IScript script, IScriptEditor editor,
         _userActionSession = null;
     }
 
-    partial void OnCurrentSelectionChanged(IAvaloniaReadOnlyList<object>? value)
+    partial void OnCurrentSelectionChanged(IReadOnlyList<object>? value)
     {
         OnPropertyChanged(nameof(CanDeleteSelection));
     }

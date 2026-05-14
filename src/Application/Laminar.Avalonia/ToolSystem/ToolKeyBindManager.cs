@@ -18,7 +18,7 @@ public class ToolKeyBindManager(TopLevel defaultTopLevel) : IAfterApplicationBui
 {
     private static KeyEventArgs? _mostRecentlyHandledKeyEvent;
     private static readonly List<KeyBinding> AllKeybinds = [];
-    private Visual? _visualUnderCursor;
+    private InputElement? _elementUnderCursor;
     private Tool? _rootTool;
     
     private IFocusManager FocusManager => defaultTopLevel.FocusManager;
@@ -51,7 +51,7 @@ public class ToolKeyBindManager(TopLevel defaultTopLevel) : IAfterApplicationBui
         
         defaultTopLevel.PointerMoved += (_, args) =>
         {
-            _visualUnderCursor = defaultTopLevel.GetVisualAt(args.GetPosition(defaultTopLevel));
+            _elementUnderCursor = defaultTopLevel.InputHitTest(args.GetPosition(defaultTopLevel)) as InputElement;
         };
     }
     
@@ -111,7 +111,7 @@ public class ToolKeyBindManager(TopLevel defaultTopLevel) : IAfterApplicationBui
 
         private bool TryBuildTool(out ToolInstance? instance, object? parameter)
         {
-            var allVisualsUnderCursor = keyBindManager._visualUnderCursor?.GetVisualAncestors() ?? [];
+            var allVisualsUnderCursor = keyBindManager._elementUnderCursor?.GetVisualAncestors() ?? [];
             foreach (var visual in allVisualsUnderCursor)
             {
                 if (tool.TryFindTargetAndBuild(visual) is { } hoveredVisualTool && hoveredVisualTool.Command.CanExecute(parameter))
