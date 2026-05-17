@@ -1,0 +1,11 @@
+<Project>
+    
+    <PropertyGroup>
+        <Nullable>enable</Nullable>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <WarningLevel>4</WarningLevel>
+        <NoWarn>NU5128</NoWarn>
+    </PropertyGroup>
+    
+</Project>

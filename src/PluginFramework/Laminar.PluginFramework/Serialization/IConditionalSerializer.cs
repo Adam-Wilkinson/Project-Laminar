@@ -1,5 +1,5 @@
 namespace Laminar.PluginFramework.Serialization;
-
+    
 public interface IConditionalSerializer
 {
     public Type? SerializedTypeOrNull(Type typeToSerialize);

@@ -1,0 +1,17 @@
+<Project>
+    <Target Name="CopyToPluginsFolder" AfterTargets="Build">
+        <PropertyGroup>
+            <PluginOutputDir>$(MSBuildThisFileDirectory)..\Application\Laminar.Avalonia\bin\$(Configuration)\net10.0\plugins\$(AssemblyName)</PluginOutputDir>
+        </PropertyGroup>
+
+        <ItemGroup>
+            <PluginFiles Include="$(TargetDir)**\*.*"/>
+        </ItemGroup>
+
+        <MakeDir Directories="$(PluginOutputDir)"/>
+
+        <Copy SourceFiles="@(PluginFiles)"
+              DestinationFolder="$(PluginOutputDir)\%(RecursiveDir)"
+              SkipUnchangedFiles="true"/>
+    </Target>
+</Project>

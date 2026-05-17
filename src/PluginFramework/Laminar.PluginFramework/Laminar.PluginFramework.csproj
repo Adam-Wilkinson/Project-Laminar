@@ -1,36 +1,33 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+    
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>  
+        <Title>Project: Laminar Plugin Framework</Title>
+        <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+        <PackageOutputPath>$(SolutionDir).nuget.local</PackageOutputPath>
+        <Authors>Adam Wilkinson</Authors>
+        <RepositoryUrl>https://github.com/Adam-Wilkinson/Project-Laminar</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
+        <PackageLicenseFile>COPYING.txt</PackageLicenseFile>
+        <PackageReleaseNotes>Updated the data interface system</PackageReleaseNotes>
+    </PropertyGroup>
 
-  <PropertyGroup>
-	<TargetFramework>net10.0</TargetFramework>
-	<Nullable>enable</Nullable>
-	<ImplicitUsings>enable</ImplicitUsings>
-	<Nullable>enable</Nullable>
-	<Title>Project: Laminar Plugin Framework</Title>
-	<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-	<Version>0.0.2</Version>
-	<Authors>Adam Wilkinson</Authors>
-	<RepositoryUrl>https://github.com/Adam-Wilkinson/Project-Laminar</RepositoryUrl>
-	<RepositoryType>git</RepositoryType>
-	<PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
-	<PackageLicenseFile>COPYING.txt</PackageLicenseFile>
-	<LangVersion>default</LangVersion>
-	<PackageReleaseNotes>Updated the data interface system</PackageReleaseNotes>
-  </PropertyGroup>
+    <ItemGroup>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+            <_Parameter1>Laminar.Implementation</_Parameter1>
+        </AssemblyAttribute>
+    </ItemGroup>
 
-  <ItemGroup>
-    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
-      <_Parameter1>Laminar.Implementation</_Parameter1>
-    </AssemblyAttribute>
-</ItemGroup>
+    <ItemGroup>
+        <None Include="..\..\..\COPYING.txt">
+            <Pack>True</Pack>
+            <PackagePath>\</PackagePath>
+        </None>
+    </ItemGroup>
 
-  <ItemGroup>
-    <None Include="..\..\..\COPYING.txt">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Laminar.PluginFramework.SourceGeneration" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Laminar.PluginFramework.SourceGeneration" />
+    </ItemGroup>
+    
 </Project>

@@ -13,8 +13,7 @@ public abstract class TypeSerializer : IConditionalSerializer
     public abstract object DeSerialize(DeserializationRequest request);
 }
 
-public abstract class TypeSerializer<T> : TypeSerializer
-    where T : notnull
+public abstract class TypeSerializer<T> : TypeSerializer where T : notnull
 {
     public sealed override Type Type { get; } = typeof(T);
  
@@ -34,7 +33,8 @@ public abstract class TypeSerializer<T, TSerialized> : TypeSerializer<T>
 {
     public sealed override Type SerializedType { get; } = typeof(TSerialized);
 
-    protected sealed override object SerializeOverride(T toSerialize) => SerializeTyped(toSerialize);
+    protected sealed override object SerializeOverride(T toSerialize) => 
+        SerializeTyped(toSerialize);
     
     protected abstract TSerialized SerializeTyped(T toSerialize);
     

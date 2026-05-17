@@ -1,29 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
+    
+    <PropertyGroup>
+      <TargetFramework>net10.0</TargetFramework>
+      <OutputType>Exe</OutputType>
+    </PropertyGroup>
 
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net10.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <LangVersion>default</LangVersion>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
-    <WarningLevel>9999</WarningLevel>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
-    <WarningLevel>9999</WarningLevel>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="BenchmarkDotNet" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Laminar.Implementation\Laminar.Implementation.csproj" />
-  </ItemGroup>
-
+    <ItemGroup>
+        <PackageReference Include="BenchmarkDotNet" />
+    </ItemGroup>
+    
+    <ItemGroup>
+        <ProjectReference Include="..\Laminar.Implementation\Laminar.Implementation.csproj" />
+    </ItemGroup>
+    
 </Project>

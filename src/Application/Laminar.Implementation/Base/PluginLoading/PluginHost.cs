@@ -48,12 +48,12 @@ public class PluginHost(
         return true;
     }
 
-    public bool RegisterType<T>(string hexColour, string userFriendlyName, T defaultValue, IUserInterfaceDefinition defaultEditor, IUserInterfaceDefinition defaultDisplay, TypeSerializer<T>? serializer1)
+    public bool RegisterType<T>(string hexColour, string userFriendlyName, T defaultValue, IUserInterfaceDefinition defaultEditor, IUserInterfaceDefinition defaultDisplay, TypeSerializer<T>? typeSerializer)
         where T : notnull
     {
-        if (serializer1 is not null)
+        if (typeSerializer is not null)
         {
-            serializer.RegisterSerializer(serializer1);
+            serializer.RegisterSerializer(typeSerializer);
         }
 
         typeInfoStore.RegisterType(typeof(T), new TypeInfo(userFriendlyName, defaultEditor, defaultDisplay, hexColour, defaultValue!));

@@ -7,7 +7,6 @@
         xmlns:ui="using:Laminar.PluginFramework.UserInterface"
         xmlns:pf="using:Laminar.PluginFramework"
         xmlns:local="using:BasicFunctionality.Avalonia.UIViewer"
-        xmlns:drawing="using:System.Drawing"
         xmlns:media="using:Avalonia.Media"
         mc:Ignorable="d" d:DesignWidth="550" d:DesignHeight="450"
         x:Class="BasicFunctionality.Avalonia.UIViewer.MainWindow"

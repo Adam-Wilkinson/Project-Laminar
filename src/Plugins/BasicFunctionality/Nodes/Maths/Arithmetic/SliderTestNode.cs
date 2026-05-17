@@ -16,10 +16,10 @@ public partial class SliderTestNode : INode
             new InterfaceData<Slider,double> { Definition = new Slider { Min = 0.0, Max = 5.0 }, Value = 2, Name = "Test Slider Display" },
             NodeIO.ValueOutput("Test Slider Output", 0.0));
 
-    public string NodeName { get; } = "Slider Test";
+    public string NodeName => "Slider Test";
 
     public void Evaluate()
     {
-        SliderRow.Output.Value = (double)SliderRow.Display.Value;
+        SliderRow.Output!.Value = SliderRow.Display.Value;
     }
 }

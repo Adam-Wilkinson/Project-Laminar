@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Microsoft.CodeAnalysis;
+﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Laminar.PluginSourceGeneration.Helpers;
+
 public static class SyntaxHelpers
 {
     public static int GetIndexInParent(SyntaxNode node, Func<SyntaxNode, bool> predicate)
@@ -49,6 +46,7 @@ public static class SyntaxHelpers
 
         foreach (UsingDirectiveSyntax usingDirectiveSyntax in currentUsingDirectives)
         {
+            if (usingDirectiveSyntax.Name is null) continue;
             remainingRequiredDirectives.Remove(usingDirectiveSyntax.Name.ToString());
         }
 
