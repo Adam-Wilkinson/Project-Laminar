@@ -1,7 +1,7 @@
 ﻿namespace Laminar.PluginFramework.Registration;
 
 /// <summary>
-/// Defines the class whcih registers a plugin with the <see cref="IPluginHost"/>
+/// Defines the class which registers a plugin with the <see cref="IPluginHost"/>
 /// </summary>
 public interface IPlugin
 {

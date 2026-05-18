@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
+﻿using System.Reflection;
 using Laminar.Contracts.Base.PluginLoading;
 using Laminar.PluginFramework.NodeSystem;
 using Laminar.PluginFramework.Registration;
@@ -12,32 +8,41 @@ namespace Laminar.Implementation.Base.PluginLoading;
 
 public class PluginLoader(FrontendDependency frontend, IPluginHostFactory pluginHostFactory, ILogger<IPluginHost> logger) : IPluginLoader
 {
-    private static readonly string[] AutoLoadPlugins = ["Basic Functionality UI", "Base plugin functionality"];//, "Keyboard and Mouse interface", "Windows Base" };
+    private const string RelativePluginPath = "plugins";
+    private readonly Dictionary<string, IRegisteredPlugin> _registeredPlugins = [];
     
-    public void Register(IPlugin plugin)
+    public void Load(IPlugin plugin)
     {
-        RegisteredPlugin registeredPlugin = new(plugin, pluginHostFactory);
-        if (AutoLoadPlugins.Contains(registeredPlugin.PluginName))
+        if (_registeredPlugins.ContainsKey(plugin.PluginName))
         {
-            registeredPlugin.Load();
+            return;
         }
         
-        RegisteredPlugins.Add(registeredPlugin);
+        RegisteredPlugin registeredPlugin = new(plugin, pluginHostFactory);
+        registeredPlugin.Load();
+        _registeredPlugins.Add(registeredPlugin.PluginName, registeredPlugin);
     }
     
-    public List<IRegisteredPlugin> RegisteredPlugins { get; } = [];
-    
-    public void LoadInbuiltFromPath(string path)
+    public void EnsurePluginsLoaded()
     {
-        foreach (var pluginPath in InbuiltPluginFinder.GetInbuiltPlugins(logger, path))
+        if (!Directory.Exists(RelativePluginPath))
         {
+            logger.LogError("No plugins folder found under '{AbsolutePluginPath}'. Creating it and then loading no plugins, but this is likely a fatal error", Path.GetFullPath(RelativePluginPath));
+            Directory.CreateDirectory(RelativePluginPath);
+            return;
+        }
+        
+        foreach (var pluginDirectory in Directory.EnumerateDirectories(RelativePluginPath))
+        {
+            var pluginName = Path.GetFileName(pluginDirectory);
+            var pluginPath = Path.GetFullPath(Path.Combine(pluginDirectory, pluginName + ".dll"));
             PluginLoadContext pluginContext = new(pluginPath);
             var pluginAssembly = pluginContext.LoadFromAssemblyPath(pluginPath);
             foreach (var module in pluginAssembly.Modules)
             {
                 try
                 {
-                    LoadModule(module);
+                    EnsureModuleLoaded(module);
                 }
                 catch (Exception e)
                 {
@@ -47,7 +52,7 @@ public class PluginLoader(FrontendDependency frontend, IPluginHostFactory plugin
         }
     }
     
-    private void LoadModule(Module module)
+    private void EnsureModuleLoaded(Module module)
     {
         if (module.GetCustomAttribute<HasFrontendDependencyAttribute>() is { } attr && attr.FrontendDependency != frontend)
         {
@@ -59,7 +64,7 @@ public class PluginLoader(FrontendDependency frontend, IPluginHostFactory plugin
             if (!typeof(IPlugin).IsAssignableFrom(type) || type.IsInterface ||
                 Activator.CreateInstance(type) is not IPlugin plugin) continue;
             
-            Register(plugin);
+            Load(plugin);
         }
     }
 
