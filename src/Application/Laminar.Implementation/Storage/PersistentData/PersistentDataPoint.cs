@@ -1,5 +1,3 @@
-using System;
-using System.Resources;
 using Laminar.Contracts.Base;
 using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.Exceptions;
@@ -8,7 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.Storage.PersistentData;
 
-public class PersistentDataPoint : IPersistentDataPoint
+internal class PersistentDataPoint : IPersistentDataPoint
 {
     private readonly ISerializer _serializer;
     private readonly ILogger<PersistentDataPoint> _logger;

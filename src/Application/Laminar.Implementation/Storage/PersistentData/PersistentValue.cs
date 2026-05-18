@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.Exceptions;
 using Laminar.Domain.ValueObjects;
@@ -7,7 +5,7 @@ using Laminar.PluginFramework.Serialization;
 
 namespace Laminar.Implementation.Storage.PersistentData;
 
-public class PersistentValue<T> : ObservableValueBase<T>, IPersistentValue<T>, IPersistentValueInternal 
+internal class PersistentValue<T> : ObservableValueBase<T>, IPersistentValue<T>, IPersistentValueInternal 
     where T : notnull
 {
     private readonly ISerializer _serializer;

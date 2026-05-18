@@ -1,11 +1,9 @@
-using System;
-using System.Collections.Generic;
 using Laminar.Contracts.Storage.PersistentData;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Laminar.Implementation.Storage.PersistentData;
 
-public abstract class PersistentDataNode(IServiceProvider serviceProvider) : IPersistentDataValueOwner
+internal abstract class PersistentDataNode(IServiceProvider serviceProvider) : IPersistentDataValueOwner
 {
     private readonly HashSet<PersistentDataNode> _children = [];
     private bool _transcoderChanging;

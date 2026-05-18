@@ -1,14 +1,15 @@
-using System;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
-using System.Text.Unicode;
 using Laminar.Contracts.Storage.PersistentData;
 using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.Storage.PersistentData;
 
-public class JsonPersistentDataTranscoder(JsonSerializerOptions jsonOptions, ILogger<JsonPersistentDataTranscoder> logger) : IPersistentDataTranscoder
+internal class JsonPersistentDataTranscoder(
+    JsonSerializerOptions jsonOptions, 
+    ILogger<JsonPersistentDataTranscoder> logger) 
+    : IPersistentDataTranscoder
 {
     public JsonPersistentDataTranscoder(ILogger<JsonPersistentDataTranscoder> logger) : this(new JsonSerializerOptions { WriteIndented = true, Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping }, logger)
     {

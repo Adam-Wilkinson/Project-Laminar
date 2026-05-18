@@ -3,7 +3,7 @@ using Laminar.Domain.ValueObjects;
 
 namespace Laminar.Implementation.Storage.IO;
 
-public class FileStream : IFileStream
+internal class FileStream : IFileStream
 {
     private readonly global::System.IO.FileStream _internal;
 

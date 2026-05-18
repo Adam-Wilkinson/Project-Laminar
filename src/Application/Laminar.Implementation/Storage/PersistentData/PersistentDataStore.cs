@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
 using System.Runtime.ExceptionServices;
-using System.Threading;
-using System.Threading.Tasks;
 using Laminar.Contracts.Base;
 using Laminar.Contracts.Storage.IO;
 using Laminar.Contracts.Storage.PersistentData;
@@ -11,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Laminar.Implementation.Storage.PersistentData;
 
-public class PersistentDataStore : IPersistentDataStore, IDisposable
+internal class PersistentDataStore : IPersistentDataStore, IDisposable
 {
     private static readonly TimeSpan FlushDelay = TimeSpan.FromMilliseconds(200);
     

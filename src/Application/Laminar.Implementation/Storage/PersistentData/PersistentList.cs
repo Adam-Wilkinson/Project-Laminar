@@ -1,12 +1,10 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using Laminar.Contracts.Storage.PersistentData;
 
 namespace Laminar.Implementation.Storage.PersistentData;
 
-public class PersistentList(IServiceProvider serviceProvider) : PersistentDataNode(serviceProvider), IPersistentList
+internal class PersistentList(IServiceProvider serviceProvider) 
+    : PersistentDataNode(serviceProvider), IPersistentList
 {
     internal List<IPersistentDataPoint> InternalValues { get; } = [];
 

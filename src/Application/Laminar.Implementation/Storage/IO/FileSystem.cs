@@ -1,18 +1,12 @@
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Threading;
-using System.Threading.Tasks;
 using Laminar.Contracts.Storage.IO;
 using Laminar.Domain.ValueObjects;
 using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.Storage.IO;
 
-public partial class FileSystem(ILogger<IFileSystem> fileSystemLogger, ILogger<FileContents> fileLogger) : IFileSystem
+internal partial class FileSystem(ILogger<IFileSystem> fileSystemLogger, ILogger<FileContents> fileLogger) : IFileSystem
 {
     public bool Exists(FileSystemPath path) 
         => Directory.Exists(path.ToString()) || File.Exists(path.ToString());

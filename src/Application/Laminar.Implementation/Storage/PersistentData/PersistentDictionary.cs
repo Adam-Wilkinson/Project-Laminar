@@ -1,13 +1,10 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using Laminar.Contracts.Storage.PersistentData;
 
 namespace Laminar.Implementation.Storage.PersistentData;
 
-public class PersistentDictionary(IServiceProvider serviceProvider) 
+internal class PersistentDictionary(IServiceProvider serviceProvider) 
     : PersistentDataNode(serviceProvider), IPersistentDictionary
 {
     internal Dictionary<string, IPersistentDataPoint> InternalValues { get; } = [];

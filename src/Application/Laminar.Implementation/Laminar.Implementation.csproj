@@ -3,7 +3,6 @@
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
         <OutputType>Library</OutputType>
-        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     </PropertyGroup>
     
     <ItemGroup>
@@ -16,5 +15,9 @@
         <ProjectReference Include="..\Laminar.Contracts\Laminar.Contracts.csproj" />
         <ProjectReference Include="..\..\PluginFramework\Laminar.PluginFramework\Laminar.PluginFramework.csproj" />
     </ItemGroup>
-    
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="Laminar.Implementation.UnitTests" />
+    </ItemGroup>
+
 </Project>

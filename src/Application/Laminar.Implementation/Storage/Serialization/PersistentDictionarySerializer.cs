@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.Exceptions;
 using Laminar.Implementation.Storage.PersistentData;
@@ -16,7 +13,7 @@ public class PersistentDictionarySerializer(IServiceProvider serviceProvider) : 
         => ForceCast(toSerialize).InternalValues
             .ToDictionary(x => x.Key, x => x.Value.EncodedValue);
 
-    protected override PersistentDictionary DeSerializeTyped(DeserializationRequest<IPersistentDictionary, Dictionary<string, object>> request)
+    protected override IPersistentDictionary DeSerializeTyped(DeserializationRequest<IPersistentDictionary, Dictionary<string, object>> request)
     {
         PersistentDictionary returnValue = request.HasExistingValue
             ? request.ExistingValue as PersistentDictionary ?? throw new DeserializationError(

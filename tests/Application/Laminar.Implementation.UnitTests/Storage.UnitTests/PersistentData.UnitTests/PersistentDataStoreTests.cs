@@ -56,7 +56,7 @@ public class PersistentDataStoreTests
 
             transcoder.ToBytes(serialized).Returns(bytes);
 
-            root.InitializeValue("key", 10);
+            root["key"].SetDefaultAndGet(10);
             root.SetValue("key", 20);
 
             file.Received().Contents = bytes;
@@ -79,7 +79,12 @@ public class PersistentDataStoreTests
 
             var store = CreateStore(transcoder, file, serializer);
 
-            serializer.Received(1).DeserializeObject(decoded, typeof(PersistentDictionary), store.Root);
+            serializer.Received(1).DeserializeObject(new DeserializationRequest
+            {
+                Serialized = decoded, 
+                TargetType = typeof(PersistentDictionary), 
+                ExistingInstance = store.Root
+            });
         }
     }
     
@@ -139,13 +144,20 @@ public class PersistentDataStoreTests
         IPersistentDataTranscoder? transcoder = null,
         IFileContents? file = null,
         ISerializer? serializer = null,
-        ILogger<PersistentDataPoint>? logger = null)
+        IServiceProvider? serviceProvider = null,
+        IDispatcher? dispatcher = null)
     {
         transcoder ??= Substitute.For<IPersistentDataTranscoder>();
         file ??= Substitute.For<IFileContents>();
         serializer ??= Substitute.For<ISerializer>();
-        logger ??= Substitute.For<ILogger<PersistentDataPoint>>();
-
-        return new PersistentDataStore(transcoder, file, Substitute.For<IExceptionHandler>(), serializer, logger);
+        dispatcher ??= Substitute.For<IDispatcher>();
+        serviceProvider ??= Substitute.For<IServiceProvider>();
+        
+        var logger = Substitute.For<ILogger<PersistentDataPoint>>();
+        var exceptionHandler = Substitute.For<IExceptionHandler>();
+        serviceProvider.GetService(typeof(ILogger<PersistentDataPoint>)).Returns(logger);
+        serviceProvider.GetService(typeof(IExceptionHandler)).Returns(exceptionHandler);
+        
+        return new PersistentDataStore(transcoder, file, serviceProvider, serializer, dispatcher);
     }
 }

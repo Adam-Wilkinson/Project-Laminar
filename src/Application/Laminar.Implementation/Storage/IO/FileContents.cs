@@ -1,15 +1,11 @@
-using System;
-using System.IO;
 using System.Runtime.InteropServices;
-using System.Threading;
-using System.Threading.Tasks;
 using Laminar.Contracts.Storage.IO;
 using Laminar.Domain.ValueObjects;
 using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.Storage.IO;
 
-public partial class FileContents : IFileContents
+internal partial class FileContents : IFileContents
 {
     private const int ErrorSharingViolation = 32;
     private const int ErrorLockViolation = 33;

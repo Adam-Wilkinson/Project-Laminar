@@ -2,7 +2,7 @@ using Laminar.Contracts.Storage.PersistentData;
 
 namespace Laminar.Implementation.Storage.PersistentData;
 
-public interface IPersistentValueInternal
+internal interface IPersistentValueInternal
 {
     public object GetEncoded(IPersistentDataTranscoder transcoder);
 

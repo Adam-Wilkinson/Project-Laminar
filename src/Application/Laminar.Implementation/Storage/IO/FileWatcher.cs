@@ -1,9 +1,8 @@
-using System.IO;
 using Laminar.Contracts.Storage.IO;
 
 namespace Laminar.Implementation.Storage.IO;
 
-public class FileWatcher : FileSystemWatcher, IFileWatcher
+internal class FileWatcher : FileSystemWatcher, IFileWatcher
 {
     public FileWatcher() : base() { }
     

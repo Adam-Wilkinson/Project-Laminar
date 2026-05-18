@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using Laminar.Contracts.Storage.IO;
 using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.DataManagement;
@@ -9,7 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.Storage.PersistentData;
 
-public class PersistentDataManager(
+internal class PersistentDataManager(
     IServiceProvider serviceProvider,
     IFileSystem fileSystem, 
     ILogger<JsonPersistentDataTranscoder> jsonTranscoderLogger) 
