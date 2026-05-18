@@ -19,9 +19,6 @@ jobs:
         with:
           dotnet-version: "10.0.x"
 
-      - name: Restore dependencies
-        run: dotnet restore
-
       - name: Build Runner
         run: dotnet build build/Laminar.Runner/Laminar.Runner.csproj -c Debug
 
