@@ -2,6 +2,9 @@
   <Folder Name="/benchmarks/">
     <Project Path="benchmarks/Laminar.Benchmarks.NodeTree/Laminar.Benchmarks.NodeTree.csproj" />
   </Folder>
+  <Folder Name="/build/">
+    <Project Path="build/Laminar.Runner/Laminar.Runner.csproj" />
+  </Folder>
   <Folder Name="/sandboxes/">
     <Project Path="sandboxes/BasicFunctionality.Avalonia.UIViewer/BasicFunctionality.Avalonia.UIViewer.csproj" />
   </Folder>

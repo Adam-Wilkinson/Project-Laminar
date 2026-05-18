@@ -4,6 +4,8 @@
         <LangVersion>14.0</LangVersion>
 		<IncludeBuildOutput>false</IncludeBuildOutput>
 		<IsPackable>true</IsPackable>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<PackageOutputPath>$(SolutionDir).nuget.local</PackageOutputPath>
 		<IncludeSymbols>false</IncludeSymbols>
 		<IsRoslynComponent>true</IsRoslynComponent>
 		<EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>

@@ -15,7 +15,7 @@ public class EnumerableSerializerFactory(ISerializer serializer) : IConditionalS
                 type.GenericTypeArguments[0], 
                 serializer.GetSerializedType(type.GenericTypeArguments[0]));
 
-            return (IConditionalSerializer)Activator.CreateInstance(serializerType, serializer);
+            return Activator.CreateInstance(serializerType, serializer) as IConditionalSerializer;
         }
 
         return null;

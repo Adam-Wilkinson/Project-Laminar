@@ -38,7 +38,7 @@ namespace {attributeNamespace}
             yield return LaminarDiagnostics.TypeDoesNotInheritError(Name, "INodeComponent", fieldDeclaration.GetLocation());
         }
 
-        ClassDeclarationSyntax parentClassSyntax = (ClassDeclarationSyntax)fieldDeclaration.Parent;
+        var parentClassSyntax = fieldDeclaration.Parent as ClassDeclarationSyntax;
 
         if (!SyntaxHelpers.SyntaxTokenListContains(parentClassSyntax!.Modifiers, "partial"))
         {

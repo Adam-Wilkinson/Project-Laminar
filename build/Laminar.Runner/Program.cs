@@ -1,0 +1,1 @@
+﻿Laminar.Avalonia.AppBootstrapper.Run(args);

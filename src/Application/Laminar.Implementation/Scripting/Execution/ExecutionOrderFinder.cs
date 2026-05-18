@@ -16,7 +16,7 @@ internal class ExecutionOrderFinder : IExecutionOrderFinder
     {
         ArgumentNullException.ThrowIfNull(context.ExecutionSource);
 
-        if (_calculatedBranches.TryGetValue((context.ExecutionSource, context.ExecutionFlags.AsNumber), out OrderFinderInstance instance))
+        if (_calculatedBranches.TryGetValue((context.ExecutionSource, context.ExecutionFlags.AsNumber), out var instance))
         {
             return instance.Branches();
         }

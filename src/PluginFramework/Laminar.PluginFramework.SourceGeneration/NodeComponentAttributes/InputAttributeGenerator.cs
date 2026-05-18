@@ -43,7 +43,7 @@ namespace {attributeNamespace}
 
         string FieldDeclarationType = fieldDeclaration.Declaration.Type.ToString();
 
-        MemberDeclarationSyntax memberDeclaration = SyntaxFactory.ParseMemberDeclaration($"private ValueInputRow<{FieldDeclarationType}> {ComponentName};");
+        var memberDeclaration = SyntaxFactory.ParseMemberDeclaration($"private ValueInputRow<{FieldDeclarationType}> {ComponentName};");
 
         StringBuilder componentStringBuilder = new();
         componentStringBuilder.Append($"{ComponentName} ??= Component.ValueInput<{FieldDeclarationType}>({attribute.ArgumentList!.Arguments[0].GetText()}");
@@ -60,7 +60,7 @@ namespace {attributeNamespace}
 
     private IEnumerable<Diagnostic> GetDiagnostics(FieldDeclarationSyntax fieldDeclaration)
     {
-        ClassDeclarationSyntax parentClassSyntax = (ClassDeclarationSyntax)fieldDeclaration.Parent;
+        var parentClassSyntax = fieldDeclaration.Parent as ClassDeclarationSyntax;
 
         if (!SyntaxHelpers.SyntaxTokenListContains(parentClassSyntax!.Modifiers, "partial"))
         {

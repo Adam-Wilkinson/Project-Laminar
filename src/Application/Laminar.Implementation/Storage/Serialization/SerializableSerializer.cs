@@ -21,8 +21,8 @@ public partial class SerializableSerializer(ILogger<SerializableSerializer> logg
             return null;
         }
             
-        return (IConditionalSerializer)Activator.CreateInstance(
-            typeof(SerializableSerializerInstance<,>).MakeGenericType(type, serializerInterface.GetGenericArguments()[1]));
+        return Activator.CreateInstance(
+            typeof(SerializableSerializerInstance<,>).MakeGenericType(type, serializerInterface.GetGenericArguments()[1])) as IConditionalSerializer;
 
     }
 
