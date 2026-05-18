@@ -4,7 +4,7 @@
         <TargetFramework>net10.0</TargetFramework>  
         <Title>Project: Laminar Plugin Framework</Title>
         <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-        <PackageOutputPath>$(SolutionDir).nuget.local</PackageOutputPath>
+        <PackageOutputPath>$(MSBuildThisFileDirectory)..\..\..\.nuget.local</PackageOutputPath>
         <Authors>Adam Wilkinson</Authors>
         <RepositoryUrl>https://github.com/Adam-Wilkinson/Project-Laminar</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
