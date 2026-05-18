@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
-        <OutputType>WinExe</OutputType>
+        <OutputType>Exe</OutputType>
         <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
         <ApplicationManifest>app.manifest</ApplicationManifest>
     </PropertyGroup>
@@ -29,7 +29,8 @@
         <PackageReference Include="HanumanInstitute.MvvmDialogs" />
         <PackageReference Include="HanumanInstitute.MvvmDialogs.Avalonia" />
         <PackageReference Include="Laminar.Avalonia.AdjustableStackPanel" />
-        <PackageReference Include="Laminar.Avalonia.SelectAndMove" /><PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+        <PackageReference Include="Laminar.Avalonia.SelectAndMove" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
         <PackageReference Include="Serilog" />
         <PackageReference Include="Serilog.Extensions.Logging" />
         <PackageReference Include="Serilog.Sinks.Console" />

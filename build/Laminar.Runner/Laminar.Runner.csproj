@@ -6,13 +6,13 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\src\Application\Laminar.Avalonia\Laminar.Avalonia.csproj" />
-        
       <ProjectReference Include="..\..\src\PluginFramework\Laminar.PluginFramework.SourceGeneration\Laminar.PluginFramework.SourceGeneration.csproj" />
       <ProjectReference Include="..\..\src\PluginFramework\Laminar.PluginFramework\Laminar.PluginFramework.csproj" />
         
       <ProjectReference Include="..\..\src\Plugins\BasicFunctionality.Avalonia\BasicFunctionality.Avalonia.csproj" />
       <ProjectReference Include="..\..\src\Plugins\BasicFunctionality\BasicFunctionality.csproj" />
+        
+      <ProjectReference Include="..\..\src\Application\Laminar.Avalonia\Laminar.Avalonia.csproj" />
     </ItemGroup>
 
 </Project>
