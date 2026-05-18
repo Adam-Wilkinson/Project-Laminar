@@ -41,7 +41,7 @@ public class ToolInstance : StyledElement, IEnumerable<ToolInstance>
         ChildTools?.AddRange(newToolChildren.Select(x =>
         {
             var childTool = x.Build(DataContext);
-            ((ISetInheritanceParent)childTool)?.SetParent(this);
+            (childTool as ISetInheritanceParent)?.SetParent(this);
             return childTool;
         }).OfType<ToolInstance>());
     }

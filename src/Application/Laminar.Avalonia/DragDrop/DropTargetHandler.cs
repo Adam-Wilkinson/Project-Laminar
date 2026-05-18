@@ -1,5 +1,3 @@
-using System;
-using System.Reflection.Metadata.Ecma335;
 using System.Windows.Input;
 using Avalonia;
 using Avalonia.Interactivity;
@@ -72,8 +70,7 @@ public class DropTargetHandler : Interactive
         object? payload = eventArgs.DraggingControl.DataContext;
         Point location =
             eventArgs.PointerEventArgs!.GetPosition(dropPositionRelativeTo) - eventArgs.OriginalClickOffset;
-        object receptacleTag = eventArgs.ReceptacleTag;
-        
+        object? receptacleTag = eventArgs.ReceptacleTag;
         
         switch (eventArgs.EventType)
         {

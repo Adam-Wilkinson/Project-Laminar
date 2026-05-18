@@ -3,6 +3,7 @@
     <PropertyGroup>
       <TargetFramework>net10.0</TargetFramework>
       <OutputType>Exe</OutputType>
+      <RootNamespace>Laminar.Benchmarks</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
@@ -10,7 +11,7 @@
     </ItemGroup>
     
     <ItemGroup>
-        <ProjectReference Include="..\Laminar.Implementation\Laminar.Implementation.csproj" />
+        <ProjectReference Include="..\..\src\Application\Laminar.Implementation\Laminar.Implementation.csproj" />
     </ItemGroup>
     
 </Project>

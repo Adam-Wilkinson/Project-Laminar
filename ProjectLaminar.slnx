@@ -1,0 +1,40 @@
+<Solution>
+  <Folder Name="/benchmarks/">
+    <Project Path="benchmarks/Laminar.Benchmarks.NodeTree/Laminar.Benchmarks.NodeTree.csproj" />
+  </Folder>
+  <Folder Name="/sandboxes/">
+    <Project Path="sandboxes/BasicFunctionality.Avalonia.UIViewer/BasicFunctionality.Avalonia.UIViewer.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+    <File Path="nuget.config" />
+  </Folder>
+  <Folder Name="/src/" />
+  <Folder Name="/src/Application/">
+    <File Path="src/Application/Laminar.Avalonia/Lang/Resources.resx" />
+    <Project Path="src/Application/Laminar.Avalonia/Laminar.Avalonia.csproj" />
+    <Project Path="src/Application/Laminar.Contracts/Laminar.Contracts.csproj" />
+    <Project Path="src/Application/Laminar.Domain/Laminar.Domain.csproj" />
+    <Project Path="src/Application/Laminar.Implementation/Laminar.Implementation.csproj" />
+  </Folder>
+  <Folder Name="/src/PluginFramework/">
+    <File Path="src/PluginFramework/Directory.Build.props" />
+    <File Path="src/PluginFramework/version.json" />
+    <Project Path="src/PluginFramework/Laminar.PluginFramework.SourceGeneration/Laminar.PluginFramework.SourceGeneration.csproj" />
+    <Project Path="src/PluginFramework/Laminar.PluginFramework/Laminar.PluginFramework.csproj" />
+  </Folder>
+  <Folder Name="/src/Plugins/">
+    <File Path="src/Plugins/Directory.Build.targets" />
+    <Project Path="src/Plugins/BasicFunctionality.Avalonia/BasicFunctionality.Avalonia.csproj" />
+    <Project Path="src/Plugins/BasicFunctionality/BasicFunctionality.csproj" />
+  </Folder>
+  <Folder Name="/tests/" />
+  <Folder Name="/tests/Application/">
+    <Project Path="tests/Application/Laminar.Domain.UnitTests/Laminar.Domain.UnitTests.csproj" />
+    <Project Path="tests/Application/Laminar.Implementation.UnitTests/Laminar.Implementation.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/tests/PluginFramework/">
+    <Project Path="tests/PluginFramework/Laminar.PluginFramework.UnitTests/Laminar.PluginFramework.UnitTests.csproj" />
+  </Folder>
+</Solution>

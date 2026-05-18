@@ -13,7 +13,7 @@ namespace Laminar.Avalonia.ViewModels.Services;
 
 public class DialogService(TopLevel topLevel, IDialogService dialogService)
 {
-    private INotifyPropertyChanged? TopLevelViewModel => field ??= (INotifyPropertyChanged)topLevel?.DataContext;
+    private INotifyPropertyChanged? TopLevelViewModel => field ??= topLevel.DataContext as INotifyPropertyChanged;
 
     public async Task<DialogOption> PromptUserResponse(LaminarDialogViewModel viewModel)
     {

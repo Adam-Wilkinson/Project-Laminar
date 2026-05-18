@@ -38,7 +38,7 @@ public partial class StringDisplay : UserControl
 
         var interfaceValueString = _interface.Value.ToString() ?? string.Empty;
         
-        if (interfaceValueString.Length > ((StringViewer)(_interface.Definition))!.MaxStringLength)
+        if (interfaceValueString.Length > (_interface.Definition as StringViewer)!.MaxStringLength)
         {
             ValueViewer.Text = interfaceValueString[..((StringViewer)(_interface.Definition))!.MaxStringLength] + "...";
         }
