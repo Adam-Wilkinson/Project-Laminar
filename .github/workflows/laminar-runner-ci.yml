@@ -18,9 +18,12 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "10.0.x"
+          
+      - name: Build plugin source generators
+        run: dotnet build src/PluginFramework/Laminar.PluginFramework.SourceGeneration/Laminar.PluginFramework.SourceGeneration.csproj
 
-      - name: Ensure local NuGet feed exists
-        run: mkdir -p .nuget.local
+      - name: Build plugin framework
+        run: dotnet build src/PluginFramework/Laminar.PluginFramework/Laminar.PluginFramework.csproj
 
       - name: Build Runner
         run: dotnet build build/Laminar.Runner/Laminar.Runner.csproj -c Debug
