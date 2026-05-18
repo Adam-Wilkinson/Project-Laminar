@@ -16,7 +16,7 @@ public class PersistentDataPointTests
         [Fact]
         public void ShouldResetToDefault()
         {
-            var owner = Substitute.For<IPersistentDataValueOwner>();
+            var owner = Substitute.For<IPersistentDataNode>();
             var transcoder = Substitute.For<IPersistentDataTranscoder>();
             var serializer = Substitute.For<ISerializer>();
 
@@ -28,10 +28,10 @@ public class PersistentDataPointTests
             var sut = CreateValue(owner, serializer);
             sut.SetDefaultAndGet(10, typeof(int));
 
-            sut.Value = 20;
-            sut.Reset();
+            sut.GetValue<int>().Value = 20;
+            sut.GetValue<int>().Reset();
 
-            sut.Value.Should().Be(10);
+            sut.GetValue<int>().Value.Should().Be(10);
         }
     }
     
@@ -40,7 +40,7 @@ public class PersistentDataPointTests
         [Fact]
         public void ShouldOverwriteEncodedValueOnDecodeFailure()
         {
-            var owner = Substitute.For<IPersistentDataValueOwner>();
+            var owner = Substitute.For<IPersistentDataNode>();
             var transcoder = Substitute.For<IPersistentDataTranscoder>();
             var serializer = Substitute.For<ISerializer>();
 
@@ -65,7 +65,7 @@ public class PersistentDataPointTests
         [Fact]
         public void ShouldDecodeOnInitialize()
         {
-            var owner = Substitute.For<IPersistentDataValueOwner>();
+            var owner = Substitute.For<IPersistentDataNode>();
             var transcoder = Substitute.For<IPersistentDataTranscoder>();
             var serializer = Substitute.For<ISerializer>();
 
@@ -73,20 +73,26 @@ public class PersistentDataPointTests
 
             serializer.GetSerializedType(typeof(int)).Returns(typeof(int));
             transcoder.DecodeElement(50, typeof(int)).Returns(50);
-            serializer.DeserializeObject(50, typeof(int), null).Returns(50);
+            serializer.DeserializeObject(new DeserializationRequest
+            {
+                Serialized = 50,
+                TargetType = typeof(int),
+                Context = null,
+                ExistingInstance = 0,
+            }).Returns(50);
 
             var sut = CreateValue(owner, serializer);
             sut.EncodedValue = 50;
 
             sut.SetDefaultAndGet(0, typeof(int));
 
-            sut.Value.Should().Be(50);
+            sut.GetValue<int>().Value.Should().Be(50);
         }
 
         [Fact]
         public void ShouldNotDecodeAfterInitialization()
         {
-            var owner = Substitute.For<IPersistentDataValueOwner>();
+            var owner = Substitute.For<IPersistentDataNode>();
             var transcoder = Substitute.For<IPersistentDataTranscoder>();
             var serializer = Substitute.For<ISerializer>();
 
@@ -97,7 +103,7 @@ public class PersistentDataPointTests
 
             sut.EncodedValue = 99;
 
-            sut.Value.Should().Be(10);
+            sut.GetValue<int>().Value.Should().Be(10);
         }
     }
     
@@ -106,7 +112,7 @@ public class PersistentDataPointTests
         [Fact]
         public void ShouldNotHaveEffectWhenUninitialized()
         {
-            var owner = Substitute.For<IPersistentDataValueOwner>();
+            var owner = Substitute.For<IPersistentDataNode>();
             var transcoder = Substitute.For<IPersistentDataTranscoder>();
             var serializer = Substitute.For<ISerializer>();
             owner.Transcoder.Returns(transcoder);
@@ -115,13 +121,13 @@ public class PersistentDataPointTests
 
             owner.TranscoderChanged += Raise.Event<EventHandler>(owner, EventArgs.Empty);
 
-            Assert.Throws<ValueNotInitializedException>(() => sut.Value);
+            Assert.Throws<InvalidOperationException>(sut.GetValue<int>);
         }
 
         [Fact]
-        public void ShouldReencodeWhenTranscoderChanges()
+        public void ShouldReEncodeWhenTranscoderChanges()
         {
-            var owner = Substitute.For<IPersistentDataValueOwner>();
+            var owner = Substitute.For<IPersistentDataNode>();
             var transcoder = Substitute.For<IPersistentDataTranscoder>();
             var serializer = Substitute.For<ISerializer>();
 
@@ -133,10 +139,11 @@ public class PersistentDataPointTests
             var sut = CreateValue(owner, serializer);
             sut.SetDefaultAndGet(10, typeof(int));
 
-            sut.Value = 25;
+            sut.GetValue<int>().Value = 25;
 
             owner.TranscoderChanged += Raise.Event<EventHandler>(owner, EventArgs.Empty);
 
+            var newEncodedValue = sut.EncodedValue;
             transcoder.Received().EncodeElement(25);
         }
     }
@@ -146,7 +153,7 @@ public class PersistentDataPointTests
         [Fact]
         public void ShouldEncodeValueWhenSet()
         {
-            var owner = Substitute.For<IPersistentDataValueOwner>();
+            var owner = Substitute.For<IPersistentDataNode>();
             var transcoder = Substitute.For<IPersistentDataTranscoder>();
             var serializer = Substitute.For<ISerializer>();
 
@@ -158,7 +165,7 @@ public class PersistentDataPointTests
             var sut = CreateValue(owner, serializer);
             sut.SetDefaultAndGet(10, typeof(int));
 
-            sut.Value = 20;
+            sut.GetValue<int>().Value = 20;
 
             sut.EncodedValue.Should().Be(20);
 
@@ -168,7 +175,7 @@ public class PersistentDataPointTests
         [Fact]
         public void ShouldNotEncodeWithoutTranscoder()
         {
-            var owner = Substitute.For<IPersistentDataValueOwner>();
+            var owner = Substitute.For<IPersistentDataNode>();
             owner.Transcoder.Returns((IPersistentDataTranscoder?)null);
 
             var serializer = Substitute.For<ISerializer>();
@@ -176,7 +183,7 @@ public class PersistentDataPointTests
             var sut = CreateValue(owner, serializer);
             sut.SetDefaultAndGet(10, typeof(int));
 
-            sut.Value = 20;
+            sut.GetValue<int>().Value = 20;
 
             serializer.DidNotReceive().SerializeObject(Arg.Any<object>(), Arg.Any<Type>());
         }
@@ -187,39 +194,44 @@ public class PersistentDataPointTests
         [Fact]
         public void ShouldUseDefaultValueWhenNoEncodedValue()
         {
-            var owner = Substitute.For<IPersistentDataValueOwner>();
-            var sut = CreateValue(owner);
+            var sut = CreateValue();
 
             sut.SetDefaultAndGet(10);
 
-            sut.Value.Should().Be(10);
+            sut.GetValue<int>().Value.Should().Be(10);
         }
 
         [Fact]
         public void ShouldUseEncodedValueIfPresent()
         {
-            var owner = Substitute.For<IPersistentDataValueOwner>();
+            var owner = Substitute.For<IPersistentDataNode>();
             var transcoder = Substitute.For<IPersistentDataTranscoder>();
             var serializer = Substitute.For<ISerializer>();
 
             owner.Transcoder.Returns(transcoder);
 
-            serializer.GetSerializedType(typeof(int)).Returns(typeof(int));
             transcoder.DecodeElement(42, typeof(int)).Returns(42);
-            serializer.DeserializeObject(42, typeof(int), null).Returns(42);
+            serializer.GetSerializedType(typeof(int)).Returns(typeof(int));
+            serializer.DeserializeObject(new DeserializationRequest
+            {
+                Serialized = 42,
+                TargetType = typeof(int),
+                Context = null,
+                ExistingInstance = 0,
+            }).Returns(42);
 
             var sut = CreateValue(owner, serializer);
+            
             sut.EncodedValue = 42;
-
             sut.SetDefaultAndGet(0);
 
-            sut.Value.Should().Be(42);
+            sut.GetValue<int>().Value.Should().Be(42);
         }
 
         [Fact]
         public void ShouldThrowIfInitializedTwice()
         {
-            var sut = CreateValue(Substitute.For<IPersistentDataValueOwner>());
+            var sut = CreateValue();
 
             sut.SetDefaultAndGet(1);
 
@@ -228,16 +240,16 @@ public class PersistentDataPointTests
     }
     
     private static PersistentDataPoint CreateValue(
-        IPersistentDataValueOwner owner,
+        IPersistentDataNode? owner = null,
         ISerializer? serializer = null,
-        ILogger<PersistentDataPoint>? logger = null)
+        ILogger<PersistentDataPoint>? logger = null,
+        IExceptionHandler? exceptionHandler = null)
     {
+        owner ??= Substitute.For<IPersistentDataNode>();
         serializer ??= Substitute.For<ISerializer>();
         logger ??= Substitute.For<ILogger<PersistentDataPoint>>();
+        exceptionHandler ??= Substitute.For<IExceptionHandler>();
 
-        return new PersistentDataPoint(owner, serializer, Substitute.For<IExceptionHandler>(), logger)
-        {
-            Name = "Test"
-        };
+        return new PersistentDataPoint(owner, serializer, exceptionHandler, logger);
     }
 }

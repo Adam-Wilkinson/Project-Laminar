@@ -17,7 +17,6 @@ public static class MappedObservableCollectionExtensions
 public class MappedObservableCollection<TIn, TOut> : ReadOnlyObservableCollectionBase<TOut>
 {
     private readonly List<TOut> _outputItems;
-    private readonly IEnumerable<TIn> _inputItems;
 
     public static MappedObservableCollection<TIn, TOut> New<TCollection>(TCollection collection, Func<TIn, TOut> map)
         where TCollection : INotifyCollectionChanged, IEnumerable<TIn>
@@ -39,7 +38,6 @@ public class MappedObservableCollection<TIn, TOut> : ReadOnlyObservableCollectio
             throw new ArgumentException("Invalid collection type", nameof(collection));
         }
 
-        _inputItems = inputEnumerable;
         _outputItems = [..inputEnumerable.Select(map)];
         collection.CollectionChanged += (sender, args) =>
         {
@@ -110,11 +108,6 @@ public class MappedObservableCollection<TIn, TOut> : ReadOnlyObservableCollectio
                     _outputItems.Clear();
                     InvokeCollectionChanged(sender, args);
                     break;
-            }
-
-            if (_outputItems.Count != _inputItems.Count())
-            {
-                throw new Exception("A notifying source collection must've missed a notification");
             }
         };
     }

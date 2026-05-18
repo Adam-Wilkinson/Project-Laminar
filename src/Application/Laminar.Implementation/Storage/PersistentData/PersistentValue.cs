@@ -88,11 +88,11 @@ internal class PersistentValue<T> : ObservableValueBase<T>, IPersistentValue<T>,
     
     protected override void AfterValueChanged() => EstablishValue();
     
-    private void SetDataOwner(PersistentDataNode? newOwner)
+    private void SetDataOwner(IPersistentDataNode? newOwner)
     {
         switch (Value)
         {
-            case PersistentDataNode node:
+            case IPersistentDataNode node:
                 SetOwner(node, newOwner);
                 break;
             case IEnumerable<PersistentDataNode> nodes:
@@ -109,13 +109,13 @@ internal class PersistentValue<T> : ObservableValueBase<T>, IPersistentValue<T>,
 
     private void OnSerializedValueChanged(object? sender, EventArgs e) => _parent.InvalidateEncodedValue();
     
-    private void SetOwner(PersistentDataNode childNode, PersistentDataNode? newOwner)
+    private void SetOwner(IPersistentDataNode childNode, IPersistentDataNode? newOwner)
     {
         // This can happen if the data node is added to a new tree before it is removed from the old one.
         // We do not want to nullify the new owner in this case
         if (newOwner is null && !ReferenceEquals(_parent.Owner, childNode.Owner)) return;
         
-        (childNode.Owner as PersistentDataNode)?.RemoveChildNode(childNode);
+        (childNode.Owner as IPersistentDataNode)?.RemoveChildNode(childNode);
         childNode.Owner = newOwner;
         newOwner?.RegisterChildNode(childNode);
     }

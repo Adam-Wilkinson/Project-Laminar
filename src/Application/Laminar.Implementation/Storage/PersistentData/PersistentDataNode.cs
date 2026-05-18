@@ -3,9 +3,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Laminar.Implementation.Storage.PersistentData;
 
-internal abstract class PersistentDataNode(IServiceProvider serviceProvider) : IPersistentDataValueOwner
+internal abstract class PersistentDataNode(IServiceProvider serviceProvider) : IPersistentDataNode
 {
-    private readonly HashSet<PersistentDataNode> _children = [];
+    private readonly HashSet<IPersistentDataNode> _children = [];
     private bool _transcoderChanging;
 
     public IPersistentDataTranscoder? Transcoder => Owner?.Transcoder;
@@ -26,7 +26,7 @@ internal abstract class PersistentDataNode(IServiceProvider serviceProvider) : I
             OnTranscoderChanged();
         }
     }
-    
+
     public void OnChildValueInvalidated()
     {
         if (_transcoderChanging || ChildIsInitializing) return;
@@ -37,22 +37,25 @@ internal abstract class PersistentDataNode(IServiceProvider serviceProvider) : I
     public IPersistentDataPoint CreateValue() =>
         ActivatorUtilities.CreateInstance<PersistentDataPoint>(serviceProvider, this);
 
-    public void RegisterChildNode(PersistentDataNode child) => _children.Add(child);
+    public void RegisterChildNode(IPersistentDataNode child) => _children.Add(child);
 
-    public void RemoveChildNode(PersistentDataNode child) => _children.Remove(child);
+    public void RemoveChildNode(IPersistentDataNode child) => _children.Remove(child);
     
     protected void RemoveValue(IPersistentDataPoint point)
     {
         point.OnDeletion();
     }
 
-    private void OnTranscoderChanged()
+    public void OnTranscoderChanged()
     {
         _transcoderChanging = true;
         
         foreach (var child in _children)
         {
-            child.OnTranscoderChanged();
+            if (child is PersistentDataNode childNode)
+            {
+                childNode.OnTranscoderChanged();
+            }
         }
         
         TranscoderChanged?.Invoke(this, EventArgs.Empty);

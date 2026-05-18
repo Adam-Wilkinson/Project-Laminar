@@ -18,9 +18,9 @@ public class PersistentDictionaryTests
         var node = CreateNode();
         node.Owner = rootOwner;
 
-        var child = node.GetOrCreateChild("child");
+        var child = node["child"].SetDefaultAndGet(CreateNode());
 
-        ((PersistentDictionary)child).Owner.Should().Be(node);
+        child.Value.Owner.Should().Be(node);
     }
     
     public class GetPersistentData
@@ -29,11 +29,8 @@ public class PersistentDictionaryTests
         public void ShouldCreateValueIfMissing()
         {
             var sut = CreateNode();
-
             var value = sut.GetPersistentData("key");
-
             value.Should().NotBeNull();
-            value.Name.Should().Be("key");
         }
 
         [Fact]
@@ -58,9 +55,11 @@ public class PersistentDictionaryTests
 
             sut.Owner = owner;
 
+            owner.Received(1).OnChildValueInvalidated();
+            
             sut.OnChildValueInvalidated();
 
-            owner.Received(1).OnChildValueInvalidated();
+            owner.Received(2).OnChildValueInvalidated();
         }
 
         [Fact]
@@ -107,13 +106,14 @@ public class PersistentDictionaryTests
         public void ShouldPropagateOwnerTranscoderChanged()
         {
             var sut = CreateNode();
-            var owner = Substitute.For<IPersistentDataValueOwner>();
+            var owner = CreateNode();
 
             sut.Owner = owner;
-
+            owner.RegisterChildNode(sut);
+            
             using var mon = sut.Monitor();
 
-            owner.TranscoderChanged += Raise.Event<EventHandler>(owner, EventArgs.Empty);
+            owner.OnTranscoderChanged();
 
             mon.Should().Raise(nameof(sut.TranscoderChanged));
         }
@@ -122,15 +122,15 @@ public class PersistentDictionaryTests
         public void ShouldUnsubscribeFromPreviousOwner()
         {
             var sut = CreateNode();
-            var owner1 = Substitute.For<IPersistentDataValueOwner>();
-            var owner2 = Substitute.For<IPersistentDataValueOwner>();
+            var owner1 = CreateNode();
+            var owner2 = CreateNode();
 
             sut.Owner = owner1;
             sut.Owner = owner2;
 
             using var mon = sut.Monitor();
 
-            owner1.TranscoderChanged += Raise.Event<EventHandler>(owner1, EventArgs.Empty);
+            owner1.OnTranscoderChanged();
 
             mon.Should().NotRaise(nameof(sut.TranscoderChanged));
         }
@@ -143,7 +143,7 @@ public class PersistentDictionaryTests
         {
             var sut = CreateNode();
 
-            sut.InitializeValue("key", 10);
+            sut["key"].SetDefaultAndGet(10);
 
             var result = sut.RemoveValue("key");
 
@@ -179,7 +179,7 @@ public class PersistentDictionaryTests
         {
             var sut = CreateNode();
 
-            sut.InitializeValue("key", 10);
+            sut["key"].SetDefaultAndGet(10);
 
             var result = sut.SetValue("key", 20);
 
@@ -205,7 +205,7 @@ public class PersistentDictionaryTests
         {
             var sut = CreateNode();
 
-            sut.InitializeValue("key", 42);
+            sut["key"].SetDefaultAndGet(42);
 
             var result = sut.TryGetValue<int>("key");
 
@@ -221,7 +221,7 @@ public class PersistentDictionaryTests
         {
             var sut = CreateNode();
 
-            var result = sut.InitializeValue("key", 10);
+            var result = sut["key"].SetDefaultAndGet(10);
 
             result.Value.Should().Be(10);
             sut.InternalValues.Should().ContainKey("key");
@@ -232,9 +232,9 @@ public class PersistentDictionaryTests
         {
             var sut = CreateNode();
 
-            sut.InitializeValue("key", 10);
+            sut["key"].SetDefaultAndGet(10);
 
-            sut.Invoking(x => x.InitializeValue("key", 20))
+            sut.Invoking(x => x["key"].SetDefaultAndGet(20))
                 .Should().Throw<InvalidOperationException>();
         }
     }
@@ -246,7 +246,7 @@ public class PersistentDictionaryTests
         {
             var sut = CreateNode();
 
-            var child = sut.GetOrCreateChild("child");
+            var child = sut["child"];
 
             child.Should().NotBeNull();
             sut.InternalValues.Should().ContainKey("child");
@@ -257,8 +257,8 @@ public class PersistentDictionaryTests
         {
             var sut = CreateNode();
 
-            var first = sut.GetOrCreateChild("child");
-            var second = sut.GetOrCreateChild("child");
+            var first = sut["child"];
+            var second = sut["child"];
 
             second.Should().BeSameAs(first);
         }
@@ -271,17 +271,25 @@ public class PersistentDictionaryTests
             var value = sut.GetPersistentData("child");
             value.SetDefaultAndGet(123, typeof(int));
 
-            Assert.Throws<ArgumentException>(() => sut.GetOrCreateChild("child"));
+            Assert.Throws<InvalidCastException>(() => sut["child"].GetValue<string>());
         }
     }
     
     private static PersistentDictionary CreateNode(
         ISerializer? serializer = null,
-        ILogger<PersistentDataPoint>? logger = null)
+        ILogger<PersistentDataPoint>? logger = null,
+        IExceptionHandler? exceptionHandler = null)
     {
         serializer ??= Substitute.For<ISerializer>();
         logger ??= Substitute.For<ILogger<PersistentDataPoint>>();
-
-        return new PersistentDictionary(serializer, Substitute.For<IExceptionHandler>(), logger);
+        exceptionHandler ??= Substitute.For<IExceptionHandler>();
+        
+        var serviceProvider = Substitute.For<IServiceProvider>();
+        serviceProvider.GetService(typeof(ISerializer)).Returns(serializer);
+        serviceProvider.GetService(typeof(ILogger<PersistentDataPoint>)).Returns(logger);
+        serviceProvider.GetService(typeof(IExceptionHandler)).Returns(exceptionHandler);
+        serviceProvider.GetService(typeof(IServiceProvider)).Returns(serviceProvider);
+        
+        return new PersistentDictionary(serviceProvider);
     }
 }

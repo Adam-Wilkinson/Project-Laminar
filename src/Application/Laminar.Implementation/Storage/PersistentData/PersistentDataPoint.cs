@@ -15,7 +15,7 @@ internal class PersistentDataPoint : IPersistentDataPoint
     private IPersistentValueInternal? _persistentValue;
     private object? _encodedValue;
 
-    public PersistentDataPoint(PersistentDataNode owner,
+    public PersistentDataPoint(IPersistentDataNode owner,
         ISerializer serializer, 
         IExceptionHandler exceptionHandler,
         ILogger<PersistentDataPoint> logger)
@@ -27,7 +27,7 @@ internal class PersistentDataPoint : IPersistentDataPoint
         Owner.TranscoderChanged += (_, _) => InvalidateEncodedValue();
     }
 
-    public PersistentDataNode Owner { get; }
+    public IPersistentDataNode Owner { get; }
 
     public DataPointState State { get; private set; }
 

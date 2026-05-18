@@ -185,9 +185,10 @@ public class MappedObservableCollectionTests
         using var sourceEnumerator = _source.GetEnumerator();
         using var mockEnumerator = mock.GetEnumerator();
         mockEnumerator.Returns(sourceEnumerator);
+        mock.Count.Returns(_source.Count);
         var sut = new MappedObservableCollection<int, string>(mock, number => number.ToString());
 
-        var collectionChangedArgs = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, (object)newItem, (object)replacedItem, replaceIndex);
+        var collectionChangedArgs = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, newItem, (object)replacedItem, replaceIndex);
         mock.CollectionChanged += Raise.Event<NotifyCollectionChangedEventHandler>(mock, collectionChangedArgs);
         
         sut.Should().Equal("1", "2", "10", "4", "5", "6");

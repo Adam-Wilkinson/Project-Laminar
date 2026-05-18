@@ -46,7 +46,7 @@ internal class PersistentDataStore : IPersistentDataStore, IDisposable
     }
 
     public IPersistentDictionary Root { get; }
-
+    
     private void ScheduleFlush()
     {
         _flushCts?.Cancel();
@@ -59,8 +59,7 @@ internal class PersistentDataStore : IPersistentDataStore, IDisposable
             try
             {
                 await Task.Delay(FlushDelay, token);
-                var serialized = _serializer.SerializeObject(Root, typeof(IPersistentDictionary));
-                _file.Contents = Transcoder.ToBytes(serialized);
+                SynchronousFlush();
             }
             catch (TaskCanceledException) { }
             catch (Exception ex)
@@ -68,6 +67,13 @@ internal class PersistentDataStore : IPersistentDataStore, IDisposable
                 await _dispatcher.InvokeAsync(() => ExceptionDispatchInfo.Capture(ex).Throw());
             }
         }, token);
+    }
+
+    public void SynchronousFlush()
+    {
+        _flushCts?.Cancel();
+        var serialized = _serializer.SerializeObject(Root, typeof(IPersistentDictionary));
+        _file.Contents = Transcoder.ToBytes(serialized);
     }
     
     private void FileToDataNode()

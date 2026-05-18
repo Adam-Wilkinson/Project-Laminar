@@ -23,8 +23,11 @@ internal class PersistentDictionary(IServiceProvider serviceProvider)
 
     public bool RemoveValue(string key)
     {
-        RemoveValue(InternalValues[key]);
-        return InternalValues.Remove(key);
+        if (!InternalValues.TryGetValue(key, out var value)) return false;
+        RemoveValue(value);
+        InternalValues.Remove(key);
+        return true;
+
     }
     
     public IPersistentDataPoint GetPersistentData(string key)

@@ -51,13 +51,13 @@ public class PersistentDataStoreTests
             var serialized = new object();
             var bytes = new byte[] { 9, 9, 9 };
 
-            serializer.SerializeObject(root, typeof(PersistentDictionary))
-                .Returns(serialized);
+            serializer.SerializeObject(root, typeof(IPersistentDictionary)).Returns(serialized);
 
             transcoder.ToBytes(serialized).Returns(bytes);
 
             root["key"].SetDefaultAndGet(10);
             root.SetValue("key", 20);
+            store.SynchronousFlush();
 
             file.Received().Contents = bytes;
         }
@@ -82,8 +82,8 @@ public class PersistentDataStoreTests
             serializer.Received(1).DeserializeObject(new DeserializationRequest
             {
                 Serialized = decoded, 
-                TargetType = typeof(PersistentDictionary), 
-                ExistingInstance = store.Root
+                TargetType = typeof(IPersistentDictionary), 
+                ExistingInstance = store.Root,
             });
         }
     }
@@ -102,14 +102,14 @@ public class PersistentDataStoreTests
             var serialized = new object();
             var bytes = new byte[] { 1, 2, 3 };
 
-            serializer.SerializeObject(store.Root, typeof(PersistentDictionary))
-                .Returns(serialized);
+            serializer.SerializeObject(store.Root, typeof(IPersistentDictionary)).Returns(serialized);
 
             transcoder.ToBytes(serialized).Returns(bytes);
 
             store.OnChildValueInvalidated();
+            store.SynchronousFlush();
 
-            serializer.Received(1).SerializeObject(store.Root, typeof(PersistentDictionary));
+            serializer.Received(1).SerializeObject(store.Root, typeof(IPersistentDictionary));
             transcoder.Received(1).ToBytes(serialized);
             file.Contents = bytes;
         }
@@ -157,6 +157,8 @@ public class PersistentDataStoreTests
         var exceptionHandler = Substitute.For<IExceptionHandler>();
         serviceProvider.GetService(typeof(ILogger<PersistentDataPoint>)).Returns(logger);
         serviceProvider.GetService(typeof(IExceptionHandler)).Returns(exceptionHandler);
+        serviceProvider.GetService(typeof(IServiceProvider)).Returns(serviceProvider);
+        serviceProvider.GetService(typeof(ISerializer)).Returns(serializer);
         
         return new PersistentDataStore(transcoder, file, serviceProvider, serializer, dispatcher);
     }
