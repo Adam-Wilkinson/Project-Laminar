@@ -13,6 +13,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # needed for nbgv versioning
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -21,6 +23,15 @@ jobs:
 
       - name: Ensure local NuGet feed exists
         run: mkdir -p .nuget.local
+          
+      - name: Build plugin source generators
+        run: dotnet build src/PluginFramework/Laminar.PluginFramework.SourceGeneration/Laminar.PluginFramework.SourceGeneration.csproj
+
+      - name: Build plugin framework
+        run: dotnet build src/PluginFramework/Laminar.PluginFramework/Laminar.PluginFramework.csproj
+
+      - name: Restore solution
+        run: dotnet restore
 
       - name: Build Runner
         run: dotnet build build/Laminar.Runner/Laminar.Runner.csproj -c Debug
