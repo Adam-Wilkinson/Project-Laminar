@@ -20,6 +20,8 @@ public interface IFileSystem
     
     public Task WriteBytes(FileSystemPath path, byte[] bytes, CancellationToken cancellationToken = default);
 
+    public Task<byte[]> ReadBytesAsync(FileSystemPath path, CancellationToken cancellationToken = default);
+    
     public byte[] ReadBytes(FileSystemPath path);
     
     public long GetFileSize(FileSystemPath path);

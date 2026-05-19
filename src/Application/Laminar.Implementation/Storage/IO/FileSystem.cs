@@ -87,8 +87,10 @@ internal partial class FileSystem(ILogger<IFileSystem> fileSystemLogger, ILogger
     public Task WriteBytes(FileSystemPath path, byte[] bytes, CancellationToken cancellationToken = default) 
         => File.WriteAllBytesAsync(path.ToString(), bytes, cancellationToken);
 
-    public byte[] ReadBytes(FileSystemPath path) 
-        => File.ReadAllBytes(path.ToString());
+    public Task<byte[]> ReadBytesAsync(FileSystemPath path, CancellationToken cancellationToken = default) 
+        => File.ReadAllBytesAsync(path.ToString(), cancellationToken);
+
+    public byte[] ReadBytes(FileSystemPath path) => File.ReadAllBytes(path.ToString());
 
     public long GetFileSize(FileSystemPath path)
         => new FileInfo(path.ToString()).Length;
