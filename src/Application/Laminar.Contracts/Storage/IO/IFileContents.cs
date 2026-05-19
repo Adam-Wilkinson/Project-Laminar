@@ -19,10 +19,7 @@ public interface IFileContents : IDisposable, IValueSink<byte[]>
     /// </summary>
     public event EventHandler? ContentsChanged;
 
-    /// <summary>
-    /// Ensures that the file is up to date, waits for all read/write tasks to be complete and synced up.
-    /// </summary>
-    public void CheckAccess();
+    public Task WaitForPendingOperations();
     
     byte[] IValueSink<byte[]>.Value { set => Contents = value; }
 }

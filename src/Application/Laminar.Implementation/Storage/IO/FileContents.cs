@@ -1,5 +1,6 @@
 using System.Runtime.InteropServices;
 using Laminar.Contracts.Storage.IO;
+using Laminar.Domain.Helpers;
 using Laminar.Domain.ValueObjects;
 using Microsoft.Extensions.Logging;
 
@@ -9,164 +10,234 @@ internal partial class FileContents : IFileContents
 {
     private const int ErrorSharingViolation = 32;
     private const int ErrorLockViolation = 33;
-    
-    private static readonly TimeSpan FileBusyWaitDuration = new(0, 0, 2);
-    
+
+    private static readonly TimeSpan FileBusyWaitDuration = TimeSpan.FromSeconds(2);
+
     private readonly IFileSystem _fileSystem;
-    private readonly CancellationTokenSource _cancelReadTokenSource = new();
-    private readonly CancellationTokenSource _cancelWriteTokenSource = new();
     private readonly IFileWatcher _fileWatcher;
     private readonly ILogger<FileContents> _logger;
-    
+
+    private readonly Lock _lock = new();
+    private readonly CancellationTokenSource _cts = new();
+
     private byte[] _contents = [];
-    private bool _readNextFileChange = true;
-    private Task? _writeTask;
-    private Task? _readTask;
+
+    private bool _pendingWrite;
+    private bool _pendingRead;
+    private bool _running;
+    private long _version;
+
+    private TaskCompletionSource _idleTcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
     public FileContents(IFileSystem fileSystem, FileSystemPath path, ILogger<FileContents> logger)
     {
-        _logger = logger;
         _fileSystem = fileSystem;
+        _logger = logger;
         Path = path;
 
-        if (!_fileSystem.Exists(Path))
+        if (!_fileSystem.Exists(path))
         {
-            _fileSystem.CreateFile(Path).Close();
+            _fileSystem.CreateFile(path).Close();
         }
         else
         {
-            InitiateReadAttempt().Wait();   
+            _contents = _fileSystem.ReadBytes(path);
         }
 
-        if (Path.Parent is not { } parent)
-        {
-            throw new Exception("File must have a parent path");
-        }
-        
-        _fileWatcher = fileSystem.CreateFileWatcher(parent, Path.NameAndExtension);
+        _idleTcs.TrySetResult();
+
+        var parent = path.Parent ?? throw new InvalidOperationException("File must have parent");
+
+        _fileWatcher = _fileSystem.CreateFileWatcher(parent, path.NameAndExtension);
         _fileWatcher.NotifyFilter = NotifyFilters.LastWrite;
         _fileWatcher.EnableRaisingEvents = true;
         _fileWatcher.Changed += FileChanged;
-    }
-    
-    public byte[] Contents
-    {
-        get => _contents;
-        set
-        {
-            if (_contents == value)
-            {
-                return;
-            }
-            
-            _contents = value;
-            ContentsChanged?.Invoke(this, EventArgs.Empty);
-
-            if (_writeTask is null || _writeTask.IsCompleted)
-            {
-                _writeTask = Task.Run(InitiateWrite);
-            }
-        }
     }
 
     public FileSystemPath Path { get; }
 
     public event EventHandler? ContentsChanged;
-    
-    public void CheckAccess()
-    {
-        if (_writeTask is not null && !_writeTask.IsCompleted)
-        {
-            _writeTask.Wait();
-        }
 
-        if (_readTask is not null && !_readTask.IsCompleted)
+    public byte[] Contents
+    {
+        get { lock (_lock) return _contents; }
+        set
         {
-            _readTask.Wait();
+            lock (_lock)
+            {
+                if (BytesHelper.Equals(_contents, value)) return;
+                _contents = value;
+                _version++;
+                _pendingWrite = true;
+                EnsureRunning();
+            }
+
+            ContentsChanged?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
+    public Task WaitForPendingOperations()
+    {
+        lock (_lock)
+        {
+            return _idleTcs.Task;
         }
     }
 
     private void FileChanged(object? sender, FileSystemEventArgs e)
     {
-        if (e.FullPath != Path.ToString() || e.ChangeType != WatcherChangeTypes.Changed)
-        {
+        if (!e.FullPath.Equals(Path))
             return;
+
+        lock (_lock)
+        {
+            // Writes dominate.
+            // If we already intend to write, ignore external changes.
+            if (_pendingWrite)
+                return;
+
+            _pendingRead = true;
+            EnsureRunning();
         }
-        
-        if (!_readNextFileChange)
-        {
-            _readNextFileChange = true;
+    }
+
+    private void EnsureRunning()
+    {
+        if (_running)
             return;
+
+        _running = true;
+
+        if (_idleTcs.Task.IsCompleted)
+        {
+            _idleTcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         }
 
-        if (_readTask is null || _readTask.IsCompleted)
-        {
-            _readTask = Task.Run(InitiateReadAttempt);
-        }
+        _ = Task.Run(RunAsync);
     }
-    
-    private async Task InitiateWrite()
-    {
-        var success = false;
-        var cancellationToken = _cancelWriteTokenSource.Token;
-        _readNextFileChange = false;
-        
-        while (!success && !cancellationToken.IsCancellationRequested)
-        {
-            try
-            {
-                await _fileSystem.WriteBytes(Path, _contents, cancellationToken);
-                success = true;
-            }
-            catch (IOException e)
-            {
-                await WaitIfFileBusyException(e, cancellationToken);
-            }
-        }
-    }
-    
-    private async Task InitiateReadAttempt()
-    {
-        var readSuccessful = false;
-        var cancellationToken = _cancelReadTokenSource.Token;
 
-        while (!readSuccessful && !cancellationToken.IsCancellationRequested)
+    private async Task RunAsync()
+    {
+        try
         {
-            try
+            while (!_cts.IsCancellationRequested)
             {
-                _contents = _fileSystem.ReadBytes(Path);
-                readSuccessful = true;
-                ContentsChanged?.Invoke(this, EventArgs.Empty);
+                bool doWrite;
+                bool doRead;
+
+                byte[] writeContents = [];
+                long readVersion = 0;
+
+                lock (_lock)
+                {
+                    doWrite = _pendingWrite;
+                    doRead = !doWrite && _pendingRead;
+
+                    if (!doWrite && !doRead)
+                    {
+                        _running = false;
+                        _idleTcs.TrySetResult();
+                        return;
+                    }
+
+                    if (doWrite)
+                    {
+                        _pendingWrite = false;
+                        writeContents = _contents;
+                    }
+                    else
+                    {
+                        _pendingRead = false;
+                        readVersion = _version;
+                    }
+                }
+
+                try
+                {
+                    if (doWrite)
+                    {
+                        await _fileSystem.WriteBytes(Path, writeContents, _cts.Token);
+                    }
+                    else if (doRead)
+                    {
+                        byte[] diskContents = await _fileSystem.ReadBytesAsync(Path, _cts.Token);
+
+                        bool changed = false;
+
+                        lock (_lock)
+                        {
+                            // Ignore stale reads if memory changed while reading
+                            if (readVersion != _version)
+                                continue;
+
+                            if (!BytesHelper.Equals(_contents, diskContents))
+                            {
+                                _contents = diskContents;
+                                changed = true;
+                            }
+                        }
+
+                        if (changed)
+                        {
+                            ContentsChanged?.Invoke(this, EventArgs.Empty);
+                        }
+                    }
+                }
+                catch (IOException ex) when (IsFileBusy(ex))
+                {
+                    LogFileIsBusy(Path, FileBusyWaitDuration.TotalMilliseconds);
+
+                    await Task.Delay(FileBusyWaitDuration, _cts.Token);
+
+                    // Re-queue intent
+                    lock (_lock)
+                    {
+                        if (doWrite)
+                        {
+                            _pendingWrite = true;
+                        }
+                        else if (doRead)
+                        {
+                            _pendingRead = true;
+                        }
+                    }
+                }
             }
-            catch (IOException e)
+        }
+        catch (OperationCanceledException)
+        {
+        }
+        finally
+        {
+            lock (_lock)
             {
-                await WaitIfFileBusyException(e, cancellationToken);
+                _running = false;
+                _idleTcs.TrySetCanceled();
             }
         }
     }
-    
+
     public void Dispose()
     {
-        _cancelReadTokenSource.Dispose();
-        _cancelWriteTokenSource.Dispose();
+        _cts.Cancel();
+
         _fileWatcher.Dispose();
+        _cts.Dispose();
+
+        lock (_lock)
+        {
+            _idleTcs.TrySetCanceled();
+        }
+
         GC.SuppressFinalize(this);
     }
 
-    private async Task WaitIfFileBusyException(IOException e, CancellationToken cancellationToken)
+    private static bool IsFileBusy(IOException e)
     {
-        int errorCode = Marshal.GetHRForException(e) & ((1 << 16) - 1);
-        if (errorCode is ErrorSharingViolation or ErrorLockViolation)
-        {
-            LogFileFileIsBusyWaitingMillisecondsBeforeTryingToAccessAgain(Path, FileBusyWaitDuration.TotalMilliseconds);
-            await Task.Delay(FileBusyWaitDuration, cancellationToken);   
-        }
-        else
-        {
-            throw new Exception("Unexpected error when accessing file", innerException: e);
-        }
+        int errorCode = Marshal.GetHRForException(e) & 0xFFFF;
+        return errorCode is ErrorSharingViolation or ErrorLockViolation;
     }
 
-    [LoggerMessage(LogLevel.Debug, "File '{filePath}' is busy. Waiting {waitDurationMs}ms before trying to access again")]
-    partial void LogFileFileIsBusyWaitingMillisecondsBeforeTryingToAccessAgain(FileSystemPath filePath, double waitDurationMs);
+    [LoggerMessage(LogLevel.Debug, "File '{filePath}' is busy. Waiting {waitDurationMs}ms before retry")]
+    partial void LogFileIsBusy(FileSystemPath filePath, double waitDurationMs);
 }
