@@ -8,31 +8,19 @@ namespace Laminar.Implementation.Base.PluginLoading;
 
 public class PluginLoader(FrontendDependency frontend, IPluginHostFactory pluginHostFactory, ILogger<IPluginHost> logger) : IPluginLoader
 {
-    private const string RelativePluginPath = "plugins";
+    private static readonly string PluginPath = Path.Combine(AppContext.BaseDirectory, "plugins");
     private readonly Dictionary<string, IRegisteredPlugin> _registeredPlugins = [];
-    
-    public void Load(IPlugin plugin)
-    {
-        if (_registeredPlugins.ContainsKey(plugin.PluginName))
-        {
-            return;
-        }
-        
-        RegisteredPlugin registeredPlugin = new(plugin, pluginHostFactory);
-        registeredPlugin.Load();
-        _registeredPlugins.Add(registeredPlugin.PluginName, registeredPlugin);
-    }
     
     public void EnsurePluginsLoaded()
     {
-        if (!Directory.Exists(RelativePluginPath))
+        if (!Directory.Exists(PluginPath))
         {
-            logger.LogError("No plugins folder found under '{AbsolutePluginPath}'. Creating it and then loading no plugins, but this is likely a fatal error", Path.GetFullPath(RelativePluginPath));
-            Directory.CreateDirectory(RelativePluginPath);
+            logger.LogError("No plugins folder found under '{AbsolutePluginPath}'. Creating it and then loading no plugins, but this is likely a fatal error", Path.GetFullPath(PluginPath));
+            Directory.CreateDirectory(PluginPath);
             return;
         }
         
-        foreach (var pluginDirectory in Directory.EnumerateDirectories(RelativePluginPath))
+        foreach (var pluginDirectory in Directory.EnumerateDirectories(PluginPath))
         {
             var pluginName = Path.GetFileName(pluginDirectory);
             var pluginPath = Path.GetFullPath(Path.Combine(pluginDirectory, pluginName + ".dll"));
@@ -66,6 +54,18 @@ public class PluginLoader(FrontendDependency frontend, IPluginHostFactory plugin
             
             Load(plugin);
         }
+    }
+    
+    private void Load(IPlugin plugin)
+    {
+        if (_registeredPlugins.ContainsKey(plugin.PluginName))
+        {
+            return;
+        }
+        
+        RegisteredPlugin registeredPlugin = new(plugin, pluginHostFactory);
+        registeredPlugin.Load();
+        _registeredPlugins.Add(registeredPlugin.PluginName, registeredPlugin);
     }
 
     private class RegisteredPlugin : IRegisteredPlugin
