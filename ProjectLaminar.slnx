@@ -32,7 +32,9 @@
     <Project Path="src/Plugins/BasicFunctionality.Avalonia/BasicFunctionality.Avalonia.csproj" />
     <Project Path="src/Plugins/BasicFunctionality/BasicFunctionality.csproj" />
   </Folder>
-  <Folder Name="/tests/" />
+  <Folder Name="/tests/">
+    <File Path="tests/Directory.Build.props" />
+  </Folder>
   <Folder Name="/tests/Application/">
     <Project Path="tests/Application/Laminar.Domain.UnitTests/Laminar.Domain.UnitTests.csproj" />
     <Project Path="tests/Application/Laminar.Implementation.UnitTests/Laminar.Implementation.UnitTests.csproj" />

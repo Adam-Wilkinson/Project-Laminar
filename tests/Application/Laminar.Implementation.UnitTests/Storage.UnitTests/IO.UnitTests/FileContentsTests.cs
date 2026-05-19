@@ -39,28 +39,28 @@ public class FileContentsTests
     }
     
     // TODO: This test fails randomly because of thread handling randomness in FileContents. That class needs a consistency pass
-    // [Fact]
-    // public void ShouldNotReadFile_WhenContentsSet()
-    // {
-    //     byte[] initialFileContents = [1, 2, 3, 4, 5];
-    //     byte[] newFileContents = [6, 7, 8, 9, 10];
-    //
-    //     var mockFileWatcher = Substitute.For<IFileWatcher>();
-    //     var mockFileSystem = Substitute.For<IFileSystem>();
-    //     mockFileSystem.ReadBytes(FilePath).Returns(initialFileContents);
-    //     mockFileSystem.CreateFileWatcher(Arg.Any<FileSystemPath>(), Arg.Any<string>()).Returns(mockFileWatcher);
-    //     mockFileSystem.Exists(FilePath).Returns(true);
-    //     
-    //     using var sut = new FileContents(mockFileSystem, FilePath, _logger);
-    //     using var mon = sut.Monitor();
-    //
-    //     sut.Contents = newFileContents;
-    //     mockFileWatcher.Changed += Raise.Event<FileSystemEventHandler>(new FileSystemEventArgs(WatcherChangeTypes.Changed, FileDirectory.ToString(), FileName));
-    //
-    //     sut.CheckAccess();
-    //     
-    //     mockFileSystem.Received(1).ReadBytes(FilePath);
-    // }
+    [Fact]
+    public void ShouldNotReadFile_WhenContentsSet()
+    {
+        byte[] initialFileContents = [1, 2, 3, 4, 5];
+        byte[] newFileContents = [6, 7, 8, 9, 10];
+    
+        var mockFileWatcher = Substitute.For<IFileWatcher>();
+        var mockFileSystem = Substitute.For<IFileSystem>();
+        mockFileSystem.ReadBytes(FilePath).Returns(initialFileContents);
+        mockFileSystem.CreateFileWatcher(Arg.Any<FileSystemPath>(), Arg.Any<string>()).Returns(mockFileWatcher);
+        mockFileSystem.Exists(FilePath).Returns(true);
+        
+        using var sut = new FileContents(mockFileSystem, FilePath, _logger);
+        using var mon = sut.Monitor();
+    
+        sut.Contents = newFileContents;
+        mockFileWatcher.Changed += Raise.Event<FileSystemEventHandler>(new FileSystemEventArgs(WatcherChangeTypes.Changed, FileDirectory.ToString(), FileName));
+    
+        sut.CheckAccess();
+        
+        mockFileSystem.Received(1).ReadBytes(FilePath);
+    }
 
     [Fact]
     public void ShouldUpdateContents_WhenFileChanged()
