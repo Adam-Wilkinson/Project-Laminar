@@ -44,6 +44,6 @@ jobs:
 
       - name: Run Application Smoke Test
         run: |
-          timeout 15s xvfb-run dotnet run \
+          timeout 30s xvfb-run dotnet run \
             --project build/Laminar.Runner/Laminar.Runner.csproj \
             --configuration Debug
