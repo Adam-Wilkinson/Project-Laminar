@@ -34,7 +34,7 @@ jobs:
         run: dotnet restore
 
       - name: Build Runner
-        run: dotnet build build/Laminar.Runner/Laminar.Runner.csproj -c Debug
+        run: dotnet build -c Debug
 
       - name: Run Tests
         run: dotnet test --no-build -c Debug --verbosity normal
