@@ -42,8 +42,19 @@ jobs:
       - name: Install xvfb
         run: sudo apt-get update && sudo apt-get install -y xvfb
 
-      - name: Run Application Smoke Test
+      - name: Smoke test application startup
         run: |
-          timeout 30s xvfb-run dotnet run \
+          set +e
+      
+          timeout 20s xvfb-run dotnet run \
             --project build/Laminar.Runner/Laminar.Runner.csproj \
             --configuration Debug
+      
+          EXIT_CODE=$?
+      
+          if [ $EXIT_CODE -eq 124 ]; then
+            echo "Smoke test timed out as expected."
+            exit 0
+          fi
+      
+          exit $EXIT_CODE
