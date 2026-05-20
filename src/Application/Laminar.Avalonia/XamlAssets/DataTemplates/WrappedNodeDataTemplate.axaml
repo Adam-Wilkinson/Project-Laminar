@@ -32,7 +32,9 @@
     </ControlTheme>
     
     <DataTemplate DataType="comp:INodeRow" x:Key="NodeRowDataTemplate">
-        <Panel Margin="6" Opacity="{Binding Opacity.Value}">
+        <Panel Margin="6" 
+               Opacity="{Binding Opacity.Value}"
+               Height="{s:UiScaled 40}">
             <ContentControl Content="{Binding CentralDisplay}"/>
             
             <c:Connector Theme="{StaticResource IoConnectorPath}" 
@@ -66,8 +68,7 @@
                     <ContentControl DockPanel.Dock="Top"
                                     Content="{Binding NameRow}" 
                                     ClipToBounds="False"
-                                    Background="{DynamicResource {x:Static init:ColorInitialization.LaminarAccentBackgroundKey}}"
-                                    Padding="5"/>
+                                    Background="{DynamicResource {x:Static init:ColorInitialization.LaminarAccentBackgroundKey}}"/>
                     <ItemsControl ItemsSource="{Binding Rows}"
                                   ClipToBounds="False"/>
                 </DockPanel>
