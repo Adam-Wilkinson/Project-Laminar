@@ -1,14 +1,10 @@
 ﻿using BenchmarkDotNet.Attributes;
 using Laminar.Benchmarks.BenchmarkNodes;
-using Laminar.Contracts.Base.UserInterface;
 using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Scripting.NodeWrapping;
-using Laminar.Implementation;
 using Laminar.Implementation.Extensions;
 using Laminar.Implementation.Extensions.ServiceInitializers;
-using Laminar.Implementation.Scripting.NodeIO;
 using Laminar.PluginFramework.NodeSystem;
-using Laminar.PluginFramework.NodeSystem.Components;
 using Laminar.PluginFramework.Registration;
 using Laminar.PluginFramework.UserInterface;
 using Microsoft.Extensions.DependencyInjection;
@@ -48,14 +44,14 @@ public class ValuePassingBenchmark
     private void SetupScript<T>(IScript script, int nodeCount) where T : INode, new()
     {
         var originalNode = _nodeWrapperFactory!.WrapNode<T>();
-        var previousNode = _scriptEditor!.AddCopyOfNode(script, originalNode);
+        var previousNode = _scriptEditor!.AddMatchingNode(script, originalNode);
         for (var i = 0; i < nodeCount; i++)
         {
-            var nextNode = _scriptEditor.AddCopyOfNode(script, originalNode);
+            var nextNode = _scriptEditor.AddMatchingNode(script, originalNode);
             _scriptEditor.FindBridgeConnectorsAction(script, previousNode.Rows[1].OutputConnector!, nextNode.Rows[0].InputConnector!);
             previousNode = nextNode;
         }
-        (script.Nodes[0].Rows[0].CentralDisplay as IDisplay)!.DisplayValue.Value = 3.0;
+        (script.Nodes[0].Rows[0].CentralDisplay as IInterfaceData<double>)!.Value = 3.0;
         script.ExecutionInstance.IsShownInUI = false;
     }
 

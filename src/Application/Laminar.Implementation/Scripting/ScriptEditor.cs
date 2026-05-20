@@ -16,7 +16,7 @@ internal class ScriptEditor(
     IEnumerable<IConnectionBridger> connectionBridgers)
     : IScriptEditor
 {
-    public IWrappedNode AddCopyOfNode(IScript script, IWrappedNode node)
+    public IWrappedNode AddMatchingNode(IScript script, IWrappedNode node)
     {
         IEditableScript editableScript = MakeEditable(script);
         IWrappedNode newNode = nodeFactory.CreateMatchingNode(node, editableScript.ExecutionInstance);
