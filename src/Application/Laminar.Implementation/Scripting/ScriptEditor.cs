@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Laminar.Contracts.Base.ActionSystem;
+﻿using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Scripting.Connection;
 using Laminar.Contracts.Scripting.NodeWrapping;
@@ -15,13 +12,14 @@ namespace Laminar.Implementation.Scripting;
 
 internal class ScriptEditor(
     IUserActionManager userActionManager,
+    INodeFactory nodeFactory,
     IEnumerable<IConnectionBridger> connectionBridgers)
     : IScriptEditor
 {
-    public IWrappedNode AddCopyOfNode(IScript script, IWrappedNode node)
+    public IWrappedNode AddMatchingNode(IScript script, IWrappedNode node)
     {
         IEditableScript editableScript = MakeEditable(script);
-        IWrappedNode newNode = node.Clone(editableScript.ExecutionInstance);
+        IWrappedNode newNode = nodeFactory.CreateMatchingNode(node, editableScript.ExecutionInstance);
         userActionManager.ExecuteAction(new AddNodeAction(newNode, editableScript.Nodes));
         return newNode;
     }

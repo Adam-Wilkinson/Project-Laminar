@@ -34,7 +34,7 @@ public partial class StringDisplay : UserControl
 
     private void DisplayValue_PropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName != nameof(IDisplayValue.Value) || _interface is null) return;
+        if (e.PropertyName != nameof(IInterfaceData.Value) || _interface is null) return;
 
         var interfaceValueString = _interface.Value.ToString() ?? string.Empty;
         

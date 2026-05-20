@@ -17,9 +17,6 @@
         <Compile Update="UserControls\ActionDisplay.axaml.cs">
             <DependentUpon>%(Filename)</DependentUpon>
         </Compile>
-        <Compile Update="UserControls\AvaloniaEditableLabel.axaml.cs">
-            <DependentUpon>%(Filename)</DependentUpon>
-        </Compile>
         <Compile Update="UserControls\BoolEditor.axaml.cs">
             <DependentUpon>%(Filename)</DependentUpon>
         </Compile>

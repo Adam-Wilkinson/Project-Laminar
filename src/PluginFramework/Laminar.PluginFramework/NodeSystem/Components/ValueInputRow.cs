@@ -1,5 +1,4 @@
-﻿using System;
-using Laminar.PluginFramework.NodeSystem.IO.Value;
+﻿using Laminar.PluginFramework.NodeSystem.IO.Value;
 using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
 namespace Laminar.PluginFramework.NodeSystem.Components;
@@ -23,14 +22,14 @@ public class ValueInputRow<T> : SingleItemNodeComponent where T : notnull
 
     public IUserInterfaceDefinition? Editor
     {
-        get => _valueInput.InterfaceDefinition.Editor;
-        set => _valueInput.InterfaceDefinition.Editor = value;
+        get => _valueInput.InterfaceData.Editor;
+        set => _valueInput.InterfaceData.Editor = value;
     }
 
     public IUserInterfaceDefinition? Viewer
     {
-        get => _valueInput.InterfaceDefinition.Viewer;
-        set => _valueInput.InterfaceDefinition.Viewer = value;
+        get => _valueInput.InterfaceData.Viewer;
+        set => _valueInput.InterfaceData.Viewer = value;
     }
 }
 

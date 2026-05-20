@@ -14,7 +14,6 @@ public class PluginHost(
     IRegisteredPlugin registeredPlugin,
     ITypeInfoStore typeInfoStore,
     ILoadedNodeManager loadedNodeManager,
-    IUserInterfaceStore userInterfaceStore,
     IDataInterfaceFactory dataInterfaceFactory,
     ISerializer serializer)
     : IPluginHost
@@ -58,14 +57,6 @@ public class PluginHost(
 
     public bool TryAddTypeConverter<TInput, TOutput, TConverter>() where TConverter : INode
         => throw new NotImplementedException();
-
-    public bool RegisterInterface<TInterfaceDefinition, TInterface, TFrontend>()
-        where TInterface : TFrontend, new()
-        where TInterfaceDefinition : IUserInterfaceDefinition
-    {
-        userInterfaceStore.AddUserInterfaceImplementation<TInterfaceDefinition, TInterface>();
-        return true;
-    }
 
     public void AddNodeToMenu<TNode1, TNode2>(string menuItemName, string? subItemName = null)
         where TNode1 : INode, new()

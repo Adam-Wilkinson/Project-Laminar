@@ -2,7 +2,7 @@
 
 namespace Laminar.PluginFramework.NodeSystem.IO.Value;
 
-public interface IValueInput<T> : IValueInput where T : notnull
+public interface IValueInput<T> : IInput where T : notnull
 {
     public ISourcedInterfaceData<T> InterfaceData { get; }
     

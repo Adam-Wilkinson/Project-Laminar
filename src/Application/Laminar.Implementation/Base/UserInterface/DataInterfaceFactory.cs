@@ -157,7 +157,7 @@ public partial class DataInterfaceFactory(ITypeInfoStore typeInfoStore, ILogger<
     private record struct FrontendInfo(Type FrontendType, Func<object> Factory);
 }
 
-public class InterfaceDataGenericWrapper<TInterfaceDefinition, TValue> : IInterfaceData<TInterfaceDefinition, TValue>
+public class InterfaceDataGenericWrapper<TInterfaceDefinition, TValue> : IInterfaceData<TInterfaceDefinition, TValue>, IDisposable
     where TInterfaceDefinition : IUserInterfaceDefinition, new() where TValue : notnull
 {
     private readonly IInterfaceData _internal;
@@ -199,4 +199,10 @@ public class InterfaceDataGenericWrapper<TInterfaceDefinition, TValue> : IInterf
     }
 
     public TInterfaceDefinition Definition { get; }
+
+    public void Dispose()
+    {
+        _internal.PropertyChanged -= InterfaceData_PropertyChanged;
+        GC.SuppressFinalize(this);
+    }
 }

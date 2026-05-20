@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Laminar.PluginFramework.NodeSystem;
@@ -9,13 +7,14 @@ using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
 namespace Laminar.Implementation.Base.UserInterface;
 
-public class SourcedDataInterface<T>(IUserInterfaceDefinition? editor, IUserInterfaceDefinition? viewer) 
+public class SourcedInterfaceData<T>(T initialValue) 
     : ISourcedInterfaceData<T> where T : notnull
 {
     private readonly PropertyChangedEventArgs _valueChangedEventArgs = new(nameof(Value));
     private readonly PropertyChangedEventArgs _nameChangedEventArgs = new(nameof(Name));
 
     private T? _valueAtLastRefresh;
+    private T _value = initialValue;
     
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -25,14 +24,47 @@ public class SourcedDataInterface<T>(IUserInterfaceDefinition? editor, IUserInte
         set => SetField(ref field, value, _nameChangedEventArgs);
     }
 
-    public required T Value
+    public T Value
     {
-        get => ValueProvider is null ? field : ValueProvider.Value;
+        get => ValueProvider is null ? _value : ValueProvider.Value;
         set
         {
-            if (!IsUserEditable || !SetField(ref field, value)) return;
+            if (!IsUserEditable || !SetField(ref _value, value, _valueChangedEventArgs)) return;
             ExecutionStarted?.Invoke(this, new LaminarExecutionContext(null, ExecutionFlags.ValueChanged));
         }
+    }
+
+    public IUserInterfaceDefinition? Viewer
+    {
+        get;
+        set
+        {
+            if (Equals(_value, value)) return;
+            field = value;
+            if (!IsUserEditable)
+            {
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Definition)));
+            }
+        } 
+    }
+
+    public IUserInterfaceDefinition? Editor
+    {
+        get;
+        set
+        {
+            if (Equals(_value, value)) return;
+            field = value;
+            if (IsUserEditable)
+            {
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Definition)));
+            }
+        }
+    }
+
+    public void QuietSetValue(T value)
+    {
+        SetField(ref _value, value, _valueChangedEventArgs);
     }
 
     public bool IsUserEditable
@@ -52,7 +84,7 @@ public class SourcedDataInterface<T>(IUserInterfaceDefinition? editor, IUserInte
         }
     } = true;
 
-    public IUserInterfaceDefinition? Definition => IsUserEditable ? editor : viewer;
+    public IUserInterfaceDefinition? Definition => IsUserEditable ? Editor : Viewer;
 
     public IValueProvider<T>? ValueProvider
     {
@@ -63,8 +95,10 @@ public class SourcedDataInterface<T>(IUserInterfaceDefinition? editor, IUserInte
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsUserEditable)));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Definition)));
             Refresh();
+            ExecutionStarted?.Invoke(this, new LaminarExecutionContext(null, ExecutionFlags.ValueChanged));
         }
     }
+
 
     public void Refresh()
     {

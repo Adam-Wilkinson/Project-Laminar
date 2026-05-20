@@ -7,5 +7,5 @@ public interface IDataInterface<out TFrontend> : INotifyPropertyChanged
 {
     public TFrontend InterfaceFrontend { get; }
     
-    public IInterfaceData InterfaceData { get; }
+    public IInterfaceData? InterfaceData { get; }
 }

@@ -59,14 +59,6 @@ internal class NodeRow(IInput? input, IOutput? output) : INodeRow
 
     public Opacity Opacity { get; } = new();
 
-    public void CopyValueTo(INodeRow nodeRow)
-    {
-        if (CentralDisplay is IDisplay copyFrom && nodeRow.CentralDisplay is IDisplay copyTo)
-        {
-            copyTo.DisplayValue.Value = copyFrom.DisplayValue.Value;
-        }
-    }
-
     public IEnumerator<INodeComponent> GetEnumerator() => this.Yield().GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

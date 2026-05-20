@@ -7,7 +7,7 @@ namespace Laminar.Implementation.Base;
 
 public class TypeInfoStore : ITypeInfoStore
 {
-    private static readonly TypeInfo BlankType = new("Unknown Type", null, null, "#FFFFFF", default);
+    private static readonly TypeInfo BlankType = new("Unknown Type", null, null, "#FFFFFF", null);
 
     private readonly Dictionary<Type, TypeInfo> _typeInfoStore = [];
 
@@ -21,7 +21,7 @@ public class TypeInfoStore : ITypeInfoStore
 
     public bool TryGetTypeInfo(Type type, out TypeInfo info) 
     {
-        if (_typeInfoStore.TryGetValue(type, out var infoOutput) && infoOutput is not null)
+        if (_typeInfoStore.TryGetValue(type, out var infoOutput))
         {
             info = infoOutput;
             return true;

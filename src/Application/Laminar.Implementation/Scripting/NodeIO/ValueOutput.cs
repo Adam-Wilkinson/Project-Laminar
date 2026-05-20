@@ -15,15 +15,11 @@ namespace Laminar.Implementation.Scripting.NodeIO;
 public class ValueOutput<T> : IValueOutput<T>, INotificationClient where T : notnull
 {
     readonly LaminarExecutionContext _contextCache;
-    readonly DisplayValue<T> _displayValue;
 
-    public ValueOutput(IUserInterfaceProvider uiProvider, ITypeInfoStore typeInfoStore, T initialValue, string name, ISourcedInterfaceData<T> interfaceData)
+    public ValueOutput(ITypeInfoStore typeInfoStore, T initialValue, string name, ISourcedInterfaceData<T> interfaceData)
     {
-        InterfaceDefinition = new ValueInterfaceDefinition<T>(typeInfoStore, uiProvider);
         InterfaceData = interfaceData;
         
-        _displayValue = new DisplayValue<T>(this, InterfaceDefinition, initialValue) { Name = name };
-
         Connector = new ValueOutputConnector<T>(typeInfoStore, this);
         
         Name = name;
@@ -45,7 +41,7 @@ public class ValueOutput<T> : IValueOutput<T>, INotificationClient where T : not
     public T Value
     {
         get => InterfaceData.Value;
-        set => InterfaceData.Value = value;
+        set => InterfaceData.QuietSetValue(value);
     }
     
     public Action? PreEvaluateAction => null;
@@ -53,10 +49,6 @@ public class ValueOutput<T> : IValueOutput<T>, INotificationClient where T : not
     public IOutputConnector Connector { get; }
 
     public bool AlwaysPassUpdate { get; init; }
-
-    public IDisplayValue DisplayValue => _displayValue;
-
-    public IValueInterfaceDefinition InterfaceDefinition { get; }
 
     public event EventHandler<LaminarExecutionContext>? ExecutionStarted;
 

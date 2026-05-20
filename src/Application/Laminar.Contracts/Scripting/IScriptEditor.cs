@@ -11,7 +11,7 @@ public interface IScriptEditor
 {
     public void DeleteNodes(IScript script, IEnumerable<IWrappedNode> nodes);
 
-    public IWrappedNode AddCopyOfNode(IScript script, IWrappedNode node);
+    public IWrappedNode AddMatchingNode(IScript script, IWrappedNode node);
 
     public void MoveNodes(IScript script, IEnumerable<IWrappedNode> nodes, Point delta);
 
