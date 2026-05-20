@@ -34,6 +34,7 @@ public static class LaminarServices
             .AddSingleton<ITypeInfoStore, TypeInfoStore>()
             
             .AddSingleton<IPluginHostFactory, PluginHostFactory>()
+            .AddSingleton<IPluginLoader>(provider => ActivatorUtilities.CreateInstance<PluginLoader>(provider, frontendDependency))
             
             .AddSingleton<ILaminarStorageItemFactory, LaminarStorageItemFactory>()
             .AddSingleton<IDeletedStorageItemCache, DeletedStorageItemCache>()
@@ -41,8 +42,6 @@ public static class LaminarServices
             .AddSingleton<IFileSystem, FileSystem>()
             .AddScoped<ILaminarFileBrowser, LaminarFileBrowser>()
             
-            .AddSingleton<IPluginLoader>(provider => ActivatorUtilities.CreateInstance<PluginLoader>(provider, frontendDependency))
             .AddSingleton<IExceptionHandler, ExceptionHandler>()
-            .AddUserInterfaceServices()
             .AddScriptingServices();
 }

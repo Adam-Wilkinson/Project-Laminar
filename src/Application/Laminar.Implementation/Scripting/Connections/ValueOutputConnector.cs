@@ -14,7 +14,7 @@ internal class ValueOutputConnector<T>(ITypeInfoStore typeInfoStore, IValueOutpu
     
     public event PropertyChangedEventHandler? PropertyChanged { add { } remove { } }
 
-    public string ColorHex => typeInfoStore.GetTypeInfoOrBlank(Output.InterfaceDefinition.ValueType).HexColor;
+    public string ColorHex => typeInfoStore.GetTypeInfoOrBlank(typeof(T)).HexColor;
 
     public IValueOutput<T> Output { get; } = output;
 

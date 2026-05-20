@@ -147,10 +147,6 @@ public interface IPluginHost
     bool TryAddTypeConverter<TInput, TOutput, TConverter>()
         where TConverter : INode;
 
-    bool RegisterInterface<TInterfaceDefinition, TInterface, TFrontend>()
-        where TInterfaceDefinition : IUserInterfaceDefinition
-        where TInterface : TFrontend, new();
-
     bool RegisterDataInterface<TInterfaceDefinition, TData, TInterface>()
         where TInterfaceDefinition : IUserInterfaceDefinition, new() 
         where TData : notnull

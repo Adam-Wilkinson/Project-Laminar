@@ -10,7 +10,7 @@ using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
 namespace Laminar.Implementation.Scripting.NodeIO;
 
-internal class NodeIOFactory(IUserInterfaceProvider uiProvider, ITypeInfoStore typeInfoStore) : INodeIOFactory
+internal class NodeIOFactory(ITypeInfoStore typeInfoStore) : INodeIOFactory
 {
     public IValueInput<T> ValueInput<T>(string valueName, T? initialValue, IUserInterfaceDefinition? editor, IUserInterfaceDefinition? viewer, Action<T>? valueSetter)
         where T : notnull
@@ -20,16 +20,13 @@ internal class NodeIOFactory(IUserInterfaceProvider uiProvider, ITypeInfoStore t
                 ? defaultInitialValue
                 : throw new TypeNotRegisteredException(typeof(T));
 
-        ValueInput<T> newInput = new(uiProvider, typeInfoStore, valueName, initialValue)
+        ValueInput<T> newInput = new(typeInfoStore, valueName, initialValue)
         {
-            InterfaceDefinition =
-            {
-                Editor = editor,
-                Viewer = viewer
-            },
-            InterfaceData = new SourcedDataInterface<T>(initialValue, editor, viewer)
+            InterfaceData = new SourcedInterfaceData<T>(initialValue)
             {
                 Name = valueName,
+                Editor = editor,
+                Viewer = viewer,
             }
         };
 
@@ -49,25 +46,19 @@ internal class NodeIOFactory(IUserInterfaceProvider uiProvider, ITypeInfoStore t
                 ? defaultInitialValue
                 : throw new TypeNotRegisteredException(typeof(T));
 
-        SourcedDataInterface<T> outputInterface = new(initialValue, editor, viewer)
+        SourcedInterfaceData<T> outputInterface = new(initialValue)
         {
             Name = valueName,
+            Editor = editor,
+            Viewer = viewer,
         };
 
         if (getter is not null)
         {
             outputInterface.ValueProvider = new FuncValueProvider<T>(getter);
         }
-        
-        ValueOutput<T> newOutput = new(uiProvider, typeInfoStore, initialValue, valueName, outputInterface)
-            {
-                InterfaceDefinition =
-                {
-                    Viewer = viewer,
-                    Editor = editor,
-                    IsUserEditable = isUserEditable
-                }
-            };
+
+        ValueOutput<T> newOutput = new(typeInfoStore, initialValue, valueName, outputInterface);
 
         return newOutput;
     }

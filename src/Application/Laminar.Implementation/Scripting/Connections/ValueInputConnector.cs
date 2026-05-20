@@ -11,7 +11,7 @@ internal class ValueInputConnector<T>(ITypeInfoStore typeInfoStore) : IInputConn
 {
     public event PropertyChangedEventHandler? PropertyChanged { add { } remove { } }
 
-    public string ColorHex => typeInfoStore.GetTypeInfoOrBlank(Input.InterfaceDefinition.ValueType).HexColor;
+    public string ColorHex => typeInfoStore.GetTypeInfoOrBlank(typeof(T)).HexColor;
 
     public required IValueInput<T> Input { get; init; }
 

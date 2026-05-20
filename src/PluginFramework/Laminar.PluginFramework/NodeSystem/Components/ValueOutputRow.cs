@@ -27,14 +27,14 @@ public class ValueOutputRow<T> : SingleItemNodeComponent where T : notnull
 
     public IUserInterfaceDefinition? Viewer
     {
-        get => _valueOutput.InterfaceDefinition.Viewer;
-        set => _valueOutput.InterfaceDefinition.Viewer = value;
+        get => _valueOutput.InterfaceData.Viewer;
+        set => _valueOutput.InterfaceData.Viewer = value;
     }
 
     public IUserInterfaceDefinition? Editor
     {
-        get => _valueOutput.InterfaceDefinition.Editor;
-        set => _valueOutput.InterfaceDefinition.Editor = value;
+        get => _valueOutput.InterfaceData.Editor;
+        set => _valueOutput.InterfaceData.Editor = value;
     }
 
     public bool IsUserEditable

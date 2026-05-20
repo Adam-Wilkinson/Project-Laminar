@@ -27,18 +27,6 @@ public class PluginFront : IPlugin
     {
         host.RegisterType("#FFFF00", "Color", Colors.White, new ColorEditor(), new ColorViewer(), new AvaloniaColorSerializer());
         
-        host.RegisterInterface<NumberEntry, NumberEditor, Control>();
-        host.RegisterInterface<DefaultViewer, DefaultDisplay, Control>();
-        host.RegisterInterface<StringViewer, StringDisplay, Control>();
-        host.RegisterInterface<StringEditor, UserControls.StringEditor, Control>();
-        host.RegisterInterface<EnumDropdown, EnumEditor, Control>();
-        host.RegisterInterface<Slider, SliderEditor, Control>();
-        host.RegisterInterface<ToggleSwitch, UserControls.ToggleSwitch, Control>();
-        host.RegisterInterface<Checkbox, UserControls.CheckBox, Control>();
-//         host.RegisterInterface<EditableLabel, AvaloniaEditableLabel, Control>();
-        host.RegisterInterface<ColorViewer, UserControls.ColorViewer, Control>();
-        host.RegisterInterface<ColorEditor, UserControls.ColorEditor, Control>();
-        
         host.RegisterDataInterface<NumberEntry, double, NumberEditor>();
         host.RegisterDataInterface<DefaultViewer, object, DefaultDisplay>();
         host.RegisterDataInterface<StringViewer, object, StringDisplay>();

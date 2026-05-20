@@ -61,10 +61,7 @@ internal class NodeRow(IInput? input, IOutput? output) : INodeRow
 
     public void CopyValueTo(INodeRow nodeRow)
     {
-        if (CentralDisplay is IDisplay copyFrom && nodeRow.CentralDisplay is IDisplay copyTo)
-        {
-            copyTo.DisplayValue.Value = copyFrom.DisplayValue.Value;
-        }
+        throw new NotImplementedException();
     }
 
     public IEnumerator<INodeComponent> GetEnumerator() => this.Yield().GetEnumerator();

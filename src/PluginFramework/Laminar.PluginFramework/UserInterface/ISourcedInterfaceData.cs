@@ -1,4 +1,5 @@
 using Laminar.PluginFramework.NodeSystem;
+using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
 namespace Laminar.PluginFramework.UserInterface;
 
@@ -8,10 +9,13 @@ public interface ISourcedInterfaceData<T> : IInterfaceData<T>, IRefreshable, ILa
     
     public IValueProvider<T>? ValueProvider { get; set; }
 
+    public IUserInterfaceDefinition? Editor { get; set; }
+
+    public IUserInterfaceDefinition? Viewer { get; set; }
+
     /// <summary>
-    /// Sets the value even when it is not user editable, and does not trigger execution
+    /// Sets the value even when it is not user editable, and without triggering execution
     /// </summary>
-    /// <param name="value"></param>
     public void QuietSetValue(T value); 
 
     bool IInterfaceData.IsUserEditable => IsUserEditable;
