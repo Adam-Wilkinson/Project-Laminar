@@ -83,7 +83,7 @@ public partial class ScriptEditorView : UserControl
     private ConnectorTarget? FindConnectorFromEvent(PointerEventArgs e, Predicate<IIOConnector>? predicate = null)
     {
         return SelectAndMove.ItemsPanelRoot?
-            .GetInputElementsAt(e.GetPosition(SelectAndMove.ItemsPanelRoot))
+            .GetInputElementsAt(e.GetPosition(SelectAndMove.ItemsPanelRoot), enabledElementsOnly: false)
             .FirstOrDefault(x =>
                 x is InputElement element
                 && ConnectorRegistry.GetRegisteredConnector(element) is { } potential
