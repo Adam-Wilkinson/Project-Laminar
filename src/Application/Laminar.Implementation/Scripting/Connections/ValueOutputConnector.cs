@@ -10,6 +10,8 @@ namespace Laminar.Implementation.Scripting.Connections;
 internal class ValueOutputConnector<T>(ITypeInfoStore typeInfoStore, IValueOutput<T> output)
     : IOutputConnector<IValueOutput<T>> where T : notnull
 {
+    private T _valueAtLastUpdate = output.Value;
+    
     public event PropertyChangedEventHandler? PropertyChanged { add { } remove { } }
 
     public string ColorHex => typeInfoStore.GetTypeInfoOrBlank(Output.InterfaceDefinition.ValueType).HexColor;
@@ -36,6 +38,10 @@ internal class ValueOutputConnector<T>(ITypeInfoStore typeInfoStore, IValueOutpu
     public PassUpdateOption PassUpdate(ExecutionFlags executionFlags)
     {
         if (!executionFlags.HasValueFlag) return PassUpdateOption.NeverPasses;
-        return Output.AlwaysPassUpdate ? PassUpdateOption.AlwaysPasses : PassUpdateOption.CurrentlyDoesNotPass;
+        if (Output.AlwaysPassUpdate) return PassUpdateOption.AlwaysPasses;
+        if (EqualityComparer<T>.Default.Equals(Output.Value, _valueAtLastUpdate)) return PassUpdateOption.CurrentlyDoesNotPass;
+        
+        _valueAtLastUpdate = Output.Value;
+        return PassUpdateOption.CurrentlyPasses;
     }
 }

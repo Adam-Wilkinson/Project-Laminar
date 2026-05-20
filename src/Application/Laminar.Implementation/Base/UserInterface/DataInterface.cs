@@ -1,4 +1,3 @@
-using System;
 using System.ComponentModel;
 using Laminar.Contracts.Base.UserInterface;
 using Laminar.PluginFramework.UserInterface;

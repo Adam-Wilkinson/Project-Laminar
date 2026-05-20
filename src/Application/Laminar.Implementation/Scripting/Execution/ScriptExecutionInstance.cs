@@ -18,7 +18,7 @@ internal class ScriptExecutionInstance(IEditableScript editableScript, IExecutio
 
         if (IsShownInUI)
         {
-            context = context with { ExecutionFlags = context.ExecutionFlags & UiUpdateExecutionFlag.Value };
+            context = context with { ExecutionFlags = context.ExecutionFlags | UiUpdateExecutionFlag.Value };
         }
 
         ReadOnlySpan<IConditionalExecutionBranch> iter = new(orderFinder.GetExecutionBranchesFrom(context, editableScript.NodeTree));

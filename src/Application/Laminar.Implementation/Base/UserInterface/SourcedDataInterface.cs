@@ -15,6 +15,7 @@ public class SourcedDataInterface<T>(IUserInterfaceDefinition? editor, IUserInte
     private readonly PropertyChangedEventArgs _valueChangedEventArgs = new(nameof(Value));
     private readonly PropertyChangedEventArgs _nameChangedEventArgs = new(nameof(Name));
 
+    private bool _isUserEditablePreference = true;
     private T? _valueAtLastRefresh;
     
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -37,20 +38,20 @@ public class SourcedDataInterface<T>(IUserInterfaceDefinition? editor, IUserInte
 
     public bool IsUserEditable
     {
-        get => field && ValueProvider is null;
+        get => _isUserEditablePreference && ValueProvider is null;
         set
         {
             // We have a value provider, so update silently
             if (ValueProvider is not null)
             {
-                field = value;
+                _isUserEditablePreference = value;
                 return;
             }
 
-            if (!SetField(ref field, value)) return;
+            if (!SetField(ref _isUserEditablePreference, value)) return;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Definition)));
         }
-    } = true;
+    }
 
     public IUserInterfaceDefinition? Definition => IsUserEditable ? editor : viewer;
 

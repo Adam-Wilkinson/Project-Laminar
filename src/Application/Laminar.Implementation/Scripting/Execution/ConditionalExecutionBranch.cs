@@ -28,8 +28,14 @@ public class ConditionalExecutionBranch : IConditionalExecutionBranch
             _startingConnector.PassUpdate(context.ExecutionFlags) is not (PassUpdateOption.AlwaysPasses or PassUpdateOption.CurrentlyPasses)) 
             return;
         
+        int length = _nodes.Length;
+
+        if (length == 1)
+        {
+            _nodes[0].Update(context);
+        }
+        
         ReadOnlySpan<IWrappedNode> nodes = _nodes;
-        double length = nodes.Length;
         for (int i = 0; i < length; i++)
         {
             nodes[i].Update(context);
