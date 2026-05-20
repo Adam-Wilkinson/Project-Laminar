@@ -9,7 +9,7 @@ using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
 namespace Laminar.Implementation.Base.UserInterface;
 
-public class SourcedDataInterface<T>(IUserInterfaceDefinition? editor, IUserInterfaceDefinition? viewer) 
+public class SourcedDataInterface<T>(T initialValue, IUserInterfaceDefinition? editor, IUserInterfaceDefinition? viewer) 
     : ISourcedInterfaceData<T> where T : notnull
 {
     private readonly PropertyChangedEventArgs _valueChangedEventArgs = new(nameof(Value));
@@ -17,6 +17,7 @@ public class SourcedDataInterface<T>(IUserInterfaceDefinition? editor, IUserInte
 
     private bool _isUserEditablePreference = true;
     private T? _valueAtLastRefresh;
+    private T _value = initialValue;
     
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -26,14 +27,19 @@ public class SourcedDataInterface<T>(IUserInterfaceDefinition? editor, IUserInte
         set => SetField(ref field, value, _nameChangedEventArgs);
     }
 
-    public required T Value
+    public T Value
     {
-        get => ValueProvider is null ? field : ValueProvider.Value;
+        get => ValueProvider is null ? _value : ValueProvider.Value;
         set
         {
-            if (!IsUserEditable || !SetField(ref field, value)) return;
+            if (!IsUserEditable || !SetField(ref _value, value, _valueChangedEventArgs)) return;
             ExecutionStarted?.Invoke(this, new LaminarExecutionContext(null, ExecutionFlags.ValueChanged));
         }
+    }
+
+    public void QuietSetValue(T value)
+    {
+        SetField(ref _value, value, _valueChangedEventArgs);
     }
 
     public bool IsUserEditable
@@ -64,6 +70,7 @@ public class SourcedDataInterface<T>(IUserInterfaceDefinition? editor, IUserInte
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsUserEditable)));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Definition)));
             Refresh();
+            ExecutionStarted?.Invoke(this, new LaminarExecutionContext(null, ExecutionFlags.ValueChanged));
         }
     }
 

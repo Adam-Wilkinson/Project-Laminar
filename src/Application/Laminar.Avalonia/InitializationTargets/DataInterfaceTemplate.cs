@@ -27,7 +27,7 @@ public class DataInterfaceTemplate(TopLevel topLevel, IDataInterfaceFactory data
         return new Decorator
         {
             [!Decorator.ChildProperty] = CompiledBinding.Create((IDataInterface<Control> x) => x.InterfaceFrontend, source: result),
-            [!StyledElement.DataContextProperty] = result.InterfaceData.AsStaticBinding()
+            [!StyledElement.DataContextProperty] = CompiledBinding.Create((IDataInterface<Control> x) => x.InterfaceData, source: result),
         };
     }
 

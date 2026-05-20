@@ -40,12 +40,16 @@ public class DataInterface<TFrontend> : IDataInterface<TFrontend>
 
     public event PropertyChangedEventHandler? PropertyChanged;
     
-    public IInterfaceData InterfaceData { get; private set; }
+    public IInterfaceData? InterfaceData { get; private set; }
     
     public TFrontend InterfaceFrontend { get; private set; }
     
     private void Update()
     {
+        (InterfaceData as IDisposable)?.Dispose();
+        InterfaceData = null;
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(InterfaceData)));
+        
         (InterfaceFrontend, InterfaceData) = _dataInterfaceFactory.GetFrontendAndData<TFrontend>(_interfaceData);
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(InterfaceFrontend)));
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(InterfaceData)));

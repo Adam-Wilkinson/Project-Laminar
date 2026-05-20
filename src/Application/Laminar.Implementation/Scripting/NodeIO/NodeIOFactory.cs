@@ -27,10 +27,9 @@ internal class NodeIOFactory(IUserInterfaceProvider uiProvider, ITypeInfoStore t
                 Editor = editor,
                 Viewer = viewer
             },
-            InterfaceData = new SourcedDataInterface<T>(editor, viewer)
+            InterfaceData = new SourcedDataInterface<T>(initialValue, editor, viewer)
             {
                 Name = valueName,
-                Value = initialValue
             }
         };
 
@@ -50,9 +49,8 @@ internal class NodeIOFactory(IUserInterfaceProvider uiProvider, ITypeInfoStore t
                 ? defaultInitialValue
                 : throw new TypeNotRegisteredException(typeof(T));
 
-        SourcedDataInterface<T> outputInterface = new(editor, viewer)
+        SourcedDataInterface<T> outputInterface = new(initialValue, editor, viewer)
         {
-            Value = initialValue,
             Name = valueName,
         };
 
