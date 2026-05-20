@@ -16,6 +16,4 @@ public interface IWrappedNode : INotificationClient<LaminarExecutionContext>
     ObservableValue<Point> Location { get; }
 
     void Update(LaminarExecutionContext context);
-
-    IWrappedNode Clone(INotificationClient<LaminarExecutionContext> userChangedValueNotificationClient);
 }

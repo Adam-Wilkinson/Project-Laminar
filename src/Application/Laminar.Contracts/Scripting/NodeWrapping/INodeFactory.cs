@@ -7,7 +7,7 @@ public interface INodeFactory
 {
     IWrappedNode WrapNode<T>(INotificationClient<LaminarExecutionContext>? userChangedValueClient = null) where T : INode, new();
 
-    IWrappedNode WrapNode<T>(T node, INotificationClient<LaminarExecutionContext>? userChangedValueClient = null) where T : INode, new();
+    IWrappedNode CreateMatchingNode(IWrappedNode node, INotificationClient<LaminarExecutionContext>? userChangedValueClient = null);
 
-    IWrappedNode CloneNode<T>(IWrappedNode node, INotificationClient<LaminarExecutionContext>? userChangedValueClient = null) where T : INode, new();
+    IWrappedNode WrapNode(INode node, INotificationClient<LaminarExecutionContext>? userChangedValueClient = null);
 }

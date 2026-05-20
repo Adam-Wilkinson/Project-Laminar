@@ -59,11 +59,6 @@ internal class NodeRow(IInput? input, IOutput? output) : INodeRow
 
     public Opacity Opacity { get; } = new();
 
-    public void CopyValueTo(INodeRow nodeRow)
-    {
-        throw new NotImplementedException();
-    }
-
     public IEnumerator<INodeComponent> GetEnumerator() => this.Yield().GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

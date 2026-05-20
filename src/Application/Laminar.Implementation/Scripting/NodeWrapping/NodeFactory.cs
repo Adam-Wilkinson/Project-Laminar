@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Laminar.Contracts.Scripting.NodeWrapping;
+﻿using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Domain.Notification;
 using Laminar.PluginFramework;
 using Laminar.PluginFramework.NodeSystem;
@@ -11,29 +10,23 @@ namespace Laminar.Implementation.Scripting.NodeWrapping;
 
 public class NodeFactory : INodeFactory
 {
-    public IWrappedNode WrapNode<T>(T node, INotificationClient<LaminarExecutionContext>? userChangedValueNotificationClient) where T : INode, new()
+    public IWrappedNode CreateMatchingNode(IWrappedNode node, INotificationClient<LaminarExecutionContext>? userChangedValueClient = null)
     {
-        return new WrappedNode<T>(CreateNameRowFor(node), this, node) { UserChangedValueNotificationClient = userChangedValueNotificationClient };
+        if (node is not WrappedNode wrapped || Activator.CreateInstance(wrapped.CoreNode.GetType()) is not INode newNode) 
+            throw new InvalidOperationException();
+        
+        return WrapNode(newNode, userChangedValueClient);
+    }
+
+    public IWrappedNode WrapNode(INode node, INotificationClient<LaminarExecutionContext>? userChangedValueNotificationClient)
+    {
+        return new WrappedNode(CreateNameRowFor(node), node) { UserChangedValueNotificationClient = userChangedValueNotificationClient };
     }
 
     public IWrappedNode WrapNode<T>(INotificationClient<LaminarExecutionContext>? userChangedValueNotificationClient) where T : INode, new()
     {
         T output = new();
         return WrapNode(output, userChangedValueNotificationClient);
-    }
-
-    public IWrappedNode CloneNode<T>(IWrappedNode nodeToCopy, INotificationClient<LaminarExecutionContext>? userChangedValueNotificationClient) where T : INode, new()
-    {
-        var newNode = (WrappedNode<T>)WrapNode<T>(null);
-
-        foreach (var (copyFrom, copyTo) in nodeToCopy.Rows.Zip(newNode.Rows))
-        {
-            copyFrom.CopyValueTo(copyTo);
-        }
-
-        newNode.Location.Value = nodeToCopy.Location.Value;
-        newNode.UserChangedValueNotificationClient = userChangedValueNotificationClient;
-        return newNode;
     }
 
     private static INodeRow CreateNameRowFor(INode node) => 

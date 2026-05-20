@@ -9,6 +9,4 @@ public interface INodeRow : INodeComponent
     public IOutputConnector? OutputConnector { get; }
 
     public object CentralDisplay { get; }
-
-    public void CopyValueTo(INodeRow nodeRow);
 }
