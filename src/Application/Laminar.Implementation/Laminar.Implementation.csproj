@@ -12,8 +12,8 @@
     </ItemGroup>
     
     <ItemGroup>
-        <ProjectReference Include="..\Laminar.Contracts\Laminar.Contracts.csproj" />
         <ProjectReference Include="..\..\PluginFramework\Laminar.PluginFramework\Laminar.PluginFramework.csproj" />
+        <ProjectReference Include="..\Laminar.Contracts\Laminar.Contracts.csproj" />
     </ItemGroup>
 
     <ItemGroup>

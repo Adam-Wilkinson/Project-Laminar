@@ -13,9 +13,12 @@ public partial class ScriptEditorView : UserControl
 {
     public static readonly StyledProperty<IConnectionInteractionHandler?> ConnectionInteractionHandlerProperty = AvaloniaProperty.Register<ScriptEditorView, IConnectionInteractionHandler?>(nameof(ConnectionInteractionHandler));
     
-    private ConnectorTarget? _firstClickedConnector;
+    private readonly ConnectorRegistry _connectorRegistry;
+    
+    private ConnectorTarget? _targetConnector;
     private ConnectorTarget? _potentialSecondConnector;
-
+    
+    
     static ScriptEditorView()
     {
         PointerPressedEvent.AddClassHandler<ScriptEditorView>((sev, args) => sev.OnAllClicks(args), handledEventsToo: true);
@@ -25,6 +28,8 @@ public partial class ScriptEditorView : UserControl
     public ScriptEditorView()
     {
         InitializeComponent();
+        _connectorRegistry = Resources[ConnectorRegistry.Key] as ConnectorRegistry 
+                             ?? throw new InvalidOperationException("ConnectorRegistry not found");
     }
 
     public IConnectionInteractionHandler? ConnectionInteractionHandler
@@ -35,14 +40,14 @@ public partial class ScriptEditorView : UserControl
 
     protected override void OnPointerMoved(PointerEventArgs e)
     {
-        if (_firstClickedConnector is null) return;
+        if (_targetConnector is null) return;
 
-        if (FindConnectorFromEvent(e, c => !Equals(c, _firstClickedConnector?.Connector)) is not { } hoverConnector)
+        if (FindConnectorFromEvent(e, c => !Equals(c, _targetConnector?.Connector)) is not { } hoverConnector)
         {
             if (_potentialSecondConnector is null) return;
             
             ConnectionInteractionHandler?.CancelConnection();
-            ConnectorRegistry.SetConnectorGestureLive(_firstClickedConnector.Visual, true);
+            ConnectorRegistry.SetConnectorGestureLive(_targetConnector.Visual, true);
             _potentialSecondConnector = null;
             return;   
         }
@@ -52,23 +57,23 @@ public partial class ScriptEditorView : UserControl
         if (_potentialSecondConnector is not null)
         {
             ConnectionInteractionHandler?.CancelConnection();
-            ConnectorRegistry.SetConnectorGestureLive(_firstClickedConnector.Visual, true);
+            ConnectorRegistry.SetConnectorGestureLive(_targetConnector.Visual, true);
         }
 
         bool connectionMade =
-            ConnectionInteractionHandler?.HoverConnection(_firstClickedConnector.Connector, hoverConnector.Connector) ??
+            ConnectionInteractionHandler?.HoverConnection(_targetConnector.Connector, hoverConnector.Connector) ??
             false; 
         
-        ConnectorRegistry.SetConnectorGestureLive(_firstClickedConnector.Visual, !connectionMade);
+        ConnectorRegistry.SetConnectorGestureLive(_targetConnector.Visual, !connectionMade);
         _potentialSecondConnector = hoverConnector;
     }
 
     private void OnAllReleases(PointerReleasedEventArgs _)
     {
-        if (_firstClickedConnector is null) return;
+        if (_targetConnector is null) return;
         ConnectionInteractionHandler?.ConfirmConnection();
-        ConnectorRegistry.SetConnectorGestureLive(_firstClickedConnector.Visual, true);
-        _firstClickedConnector = null;
+        ConnectorRegistry.SetConnectorGestureLive(_targetConnector.Visual, true);
+        _targetConnector = null;
         
         if (_potentialSecondConnector is null) return;
         ConnectorRegistry.SetConnectorGestureLive(_potentialSecondConnector.Visual, true);
@@ -77,7 +82,10 @@ public partial class ScriptEditorView : UserControl
 
     private void OnAllClicks(PointerPressedEventArgs args)
     {
-        _firstClickedConnector = FindConnectorFromEvent(args);
+        if (FindConnectorFromEvent(args) is not { } clickedConnector) return;
+        var targetConnector = ConnectionInteractionHandler?.GetTargetConnector(clickedConnector.Connector);
+        if (targetConnector is null) return;
+        _targetConnector = new ConnectorTarget(targetConnector, _connectorRegistry.GetVisualForConnector(targetConnector));
     }
 
     private ConnectorTarget? FindConnectorFromEvent(PointerEventArgs e, Predicate<IIOConnector>? predicate = null)

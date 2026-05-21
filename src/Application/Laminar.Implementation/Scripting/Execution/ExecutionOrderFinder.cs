@@ -115,12 +115,8 @@ internal class ExecutionOrderFinder : IExecutionOrderFinder
 
         private void FindPathFromOutputConnector(IOutputConnector currentBranchStarter, ExecutionFlags executionFlags)
         {
-            if (_tree.GetConnections(currentBranchStarter) is not IReadOnlyList<IWrappedNode> currentNodeLevel)
-            {
-                return;
-            }
-
-            List<IWrappedNode> nextNodeLevel = new();
+            var currentNodeLevel = _tree.GetConnections(currentBranchStarter);
+            List<IWrappedNode> nextNodeLevel = [];
 
             while (currentNodeLevel.Count > 0)
             {
@@ -131,7 +127,7 @@ internal class ExecutionOrderFinder : IExecutionOrderFinder
                     nextNodeLevel.AddRange(GetDependentNodes(currentNode, executionFlags));
                 }
                 currentNodeLevel = nextNodeLevel;
-                nextNodeLevel = new();
+                nextNodeLevel = [];
             }
         }
 

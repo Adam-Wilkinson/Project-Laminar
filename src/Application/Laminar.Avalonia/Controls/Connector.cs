@@ -40,8 +40,8 @@ public class Connector : Shape
     private bool _isDragging;
     private Point? _originalClickOffset;
 
-    private PointTransition _endpointAnimateHomeTransition;
-    private PointTransition _startpointAnimateHomeTransition;
+    private readonly PointTransition _endpointAnimateHomeTransition;
+    private readonly PointTransition _startpointAnimateHomeTransition;
     
     public Connector()
     {

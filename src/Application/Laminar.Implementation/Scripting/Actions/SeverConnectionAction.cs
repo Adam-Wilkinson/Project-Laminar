@@ -15,8 +15,8 @@ public class SeverConnectionAction(IConnection connection, ICollection<IConnecti
 
     public Task<IUserActionResult> Execute()
     {
-        connection.InputConnector.OnDisconnectedFrom(connection.OutputConnector);
-        connection.OutputConnector.OnDisconnectedFrom(connection.InputConnector);
+        connection.InputConnector.OnConnectionSevered();
+        connection.OutputConnector.OnConnectionSevered();
         connectionCollection.Remove(connection);
         connection.Break();
         return Task.FromResult(IUserActionResult.Success(new EstablishConnectionAction(connection.OutputConnector, connection.InputConnector,

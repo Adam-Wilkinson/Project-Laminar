@@ -7,7 +7,9 @@ public interface INodeTree
 {
     public event EventHandler? Changed;
 
-    IWrappedNode GetParentNode(IIOConnector connector);
+    IWrappedNode GetConnectorOwner(IIOConnector connector);
 
+    IReadOnlyList<IIOConnector> GetConnections(IIOConnector connector);
+    
     IReadOnlyList<IWrappedNode> GetConnections(IOutputConnector outputConnector);
 }
