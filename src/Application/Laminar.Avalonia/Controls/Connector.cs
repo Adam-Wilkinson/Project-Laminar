@@ -4,6 +4,7 @@ using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Shapes;
 using Avalonia.Input;
 using Avalonia.Media;
+using Laminar.Avalonia.Markup;
 using Laminar.Avalonia.Shapes;
 
 namespace Laminar.Avalonia.Controls;
@@ -35,6 +36,16 @@ public class Connector : Shape
     static Connector()
     {
         AffectsGeometry<Connector>(StartpointProperty, EndpointProperty, ConnectionWidthProperty, TipLengthProperty, DragModeProperty);
+        ConnectorRegistry.MoveConnectorStartEvent.AddClassHandler<Connector>((conn, args) => conn.OnMoveConnectorStart(args));
+        ConnectorRegistry.MoveConnectorEndEvent.AddClassHandler<Connector>((conn, args) => conn.OnMoveConnectorEnd(args));
+    }
+
+    private void OnMoveConnectorEnd(ConnectorGestureEventArgs args)
+    {
+    }
+
+    private void OnMoveConnectorStart(ConnectorGestureEventArgs args)
+    {
     }
 
     private bool _isDragging;
