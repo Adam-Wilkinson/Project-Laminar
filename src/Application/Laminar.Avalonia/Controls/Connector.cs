@@ -2,7 +2,7 @@ using Avalonia;
 using Avalonia.Animation;
 using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Shapes;
-using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.Media;
 using Laminar.Avalonia.Markup;
 using Laminar.Avalonia.Shapes;
@@ -36,37 +36,11 @@ public class Connector : Shape
     static Connector()
     {
         AffectsGeometry<Connector>(StartpointProperty, EndpointProperty, ConnectionWidthProperty, TipLengthProperty, DragModeProperty);
-        ConnectorRegistry.MoveConnectorStartEvent.AddClassHandler<Connector>((conn, args) => conn.OnMoveConnectorStart(args));
-        ConnectorRegistry.MoveConnectorEndEvent.AddClassHandler<Connector>((conn, args) => conn.OnMoveConnectorEnd(args));
+        ConnectorRegistry.MoveConnectionIndicationEvent.AddClassHandler<Connector>((conn, args) => conn.OnMoveConnectionIndication(args));
+        ConnectorRegistry.EndConnectionIndicationEvent.AddClassHandler<Connector>((conn, args) => conn.OnEndConnectionIndication(args));
     }
 
-    private void OnMoveConnectorEnd(ConnectorGestureEventArgs args)
-    {
-    }
-
-    private void OnMoveConnectorStart(ConnectorGestureEventArgs args)
-    {
-    }
-
-    private bool _isDragging;
     private Point? _originalClickOffset;
-
-    private readonly PointTransition _endpointAnimateHomeTransition;
-    private readonly PointTransition _startpointAnimateHomeTransition;
-    
-    public Connector()
-    {
-        _endpointAnimateHomeTransition = new PointTransition()
-        {
-            Property = EndpointProperty,
-            [!TransitionBase.DurationProperty] = this[!AnimateHomeDurationProperty]
-        };
-        _startpointAnimateHomeTransition = new PointTransition()
-        {
-            Property = StartpointProperty,
-            [!TransitionBase.DurationProperty] = this[!AnimateHomeDurationProperty]
-        };
-    }
     
     public Point Startpoint
     {
@@ -108,28 +82,20 @@ public class Connector : Shape
     {
         return Connection.Generate(Startpoint, Endpoint, ConnectionWidth, TipLength);
     }
-
-    protected override void OnPointerPressed(PointerPressedEventArgs e)
+    
+    private void OnMoveConnectionIndication(MoveConnectionIndicationEventArgs args)
     {
-        if (DragMode is ConnectorDragMode.None) return;
-        _isDragging = true;
-        _originalClickOffset = e.GetPosition(this);
-        e.Handled = true;
+        var relativePoint = args.PointerEvent.GetPosition(this);
+        _originalClickOffset ??= relativePoint;
         IsEnabled = false;
-    }
-
-    protected override void OnPointerMoved(PointerEventArgs e)
-    {
-        if (!_isDragging || _originalClickOffset is not { } originalClickOffset) return;
-
         switch (DragMode)
         {
             case ConnectorDragMode.MoveEnd:
-                Endpoint = e.GetPosition(this) - originalClickOffset;
+                Endpoint = relativePoint - _originalClickOffset.Value;
                 PseudoClasses.Add(DragActivePseudoclass);
                 break;
             case ConnectorDragMode.MoveStart:
-                Startpoint = e.GetPosition(this) - originalClickOffset;
+                Startpoint = relativePoint - _originalClickOffset.Value;
                 PseudoClasses.Add(DragActivePseudoclass);
                 break;
             case ConnectorDragMode.None:
@@ -140,24 +106,12 @@ public class Connector : Shape
         }
     }
 
-    protected override void OnPointerReleased(PointerReleasedEventArgs e)
+    private void OnEndConnectionIndication(RoutedEventArgs args)
     {
-        if (!_isDragging) return;
-        _isDragging = false;
         PseudoClasses.Remove(DragActivePseudoclass);
         IsEnabled = true;
-        e.Handled = true;
-        
-        Transitions ??= [];
-        Transitions.Add(_startpointAnimateHomeTransition);
-        Transitions.Add(_endpointAnimateHomeTransition);
+        args.Handled = true;
         Startpoint = new Point(0, 0);
         Endpoint = new Point(0, 0);
-        Dispatcher.InvokeAsync(async () =>
-        {
-            await Task.Delay(_startpointAnimateHomeTransition.Duration);
-            Transitions.Remove(_endpointAnimateHomeTransition);
-            Transitions.Remove(_startpointAnimateHomeTransition);
-        });
     }
 }

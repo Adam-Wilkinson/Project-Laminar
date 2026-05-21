@@ -14,17 +14,10 @@ public class ConnectorRegistrationEventArgs(RoutedEvent routedEvent, object? sen
     public required Visual Visual { get; init; }
 }
 
-public class ConnectorGestureEventArgs(RoutedEvent routedEvent, object? sender) : RoutedEventArgs(routedEvent, sender)
+public class MoveConnectionIndicationEventArgs(RoutedEvent routedEvent, object? sender)
+    : RoutedEventArgs(routedEvent, sender)
 {
-    public required ConnectorGestureEventType EventType { get; init; }
-
     public required PointerEventArgs PointerEvent { get; init; }
-    
-    public enum ConnectorGestureEventType
-    {
-        MoveStartPoint,
-        MoveEndPoint
-    }
 }
 
 public class ConnectorRegistry : Interactive
@@ -55,9 +48,9 @@ public class ConnectorRegistry : Interactive
         remove => RemoveHandler(ConnectorUnregisteredEvent, value);
     }
     
-    public static readonly RoutedEvent<ConnectorGestureEventArgs> MoveConnectorStartEvent = RoutedEvent.Register<ConnectorRegistry, ConnectorGestureEventArgs>("MoveConnectorStart", RoutingStrategies.Bubble | RoutingStrategies.Tunnel);
+    public static readonly RoutedEvent<MoveConnectionIndicationEventArgs> MoveConnectionIndicationEvent = RoutedEvent.Register<ConnectorRegistry, MoveConnectionIndicationEventArgs>("MoveConnectionIndication", RoutingStrategies.Direct);
 
-    public static readonly RoutedEvent<ConnectorGestureEventArgs> MoveConnectorEndEvent = RoutedEvent.Register<ConnectorRegistry, ConnectorGestureEventArgs>("MoveConnectorEnd", RoutingStrategies.Bubble | RoutingStrategies.Tunnel);
+    public static readonly RoutedEvent<RoutedEventArgs> EndConnectionIndicationEvent = RoutedEvent.Register<ConnectorRegistry, RoutedEventArgs>("EndConnectorIndication", RoutingStrategies.Direct);
     
     static ConnectorRegistry()
     {
