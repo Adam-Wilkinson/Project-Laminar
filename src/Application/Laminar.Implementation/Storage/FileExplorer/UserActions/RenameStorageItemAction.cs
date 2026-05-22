@@ -1,9 +1,4 @@
-using System;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using Laminar.Contracts.Base.ActionSystem;
-using Laminar.Contracts.Storage.FileExplorer;
 using Laminar.Domain.Enums.ActionResolutions;
 using Laminar.Domain.Exceptions;
 using Laminar.Domain.ValueObjects;
@@ -16,8 +11,6 @@ internal class RenameStorageItemAction(
     LaminarStorageItem item, 
     FileExplorerActionDependencies dependencies) : IUserAction
 {
-    public event EventHandler? CanExecuteChanged { add { } remove { } }
-
     public bool CanExecute { get; } = !dependencies.FileSystem.GetNameWithoutExtension(item.Path).Equals(newName);
 
     public Task<IUserActionResult> Execute()
@@ -65,4 +58,6 @@ internal class RenameStorageItemAction(
         
         return Task.FromResult(IUserActionResult.Success(new RenameStorageItemAction(oldName, item, dependencies)));
     }
+
+    public bool IsInverseOf(IUserAction action) => false;
 }

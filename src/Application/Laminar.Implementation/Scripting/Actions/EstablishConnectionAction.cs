@@ -6,30 +6,37 @@ using Laminar.PluginFramework.NodeSystem.Connectors;
 namespace Laminar.Implementation.Scripting.Actions;
 
 public class EstablishConnectionAction(
-    IOutputConnector connectorOne,
-    IInputConnector connectorTwo,
+    IOutputConnector outputConnector,
+    IInputConnector inputConnector,
     ICollection<IConnection> connectionCollection)
     : IUserAction
 {
-    public event EventHandler? CanExecuteChanged { add { } remove { } }
+    public IOutputConnector OutputConnector { get; } = outputConnector;
 
-    public bool CanExecute { get; } = connectorOne.CanConnectTo(connectorTwo) || connectorTwo.CanConnectTo(connectorOne);
+    public IInputConnector InputConnector { get; } = inputConnector;
+    
+    public bool CanExecute { get; } = outputConnector.CanConnectTo(inputConnector) || inputConnector.CanConnectTo(outputConnector);
 
     public Task<IUserActionResult> Execute()
     {
-        if (!connectorOne.TryConnectTo(connectorTwo) && !connectorTwo.TryConnectTo(connectorOne)) 
+        if (!OutputConnector.TryConnectTo(InputConnector) && !InputConnector.TryConnectTo(OutputConnector)) 
             return Task.FromResult(IUserActionResult.Invalid());
         
-        connectorOne.OnConnectionEstablished();
-        connectorTwo.OnConnectionEstablished();
+        OutputConnector.OnConnectionEstablished();
+        InputConnector.OnConnectionEstablished();
         
         Connection connection = new()
         {
-            OutputConnector = connectorOne,
-            InputConnector = connectorTwo
+            OutputConnector = OutputConnector,
+            InputConnector = InputConnector
         };
         
         connectionCollection.Add(connection);
         return Task.FromResult(IUserActionResult.Success(new SeverConnectionAction(connection, connectionCollection)));
     }
+
+    public bool IsInverseOf(IUserAction action)
+        => action is SeverConnectionAction severAction &&
+           Equals(severAction.Connection.InputConnector, InputConnector) &&
+           Equals(severAction.Connection.OutputConnector, OutputConnector);
 }

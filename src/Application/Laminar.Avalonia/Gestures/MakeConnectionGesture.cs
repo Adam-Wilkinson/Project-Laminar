@@ -18,7 +18,6 @@ public class MakeConnectionGesture : GestureRecognizer
     private ConnectorTarget? _firstConnector;
     private IPointer? _captured;
     
-    
     public IConnectionInteractionHandler? ConnectionInteractionHandler
     {
         get => GetValue(ConnectionInteractionHandlerProperty);
@@ -112,15 +111,15 @@ public class MakeConnectionGesture : GestureRecognizer
     private ConnectorTarget? FindConnectorFromEvent(PointerEventArgs e, Predicate<IIOConnector>? predicate = null)
     {
         if (Target is not Visual targetVisual) return null;
-        
-        return Target?
+
+        return Target
             .GetInputElementsAt(e.GetPosition(targetVisual), enabledElementsOnly: false)
             .FirstOrDefault(x =>
-                x is InputElement element
+                x is Visual element
                 && ConnectorRegistry.GetRegisteredConnector(element) is { } potential
-                && (predicate?.Invoke(potential) ?? true)) is not InputElement match
-            ? null
-            : new ConnectorTarget(ConnectorRegistry.GetRegisteredConnector(match)!, match);
+                && (predicate?.Invoke(potential) ?? true)) is Visual match
+            ? new ConnectorTarget(ConnectorRegistry.GetRegisteredConnector(match)!, match)
+            : null;
     }
     
     private record ConnectorTarget(IIOConnector Connector, Visual Visual);

@@ -1,71 +1,76 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Laminar.Contracts.Base.ActionSystem;
+﻿using Laminar.Contracts.Base.ActionSystem;
 
 namespace Laminar.Implementation.Base.ActionSystem;
 
-public class CompoundAction : IUserAction
+public class CompoundAction(IEnumerable<IUserAction> actions) : IUserAction
 {
-    private readonly List<IUserAction> _actions;
+    private readonly List<IUserAction> _actions = [.. actions];
+    private bool _hasExecuted;
     
     public CompoundAction(params IUserAction[] actions) : this((IEnumerable<IUserAction>)actions)
     {
     }
 
-    public CompoundAction(IEnumerable<IUserAction> actions)
-    {
-        _actions = [.. actions];
-        foreach (var action in _actions)
-        {
-            action.CanExecuteChanged += ChildCanExecuteChanged;
-        }
-        CanExecute = _actions.All(x => x.CanExecute);
-    }
-
     public void Add(IUserAction action)
     {
+        if (_hasExecuted)
+            throw new InvalidOperationException("Cannot modify a compound action that has already executed");
+        
         _actions.Add(action);
-        action.CanExecuteChanged += ChildCanExecuteChanged;
     }
-
-    public event EventHandler? CanExecuteChanged;
     
-    public bool CanExecute { get; private set; }
+    public bool CanExecute => _actions.All(x => x.CanExecute);
 
     public async Task<IUserActionResult> Execute()
     {
+        _hasExecuted = true;
         if (_actions.Any(userAction => !userAction.CanExecute))
         {
             return IUserActionResult.Invalid();
         }
         
-        var undoList = new IUserAction[_actions.Count];
-        var indexInReverseList = _actions.Count;
+        var executedUndoActions = new Stack<IUserAction>();
+
         foreach (var userAction in _actions)
         {
-            var currentResult = await userAction.Execute();
-            switch (currentResult)
+            var result = await userAction.Execute();
+
+            if (result is not UserActionSuccess success)
             {
-                case UserActionSuccess success:
-                    undoList[--indexInReverseList] = success.InverseAction;
-                    break;
-                default:
-                    return currentResult;
+                while (executedUndoActions.Count > 0)
+                {
+                    await executedUndoActions.Pop().Execute();
+                }
+
+                return result;
+            }
+
+            executedUndoActions.Push(success.InverseAction);
+        }
+
+        return IUserActionResult.Success(new CompoundAction(executedUndoActions));
+    }
+
+    public bool IsInverseOf(IUserAction action)
+    {
+        if (action is not CompoundAction compoundAction)
+        {
+            return _actions.Count == 1 && _actions[0].IsInverseOf(action);
+        }
+
+        if (_actions.Count != compoundAction._actions.Count)
+        {
+            return false;
+        }
+        
+        for (int i = 0; i < _actions.Count; i++)
+        {
+            if (!_actions[i].IsInverseOf(compoundAction._actions[compoundAction._actions.Count - 1 - i]))
+            {
+                return false;
             }
         }
 
-        return IUserActionResult.Success(new CompoundAction(undoList));
-    }
-
-    private void ChildCanExecuteChanged(object? sender, EventArgs args)
-    {
-        var canExecuteBefore = CanExecute;
-        CanExecute = _actions.All(x => x.CanExecute);
-        if (canExecuteBefore != CanExecute)
-        {
-            CanExecuteChanged?.Invoke(sender, args);
-        }
+        return true;
     }
 }

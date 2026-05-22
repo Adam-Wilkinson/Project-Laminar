@@ -1,25 +1,33 @@
 ﻿using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.Scripting.Connection;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Laminar.Implementation.Scripting.Actions;
 
 public class SeverConnectionAction(IConnection connection, ICollection<IConnection> connectionCollection)
     : IUserAction
 {
-    public event EventHandler? CanExecuteChanged { add { } remove { } }
+    public IConnection Connection { get; } = connection;
 
-    public bool CanExecute { get; } = true;
+    public bool CanExecute => connectionCollection.Contains(Connection);
 
     public Task<IUserActionResult> Execute()
     {
-        connection.InputConnector.OnConnectionSevered();
-        connection.OutputConnector.OnConnectionSevered();
-        connectionCollection.Remove(connection);
-        connection.Break();
-        return Task.FromResult(IUserActionResult.Success(new EstablishConnectionAction(connection.OutputConnector, connection.InputConnector,
+        if (!connectionCollection.Contains(Connection))
+        {
+            return Task.FromResult(IUserActionResult.Invalid());
+        }
+        
+        Connection.InputConnector.OnConnectionSevered();
+        Connection.OutputConnector.OnConnectionSevered();
+        connectionCollection.Remove(Connection);
+        Connection.Break();
+        return Task.FromResult(IUserActionResult.Success(
+            new EstablishConnectionAction(Connection.OutputConnector, Connection.InputConnector,
             connectionCollection)));
     }
+
+    public bool IsInverseOf(IUserAction action)
+        => action is EstablishConnectionAction establishAction &&
+           Equals(establishAction.OutputConnector, Connection.OutputConnector) &&
+           Equals(establishAction.InputConnector, Connection.InputConnector);
 }

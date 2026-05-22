@@ -1,7 +1,8 @@
-using Avalonia;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Laminar.Contracts.Scripting.Connection;
 using Laminar.Contracts.Scripting.NodeWrapping;
+
+using AvaloniaPoint = Avalonia.Point;
 using LaminarPoint = Laminar.Domain.ValueObjects.Point;
 
 namespace Laminar.Avalonia.ViewModels;
@@ -25,7 +26,7 @@ public partial class ScriptEditorItemModel : ObservableObject
         
         nodeModel.Location.OnChanged += (_, changedArgs) =>
         {
-            Position = new Point(changedArgs.NewValue.X, changedArgs.NewValue.Y);
+            Position = new AvaloniaPoint(changedArgs.NewValue.X, changedArgs.NewValue.Y);
         };
 
         PropertyChanged += (_, args) =>
@@ -38,7 +39,7 @@ public partial class ScriptEditorItemModel : ObservableObject
     }
 
     [ObservableProperty]
-    public partial Point Position { get; set; }
+    public partial AvaloniaPoint Position { get; set; }
 
     [ObservableProperty]
     public partial bool IsSelected { get; set; }
