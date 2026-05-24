@@ -13,7 +13,9 @@
     <File Path="Directory.Packages.props" />
     <File Path="nuget.config" />
   </Folder>
-  <Folder Name="/src/" />
+  <Folder Name="/src/">
+    <Project Path="src/Bootstrapping/Bootstrapping.csproj" />
+  </Folder>
   <Folder Name="/src/Application/">
     <File Path="src/Application/Laminar.Avalonia/Lang/Resources.resx" />
     <Project Path="src/Application/Laminar.Avalonia/Laminar.Avalonia.csproj" />
