@@ -1,4 +1,7 @@
 <Project>
+  <Import Project="Generated/PluginFramework.Version.props"
+          Condition="Exists('Generated/PluginFramework.Version.props')" />
+  
   <PropertyGroup>
     <PluginFrameworkVersion Condition="'$(PluginFrameworkVersion)' == ''">
       0.1.9-alpha.gb754ee1e62

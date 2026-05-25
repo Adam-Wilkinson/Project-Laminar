@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Runtime.Loader;
+using System.Text;
 using Bootstrapping;
 
 var repoRoot = FindRepoRoot();
@@ -12,6 +14,7 @@ config = "Debug";
 #endif
 
 const string tfm = "net10.0";
+var pluginFrameworkVersionFile = Path.Combine(repoRoot, ".nuget.local", "PluginFramework.Version.props");
 
 await RunDotnet(
     repoRoot,
@@ -28,24 +31,32 @@ var output = await RunDotnet(
     "/p:UseSharedCompilation=false").ThrowOnError();
 
 var pluginVersion = ExtractPluginFrameworkVersion(output.StdOut);
+var persistentPluginVersion = await GetPersistentPluginFrameworkVersion();
+if (!pluginVersion.Equals(persistentPluginVersion))
+{
+    Console.WriteLine($"PluginFramework version changed: {persistentPluginVersion} -> {pluginVersion}. Rebuilding and restoring...");
+    
+    await RunDotnet(
+            repoRoot,
+            "pack",
+            $"src/PluginFramework/Laminar.PluginFramework/Laminar.PluginFramework.csproj " +
+            $"-c {config} " +
+            $"/p:PluginFrameworkVersion={pluginVersion} " +
+            "/p:UseSharedCompilation=false")
+        .ThrowOnError();
 
-await RunDotnet(
-    repoRoot,
-    "pack",
-    $"src/PluginFramework/Laminar.PluginFramework/Laminar.PluginFramework.csproj " +
-    $"-c {config} " +
-    $"/p:PluginFrameworkVersion={pluginVersion} " +
-    "/p:UseSharedCompilation=false")
-    .ThrowOnError();
+    await SetPersistentPluginFrameworkVersion(pluginVersion);
+    
+    // Repo should be stable, restore to check:
+    await RunDotnet(
+            repoRoot,
+            "restore",
+            $"ProjectLaminar.slnx " +
+            $"/p:PluginFrameworkVersion={pluginVersion} " +
+            "/p:UseSharedCompilation=false")
+        .ThrowOnError();
+}
 
-// Repo should be stable, restore to check:
-await RunDotnet(
-    repoRoot,
-    "restore",
-    $"ProjectLaminar.slnx " +
-    $"/p:PluginFrameworkVersion={pluginVersion} " +
-    "/p:UseSharedCompilation=false")
-    .ThrowOnError();
 
 // Build plugins
 await RunDotnet(
@@ -100,10 +111,8 @@ var bootstrapperType = assembly
 if (bootstrapperType is null)
     throw new InvalidOperationException("No application bootstrapper found");
 
-Console.WriteLine($"Bootstrapper: {bootstrapperType.FullName}");
-
 var bootstrapper = (IApplicationBootstrapper)Activator.CreateInstance(bootstrapperType)!;
-
+Console.WriteLine($"Bootstrapper '{bootstrapperType.FullName}' created. Running main app now");
 await bootstrapper.Run(loadContext, args);
 
 return;
@@ -164,6 +173,35 @@ static string ExtractPluginFrameworkVersion(string buildOutput)
         throw new Exception("PluginFramework version not emitted");
 
     return line[(line.IndexOf(prefix, StringComparison.Ordinal) + prefix.Length)..].Trim();
+}
+
+async Task SetPersistentPluginFrameworkVersion(string version)
+{
+    var tempFile = pluginFrameworkVersionFile + ".tmp";
+    var contents =
+        $"""
+        <Project>
+            <PropertyGroup Condition="'$(PluginFrameworkVersion)' == ''">
+                <PluginFrameworkVersion>{version}</PluginFrameworkVersion>
+            </PropertyGroup>
+        </Project>                               
+        """;
+
+    await File.WriteAllTextAsync(tempFile, contents);
+    File.Move(tempFile, pluginFrameworkVersionFile, overwrite: true);
+}
+
+async Task<string?> GetPersistentPluginFrameworkVersion()
+{
+    if (!File.Exists(pluginFrameworkVersionFile))
+    {
+        return null;
+    }
+
+    var contents = await File.ReadAllTextAsync(pluginFrameworkVersionFile);
+    int openingTagPosition = contents.IndexOf("<PluginFrameworkVersion>", StringComparison.Ordinal) + "<PluginFrameworkVersion>".Length;
+    int closingTagPosition = contents.IndexOf("</PluginFrameworkVersion", StringComparison.Ordinal);
+    return contents.Substring(openingTagPosition, closingTagPosition - openingTagPosition).Trim();
 }
 
 internal record DotnetResult(int ExitCode, string StdOut, string StdErr, string Command);

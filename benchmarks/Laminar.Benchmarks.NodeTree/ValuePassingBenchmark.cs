@@ -15,7 +15,7 @@ namespace Laminar.Benchmarks;
 public class ValuePassingBenchmark
 {
     private readonly IServiceProvider _serviceProvider = new ServiceCollection()
-        .AddLaminarServices(FrontendDependency.None)
+        .AddLaminarServices(FrontendDependency.None, null)
         .BuildServiceProvider()
         .InitializeLaminar<Program>();
     
