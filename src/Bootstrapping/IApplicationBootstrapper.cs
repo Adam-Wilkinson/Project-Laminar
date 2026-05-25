@@ -2,5 +2,5 @@
 
 public interface IApplicationBootstrapper
 {
-    public void Run(string[] args);
+    public Task Run(string[] args);
 }

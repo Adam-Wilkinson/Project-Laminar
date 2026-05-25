@@ -1,11 +1,14 @@
 <Project>
   <PropertyGroup>
-    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-    
-    <!-- ONLY for use with Laminar.PluginFramework when developing internally since its version will auto-increment -->
-    <CentralPackageFloatingVersionsEnabled>true</CentralPackageFloatingVersionsEnabled>
-    
+    <PluginFrameworkVersion Condition="'$(PluginFrameworkVersion)' == ''">
+      0.1.9-alpha.gb754ee1e62
+    </PluginFrameworkVersion>
   </PropertyGroup>
+  
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+  
   <ItemGroup>
     <PackageVersion Include="Avalonia" Version="12.0.3" />
     <PackageVersion Include="Avalonia.Controls.ColorPicker" Version="12.0.3" />
@@ -21,8 +24,8 @@
     <PackageVersion Include="HanumanInstitute.MvvmDialogs.Avalonia.MessageBox" Version="2.2.0" />
     <PackageVersion Include="Laminar.Avalonia.AdjustableStackPanel" Version="1.4.0" />
     <PackageVersion Include="Laminar.Avalonia.SelectAndMove" Version="3.0.11-alpha" />
-    <PackageVersion Include="Laminar.PluginFramework" Version="0.1.*-*" />
-    <PackageVersion Include="Laminar.PluginFramework.SourceGeneration" Version="0.1.*-*" />
+    <PackageVersion Include="Laminar.PluginFramework" Version="$(PluginFrameworkVersion)" />
+    <PackageVersion Include="Laminar.PluginFramework.SourceGeneration" Version="$(PluginFrameworkVersion)" />
     <PackageVersion Include="MessageBox.Avalonia" Version="3.3.1.1" />
     <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="5.3.0" />
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="5.3.0" />

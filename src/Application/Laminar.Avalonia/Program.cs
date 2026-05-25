@@ -20,8 +20,20 @@ internal sealed class Program
             .LogToTrace();
 }
 
+[ApplicationBootstrapper]
 public class ApplicationBootstrapper : IApplicationBootstrapper
 {
     [STAThread]
-    public void Run(string[] args) => Program.Main(args);
+    public Task Run(string[] args)
+    {
+        try
+        {
+            Program.Main(args);
+            return Task.CompletedTask;
+        }
+        catch (Exception exception)
+        {
+            return Task.FromException(exception);
+        }
+    }
 }

@@ -1,0 +1,17 @@
+<Project>
+    <PropertyGroup>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageOutputPath>$(MSBuildThisFileDirectory)..\..\.nuget.local</PackageOutputPath>
+    </PropertyGroup>
+    
+    <PropertyGroup Condition="'$(EmitPluginFrameworkVersion)' == ''">
+        <EmitPluginFrameworkVersion>false</EmitPluginFrameworkVersion>
+    </PropertyGroup>
+
+    <Target Name="EmitVersion"
+            AfterTargets="Pack"
+            Condition="'$(EmitPluginFrameworkVersion)' == 'true'">
+        <Message Importance="High"
+                 Text="PLUGINFRAMEWORK_VERSION=$(PackageVersion)" />
+    </Target>
+</Project>

@@ -14,10 +14,10 @@
 
         <Copy SourceFiles="@(PluginFiles)"
               DestinationFolder="$(AvaloniaPluginOutputDir)\%(RecursiveDir)"
-              SkipUnchangedFiles="true"/>
+              SkipUnchangedFiles="false"/>
 
         <Copy SourceFiles="@(PluginFiles)"
               DestinationFolder="$(RunnerPluginOutputDir)\%(RecursiveDir)"
-              SkipUnchangedFiles="true"/>
+              SkipUnchangedFiles="false"/>
     </Target>
 </Project>
