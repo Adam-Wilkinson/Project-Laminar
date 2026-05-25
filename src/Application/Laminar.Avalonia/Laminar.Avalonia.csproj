@@ -62,7 +62,7 @@
     </ItemGroup>
     
     <ItemGroup>
-        <ProjectReference Include="..\..\Bootstrapping\Bootstrapping.csproj" />
+        <ProjectReference Include="..\..\Bootstrapping\Bootstrapping.csproj"/>
         <ProjectReference Include="..\Laminar.Implementation\Laminar.Implementation.csproj" />
     </ItemGroup>
     
@@ -80,6 +80,10 @@
             <Generator>PublicResXFileCodeGenerator</Generator>
             <LastGenOutput>Resources.Designer.cs</LastGenOutput>
         </EmbeddedResource>
+    </ItemGroup>
+    
+    <ItemGroup>
+        <AssemblyMetadata Include="PluginFrameworkVersion" Value="$(PluginFrameworkVersion)" />
     </ItemGroup>
     
 </Project>

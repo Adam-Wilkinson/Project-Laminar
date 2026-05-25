@@ -14,16 +14,23 @@
              HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 	<TabControl MaxWidth="1500" Margin="100, 30" TabStripPlacement="Top">
 		<TabItem Header="Settings">
-			<ItemsControl HorizontalAlignment="Stretch" 
-			              Grid.IsSharedSizeScope="True"
-			              ItemsSource="{StaticResource SettingsRoot}" 
-			              ItemTemplate="{StaticResource SettingDataTemplate}">
-				<ItemsControl.ItemsPanel>
-					<ItemsPanelTemplate>
-						<UniformGrid Columns="1" VerticalAlignment="Top" RowSpacing="5"/>			
-					</ItemsPanelTemplate>
-				</ItemsControl.ItemsPanel>
-			</ItemsControl>
+			<DockPanel VerticalAlignment="Stretch">
+				<TextBlock DockPanel.Dock="Bottom" 
+				           Text="{Binding PluginFrameworkVersion, StringFormat='Plugin Framework Version: {0}'}"
+				           Classes="b2"
+				           HorizontalAlignment="Center"/>
+				
+				<ItemsControl HorizontalAlignment="Stretch" 
+				              Grid.IsSharedSizeScope="True"
+				              ItemsSource="{StaticResource SettingsRoot}" 
+				              ItemTemplate="{StaticResource SettingDataTemplate}">
+					<ItemsControl.ItemsPanel>
+						<ItemsPanelTemplate>
+							<UniformGrid Columns="1" VerticalAlignment="Top" RowSpacing="5"/>			
+						</ItemsPanelTemplate>
+					</ItemsControl.ItemsPanel>
+				</ItemsControl>
+			</DockPanel>
 		</TabItem>
 		
 		<TabItem Header="Keybindings">

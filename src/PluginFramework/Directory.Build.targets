@@ -1,6 +1,5 @@
 <Project>
     <PropertyGroup>
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageOutputPath>$(MSBuildThisFileDirectory)..\..\.nuget.local</PackageOutputPath>
     </PropertyGroup>
     

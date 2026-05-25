@@ -20,7 +20,7 @@ internal sealed class Program
         BuildAvaloniaApp(loadContext).StartWithClassicDesktopLifetime(args);
     
     public static AppBuilder BuildAvaloniaApp(AssemblyLoadContext? defaultLoadContext)
-        => AppBuilder.Configure(() => new App(defaultLoadContext))
+        => AppBuilder.Configure(() => new App { DefaultLoadContext = defaultLoadContext })
             .UsePlatformDetect()
             .WithInterFont()
             .LogToTrace();

@@ -31,9 +31,30 @@ var output = await RunDotnet(
 
 var pluginVersion = ExtractPluginFrameworkVersion(output.StdOut);
 var persistentPluginVersion = await GetPersistentPluginFrameworkVersion();
+var currentPluginVersionValid = true;
+
 if (!pluginVersion.Equals(persistentPluginVersion))
 {
-    Console.WriteLine($"PluginFramework version changed: {persistentPluginVersion} -> {pluginVersion}. Rebuilding and restoring...");
+    Console.WriteLine(
+        $"PluginFramework version changed: {persistentPluginVersion} -> {pluginVersion}");
+    currentPluginVersionValid = false;
+}
+
+if (currentPluginVersionValid && !File.Exists(Path.Combine(repoRoot, ".nuget.local", $"Laminar.PluginFramework.{pluginVersion}.nupkg")))
+{
+    Console.WriteLine("Unable to find correct plugin framework version");
+    currentPluginVersionValid = false;
+}
+
+if (currentPluginVersionValid && !File.Exists(Path.Combine(repoRoot, ".nuget.local", $"Laminar.PluginFramework.SourceGeneration.{pluginVersion}.nupkg")))
+{
+    Console.WriteLine("Unable to find correct plugin framework source generation version");
+    currentPluginVersionValid = false;
+}
+
+if (!currentPluginVersionValid)
+{
+    Console.WriteLine("Rebuilding and restoring...");
     
     // Build plugin framework first
     await RunDotnet(
@@ -59,10 +80,13 @@ if (!pluginVersion.Equals(persistentPluginVersion))
     await RunDotnet(
             repoRoot,
             "restore",
-            $"ProjectLaminar.slnx " +
-            $"/p:PluginFrameworkVersion={pluginVersion} " +
-            "/p:UseSharedCompilation=false")
+            $"ProjectLaminar.slnx")
         .ThrowOnError();
+
+    await RunDotnet(
+        repoRoot,
+        "build-server",
+        "shutdown");
 }
 
 
@@ -71,20 +95,24 @@ await RunDotnet(
     repoRoot,
     "build",
     "src/Plugins/BasicFunctionality/BasicFunctionality.csproj " +
-    $"-c {config} " +
+    $"-c {config} " + 
     $"/p:PluginFrameworkVersion={pluginVersion} " +
-    "/p:UseSharedCompilation=false")
+    "/p:UseSharedCompilation=false ")
     .ThrowOnError();
 
 await RunDotnet(
     repoRoot,
     "build",
     "src/Plugins/BasicFunctionality.Avalonia/BasicFunctionality.Avalonia.csproj " +
-    $"-c {config} " +
+    $"-c {config} " + 
     $"/p:PluginFrameworkVersion={pluginVersion} " +
     "/p:UseSharedCompilation=false")
     .ThrowOnError();
 
+await RunDotnet(
+    repoRoot,
+    "build-server",
+    "shutdown");
 
 // Build app
 await RunDotnet(
@@ -92,9 +120,9 @@ await RunDotnet(
     "build",
     $"src/Application/Laminar.Avalonia/Laminar.Avalonia.csproj " +
     $"-c {config} " +
-    $"--no-restore " +
-    $"/p:PluginFrameworkVersion={pluginVersion} " + 
-    $"/p:UseSharedCompilation=false")
+    "--no-restore " +
+    $"/p:PluginFrameworkVersion={pluginVersion} " +
+    "/p:UseSharedCompilation=false")
     .ThrowOnError();
 
 // Load application assembly
@@ -121,7 +149,28 @@ if (bootstrapperType is null)
 
 var bootstrapper = (IApplicationBootstrapper)Activator.CreateInstance(bootstrapperType)!;
 Console.WriteLine($"Bootstrapper '{bootstrapperType.FullName}' created. Running main app now");
-await bootstrapper.Run(loadContext, args);
+try
+{
+    await bootstrapper.Run(loadContext, args);
+}
+finally
+{
+    var weakRef = new WeakReference(loadContext);
+
+    loadContext.Unload();
+
+    for (var i = 0; weakRef.IsAlive && i < 10; i++)
+    {
+        GC.Collect();
+        GC.WaitForPendingFinalizers();
+    }
+
+    if (weakRef.IsAlive)
+    {
+        Console.WriteLine("Bootstrapped project is still running after application close");
+    }
+}
+
 
 return;
 
@@ -139,6 +188,12 @@ static async Task<DotnetResult> RunDotnet(string repoRoot, string command, strin
         UseShellExecute = false
     };
 
+    psi.Environment["DOTNET_CLI_HOME"] =
+        Path.Combine(repoRoot, ".dotnet-runner-cache");
+
+    psi.Environment["MSBUILDDISABLENODEREUSE"] = "1";
+    psi.Environment["DOTNET_NOLOGO"] = "1";
+    
     using var process = Process.Start(psi)!;
 
     var stdoutTask = process.StandardOutput.ReadToEndAsync();
@@ -146,10 +201,9 @@ static async Task<DotnetResult> RunDotnet(string repoRoot, string command, strin
 
     await process.WaitForExitAsync();
 
-    var stdout = await stdoutTask;
-    var stderr = await stderrTask;
+    var result = new DotnetResult(process.ExitCode, await stdoutTask, await stderrTask, command);
 
-    return new DotnetResult(process.ExitCode, stdout, stderr, command);
+    return result;
 }
 
 static string FindRepoRoot()
@@ -224,6 +278,10 @@ internal static class DotnetResultHelpers
 
             if (result.ExitCode != 0)
             {
+                Console.WriteLine($"dotnet {result.Command} failed. Exit code: {result.ExitCode}");
+                Console.WriteLine("StdOut:");
+                Console.WriteLine(result.StdOut);
+                Console.WriteLine("StdErr:");
                 await Console.Error.WriteLineAsync(result.StdErr);
                 throw new Exception($"dotnet {result.Command} failed. Exit code: {result.ExitCode}");
             }
@@ -233,7 +291,8 @@ internal static class DotnetResultHelpers
     }
 }
 
-internal sealed class ApplicationLoadContext(string mainAssemblyPath) : AssemblyLoadContext
+internal sealed class ApplicationLoadContext(string mainAssemblyPath) 
+    : AssemblyLoadContext(nameof(ApplicationLoadContext), isCollectible: true)
 {
     private readonly AssemblyDependencyResolver _resolver = new(mainAssemblyPath);
 
