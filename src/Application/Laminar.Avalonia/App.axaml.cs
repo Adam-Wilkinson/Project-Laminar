@@ -18,12 +18,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using System;
 using System.Runtime.InteropServices;
+using System.Runtime.Loader;
 using System.Threading.Tasks;
 using Avalonia.Controls.Chrome;
 using CommunityToolkit.Mvvm.Input;
 
 namespace Laminar.Avalonia;
-public partial class App : Application
+public partial class App(AssemblyLoadContext? defaultLoadContext) : Application
 {
     public static readonly OSPlatform Platform = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? OSPlatform.Linux :
         RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? OSPlatform.OSX : OSPlatform.Windows;
@@ -47,7 +48,7 @@ public partial class App : Application
             desktop.MainWindow = MainWindow;
             
             var services = new ServiceCollection()
-                .AddLaminarServices(FrontendDependency.Avalonia)
+                .AddLaminarServices(FrontendDependency.Avalonia, defaultLoadContext)
                 .AddViewModels()
                 .AddDescendantsSingleton<IBeforeApplicationBuiltTarget>()
                 .AddDescendantsSingleton<IAfterApplicationBuiltTarget>()

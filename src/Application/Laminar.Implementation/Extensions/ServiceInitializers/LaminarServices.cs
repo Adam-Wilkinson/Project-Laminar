@@ -1,3 +1,4 @@
+using System.Runtime.Loader;
 using Laminar.Contracts.Base;
 using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.Base.PluginLoading;
@@ -23,7 +24,10 @@ namespace Laminar.Implementation.Extensions.ServiceInitializers;
 
 public static class LaminarServices
 {
-    public static IServiceCollection AddLaminarServices(this IServiceCollection services, FrontendDependency frontendDependency) => services
+    public static IServiceCollection AddLaminarServices(
+        this IServiceCollection services, 
+        FrontendDependency frontendDependency,
+        AssemblyLoadContext? defaultLoadContext) => services
             .AddSingleton<IPersistentDataManager, PersistentDataManager>()
             .AddTransient<IPersistentDictionary, PersistentDictionary>()
             .AddTransient<IPersistentList, PersistentList>()
@@ -34,7 +38,7 @@ public static class LaminarServices
             .AddSingleton<ITypeInfoStore, TypeInfoStore>()
             
             .AddSingleton<IPluginHostFactory, PluginHostFactory>()
-            .AddSingleton<IPluginLoader>(provider => ActivatorUtilities.CreateInstance<PluginLoader>(provider, frontendDependency))
+            .AddSingleton<IPluginLoader>(provider => ActivatorUtilities.CreateInstance<PluginLoader>(provider, frontendDependency, defaultLoadContext ?? AssemblyLoadContext.Default))
             
             .AddSingleton<ILaminarStorageItemFactory, LaminarStorageItemFactory>()
             .AddSingleton<IDeletedStorageItemCache, DeletedStorageItemCache>()

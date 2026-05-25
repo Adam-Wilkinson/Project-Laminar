@@ -1,6 +1,8 @@
-﻿namespace Bootstrapping;
+﻿using System.Runtime.Loader;
+
+namespace Bootstrapping;
 
 public interface IApplicationBootstrapper
 {
-    public Task Run(string[] args);
+    public Task Run(AssemblyLoadContext defaultLoadContext, string[] args);
 }

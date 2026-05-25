@@ -44,11 +44,27 @@ await RunDotnet(
     "restore",
     $"ProjectLaminar.slnx " +
     $"/p:PluginFrameworkVersion={pluginVersion} " +
-    $"/p:UseSharedCompilation=false")
+    "/p:UseSharedCompilation=false")
     .ThrowOnError();
 
 // Build plugins
+await RunDotnet(
+    repoRoot,
+    "build",
+    "src/Plugins/BasicFunctionality/BasicFunctionality.csproj " +
+    $"-c {config} " +
+    $"/p:PluginFrameworkVersion={pluginVersion} " +
+    "/p:UseSharedCompilation=false")
+    .ThrowOnError();
 
+await RunDotnet(
+    repoRoot,
+    "build",
+    "src/Plugins/BasicFunctionality.Avalonia/BasicFunctionality.Avalonia.csproj " +
+    $"-c {config} " +
+    $"/p:PluginFrameworkVersion={pluginVersion} " +
+    "/p:UseSharedCompilation=false")
+    .ThrowOnError();
 
 
 // Build app
@@ -88,7 +104,7 @@ Console.WriteLine($"Bootstrapper: {bootstrapperType.FullName}");
 
 var bootstrapper = (IApplicationBootstrapper)Activator.CreateInstance(bootstrapperType)!;
 
-await bootstrapper.Run(args);
+await bootstrapper.Run(loadContext, args);
 
 return;
 
@@ -177,7 +193,7 @@ internal sealed class ApplicationLoadContext(string mainAssemblyPath) : Assembly
 
     protected override Assembly? Load(AssemblyName assemblyName)
     {
-        if (assemblyName.Name == "Bootstrapping")
+        if (assemblyName.Name is "Bootstrapping")
         {
             return null;
         }
