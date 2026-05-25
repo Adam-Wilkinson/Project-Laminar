@@ -1,6 +1,6 @@
 <Project>
-  <Import Project="Generated/PluginFramework.Version.props"
-          Condition="Exists('Generated/PluginFramework.Version.props')" />
+  <Import Project=".nuget.local/PluginFramework.Version.props"
+          Condition="Exists('.nuget.local/PluginFramework.Version.props')" />
   
   <PropertyGroup>
     <PluginFrameworkVersion Condition="'$(PluginFrameworkVersion)' == ''">

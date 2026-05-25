@@ -80,7 +80,7 @@ if (!currentPluginVersionValid)
     await RunDotnet(
             repoRoot,
             "restore",
-            $"ProjectLaminar.slnx")
+            "ProjectLaminar.slnx")
         .ThrowOnError();
 
     await RunDotnet(
@@ -95,18 +95,14 @@ await RunDotnet(
     repoRoot,
     "build",
     "src/Plugins/BasicFunctionality/BasicFunctionality.csproj " +
-    $"-c {config} " + 
-    $"/p:PluginFrameworkVersion={pluginVersion} " +
-    "/p:UseSharedCompilation=false ")
+    $"-c {config} ")
     .ThrowOnError();
 
 await RunDotnet(
     repoRoot,
     "build",
     "src/Plugins/BasicFunctionality.Avalonia/BasicFunctionality.Avalonia.csproj " +
-    $"-c {config} " + 
-    $"/p:PluginFrameworkVersion={pluginVersion} " +
-    "/p:UseSharedCompilation=false")
+    $"-c {config} ")
     .ThrowOnError();
 
 await RunDotnet(
@@ -120,9 +116,7 @@ await RunDotnet(
     "build",
     $"src/Application/Laminar.Avalonia/Laminar.Avalonia.csproj " +
     $"-c {config} " +
-    "--no-restore " +
-    $"/p:PluginFrameworkVersion={pluginVersion} " +
-    "/p:UseSharedCompilation=false")
+    "--no-restore ")
     .ThrowOnError();
 
 // Load application assembly
@@ -185,15 +179,15 @@ static async Task<DotnetResult> RunDotnet(string repoRoot, string command, strin
         WorkingDirectory = repoRoot,
         RedirectStandardOutput = true,
         RedirectStandardError = true,
-        UseShellExecute = false
+        UseShellExecute = false,
+        Environment =
+        {
+            ["DOTNET_CLI_HOME"] = Path.Combine(repoRoot, ".dotnet-runner-cache"),
+            ["MSBUILDDISABLENODEREUSE"] = "1",
+            ["DOTNET_NOLOGO"] = "1"
+        }
     };
 
-    psi.Environment["DOTNET_CLI_HOME"] =
-        Path.Combine(repoRoot, ".dotnet-runner-cache");
-
-    psi.Environment["MSBUILDDISABLENODEREUSE"] = "1";
-    psi.Environment["DOTNET_NOLOGO"] = "1";
-    
     using var process = Process.Start(psi)!;
 
     var stdoutTask = process.StandardOutput.ReadToEndAsync();
@@ -291,8 +285,7 @@ internal static class DotnetResultHelpers
     }
 }
 
-internal sealed class ApplicationLoadContext(string mainAssemblyPath) 
-    : AssemblyLoadContext(nameof(ApplicationLoadContext), isCollectible: true)
+internal sealed class ApplicationLoadContext(string mainAssemblyPath) : AssemblyLoadContext
 {
     private readonly AssemblyDependencyResolver _resolver = new(mainAssemblyPath);
 

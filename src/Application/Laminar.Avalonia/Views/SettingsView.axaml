@@ -12,7 +12,7 @@
              x:Class="Laminar.Avalonia.Views.SettingsView"	
              x:DataType="vm:SettingsViewModel"
              HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-	<TabControl MaxWidth="1500" Margin="100, 30" TabStripPlacement="Top">
+	<TabControl MaxWidth="1500" Margin="100, 0" TabStripPlacement="Top">
 		<TabItem Header="Settings">
 			<DockPanel VerticalAlignment="Stretch">
 				<TextBlock DockPanel.Dock="Bottom" 
