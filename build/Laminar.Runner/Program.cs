@@ -1,8 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Runtime.Loader;
-using System.Text;
 using Bootstrapping;
 
 var repoRoot = FindRepoRoot();
@@ -13,7 +11,7 @@ var config = "Release";
 config = "Debug";
 #endif
 
-const string tfm = "net10.0";
+const string targetFrameworkVersion = "net10.0";
 var pluginFrameworkVersionFile = Path.Combine(repoRoot, ".nuget.local", "PluginFramework.Version.props");
 
 await RunDotnet(
@@ -21,20 +19,30 @@ await RunDotnet(
     "build-server",
     "shutdown");
 
-// Build plugin framework first
+// Get PluginFramework version via probe project
 var output = await RunDotnet(
     repoRoot,
     "pack",
-    $"src/PluginFramework/Laminar.PluginFramework.SourceGeneration/Laminar.PluginFramework.SourceGeneration.csproj " +
-    $"-c {config} " + 
+    "src/PluginFramework/Laminar.PluginFramework.Version/Laminar.PluginFramework.Version.csproj " +
+    $"-c {config} " +
     "/p:EmitPluginFrameworkVersion=true " +
-    "/p:UseSharedCompilation=false").ThrowOnError();
+    "/p:UseSharedCompilation=false")
+    .ThrowOnError();
 
 var pluginVersion = ExtractPluginFrameworkVersion(output.StdOut);
 var persistentPluginVersion = await GetPersistentPluginFrameworkVersion();
 if (!pluginVersion.Equals(persistentPluginVersion))
 {
     Console.WriteLine($"PluginFramework version changed: {persistentPluginVersion} -> {pluginVersion}. Rebuilding and restoring...");
+    
+    // Build plugin framework first
+    await RunDotnet(
+        repoRoot,
+        "pack",
+        $"src/PluginFramework/Laminar.PluginFramework.SourceGeneration/Laminar.PluginFramework.SourceGeneration.csproj " +
+        $"-c {config} " + 
+        $"/p:PluginFrameworkVersion={pluginVersion} " +
+        "/p:UseSharedCompilation=false").ThrowOnError();
     
     await RunDotnet(
             repoRoot,
@@ -90,7 +98,7 @@ await RunDotnet(
     .ThrowOnError();
 
 // Load application assembly
-var appPath = Path.Combine(repoRoot, "src", "Application", "Laminar.Avalonia", "bin", config, tfm, "Laminar.Avalonia.dll");
+var appPath = Path.Combine(repoRoot, "src", "Application", "Laminar.Avalonia", "bin", config, targetFrameworkVersion, "Laminar.Avalonia.dll");
 
 if (!File.Exists(appPath))
     throw new FileNotFoundException(appPath);
