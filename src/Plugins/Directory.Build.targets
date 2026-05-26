@@ -2,7 +2,7 @@
     <Target Name="CopyToPluginsFolder" AfterTargets="Build">
         <PropertyGroup>
             <AvaloniaPluginOutputDir>$(MSBuildThisFileDirectory)..\Application\Laminar.Avalonia\bin\$(Configuration)\net10.0\plugins\$(AssemblyName)</AvaloniaPluginOutputDir>
-            <RunnerPluginOutputDir>$(MSBuildThisFileDirectory)..\..\build\Laminar.Runner\bin\$(Configuration)\net10.0\plugins\$(AssemblyName)</RunnerPluginOutputDir>
+            <RunnerPluginOutputDir>$(MSBuildThisFileDirectory)..\..\build\Laminar.Run\bin\$(Configuration)\net10.0\plugins\$(AssemblyName)</RunnerPluginOutputDir>
         </PropertyGroup>
 
         <ItemGroup>
