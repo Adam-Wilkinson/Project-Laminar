@@ -4,11 +4,30 @@ using Laminar.Build;
 using Laminar.Runner;
 
 const string targetFrameworkVersion = "net10.0";
+var copiedFilesPath = Path.Combine(Dotnet.RepoRoot, ".runner-output");
+
+try
+{
+    Directory.Delete(copiedFilesPath, true);
+}
+catch (IOException e)
+{
+    Console.WriteLine(e.Message);
+}
+
+var currentBuildOutputPath = Path.Combine(copiedFilesPath, $"build-output-{DateTime.Now.Ticks}");
+
+if (!Directory.Exists(currentBuildOutputPath))
+{
+    Directory.CreateDirectory(currentBuildOutputPath);
+}
 
 await LaminarBuilder.Build();
 
 // Load application assembly
-var appPath = Path.Combine(Dotnet.RepoRoot, "src", "Application", "Laminar.Avalonia", "bin", Dotnet.BuildConfig, targetFrameworkVersion, "Laminar.Avalonia.dll");
+var outputPath = Path.Combine(Dotnet.RepoRoot, "src", "Application", "Laminar.Avalonia", "bin", Dotnet.BuildConfig, targetFrameworkVersion);
+CopyFilesRecursively(outputPath, currentBuildOutputPath);
+var appPath = Path.Combine(currentBuildOutputPath, "Laminar.Avalonia.dll");
 
 if (!File.Exists(appPath))
     throw new FileNotFoundException(appPath);
@@ -50,5 +69,19 @@ finally
     if (weakRef.IsAlive)
     {
         Console.WriteLine("Bootstrapped project is still running after application close");
+    }
+}
+
+return;
+static void CopyFilesRecursively(string sourcePath, string targetPath)
+{
+    foreach (string dirPath in Directory.GetDirectories(sourcePath, "*", SearchOption.AllDirectories))
+    {
+        Directory.CreateDirectory(dirPath.Replace(sourcePath, targetPath));
+    }
+
+    foreach (string newPath in Directory.GetFiles(sourcePath, "*.*",SearchOption.AllDirectories))
+    {
+        File.Copy(newPath, newPath.Replace(sourcePath, targetPath), true);
     }
 }
