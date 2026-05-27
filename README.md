@@ -12,7 +12,7 @@ If you want to help or have any questions, don't hesitate to contact us under pr
 
 ## Building
 
-Until the public release comes with a stable plugin framework, you will need to use one of:
+Until the public release comes with a stable plugin framework, you will need to target one of:
 - [Laminar.Build](build/Laminar.Build) to compile the plugin framework, update the internal plugin version, restore and build Project: Laminar
 - [Laminar.Run](build/Laminar.Run) to call the builder, and then run a bootstrapped version of the main application. This is intended as a one button runner for active development of the plugin framework, where it will need to be rebuild constantly.
 
