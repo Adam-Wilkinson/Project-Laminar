@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>  
+        <Title>Project: Laminar Plugin Framework (Core)</Title>
+        <RootNamespace>Laminar.PluginFramework</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+            <_Parameter1>Laminar.Implementation</_Parameter1>
+        </AssemblyAttribute>
+    </ItemGroup>
+    
+</Project>

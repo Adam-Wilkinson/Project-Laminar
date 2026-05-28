@@ -4,6 +4,9 @@ using Laminar.Build;
 using Laminar.Runner;
 
 const string targetFrameworkVersion = "net10.0";
+
+await LaminarBuilder.Build();
+
 var copiedFilesPath = Path.Combine(Dotnet.RepoRoot, ".runner-output");
 
 try
@@ -21,8 +24,6 @@ if (!Directory.Exists(currentBuildOutputPath))
 {
     Directory.CreateDirectory(currentBuildOutputPath);
 }
-
-await LaminarBuilder.Build();
 
 // Load application assembly
 var outputPath = Path.Combine(Dotnet.RepoRoot, "src", "Application", "Laminar.Avalonia", "bin", Dotnet.BuildConfig, targetFrameworkVersion);
@@ -70,6 +71,9 @@ finally
     {
         Console.WriteLine("Bootstrapped project is still running after application close");
     }
+    
+    Console.WriteLine("Forcing shutdown");
+    Environment.Exit(0);
 }
 
 return;

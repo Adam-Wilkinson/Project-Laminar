@@ -2,13 +2,17 @@ namespace Laminar.Build;
 
 public static class LaminarBuilder
 {
-    private const string PluginFrameworkSourceGenerators = "src/PluginFramework/Laminar.PluginFramework.SourceGeneration/Laminar.PluginFramework.SourceGeneration.csproj";
-    private const string PluginFramework = "src/PluginFramework/Laminar.PluginFramework/Laminar.PluginFramework.csproj";
     private const string PluginFrameworkVersion = "src/PluginFramework/Laminar.PluginFramework.Version/Laminar.PluginFramework.Version.csproj";
+    private static readonly string[] PluginFrameworkPackages =
+    [
+        "Laminar.PluginFramework.Core",
+        "Laminar.PluginFramework.SourceGeneration",
+        "Laminar.PluginFramework",
+    ];
     private static readonly string[] Plugins =
     [
-        "src/Plugins/BasicFunctionality/BasicFunctionality.csproj",
-        "src/Plugins/BasicFunctionality.Avalonia/BasicFunctionality.Avalonia.csproj",
+        "BasicFunctionality",
+        "BasicFunctionality.Avalonia",
     ];
     private const string App = "src/Application/Laminar.Avalonia/Laminar.Avalonia.csproj";
     private static readonly string PluginFrameworkVersionFile = Path.Combine(Dotnet.RepoRoot, ".nuget.local", "PluginFramework.Version.props");
@@ -32,30 +36,25 @@ public static class LaminarBuilder
             currentPluginVersionValid = false;
         }
 
-        if (currentPluginVersionValid && !File.Exists(
-                Path.Combine(Dotnet.RepoRoot, ".nuget.local", $"Laminar.PluginFramework.{pluginVersion}.nupkg")))
+        foreach (var pluginFramework in PluginFrameworkPackages)
         {
-            Console.WriteLine("Unable to find correct plugin framework version");
-            currentPluginVersionValid = false;
-        }
-
-        if (currentPluginVersionValid && !File.Exists(
-                Path.Combine(Dotnet.RepoRoot, ".nuget.local", $"Laminar.PluginFramework.SourceGeneration.{pluginVersion}.nupkg")))
-        {
-            Console.WriteLine("Unable to find correct plugin framework source generation version");
-            currentPluginVersionValid = false;
+            if (!currentPluginVersionValid) break;
+            if (!File.Exists(Path.Combine(Dotnet.RepoRoot, ".nuget.local", $"{pluginFramework}.{pluginVersion}.nupkg")))
+            {
+                Console.WriteLine("Unable to find package {0} of expected version {1}", pluginFramework, pluginVersion);
+                currentPluginVersionValid = false;
+            }
         }
 
         if (!currentPluginVersionValid)
         {
             Console.WriteLine("Rebuilding and restoring...");
 
-            // Build plugin framework first
-            await Dotnet.Pack(PluginFrameworkSourceGenerators, 
-                Dotnet.PluginFrameworkVersion(pluginVersion), Dotnet.DoNotUseSharedCompilation);
-
-            await Dotnet.Pack(PluginFramework, 
-                Dotnet.PluginFrameworkVersion(pluginVersion), Dotnet.DoNotUseSharedCompilation);
+            foreach (var pluginFramework in PluginFrameworkPackages)
+            {
+                await Dotnet.Pack($"src/PluginFramework/{pluginFramework}/{pluginFramework}.csproj",
+                    Dotnet.PluginFrameworkVersion(pluginVersion), Dotnet.DoNotUseSharedCompilation);
+            }
 
             await SetPersistentPluginFrameworkVersion(pluginVersion);
             
@@ -67,11 +66,13 @@ public static class LaminarBuilder
         // Build plugins
         foreach (var plugin in Plugins)
         {
-            await Dotnet.Build(plugin, Dotnet.NoRestore);
+            await Dotnet.Build($"src/Plugins/{plugin}/{plugin}.csproj", Dotnet.NoRestore, Dotnet.DoNotUseSharedCompilation);
+            await Dotnet.ShutdownBuildServer();
         }
 
         // Build app
-        await Dotnet.Build(App, Dotnet.NoRestore);
+        await Dotnet.Build(App, Dotnet.NoRestore, Dotnet.DoNotUseSharedCompilation);
+        await Dotnet.ShutdownBuildServer();
     }
     
     private static string ExtractPluginFrameworkVersion(string buildOutput)

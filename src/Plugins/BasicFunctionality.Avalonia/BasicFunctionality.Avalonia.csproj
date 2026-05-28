@@ -10,7 +10,6 @@
         </PackageReference>
         <PackageReference Include="Avalonia.Controls.ColorPicker" />
         <PackageReference Include="Laminar.PluginFramework" />
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
     </ItemGroup>
 
     <ItemGroup>

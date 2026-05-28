@@ -29,6 +29,7 @@
     <File Path="src/PluginFramework/Directory.Build.props" />
     <File Path="src/PluginFramework/Directory.Build.targets" />
     <File Path="src/PluginFramework/version.json" />
+    <Project Path="src/PluginFramework/Laminar.PluginFramework.Core/Laminar.PluginFramework.Core.csproj" />
     <Project Path="src/PluginFramework/Laminar.PluginFramework.SourceGeneration/Laminar.PluginFramework.SourceGeneration.csproj" />
     <Project Path="src/PluginFramework/Laminar.PluginFramework.Version/Laminar.PluginFramework.Version.csproj" />
     <Project Path="src/PluginFramework/Laminar.PluginFramework/Laminar.PluginFramework.csproj" />

@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Laminar.Build;
 
@@ -55,9 +57,17 @@ public static class Dotnet
 
     public const string NoRestore = "--no-restore";
     
-    private static async Task<DotnetResult> RunDotnet(string repoRoot, string command, string args)
+    private static readonly Regex PidRegex = new(@"\((\d+)\)", RegexOptions.Compiled);
+
+    private static async Task<DotnetResult> RunDotnet(
+        string repoRoot,
+        string command,
+        string args)
     {
         Console.WriteLine($"> dotnet {command} {args}");
+
+        var stdout = new StringBuilder();
+        var stderr = new StringBuilder();
 
         var psi = new ProcessStartInfo
         {
@@ -69,22 +79,115 @@ public static class Dotnet
             UseShellExecute = false,
             Environment =
             {
-                ["DOTNET_CLI_HOME"] = Path.Combine(repoRoot, ".dotnet-runner-cache"),
+                ["DOTNET_CLI_HOME"] =
+                    Path.Combine(repoRoot, ".dotnet-runner-cache"),
+
                 ["MSBUILDDISABLENODEREUSE"] = "1",
-                ["DOTNET_NOLOGO"] = "1"
+                ["DOTNET_NOLOGO"] = "1",
+                ["DOTNET_CLI_DO_NOT_USE_MSBUILD_SERVER"] = "1",
             }
         };
 
-        using var process = Process.Start(psi)!;
+        using var process = new Process();
+        process.StartInfo = psi;
+        process.EnableRaisingEvents = true;
 
-        var stdoutTask = process.StandardOutput.ReadToEndAsync();
-        var stderrTask = process.StandardError.ReadToEndAsync();
+        process.OutputDataReceived += (_, e) =>
+        {
+            if (e.Data == null)
+                return;
+            
+            lock (stdout)
+                stdout.AppendLine(e.Data);
+
+            HandlePotentialLock(e.Data);
+        };
+
+        process.ErrorDataReceived += (_, e) =>
+        {
+            if (e.Data == null)
+                return;
+            
+            lock (stderr)
+                stderr.AppendLine(e.Data);
+
+            HandlePotentialLock(e.Data);
+        };
+
+        process.Start();
+
+        process.BeginOutputReadLine();
+        process.BeginErrorReadLine();
 
         await process.WaitForExitAsync();
 
-        var result = new DotnetResult(process.ExitCode, await stdoutTask, await stderrTask, command);
+        return new DotnetResult(
+            process.ExitCode,
+            stdout.ToString(),
+            stderr.ToString(),
+            command);
+    }
+    
+    private static readonly HashSet<int> KilledPids = [];
 
-        return result;
+    private static void HandlePotentialLock(string line)
+    {
+        if (!line.Contains("because it is being used by another process"))
+            return;
+
+        foreach (var pid in ExtractPids(line))
+        {
+            lock (KilledPids)
+            {
+                if (!KilledPids.Add(pid))
+                    return;
+            }
+
+            try
+            {
+                var proc = Process.GetProcessById(pid);
+                if (!proc.ProcessName.Contains("dotnet"))
+                    return;
+                
+                Console.WriteLine($"Killing locking process '{proc.ProcessName}' ({pid})");
+                proc.Kill(entireProcessTree: true);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to kill process '{pid}': {ex.Message}");
+            }   
+        }
+    }
+    
+    private static List<int> ExtractPids(string line)
+    {
+        var pids = new List<int>();
+
+        const string marker = "The file is locked by:";
+
+        var markerIndex = line.IndexOf(marker, StringComparison.Ordinal);
+        if (markerIndex < 0)
+            return pids;
+
+        var firstQuote = line.IndexOf('"', markerIndex);
+        if (firstQuote < 0)
+            return pids;
+
+        var secondQuote = line.IndexOf('"', firstQuote + 1);
+        if (secondQuote < 0)
+            return pids;
+
+        var insideQuotes = line.Substring(firstQuote + 1, secondQuote - firstQuote - 1);
+
+        foreach (Match match in PidRegex.Matches(insideQuotes))
+        {
+            if (int.TryParse(match.Groups[1].Value, out var pid))
+            {
+                pids.Add(pid);
+            }
+        }
+
+        return pids;
     }
 }
 
