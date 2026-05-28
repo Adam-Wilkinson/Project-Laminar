@@ -30,7 +30,7 @@ jobs:
           set +e
       
           timeout 60s xvfb-run dotnet run \
-            --project build/Laminar.Runner/Laminar.Runner.csproj \
+            --project build/Laminar.Run/Laminar.Run.csproj \
             --configuration Debug
       
           EXIT_CODE=$?
