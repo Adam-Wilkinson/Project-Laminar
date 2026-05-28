@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Text;
+using Laminar.PluginFramework.SourceGeneration.Helpers;
 using Laminar.PluginFramework.SourceGeneration.NodeComponentAttributes;
-using Laminar.PluginSourceGeneration.Helpers;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -18,11 +15,11 @@ public class NodeImplementationGenerator : IIncrementalGenerator
     private static readonly UsingDirectiveSyntax[] RequiredUsings =
     [
         SyntaxFactory.UsingDirective(SyntaxFactory.ParseName(" System.Collections.Generic")),
-        SyntaxFactory.UsingDirective(SyntaxFactory.ParseName(" Laminar.PluginFramework.Core.NodeSystem.Components")),
-        SyntaxFactory.UsingDirective(SyntaxFactory.ParseToken(" static"), null, SyntaxFactory.ParseName(" Laminar.PluginFramework.Core.LaminarFactory")),
+        SyntaxFactory.UsingDirective(SyntaxFactory.ParseName(" Laminar.PluginFramework.NodeSystem.Components")),
+        SyntaxFactory.UsingDirective(SyntaxFactory.ParseToken(" static"), null, SyntaxFactory.ParseName(" Laminar.PluginFramework.LaminarFactory")),
     ];
 
-    private const string AttributeNamespace = "Laminar.PluginFramework.Core.NodeSystem.Attributes";
+    private const string AttributeNamespace = "Laminar.PluginFramework.NodeSystem.Attributes";
 
     private static readonly Dictionary<string, INodeComponentAttributeGenerator> componentAttributeGenerators =
         Assembly.GetExecutingAssembly().GetTypes()
@@ -197,7 +194,7 @@ public IEnumerable<INodeComponent> Components
         {
             if (semanticModel.GetSymbolInfo(baseType.Type).Symbol is INamedTypeSymbol typeSymbol)
             {
-                if (typeSymbol.ToString() == "Laminar.PluginFramework.Core.NodeSystem.INode")
+                if (typeSymbol.ToString() == "Laminar.PluginFramework.NodeSystem.INode")
                 {
                     return true;
                 }
