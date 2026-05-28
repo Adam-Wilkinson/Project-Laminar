@@ -1,38 +1,42 @@
 ﻿using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.Scripting.Connection;
-using Laminar.Domain.ValueObjects;
 using Laminar.Implementation.Scripting.Connections;
 using Laminar.PluginFramework.NodeSystem.Connectors;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Laminar.Implementation.Scripting.Actions;
 
 public class EstablishConnectionAction(
-    IOutputConnector connectorOne,
-    IInputConnector connectorTwo,
+    IOutputConnector outputConnector,
+    IInputConnector inputConnector,
     ICollection<IConnection> connectionCollection)
     : IUserAction
 {
-    private IConnection? _connection;
+    public IOutputConnector OutputConnector { get; } = outputConnector;
 
-    public event EventHandler? CanExecuteChanged { add { } remove { } }
-
-    public bool CanExecute { get; } = connectorOne.CanConnectTo(connectorTwo) || connectorTwo.CanConnectTo(connectorOne);
+    public IInputConnector InputConnector { get; } = inputConnector;
+    
+    public bool CanExecute { get; } = outputConnector.CanConnectTo(inputConnector) || inputConnector.CanConnectTo(outputConnector);
 
     public Task<IUserActionResult> Execute()
     {
-        if (!connectorOne.TryConnectTo(connectorTwo) && !connectorTwo.TryConnectTo(connectorOne)) 
+        if (!OutputConnector.TryConnectTo(InputConnector) && !InputConnector.TryConnectTo(OutputConnector)) 
             return Task.FromResult(IUserActionResult.Invalid());
         
-        _connection = new Connection
+        OutputConnector.OnConnectionEstablished();
+        InputConnector.OnConnectionEstablished();
+        
+        Connection connection = new()
         {
-            OutputConnector = connectorOne,
-            InputConnector = connectorTwo
+            OutputConnector = OutputConnector,
+            InputConnector = InputConnector
         };
-        connectionCollection.Add(_connection);
-
-        return Task.FromResult(IUserActionResult.Success(new SeverConnectionAction(_connection, connectionCollection)));
+        
+        connectionCollection.Add(connection);
+        return Task.FromResult(IUserActionResult.Success(new SeverConnectionAction(connection, connectionCollection)));
     }
+
+    public bool IsInverseOf(IUserAction action)
+        => action is SeverConnectionAction severAction &&
+           Equals(severAction.Connection.InputConnector, InputConnector) &&
+           Equals(severAction.Connection.OutputConnector, OutputConnector);
 }

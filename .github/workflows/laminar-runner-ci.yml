@@ -5,6 +5,7 @@ on:
     branches:
       - main
   pull_request:
+  workflow_dispatch:
 
 jobs:
   build-test-run:
@@ -21,33 +22,15 @@ jobs:
         with:
           dotnet-version: "10.0.x"
 
-      - name: Ensure local NuGet feed exists
-        run: mkdir -p .nuget.local
-          
-      - name: Build plugin source generators
-        run: dotnet build src/PluginFramework/Laminar.PluginFramework.SourceGeneration/Laminar.PluginFramework.SourceGeneration.csproj
-
-      - name: Build plugin framework
-        run: dotnet build src/PluginFramework/Laminar.PluginFramework/Laminar.PluginFramework.csproj
-
-      - name: Restore solution
-        run: dotnet restore
-
-      - name: Build Runner
-        run: dotnet build -c Debug
-
-      - name: Run Tests
-        run: dotnet test --no-build -c Debug --verbosity normal
-
       - name: Install xvfb
         run: sudo apt-get update && sudo apt-get install -y xvfb
 
-      - name: Smoke test application startup
+      - name: Smoke test application startup 
         run: |
           set +e
       
-          timeout 60s xvfb-run dotnet run \
-            --project build/Laminar.Runner/Laminar.Runner.csproj \
+          timeout 80s xvfb-run dotnet run \
+            --project build/Laminar.Run/Laminar.Run.csproj \
             --configuration Debug
       
           EXIT_CODE=$?
@@ -58,3 +41,9 @@ jobs:
           fi
       
           exit $EXIT_CODE
+
+      - name: Build entire solution
+        run: dotnet build -c Debug
+
+      - name: Run Tests
+        run: dotnet test --no-build -c Debug --verbosity normal

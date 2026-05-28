@@ -2,7 +2,7 @@
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace Laminar.PluginSourceGeneration.Helpers;
+namespace Laminar.PluginFramework.SourceGeneration.Helpers;
 
 public static class SyntaxHelpers
 {

@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using Laminar.Contracts.Base;
 using Laminar.PluginFramework.NodeSystem;
 using Laminar.PluginFramework.NodeSystem.Connectors;
@@ -14,13 +13,19 @@ internal class ValueOutputConnector<T>(ITypeInfoStore typeInfoStore, IValueOutpu
     
     public event PropertyChangedEventHandler? PropertyChanged { add { } remove { } }
 
+    public bool AcceptsConnections => true;
+
     public string ColorHex => typeInfoStore.GetTypeInfoOrBlank(typeof(T)).HexColor;
 
     public IValueOutput<T> Output { get; } = output;
 
     public Action? PreEvaluateAction => Output.PreEvaluateAction;
+    
+    public void OnConnectionEstablished()
+    {
+    }
 
-    public void OnDisconnectedFrom(IInputConnector connector)
+    public void OnConnectionSevered()
     {
     }
 
@@ -32,7 +37,6 @@ internal class ValueOutputConnector<T>(ITypeInfoStore typeInfoStore, IValueOutpu
         if (connector is not IInputConnector<IValueInput<T>> inputConnector) return false;
         inputConnector.Input.SetValueProvider(Output);
         return true;
-
     }
 
     public PassUpdateOption PassUpdate(ExecutionFlags executionFlags)

@@ -1,7 +1,8 @@
-using System.Diagnostics;
 using Avalonia;
+using Avalonia.Animation;
+using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Shapes;
-using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.Media;
 using Laminar.Avalonia.Markup;
 using Laminar.Avalonia.Shapes;
@@ -15,8 +16,11 @@ public enum ConnectorDragMode
     MoveEnd,
 }
 
+[PseudoClasses(DragActivePseudoclass)]
 public class Connector : Shape
 {
+    private const string DragActivePseudoclass =  ":drag-active";
+    
     public static readonly StyledProperty<Point> StartpointProperty = Connection.StartpointProperty.AddOwner<Connector>();
     
     public static readonly StyledProperty<Point> EndpointProperty = Connection.EndpointProperty.AddOwner<Connector>();
@@ -25,16 +29,19 @@ public class Connector : Shape
 
     public static readonly StyledProperty<double> TipLengthProperty = Connection.TipLengthProperty.AddOwner<Connector>();
     
-    public static readonly StyledProperty<ConnectorDragMode> DragModeProperty = AvaloniaProperty.Register<Connector, ConnectorDragMode>(nameof(DragMode)); 
+    public static readonly StyledProperty<ConnectorDragMode> DragModeProperty = AvaloniaProperty.Register<Connector, ConnectorDragMode>(nameof(DragMode));
+
+    public static readonly StyledProperty<TimeSpan> AnimateHomeDurationProperty = AvaloniaProperty.Register<Connector, TimeSpan>(nameof(AnimateHomeDuration));
     
     static Connector()
     {
         AffectsGeometry<Connector>(StartpointProperty, EndpointProperty, ConnectionWidthProperty, TipLengthProperty, DragModeProperty);
+        ConnectorRegistry.MoveConnectionIndicationEvent.AddClassHandler<Connector>((conn, args) => conn.OnMoveConnectionIndication(args));
+        ConnectorRegistry.EndConnectionIndicationEvent.AddClassHandler<Connector>((conn, args) => conn.OnEndConnectionIndication(args));
     }
 
-    private bool _isDragging;
     private Point? _originalClickOffset;
-
+    
     public Point Startpoint
     {
         get => GetValue(StartpointProperty);
@@ -64,45 +71,47 @@ public class Connector : Shape
         get => GetValue(TipLengthProperty);
         set => SetValue(TipLengthProperty, value);
     }
+
+    public TimeSpan AnimateHomeDuration
+    {
+        get => GetValue(AnimateHomeDurationProperty);
+        set => SetValue(AnimateHomeDurationProperty, value);
+    }
     
     protected override Geometry CreateDefiningGeometry()
     {
         return Connection.Generate(Startpoint, Endpoint, ConnectionWidth, TipLength);
     }
-
-    protected override void OnPointerPressed(PointerPressedEventArgs e)
+    
+    private void OnMoveConnectionIndication(MoveConnectionIndicationEventArgs args)
     {
-        if (DragMode is ConnectorDragMode.None) return;
-        _isDragging = true;
-        _originalClickOffset = e.GetPosition(this);
-        e.Handled = true;
-    }
-
-    protected override void OnPointerMoved(PointerEventArgs e)
-    {
-        if (!_isDragging || _originalClickOffset is not { } originalClickOffset) return;
-
+        var relativePoint = args.PointerEvent.GetPosition(this);
+        _originalClickOffset ??= relativePoint;
+        IsEnabled = false;
         switch (DragMode)
         {
             case ConnectorDragMode.MoveEnd:
-                Endpoint = e.GetPosition(this) - originalClickOffset;
+                Endpoint = relativePoint - _originalClickOffset.Value;
+                PseudoClasses.Add(DragActivePseudoclass);
                 break;
             case ConnectorDragMode.MoveStart:
-                Startpoint = e.GetPosition(this) - originalClickOffset;
+                Startpoint = relativePoint - _originalClickOffset.Value;
+                PseudoClasses.Add(DragActivePseudoclass);
                 break;
             case ConnectorDragMode.None:
                 Startpoint = new Point(0, 0);
                 Endpoint = new Point(0, 0);
+                PseudoClasses.Remove(DragActivePseudoclass);
                 break;
         }
     }
 
-    protected override void OnPointerReleased(PointerReleasedEventArgs e)
+    private void OnEndConnectionIndication(RoutedEventArgs args)
     {
-        if (!_isDragging) return;
-        _isDragging = false;
+        PseudoClasses.Remove(DragActivePseudoclass);
+        IsEnabled = true;
+        args.Handled = true;
         Startpoint = new Point(0, 0);
         Endpoint = new Point(0, 0);
-        e.Handled = true;
     }
 }

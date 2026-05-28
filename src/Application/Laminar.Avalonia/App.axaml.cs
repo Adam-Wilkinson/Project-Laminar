@@ -16,10 +16,8 @@ using Laminar.Implementation.Extensions.ServiceInitializers;
 using Laminar.PluginFramework.Registration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
-using System;
 using System.Runtime.InteropServices;
-using System.Threading.Tasks;
-using Avalonia.Controls.Chrome;
+using System.Runtime.Loader;
 using CommunityToolkit.Mvvm.Input;
 
 namespace Laminar.Avalonia;
@@ -30,6 +28,8 @@ public partial class App : Application
 
     public MainWindow? MainWindow { get; private set; }
 
+    public AssemblyLoadContext? DefaultLoadContext { get; init; }
+    
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
@@ -47,7 +47,7 @@ public partial class App : Application
             desktop.MainWindow = MainWindow;
             
             var services = new ServiceCollection()
-                .AddLaminarServices(FrontendDependency.Avalonia)
+                .AddLaminarServices(FrontendDependency.Avalonia, DefaultLoadContext)
                 .AddViewModels()
                 .AddDescendantsSingleton<IBeforeApplicationBuiltTarget>()
                 .AddDescendantsSingleton<IAfterApplicationBuiltTarget>()

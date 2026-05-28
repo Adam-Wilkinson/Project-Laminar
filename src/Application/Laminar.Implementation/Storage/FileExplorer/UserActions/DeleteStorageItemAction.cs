@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using Laminar.Contracts.Base.ActionSystem;
+﻿using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.Storage.FileExplorer;
 using Laminar.Domain.Enums.ActionResolutions;
 using Laminar.Domain.Exceptions;
@@ -16,12 +14,6 @@ internal class DeleteStorageItemAction(LaminarStorageItem item, FileExplorerActi
         new MoveStorageItemAction(item, dependencies.RecyclingBin, null, dependencies));
 
     public bool CanExecute => _internalAction.CanExecute;
-
-    public event EventHandler? CanExecuteChanged
-    {
-        add => _internalAction.CanExecuteChanged += value;
-        remove => _internalAction.CanExecuteChanged -= value;
-    }
 
     public Task<IUserActionResult> Execute()
     {
@@ -44,6 +36,8 @@ internal class DeleteStorageItemAction(LaminarStorageItem item, FileExplorerActi
         
         return _internalAction.Execute();
     }
+
+    public bool IsInverseOf(IUserAction action) => false;
 
     private static string GetDeletedName(string name) => $"({DateTime.UtcNow.Ticks}) {name}";
 }

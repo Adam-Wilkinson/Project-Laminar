@@ -8,24 +8,12 @@ using Laminar.PluginFramework.UserInterface;
 
 namespace Laminar.Implementation.Scripting.NodeIO;
 
-public sealed class ValueInput<T> : IValueInput<T>, INotificationClient where T : notnull
+internal sealed class ValueInput<T> : IValueInput<T> where T : notnull
 {
-    private readonly LaminarExecutionContext _contextCache;
-
-    internal ValueInput(ITypeInfoStore typeInfoStore, string name, T defaultValue)
+    internal ValueInput(ITypeInfoStore typeInfoStore)
     {
-        Name = name;
-
         Connector = new ValueInputConnector<T>(typeInfoStore) { Input = this };
-
-        _contextCache = new LaminarExecutionContext
-        {
-            ExecutionFlags = ValueExecutionFlag.Value,
-            ExecutionSource = null,
-        };
     }
-
-    public string Name { get; }
 
     public required ISourcedInterfaceData<T> InterfaceData { get; init; }
 
@@ -48,9 +36,5 @@ public sealed class ValueInput<T> : IValueInput<T>, INotificationClient where T 
     public void SetValueProvider(IValueProvider<T>? provider)
     {
         InterfaceData.ValueProvider = provider;
-    }
-
-    public void TriggerNotification()
-    {
     }
 }

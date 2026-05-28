@@ -1,8 +1,4 @@
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using Avalonia;
-using Avalonia.Collections;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Laminar.Avalonia.ViewModels.Services;
@@ -36,6 +32,17 @@ public partial class ScriptEditorViewModel(IScript script, IScriptEditor editor,
         var newNode = editor.AddMatchingNode(script, wrapped);
         newNode.Location.Value = new LaminarPoint { X = location.X, Y = location.Y };
         return true;
+    }
+
+    public IIOConnector? GetTargetConnector(IIOConnector connector)
+    {
+        if (connector.AcceptsConnections)
+        {
+            return connector;
+        }
+
+        var connections = script.NodeTree.GetConnections(connector); 
+        return connections.Count > 0 ? connections[0] : null;
     }
 
     public bool HoverConnection(IIOConnector first, IIOConnector second)

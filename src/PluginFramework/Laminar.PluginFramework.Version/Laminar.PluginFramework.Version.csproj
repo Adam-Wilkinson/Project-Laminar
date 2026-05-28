@@ -1,0 +1,9 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <IsPackable>true</IsPackable>
+        <IncludeSymbols>false</IncludeSymbols>
+    </PropertyGroup>
+
+</Project>

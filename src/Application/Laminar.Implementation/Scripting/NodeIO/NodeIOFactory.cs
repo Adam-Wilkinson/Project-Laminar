@@ -20,7 +20,7 @@ internal class NodeIOFactory(ITypeInfoStore typeInfoStore) : INodeIOFactory
                 ? defaultInitialValue
                 : throw new TypeNotRegisteredException(typeof(T));
 
-        ValueInput<T> newInput = new(typeInfoStore, valueName, initialValue)
+        ValueInput<T> newInput = new(typeInfoStore)
         {
             InterfaceData = new SourcedInterfaceData<T>(initialValue)
             {

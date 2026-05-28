@@ -1,21 +1,20 @@
 ﻿using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.Scripting.NodeWrapping;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Laminar.Implementation.Scripting.Actions;
 
 public class DeleteNodeAction(IWrappedNode node, ICollection<IWrappedNode> nodeCollection)
     : IUserAction
 {
-    public event EventHandler? CanExecuteChanged { add { } remove { } }
-
+    public IWrappedNode Node { get; } = node;
+    
     public bool CanExecute { get; } = nodeCollection.Contains(node);
 
     public Task<IUserActionResult> Execute()
     {
-        nodeCollection.Remove(node);
-        return Task.FromResult(IUserActionResult.Success(new AddNodeAction(node, nodeCollection)));
+        nodeCollection.Remove(Node);
+        return Task.FromResult(IUserActionResult.Success(new AddNodeAction(Node, nodeCollection)));
     }
+
+    public bool IsInverseOf(IUserAction action) => action is AddNodeAction addAction && addAction.Node == Node;
 }

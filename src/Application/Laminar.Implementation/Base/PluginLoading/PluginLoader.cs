@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Runtime.Loader;
 using Laminar.Contracts.Base.PluginLoading;
 using Laminar.PluginFramework.NodeSystem;
 using Laminar.PluginFramework.Registration;
@@ -6,7 +7,12 @@ using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.Base.PluginLoading;
 
-public class PluginLoader(FrontendDependency frontend, IPluginHostFactory pluginHostFactory, ILogger<IPluginHost> logger) : IPluginLoader
+public class PluginLoader(
+    FrontendDependency frontend,
+    AssemblyLoadContext defaultLoadContext,
+    IPluginHostFactory pluginHostFactory, 
+    ILogger<IPluginHost> logger) 
+    : IPluginLoader
 {
     private static readonly string PluginPath = Path.Combine(AppContext.BaseDirectory, "plugins");
     private readonly Dictionary<string, IRegisteredPlugin> _registeredPlugins = [];
@@ -24,7 +30,7 @@ public class PluginLoader(FrontendDependency frontend, IPluginHostFactory plugin
         {
             var pluginName = Path.GetFileName(pluginDirectory);
             var pluginPath = Path.GetFullPath(Path.Combine(pluginDirectory, pluginName + ".dll"));
-            PluginLoadContext pluginContext = new(pluginPath);
+            PluginLoadContext pluginContext = new(pluginPath, defaultLoadContext);
             var pluginAssembly = pluginContext.LoadFromAssemblyPath(pluginPath);
             foreach (var module in pluginAssembly.Modules)
             {

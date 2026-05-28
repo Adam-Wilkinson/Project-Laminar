@@ -14,7 +14,7 @@
         <Setter Property="Stroke" Value="Gray"/>
         <Setter Property="StrokeThickness" Value="2"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
-        <Setter Property="ConnectionWidth" Value="12"/>
+        <Setter Property="ConnectionWidth" Value="13"/>
         <Setter Property="TipLength" Value="10"/>
         <Setter Property="m:ConnectorRegistry.RegisteredConnector" Value="{Binding}"/>
         <Setter Property="Width" Value="0"/>
@@ -22,17 +22,23 @@
         <Setter Property="ClipToBounds" Value="False"/>
         <Setter Property="Transitions">
             <Transitions>
-                <DoubleTransition Property="TipLength" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
+                <DoubleTransition Property="ConnectionWidth" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
             </Transitions>
         </Setter>
         
         <Style Selector="^:pointerover">
-            <Setter Property="TipLength" Value="15"/>
+            <Setter Property="ConnectionWidth" Value="15"/>
+        </Style>
+        
+        <Style Selector="^:drag-active">
+            <Setter Property="ConnectionWidth" Value="10"/>
         </Style>
     </ControlTheme>
     
     <DataTemplate DataType="comp:INodeRow" x:Key="NodeRowDataTemplate">
-        <Panel Margin="6" Opacity="{Binding Opacity.Value}">
+        <Panel Margin="6" 
+               Opacity="{Binding Opacity.Value}"
+               Height="{s:UiScaled 40}">
             <ContentControl Content="{Binding CentralDisplay}"/>
             
             <c:Connector Theme="{StaticResource IoConnectorPath}" 
@@ -66,8 +72,7 @@
                     <ContentControl DockPanel.Dock="Top"
                                     Content="{Binding NameRow}" 
                                     ClipToBounds="False"
-                                    Background="{DynamicResource {x:Static init:ColorInitialization.LaminarAccentBackgroundKey}}"
-                                    Padding="5"/>
+                                    Background="{DynamicResource {x:Static init:ColorInitialization.LaminarAccentBackgroundKey}}"/>
                     <ItemsControl ItemsSource="{Binding Rows}"
                                   ClipToBounds="False"/>
                 </DockPanel>

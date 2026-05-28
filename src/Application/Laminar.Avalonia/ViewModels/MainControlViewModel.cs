@@ -1,4 +1,3 @@
-using System;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Laminar.Avalonia.ViewModels.Services;
 using Laminar.Contracts.Scripting;
@@ -56,6 +55,7 @@ public partial class MainControlViewModel : ViewModelBase, IDisposable
     public void Dispose()
     {
         _scopedFileNavigator.Dispose();
+        _scopedScriptEditor.Dispose();
         GC.SuppressFinalize(this);
     }
 }

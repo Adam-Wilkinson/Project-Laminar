@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Laminar.Contracts.Base.ActionSystem;
-using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.ValueObjects;
 
 namespace Laminar.Implementation.Storage.FileExplorer.UserActions;
@@ -12,8 +8,6 @@ internal class RemoveRootFolderAction(
     bool fullyCleanup,
     FileExplorerActionDependencies dependencies) : IUserAction
 {
-    public event EventHandler? CanExecuteChanged { add { } remove { } }
-
     public bool CanExecute => true;
 
     public Task<IUserActionResult> Execute()
@@ -27,4 +21,6 @@ internal class RemoveRootFolderAction(
         rootFolder.Dispose(fullyCleanup);
         return Task.FromResult(IUserActionResult.Success(new AddRootFolderAction(rootFolderPath, dependencies)));
     }
+
+    public bool IsInverseOf(IUserAction action) => false;
 }

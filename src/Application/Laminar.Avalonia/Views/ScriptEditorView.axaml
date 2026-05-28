@@ -7,10 +7,10 @@
              xmlns:m="using:Laminar.Avalonia.Markup"
              xmlns:dd="using:Laminar.Avalonia.DragDrop"
              xmlns:t="using:Laminar.Avalonia.ToolSystem"
+             xmlns:g="using:Laminar.Avalonia.Gestures"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Laminar.Avalonia.Views.ScriptEditorView"
              x:DataType="vm:ScriptEditorViewModel"
-             ConnectionInteractionHandler="{Binding}"
              Background="Transparent"
              IsHitTestVisible="True">
     <UserControl.Resources>
@@ -36,6 +36,16 @@
                                 ClipToBounds="False"/>
             </DataTemplate>
         </sam:SelectAndMove.ItemTemplate>
+        
+        <sam:SelectAndMove.ItemsPanel>
+            <ItemsPanelTemplate>
+                <Canvas>
+                    <Canvas.GestureRecognizers>
+                        <g:MakeConnectionGesture ConnectionInteractionHandler="{Binding}"/>
+                    </Canvas.GestureRecognizers>
+                </Canvas>
+            </ItemsPanelTemplate>
+        </sam:SelectAndMove.ItemsPanel>
         
         <sam:SelectAndMove.Styles>
             <Style Selector="sam|SelectAndMove > ContentPresenter" x:DataType="vm:ScriptEditorItemModel">

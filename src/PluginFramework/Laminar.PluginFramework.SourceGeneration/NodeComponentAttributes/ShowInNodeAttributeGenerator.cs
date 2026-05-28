@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Laminar.PluginFramework.SourceGeneration.Generators;
-using Laminar.PluginSourceGeneration.Helpers;
+﻿using Laminar.PluginFramework.SourceGeneration.Generators;
+using Laminar.PluginFramework.SourceGeneration.Helpers;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 

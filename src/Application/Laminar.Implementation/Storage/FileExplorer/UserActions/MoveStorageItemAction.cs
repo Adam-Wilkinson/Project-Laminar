@@ -1,7 +1,3 @@
-using System;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.Storage.FileExplorer;
 using Laminar.Domain.Enums.ActionResolutions;
@@ -19,9 +15,7 @@ internal class MoveStorageItemAction(
      FileExplorerActionDependencies dependencies)
      : IUserAction
 {
-     public event EventHandler? CanExecuteChanged { add { } remove { } }
-     
-     public bool CanExecute => true;
+    public bool CanExecute => true;
      
     public Task<IUserActionResult> Execute()
     {
@@ -75,6 +69,8 @@ internal class MoveStorageItemAction(
 
         return Task.FromResult(IUserActionResult.Success(new MoveStorageItemAction(item, oldFolder, indexInOldFolder, dependencies)));
     }
+
+    public bool IsInverseOf(IUserAction action) => false; 
 
     private bool NameEqualsItemName(ILaminarStorageItem comparisonItem)
         => item.UserFriendlyName.Equals(comparisonItem.UserFriendlyName, FileSystemPath.RuntimeStringComparison);

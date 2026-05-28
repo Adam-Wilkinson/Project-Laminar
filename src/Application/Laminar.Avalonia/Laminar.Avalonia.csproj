@@ -23,7 +23,6 @@
         <PackageReference Include="Avalonia.Desktop" />
         <PackageReference Include="Avalonia.Themes.Fluent" />
         <PackageReference Include="Avalonia.Fonts.Inter" />
-        <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
         <PackageReference Include="AvaloniaUI.DiagnosticsSupport" />
         <PackageReference Include="CommunityToolkit.Mvvm" />
         <PackageReference Include="HanumanInstitute.MvvmDialogs" />
@@ -62,6 +61,7 @@
     </ItemGroup>
     
     <ItemGroup>
+        <ProjectReference Include="..\..\Bootstrapping\Bootstrapping.csproj"/>
         <ProjectReference Include="..\Laminar.Implementation\Laminar.Implementation.csproj" />
     </ItemGroup>
     
@@ -79,6 +79,10 @@
             <Generator>PublicResXFileCodeGenerator</Generator>
             <LastGenOutput>Resources.Designer.cs</LastGenOutput>
         </EmbeddedResource>
+    </ItemGroup>
+    
+    <ItemGroup>
+        <AssemblyMetadata Include="PluginFrameworkVersion" Value="$(PluginFrameworkVersion)" />
     </ItemGroup>
     
 </Project>

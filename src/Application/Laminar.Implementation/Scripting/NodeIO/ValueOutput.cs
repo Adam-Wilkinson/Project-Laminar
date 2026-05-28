@@ -14,7 +14,7 @@ namespace Laminar.Implementation.Scripting.NodeIO;
 
 public class ValueOutput<T> : IValueOutput<T>, INotificationClient where T : notnull
 {
-    readonly LaminarExecutionContext _contextCache;
+    private readonly LaminarExecutionContext _contextCache;
 
     public ValueOutput(ITypeInfoStore typeInfoStore, T initialValue, string name, ISourcedInterfaceData<T> interfaceData)
     {

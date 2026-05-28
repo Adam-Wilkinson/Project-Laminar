@@ -13,7 +13,7 @@ public static class LaminarInitializer
         LaminarFactory.ServiceProvider = serviceProvider;
         serviceProvider.GetRequiredService<IPluginLoader>().EnsurePluginsLoaded();
         serviceProvider.GetRequiredService<ISerializer>().EnsureAssemblyInit(typeof(T).Assembly);
-        serviceProvider.GetRequiredService<ILogger<None>>().LogTrace("Laminar Initialized");
+        serviceProvider.GetRequiredService<ILogger<None>>().LogTrace("Laminar Initialized with PluginFramework version {PluginFrameworkVersion}", PluginFrameworkInfo.Version);
         return serviceProvider;
     }
 }

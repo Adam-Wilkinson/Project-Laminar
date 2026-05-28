@@ -19,4 +19,9 @@ public readonly struct Point
     {
         return new Point { X = -point.X, Y = -point.Y };
     }
+
+    public bool IsCloseTo(Point point, double tolerance)
+    {
+        return Math.Abs(X - point.X) <= tolerance && Math.Abs(Y - point.Y) <= tolerance;
+    }
 }

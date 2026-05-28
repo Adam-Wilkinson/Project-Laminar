@@ -6,7 +6,7 @@
     </PropertyGroup>
     
     <ItemGroup>
-        <PackageReference Include="Laminar.PluginFramework" />
+      <PackageReference Include="Laminar.PluginFramework" />
     </ItemGroup>
     
 </Project>

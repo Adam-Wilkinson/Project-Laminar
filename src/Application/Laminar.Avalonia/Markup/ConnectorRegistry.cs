@@ -1,9 +1,7 @@
-using System;
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Reactive;
 using Laminar.PluginFramework.NodeSystem.Connectors;
@@ -16,12 +14,18 @@ public class ConnectorRegistrationEventArgs(RoutedEvent routedEvent, object? sen
     public required Visual Visual { get; init; }
 }
 
+public class MoveConnectionIndicationEventArgs(RoutedEvent routedEvent, object? sender)
+    : RoutedEventArgs(routedEvent, sender)
+{
+    public required PointerEventArgs PointerEvent { get; init; }
+}
+
 public class ConnectorRegistry : Interactive
 {
     public const string Key = "ConnectorRegistry";
     
     private static readonly ConditionalWeakTable<Visual, VisualTracker> TrackedVisuals = [];
-
+    
     public static readonly AttachedProperty<bool> ConnectorGestureLiveProperty = AvaloniaProperty.RegisterAttached<ConnectorRegistry, Visual, bool>("ConnectorGestureLive", defaultValue: true);
     public static bool GetConnectorGestureLive(Visual visual) => visual.GetValue(ConnectorGestureLiveProperty);
     public static void SetConnectorGestureLive(Visual visual, bool value) => visual.SetValue(ConnectorGestureLiveProperty, value);
@@ -43,7 +47,11 @@ public class ConnectorRegistry : Interactive
         add => AddHandler(ConnectorUnregisteredEvent, value);
         remove => RemoveHandler(ConnectorUnregisteredEvent, value);
     }
+    
+    public static readonly RoutedEvent<MoveConnectionIndicationEventArgs> MoveConnectionIndicationEvent = RoutedEvent.Register<ConnectorRegistry, MoveConnectionIndicationEventArgs>("MoveConnectionIndication", RoutingStrategies.Direct);
 
+    public static readonly RoutedEvent<RoutedEventArgs> EndConnectionIndicationEvent = RoutedEvent.Register<ConnectorRegistry, RoutedEventArgs>("EndConnectorIndication", RoutingStrategies.Direct);
+    
     static ConnectorRegistry()
     {
         RegisteredConnectorProperty.Changed.AddClassHandler<Visual>(RegisteredConnectorChanged);
