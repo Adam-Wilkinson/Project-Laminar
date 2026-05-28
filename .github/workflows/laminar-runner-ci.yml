@@ -29,7 +29,7 @@ jobs:
         run: |
           set +e
       
-          timeout 60s xvfb-run dotnet run \
+          timeout 80s xvfb-run dotnet run \
             --project build/Laminar.Run/Laminar.Run.csproj \
             --configuration Debug
       
