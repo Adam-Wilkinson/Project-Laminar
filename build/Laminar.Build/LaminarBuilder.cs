@@ -19,6 +19,12 @@ public static class LaminarBuilder
     
     public static async Task Build()
     {
+        var localNuget = Path.Combine(Dotnet.RepoRoot, ".nuget.local");
+        if (!Directory.Exists(localNuget))
+        {
+            Directory.CreateDirectory(localNuget);
+        }
+        
         await Dotnet.ShutdownBuildServer();
 
         // Get PluginFramework version via probe project
@@ -39,7 +45,7 @@ public static class LaminarBuilder
         foreach (var pluginFramework in PluginFrameworkPackages)
         {
             if (!currentPluginVersionValid) break;
-            if (!File.Exists(Path.Combine(Dotnet.RepoRoot, ".nuget.local", $"{pluginFramework}.{pluginVersion}.nupkg")))
+            if (!File.Exists(Path.Combine(localNuget, $"{pluginFramework}.{pluginVersion}.nupkg")))
             {
                 Console.WriteLine("Unable to find package {0} of expected version {1}", pluginFramework, pluginVersion);
                 currentPluginVersionValid = false;
