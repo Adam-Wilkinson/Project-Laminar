@@ -31,7 +31,7 @@ namespace {attributeNamespace}
 
     private IEnumerable<Diagnostic> GetDiagnostics(GeneratorSyntaxContext context, FieldDeclarationSyntax fieldDeclaration)
     {
-        if (!(context.SemanticModel.GetSymbolInfo(fieldDeclaration.Declaration.Type).Symbol as INamedTypeSymbol)!.AllInterfaces.Any(x => x.ToString() == "Laminar.PluginFramework.Core.NodeSystem.Components.INodeComponent"))
+        if (!(context.SemanticModel.GetSymbolInfo(fieldDeclaration.Declaration.Type).Symbol as INamedTypeSymbol)!.AllInterfaces.Any(x => x.ToString() == "Laminar.PluginFramework.NodeSystem.Components.INodeComponent"))
         {
             yield return LaminarDiagnostics.TypeDoesNotInheritError(Name, "INodeComponent", fieldDeclaration.GetLocation());
         }
