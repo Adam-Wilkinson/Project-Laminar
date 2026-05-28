@@ -79,12 +79,9 @@ public static class Dotnet
             UseShellExecute = false,
             Environment =
             {
-                ["DOTNET_CLI_HOME"] =
-                    Path.Combine(repoRoot, ".dotnet-runner-cache"),
-
+                ["DOTNET_CLI_HOME"] = Path.Combine(repoRoot, ".dotnet-runner-cache"),
                 ["MSBUILDDISABLENODEREUSE"] = "1",
                 ["DOTNET_NOLOGO"] = "1",
-                ["DOTNET_CLI_DO_NOT_USE_MSBUILD_SERVER"] = "1",
             }
         };
 
