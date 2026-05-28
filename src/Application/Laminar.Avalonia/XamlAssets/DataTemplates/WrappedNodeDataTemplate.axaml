@@ -10,7 +10,7 @@
                     xmlns:init="using:Laminar.Avalonia.InitializationTargets">
     <ControlTheme TargetType="c:Connector" x:Key="IoConnectorPath" x:DataType="conn:IIOConnector">
         <Setter Property="IsVisible" Value="{Binding Converter={x:Static ObjectConverters.IsNotNull}}"/>
-        <Setter Property="Fill" Value="{Binding ColorHex, TargetNullValue={x:Static Brushes.White}}"/>
+        <Setter Property="Fill" Value="{Binding ColorHex, TargetNullValue={x:Static Brushes.White}, Converter={StaticResource ParseBrushConverter}}"/>
         <Setter Property="Stroke" Value="Gray"/>
         <Setter Property="StrokeThickness" Value="2"/>
         <Setter Property="VerticalAlignment" Value="Center"/>

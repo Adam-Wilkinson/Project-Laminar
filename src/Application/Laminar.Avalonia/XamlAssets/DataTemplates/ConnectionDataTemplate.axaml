@@ -8,7 +8,7 @@
     <DataTemplate DataType="conn:IConnection" x:Key="ConnectionDataTemplate">
         <shapes:Connection Startpoint="{m:ConnectorLocation {CompiledBinding OutputConnector}}"
                            Endpoint="{m:ConnectorLocation {CompiledBinding InputConnector}}"
-                           Fill="{Binding OutputConnector.ColorHex}"
+                           Fill="{Binding OutputConnector.ColorHex, Converter={StaticResource ParseBrushConverter}}"
                            StrokeThickness="2"
                            ConnectionWidth="10">
             <shapes:Connection.Styles>
