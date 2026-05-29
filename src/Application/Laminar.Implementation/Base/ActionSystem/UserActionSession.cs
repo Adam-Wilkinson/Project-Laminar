@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Laminar.Contracts.Base.ActionSystem;
 
 namespace Laminar.Implementation.Base.ActionSystem;
@@ -30,9 +28,12 @@ internal class UserActionSession(UserActionManager owner) : IUserActionSession
     
     public void Dispose()
     {
-        if (_undoStack.Count > 0)
-        {
-            owner.RegisterUndoAction(new CompoundAction(_undoStack.ToArray()));
-        }
+        if (_undoStack.Count == 0) return;
+
+        var undoAction = new CompoundAction(_undoStack.ToArray());
+
+        if (undoAction.Actions.Count == 0) return;
+        
+        owner.RegisterUndoAction(undoAction);
     }
 }

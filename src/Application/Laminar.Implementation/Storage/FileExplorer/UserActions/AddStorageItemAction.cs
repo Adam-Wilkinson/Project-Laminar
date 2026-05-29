@@ -4,7 +4,7 @@ using Laminar.Domain.Notification;
 
 namespace Laminar.Implementation.Storage.FileExplorer.UserActions;
 
-internal class AddStorageItemAction(
+internal readonly struct AddStorageItemAction(
     string newItemName, 
     LaminarStorageFolder parent, 
     int indexInParent,
@@ -29,7 +29,8 @@ internal class AddStorageItemAction(
         return Task.FromResult(IUserActionResult.Success(result, new DeleteStorageItemAction(storageItemInternal, dependencies)));
     }
 
-    public bool IsInverseOf(IUserAction action) => false;
+    public IUserActionSimplification GetSimplificationAfter(IUserAction previousAction)
+        => IUserActionSimplification.None();
 
     private static string GetExtension(StorageItemType type) => type switch
     {

@@ -4,7 +4,7 @@ using Laminar.Domain.ValueObjects;
 
 namespace Laminar.Implementation.Scripting.Actions;
 
-public class MoveNodeAction(IWrappedNode items, Point locationDelta) : IUserAction
+internal readonly struct MoveNodeAction(IWrappedNode node, Point locationDelta) : IUserAction
 {
     public Point LocationDelta { get; } = locationDelta;
     
@@ -12,10 +12,18 @@ public class MoveNodeAction(IWrappedNode items, Point locationDelta) : IUserActi
 
     public Task<IUserActionResult> Execute()
     {
-        items.Location.Value += LocationDelta;
-        return Task.FromResult(IUserActionResult.Success(new MoveNodeAction(items, -LocationDelta)));
+        node.Location.Value += LocationDelta;
+        return Task.FromResult(IUserActionResult.Success(new MoveNodeAction(node, -LocationDelta)));
     }
 
-    public bool IsInverseOf(IUserAction action)
-        => action is MoveNodeAction moveAction && moveAction.LocationDelta.IsCloseTo(-LocationDelta, 1e-10);
+    public IUserActionSimplification GetSimplificationAfter(IUserAction previousAction)
+    {
+        if (previousAction is not MoveNodeAction previousMoveAction) return IUserActionSimplification.None();
+
+        var totalMove = previousMoveAction.LocationDelta + LocationDelta;
+        
+        if (totalMove.SquaredDistance() < 1e-10) return IUserActionSimplification.Undoes();
+
+        return IUserActionSimplification.NewEffectiveAction(new MoveNodeAction(node, totalMove));
+    }
 }

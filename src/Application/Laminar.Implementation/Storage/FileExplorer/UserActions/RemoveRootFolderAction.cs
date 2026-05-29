@@ -3,7 +3,7 @@ using Laminar.Domain.ValueObjects;
 
 namespace Laminar.Implementation.Storage.FileExplorer.UserActions;
 
-internal class RemoveRootFolderAction(
+internal readonly struct RemoveRootFolderAction(
     FileSystemPath rootFolderPath,
     bool fullyCleanup,
     FileExplorerActionDependencies dependencies) : IUserAction
@@ -22,5 +22,6 @@ internal class RemoveRootFolderAction(
         return Task.FromResult(IUserActionResult.Success(new AddRootFolderAction(rootFolderPath, dependencies)));
     }
 
-    public bool IsInverseOf(IUserAction action) => false;
+    public IUserActionSimplification GetSimplificationAfter(IUserAction previousAction)
+        => IUserActionSimplification.None();
 }

@@ -6,5 +6,5 @@ public interface IUserAction
 
     public Task<IUserActionResult> Execute();
 
-    public bool IsInverseOf(IUserAction action);
+    public IUserActionSimplification GetSimplificationAfter(IUserAction previousAction);
 }
