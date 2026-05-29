@@ -17,7 +17,7 @@ internal class UserActionManager<T> : UserActionManager, IUserActionManager<T>
 internal class UserActionManager(
     IEnumerable<IUserActionErrorResolver> errorResolvers,
     IExceptionHandler exceptionHandler,
-    IUserActionChainSimplifier chainSimplifier) : IUserActionManager
+    IUserActionChainSimplifier chainSimplifier) : IUserActionManager, IUserActionSessionHost
 {
     private readonly Stack<IUserAction> _undoList = [];
     private readonly Stack<IUserAction> _redoList = [];
@@ -84,6 +84,7 @@ internal class UserActionManager(
             switch (resolution)
             {
                 case UserActionCancelledResolution:
+                    (result as IResolvableError)?.OnCancelled?.Invoke();
                     return IUserActionResult.Cancelled();
                 case AlternativeActionFound { AlternativeAction: { } alternativeAction }:
                     if (alternativeAction.CanExecute)

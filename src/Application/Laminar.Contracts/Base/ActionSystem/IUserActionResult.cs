@@ -16,6 +16,8 @@ public interface IUserActionResult
 public interface IResolvableError : IUserActionResult
 {
     public Exception Exception { get; }
+    
+    public Action? OnCancelled { get; init; }
 }
 
 public class ResolvableError<TParam> : IResolvableError

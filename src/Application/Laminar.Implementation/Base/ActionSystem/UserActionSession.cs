@@ -2,7 +2,7 @@ using Laminar.Contracts.Base.ActionSystem;
 
 namespace Laminar.Implementation.Base.ActionSystem;
 
-internal class UserActionSession(UserActionManager owner) : IUserActionSession
+internal class UserActionSession(IUserActionSessionHost owner) : IUserActionSession
 {
     private readonly Stack<IUserAction> _undoStack = [];
     

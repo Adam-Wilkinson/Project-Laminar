@@ -7,12 +7,13 @@ public class UserActionChainSimplifier : IUserActionChainSimplifier
     public bool Simplify(List<IUserAction> chain, ICollection<IUserActionSimplifier> simplifiers)
     {
         if (chain.Count is 0) return false;
-
+        
         var newList = Flatten(chain).ToList();
+        bool singleItemFlatten = chain[0] != newList[0];
         chain.Clear();
         chain.AddRange(newList);
         
-        if (chain.Count is 1) return false;
+        if (chain.Count is 1) return singleItemFlatten;
         
         bool actionsListModifiedThisRun = true;
         bool actionsListModified = false;
