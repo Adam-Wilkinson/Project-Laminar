@@ -13,6 +13,8 @@ internal readonly struct DeleteStorageItemAction(LaminarStorageItem item, FileEx
         new RenameStorageItemAction(GetDeletedName(dependencies.FileSystem.GetNameWithoutExtension(item.Path)), item, dependencies), 
         new MoveStorageItemAction(item, dependencies.RecyclingBin, null, dependencies));
 
+    public LaminarStorageItem Target => item;
+    
     public bool CanExecute => _internalAction.CanExecute;
 
     public Task<IUserActionResult> Execute()
@@ -40,7 +42,15 @@ internal readonly struct DeleteStorageItemAction(LaminarStorageItem item, FileEx
     }
 
     public IUserActionSimplification GetSimplificationAfter(IUserAction previousAction)
-        => IUserActionSimplification.None();
+    {
+        if (previousAction is AddStorageItemAction addAction &&
+            item.Path.NameAndExtension == addAction.ItemNameAndExtension && item.ParentFolder == addAction.Parent)
+        {
+            return IUserActionSimplification.Undoes();
+        }
+
+        return IUserActionSimplification.None();
+    }
     
     private static string GetDeletedName(string name) => $"({DateTime.UtcNow.Ticks}) {name}";
 }

@@ -12,7 +12,7 @@ internal readonly struct AddStorageItemAction(
     FileExplorerActionDependencies dependencies) 
     : IUserAction
 {
-    public string ItemName { get; } = newItemName;
+    public string ItemNameAndExtension { get; } = newItemName + GetExtension(itemType);
 
     public LaminarStorageFolder Parent { get; } = parent;
     
@@ -20,7 +20,7 @@ internal readonly struct AddStorageItemAction(
         
     public Task<IUserActionResult> Execute()
     {
-        var result = dependencies.StorageItemFactory.CreateChild(ItemName + GetExtension(itemType), Parent,
+        var result = dependencies.StorageItemFactory.CreateChild(ItemNameAndExtension, Parent,
             itemType is StorageItemType.Folder);
         
         (Parent.Contents as IObservableCollection<ILaminarStorageItem>)?.Insert(indexInParent, result);
@@ -30,7 +30,19 @@ internal readonly struct AddStorageItemAction(
     }
 
     public IUserActionSimplification GetSimplificationAfter(IUserAction previousAction)
-        => IUserActionSimplification.None();
+    {
+        if (previousAction is not DeleteStorageItemAction removeAction ||
+            removeAction.Target.Path.NameAndExtension != ItemNameAndExtension ||
+            removeAction.Target.ParentFolder != Parent) 
+            return IUserActionSimplification.None();
+        
+        if (Parent.Contents.IndexOf(removeAction.Target) == indexInParent)
+        {
+            return IUserActionSimplification.Undoes();
+        }
+
+        return IUserActionSimplification.NewEffectiveAction(new MoveStorageItemAction(removeAction.Target, Parent, indexInParent, dependencies));
+    }
 
     private static string GetExtension(StorageItemType type) => type switch
     {

@@ -17,6 +17,8 @@ internal readonly struct MoveStorageItemAction(
 {
     public bool CanExecute => true;
      
+    public LaminarStorageItem Target => item;
+    
     public Task<IUserActionResult> Execute()
     {
         if (item is ILaminarStorageRootFolder)
@@ -77,7 +79,14 @@ internal readonly struct MoveStorageItemAction(
     }
 
     public IUserActionSimplification GetSimplificationAfter(IUserAction previousAction)
-        => IUserActionSimplification.None();
+    {
+        if (previousAction is MoveStorageItemAction moveAction && moveAction.Target == Target)
+        {
+            return IUserActionSimplification.Overrides();
+        }
+
+        return IUserActionSimplification.None();
+    }
     
     private bool NameEqualsItemName(ILaminarStorageItem comparisonItem)
         => item.UserFriendlyName.Equals(comparisonItem.UserFriendlyName, FileSystemPath.RuntimeStringComparison);

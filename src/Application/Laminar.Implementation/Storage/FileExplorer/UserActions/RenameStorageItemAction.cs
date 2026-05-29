@@ -11,6 +11,8 @@ internal readonly struct RenameStorageItemAction(
     LaminarStorageItem item, 
     FileExplorerActionDependencies dependencies) : IUserAction
 {
+    public LaminarStorageItem Target => item;
+    
     public bool CanExecute { get; } = !dependencies.FileSystem.GetNameWithoutExtension(item.Path).Equals(newName);
 
     public Task<IUserActionResult> Execute()
@@ -67,7 +69,14 @@ internal readonly struct RenameStorageItemAction(
     }
 
     public IUserActionSimplification GetSimplificationAfter(IUserAction previousAction)
-        => IUserActionSimplification.None();
+    {
+        if (previousAction is RenameStorageItemAction renameAction && renameAction.Target == Target)
+        {
+            return IUserActionSimplification.Overrides();
+        }
+
+        return IUserActionSimplification.None();
+    }
 
     public bool IsInverseOf(IUserAction action) => false;
 }

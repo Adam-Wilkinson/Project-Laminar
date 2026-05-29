@@ -9,6 +9,8 @@ internal readonly struct RemoveRootFolderAction(
     FileExplorerActionDependencies dependencies) : IUserAction
 {
     public bool CanExecute => true;
+    
+    public FileSystemPath RootFolderPath => rootFolderPath;
 
     public Task<IUserActionResult> Execute()
     {
@@ -23,5 +25,12 @@ internal readonly struct RemoveRootFolderAction(
     }
 
     public IUserActionSimplification GetSimplificationAfter(IUserAction previousAction)
-        => IUserActionSimplification.None();
+    {
+        if (previousAction is AddRootFolderAction addAction && addAction.RootFolderPath == RootFolderPath)
+        {
+            return IUserActionSimplification.Undoes();
+        }
+        
+        return IUserActionSimplification.None();
+    }
 }
