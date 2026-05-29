@@ -23,14 +23,4 @@ internal readonly struct RemoveRootFolderAction(
         rootFolder.Dispose(fullyCleanup);
         return Task.FromResult(IUserActionResult.Success(new AddRootFolderAction(rootFolderPath, dependencies)));
     }
-
-    public IUserActionSimplification GetSimplificationAfter(IUserAction previousAction)
-    {
-        if (previousAction is AddRootFolderAction addAction && addAction.RootFolderPath == RootFolderPath)
-        {
-            return IUserActionSimplification.Undoes();
-        }
-        
-        return IUserActionSimplification.None();
-    }
 }

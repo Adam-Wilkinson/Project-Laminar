@@ -40,17 +40,6 @@ internal readonly struct DeleteStorageItemAction(LaminarStorageItem item, FileEx
         
         return _internalAction.Execute();
     }
-
-    public IUserActionSimplification GetSimplificationAfter(IUserAction previousAction)
-    {
-        if (previousAction is AddStorageItemAction addAction &&
-            item.Path.NameAndExtension == addAction.ItemNameAndExtension && item.ParentFolder == addAction.Parent)
-        {
-            return IUserActionSimplification.Undoes();
-        }
-
-        return IUserActionSimplification.None();
-    }
     
     private static string GetDeletedName(string name) => $"({DateTime.UtcNow.Ticks}) {name}";
 }

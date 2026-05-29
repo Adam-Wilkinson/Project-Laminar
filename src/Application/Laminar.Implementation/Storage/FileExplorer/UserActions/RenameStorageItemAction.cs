@@ -68,15 +68,5 @@ internal readonly struct RenameStorageItemAction(
         return Task.FromResult(IUserActionResult.Success(new RenameStorageItemAction(oldName, item, dependencies)));
     }
 
-    public IUserActionSimplification GetSimplificationAfter(IUserAction previousAction)
-    {
-        if (previousAction is RenameStorageItemAction renameAction && renameAction.Target == Target)
-        {
-            return IUserActionSimplification.Overrides();
-        }
-
-        return IUserActionSimplification.None();
-    }
-
     public bool IsInverseOf(IUserAction action) => false;
 }

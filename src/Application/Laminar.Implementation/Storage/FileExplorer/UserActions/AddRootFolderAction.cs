@@ -17,14 +17,4 @@ internal readonly struct AddRootFolderAction(
         dependencies.RootFolders.Value = currentList;
         return Task.FromResult(IUserActionResult.Success(new RemoveRootFolderAction(folderPath, true, dependencies)));
     }
-
-    public IUserActionSimplification GetSimplificationAfter(IUserAction previousAction)
-    {
-        if (previousAction is RemoveRootFolderAction removeAction && removeAction.RootFolderPath == RootFolderPath)
-        {
-            return IUserActionSimplification.Undoes();
-        }
-
-        return IUserActionSimplification.None();
-    }
 }

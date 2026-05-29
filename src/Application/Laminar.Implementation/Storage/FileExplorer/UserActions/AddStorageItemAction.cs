@@ -16,6 +16,8 @@ internal readonly struct AddStorageItemAction(
 
     public LaminarStorageFolder Parent { get; } = parent;
     
+    public int IndexInParent => indexInParent;
+    
     public bool CanExecute => true;
         
     public Task<IUserActionResult> Execute()

@@ -34,6 +34,9 @@ public static class LaminarServices
             .AddSingleton<ISerializer, Serializer>()
             
             .AddScoped<IUserActionManager, UserActionManager>()
+            .AddScoped(typeof(IUserActionManager<>), typeof(UserActionManager<>))
+            .AddSingleton<IUserActionChainSimplifier, UserActionChainSimplifier>()
+            
             .AddSingleton<IDataInterfaceFactory, DataInterfaceFactory>()
             .AddSingleton<ITypeInfoStore, TypeInfoStore>()
             

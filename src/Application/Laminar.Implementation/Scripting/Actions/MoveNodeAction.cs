@@ -7,6 +7,8 @@ namespace Laminar.Implementation.Scripting.Actions;
 internal readonly struct MoveNodeAction(IWrappedNode node, Point locationDelta) : IUserAction
 {
     public Point LocationDelta { get; } = locationDelta;
+
+    public IWrappedNode Node => node;
     
     public bool CanExecute => true;
 
@@ -14,16 +16,5 @@ internal readonly struct MoveNodeAction(IWrappedNode node, Point locationDelta) 
     {
         node.Location.Value += LocationDelta;
         return Task.FromResult(IUserActionResult.Success(new MoveNodeAction(node, -LocationDelta)));
-    }
-
-    public IUserActionSimplification GetSimplificationAfter(IUserAction previousAction)
-    {
-        if (previousAction is not MoveNodeAction previousMoveAction) return IUserActionSimplification.None();
-
-        var totalMove = previousMoveAction.LocationDelta + LocationDelta;
-        
-        if (totalMove.SquaredDistance() < 1e-10) return IUserActionSimplification.Undoes();
-
-        return IUserActionSimplification.NewEffectiveAction(new MoveNodeAction(node, totalMove));
     }
 }

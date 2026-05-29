@@ -11,7 +11,7 @@ using Laminar.PluginFramework.NodeSystem.Connectors;
 namespace Laminar.Implementation.Scripting;
 
 internal class ScriptEditor(
-    IUserActionManager userActionManager,
+    IUserActionManager<ScriptActionSimplifier> userActionManager,
     INodeFactory nodeFactory,
     IEnumerable<IConnectionBridger> connectionBridgers)
     : IScriptEditor

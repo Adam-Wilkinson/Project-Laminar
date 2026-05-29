@@ -34,16 +34,4 @@ internal readonly struct  EstablishConnectionAction(
         connectionCollection.Add(connection);
         return Task.FromResult(IUserActionResult.Success(new SeverConnectionAction(connection, connectionCollection)));
     }
-
-    public IUserActionSimplification GetSimplificationAfter(IUserAction previousAction)
-    {
-        if (previousAction is SeverConnectionAction severAction &&
-            Equals(severAction.Connection.InputConnector, InputConnector) &&
-            Equals(severAction.Connection.OutputConnector, OutputConnector))
-        {
-            return IUserActionSimplification.Undoes();
-        }
-
-        return IUserActionSimplification.None();
-    }
 }

@@ -77,16 +77,6 @@ internal readonly struct MoveStorageItemAction(
 
         return Task.FromResult(IUserActionResult.Success(new MoveStorageItemAction(item, oldFolder, indexInOldFolder, dependencies)));
     }
-
-    public IUserActionSimplification GetSimplificationAfter(IUserAction previousAction)
-    {
-        if (previousAction is MoveStorageItemAction moveAction && moveAction.Target == Target)
-        {
-            return IUserActionSimplification.Overrides();
-        }
-
-        return IUserActionSimplification.None();
-    }
     
     private bool NameEqualsItemName(ILaminarStorageItem comparisonItem)
         => item.UserFriendlyName.Equals(comparisonItem.UserFriendlyName, FileSystemPath.RuntimeStringComparison);

@@ -30,10 +30,9 @@ internal class UserActionSession(UserActionManager owner) : IUserActionSession
     {
         if (_undoStack.Count == 0) return;
 
-        var undoAction = new CompoundAction(_undoStack.ToArray());
-
-        if (undoAction.Actions.Count == 0) return;
-        
-        owner.RegisterUndoAction(undoAction);
+        var undoList = _undoStack.ToList();
+        owner.Simplify(undoList);
+        if (undoList.Count == 0) return;
+        owner.RegisterUndoAction(new CompoundAction(undoList));
     }
 }

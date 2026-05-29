@@ -15,10 +15,4 @@ internal readonly struct AddNodeAction(IWrappedNode node, ICollection<IWrappedNo
         nodeCollection.Add(Node);
         return Task.FromResult(IUserActionResult.Success(new DeleteNodeAction(Node, nodeCollection)));
     }
-
-    public IUserActionSimplification GetSimplificationAfter(IUserAction previousAction) => previousAction switch
-    {
-        DeleteNodeAction deleteAction when deleteAction.Node == Node => IUserActionSimplification.Undoes(), 
-        _ => IUserActionSimplification.None()
-    };
 }
