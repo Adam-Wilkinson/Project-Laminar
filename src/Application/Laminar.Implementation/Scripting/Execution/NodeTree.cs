@@ -7,7 +7,6 @@ using Laminar.Contracts.Scripting.Execution;
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Domain.Notification;
 using Laminar.Implementation.Scripting.Connections;
-using Laminar.PluginFramework.NodeSystem.Components;
 using Laminar.PluginFramework.NodeSystem.Connectors;
 
 namespace Laminar.Implementation.Scripting.Execution;
@@ -15,8 +14,7 @@ namespace Laminar.Implementation.Scripting.Execution;
 internal class NodeTree : INodeTree
 {
     private readonly ConditionalWeakTable<IConnector, ConnectorInformation> _treeInformation = [];
-    private readonly Dictionary<IWrappedNode, EventHandler<ItemAddedEventArgs<INodeRow>>> _nodeRowAddedDelegates = new();
-    private readonly Dictionary<IWrappedNode, EventHandler<ItemRemovedEventArgs<INodeRow>>> _nodeRowRemovedDelegates = new();
+    private readonly Dictionary<IWrappedNode, IDisposable> _nodeRowsChangedSubscriptions = [];
     private readonly ObservableCollection<IWrappedNode> _nodes = [];
     private readonly ObservableCollection<IConnection> _connections = [];
     
@@ -30,16 +28,24 @@ internal class NodeTree : INodeTree
     
     public void AddNode(IWrappedNode node)
     {
-        _nodeRowAddedDelegates[node] = (_, newRow) => RowAdded(node, newRow.Item);
-        node.Rows.HelperInstance().ItemAdded += _nodeRowAddedDelegates[node];
-        _nodeRowRemovedDelegates[node] = (_, removedRow) => RowRemoved(node, removedRow.Item);
-        node.Rows.HelperInstance().ItemRemoved += _nodeRowRemovedDelegates[node];
-
-        foreach (INodeRow row in node.Rows)
+        _nodeRowsChangedSubscriptions[node] = node.Rows.SubscribeForEach(
+            addedRow =>
         {
-            RowAdded(node, row);
-        }
+            if (addedRow.InputConnector is not null) 
+                _treeInformation.Add(addedRow.InputConnector, new ConnectorInformation(node, []));
 
+            if (addedRow.OutputConnector is not null) 
+                _treeInformation.Add(addedRow.OutputConnector, new ConnectorInformation(node, []));
+        }, 
+            removedRow =>
+        {
+            if (removedRow.InputConnector is not null) 
+                _treeInformation.Remove(removedRow.InputConnector);
+
+            if (removedRow.OutputConnector is not null) 
+                _treeInformation.Remove(removedRow.OutputConnector);
+        });
+        
         _nodes.Add(node);
         Changed?.Invoke(this, EventArgs.Empty);
     }
@@ -47,17 +53,8 @@ internal class NodeTree : INodeTree
     public bool DeleteNode(IWrappedNode node)
     {
         if (!_nodes.Contains(node)) return false;
-        
-        node.Rows.HelperInstance().ItemAdded -= _nodeRowAddedDelegates[node];
-        _nodeRowAddedDelegates.Remove(node);
-        node.Rows.HelperInstance().ItemRemoved -= _nodeRowRemovedDelegates[node];
-        _nodeRowRemovedDelegates.Remove(node);
-
-        foreach (INodeRow row in node.Rows)
-        {
-            RowRemoved(node, row);
-        }
-        
+        _nodeRowsChangedSubscriptions[node].Dispose();
+        _nodeRowsChangedSubscriptions.Remove(node);
         _nodes.Remove(node);
         Changed?.Invoke(this, EventArgs.Empty);
         return true;
@@ -116,37 +113,9 @@ internal class NodeTree : INodeTree
         Changed?.Invoke(this, EventArgs.Empty);
         return true;
     }
-
-    private void RowAdded(IWrappedNode node, INodeRow row)
-    {
-        if (row.InputConnector is not null)
-        {
-            _treeInformation.Add(row.InputConnector, new ConnectorInformation(node, []));
-        }
-
-        if (row.OutputConnector is not null)
-        {
-            _treeInformation.Add(row.OutputConnector, new ConnectorInformation(node, []));
-        }
-    }
-
-    private void RowRemoved(IWrappedNode node, INodeRow row)
-    {
-        if (row.InputConnector is not null)
-        {
-            _treeInformation.Remove(row.InputConnector);
-        }
-
-        if (row.OutputConnector is not null)
-        {
-            _treeInformation.Remove(row.OutputConnector);
-        }
-    }
-
+    
     private ConnectorInformation GetConnectorInformation(IConnector connector) => _treeInformation.GetValue(connector,
         _ => throw new InvalidOperationException("Connector not found"));
     
-    private record ConnectorInformation(
-        IWrappedNode Owner,
-        Dictionary<IConnector, ConnectorConnectionInfo> Connections);
+    private record ConnectorInformation(IWrappedNode Owner, Dictionary<IConnector, ConnectorConnectionInfo> Connections);
 }

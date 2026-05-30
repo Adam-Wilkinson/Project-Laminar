@@ -67,7 +67,7 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
         if (Type is StorageItemType.Folder)
         {
             _children = new SourcedObservableCollection<FileNavigatorItemViewModel>([], NamesEqual);
-            _children.HelperInstance().ItemAdded += (_, e) => e.Item.Parent = this;
+            _children.SubscribeForEach(item => item.Parent = this);
         }
     }
     
