@@ -10,7 +10,7 @@ namespace Laminar.Implementation.Scripting.Connections;
 
 internal class ConnectionCollection : ObservableCollection<IConnection>, IConnectionCollection
 {
-    private readonly Dictionary<IIOConnector, List<IConnection>> _connections = new();
+    private readonly Dictionary<IConnector, List<IConnection>> _connections = new();
     private readonly IUserActionManager _actionManager;
 
     public ConnectionCollection(IUserActionManager userActionManager)
@@ -18,12 +18,12 @@ internal class ConnectionCollection : ObservableCollection<IConnection>, IConnec
         _actionManager = userActionManager;
     }
 
-    public IReadOnlyList<IConnection> GetConnectionsTo(IIOConnector ioConnector)
+    public IReadOnlyList<IConnection> GetConnectionsTo(IConnector connector)
     {
-        return !_connections.ContainsKey(ioConnector) ? Array.Empty<IConnection>() : _connections[ioConnector];
+        return !_connections.ContainsKey(connector) ? Array.Empty<IConnection>() : _connections[connector];
     }
 
-    public void RemoveConnectionsTo(IIOConnector? connector)
+    public void RemoveConnectionsTo(IConnector? connector)
     {
         if (connector is null)
         {
@@ -76,7 +76,7 @@ internal class ConnectionCollection : ObservableCollection<IConnection>, IConnec
         _actionManager.ExecuteAction(new SeverConnectionAction((IConnection)sender, this));
     }
 
-    private void UnregisterConnectionWithConnector(IIOConnector connector, IConnection removedConnection)
+    private void UnregisterConnectionWithConnector(IConnector connector, IConnection removedConnection)
     {
         if (_connections[connector].Count == 1)
         {
@@ -88,7 +88,7 @@ internal class ConnectionCollection : ObservableCollection<IConnection>, IConnec
         }
     }
 
-    private void RegisterConnectionWithConnector(IIOConnector connector, IConnection connection)
+    private void RegisterConnectionWithConnector(IConnector connector, IConnection connection)
     {
         if (!_connections.ContainsKey(connector))
         {

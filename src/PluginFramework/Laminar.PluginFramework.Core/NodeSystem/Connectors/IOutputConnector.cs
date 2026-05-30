@@ -1,6 +1,6 @@
 ﻿namespace Laminar.PluginFramework.NodeSystem.Connectors;
 
-public interface IOutputConnector : IIOConnector
+public interface IOutputConnector : IConnector
 {
     public PassUpdateOption PassUpdate(ExecutionFlags executionFlags);
 

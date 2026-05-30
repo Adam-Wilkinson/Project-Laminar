@@ -11,7 +11,7 @@ namespace Laminar.Implementation.Scripting.Execution;
 
 internal class NodeTree : INodeTree
 {
-    private readonly ConditionalWeakTable<IIOConnector, ConnectorInformation> _treeInformation = [];
+    private readonly ConditionalWeakTable<IConnector, ConnectorInformation> _treeInformation = [];
     private readonly Dictionary<IWrappedNode, EventHandler<ItemAddedEventArgs<INodeRow>>> _nodeRowAddedDelegates = new();
     private readonly Dictionary<IWrappedNode, EventHandler<ItemRemovedEventArgs<INodeRow>>> _nodeRowRemovedDelegates = new();
     
@@ -26,9 +26,9 @@ internal class NodeTree : INodeTree
         script.Connections.HelperInstance().ItemRemoved += ConnectionRemoved;
     }
 
-    public IWrappedNode GetConnectorOwner(IIOConnector connector) => GetConnectorInformation(connector).Owner;
+    public IWrappedNode GetConnectorOwner(IConnector connector) => GetConnectorInformation(connector).Owner;
     
-    public IReadOnlyCollection<ConnectorConnectionInfo> GetConnections(IIOConnector connector) => GetConnectorInformation(connector).Connections.Values; 
+    public IReadOnlyCollection<ConnectorConnectionInfo> GetConnections(IConnector connector) => GetConnectorInformation(connector).Connections.Values; 
 
     private void NodeRemoved(object? sender, ItemRemovedEventArgs<IWrappedNode> e)
     {
@@ -115,7 +115,7 @@ internal class NodeTree : INodeTree
         Changed?.Invoke(this, EventArgs.Empty);
     }
 
-    private ConnectorInformation GetConnectorInformation(IIOConnector connector) => _treeInformation.GetValue(connector,
+    private ConnectorInformation GetConnectorInformation(IConnector connector) => _treeInformation.GetValue(connector,
         _ => throw new InvalidOperationException("Connector not found"));
     
     private record ConnectorInformation(

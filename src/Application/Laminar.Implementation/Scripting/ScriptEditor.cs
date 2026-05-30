@@ -38,7 +38,7 @@ internal class ScriptEditor(
         userActionManager.ExecuteAction(moveNodesAction);
     }
 
-    public IUserAction? FindBridgeConnectorsAction(IScript script, IIOConnector connectorOne, IIOConnector connectorTwo)
+    public IUserAction? FindBridgeConnectorsAction(IScript script, IConnector connectorOne, IConnector connectorTwo)
     {
         if (script is not IEditableScript editableScript)
         {

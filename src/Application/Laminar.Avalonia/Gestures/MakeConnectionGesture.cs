@@ -108,7 +108,7 @@ public class MakeConnectionGesture : GestureRecognizer
         return true;
     }
     
-    private ConnectorTarget? FindConnectorFromEvent(PointerEventArgs e, Predicate<IIOConnector>? predicate = null)
+    private ConnectorTarget? FindConnectorFromEvent(PointerEventArgs e, Predicate<IConnector>? predicate = null)
     {
         if (Target is not Visual targetVisual) return null;
 
@@ -122,5 +122,5 @@ public class MakeConnectionGesture : GestureRecognizer
             : null;
     }
     
-    private record ConnectorTarget(IIOConnector Connector, Visual Visual);
+    private record ConnectorTarget(IConnector Connector, Visual Visual);
 }

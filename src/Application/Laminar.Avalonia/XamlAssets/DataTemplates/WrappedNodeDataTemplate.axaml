@@ -8,7 +8,7 @@
                     xmlns:s="using:Laminar.Avalonia.Settings"
                     xmlns:m="using:Laminar.Avalonia.Markup"
                     xmlns:init="using:Laminar.Avalonia.InitializationTargets">
-    <ControlTheme TargetType="c:Connector" x:Key="IoConnectorPath" x:DataType="conn:IIOConnector">
+    <ControlTheme TargetType="c:Connector" x:Key="IoConnectorPath" x:DataType="conn:IConnector">
         <Setter Property="IsVisible" Value="{Binding Converter={x:Static ObjectConverters.IsNotNull}}"/>
         <Setter Property="Fill" Value="{Binding ColorHex, TargetNullValue={x:Static Brushes.White}, Converter={StaticResource ParseBrushConverter}}"/>
         <Setter Property="Stroke" Value="Gray"/>

@@ -8,7 +8,7 @@ public interface INodeTree
 {
     public event EventHandler? Changed;
 
-    public IReadOnlyCollection<ConnectorConnectionInfo> GetConnections(IIOConnector connector);
+    public IReadOnlyCollection<ConnectorConnectionInfo> GetConnections(IConnector connector);
 }
 
-public record ConnectorConnectionInfo(IConnection Connection, IIOConnector OppositeConnector, IWrappedNode ConnectedNode);
+public record ConnectorConnectionInfo(IConnection Connection, IConnector OppositeConnector, IWrappedNode ConnectedNode);
