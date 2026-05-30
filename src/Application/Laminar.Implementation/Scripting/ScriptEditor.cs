@@ -12,11 +12,13 @@ using Laminar.PluginFramework.NodeSystem.Connectors;
 namespace Laminar.Implementation.Scripting;
 
 internal class ScriptEditor(
-    IUserActionManager<ScriptActionSimplifier> userActionManager,
+    IUserActionManager userActionManager,
     INodeFactory nodeFactory,
     IEnumerable<IConnectionBridger> connectionBridgers)
     : IScriptEditor
 {
+    private readonly IUserActionManager _ = userActionManager.RegisterSimplifier(new ScriptActionSimplifier());
+    
     public IUserAction AddMatchingNodeAction(IScript script, IWrappedNode node, Point location)
     {
         IEditableScript editableScript = MakeEditable(script);

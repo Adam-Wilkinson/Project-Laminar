@@ -4,21 +4,21 @@
 /// An identifier used throughout Project: Laminar
 /// </summary>
 /// <typeparam name="T">The parent class of the identifier, so it is strongly typed and can't be mixed up</typeparam>
-public class Identifier<T> : IEquatable<Identifier<T>>
+public class GuidIdentifier<T> : IEquatable<GuidIdentifier<T>>
 {
     private readonly Guid _value;
 
-    private Identifier(Guid guid)
+    private GuidIdentifier(Guid guid)
     {
         _value = guid;
     }
 
-    public static Identifier<T> New()
+    public static GuidIdentifier<T> New()
     {
         return new(Guid.NewGuid());
     }
 
-    public static Identifier<T> Empty()
+    public static GuidIdentifier<T> Empty()
     {
         return new(Guid.Empty);
     }
@@ -27,10 +27,10 @@ public class Identifier<T> : IEquatable<Identifier<T>>
 
     public override bool Equals(object? obj)
     {
-        return Equals(obj as Identifier<T>);
+        return Equals(obj as GuidIdentifier<T>);
     }
 
-    public bool Equals(Identifier<T>? other)
+    public bool Equals(GuidIdentifier<T>? other)
     {
         return ReferenceEquals(this, other) || (other is not null && other.GetType() == this.GetType() && other._value == this._value);
     }
@@ -45,10 +45,10 @@ public class Identifier<T> : IEquatable<Identifier<T>>
         return _value.ToString();
     }
 
-    public static bool operator ==(Identifier<T>? lhs, Identifier<T>? rhs)
+    public static bool operator ==(GuidIdentifier<T>? lhs, GuidIdentifier<T>? rhs)
     {
-        return lhs is null ? rhs is null : lhs.Equals(rhs);
+        return lhs?.Equals(rhs) ?? rhs is null;
     }
 
-    public static bool operator !=(Identifier<T> lhs, Identifier<T> rhs) => !(lhs == rhs);
+    public static bool operator !=(GuidIdentifier<T> lhs, GuidIdentifier<T> rhs) => !(lhs == rhs);
 }

@@ -37,7 +37,7 @@ public class WrappedNode : IWrappedNode
 
     public ObservableValue<Point> Location { get; set; } = new(new Point { X = 0, Y = 0 });
 
-    public Identifier<IWrappedNode> Id { get; } = Identifier<IWrappedNode>.New();
+    public GuidIdentifier<IWrappedNode> Id { get; } = GuidIdentifier<IWrappedNode>.New();
 
     public void TriggerNotification(LaminarExecutionContext context)
     {
