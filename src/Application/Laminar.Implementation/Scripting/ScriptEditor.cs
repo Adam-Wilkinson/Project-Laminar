@@ -17,12 +17,12 @@ internal class ScriptEditor(
     IEnumerable<IConnectionBridger> connectionBridgers)
     : IScriptEditor
 {
-    public IWrappedNode AddMatchingNode(IScript script, IWrappedNode node)
+    public IUserAction AddMatchingNodeAction(IScript script, IWrappedNode node, Point location)
     {
         IEditableScript editableScript = MakeEditable(script);
         IWrappedNode newNode = nodeFactory.CreateMatchingNode(node, editableScript.ExecutionInstance);
-        userActionManager.ExecuteAction(new AddNodeAction(newNode, editableScript.Nodes));
-        return newNode;
+        newNode.Location.Value = location;
+        return new AddNodeAction(newNode, editableScript.Nodes);
     }
 
     public void DeleteNodes(IScript script, IEnumerable<IWrappedNode> nodes)

@@ -2,7 +2,6 @@
 using Laminar.Contracts.Scripting.Connection;
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Domain.ValueObjects;
-using Laminar.PluginFramework.NodeSystem;
 using Laminar.PluginFramework.NodeSystem.Connectors;
 
 namespace Laminar.Contracts.Scripting;
@@ -11,7 +10,7 @@ public interface IScriptEditor
 {
     public void DeleteNodes(IScript script, IEnumerable<IWrappedNode> nodes);
 
-    public IWrappedNode AddMatchingNode(IScript script, IWrappedNode node);
+    public IUserAction AddMatchingNodeAction(IScript script, IWrappedNode node, Point location);
 
     public void MoveNodes(IScript script, IEnumerable<IWrappedNode> nodes, Point delta);
 

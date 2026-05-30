@@ -3,8 +3,7 @@ using Laminar.Contracts.Scripting.NodeWrapping;
 
 namespace Laminar.Implementation.Scripting.Actions;
 
-internal readonly struct DeleteNodeAction(IWrappedNode node, ICollection<IWrappedNode> nodeCollection)
-    : IUserAction
+internal readonly struct DeleteNodeAction(IWrappedNode node, ICollection<IWrappedNode> nodeCollection) : IUserAction
 {
     public IWrappedNode Node { get; } = node;
     

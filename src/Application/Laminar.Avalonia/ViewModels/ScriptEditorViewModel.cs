@@ -29,8 +29,9 @@ public partial class ScriptEditorViewModel(IScript script, IScriptEditor editor,
     {
         if (payload is not IWrappedNode wrapped) return false;
 
-        var newNode = editor.AddMatchingNode(script, wrapped);
-        newNode.Location.Value = new LaminarPoint { X = location.X, Y = location.Y };
+        var addNodeAction =
+            editor.AddMatchingNodeAction(script, wrapped, new LaminarPoint { X = location.X, Y = location.Y });
+        userActionManager.ExecuteAction(addNodeAction);
         return true;
     }
 
