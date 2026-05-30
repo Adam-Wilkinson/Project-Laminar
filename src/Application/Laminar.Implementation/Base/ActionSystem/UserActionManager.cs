@@ -1,5 +1,6 @@
 ﻿using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.Base;
+using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.Base.ActionSystem;
 
@@ -8,7 +9,8 @@ internal class UserActionManager<T> : UserActionManager, IUserActionManager<T>
 {
     public UserActionManager(IEnumerable<IUserActionErrorResolver> errorResolvers,
         IExceptionHandler exceptionHandler,
-        IUserActionChainSimplifier chainSimplifier) : base(errorResolvers, exceptionHandler, chainSimplifier)
+        IUserActionChainSimplifier chainSimplifier,
+        ILogger<UserActionManager> logger) : base(errorResolvers, exceptionHandler, chainSimplifier, logger)
     {
         RegisterSimplifier(new T());
     }
@@ -17,7 +19,9 @@ internal class UserActionManager<T> : UserActionManager, IUserActionManager<T>
 internal class UserActionManager(
     IEnumerable<IUserActionErrorResolver> errorResolvers,
     IExceptionHandler exceptionHandler,
-    IUserActionChainSimplifier chainSimplifier) : IUserActionManager, IUserActionSessionHost
+    IUserActionChainSimplifier chainSimplifier,
+    ILogger<UserActionManager> logger) 
+    : IUserActionManager, IUserActionSessionHost
 {
     private readonly Stack<IUserAction> _undoList = [];
     private readonly Stack<IUserAction> _redoList = [];
@@ -37,12 +41,14 @@ internal class UserActionManager(
 
     public async Task<IUserActionResult> Undo()
     {
+        logger.LogTrace("Undo action requested");
         if (_undoList.Count <= 0) return IUserActionResult.Invalid();
         IUserActionResult actionResult = await ResolveExecutionAsync(_undoList.Pop());
 
         if (actionResult is UserActionSuccess { InverseAction: { } inverse })
         {
             _redoList.Push(inverse);
+            logger.LogTrace("Undo completed successfully. '{inverse}' registered as redo action (Undo height: {undoHeight}, Redo height: {redoHeight})", inverse, _undoList.Count, _redoList.Count);
         }
 
         return actionResult;
@@ -50,12 +56,13 @@ internal class UserActionManager(
 
     public async Task<IUserActionResult> Redo()
     {
+        logger.LogTrace("Redo action requested");
         if (_redoList.Count <= 0) return IUserActionResult.Invalid();
         IUserActionResult actionResult = await ResolveExecutionAsync(_redoList.Pop());
 
         if (actionResult is UserActionSuccess { InverseAction: { } inverse })
         {
-            _undoList.Push(inverse);
+            RegisterUndoAction(inverse);
         }
 
         return actionResult;
@@ -64,6 +71,7 @@ internal class UserActionManager(
     public void RegisterUndoAction(IUserAction action)
     {
         _undoList.Push(action);
+        logger.LogTrace("Action completed successfully. '{action}' registered as undo action (Undo height: {undoHeight}, Redo height: {redoHeight})", action, _undoList.Count, _redoList.Count);
     }
 
     public IUserActionSession BeginSession() => new UserActionSession(this);
@@ -74,6 +82,7 @@ internal class UserActionManager(
 
     public async Task<IUserActionResult> ResolveExecutionAsync(IUserAction action)
     {
+        logger.LogTrace("Resolving action: '{action}'", action);
         if (!action.CanExecute) return IUserActionResult.Invalid();
         var result = await action.Execute();
         if (result is UserActionSuccess success) return success;

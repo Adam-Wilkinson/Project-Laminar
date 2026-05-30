@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel.__Internals;
 using Laminar.Contracts.Base;
 using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Implementation.Base.ActionSystem;
+using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.UnitTests.Base.UnitTests.ActionSystem.UnitTests;
 
@@ -311,6 +312,7 @@ public class UserActionManagerTests
         return new UserActionManager(
             errorResolvers ?? [],
             exceptionHandler ?? Substitute.For<IExceptionHandler>(),
-            chainSimplifier ?? Substitute.For<IUserActionChainSimplifier>());
+            chainSimplifier ?? Substitute.For<IUserActionChainSimplifier>(),
+            Substitute.For<ILogger<UserActionManager>>());
     }
 }

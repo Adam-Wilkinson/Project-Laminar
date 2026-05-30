@@ -112,4 +112,6 @@ public class WrappedNode : IWrappedNode
     {
         TriggerNotification(e);
     }
+
+    public override string ToString() => $"{NameRow.CentralDisplay.Value} ({CoreNode})";
 }

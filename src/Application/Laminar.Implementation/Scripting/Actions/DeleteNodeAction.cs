@@ -15,4 +15,6 @@ internal readonly struct DeleteNodeAction(IWrappedNode node, ICollection<IWrappe
         nodeCollection.Remove(Node);
         return Task.FromResult(IUserActionResult.Success(new AddNodeAction(Node, nodeCollection)));
     }
+    
+    public override string ToString() => $"Delete Node: {Node}";
 }

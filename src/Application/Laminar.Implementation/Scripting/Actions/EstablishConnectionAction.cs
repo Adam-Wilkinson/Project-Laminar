@@ -34,4 +34,6 @@ internal readonly struct  EstablishConnectionAction(
         connectionCollection.Add(connection);
         return Task.FromResult(IUserActionResult.Success(new SeverConnectionAction(connection, connectionCollection)));
     }
+
+    public override string ToString() => $"Establish Connection: {OutputConnector} -> {InputConnector}";
 }

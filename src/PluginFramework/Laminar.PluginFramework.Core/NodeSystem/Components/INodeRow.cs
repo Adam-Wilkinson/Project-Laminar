@@ -1,4 +1,5 @@
 ﻿using Laminar.PluginFramework.NodeSystem.Connectors;
+using Laminar.PluginFramework.UserInterface;
 
 namespace Laminar.PluginFramework.NodeSystem.Components;
 
@@ -8,5 +9,5 @@ public interface INodeRow : INodeComponent
 
     public IOutputConnector? OutputConnector { get; }
 
-    public object CentralDisplay { get; }
+    public IInterfaceData CentralDisplay { get; }
 }

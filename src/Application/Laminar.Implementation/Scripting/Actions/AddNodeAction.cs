@@ -15,4 +15,9 @@ internal readonly struct AddNodeAction(IWrappedNode node, ICollection<IWrappedNo
         nodeCollection.Add(Node);
         return Task.FromResult(IUserActionResult.Success(new DeleteNodeAction(Node, nodeCollection)));
     }
+
+    public override string ToString()
+    {
+        return $"Add Node: {Node}";
+    }
 }

@@ -25,4 +25,6 @@ internal readonly struct SeverConnectionAction(IConnection connection, ICollecti
             new EstablishConnectionAction(Connection.OutputConnector, Connection.InputConnector,
             connectionCollection)));
     }
+
+    public override string ToString() => $"Sever connection between {Connection.OutputConnector} and {Connection.InputConnector}";
 }

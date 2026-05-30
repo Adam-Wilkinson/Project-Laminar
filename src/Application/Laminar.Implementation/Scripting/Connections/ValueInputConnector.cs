@@ -39,6 +39,7 @@ internal class ValueInputConnector<T>(ITypeInfoStore typeInfoStore) : IInputConn
         
         Input.SetValueProvider(outputConnector.Output);
         return true;
-
     }
+
+    public override string ToString() => $"Value Input '{Input.InterfaceData.Name}' (Value: {Input.Value})";
 }

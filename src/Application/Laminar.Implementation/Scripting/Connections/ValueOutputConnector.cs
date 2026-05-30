@@ -48,4 +48,6 @@ internal class ValueOutputConnector<T>(ITypeInfoStore typeInfoStore, IValueOutpu
         _valueAtLastUpdate = Output.Value;
         return PassUpdateOption.CurrentlyPasses;
     }
+
+    public override string ToString() => $"Value Output '{Output.InterfaceData.Name}' (Value: {Output.Value})";
 }
