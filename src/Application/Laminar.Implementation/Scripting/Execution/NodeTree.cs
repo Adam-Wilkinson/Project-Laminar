@@ -9,7 +9,7 @@ using Laminar.PluginFramework.NodeSystem.Connectors;
 
 namespace Laminar.Implementation.Scripting.Execution;
 
-public class NodeTree : INodeTree
+internal class NodeTree : INodeTree
 {
     private readonly ConditionalWeakTable<IIOConnector, ConnectorInformation> _treeInformation = [];
     private readonly Dictionary<IWrappedNode, EventHandler<ItemAddedEventArgs<INodeRow>>> _nodeRowAddedDelegates = new();
@@ -28,9 +28,7 @@ public class NodeTree : INodeTree
 
     public IWrappedNode GetConnectorOwner(IIOConnector connector) => GetConnectorInformation(connector).Owner;
     
-    public IReadOnlyList<IIOConnector> GetConnections(IIOConnector connector) => GetConnectorInformation(connector).Connected;
-
-    public IReadOnlyList<IWrappedNode> GetConnections(IOutputConnector outputConnector) => GetConnectorInformation(outputConnector).ConnectedNodes;
+    public IReadOnlyCollection<ConnectorConnectionInfo> GetConnections(IIOConnector connector) => GetConnectorInformation(connector).Connections.Values; 
 
     private void NodeRemoved(object? sender, ItemRemovedEventArgs<IWrappedNode> e)
     {
@@ -62,12 +60,12 @@ public class NodeTree : INodeTree
     {
         if (row.InputConnector is not null)
         {
-            _treeInformation.Add(row.InputConnector, new ConnectorInformation(node, [], []));
+            _treeInformation.Add(row.InputConnector, new ConnectorInformation(node, []));
         }
 
         if (row.OutputConnector is not null)
         {
-            _treeInformation.Add(row.OutputConnector, new ConnectorInformation(node, [], []));
+            _treeInformation.Add(row.OutputConnector, new ConnectorInformation(node, []));
         }
     }
 
@@ -89,11 +87,8 @@ public class NodeTree : INodeTree
         var inputInfo = GetConnectorInformation(e.Item.InputConnector);
         var outputInfo = GetConnectorInformation(e.Item.OutputConnector);
 
-        inputInfo.Connected.Remove(e.Item.OutputConnector);
-        inputInfo.ConnectedNodes.Remove(outputInfo.Owner);
-
-        outputInfo.Connected.Remove(e.Item.InputConnector);
-        outputInfo.ConnectedNodes.Remove(inputInfo.Owner);
+        inputInfo.Connections.Remove(e.Item);
+        outputInfo.Connections.Remove(e.Item);
 
         Changed?.Invoke(this, EventArgs.Empty);
     }
@@ -103,29 +98,19 @@ public class NodeTree : INodeTree
         var inputInfo = GetConnectorInformation(e.Item.InputConnector);
         var outputInfo = GetConnectorInformation(e.Item.OutputConnector);
 
-        if (inputInfo.Connected.Contains(e.Item.OutputConnector))
+        if (inputInfo.Connections.ContainsKey(e.Item))
         {
             throw new InvalidOperationException();
         }
         
-        inputInfo.Connected.Add(e.Item.OutputConnector);
+        inputInfo.Connections.Add(e.Item, new ConnectorConnectionInfo(e.Item, e.Item.OutputConnector, outputInfo.Owner));
 
-        if (!inputInfo.ConnectedNodes.Contains(outputInfo.Owner))
-        {
-            inputInfo.ConnectedNodes.Add(outputInfo.Owner);
-        }
-
-        if (outputInfo.Connected.Contains(e.Item.InputConnector))
+        if (outputInfo.Connections.ContainsKey(e.Item))
         {
             throw new InvalidOperationException();
         }
         
-        outputInfo.Connected.Add(e.Item.InputConnector);
-
-        if (!outputInfo.ConnectedNodes.Contains(inputInfo.Owner))
-        {
-            outputInfo.ConnectedNodes.Add(inputInfo.Owner);
-        }
+        outputInfo.Connections.Add(e.Item, new ConnectorConnectionInfo(e.Item, e.Item.InputConnector, inputInfo.Owner));
 
         Changed?.Invoke(this, EventArgs.Empty);
     }
@@ -135,6 +120,5 @@ public class NodeTree : INodeTree
     
     private record ConnectorInformation(
         IWrappedNode Owner,
-        List<IIOConnector> Connected,
-        List<IWrappedNode> ConnectedNodes);
+        Dictionary<IConnection, ConnectorConnectionInfo> Connections);
 }

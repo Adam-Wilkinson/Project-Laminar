@@ -34,15 +34,21 @@ public partial class ScriptEditorViewModel(IScript script, IScriptEditor editor,
         return true;
     }
 
-    public IIOConnector? GetTargetConnector(IIOConnector connector)
+    public IIOConnector? StartConnectionFrom(IIOConnector connector)
     {
+        _userActionSession = userActionManager.BeginSession();
         if (connector.AcceptsConnections)
         {
             return connector;
         }
 
-        var connections = script.NodeTree.GetConnections(connector); 
-        return connections.Count > 0 ? connections[0] : null;
+        var connections = script.NodeTree.GetConnections(connector);
+        if (connections.Count == 0) return null;
+        var connectionInfo = connections.First();
+
+        _userActionSession.ExecuteAction(editor.DeleteConnectionAction(script, connectionInfo.Connection));
+
+        return connectionInfo.OppositeConnector;
     }
 
     public bool HoverConnection(IIOConnector first, IIOConnector second)
