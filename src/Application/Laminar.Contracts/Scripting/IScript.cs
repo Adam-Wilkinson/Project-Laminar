@@ -1,7 +1,4 @@
-﻿using Laminar.Contracts.Scripting.Connection;
-using Laminar.Contracts.Scripting.Execution;
-using Laminar.Contracts.Scripting.NodeWrapping;
-using Laminar.Domain.Notification;
+﻿using Laminar.Contracts.Scripting.Execution;
 
 namespace Laminar.Contracts.Scripting;
 
@@ -9,11 +6,7 @@ public interface IScript
 {
     public string Name { get; set; }
 
-    public IReadOnlyObservableCollection<IWrappedNode> Nodes { get; }
-
-    public IReadOnlyObservableCollection<IConnection> Connections { get; }
-
-    public INodeTree NodeTree { get; }
+    public INodeTreeView NodeTreeView { get; }
 
     public IScriptExecutionInstance ExecutionInstance { get; }
 

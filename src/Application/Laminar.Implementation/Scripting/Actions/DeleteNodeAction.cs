@@ -1,18 +1,24 @@
 ﻿using Laminar.Contracts.Base.ActionSystem;
+using Laminar.Contracts.Scripting.Execution;
 using Laminar.Contracts.Scripting.NodeWrapping;
+using Laminar.Domain.Exceptions;
 
 namespace Laminar.Implementation.Scripting.Actions;
 
-internal readonly struct DeleteNodeAction(IWrappedNode node, ICollection<IWrappedNode> nodeCollection) : IUserAction
+internal readonly struct DeleteNodeAction(IWrappedNode node, INodeTree nodeTree) : IUserAction
 {
     public IWrappedNode Node { get; } = node;
     
-    public bool CanExecute { get; } = nodeCollection.Contains(node);
+    public bool CanExecute { get; } = nodeTree.Nodes.Contains(node);
 
     public Task<IUserActionResult> Execute()
     {
-        nodeCollection.Remove(Node);
-        return Task.FromResult(IUserActionResult.Success(new AddNodeAction(Node, nodeCollection)));
+        if (!nodeTree.DeleteNode(Node))
+        {
+            return Task.FromResult(IUserActionResult.Error(new NodeTreeDoesNotContainNodeException(Node)));
+        }
+        
+        return Task.FromResult(IUserActionResult.Success(new AddNodeAction(Node, nodeTree)));
     }
     
     public override string ToString() => $"Delete Node: {Node}";

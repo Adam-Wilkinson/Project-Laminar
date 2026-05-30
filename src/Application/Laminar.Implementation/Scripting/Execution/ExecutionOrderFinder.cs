@@ -12,7 +12,7 @@ internal class ExecutionOrderFinder : IExecutionOrderFinder
 {
     private readonly Dictionary<(object, int), OrderFinderInstance> _calculatedBranches = new();
 
-    public IConditionalExecutionBranch[] GetExecutionBranchesFrom(LaminarExecutionContext context, INodeTree tree)
+    public IConditionalExecutionBranch[] GetExecutionBranchesFrom(LaminarExecutionContext context, INodeTreeView treeView)
     {
         ArgumentNullException.ThrowIfNull(context.ExecutionSource);
 
@@ -21,14 +21,14 @@ internal class ExecutionOrderFinder : IExecutionOrderFinder
             return instance.Branches();
         }
 
-        OrderFinderInstance newFinder = new(context, tree);
+        OrderFinderInstance newFinder = new(context, treeView);
         _calculatedBranches.Add((context.ExecutionSource, context.ExecutionFlags.AsNumber), newFinder);
         return newFinder.Branches();
     }
 
     private class OrderFinderInstance
     {
-        private readonly INodeTree _tree;
+        private readonly INodeTreeView _treeView;
         private readonly object _source;
         private readonly ExecutionFlags _flags;
         private readonly Lock _lockObject = new();
@@ -37,13 +37,13 @@ internal class ExecutionOrderFinder : IExecutionOrderFinder
         private List<IOutputConnector>? _remainingBranchStarters;
         private List<IWrappedNode>? _currentBranchOrder;
 
-        public OrderFinderInstance(LaminarExecutionContext context, INodeTree tree)
+        public OrderFinderInstance(LaminarExecutionContext context, INodeTreeView treeView)
         {
-            _tree = tree;
+            _treeView = treeView;
             _flags = context.ExecutionFlags;
             _source = context.ExecutionSource!;
 
-            _tree.Changed += (_, _) => _lastCalculation = null;
+            _treeView.Changed += (_, _) => _lastCalculation = null;
         }
 
         public IConditionalExecutionBranch[] Branches()
@@ -110,7 +110,7 @@ internal class ExecutionOrderFinder : IExecutionOrderFinder
 
         private void FindPathFromOutputConnector(IOutputConnector currentBranchStarter, ExecutionFlags executionFlags)
         {
-            var currentConnectionsLevel = _tree.GetConnections(currentBranchStarter);
+            var currentConnectionsLevel = _treeView.GetConnectionsTo(currentBranchStarter);
             List<ConnectorConnectionInfo> nextConnectionsLevel = [];
 
             while (currentConnectionsLevel.Count > 0)
@@ -144,7 +144,7 @@ internal class ExecutionOrderFinder : IExecutionOrderFinder
         private IReadOnlyCollection<ConnectorConnectionInfo>? GetConnectionsIfBranchContinues(INodeRow row, ExecutionFlags flags)
         {
             if (row.OutputConnector is not { } outputConnector
-                || _tree.GetConnections(outputConnector) is not { } connections)
+                || _treeView.GetConnectionsTo(outputConnector) is not { } connections)
                 return null;
             
             switch (outputConnector.PassUpdate(flags))

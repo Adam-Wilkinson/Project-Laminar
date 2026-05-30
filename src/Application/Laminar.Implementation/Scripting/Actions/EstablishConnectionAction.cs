@@ -1,14 +1,14 @@
 ﻿using Laminar.Contracts.Base.ActionSystem;
-using Laminar.Contracts.Scripting.Connection;
-using Laminar.Implementation.Scripting.Connections;
+using Laminar.Contracts.Scripting.Execution;
+using Laminar.Domain.Exceptions;
 using Laminar.PluginFramework.NodeSystem.Connectors;
 
 namespace Laminar.Implementation.Scripting.Actions;
 
-internal readonly struct  EstablishConnectionAction(
+internal readonly struct EstablishConnectionAction(
     IOutputConnector outputConnector,
     IInputConnector inputConnector,
-    ICollection<IConnection> connectionCollection)
+    INodeTree nodeTree)
     : IUserAction
 {
     public IOutputConnector OutputConnector { get; } = outputConnector;
@@ -19,20 +19,10 @@ internal readonly struct  EstablishConnectionAction(
 
     public Task<IUserActionResult> Execute()
     {
-        if (!OutputConnector.TryConnectTo(InputConnector) && !InputConnector.TryConnectTo(OutputConnector)) 
-            return Task.FromResult(IUserActionResult.Invalid());
+        if (!nodeTree.TryConnect(OutputConnector, InputConnector, out _)) 
+            return Task.FromResult(IUserActionResult.Error(new CouldNotConnectException(OutputConnector, InputConnector)));
         
-        OutputConnector.OnConnectionEstablished();
-        InputConnector.OnConnectionEstablished();
-        
-        Connection connection = new()
-        {
-            OutputConnector = OutputConnector,
-            InputConnector = InputConnector
-        };
-        
-        connectionCollection.Add(connection);
-        return Task.FromResult(IUserActionResult.Success(new SeverConnectionAction(connection, connectionCollection)));
+        return Task.FromResult(IUserActionResult.Success(new SeverConnectionAction(OutputConnector, InputConnector, nodeTree)));
     }
 
     public override string ToString() => $"Establish Connection: {OutputConnector} -> {InputConnector}";

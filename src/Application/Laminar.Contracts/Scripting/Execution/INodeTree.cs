@@ -1,14 +1,19 @@
-﻿using Laminar.Contracts.Scripting.Connection;
+using System.Diagnostics.CodeAnalysis;
+using Laminar.Contracts.Scripting.Connection;
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.PluginFramework.NodeSystem.Connectors;
 
 namespace Laminar.Contracts.Scripting.Execution;
 
-public interface INodeTree
+public interface INodeTree : INodeTreeView
 {
-    public event EventHandler? Changed;
+    public void AddNode(IWrappedNode node);
 
-    public IReadOnlyCollection<ConnectorConnectionInfo> GetConnections(IConnector connector);
+    public bool DeleteNode(IWrappedNode node);
+    
+    public bool TryConnect(IOutputConnector outputConnector, IInputConnector inputConnector, [NotNullWhen(true)] out IConnection? connection);
+
+    public bool ConnectionExists(IOutputConnector outputConnector, IInputConnector inputConnector);
+    
+    public bool SeverConnection(IOutputConnector outputConnector, IInputConnector inputConnector);
 }
-
-public record ConnectorConnectionInfo(IConnection Connection, IConnector OppositeConnector, IWrappedNode ConnectedNode);

@@ -22,8 +22,8 @@ public partial class ScriptEditorViewModel(IScript script, IScriptEditor editor,
 
     public IReadOnlyObservableCollection<ScriptEditorItemModel> VisualElements { get; } =
         new FlattenedObservableTree<ScriptEditorItemModel>(
-                script.Nodes.ObservableMap(node => new ScriptEditorItemModel(node)),
-                script.Connections.ObservableMap(connection => new ScriptEditorItemModel(connection)));
+                script.NodeTreeView.Nodes.ObservableMap(node => new ScriptEditorItemModel(node)),
+                script.NodeTreeView.Connections.ObservableMap(connection => new ScriptEditorItemModel(connection)));
     
     public override bool Drop(object? payload, AvaloniaPoint location, object? receptacleTag)
     {
@@ -43,7 +43,7 @@ public partial class ScriptEditorViewModel(IScript script, IScriptEditor editor,
                 _userActionSession = userActionManager.BeginSession();
                 return connector;
             case ConnectorStatus.ConnectionsSaturated:
-                var connections = script.NodeTree.GetConnections(connector);
+                var connections = script.NodeTreeView.GetConnectionsTo(connector);
                 if (connections.Count == 0) return null;
                 var connectionInfo = connections.First();
 
