@@ -85,7 +85,7 @@ public partial class ScriptEditorViewModel(IScript script, IScriptEditor editor,
 
     public void CancelConnection()
     {
-        _userActionSession?.Reset();
+        _userActionSession?.Pop();
     }
 
     public void ConfirmConnection()
