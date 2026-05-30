@@ -1,4 +1,3 @@
-using Avalonia;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Laminar.Avalonia.ViewModels.Services;
@@ -9,6 +8,7 @@ using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Domain.Notification;
 using Laminar.PluginFramework.NodeSystem.Connectors;
 using LaminarPoint = Laminar.Domain.ValueObjects.Point;
+using AvaloniaPoint = Avalonia.Point;
 
 namespace Laminar.Avalonia.ViewModels;
 
@@ -25,7 +25,7 @@ public partial class ScriptEditorViewModel(IScript script, IScriptEditor editor,
                 script.Nodes.ObservableMap(node => new ScriptEditorItemModel(node)),
                 script.Connections.ObservableMap(connection => new ScriptEditorItemModel(connection)));
     
-    public override bool Drop(object? payload, Point location, object? receptacleTag)
+    public override bool Drop(object? payload, AvaloniaPoint location, object? receptacleTag)
     {
         if (payload is not IWrappedNode wrapped) return false;
 

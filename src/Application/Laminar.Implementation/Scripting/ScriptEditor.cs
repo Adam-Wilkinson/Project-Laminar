@@ -2,6 +2,7 @@
 using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Scripting.Connection;
 using Laminar.Contracts.Scripting.NodeWrapping;
+using Laminar.Domain.Extensions;
 using Laminar.Domain.ValueObjects;
 using Laminar.Implementation.Base.ActionSystem;
 using Laminar.Implementation.Scripting.Actions;
@@ -66,12 +67,29 @@ internal class ScriptEditor(
 
     private IUserAction? FindBridgeActionOrdered(IEditableScript editableScript, IInputConnector inputConnector, IOutputConnector outputConnector)
     {
+        List<IUserAction>? preparationActions = null;
+        if (inputConnector.Status == ConnectorStatus.ConnectionsSaturated)
+        {
+            preparationActions ??= [];
+            preparationActions.Add(new SeverConnectionAction(
+                editableScript.NodeTree.GetConnections(inputConnector).First().Connection, editableScript.Connections));
+        }
+
+        if (outputConnector.Status == ConnectorStatus.ConnectionsSaturated)
+        {
+            preparationActions ??= [];
+            preparationActions.Add(new SeverConnectionAction(
+                editableScript.NodeTree.GetConnections(outputConnector).First().Connection, editableScript.Connections));
+        }
+        
         foreach (IConnectionBridger bridger in connectionBridgers)
         {
             if (bridger.TryGetBridgeAction(outputConnector, inputConnector, this, editableScript.Connections) is not
                 { } action) continue;
-            
-            return action;
+
+            return preparationActions is not null
+                ? new CompoundAction(preparationActions.Concat(action.Yield()))
+                : action;
         }
 
         return null;
