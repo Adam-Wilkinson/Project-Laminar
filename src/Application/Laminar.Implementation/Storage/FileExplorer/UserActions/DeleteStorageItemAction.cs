@@ -6,13 +6,15 @@ using Laminar.Implementation.Base.ActionSystem;
 
 namespace Laminar.Implementation.Storage.FileExplorer.UserActions;
 
-internal class DeleteStorageItemAction(LaminarStorageItem item, FileExplorerActionDependencies dependencies) 
+internal readonly struct DeleteStorageItemAction(LaminarStorageItem item, FileExplorerActionDependencies dependencies) 
     : IUserAction
 {
     private readonly CompoundAction _internalAction = new(
         new RenameStorageItemAction(GetDeletedName(dependencies.FileSystem.GetNameWithoutExtension(item.Path)), item, dependencies), 
         new MoveStorageItemAction(item, dependencies.RecyclingBin, null, dependencies));
 
+    public LaminarStorageItem Target => item;
+    
     public bool CanExecute => _internalAction.CanExecute;
 
     public Task<IUserActionResult> Execute()
@@ -21,14 +23,16 @@ internal class DeleteStorageItemAction(LaminarStorageItem item, FileExplorerActi
         
         if (item is ILaminarStorageRootFolder rootFolder)
         {
+            CompoundAction? action = _internalAction;
+            FileExplorerActionDependencies actionDependencies = dependencies;
             return Task.FromResult<IUserActionResult>(new ResolvableError<DeleteRootFolderConfirmation>
             {
                 Exception = new DeleteRootFolderException(rootFolder.Path),
                 Resolve = confirmation => confirmation switch
                 {
-                    DeleteRootFolderConfirmation.DeleteRootFolder => new AlternativeActionFound(_internalAction),
-                    DeleteRootFolderConfirmation.RemoveRootFolder => new AlternativeActionFound(new RemoveRootFolderAction(rootFolder.Path, false, dependencies)),
-                    DeleteRootFolderConfirmation.RemoveRootFolderAndCleanup => new AlternativeActionFound(new RemoveRootFolderAction(rootFolder.Path, true, dependencies)),
+                    DeleteRootFolderConfirmation.DeleteRootFolder => new AlternativeActionFound(action),
+                    DeleteRootFolderConfirmation.RemoveRootFolder => new AlternativeActionFound(new RemoveRootFolderAction(rootFolder.Path, false, actionDependencies)),
+                    DeleteRootFolderConfirmation.RemoveRootFolderAndCleanup => new AlternativeActionFound(new RemoveRootFolderAction(rootFolder.Path, true, actionDependencies)),
                     _ => throw new InvalidOperationException()
                 }
             });
@@ -36,8 +40,6 @@ internal class DeleteStorageItemAction(LaminarStorageItem item, FileExplorerActi
         
         return _internalAction.Execute();
     }
-
-    public bool IsInverseOf(IUserAction action) => false;
-
+    
     private static string GetDeletedName(string name) => $"({DateTime.UtcNow.Ticks}) {name}";
 }

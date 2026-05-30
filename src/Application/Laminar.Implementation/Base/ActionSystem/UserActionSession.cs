@@ -1,10 +1,8 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Laminar.Contracts.Base.ActionSystem;
 
 namespace Laminar.Implementation.Base.ActionSystem;
 
-internal class UserActionSession(UserActionManager owner) : IUserActionSession
+internal class UserActionSession(IUserActionSessionHost owner) : IUserActionSession
 {
     private readonly Stack<IUserAction> _undoStack = [];
     
@@ -30,9 +28,11 @@ internal class UserActionSession(UserActionManager owner) : IUserActionSession
     
     public void Dispose()
     {
-        if (_undoStack.Count > 0)
-        {
-            owner.RegisterUndoAction(new CompoundAction(_undoStack.ToArray()));
-        }
+        if (_undoStack.Count == 0) return;
+
+        var undoList = _undoStack.ToList();
+        owner.Simplify(undoList);
+        if (undoList.Count == 0) return;
+        owner.RegisterUndoAction(new CompoundAction(undoList));
     }
 }

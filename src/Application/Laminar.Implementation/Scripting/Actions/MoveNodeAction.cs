@@ -4,18 +4,17 @@ using Laminar.Domain.ValueObjects;
 
 namespace Laminar.Implementation.Scripting.Actions;
 
-public class MoveNodeAction(IWrappedNode items, Point locationDelta) : IUserAction
+internal readonly struct MoveNodeAction(IWrappedNode node, Point locationDelta) : IUserAction
 {
     public Point LocationDelta { get; } = locationDelta;
+
+    public IWrappedNode Node => node;
     
     public bool CanExecute => true;
 
     public Task<IUserActionResult> Execute()
     {
-        items.Location.Value += LocationDelta;
-        return Task.FromResult(IUserActionResult.Success(new MoveNodeAction(items, -LocationDelta)));
+        node.Location.Value += LocationDelta;
+        return Task.FromResult(IUserActionResult.Success(new MoveNodeAction(node, -LocationDelta)));
     }
-
-    public bool IsInverseOf(IUserAction action)
-        => action is MoveNodeAction moveAction && moveAction.LocationDelta.IsCloseTo(-LocationDelta, 1e-10);
 }

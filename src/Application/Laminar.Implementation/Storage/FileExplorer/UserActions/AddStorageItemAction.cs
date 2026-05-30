@@ -4,7 +4,7 @@ using Laminar.Domain.Notification;
 
 namespace Laminar.Implementation.Storage.FileExplorer.UserActions;
 
-internal class AddStorageItemAction(
+internal readonly struct AddStorageItemAction(
     string newItemName, 
     LaminarStorageFolder parent, 
     int indexInParent,
@@ -12,15 +12,17 @@ internal class AddStorageItemAction(
     FileExplorerActionDependencies dependencies) 
     : IUserAction
 {
-    public string ItemName { get; } = newItemName;
+    public string ItemNameAndExtension { get; } = newItemName + GetExtension(itemType);
 
     public LaminarStorageFolder Parent { get; } = parent;
+    
+    public int IndexInParent => indexInParent;
     
     public bool CanExecute => true;
         
     public Task<IUserActionResult> Execute()
     {
-        var result = dependencies.StorageItemFactory.CreateChild(ItemName + GetExtension(itemType), Parent,
+        var result = dependencies.StorageItemFactory.CreateChild(ItemNameAndExtension, Parent,
             itemType is StorageItemType.Folder);
         
         (Parent.Contents as IObservableCollection<ILaminarStorageItem>)?.Insert(indexInParent, result);
@@ -29,7 +31,20 @@ internal class AddStorageItemAction(
         return Task.FromResult(IUserActionResult.Success(result, new DeleteStorageItemAction(storageItemInternal, dependencies)));
     }
 
-    public bool IsInverseOf(IUserAction action) => false;
+    public IUserActionSimplification GetSimplificationAfter(IUserAction previousAction)
+    {
+        if (previousAction is not DeleteStorageItemAction removeAction ||
+            removeAction.Target.Path.NameAndExtension != ItemNameAndExtension ||
+            removeAction.Target.ParentFolder != Parent) 
+            return IUserActionSimplification.None();
+        
+        if (Parent.Contents.IndexOf(removeAction.Target) == indexInParent)
+        {
+            return IUserActionSimplification.Undoes();
+        }
+
+        return IUserActionSimplification.NewEffectiveAction(new MoveStorageItemAction(removeAction.Target, Parent, indexInParent, dependencies));
+    }
 
     private static string GetExtension(StorageItemType type) => type switch
     {

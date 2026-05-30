@@ -11,7 +11,7 @@ using Laminar.PluginFramework.NodeSystem.Connectors;
 namespace Laminar.Implementation.Scripting;
 
 internal class ScriptEditor(
-    IUserActionManager userActionManager,
+    IUserActionManager<ScriptActionSimplifier> userActionManager,
     INodeFactory nodeFactory,
     IEnumerable<IConnectionBridger> connectionBridgers)
     : IScriptEditor
@@ -28,16 +28,12 @@ internal class ScriptEditor(
     {
         IEditableScript editableScript = MakeEditable(script);
         userActionManager.ExecuteAction(
-            new CompoundAction(nodes.Select(x => new DeleteNodeAction(x, editableScript.Nodes))));
+            new CompoundAction(nodes.Select(x => (IUserAction)new DeleteNodeAction(x, editableScript.Nodes))));
     }
 
     public void MoveNodes(IScript script, IEnumerable<IWrappedNode> nodes, Point delta)
     {
-        CompoundAction moveNodesAction = new();
-        foreach (IWrappedNode node in nodes)
-        {
-            moveNodesAction.Add(new MoveNodeAction(node, delta));
-        }
+        CompoundAction moveNodesAction = new(nodes.Select(x => (IUserAction)new MoveNodeAction(x, delta)));
 
         userActionManager.ExecuteAction(moveNodesAction);
     }

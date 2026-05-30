@@ -21,8 +21,8 @@ internal class LaminarFileBrowser : ILaminarFileBrowser, IDisposable
     private readonly IFileSystem _fileSystem;
     private readonly FileExplorerActionDependencies _actionDependencies;
     
-    
-    public LaminarFileBrowser(IUserActionManager actionManager,
+    public LaminarFileBrowser(
+        IUserActionManager actionManager,
         ILaminarStorageItemFactory factory,
         IPersistentDataManager dataManager,
         IFileSystem fileSystem)
@@ -47,6 +47,8 @@ internal class LaminarFileBrowser : ILaminarFileBrowser, IDisposable
             RootFolders = rootFolderPaths,
             StorageItemFactory = factory
         };
+        
+        actionManager.RegisterSimplifier(new StorageActionSimplifier(_actionDependencies));
     }
 
     public IReadOnlyObservableCollection<ILaminarStorageRootFolder> RootFolders { get; }

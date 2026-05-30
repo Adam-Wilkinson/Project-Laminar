@@ -3,9 +3,13 @@ using Laminar.Domain.ValueObjects;
 
 namespace Laminar.Implementation.Storage.FileExplorer.UserActions;
 
-public class AddRootFolderAction(FileSystemPath folderPath, FileExplorerActionDependencies dependencies) : IUserAction
+internal readonly struct AddRootFolderAction(
+    FileSystemPath folderPath, 
+    FileExplorerActionDependencies dependencies) : IUserAction
 {
     public bool CanExecute => true;
+    
+    public FileSystemPath RootFolderPath => folderPath;
     
     public Task<IUserActionResult> Execute()
     {
@@ -13,6 +17,4 @@ public class AddRootFolderAction(FileSystemPath folderPath, FileExplorerActionDe
         dependencies.RootFolders.Value = currentList;
         return Task.FromResult(IUserActionResult.Success(new RemoveRootFolderAction(folderPath, true, dependencies)));
     }
-
-    public bool IsInverseOf(IUserAction action) => false;
 }

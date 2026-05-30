@@ -24,4 +24,6 @@ public readonly struct Point
     {
         return Math.Abs(X - point.X) <= tolerance && Math.Abs(Y - point.Y) <= tolerance;
     }
+    
+    public double SquaredDistance() => X * X + Y * Y;
 }

@@ -5,7 +5,7 @@ using Laminar.PluginFramework.NodeSystem.Connectors;
 
 namespace Laminar.Implementation.Scripting.Actions;
 
-public class EstablishConnectionAction(
+internal readonly struct  EstablishConnectionAction(
     IOutputConnector outputConnector,
     IInputConnector inputConnector,
     ICollection<IConnection> connectionCollection)
@@ -34,9 +34,4 @@ public class EstablishConnectionAction(
         connectionCollection.Add(connection);
         return Task.FromResult(IUserActionResult.Success(new SeverConnectionAction(connection, connectionCollection)));
     }
-
-    public bool IsInverseOf(IUserAction action)
-        => action is SeverConnectionAction severAction &&
-           Equals(severAction.Connection.InputConnector, InputConnector) &&
-           Equals(severAction.Connection.OutputConnector, OutputConnector);
 }

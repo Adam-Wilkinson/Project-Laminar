@@ -1,18 +1,27 @@
 ﻿using Laminar.Contracts.Base.ActionSystem;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Laminar.Contracts.Base;
-using Laminar.Domain;
 
 namespace Laminar.Implementation.Base.ActionSystem;
 
+internal class UserActionManager<T> : UserActionManager, IUserActionManager<T>
+    where T : class, IUserActionSimplifier, new()
+{
+    public UserActionManager(IEnumerable<IUserActionErrorResolver> errorResolvers,
+        IExceptionHandler exceptionHandler,
+        IUserActionChainSimplifier chainSimplifier) : base(errorResolvers, exceptionHandler, chainSimplifier)
+    {
+        RegisterSimplifier(new T());
+    }
+}
+
 internal class UserActionManager(
     IEnumerable<IUserActionErrorResolver> errorResolvers,
-    IExceptionHandler exceptionHandler) : IUserActionManager
+    IExceptionHandler exceptionHandler,
+    IUserActionChainSimplifier chainSimplifier) : IUserActionManager, IUserActionSessionHost
 {
     private readonly Stack<IUserAction> _undoList = [];
     private readonly Stack<IUserAction> _redoList = [];
+    private readonly HashSet<IUserActionSimplifier> _simplifiers = [];
 
     public async Task<IUserActionResult> ExecuteAction(IUserAction action)
     {
@@ -59,6 +68,10 @@ internal class UserActionManager(
 
     public IUserActionSession BeginSession() => new UserActionSession(this);
 
+    public void RegisterSimplifier(IUserActionSimplifier simplifier) => _simplifiers.Add(simplifier);
+    
+    public void Simplify(List<IUserAction> actions) => chainSimplifier.Simplify(actions, _simplifiers);
+
     public async Task<IUserActionResult> ResolveExecutionAsync(IUserAction action)
     {
         if (!action.CanExecute) return IUserActionResult.Invalid();
@@ -71,6 +84,7 @@ internal class UserActionManager(
             switch (resolution)
             {
                 case UserActionCancelledResolution:
+                    (result as IResolvableError)?.OnCancelled?.Invoke();
                     return IUserActionResult.Cancelled();
                 case AlternativeActionFound { AlternativeAction: { } alternativeAction }:
                     if (alternativeAction.CanExecute)

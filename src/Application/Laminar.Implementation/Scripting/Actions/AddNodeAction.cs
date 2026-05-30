@@ -3,7 +3,7 @@ using Laminar.Contracts.Scripting.NodeWrapping;
 
 namespace Laminar.Implementation.Scripting.Actions;
 
-public class AddNodeAction(IWrappedNode node, ICollection<IWrappedNode> nodeCollection)
+internal readonly struct AddNodeAction(IWrappedNode node, ICollection<IWrappedNode> nodeCollection)
     : IUserAction
 {
     public IWrappedNode Node { get; } = node;
@@ -15,6 +15,4 @@ public class AddNodeAction(IWrappedNode node, ICollection<IWrappedNode> nodeColl
         nodeCollection.Add(Node);
         return Task.FromResult(IUserActionResult.Success(new DeleteNodeAction(Node, nodeCollection)));
     }
-
-    public bool IsInverseOf(IUserAction action) => action is DeleteNodeAction deleteAction && deleteAction.Node == Node;
 }

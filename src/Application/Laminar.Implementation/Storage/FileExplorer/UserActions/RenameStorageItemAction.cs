@@ -6,11 +6,13 @@ using Laminar.Implementation.Base.ActionSystem;
 
 namespace Laminar.Implementation.Storage.FileExplorer.UserActions;
 
-internal class RenameStorageItemAction(
+internal readonly struct RenameStorageItemAction(
     string newName, 
     LaminarStorageItem item, 
     FileExplorerActionDependencies dependencies) : IUserAction
 {
+    public LaminarStorageItem Target => item;
+    
     public bool CanExecute { get; } = !dependencies.FileSystem.GetNameWithoutExtension(item.Path).Equals(newName);
 
     public Task<IUserActionResult> Execute()
@@ -28,19 +30,26 @@ internal class RenameStorageItemAction(
             return Task.FromResult(IUserActionResult.Error(new InvalidStorageItemNameException(newName)));
         }
 
-        if (parentFolder.Contents.FirstOrDefault(sibling => newName.Equals(
-                dependencies.FileSystem.GetNameWithoutExtension(sibling.Path), FileSystemPath.RuntimeStringComparison)) 
+        string name = newName;
+        FileExplorerActionDependencies actionDependencies = dependencies;
+        
+        if (parentFolder.Contents.FirstOrDefault(sibling => name.Equals(
+                actionDependencies.FileSystem.GetNameWithoutExtension(sibling.Path), FileSystemPath.RuntimeStringComparison)) 
             is { } clash)
         {
             if (clash is not LaminarStorageItem internalItem) 
                 return Task.FromResult(IUserActionResult.Error(new InvalidOperationException("Clash with an item of a type I cannot handle")));
+            
+            RenameStorageItemAction renameAction = this;
+            LaminarStorageItem targetItem = item;
+            
             return Task.FromResult<IUserActionResult>(new ResolvableError<NamingConflictResolution>
             {
                 Exception = new FileWithNameExistsException(newName),
                 Resolve = resolution => resolution switch
                 {
-                    NamingConflictResolution.IncrementName => new AlternativeActionFound(new RenameStorageItemAction(newName + " (1)", item, dependencies)),
-                    NamingConflictResolution.ReplaceItem => new AlternativeActionFound(new CompoundAction(new DeleteStorageItemAction(internalItem, dependencies), this)),
+                    NamingConflictResolution.IncrementName => new AlternativeActionFound(new RenameStorageItemAction(name + " (1)", targetItem, actionDependencies)),
+                    NamingConflictResolution.ReplaceItem => new AlternativeActionFound(new CompoundAction(new DeleteStorageItemAction(internalItem, actionDependencies), renameAction)),
                     _ => throw new InvalidOperationException(),
                 },
                 OnCancelled = item.Refresh,

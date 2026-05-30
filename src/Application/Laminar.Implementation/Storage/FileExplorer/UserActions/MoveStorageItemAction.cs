@@ -8,7 +8,7 @@ using Laminar.Implementation.Base.ActionSystem;
 
 namespace Laminar.Implementation.Storage.FileExplorer.UserActions;
 
-internal class MoveStorageItemAction(
+internal readonly struct MoveStorageItemAction(
      LaminarStorageItem item, 
      ILaminarStorageFolder destinationFolder,
      int? targetIndex,
@@ -17,6 +17,8 @@ internal class MoveStorageItemAction(
 {
     public bool CanExecute => true;
      
+    public LaminarStorageItem Target => item;
+    
     public Task<IUserActionResult> Execute()
     {
         if (item is ILaminarStorageRootFolder)
@@ -38,20 +40,26 @@ internal class MoveStorageItemAction(
             {
                 if (clash is not LaminarStorageItem internalItem) 
                     return Task.FromResult(IUserActionResult.Error(new InvalidOperationException("Clash with an item of a type I cannot handle")));
+                
+                FileExplorerActionDependencies actionDependencies = dependencies;
+                MoveStorageItemAction moveAction = this;
+                LaminarStorageItem targetItem = item;
+                ILaminarStorageFolder destination = destinationFolder;
+                
                 return Task.FromResult<IUserActionResult>(new ResolvableError<NamingConflictResolution> 
                 {
                     Exception = new DestinationContainsItemOfThatNameException(destinationFolder.UserFriendlyName, item.UserFriendlyName),
                     Resolve = resolution => resolution switch
                     {
-                        NamingConflictResolution.ReplaceItem => new AlternativeActionFound(new CompoundAction(new DeleteStorageItemAction(internalItem, dependencies), this)),
+                        NamingConflictResolution.ReplaceItem => new AlternativeActionFound(new CompoundAction(new DeleteStorageItemAction(internalItem, actionDependencies), moveAction)),
                         NamingConflictResolution.IncrementName => new AlternativeActionFound(new CompoundAction(
-                            new RenameStorageItemAction(dependencies.FileSystem.GetNameWithoutExtension(item.Path) + " (1)", item, dependencies), this)),
+                            new RenameStorageItemAction(actionDependencies.FileSystem.GetNameWithoutExtension(targetItem.Path) + " (1)", targetItem, actionDependencies), moveAction)),
                         _ => throw new InvalidOperationException(),
                     },
                     OnCancelled = () =>
                     {
                         oldFolder.Refresh();
-                        destinationFolder.Refresh();
+                        destination.Refresh();
                     }
                 });
             }
@@ -69,9 +77,7 @@ internal class MoveStorageItemAction(
 
         return Task.FromResult(IUserActionResult.Success(new MoveStorageItemAction(item, oldFolder, indexInOldFolder, dependencies)));
     }
-
-    public bool IsInverseOf(IUserAction action) => false; 
-
+    
     private bool NameEqualsItemName(ILaminarStorageItem comparisonItem)
         => item.UserFriendlyName.Equals(comparisonItem.UserFriendlyName, FileSystemPath.RuntimeStringComparison);
 }

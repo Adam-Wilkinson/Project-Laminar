@@ -3,7 +3,7 @@ using Laminar.Contracts.Scripting.Connection;
 
 namespace Laminar.Implementation.Scripting.Actions;
 
-public class SeverConnectionAction(IConnection connection, ICollection<IConnection> connectionCollection)
+internal readonly struct SeverConnectionAction(IConnection connection, ICollection<IConnection> connectionCollection)
     : IUserAction
 {
     public IConnection Connection { get; } = connection;
@@ -25,9 +25,4 @@ public class SeverConnectionAction(IConnection connection, ICollection<IConnecti
             new EstablishConnectionAction(Connection.OutputConnector, Connection.InputConnector,
             connectionCollection)));
     }
-
-    public bool IsInverseOf(IUserAction action)
-        => action is EstablishConnectionAction establishAction &&
-           Equals(establishAction.OutputConnector, Connection.OutputConnector) &&
-           Equals(establishAction.InputConnector, Connection.InputConnector);
 }

@@ -2,7 +2,6 @@
 using CommunityToolkit.Mvvm.Input;
 using HanumanInstitute.MvvmDialogs;
 using Laminar.Avalonia.ViewModels.Services;
-using System;
 
 namespace Laminar.Avalonia.ViewModels;
 
