@@ -5,7 +5,12 @@ namespace Laminar.Implementation.Base.ActionSystem;
 internal class UserActionSession(IUserActionSessionHost owner) : IUserActionSession
 {
     private readonly Stack<IUserAction> _undoStack = [];
-    
+
+    public async Task Pop()
+    {
+        await owner.ResolveExecutionAsync(_undoStack.Pop());
+    }
+
     public async Task<IUserActionResult> ExecuteAction(IUserAction action)
     {
         var result = await owner.ResolveExecutionAsync(action);
@@ -22,7 +27,7 @@ internal class UserActionSession(IUserActionSessionHost owner) : IUserActionSess
     {
         while (_undoStack.Count > 0)
         {
-            await owner.ResolveExecutionAsync(_undoStack.Pop());
+            await Pop();
         }
     }
     

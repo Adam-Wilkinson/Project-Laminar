@@ -34,6 +34,6 @@ internal class ScriptActionSimplifier : IUserActionSimplifier
     }
     
     private static bool ConnectionMatches(EstablishConnectionAction establishAction, SeverConnectionAction severAction) 
-        => Equals(establishAction.InputConnector, severAction.Connection.InputConnector) && 
-           Equals(establishAction.OutputConnector, severAction.Connection.OutputConnector); 
+        => Equals(establishAction.InputConnector, severAction.InputConnector) && 
+           Equals(establishAction.OutputConnector, severAction.OutputConnector); 
 }

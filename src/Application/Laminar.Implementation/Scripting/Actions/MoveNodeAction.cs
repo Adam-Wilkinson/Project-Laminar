@@ -17,4 +17,6 @@ internal readonly struct MoveNodeAction(IWrappedNode node, Point locationDelta) 
         node.Location.Value += LocationDelta;
         return Task.FromResult(IUserActionResult.Success(new MoveNodeAction(node, -LocationDelta)));
     }
+
+    public override string ToString() => $"Move Node {Node}";
 }

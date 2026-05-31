@@ -8,18 +8,18 @@ using Laminar.PluginFramework.UserInterface;
 
 namespace Laminar.Implementation.Scripting.NodeWrapping;
 
-public class WrappedNode : IWrappedNode
+public sealed class WrappedNode : IWrappedNode, IDisposable
 {
+    private readonly IDisposable _rowsChangedSubscription;
     private Action? _preEvaluateAction;
-
+    
     public WrappedNode(INodeRow nameRow, INode node)
     {
         CoreNode = node;
         NameRow = nameRow;
 
         Rows = new FlattenedObservableTree<INodeRow>(node.Components);
-        Rows.HelperInstance().ItemAdded += Rows_ItemAdded;
-        Rows.HelperInstance().ItemRemoved += Rows_ItemRemoved;
+        _rowsChangedSubscription = Rows.SubscribeForEach(RegisterRow, RowRemoved);
 
         foreach (var row in Rows)
         {
@@ -37,7 +37,7 @@ public class WrappedNode : IWrappedNode
 
     public ObservableValue<Point> Location { get; set; } = new(new Point { X = 0, Y = 0 });
 
-    public Identifier<IWrappedNode> Id { get; } = Identifier<IWrappedNode>.New();
+    public GuidIdentifier<IWrappedNode> Id { get; } = GuidIdentifier<IWrappedNode>.New();
 
     public void TriggerNotification(LaminarExecutionContext context)
     {
@@ -73,24 +73,19 @@ public class WrappedNode : IWrappedNode
         }
     }
 
-    private void Rows_ItemRemoved(object? sender, ItemRemovedEventArgs<INodeRow> e)
+    private void RowRemoved(INodeRow row)
     {
-        if (e.Item.OutputConnector?.PreEvaluateAction is { } outputPreevaluate)
+        if (row.OutputConnector?.PreEvaluateAction is { } outputPreevaluate)
         {
             _preEvaluateAction -= outputPreevaluate;
         }
 
-        if (e.Item.InputConnector?.PreEvaluateAction is { } inputPreevaluate)
+        if (row.InputConnector?.PreEvaluateAction is { } inputPreevaluate)
         {
             _preEvaluateAction -= inputPreevaluate;
         }
 
-        e.Item.StartExecution -= Row_StartExecution;
-    }
-
-    private void Rows_ItemAdded(object? sender, ItemAddedEventArgs<INodeRow> e)
-    {
-        RegisterRow(e.Item);
+        row.StartExecution -= Row_StartExecution;
     }
 
     private void RegisterRow(INodeRow row)
@@ -111,5 +106,12 @@ public class WrappedNode : IWrappedNode
     private void Row_StartExecution(object? sender, LaminarExecutionContext e)
     {
         TriggerNotification(e);
+    }
+
+    public override string ToString() => $"{NameRow.CentralDisplay.Value} ({CoreNode})";
+
+    public void Dispose()
+    {
+        _rowsChangedSubscription.Dispose();
     }
 }

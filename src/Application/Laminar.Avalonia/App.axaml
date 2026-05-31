@@ -50,6 +50,7 @@
 			<conv:ParameterOrNullConverter x:Key="ParameterOrNullConverter"/>
 			<conv:DictionaryGetter x:Key="DictionaryGetter"/>
 			<conv:BoolToDoubleConverter x:Key="BoolToDoubleConverter"/>
+			<conv:ParseBrushConverter x:Key="ParseBrushConverter"/>
 			
 			<dd:TreeViewDropAcceptor x:Key="TreeViewDropAcceptor"/>
 			<dd:StackPanelDropAcceptor x:Key="StackPanelDropAcceptor"/>

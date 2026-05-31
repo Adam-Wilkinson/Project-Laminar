@@ -1,8 +1,5 @@
 ﻿namespace Laminar.Contracts.Base.ActionSystem;
 
-public interface IUserActionManager<TSimplifier> : IUserActionManager 
-    where TSimplifier : class, IUserActionSimplifier, new();
-
 public interface IUserActionManager
 {
     public IUserActionSession BeginSession();
@@ -13,5 +10,5 @@ public interface IUserActionManager
 
     public Task<IUserActionResult> Redo();
 
-    public void RegisterSimplifier(IUserActionSimplifier simplifier);
+    public IUserActionManager RegisterSimplifier(IUserActionSimplifier simplifier);
 }

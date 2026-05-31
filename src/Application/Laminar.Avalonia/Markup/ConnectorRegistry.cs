@@ -10,7 +10,7 @@ namespace Laminar.Avalonia.Markup;
 
 public class ConnectorRegistrationEventArgs(RoutedEvent routedEvent, object? sender) : RoutedEventArgs(routedEvent, sender)
 {
-    public required IIOConnector Connector { get; init; }
+    public required IConnector Connector { get; init; }
     public required Visual Visual { get; init; }
 }
 
@@ -30,9 +30,9 @@ public class ConnectorRegistry : Interactive
     public static bool GetConnectorGestureLive(Visual visual) => visual.GetValue(ConnectorGestureLiveProperty);
     public static void SetConnectorGestureLive(Visual visual, bool value) => visual.SetValue(ConnectorGestureLiveProperty, value);
     
-    public static readonly AttachedProperty<IIOConnector?> RegisteredConnectorProperty = AvaloniaProperty.RegisterAttached<ConnectorRegistry, Visual, IIOConnector?>("RegisteredConnector");
-    public static IIOConnector? GetRegisteredConnector(Visual obj) => obj.GetValue(RegisteredConnectorProperty);
-    public static void SetRegisteredConnector(Visual obj, IIOConnector? value) => obj.SetValue(RegisteredConnectorProperty, value);
+    public static readonly AttachedProperty<IConnector?> RegisteredConnectorProperty = AvaloniaProperty.RegisterAttached<ConnectorRegistry, Visual, IConnector?>("RegisteredConnector");
+    public static IConnector? GetRegisteredConnector(Visual obj) => obj.GetValue(RegisteredConnectorProperty);
+    public static void SetRegisteredConnector(Visual obj, IConnector? value) => obj.SetValue(RegisteredConnectorProperty, value);
     
     public static readonly RoutedEvent<ConnectorRegistrationEventArgs> ConnectorRegisteredEvent = RoutedEvent.Register<ConnectorRegistry, ConnectorRegistrationEventArgs>(nameof(ConnectorRegistered), RoutingStrategies.Direct);
     public event EventHandler<ConnectorRegistrationEventArgs>? ConnectorRegistered
@@ -59,7 +59,7 @@ public class ConnectorRegistry : Interactive
 
     private static void RegisteredConnectorChanged(Visual visual, AvaloniaPropertyChangedEventArgs arg)
     {
-        var (oldValue, newValue) = arg.GetOldAndNewValue<IIOConnector?>();
+        var (oldValue, newValue) = arg.GetOldAndNewValue<IConnector?>();
         var tracker = TrackedVisuals.GetValue(visual, v => new VisualTracker(v));
 
         if (oldValue is not null)
@@ -73,11 +73,11 @@ public class ConnectorRegistry : Interactive
         }
     }
     
-    private readonly Dictionary<IIOConnector, Visual> _internalDictionary = [];
+    private readonly Dictionary<IConnector, Visual> _internalDictionary = [];
     
-    public Visual GetVisualForConnector(IIOConnector connector) =>  _internalDictionary[connector];
+    public Visual GetVisualForConnector(IConnector connector) =>  _internalDictionary[connector];
 
-    private void RemoveConnectorVisual(IIOConnector connector)
+    private void RemoveConnectorVisual(IConnector connector)
     {
         if (_internalDictionary.TryGetValue(connector, out var oldOwner))
         {
@@ -91,7 +91,7 @@ public class ConnectorRegistry : Interactive
         _internalDictionary.Remove(connector);
     }
     
-    private void SetConnectorVisual(IIOConnector connector, Visual visual)
+    private void SetConnectorVisual(IConnector connector, Visual visual)
     {
         if (_internalDictionary.TryGetValue(connector, out var oldOwner))
         {

@@ -15,7 +15,7 @@ public class ConnectorLocationExtension : MarkupExtension
 {
     private readonly BindingBase _connectorBinding;
 
-    public ConnectorLocationExtension(IIOConnector connector)
+    public ConnectorLocationExtension(IConnector connector)
     {
         _connectorBinding = connector.AsStaticBinding();
     }
@@ -57,7 +57,7 @@ public class TransformedCenterValueConverter : IMultiValueConverter
             return AvaloniaProperty.UnsetValue;
         }
         
-        if (parameter is not TransformedCenterObservable observer || values[0] is not IIOConnector connector || values[1] is not Point returnValue)
+        if (parameter is not TransformedCenterObservable observer || values[0] is not IConnector connector || values[1] is not Point returnValue)
             return new BindingNotification(new InvalidCastException(), BindingErrorType.Error);
 
         observer.SetConnector(connector);
@@ -69,13 +69,13 @@ public class TransformedCenterObservable(Visual owner, ConnectorRegistry registr
 {
     private readonly List<Subscription> _subscriptions = [];
     
-    private IIOConnector? _currentConnector;
+    private IConnector? _currentConnector;
     private Visual? _trackedVisual;
     
     public IDisposable Subscribe(IObserver<Point> observer)
         => new Subscription(this, observer, owner, _trackedVisual);
     
-    public void SetConnector(IIOConnector connector)
+    public void SetConnector(IConnector connector)
     {
         if (Equals(_currentConnector, connector)) return;
         _currentConnector = connector;

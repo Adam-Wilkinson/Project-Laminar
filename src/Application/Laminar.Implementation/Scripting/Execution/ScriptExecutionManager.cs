@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using Laminar.Contracts.Scripting;
-using Laminar.Contracts.Scripting.Execution;
+﻿using Laminar.Contracts.Scripting.Execution;
 
 namespace Laminar.Implementation.Scripting.Execution;
 
@@ -12,9 +10,9 @@ internal class ScriptExecutionManager(IExecutionOrderFinder executionOrderFinder
 
     public bool DestroyExecutionInstance(IScriptExecutionInstance executionInstance) => _instances.Remove(executionInstance);
 
-    public IScriptExecutionInstance CreateExecutionInstance(IEditableScript editableScript)
+    public IScriptExecutionInstance CreateExecutionInstance(INodeTreeView nodeTreeView)
     {
-        IScriptExecutionInstance newInstance = new ScriptExecutionInstance(editableScript, executionOrderFinder);
+        IScriptExecutionInstance newInstance = new ScriptExecutionInstance(nodeTreeView, executionOrderFinder);
         _instances.Add(newInstance);
         return newInstance;
     }

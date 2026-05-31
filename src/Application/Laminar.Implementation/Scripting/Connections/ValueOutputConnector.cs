@@ -12,15 +12,15 @@ internal class ValueOutputConnector<T>(ITypeInfoStore typeInfoStore, IValueOutpu
     private T _valueAtLastUpdate = output.Value;
     
     public event PropertyChangedEventHandler? PropertyChanged { add { } remove { } }
-
-    public bool AcceptsConnections => true;
-
+    
     public string ColorHex => typeInfoStore.GetTypeInfoOrBlank(typeof(T)).HexColor;
 
     public IValueOutput<T> Output { get; } = output;
 
     public Action? PreEvaluateAction => Output.PreEvaluateAction;
-    
+
+    public ConnectorStatus Status { get; } = ConnectorStatus.AcceptsConnections;
+
     public void OnConnectionEstablished()
     {
     }
@@ -48,4 +48,6 @@ internal class ValueOutputConnector<T>(ITypeInfoStore typeInfoStore, IValueOutpu
         _valueAtLastUpdate = Output.Value;
         return PassUpdateOption.CurrentlyPasses;
     }
+
+    public override string ToString() => $"Value Output '{Output.InterfaceData.Name}' (Value: {Output.Value})";
 }

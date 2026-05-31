@@ -87,7 +87,7 @@ public class Connector : Shape
     {
         var relativePoint = args.PointerEvent.GetPosition(this);
         _originalClickOffset ??= relativePoint;
-        IsEnabled = false;
+        IsHitTestVisible = false;
         switch (DragMode)
         {
             case ConnectorDragMode.MoveEnd:
@@ -109,7 +109,7 @@ public class Connector : Shape
     private void OnEndConnectionIndication(RoutedEventArgs args)
     {
         PseudoClasses.Remove(DragActivePseudoclass);
-        IsEnabled = true;
+        IsHitTestVisible = true;
         args.Handled = true;
         Startpoint = new Point(0, 0);
         Endpoint = new Point(0, 0);

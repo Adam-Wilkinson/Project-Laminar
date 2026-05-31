@@ -23,6 +23,7 @@ public partial class ScriptEditorItemModel : ObservableObject
         IsSelectable = true;
         IsMovable = true;
         LayerIndex = 10;
+        Position = new AvaloniaPoint(nodeModel.Location.Value.X, nodeModel.Location.Value.Y);
         
         nodeModel.Location.OnChanged += (_, changedArgs) =>
         {

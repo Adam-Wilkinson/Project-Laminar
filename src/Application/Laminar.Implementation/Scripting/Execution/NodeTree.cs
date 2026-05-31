@@ -1,140 +1,121 @@
-﻿using System.Runtime.CompilerServices;
-using Laminar.Contracts.Scripting;
+﻿using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using Laminar.Contracts.Scripting.Connection;
 using Laminar.Contracts.Scripting.Execution;
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Domain.Notification;
-using Laminar.PluginFramework.NodeSystem.Components;
+using Laminar.Implementation.Scripting.Connections;
 using Laminar.PluginFramework.NodeSystem.Connectors;
 
 namespace Laminar.Implementation.Scripting.Execution;
 
-public class NodeTree : INodeTree
+internal class NodeTree : INodeTree
 {
-    private readonly ConditionalWeakTable<IIOConnector, ConnectorInformation> _treeInformation = [];
-    private readonly Dictionary<IWrappedNode, EventHandler<ItemAddedEventArgs<INodeRow>>> _nodeRowAddedDelegates = new();
-    private readonly Dictionary<IWrappedNode, EventHandler<ItemRemovedEventArgs<INodeRow>>> _nodeRowRemovedDelegates = new();
+    private readonly ConditionalWeakTable<IConnector, ConnectorInformation> _treeInformation = [];
+    private readonly Dictionary<IWrappedNode, IDisposable> _nodeRowsChangedSubscriptions = [];
+    private readonly ObservableCollection<IWrappedNode> _nodes = [];
+    private readonly ObservableCollection<IConnection> _connections = [];
     
     public event EventHandler? Changed;
-
-    public NodeTree(IScript script)
-    { 
-        script.Nodes.HelperInstance().ItemAdded += NodeAdded;
-        script.Nodes.HelperInstance().ItemRemoved += NodeRemoved;
-
-        script.Connections.HelperInstance().ItemAdded += ConnectionAdded;
-        script.Connections.HelperInstance().ItemRemoved += ConnectionRemoved;
-    }
-
-    public IWrappedNode GetConnectorOwner(IIOConnector connector) => GetConnectorInformation(connector).Owner;
     
-    public IReadOnlyList<IIOConnector> GetConnections(IIOConnector connector) => GetConnectorInformation(connector).Connected;
+    public IReadOnlyCollection<ConnectorConnectionInfo> GetConnectionsTo(IConnector connector) => GetConnectorInformation(connector).Connections.Values;
 
-    public IReadOnlyList<IWrappedNode> GetConnections(IOutputConnector outputConnector) => GetConnectorInformation(outputConnector).ConnectedNodes;
+    public IReadOnlyObservableCollection<IWrappedNode> Nodes => new Domain.Notification.ReadOnlyObservableCollection<IWrappedNode>(_nodes);
 
-    private void NodeRemoved(object? sender, ItemRemovedEventArgs<IWrappedNode> e)
+    public IReadOnlyObservableCollection<IConnection> Connections => new Domain.Notification.ReadOnlyObservableCollection<IConnection>(_connections);
+    
+    public void AddNode(IWrappedNode node)
     {
-        e.Item.Rows.HelperInstance().ItemAdded -= _nodeRowAddedDelegates[e.Item];
-        _nodeRowAddedDelegates.Remove(e.Item);
-        e.Item.Rows.HelperInstance().ItemRemoved -= _nodeRowRemovedDelegates[e.Item];
-        _nodeRowRemovedDelegates.Remove(e.Item);
-
-        foreach (INodeRow row in e.Item.Rows)
+        _nodeRowsChangedSubscriptions[node] = node.Rows.SubscribeForEach(
+            addedRow =>
         {
-            RowRemoved(e.Item, row);
-        }
-    }
+            if (addedRow.InputConnector is not null) 
+                _treeInformation.Add(addedRow.InputConnector, new ConnectorInformation(node, []));
 
-    private void NodeAdded(object? sender, ItemAddedEventArgs<IWrappedNode> e)
-    {
-        _nodeRowAddedDelegates[e.Item] = (_, newRow) => RowAdded(e.Item, newRow.Item);
-        e.Item.Rows.HelperInstance().ItemAdded += _nodeRowAddedDelegates[e.Item];
-        _nodeRowRemovedDelegates[e.Item] = (_, removedRow) => RowRemoved(e.Item, removedRow.Item);
-        e.Item.Rows.HelperInstance().ItemRemoved += _nodeRowRemovedDelegates[e.Item];
-
-        foreach (INodeRow row in e.Item.Rows)
+            if (addedRow.OutputConnector is not null) 
+                _treeInformation.Add(addedRow.OutputConnector, new ConnectorInformation(node, []));
+        }, 
+            removedRow =>
         {
-            RowAdded(e.Item, row);
-        }
-    }
+            if (removedRow.InputConnector is not null) 
+                _treeInformation.Remove(removedRow.InputConnector);
 
-    private void RowAdded(IWrappedNode node, INodeRow row)
-    {
-        if (row.InputConnector is not null)
-        {
-            _treeInformation.Add(row.InputConnector, new ConnectorInformation(node, [], []));
-        }
-
-        if (row.OutputConnector is not null)
-        {
-            _treeInformation.Add(row.OutputConnector, new ConnectorInformation(node, [], []));
-        }
-    }
-
-    private void RowRemoved(IWrappedNode node, INodeRow row)
-    {
-        if (row.InputConnector is not null)
-        {
-            _treeInformation.Remove(row.InputConnector);
-        }
-
-        if (row.OutputConnector is not null)
-        {
-            _treeInformation.Remove(row.OutputConnector);
-        }
-    }
-
-    private void ConnectionRemoved(object? sender, ItemRemovedEventArgs<IConnection> e)
-    {
-        var inputInfo = GetConnectorInformation(e.Item.InputConnector);
-        var outputInfo = GetConnectorInformation(e.Item.OutputConnector);
-
-        inputInfo.Connected.Remove(e.Item.OutputConnector);
-        inputInfo.ConnectedNodes.Remove(outputInfo.Owner);
-
-        outputInfo.Connected.Remove(e.Item.InputConnector);
-        outputInfo.ConnectedNodes.Remove(inputInfo.Owner);
-
+            if (removedRow.OutputConnector is not null) 
+                _treeInformation.Remove(removedRow.OutputConnector);
+        });
+        
+        _nodes.Add(node);
         Changed?.Invoke(this, EventArgs.Empty);
     }
 
-    private void ConnectionAdded(object? sender, ItemAddedEventArgs<IConnection> e)
+    public bool DeleteNode(IWrappedNode node)
     {
-        var inputInfo = GetConnectorInformation(e.Item.InputConnector);
-        var outputInfo = GetConnectorInformation(e.Item.OutputConnector);
-
-        if (inputInfo.Connected.Contains(e.Item.OutputConnector))
-        {
-            throw new InvalidOperationException();
-        }
-        
-        inputInfo.Connected.Add(e.Item.OutputConnector);
-
-        if (!inputInfo.ConnectedNodes.Contains(outputInfo.Owner))
-        {
-            inputInfo.ConnectedNodes.Add(outputInfo.Owner);
-        }
-
-        if (outputInfo.Connected.Contains(e.Item.InputConnector))
-        {
-            throw new InvalidOperationException();
-        }
-        
-        outputInfo.Connected.Add(e.Item.InputConnector);
-
-        if (!outputInfo.ConnectedNodes.Contains(inputInfo.Owner))
-        {
-            outputInfo.ConnectedNodes.Add(inputInfo.Owner);
-        }
-
+        if (!_nodes.Contains(node)) return false;
+        _nodeRowsChangedSubscriptions[node].Dispose();
+        _nodeRowsChangedSubscriptions.Remove(node);
+        _nodes.Remove(node);
         Changed?.Invoke(this, EventArgs.Empty);
+        return true;
     }
 
-    private ConnectorInformation GetConnectorInformation(IIOConnector connector) => _treeInformation.GetValue(connector,
+    public bool TryConnect(IOutputConnector outputConnector, IInputConnector inputConnector, [NotNullWhen(true)] out IConnection? connection)
+    {
+        if (!outputConnector.TryConnectTo(inputConnector) && !inputConnector.TryConnectTo(outputConnector))
+        {
+            connection = null;
+            return false;
+        }
+        
+        Connection newConnection = new()
+        {
+            OutputConnector = outputConnector,
+            InputConnector = inputConnector,
+        };
+        
+        var inputInfo = GetConnectorInformation(inputConnector);
+        var outputInfo = GetConnectorInformation(outputConnector);
+        
+        inputInfo.Connections.Add(outputConnector, new ConnectorConnectionInfo(newConnection, outputConnector, outputInfo.Owner));
+        outputInfo.Connections.Add(inputConnector, new ConnectorConnectionInfo(newConnection, inputConnector, inputInfo.Owner));
+
+        _connections.Add(newConnection);
+        outputConnector.OnConnectionEstablished();
+        inputConnector.OnConnectionEstablished();
+        Changed?.Invoke(this, EventArgs.Empty);
+
+        connection = newConnection;
+        return true;
+    }
+
+    public bool ConnectionExists(IOutputConnector outputConnector, IInputConnector inputConnector)
+        => GetConnectorInformation(outputConnector).Connections.ContainsKey(inputConnector) 
+           || GetConnectorInformation(inputConnector).Connections.ContainsKey(outputConnector);
+
+    public bool SeverConnection(IOutputConnector outputConnector, IInputConnector inputConnector)
+    {
+        if (!ConnectionExists(outputConnector, inputConnector)) return false;
+
+        var inputInfo = GetConnectorInformation(inputConnector);
+        var outputInfo = GetConnectorInformation(outputConnector);
+        
+        Debug.Assert(Equals(inputInfo.Connections[outputConnector].Connection, outputInfo.Connections[inputConnector].Connection));
+        IConnection brokenConnector = inputInfo.Connections[outputConnector].Connection;
+
+        inputInfo.Connections.Remove(outputConnector);
+        outputInfo.Connections.Remove(inputConnector);
+
+        inputConnector.OnConnectionSevered();
+        outputConnector.OnConnectionSevered();
+        
+        _connections.Remove(brokenConnector);
+        Changed?.Invoke(this, EventArgs.Empty);
+        return true;
+    }
+    
+    private ConnectorInformation GetConnectorInformation(IConnector connector) => _treeInformation.GetValue(connector,
         _ => throw new InvalidOperationException("Connector not found"));
     
-    private record ConnectorInformation(
-        IWrappedNode Owner,
-        List<IIOConnector> Connected,
-        List<IWrappedNode> ConnectedNodes);
+    private record ConnectorInformation(IWrappedNode Owner, Dictionary<IConnector, ConnectorConnectionInfo> Connections);
 }

@@ -1,6 +1,6 @@
 ﻿namespace Laminar.PluginFramework.NodeSystem.Connectors;
 
-public interface IInputConnector : IIOConnector
+public interface IInputConnector : IConnector
 {
     public bool CanConnectTo(IOutputConnector connector);
     

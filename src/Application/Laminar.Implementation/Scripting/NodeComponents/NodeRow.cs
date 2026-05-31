@@ -55,7 +55,7 @@ internal class NodeRow(IInput? input, IOutput? output) : INodeRow
 
     public required IOutputConnector? OutputConnector { get; init; }
 
-    public required object CentralDisplay { get; init; }
+    public required IInterfaceData CentralDisplay { get; init; }
 
     public Opacity Opacity { get; } = new();
 

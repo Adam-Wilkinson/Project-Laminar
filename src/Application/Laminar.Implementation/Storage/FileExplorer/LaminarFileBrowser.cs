@@ -20,6 +20,7 @@ internal class LaminarFileBrowser : ILaminarFileBrowser, IDisposable
     private readonly IUserActionManager _actionManager;
     private readonly IFileSystem _fileSystem;
     private readonly FileExplorerActionDependencies _actionDependencies;
+    private readonly IDisposable _rootFoldersChangedSubscription;
     
     public LaminarFileBrowser(
         IUserActionManager actionManager,
@@ -37,8 +38,7 @@ internal class LaminarFileBrowser : ILaminarFileBrowser, IDisposable
             ["RootFolders"].SetDefaultAndGet<List<FileSystemPath>>([RoamingDataFolder.ChildPath("Default")]);
         
         RootFolders = rootFolderPaths.ToObservableCollection().ObservableMap(factory.CreateRootFolder);
-        RootFolders.HelperInstance().ItemRemoved += (_, e) 
-            => e.Item.Dispose();
+        _rootFoldersChangedSubscription = RootFolders.SubscribeForEach(onRemoved: folder => folder.Dispose());
 
         _actionDependencies = new()
         {
@@ -79,12 +79,8 @@ internal class LaminarFileBrowser : ILaminarFileBrowser, IDisposable
 
     public void Dispose()
     {
-        foreach (ILaminarStorageRootFolder rootFolder in RootFolders)
-        {
-            rootFolder.Dispose();
-        }
-        
         _recyclingBin.Dispose();
+        _rootFoldersChangedSubscription.Dispose();
         GC.SuppressFinalize(this);
     }
 }

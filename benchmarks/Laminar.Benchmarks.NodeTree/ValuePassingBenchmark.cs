@@ -43,16 +43,16 @@ public class ValuePassingBenchmark
 
     private void SetupScript<T>(IScript script, int nodeCount) where T : INode, new()
     {
-        var originalNode = _nodeWrapperFactory!.WrapNode<T>();
-        var previousNode = _scriptEditor!.AddMatchingNode(script, originalNode);
-        for (var i = 0; i < nodeCount; i++)
-        {
-            var nextNode = _scriptEditor.AddMatchingNode(script, originalNode);
-            _scriptEditor.FindBridgeConnectorsAction(script, previousNode.Rows[1].OutputConnector!, nextNode.Rows[0].InputConnector!);
-            previousNode = nextNode;
-        }
-        (script.Nodes[0].Rows[0].CentralDisplay as IInterfaceData<double>)!.Value = 3.0;
-        script.ExecutionInstance.IsShownInUI = false;
+        // var originalNode = _nodeWrapperFactory!.WrapNode<T>();
+        // var previousNode = _scriptEditor!.AddMatchingNodeAction(script, originalNode);
+        // for (var i = 0; i < nodeCount; i++)
+        // {
+        //     var nextNode = _scriptEditor.AddMatchingNodeAction(script, originalNode);
+        //     _scriptEditor.FindBridgeConnectorsAction(script, previousNode.Rows[1].OutputConnector!, nextNode.Rows[0].InputConnector!);
+        //     previousNode = nextNode;
+        // }
+        // (script.Nodes[0].Rows[0].CentralDisplay as IInterfaceData<double>)!.Value = 3.0;
+        // script.ExecutionInstance.IsShownInUI = false;
     }
 
     [Benchmark]

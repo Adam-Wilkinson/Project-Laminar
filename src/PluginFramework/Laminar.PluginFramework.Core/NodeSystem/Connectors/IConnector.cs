@@ -2,11 +2,11 @@
 
 namespace Laminar.PluginFramework.NodeSystem.Connectors;
 
-public interface IIOConnector : INotifyPropertyChanged
+public interface IConnector : INotifyPropertyChanged
 {
     public Action? PreEvaluateAction { get; }
 
-    public bool AcceptsConnections { get; }
+    public ConnectorStatus Status { get; }
 
     public void OnConnectionEstablished();
 

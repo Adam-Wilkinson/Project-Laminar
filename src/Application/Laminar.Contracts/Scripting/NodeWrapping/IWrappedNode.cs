@@ -7,7 +7,7 @@ namespace Laminar.Contracts.Scripting.NodeWrapping;
 
 public interface IWrappedNode : INotificationClient<LaminarExecutionContext>
 {
-    Identifier<IWrappedNode> Id { get; }
+    GuidIdentifier<IWrappedNode> Id { get; }
 
     INodeRow NameRow { get; }
 

@@ -34,7 +34,7 @@ public class MakeConnectionGesture : GestureRecognizer
         _captured = e.Pointer;
         
         _connectorRegistry ??= (Target as StyledElement)?.FindResource(ConnectorRegistry.Key) as ConnectorRegistry ?? throw new InvalidOperationException("MakeConnectionGesture requires access to a connector registry");
-        var targetConnector = ConnectionInteractionHandler?.GetTargetConnector(clickedConnector.Connector);
+        var targetConnector = ConnectionInteractionHandler?.StartConnectionFrom(clickedConnector.Connector);
         if (targetConnector is null) return;
         _firstConnector = new ConnectorTarget(targetConnector, _connectorRegistry.GetVisualForConnector(targetConnector));
     }
@@ -108,7 +108,7 @@ public class MakeConnectionGesture : GestureRecognizer
         return true;
     }
     
-    private ConnectorTarget? FindConnectorFromEvent(PointerEventArgs e, Predicate<IIOConnector>? predicate = null)
+    private ConnectorTarget? FindConnectorFromEvent(PointerEventArgs e, Predicate<IConnector>? predicate = null)
     {
         if (Target is not Visual targetVisual) return null;
 
@@ -122,5 +122,5 @@ public class MakeConnectionGesture : GestureRecognizer
             : null;
     }
     
-    private record ConnectorTarget(IIOConnector Connector, Visual Visual);
+    private record ConnectorTarget(IConnector Connector, Visual Visual);
 }
