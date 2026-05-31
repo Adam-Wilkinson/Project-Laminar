@@ -10,8 +10,10 @@ public interface IWrappedNode : INotificationClient<LaminarExecutionContext>
     GuidIdentifier<IWrappedNode> Id { get; }
 
     INodeRow NameRow { get; }
-
+    
     IReadOnlyObservableCollection<INodeRow> Rows { get; }
+    
+    ObservableValue<bool> IsCollapsed { get; set; }
 
     ObservableValue<Point> Location { get; }
 

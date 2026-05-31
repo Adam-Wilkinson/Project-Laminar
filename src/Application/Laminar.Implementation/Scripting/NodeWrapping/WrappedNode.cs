@@ -32,8 +32,10 @@ public sealed class WrappedNode : IWrappedNode, IDisposable
     public INode CoreNode { get; }
 
     public INodeRow NameRow { get; }
-
+    
     public IReadOnlyObservableCollection<INodeRow> Rows { get; set; }
+
+    public ObservableValue<bool> IsCollapsed { get; set; } = new(false);
 
     public ObservableValue<Point> Location { get; set; } = new(new Point { X = 0, Y = 0 });
 

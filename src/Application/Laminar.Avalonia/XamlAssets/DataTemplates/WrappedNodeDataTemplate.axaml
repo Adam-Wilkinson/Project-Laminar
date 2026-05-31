@@ -2,6 +2,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:scr="using:Laminar.Contracts.Scripting.NodeWrapping"
                     xmlns:c="using:Laminar.Avalonia.Controls"
+                    xmlns:t="using:Laminar.Avalonia.ToolSystem"
                     xmlns:comp="using:Laminar.PluginFramework.NodeSystem.Components"
                     xmlns:conn="using:Laminar.PluginFramework.NodeSystem.Connectors"
                     xmlns:sam="using:Laminar.Avalonia.SelectAndMove"
@@ -63,6 +64,12 @@
     
     <DataTemplate DataType="scr:IWrappedNode" x:Key="WrappedNodeDataTemplate">
         <Panel Name="NodeRoot">
+            <t:ToolMenu.ContextToolbox>
+                <t:Toolbox NameKey="Node" x:DataType="scr:IWrappedNode">
+                    <StaticResource ResourceKey="Tools.ScriptEditor.NodeTools.ToggleExpanded"/>
+                </t:Toolbox>
+            </t:ToolMenu.ContextToolbox>
+            
             <Border Name="MainPanelBorder"
                     Background="{DynamicResource {x:Static init:ColorInitialization.LaminarNonForegroundKey}}"
                     VerticalAlignment="Top"
@@ -74,6 +81,7 @@
                                     ClipToBounds="False"
                                     Background="{DynamicResource {x:Static init:ColorInitialization.LaminarAccentBackgroundKey}}"/>
                     <ItemsControl ItemsSource="{Binding Rows}"
+                                  IsVisible="{Binding !IsCollapsed.Value}"
                                   ClipToBounds="False"/>
                 </DockPanel>
             </Border>
