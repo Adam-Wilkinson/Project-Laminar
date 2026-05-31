@@ -81,6 +81,11 @@ internal partial class UserActionManager(
         var result = await action.Execute();
         if (result is UserActionSuccess success) return success;
 
+        if (result is UserActionAlternative { AlternativeAction: { } alternative })
+        {
+            return await ResolveExecutionAsync(alternative);
+        }
+        
         foreach (var errorResolver in errorResolvers)
         {
             var resolution = await errorResolver.TryResolve(result);

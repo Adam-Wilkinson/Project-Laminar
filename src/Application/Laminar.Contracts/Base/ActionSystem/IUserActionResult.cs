@@ -11,6 +11,8 @@ public interface IUserActionResult
     public static IUserActionResult Error(Exception exception) =>  new UserActionError(exception);
 
     public static IUserActionResult Cancelled() => new UserActionCancelled();
+
+    public static IUserActionResult Alternative(IUserAction alternative) => new UserActionAlternative(alternative);
 }
 
 public interface IResolvableError : IUserActionResult
@@ -29,9 +31,12 @@ public class ResolvableError<TParam> : IResolvableError
     public required Exception Exception { get; init; }
 }
 
+
 public record UserActionSuccess<T>(T ReturnValue, IUserAction InverseAction) : UserActionSuccess(InverseAction);
 
 public record UserActionSuccess(IUserAction InverseAction) : IUserActionResult;
+
+public record UserActionAlternative(IUserAction AlternativeAction) : IUserActionResult;
 
 public record UserActionInvalid : IUserActionResult;
 

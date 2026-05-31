@@ -49,30 +49,12 @@ internal class ScriptEditor(
 
     private IUserAction? FindBridgeActionOrdered(INodeTree nodeTree, IInputConnector inputConnector, IOutputConnector outputConnector)
     {
-        List<IUserAction>? preparationActions = null;
-        if (inputConnector.Status == ConnectorStatus.ConnectionsSaturated 
-            && nodeTree.GetConnectionsTo(inputConnector).First().OppositeConnector is IOutputConnector firstPairedConnector)
-        {
-            preparationActions ??= [];
-            preparationActions.Add(new SeverConnectionAction(firstPairedConnector, inputConnector, nodeTree));
-        }
-
-        if (outputConnector.Status == ConnectorStatus.ConnectionsSaturated
-            && nodeTree.GetConnectionsTo(outputConnector).First().OppositeConnector is IInputConnector secondPairedConnector)
-        {
-            preparationActions ??= [];
-            preparationActions.Add(new SeverConnectionAction(
-                outputConnector, secondPairedConnector, nodeTree));
-        }
-        
-        foreach (IConnectionBridger bridger in connectionBridgers)
+        foreach (var bridger in connectionBridgers)
         {
             if (bridger.TryGetBridgeAction(outputConnector, inputConnector, nodeTree) is not
                 { } action) continue;
 
-            return preparationActions is not null
-                ? new CompoundAction(preparationActions.Concat(action.Yield()))
-                : action;
+            return action;
         }
 
         return null;
