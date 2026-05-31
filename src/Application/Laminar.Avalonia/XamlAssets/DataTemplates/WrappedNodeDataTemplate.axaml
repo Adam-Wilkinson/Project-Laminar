@@ -76,10 +76,21 @@
                     ClipToBounds="False"
                     BorderThickness="3">
                 <DockPanel Width="250">
-                    <ContentControl DockPanel.Dock="Top"
-                                    Content="{Binding NameRow}" 
-                                    ClipToBounds="False"
-                                    Background="{DynamicResource {x:Static init:ColorInitialization.LaminarAccentBackgroundKey}}"/>
+                    <Panel DockPanel.Dock="Top" HorizontalAlignment="Stretch">
+                        <ContentControl Content="{Binding NameRow}" 
+                                        ClipToBounds="False"
+                                        Background="{DynamicResource {x:Static init:ColorInitialization.LaminarAccentBackgroundKey}}"/>
+                        <Button Margin="10,0,0,0"
+                                Height="30"
+                                Width="30"
+                                VerticalAlignment="Center"
+                                HorizontalAlignment="Left"
+                                IsVisible="{Binding $parent.((scr:IWrappedNode)DataContext)?.Rows, Converter={StaticResource HasValueConverter}, TargetNullValue={x:False}}"
+                                DataContext="{Binding 
+                                    Converter={StaticResource ToolInstancer},
+                                    ConverterParameter={StaticResource Tools.ScriptEditor.NodeTools.ToggleExpanded}}"
+                                Theme="{StaticResource ToolButton}"/>
+                    </Panel>
                     <ItemsControl ItemsSource="{Binding Rows}"
                                   IsVisible="{Binding !IsCollapsed.Value}"
                                   ClipToBounds="False"/>
