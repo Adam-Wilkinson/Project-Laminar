@@ -36,7 +36,7 @@
         <Setter Property="ClipToBounds" Value="False"/>
         <Setter Property="Template">
             <ControlTemplate>
-                <DockPanel>
+                <DockPanel ClipToBounds="False">
                     <Menu DockPanel.Dock="Top" 
                           ItemsSource="{Binding ItemsCategory.SubCategories, RelativeSource={RelativeSource TemplatedParent}}"
                           HorizontalAlignment="Stretch">
@@ -67,7 +67,7 @@
                             </ControlTheme>
                         </Menu.Theme>
                     </Menu> 
-                    <ScrollViewer Name="PART_ScrollViewer" HorizontalScrollBarVisibility="Auto">
+                    <ScrollViewer Name="PART_ScrollViewer" HorizontalScrollBarVisibility="Auto" ClipToBounds="False">
                         <ItemsPresenter Name="PART_ItemsPresenter" 
                                         Margin="10"
                                         ClipToBounds="False"

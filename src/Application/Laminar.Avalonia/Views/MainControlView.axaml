@@ -9,6 +9,7 @@
              xmlns:s="using:Laminar.Avalonia.Settings"
              xmlns:c="using:Laminar.Avalonia.Controls"
              xmlns:init="using:Laminar.Avalonia.InitializationTargets"
+             xmlns:nw="using:Laminar.Contracts.Scripting.NodeWrapping"
              HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450" d:DataContext="{x:Static dvm:DesignViewModel.MainControl}"
              x:DataType="vm:MainControlViewModel"
@@ -31,12 +32,22 @@
         <DockPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <asp:AdjustableStackPanel DockPanel.Dock="Top"
                                       HorizontalAlignment="Stretch"
+                                      ZIndex="100"
                                       VerticalAlignment="Top"
                                       TransitionDuration="{s:Setting InterfaceSettings.AnimationDuration}"
                                       TransitionEasing="{DynamicResource AnimationEasing}">
                 <Border Classes="UiLayer"
-                        asp:ResizeWidget.TargetSize="{Binding NodePickerHeight, Mode=TwoWay}">
-                    <c:ItemPicker ItemsCategory="{Binding LoadedNodes}"/>
+                        asp:ResizeWidget.TargetSize="{Binding NodePickerHeight, Mode=TwoWay}"
+                        ClipToBounds="False">
+                    <c:ItemPicker ItemsCategory="{Binding LoadedNodes}">
+                        <c:ItemPicker.Styles>
+                            <Styles>
+                                <Style Selector="c|ItemPickerItem" x:DataType="nw:IWrappedNode">
+                                    <Setter Property="IsPointerOver" Value="{Binding !IsCollapsed.Value, Mode=OneWayToSource}"/>
+                                </Style>
+                            </Styles>
+                        </c:ItemPicker.Styles>
+                    </c:ItemPicker>
                 </Border>
             </asp:AdjustableStackPanel>
             
