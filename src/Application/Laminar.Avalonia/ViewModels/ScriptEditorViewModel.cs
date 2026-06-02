@@ -37,24 +37,25 @@ public partial class ScriptEditorViewModel(IScript script, IScriptEditor editor,
 
     public IConnector? StartConnectionFrom(IConnector connector)
     {
-        switch (connector.Status)
+        if (connector.Flags.HasFlag(ConnectorFlags.AcceptsConnections))
         {
-            case ConnectorStatus.AcceptsConnections:
-                _userActionSession = userActionManager.BeginSession();
-                return connector;
-            case ConnectorStatus.ConnectionsSaturated:
-                var connections = script.NodeTreeView.GetConnectionsTo(connector);
-                if (connections.Count == 0) return null;
-                var connectionInfo = connections.First();
-
-                _userActionSession ??= userActionManager.BeginSession();
-                _userActionSession.ExecuteAction(editor.DeleteConnectionAction(script, connectionInfo.Connection));
-
-                return connectionInfo.OppositeConnector;
-            case ConnectorStatus.DoesNotAcceptConnections:
-            default:
-                return null;
+            _userActionSession = userActionManager.BeginSession();
+            return connector;            
         }
+
+        if (connector.Flags == (ConnectorFlags.HasConnections | ConnectorFlags.ConnectionsSaturated))
+        {
+            var connections = script.NodeTreeView.GetConnectionsTo(connector);
+            if (connections.Count == 0) return null;
+            var connectionInfo = connections.First();
+
+            _userActionSession ??= userActionManager.BeginSession();
+            _userActionSession.ExecuteAction(editor.DeleteConnectionAction(script, connectionInfo.Connection));
+
+            return connectionInfo.OppositeConnector;
+        }
+
+        return null;
     }
 
     public bool HoverConnection(IConnector first, IConnector second)

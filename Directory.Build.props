@@ -5,7 +5,7 @@
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <ImplicitUsings>enable</ImplicitUsings>
         <WarningLevel>4</WarningLevel>
-        <NoWarn>NU5128</NoWarn>
+        <NoWarn>NU5128,NU1900</NoWarn>
     </PropertyGroup>
     
 </Project>

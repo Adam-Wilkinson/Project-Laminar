@@ -10,8 +10,9 @@ internal class ValueOutputConnector<T>(ITypeInfoStore typeInfoStore, IValueOutpu
     : IOutputConnector<IValueOutput<T>> where T : notnull
 {
     private T _valueAtLastUpdate = output.Value;
-    
-    public event PropertyChangedEventHandler? PropertyChanged { add { } remove { } }
+    private int _connectionCount = 0;
+
+    public event PropertyChangedEventHandler? PropertyChanged;
     
     public string ColorHex => typeInfoStore.GetTypeInfoOrBlank(typeof(T)).HexColor;
 
@@ -19,17 +20,26 @@ internal class ValueOutputConnector<T>(ITypeInfoStore typeInfoStore, IValueOutpu
 
     public Action? PreEvaluateAction => Output.PreEvaluateAction;
 
-    public ConnectorStatus Status { get; } = ConnectorStatus.AcceptsConnections;
+    public ConnectorFlags Flags { get; private set; } = ConnectorFlags.AcceptsConnections;
 
     public void OnConnectionEstablished()
     {
+        Flags = ConnectorFlags.AcceptsConnections | ConnectorFlags.HasConnections;
+        _connectionCount++;
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Flags)));
     }
 
     public void OnConnectionSevered()
     {
+        _connectionCount--;
+        if (_connectionCount == 0)
+        {
+            Flags = ConnectorFlags.AcceptsConnections;   
+        }
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Flags)));
     }
 
-    public bool CanConnectTo(IInputConnector connector)
+    public bool CouldConnectTo(IInputConnector connector)
         => connector is IInputConnector<IValueInput<T>>; 
     
     public bool TryConnectTo(IInputConnector connector)

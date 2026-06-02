@@ -9,7 +9,7 @@ internal class ValueInputConnector<T>(ITypeInfoStore typeInfoStore) : IInputConn
 {
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    public ConnectorStatus Status { get; private set; } = ConnectorStatus.AcceptsConnections;
+    public ConnectorFlags Flags { get; private set; } = ConnectorFlags.AcceptsConnections;
 
     public string ColorHex => typeInfoStore.GetTypeInfoOrBlank(typeof(T)).HexColor;
 
@@ -19,18 +19,18 @@ internal class ValueInputConnector<T>(ITypeInfoStore typeInfoStore) : IInputConn
 
     public void OnConnectionEstablished()
     {
-        Status = ConnectorStatus.ConnectionsSaturated;
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Status)));
+        Flags = ConnectorFlags.HasConnections | ConnectorFlags.ConnectionsSaturated;
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Flags)));
     }
 
     public void OnConnectionSevered()
     {
         Input.SetValueProvider(null);
-        Status = ConnectorStatus.AcceptsConnections;
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Status)));
+        Flags = ConnectorFlags.AcceptsConnections;
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Flags)));
     }
 
-    public bool CanConnectTo(IOutputConnector connector)
+    public bool CouldConnectTo(IOutputConnector connector)
         => connector is IOutputConnector<IValueOutput<T>>;
 
     public bool TryConnectTo(IOutputConnector connector)
