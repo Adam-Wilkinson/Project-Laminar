@@ -67,8 +67,11 @@
                             </ControlTheme>
                         </Menu.Theme>
                     </Menu> 
-                    <ScrollViewer Name="PART_ScrollViewer" HorizontalScrollBarVisibility="Auto" ClipToBounds="False">
+                    <ScrollViewer Name="PART_ScrollViewer" 
+                                  HorizontalScrollBarVisibility="Auto"
+                                  ClipToBounds="False">
                         <ItemsPresenter Name="PART_ItemsPresenter" 
+                                        VerticalAlignment="Center"
                                         Margin="10"
                                         ClipToBounds="False"
                                         ItemsPanel="{TemplateBinding ItemsPanel}"/>

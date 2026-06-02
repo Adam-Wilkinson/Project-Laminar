@@ -32,6 +32,7 @@
         <DockPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <asp:AdjustableStackPanel DockPanel.Dock="Top"
                                       HorizontalAlignment="Stretch"
+                                      ClipToBounds="False"
                                       ZIndex="100"
                                       VerticalAlignment="Top"
                                       TransitionDuration="{s:Setting InterfaceSettings.AnimationDuration}"

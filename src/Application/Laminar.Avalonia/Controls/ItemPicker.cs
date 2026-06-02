@@ -17,6 +17,7 @@ public partial class ItemPicker : ItemsControl
     {
         Orientation = Orientation.Horizontal,
         HorizontalAlignment = HorizontalAlignment.Stretch,
+        ClipToBounds = false,
         Spacing = 5
     });
     

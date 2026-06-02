@@ -37,10 +37,12 @@
     </ControlTheme>
     
     <DataTemplate DataType="comp:INodeRow" x:Key="NodeRowDataTemplate">
-        <Panel Margin="6" 
+        <Panel Name="NodeRowRoot"
                Opacity="{Binding Opacity.Value}"
-               Height="{s:UiScaled 40}">
-            <ContentControl Content="{Binding CentralDisplay}"/>
+               ClipToBounds="False">
+            <ContentControl Name="CentralDisplay" 
+                            Content="{Binding CentralDisplay}"
+                            ClipToBounds="False"/>
             
             <c:Connector Theme="{StaticResource IoConnectorPath}" 
                          RenderTransform="translatex(-16px)"
@@ -63,7 +65,7 @@
     </DataTemplate>
     
     <DataTemplate DataType="scr:IWrappedNode" x:Key="WrappedNodeDataTemplate">
-        <Panel Name="NodeRoot">
+        <Panel Name="NodeRoot" ClipToBounds="False">
             <t:ToolMenu.ContextToolbox>
                 <t:Toolbox NameKey="Node" x:DataType="scr:IWrappedNode">
                     <StaticResource ResourceKey="Tools.ScriptEditor.NodeTools.ToggleExpanded"/>
@@ -75,12 +77,13 @@
                     VerticalAlignment="Top"
                     ClipToBounds="False"
                     BorderThickness="3">
-                <DockPanel Width="250">
+                <DockPanel Width="250" ClipToBounds="False">
                     <Panel DockPanel.Dock="Top" HorizontalAlignment="Stretch">
                         <ContentControl Content="{Binding NameRow}" 
                                         ClipToBounds="False"
+                                        Height="40"
                                         Background="{DynamicResource {x:Static init:ColorInitialization.LaminarAccentBackgroundKey}}"/>
-                        <Button Margin="10,0,0,0"
+                        <Button Margin="5,0,0,0"
                                 Height="30"
                                 Width="30"
                                 VerticalAlignment="Center"
@@ -92,8 +95,38 @@
                                 Theme="{StaticResource ToolButton}"/>
                     </Panel>
                     <ItemsControl ItemsSource="{Binding Rows}"
-                                  IsVisible="{Binding !IsCollapsed.Value}"
-                                  ClipToBounds="False"/>
+                                  Background="{DynamicResource {x:Static init:ColorInitialization.LaminarNonForegroundKey}}"
+                                  Classes.IsCollapsed="{Binding IsCollapsed.Value}"
+                                  ClipToBounds="False">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel ClipToBounds="False"
+                                            Background="{DynamicResource {x:Static init:ColorInitialization.LaminarNonForegroundKey}}"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        
+                        <ItemsControl.Styles>
+                            <Style Selector="ItemsControl > ContentPresenter > Panel#NodeRowRoot > ContentControl#CentralDisplay">
+                                <Setter Property="Height" Value="{s:UiScaled 40}"/>
+                                <Setter Property="Margin" Value="4"/>
+                                <Setter Property="Opacity" Value="1"/>
+                                <Setter Property="Transitions">
+                                    <Transitions>
+                                        <DoubleTransition Property="Opacity" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
+                                        <DoubleTransition Property="Height" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
+                                        <ThicknessTransition Property="Margin" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
+                                    </Transitions>
+                                </Setter>
+                            </Style>
+                            
+                            <Style Selector="ItemsControl.IsCollapsed > ContentPresenter > Panel#NodeRowRoot > ContentControl#CentralDisplay">
+                                <Setter Property="Height" Value="0"/>
+                                <Setter Property="Margin" Value="0"/>
+                                <Setter Property="Opacity" Value="0"/>
+                            </Style>
+                        </ItemsControl.Styles>
+                        
+                    </ItemsControl>
                 </DockPanel>
             </Border>
             
