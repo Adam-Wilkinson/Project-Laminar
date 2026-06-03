@@ -45,6 +45,7 @@
                             <Styles>
                                 <Style Selector="c|ItemPickerItem" x:DataType="nw:IWrappedNode">
                                     <Setter Property="IsPointerOver" Value="{Binding !IsCollapsed.Value, Mode=OneWayToSource}"/>
+                                    <Setter Property="Height" Value="50"/>
                                 </Style>
                             </Styles>
                         </c:ItemPicker.Styles>

@@ -18,6 +18,7 @@
         <Setter Property="ConnectionWidth" Value="13"/>
         <Setter Property="TipLength" Value="10"/>
         <Setter Property="m:ConnectorRegistry.RegisteredConnector" Value="{Binding}"/>
+        <Setter Property="Classes.HasNoConnections" Value="{Binding Flags, Converter={StaticResource MissingFlagConverter}, ConverterParameter={x:Static conn:ConnectorFlags.HasConnections}}"/>
         <Setter Property="Width" Value="0"/>
         <Setter Property="Height" Value="0"/>
         <Setter Property="ClipToBounds" Value="False"/>
@@ -106,23 +107,31 @@
                         </ItemsControl.ItemsPanel>
                         
                         <ItemsControl.Styles>
-                            <Style Selector="ItemsControl > ContentPresenter > Panel#NodeRowRoot > ContentControl#CentralDisplay">
-                                <Setter Property="Height" Value="{s:UiScaled 40}"/>
-                                <Setter Property="Margin" Value="4"/>
-                                <Setter Property="Opacity" Value="1"/>
-                                <Setter Property="Transitions">
-                                    <Transitions>
-                                        <DoubleTransition Property="Opacity" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
-                                        <DoubleTransition Property="Height" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
-                                        <ThicknessTransition Property="Margin" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
-                                    </Transitions>
-                                </Setter>
+                            <Style Selector="ItemsControl > ContentPresenter > Panel#NodeRowRoot">
+                                <Style Selector="^ > ContentControl#CentralDisplay">
+                                    <Setter Property="Height" Value="{s:UiScaled 40}"/>
+                                    <Setter Property="Margin" Value="4"/>
+                                    <Setter Property="Opacity" Value="1"/>
+                                    <Setter Property="Transitions">
+                                        <Transitions>
+                                            <DoubleTransition Property="Opacity" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
+                                            <DoubleTransition Property="Height" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
+                                            <ThicknessTransition Property="Margin" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
+                                        </Transitions>
+                                    </Setter>
+                                </Style>
                             </Style>
                             
-                            <Style Selector="ItemsControl.IsCollapsed > ContentPresenter > Panel#NodeRowRoot > ContentControl#CentralDisplay">
-                                <Setter Property="Height" Value="0"/>
-                                <Setter Property="Margin" Value="0"/>
-                                <Setter Property="Opacity" Value="0"/>
+                            <Style Selector="ItemsControl.IsCollapsed > ContentPresenter > Panel#NodeRowRoot">
+                                <Style Selector="^ > ContentControl#CentralDisplay">
+                                    <Setter Property="Height" Value="0"/>
+                                    <Setter Property="Margin" Value="0"/>
+                                    <Setter Property="Opacity" Value="0"/>
+                                </Style>
+                                
+                                <Style Selector="^ > c|Connector.HasNoConnections">
+                                    <Setter Property="Opacity" Value="0"/>
+                                </Style>
                             </Style>
                         </ItemsControl.Styles>
                         

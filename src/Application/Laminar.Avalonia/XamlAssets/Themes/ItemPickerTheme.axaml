@@ -69,12 +69,19 @@
                     </Menu> 
                     <ScrollViewer Name="PART_ScrollViewer" 
                                   HorizontalScrollBarVisibility="Auto"
+                                  VerticalAlignment="Stretch"
                                   ClipToBounds="False">
                         <ItemsPresenter Name="PART_ItemsPresenter" 
                                         VerticalAlignment="Center"
                                         Margin="10"
                                         ClipToBounds="False"
                                         ItemsPanel="{TemplateBinding ItemsPanel}"/>
+                        
+                        <ScrollViewer.Styles>
+                            <Style Selector="ScrollContentPresenter">
+                                <Setter Property="ClipToBounds" Value="False"/>
+                            </Style>
+                        </ScrollViewer.Styles>
                     </ScrollViewer>
                 </DockPanel>
             </ControlTemplate>

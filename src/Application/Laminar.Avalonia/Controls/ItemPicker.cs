@@ -13,12 +13,11 @@ namespace Laminar.Avalonia.Controls;
 [TemplatePart("PART_ScrollViewer", typeof(IScrollable))]
 public partial class ItemPicker : ItemsControl
 {
-    private static readonly FuncTemplate<Panel?> DefaultPanel = new(() => new StackPanel
+    private static readonly FuncTemplate<Panel?> DefaultPanel = new(() => new WrapPanel
     {
         Orientation = Orientation.Horizontal,
         HorizontalAlignment = HorizontalAlignment.Stretch,
         ClipToBounds = false,
-        Spacing = 5
     });
     
     public static readonly StyledProperty<IReadOnlyItemCategory<object>> ItemsCategoryProperty 

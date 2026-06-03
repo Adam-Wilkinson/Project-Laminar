@@ -3,7 +3,8 @@ namespace Laminar.PluginFramework.NodeSystem.Connectors;
 [Flags]
 public enum ConnectorFlags
 {
-    AcceptsConnections = 0,
-    HasConnections = 1,
-    ConnectionsSaturated = 2,
+    None = 0,
+    AcceptsConnections = 1,
+    HasConnections = 2,
+    ConnectionsSaturated = 4,
 }

@@ -52,6 +52,8 @@
 			<conv:DictionaryGetter x:Key="DictionaryGetter"/>
 			<conv:BoolToDoubleConverter x:Key="BoolToDoubleConverter"/>
 			<conv:ParseBrushConverter x:Key="ParseBrushConverter"/>
+			<conv:HasFlagConverter x:Key="HasFlagConverter"/>
+			<conv:MissingFlagConverter x:Key="MissingFlagConverter"/>
 			
 			<dd:TreeViewDropAcceptor x:Key="TreeViewDropAcceptor"/>
 			<dd:StackPanelDropAcceptor x:Key="StackPanelDropAcceptor"/>
