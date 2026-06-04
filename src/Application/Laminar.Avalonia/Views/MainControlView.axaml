@@ -51,8 +51,8 @@
                                     </Setter>
                                 </Style>
                                 
-                                <Style Selector="c|ItemPickerItem" x:DataType="nw:IWrappedNode">
-                                    <!-- <Setter Property="IsPointerOver" Value="{Binding !IsCollapsed.Value, Mode=OneWayToSource}"/> -->
+                                <Style Selector="c|ItemPickerItem /template/ Border#PART_HoverOverHighlight" x:DataType="nw:IWrappedNode">
+                                    <Setter Property="IsPointerOver" Value="{Binding !IsCollapsed.Value, Mode=OneWayToSource}"/>
                                 </Style>
                             </c:ItemPicker.Styles>
                         </c:ItemPicker>

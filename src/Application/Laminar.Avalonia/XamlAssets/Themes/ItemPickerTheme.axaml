@@ -79,6 +79,7 @@
                         <ScrollViewer.Styles>
                             <Style Selector="ScrollContentPresenter">
                                 <Setter Property="ClipToBounds" Value="False"/>
+                                <Setter Property="ZIndex" Value="300"/>
                             </Style>
                         </ScrollViewer.Styles>
                     </ScrollViewer>

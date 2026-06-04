@@ -7,55 +7,58 @@
         <Setter Property="ClipToBounds" Value="False"/>
         <Setter Property="Template">
             <ControlTemplate>
-                <Panel ClipToBounds="False">
-                    <Border Name="PART_HoverOverHighlight" 
-                            Padding="5"
-                            VerticalAlignment="Top"
-                            dd:DragDrop.TriggerMouseButton="Left"
-                            ClipToBounds="False"
-                            Cursor="Hand">
-                        <Border.Transitions>
-                            <Transitions>
-                                <BrushTransition Property="Background" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
-                            </Transitions>
-                        </Border.Transitions>
-                        <ContentPresenter Name="PART_ContentPresenter"
-                                          IsHitTestVisible="False"
-                                          ClipToBounds="False"
-                                          Background="{TemplateBinding Background}"
-                                          BorderThickness="{TemplateBinding BorderThickness}"
-                                          BorderBrush="{TemplateBinding BorderBrush}"                          
-                                          CornerRadius="{TemplateBinding CornerRadius}"
-                                          ContentTemplate="{TemplateBinding ContentTemplate}"
-                                          Content="{TemplateBinding Content}"
-                                          Padding="{TemplateBinding Padding}"
-                                          VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
-                                          HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"/>
-                    </Border>
-                    <Border Name="PART_BackgroundRender" 
-                            Padding="5"
-                            VerticalAlignment="Top"
-                            IsHitTestVisible="False"
-                            ClipToBounds="False"
-                            Cursor="Hand">
-                        <Border.Transitions>
-                            <Transitions>
-                                <BrushTransition Property="Background" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
-                            </Transitions>
-                        </Border.Transitions>
-                        <ContentPresenter IsHitTestVisible="False"
-                                          ClipToBounds="False"
-                                          Background="{TemplateBinding Background}"
-                                          BorderThickness="{TemplateBinding BorderThickness}"
-                                          BorderBrush="{TemplateBinding BorderBrush}"                          
-                                          CornerRadius="{TemplateBinding CornerRadius}"
-                                          ContentTemplate="{TemplateBinding ContentTemplate}"
-                                          Content="{TemplateBinding Content}"
-                                          Padding="{TemplateBinding Padding}"
-                                          VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
-                                          HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"/>
-                    </Border>
-                </Panel>
+                <!-- We use a stack panel to let it arrange with whatever height it wants -->
+                <StackPanel>
+                    <Panel ClipToBounds="False">
+                        <Border Name="PART_HoverOverHighlight" 
+                                Padding="5"
+                                VerticalAlignment="Top"
+                                dd:DragDrop.TriggerMouseButton="Left"
+                                ClipToBounds="False"
+                                Cursor="Hand">
+                            <Border.Transitions>
+                                <Transitions>
+                                    <BrushTransition Property="Background" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
+                                </Transitions>
+                            </Border.Transitions>
+                            <ContentPresenter Name="PART_ContentPresenter"
+                                              IsHitTestVisible="False"
+                                              ClipToBounds="False"
+                                              Background="{TemplateBinding Background}"
+                                              BorderThickness="{TemplateBinding BorderThickness}"
+                                              BorderBrush="{TemplateBinding BorderBrush}"                          
+                                              CornerRadius="{TemplateBinding CornerRadius}"
+                                              ContentTemplate="{TemplateBinding ContentTemplate}"
+                                              Content="{TemplateBinding Content}"
+                                              Padding="{TemplateBinding Padding}"
+                                              VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                              HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"/>
+                        </Border>
+                        <Border Name="PART_BackgroundRender" 
+                                Padding="5"
+                                VerticalAlignment="Top"
+                                IsHitTestVisible="False"
+                                ClipToBounds="False"
+                                Cursor="Hand">
+                            <Border.Transitions>
+                                <Transitions>
+                                    <BrushTransition Property="Background" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
+                                </Transitions>
+                            </Border.Transitions>
+                            <ContentPresenter IsHitTestVisible="False"
+                                              ClipToBounds="False"
+                                              Background="{TemplateBinding Background}"
+                                              BorderThickness="{TemplateBinding BorderThickness}"
+                                              BorderBrush="{TemplateBinding BorderBrush}"                          
+                                              CornerRadius="{TemplateBinding CornerRadius}"
+                                              ContentTemplate="{TemplateBinding ContentTemplate}"
+                                              Content="{TemplateBinding Content}"
+                                              Padding="{TemplateBinding Padding}"
+                                              VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                              HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"/>
+                        </Border>
+                    </Panel>
+                </StackPanel>
             </ControlTemplate>
         </Setter>
         
