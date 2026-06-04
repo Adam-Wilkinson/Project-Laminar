@@ -16,6 +16,7 @@ public partial class ItemPicker : ItemsControl
     private static readonly FuncTemplate<Panel?> DefaultPanel = new(() => new WrapPanel
     {
         Orientation = Orientation.Horizontal,
+        ItemHeight = 60,
         HorizontalAlignment = HorizontalAlignment.Stretch,
         ClipToBounds = false,
     });

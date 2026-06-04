@@ -66,7 +66,8 @@
     </DataTemplate>
     
     <DataTemplate DataType="scr:IWrappedNode" x:Key="WrappedNodeDataTemplate">
-        <Panel Name="NodeRoot" ClipToBounds="False">
+        <Panel Name="NodeRoot" ClipToBounds="False"
+               Background="{DynamicResource {x:Static init:ColorInitialization.LaminarNonForegroundKey}}">
             <t:ToolMenu.ContextToolbox>
                 <t:Toolbox NameKey="Node" x:DataType="scr:IWrappedNode">
                     <StaticResource ResourceKey="Tools.ScriptEditor.NodeTools.ToggleExpanded"/>

@@ -20,7 +20,6 @@
         <Setter Property="Header" Value="{Binding CategoryName}"/>
         <Setter Property="ItemsSource" Value="{Binding SubCategories}"/>
         <Setter Property="ItemContainerTheme" Value="{StaticResource ItemPickerMenuItem}"/>
-        <!-- <Setter Property="Background" Value="{DynamicResource {x:Static init:ColorInitialization.LaminarAccentBackgroundKey}}"/> -->
         <Setter Property="BorderThickness" Value="2"/>
         <Setter Property="Padding" Value="5"/>
         <Setter Property="HeaderTemplate">

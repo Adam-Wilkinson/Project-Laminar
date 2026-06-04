@@ -80,9 +80,9 @@ public class TransformedCenterObservable(Visual owner, ConnectorRegistry registr
         if (Equals(_currentConnector, connector)) return;
         _currentConnector = connector;
         _trackedVisual = registry.GetVisualForConnector(connector);
-        foreach (var sub in _subscriptions)
+        foreach (var subscription in _subscriptions)
         {
-            sub.UpdateTrackedVisual(_trackedVisual);
+            subscription.UpdateTrackedVisual(_trackedVisual);
         }
     }
     
@@ -146,10 +146,10 @@ public class TransformedCenterObservable(Visual owner, ConnectorRegistry registr
 
         private void PublishCurrentPosition()
         {
-            if (_disposed || _trackedVisual?.GetVisualParent()?.TransformToVisual(_ownerVisual) is not { } transform) 
+            if (_disposed || _trackedVisual?.TransformToVisual(_ownerVisual) is not { } transform) 
                 return;
 
-            var next = _trackedVisual.Bounds.Center.Transform(transform);
+            var next = new Point(_trackedVisual.Bounds.Width / 2, _trackedVisual.Bounds.Height / 2).Transform(transform);
             
             _observer.OnNext(next);
         }

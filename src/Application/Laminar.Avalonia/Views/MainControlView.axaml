@@ -29,33 +29,40 @@
                             asp:ResizeWidget.TargetSize="{Binding CurrentSidebarWidth, Mode=TwoWay}"/>
         </asp:AdjustableStackPanel>
         
-        <DockPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-            <asp:AdjustableStackPanel DockPanel.Dock="Top"
-                                      HorizontalAlignment="Stretch"
-                                      ClipToBounds="False"
-                                      ZIndex="100"
-                                      VerticalAlignment="Top"
-                                      TransitionDuration="{s:Setting InterfaceSettings.AnimationDuration}"
-                                      TransitionEasing="{DynamicResource AnimationEasing}">
-                <Border Classes="UiLayer"
-                        asp:ResizeWidget.TargetSize="{Binding NodePickerHeight, Mode=TwoWay}"
-                        ClipToBounds="False">
-                    <c:ItemPicker ItemsCategory="{Binding LoadedNodes}">
-                        <c:ItemPicker.Styles>
-                            <Styles>
-                                <Style Selector="c|ItemPickerItem" x:DataType="nw:IWrappedNode">
-                                    <Setter Property="IsPointerOver" Value="{Binding !IsCollapsed.Value, Mode=OneWayToSource}"/>
-                                    <Setter Property="Height" Value="50"/>
+        <Panel Name="EditorRegion">
+            <DockPanel Name="EditorClip" 
+                       HorizontalAlignment="Stretch" 
+                       VerticalAlignment="Stretch">
+                <asp:AdjustableStackPanel DockPanel.Dock="Top"
+                                          HorizontalAlignment="Stretch"
+                                          ClipToBounds="False"
+                                          ZIndex="100"
+                                          VerticalAlignment="Top"
+                                          TransitionDuration="{s:Setting InterfaceSettings.AnimationDuration}"
+                                          TransitionEasing="{DynamicResource AnimationEasing}">
+                    <Border Classes="UiLayer"
+                            asp:ResizeWidget.TargetSize="{Binding NodePickerHeight, Mode=TwoWay}"
+                            ClipToBounds="False">
+                        <c:ItemPicker ItemsCategory="{Binding LoadedNodes}">
+                            <c:ItemPicker.Styles>
+                                <Style Selector="c|ItemPicker">
+                                    <Setter Property="Clip">
+                                        <RectangleGeometry Rect="{Binding #EditorClip.Bounds}"/>
+                                    </Setter>
                                 </Style>
-                            </Styles>
-                        </c:ItemPicker.Styles>
-                    </c:ItemPicker>
-                </Border>
-            </asp:AdjustableStackPanel>
-            
-            <ContentControl Classes="UiLayer"
-                            Content="{Binding ScriptEditor}"/>
-        </DockPanel>
+                                
+                                <Style Selector="c|ItemPickerItem" x:DataType="nw:IWrappedNode">
+                                    <!-- <Setter Property="IsPointerOver" Value="{Binding !IsCollapsed.Value, Mode=OneWayToSource}"/> -->
+                                </Style>
+                            </c:ItemPicker.Styles>
+                        </c:ItemPicker>
+                    </Border>
+                </asp:AdjustableStackPanel>
+                
+                <ContentControl Classes="UiLayer"
+                                Content="{Binding ScriptEditor}"/>
+            </DockPanel>
+        </Panel>
         
         <DockPanel.Resources>
             <ControlTheme x:Key="{x:Type asp:ResizeWidget}" TargetType="{x:Type asp:ResizeWidget}">
