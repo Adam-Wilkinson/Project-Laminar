@@ -19,7 +19,7 @@ public class ConnectorRenderTransformCalculator : MarkupExtension
 
     public double CollapsedNodeHeight { get; set; }
     
-    public override BindingBase ProvideValue(IServiceProvider serviceProvider)
+    public override object ProvideValue(IServiceProvider serviceProvider)
     {
         var provideValueTarget = serviceProvider.GetRequiredService<IProvideValueTarget>();
         
@@ -35,7 +35,7 @@ public class ConnectorRenderTransformCalculator : MarkupExtension
         
         var targetProperty = (AvaloniaProperty)provideValueTarget.TargetProperty;
         targetElement.Initialized += TargetVisualOnInitialized;
-        return AvaloniaProperty.UnsetValue.AsStaticBinding();
+        return AvaloniaProperty.UnsetValue;
 
         void TargetVisualOnInitialized(object? sender, EventArgs e)
         {

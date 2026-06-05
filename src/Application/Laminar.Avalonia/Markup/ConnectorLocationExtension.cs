@@ -73,6 +73,7 @@ public class TransformedCenterObservable(Visual owner, ConnectorRegistry registr
             _trackedVisual = trackedVisual;
             
             _ownerVisual.DetachedFromVisualTree += OwnerDetachedFromVisualTree; 
+            _ownerVisual.PropertyChanged += ConnectorPropertyChanged;
             _root._subscriptions.Add(this);
             if (_trackedVisual is null)
             {
@@ -84,15 +85,25 @@ public class TransformedCenterObservable(Visual owner, ConnectorRegistry registr
             }
         }
 
+        private void ConnectorPropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
+        {
+            if (e.Property == Visual.RenderTransformProperty)
+            {
+                PublishCurrentPosition();
+            }
+        }
+
         private void OwnerDetachedFromVisualTree(object? sender, VisualTreeAttachmentEventArgs e) => Dispose();
 
         public void UpdateTrackedVisual(Visual? visualToTrack)
         {
             _trackedVisual?.AttachedToVisualTree -= TrackedVisualMoved;
             _trackedVisual?.DetachedFromVisualTree -= CommonAncestorOnLayoutUpdated;
+            _trackedVisual?.PropertyChanged -= ConnectorPropertyChanged;
             _trackedVisual = visualToTrack;
             _trackedVisual?.AttachedToVisualTree += CommonAncestorOnLayoutUpdated;
             _trackedVisual?.DetachedFromVisualTree += TrackedVisualMoved;
+            _trackedVisual?.PropertyChanged += ConnectorPropertyChanged;
             UpdateCommonAncestor();
         }
 
@@ -128,6 +139,7 @@ public class TransformedCenterObservable(Visual owner, ConnectorRegistry registr
             if (_disposed) return;
             _disposed = true;
             _ownerVisual.DetachedFromVisualTree -= OwnerDetachedFromVisualTree;
+            _ownerVisual.PropertyChanged -= ConnectorPropertyChanged;
             _root._subscriptions.Remove(this);
             _observer.OnCompleted();
         }
