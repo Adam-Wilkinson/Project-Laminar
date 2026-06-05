@@ -18,6 +18,7 @@
         <Setter Property="ConnectionWidth" Value="13"/>
         <Setter Property="TipLength" Value="10"/>
         <Setter Property="m:ConnectorRegistry.RegisteredConnector" Value="{Binding}"/>
+        <Setter Property="Classes.HasConnections" Value="{Binding Flags, Converter={StaticResource HasFlagConverter}, ConverterParameter={x:Static conn:ConnectorFlags.HasConnections}}"/>
         <Setter Property="Classes.HasNoConnections" Value="{Binding Flags, Converter={StaticResource MissingFlagConverter}, ConverterParameter={x:Static conn:ConnectorFlags.HasConnections}}"/>
         <Setter Property="Width" Value="0"/>
         <Setter Property="Height" Value="0"/>
@@ -46,8 +47,8 @@
                             ClipToBounds="False"/>
             
             <c:Connector Theme="{StaticResource IoConnectorPath}" 
-                         RenderTransform="translatex(-16px)"
                          HorizontalAlignment="Left"
+                         RenderTransform="{m:ConnectorRenderTransformCalculator CollapsedNodeHeight=40}"
                          DragMode="{Binding $self.(m:ConnectorRegistry.ConnectorGestureLive), 
                             Converter={StaticResource ParameterOrNullConverter}, 
                             ConverterParameter={x:Static c:ConnectorDragMode.MoveStart},
@@ -55,8 +56,8 @@
                          DataContext="{Binding InputConnector}"/>
             
             <c:Connector Theme="{StaticResource IoConnectorPath}"
-                         RenderTransform="translatex(2px)"
                          HorizontalAlignment="Right"
+                         RenderTransform="{m:ConnectorRenderTransformCalculator CollapsedNodeHeight=40}"
                          DragMode="{Binding $self.(m:ConnectorRegistry.ConnectorGestureLive), 
                             Converter={StaticResource ParameterOrNullConverter}, 
                             ConverterParameter={x:Static c:ConnectorDragMode.MoveEnd},
@@ -111,7 +112,7 @@
                             <Style Selector="ItemsControl > ContentPresenter > Panel#NodeRowRoot">
                                 <Style Selector="^ > ContentControl#CentralDisplay">
                                     <Setter Property="Height" Value="{s:UiScaled 40}"/>
-                                    <Setter Property="Margin" Value="4"/>
+                                    <Setter Property="Margin" Value="5"/>
                                     <Setter Property="Opacity" Value="1"/>
                                     <Setter Property="Transitions">
                                         <Transitions>

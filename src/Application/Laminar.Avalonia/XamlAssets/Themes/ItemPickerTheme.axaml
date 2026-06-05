@@ -1,9 +1,6 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
-                    xmlns:s="using:System"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:c="using:Laminar.Avalonia.Controls"
-                    xmlns:init="using:Laminar.Avalonia.InitializationTargets"
-                    xmlns:d="using:Laminar.Domain">
+                    xmlns:c="using:Laminar.Avalonia.Controls">
     
     <ControlTheme TargetType="MenuItem" x:Key="ItemPickerMenuItem"
                   BasedOn="{StaticResource {x:Type MenuItem}}"
@@ -68,6 +65,7 @@
                     </Menu> 
                     <ScrollViewer Name="PART_ScrollViewer" 
                                   HorizontalScrollBarVisibility="Auto"
+                                  VerticalScrollBarVisibility="Disabled"
                                   VerticalAlignment="Stretch"
                                   ClipToBounds="False">
                         <ItemsPresenter Name="PART_ItemsPresenter" 

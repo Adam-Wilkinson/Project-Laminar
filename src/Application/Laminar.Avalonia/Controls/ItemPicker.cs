@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
@@ -13,10 +12,10 @@ namespace Laminar.Avalonia.Controls;
 [TemplatePart("PART_ScrollViewer", typeof(IScrollable))]
 public partial class ItemPicker : ItemsControl
 {
-    private static readonly FuncTemplate<Panel?> DefaultPanel = new(() => new WrapPanel
+    private static readonly FuncTemplate<Panel?> DefaultPanel = new(() => new StackPanel
     {
         Orientation = Orientation.Horizontal,
-        ItemHeight = 60,
+        Height = 60,
         HorizontalAlignment = HorizontalAlignment.Stretch,
         ClipToBounds = false,
     });

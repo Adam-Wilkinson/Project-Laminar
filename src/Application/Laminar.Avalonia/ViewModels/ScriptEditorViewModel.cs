@@ -4,6 +4,7 @@ using Laminar.Avalonia.ViewModels.Services;
 using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Scripting.Connection;
+using Laminar.Contracts.Scripting.Execution;
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Domain.Notification;
 using Laminar.PluginFramework.NodeSystem.Connectors;
@@ -20,6 +21,8 @@ public partial class ScriptEditorViewModel(IScript script, IScriptEditor editor,
     [ObservableProperty]
     public partial IReadOnlyList<object>? CurrentSelection { get; set; }
 
+    public INodeTreeView NodeTree => script.NodeTreeView;
+    
     public IReadOnlyObservableCollection<ScriptEditorItemModel> VisualElements { get; } =
         new FlattenedObservableTree<ScriptEditorItemModel>(
                 script.NodeTreeView.Nodes.ObservableMap(node => new ScriptEditorItemModel(node)),

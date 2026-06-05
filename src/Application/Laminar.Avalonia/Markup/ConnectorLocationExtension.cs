@@ -1,9 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Globalization;
 using Avalonia;
 using Avalonia.Data;
-using Avalonia.Data.Converters;
 using Avalonia.Layout;
 using Avalonia.Markup.Xaml;
 using Avalonia.VisualTree;
@@ -33,56 +29,29 @@ public class ConnectorLocationExtension : MarkupExtension
                 throw new InvalidOperationException("ConnectorLocationExtension can only target visuals");
             }
 
-            var transformedCenterObserver = new TransformedCenterObservable(targetVisual, registry);
-    
-            return new MultiBinding
-            {
-                Bindings = 
-                [
-                    _connectorBinding, 
-                    transformedCenterObserver.ToBinding(),
-                ],
-                Converter = new TransformedCenterValueConverter(),
-                ConverterParameter = transformedCenterObserver
-            };
+            return DependentObservableBinding.Create(_connectorBinding, new TransformedCenterObservable(targetVisual, registry));
         });
 }
 
-public class TransformedCenterValueConverter : IMultiValueConverter
-{
-    public object Convert(IList<object?> values, Type targetType, object? parameter, CultureInfo culture)
-    {
-        if (Equals(values[0], AvaloniaProperty.UnsetValue) || Equals(values[1], AvaloniaProperty.UnsetValue))
-        {
-            return AvaloniaProperty.UnsetValue;
-        }
-        
-        if (parameter is not TransformedCenterObservable observer || values[0] is not IConnector connector || values[1] is not Point returnValue)
-            return new BindingNotification(new InvalidCastException(), BindingErrorType.Error);
-
-        observer.SetConnector(connector);
-        return returnValue;
-    }
-}
-
-public class TransformedCenterObservable(Visual owner, ConnectorRegistry registry) : IObservable<Point>
+public class TransformedCenterObservable(Visual owner, ConnectorRegistry registry) : IDependentObservable<IConnector, Point>
 {
     private readonly List<Subscription> _subscriptions = [];
     
-    private IConnector? _currentConnector;
     private Visual? _trackedVisual;
     
-    public IDisposable Subscribe(IObserver<Point> observer)
-        => new Subscription(this, observer, owner, _trackedVisual);
-    
-    public void SetConnector(IConnector connector)
+    public IDisposable Subscribe(IObserver<Point> observer) => new Subscription(this, observer, owner, _trackedVisual);
+
+    public IConnector? Dependency
     {
-        if (Equals(_currentConnector, connector)) return;
-        _currentConnector = connector;
-        _trackedVisual = registry.GetVisualForConnector(connector);
-        foreach (var subscription in _subscriptions)
+        get;
+        set
         {
-            subscription.UpdateTrackedVisual(_trackedVisual);
+            field = value;
+            _trackedVisual = field is not null ? registry.GetVisualForConnector(field) : null;
+            foreach (var subscription in _subscriptions)
+            {
+                subscription.UpdateTrackedVisual(_trackedVisual);
+            }
         }
     }
     

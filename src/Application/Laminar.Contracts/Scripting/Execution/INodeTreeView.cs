@@ -10,6 +10,10 @@ public interface INodeTreeView
     public event EventHandler? Changed;
 
     public IReadOnlyCollection<ConnectorConnectionInfo> GetConnectionsTo(IConnector connector);
+
+    public IWrappedNode GetParentNode(IConnector connector);
+
+    public INodeUpdates GetUpdates(IWrappedNode node);
     
     public IReadOnlyObservableCollection<IWrappedNode> Nodes { get; }
 
@@ -17,3 +21,8 @@ public interface INodeTreeView
 }
 
 public record ConnectorConnectionInfo(IConnection Connection, IConnector OppositeConnector, IWrappedNode ConnectedNode);
+
+public interface INodeUpdates
+{
+    public event EventHandler? ConnectionsChanged;
+}

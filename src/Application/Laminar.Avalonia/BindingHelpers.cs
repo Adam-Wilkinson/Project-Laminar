@@ -8,7 +8,13 @@ public static class BindingHelpers
     extension<T>(IObservableValue<T> observable)
     {
         public CompiledBinding ToBinding() 
-            => CompiledBinding.Create<IObservableValue<T>, T>(x => x.Value, source: observable, mode: BindingMode.TwoWay);   
+            => CompiledBinding.Create((IObservableValue<T> o) => o.Value, source: observable, mode: BindingMode.TwoWay);   
+    }
+
+    extension<T>(IReadOnlyObservableValue<T> observable)
+    {
+        public CompiledBinding ToBinding()
+            => CompiledBinding.Create((IReadOnlyObservableValue<T> o) => o.Value, source: observable, mode: BindingMode.OneWay);
     }
 
     extension<T>(T value)
