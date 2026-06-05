@@ -1,9 +1,11 @@
 using System.ComponentModel;
+using System.Net.NetworkInformation;
 using System.Runtime.CompilerServices;
 using Avalonia;
 using Avalonia.Data;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
+using Avalonia.Media.Transformation;
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Domain.ValueObjects;
 using Laminar.PluginFramework.NodeSystem.Connectors;
@@ -46,12 +48,17 @@ public class ConnectorRenderTransformCalculator : MarkupExtension
         if (targetElement.DataContext is null) return AvaloniaProperty.UnsetValue.AsStaticBinding();
         
         var targetConnector = FindConnectorFromTarget(targetElement);
-        double xOffset = targetConnector is IInputConnector ? -16 : 2;
+        double xOffset = targetConnector is IInputConnector ? -16 : -1;
         var (nodeVisual, targetNode) = FindNodeFrom(targetElement);
         NodeModel model = NodeModels.GetValue(targetNode, node => new NodeModel(node));
         return model
             .GetFractionalOffsetObservable(targetConnector)
-            .Map(y => new TranslateTransform(xOffset, CollapsedNodeHeight * (y - 1)))
+            .Map(y =>
+            {
+                var operations = TransformOperations.CreateBuilder(1);
+                operations.AppendTranslate(xOffset, CollapsedNodeHeight * (y - 1));
+                return operations.Build();
+            })
             .ToBinding();
     }
 
