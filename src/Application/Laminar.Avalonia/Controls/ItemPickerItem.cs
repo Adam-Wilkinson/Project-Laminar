@@ -1,4 +1,3 @@
-using System.Text;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
@@ -24,6 +23,7 @@ public class ItemPickerItem : ContentControl
         get;
         set => SetAndRaise(IsHoveredOrDraggingProperty, ref field, value);
     }
+    
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
     {
         base.OnApplyTemplate(e);
