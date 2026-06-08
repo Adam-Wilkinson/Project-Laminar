@@ -1,3 +1,4 @@
+using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Laminar.Avalonia.ViewModels.Services;
@@ -6,7 +7,7 @@ using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Scripting.Connection;
 using Laminar.Contracts.Scripting.Execution;
 using Laminar.Contracts.Scripting.NodeWrapping;
-using Laminar.Domain.Notification;
+using Laminar.Domain.Notification.Collections;
 using Laminar.PluginFramework.NodeSystem.Connectors;
 using LaminarPoint = Laminar.Domain.ValueObjects.Point;
 using AvaloniaPoint = Avalonia.Point;
@@ -22,6 +23,12 @@ public partial class ScriptEditorViewModel(IScript script, IScriptEditor editor,
     public partial IReadOnlyList<object>? CurrentSelection { get; set; }
 
     public INodeTreeView NodeTree => script.NodeTreeView;
+
+    public static readonly ICommand NodeDragStartedCommand 
+        = new RelayCommand<IWrappedNode>(node => node?.IsCollapsed.Value = false);
+    
+    public static readonly ICommand NodeDragEndedCommand
+        = new RelayCommand<IWrappedNode>(node => node?.IsCollapsed.Value = true);
     
     public IReadOnlyObservableCollection<ScriptEditorItemModel> VisualElements { get; } =
         new FlattenedObservableTree<ScriptEditorItemModel>(

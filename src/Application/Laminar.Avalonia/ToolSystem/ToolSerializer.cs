@@ -23,7 +23,7 @@ public class ToolSerializer(TopLevel topLevel, IPersistentDataManager persistent
     public void OnApplicationBuilt()
     {
         topLevel.GetResourceObservable(QuickAccessExtension.QuickAccessRepositoryKey)
-            .Subscribe(new AnonymousObserver<object?>(x =>
+            .Subscribe(new Domain.Notification.Value.AnonymousObserver<object?>(x =>
         {
             if (x is QuickAccessRepository dictionary)
             {
@@ -31,7 +31,7 @@ public class ToolSerializer(TopLevel topLevel, IPersistentDataManager persistent
             }
         }));
         
-        topLevel.GetResourceObservable(Tool.ToolRootKey).Subscribe(new AnonymousObserver<object?>(x =>
+        topLevel.GetResourceObservable(Tool.ToolRootKey).Subscribe(new Domain.Notification.Value.AnonymousObserver<object?>(x =>
         {
             if (x is Tool tool && !_initialized)
             {

@@ -32,13 +32,13 @@ public class Setting<T> : Setting where T : notnull
     public static void OnChange(IResourceHost resourceHost, string settingKey, Action<T> onChange)
     {
         resourceHost.GetResourceObservable(settingKey).Subscribe(
-            new AnonymousObserver<object?>(o =>
+            new Domain.Notification.Value.AnonymousObserver<object?>(o =>
             {
                 if (o is not Setting<T> setting) return;
 
                 onChange(setting.Value);
                 setting.GetPropertyChangedObservable(ValueProperty)
-                    .Subscribe(new AnonymousObserver<AvaloniaPropertyChangedEventArgs>(changedArgs =>
+                    .Subscribe(new Domain.Notification.Value.AnonymousObserver<AvaloniaPropertyChangedEventArgs>(changedArgs =>
                     {
                         onChange(setting.Value);
                     }));

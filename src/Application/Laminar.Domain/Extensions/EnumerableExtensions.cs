@@ -1,5 +1,6 @@
 ﻿using Laminar.Domain.Notification;
-using Laminar.Domain.ValueObjects;
+using Laminar.Domain.Notification.Collections;
+using Laminar.Domain.Notification.Value;
 
 namespace Laminar.Domain.Extensions;
 

@@ -1,6 +1,6 @@
 using System.ComponentModel;
 
-namespace Laminar.Domain.ValueObjects;
+namespace Laminar.Domain.Notification.Value;
 
 public class ObservableValue<T>(T value) : ObservableValueBase<T>
 {
@@ -9,6 +9,8 @@ public class ObservableValue<T>(T value) : ObservableValueBase<T>
 
 public abstract class ObservableValueBase<T> : IObservableValue<T>
 {
+    private readonly HashSet<Subscription> _subscriptions = [];
+    
     public abstract T Value { get; set; }
 
     public event EventHandler<ObservableValueChangedEventArgs<T>>? OnChanged;
@@ -21,7 +23,13 @@ public abstract class ObservableValueBase<T> : IObservableValue<T>
         T oldValue = currentValue;
         
         BeforeValueChanged();
+        
         currentValue = newValue;
+        foreach (var subscription in _subscriptions)
+        {
+            subscription.OnNext(newValue);
+        }
+        
         AfterValueChanged();
         
         OnChanged?.Invoke(this, new ObservableValueChangedEventArgs<T>(oldValue, newValue));
@@ -41,5 +49,32 @@ public abstract class ObservableValueBase<T> : IObservableValue<T>
     protected virtual void AfterValueChanged()
     {
         
+    }
+
+    public IDisposable Subscribe(IObserver<T> observer) => new Subscription(this, observer);
+
+    private class Subscription : IDisposable
+    {
+        private readonly ObservableValueBase<T> _parent;
+        private readonly IObserver<T> _target;
+
+        public Subscription(ObservableValueBase<T> parent, IObserver<T> target)
+        {
+            _parent = parent;
+            _target = target;
+            _parent._subscriptions.Add(this);
+            _target.OnNext(_parent.Value);
+        }
+
+        public void OnNext(T value)
+        {
+            _target.OnNext(value);
+        }
+        
+        public void Dispose()
+        {
+            _target.OnCompleted();
+            _parent._subscriptions.Remove(this);
+        }
     }
 }

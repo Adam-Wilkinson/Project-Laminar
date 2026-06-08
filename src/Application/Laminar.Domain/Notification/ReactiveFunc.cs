@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using Laminar.Domain.Notification.Value;
 using Laminar.Domain.ValueObjects;
 
 namespace Laminar.Domain.Notification;

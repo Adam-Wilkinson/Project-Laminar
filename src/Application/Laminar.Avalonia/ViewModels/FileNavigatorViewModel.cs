@@ -8,6 +8,7 @@ using Laminar.Avalonia.DragDrop;
 using Laminar.Avalonia.ViewModels.Services;
 using Laminar.Contracts.Storage.FileExplorer;
 using Laminar.Domain.Notification;
+using Laminar.Domain.Notification.Collections;
 using Laminar.Domain.ValueObjects;
 using Point = Avalonia.Point;
 

@@ -18,7 +18,7 @@ public class SettingsSerializer(TopLevel topLevel, IPersistentDataManager persis
     
     public void OnApplicationBuilt()
     {
-        topLevel.GetResourceObservable("SettingsRoot").Subscribe(new AnonymousObserver<object?>(x =>
+        topLevel.GetResourceObservable("SettingsRoot").Subscribe(new Domain.Notification.Value.AnonymousObserver<object?>(x =>
         {
             if (x is SettingsCategory category && !_initialized)
             {
@@ -70,7 +70,7 @@ public class SettingsSerializer(TopLevel topLevel, IPersistentDataManager persis
             }
         };
 
-        setting.GetObservable(Setting.ValueProperty).Subscribe(new AnonymousObserver<object>(x =>
+        setting.GetObservable(Setting.ValueProperty).Subscribe(new Domain.Notification.Value.AnonymousObserver<object>(x =>
             _settingsDataStore.SetValue(settingKey, x)));
 
         setting.ResetCommand = new ResetSettingCommand(_settingsDataStore, settingKey);

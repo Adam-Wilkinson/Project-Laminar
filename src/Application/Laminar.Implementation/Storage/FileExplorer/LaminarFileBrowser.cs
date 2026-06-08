@@ -8,6 +8,7 @@ using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.DataManagement;
 using Laminar.Domain.Extensions;
 using Laminar.Domain.Notification;
+using Laminar.Domain.Notification.Collections;
 using Laminar.Domain.ValueObjects;
 using Laminar.Implementation.Storage.FileExplorer.UserActions;
 using static Laminar.Domain.DataManagement.DataLocations;

@@ -3,7 +3,7 @@ using System.Collections.Specialized;
 using FlattenedIndex = System.Int32;
 using TreeIndex = System.Int32;
 
-namespace Laminar.Domain.Notification;
+namespace Laminar.Domain.Notification.Collections;
 
 public class FlattenedObservableTree<T> : ReadOnlyObservableCollectionBase<T>
 {

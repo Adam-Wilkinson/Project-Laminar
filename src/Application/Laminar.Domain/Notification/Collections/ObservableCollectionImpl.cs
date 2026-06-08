@@ -1,7 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 
-namespace Laminar.Domain.Notification;
+namespace Laminar.Domain.Notification.Collections;
 
 /// <summary>
 /// Used to effectively ensure ObservableCollection implements IObservableCollection, via an implicit cast

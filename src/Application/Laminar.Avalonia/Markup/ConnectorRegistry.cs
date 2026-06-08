@@ -3,7 +3,6 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using Avalonia.Reactive;
 using Laminar.PluginFramework.NodeSystem.Connectors;
 
 namespace Laminar.Avalonia.Markup;
@@ -118,7 +117,7 @@ public class ConnectorRegistry : Interactive
             _visual = visual;
             
             _subscription = visual.GetResourceObservable(Key)
-                .Subscribe(new AnonymousObserver<object?>(ConnectorRegistryChanged));
+                .Subscribe(new Domain.Notification.Value.AnonymousObserver<object?>(ConnectorRegistryChanged));
 
             _visual.DetachedFromVisualTree += OnDetachedFromVisualTree;
         }

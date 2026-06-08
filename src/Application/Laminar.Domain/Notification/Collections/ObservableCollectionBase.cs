@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Specialized;
 using System.Runtime.CompilerServices;
 
-namespace Laminar.Domain.Notification;
+namespace Laminar.Domain.Notification.Collections;
 
 /// <summary>
 /// Contains no implementation; only redirects boilerplate and connects up the messy list interfaces

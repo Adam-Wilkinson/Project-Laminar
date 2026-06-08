@@ -1,3 +1,4 @@
+using Laminar.Domain.Notification.Value;
 using Laminar.Domain.ValueObjects;
 
 namespace Laminar.Domain.UnitTests.ValueObjects.UnitTests;

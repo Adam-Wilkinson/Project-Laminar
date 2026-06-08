@@ -1,7 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 
-namespace Laminar.Domain.Notification;
+namespace Laminar.Domain.Notification.Collections;
 
 public static class MappedObservableCollectionExtensions
 {

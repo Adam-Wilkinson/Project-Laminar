@@ -6,6 +6,7 @@ using Laminar.Contracts.Scripting.Connection;
 using Laminar.Contracts.Scripting.Execution;
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Domain.Notification;
+using Laminar.Domain.Notification.Collections;
 using Laminar.Implementation.Scripting.Connections;
 using Laminar.PluginFramework.NodeSystem.Connectors;
 
@@ -27,9 +28,9 @@ internal class NodeTree : INodeTree
 
     public INodeUpdates GetUpdates(IWrappedNode node) => GetNodeUpdateTrigger(node);
 
-    public IReadOnlyObservableCollection<IWrappedNode> Nodes => new Domain.Notification.ReadOnlyObservableCollection<IWrappedNode>(_nodes);
+    public IReadOnlyObservableCollection<IWrappedNode> Nodes => new Domain.Notification.Collections.ReadOnlyObservableCollection<IWrappedNode>(_nodes);
 
-    public IReadOnlyObservableCollection<IConnection> Connections => new Domain.Notification.ReadOnlyObservableCollection<IConnection>(_connections);
+    public IReadOnlyObservableCollection<IConnection> Connections => new Domain.Notification.Collections.ReadOnlyObservableCollection<IConnection>(_connections);
     
     public void AddNode(IWrappedNode node)
     {

@@ -1,23 +1,21 @@
 using System.ComponentModel;
-using System.Net.NetworkInformation;
 using System.Runtime.CompilerServices;
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Markup.Xaml;
-using Avalonia.Media;
+using Avalonia.Markup.Xaml.MarkupExtensions;
 using Avalonia.Media.Transformation;
 using Laminar.Contracts.Scripting.NodeWrapping;
-using Laminar.Domain.ValueObjects;
+using Laminar.Domain.Notification.Value;
 using Laminar.PluginFramework.NodeSystem.Connectors;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Laminar.Avalonia.Markup;
 
-public class ConnectorRenderTransformCalculator : MarkupExtension
+public class ConnectorRenderTransformCalculator(object headerHeight) : MarkupExtension
 {
     private static readonly ConditionalWeakTable<IWrappedNode, NodeModel> NodeModels = [];
-
-    public double CollapsedNodeHeight { get; set; }
     
     public override object ProvideValue(IServiceProvider serviceProvider)
     {
@@ -43,25 +41,34 @@ public class ConnectorRenderTransformCalculator : MarkupExtension
         }
     }
 
-    private CompiledBinding GetBindingFromInitialized(StyledElement targetElement)
+    private BindingBase GetBindingFromInitialized(StyledElement targetElement)
     {
         if (targetElement.DataContext is null) return AvaloniaProperty.UnsetValue.AsStaticBinding();
         
         var targetConnector = FindConnectorFromTarget(targetElement);
         double xOffset = targetConnector is IInputConnector ? -16 : -1;
-        var (nodeVisual, targetNode) = FindNodeFrom(targetElement);
+        var targetNode = FindNodeFrom(targetElement);
         NodeModel model = NodeModels.GetValue(targetNode, node => new NodeModel(node));
+
+        double typedHeaderHeight = headerHeight switch
+        {
+            double doubleHeaderHeight => doubleHeaderHeight,
+            StaticResourceExtension { ResourceKey: { } staticResourceKey } when targetElement.FindResource(staticResourceKey) is double heightResource => heightResource,
+            _ => throw new InvalidCastException()
+        };
+        
         return model
             .GetFractionalOffsetObservable(targetConnector)
-            .Map(y =>
+            .Map(d =>
             {
+                var yPosition = typedHeaderHeight * (d - 1);
                 var operations = TransformOperations.CreateBuilder(1);
-                operations.AppendTranslate(xOffset, CollapsedNodeHeight * (y - 1));
+                operations.AppendTranslate(xOffset, yPosition);
                 return operations.Build();
             })
             .ToBinding();
     }
-
+    
     private static IConnector FindConnectorFromTarget(object target)
     {
         if (target is Visual targetVisual && ConnectorRegistry.GetRegisteredConnector(targetVisual) is { } connector)
@@ -77,14 +84,14 @@ public class ConnectorRenderTransformCalculator : MarkupExtension
         throw new InvalidOperationException($"Unable to find connector for object {target}");
     }
 
-    private static (Visual nodeVisual, IWrappedNode node) FindNodeFrom(StyledElement target)
+    private static IWrappedNode FindNodeFrom(StyledElement target)
     {
-        while (target is not Visual { DataContext: IWrappedNode })
+        while (target.DataContext is not IWrappedNode)
         {
-            target = target.Parent ?? throw new InvalidOperationException($"Could not find node for target {target}");
+            target = target.Parent ?? throw new InvalidCastException("Unable to find target node");
         }
 
-        return ((Visual)target, (IWrappedNode)target.DataContext!);
+        return (IWrappedNode)target.DataContext!;
     }
 
     private class NodeModel

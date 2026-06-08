@@ -1,22 +1,15 @@
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
-using Avalonia.LogicalTree;
 using Avalonia.Media;
 using Avalonia.Rendering.Composition;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using Laminar.Avalonia.Animations;
-using Laminar.Avalonia.ViewModels;
-using Laminar.Avalonia.Views;
 using Laminar.Domain.ValueObjects;
 using Point = Avalonia.Point;
 
@@ -28,12 +21,9 @@ public class DragDropSession : IDisposable
 {
     private const double SquaredMinimumDragDistance = 40;
 
-    private static readonly CompiledBinding ZIndexBinding =
-        CompiledBinding.Create<int, int>(x => x, source: int.MaxValue, priority: BindingPriority.Animation);
-    private static readonly CompiledBinding ClipToBoundsBinding =
-        CompiledBinding.Create<bool, bool>(x => x, source: false, priority: BindingPriority.Animation);
-    private static readonly CompiledBinding OffsetAnimationDurationBinding =
-        CompiledBinding.Create<TimeSpan, TimeSpan>(x => x, source: TimeSpan.Zero, priority: BindingPriority.Animation);
+    private static readonly CompiledBinding ZIndexBinding = int.MaxValue.AsStaticBinding(BindingPriority.Animation);
+    private static readonly CompiledBinding ClipToBoundsBinding = false.AsStaticBinding(BindingPriority.Animation);
+    private static readonly CompiledBinding OffsetAnimationDurationBinding = TimeSpan.Zero.AsStaticBinding(BindingPriority.Animation);
 
     private readonly PointerPressedEventArgs _startingEvent;
     private readonly DropTargetEventArgs _hoverEnterEventArgs;

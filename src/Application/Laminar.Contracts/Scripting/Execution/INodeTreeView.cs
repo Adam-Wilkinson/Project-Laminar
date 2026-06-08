@@ -1,6 +1,7 @@
 ﻿using Laminar.Contracts.Scripting.Connection;
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Domain.Notification;
+using Laminar.Domain.Notification.Collections;
 using Laminar.PluginFramework.NodeSystem.Connectors;
 
 namespace Laminar.Contracts.Scripting.Execution;
