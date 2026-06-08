@@ -5,10 +5,8 @@
              xmlns:vm="using:Laminar.Avalonia.ViewModels"
              xmlns:dvm="using:Laminar.Avalonia.ViewModels.Design"
              xmlns:asp="using:Laminar.Avalonia.AdjustableStackPanel"
-             xmlns:sam="using:Laminar.Avalonia.SelectAndMove"
              xmlns:s="using:Laminar.Avalonia.Settings"
              xmlns:c="using:Laminar.Avalonia.Controls"
-             xmlns:init="using:Laminar.Avalonia.InitializationTargets"
              xmlns:nw="using:Laminar.Contracts.Scripting.NodeWrapping"
              HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450" d:DataContext="{x:Static dvm:DesignViewModel.MainControl}"
@@ -51,8 +49,8 @@
                                     </Setter>
                                 </Style>
                                 
-                                <Style Selector="c|ItemPickerItem /template/ Border#PART_HoverOverHighlight" x:DataType="nw:IWrappedNode">
-                                    <Setter Property="IsPointerOver" Value="{Binding !IsCollapsed.Value, Mode=OneWayToSource}"/>
+                                <Style Selector="c|ItemPickerItem" x:DataType="nw:IWrappedNode">
+                                    <Setter Property="IsHoveredOrDragging" Value="{Binding !IsCollapsed.Value, Mode=OneWayToSource}"/>
                                 </Style>
                             </c:ItemPicker.Styles>
                         </c:ItemPicker>

@@ -9,9 +9,7 @@
                     xmlns:sam="using:Laminar.Avalonia.SelectAndMove"
                     xmlns:s="using:Laminar.Avalonia.Settings"
                     xmlns:m="using:Laminar.Avalonia.Markup"
-                    xmlns:init="using:Laminar.Avalonia.InitializationTargets"
-                    xmlns:vm="using:Laminar.Avalonia.ViewModels"
-                    xmlns:dd="using:Laminar.Avalonia.DragDrop">
+                    xmlns:init="using:Laminar.Avalonia.InitializationTargets">
     
     <sys:Double x:Key="NodeHeaderHeight">40</sys:Double>
     
@@ -76,8 +74,6 @@
     
     <DataTemplate DataType="scr:IWrappedNode" x:Key="WrappedNodeDataTemplate">
         <Panel Name="NodeRoot" ClipToBounds="False"
-               dd:BeingDraggedHandler.DragStartedCommand="{x:Static vm:ScriptEditorViewModel.NodeDragStartedCommand}"
-               dd:BeingDraggedHandler.DragEndedCommand="{x:Static vm:ScriptEditorViewModel.NodeDragEndedCommand}"
                Background="{DynamicResource {x:Static init:ColorInitialization.LaminarNonForegroundKey}}">
             
             <t:ToolMenu.ContextToolbox>

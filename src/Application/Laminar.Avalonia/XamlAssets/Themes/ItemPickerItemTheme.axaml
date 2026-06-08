@@ -1,8 +1,7 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:c="using:Laminar.Avalonia.Controls"
-                    xmlns:s="using:Laminar.Avalonia.Settings"
-                    xmlns:dd="using:Laminar.Avalonia.DragDrop">
+                    xmlns:s="using:Laminar.Avalonia.Settings">
     <ControlTheme TargetType="c:ItemPickerItem" x:Key="{x:Type c:ItemPickerItem}">
         <Setter Property="ClipToBounds" Value="False"/>
         <Setter Property="Template">
@@ -10,10 +9,9 @@
                 <!-- We use a stack panel to let it arrange with whatever height it wants -->
                 <StackPanel>
                     <Panel ClipToBounds="False">
-                        <Border Name="PART_HoverOverHighlight" 
+                        <Border Name="PART_DragTarget" 
                                 Padding="5"
                                 VerticalAlignment="Top"
-                                dd:DragDrop.TriggerMouseButton="Left"
                                 ClipToBounds="False"
                                 Cursor="Hand">
                             <Border.Transitions>
@@ -63,11 +61,11 @@
         </Setter>
         
         
-        <Style Selector="^:pointerover /template/ Border#PART_HoverOverHighlight">
+        <Style Selector="^:pointerover /template/ Border#PART_DragTarget">
             <Setter Property="Background" Value="{DynamicResource UiLayer}"/>
         </Style>
         
-        <Style Selector="^ /template/ Border#PART_HoverOverHighlight">
+        <Style Selector="^ /template/ Border#PART_DragTarget">
             <Setter Property="Background" Value="Transparent"/>
         </Style>
         
