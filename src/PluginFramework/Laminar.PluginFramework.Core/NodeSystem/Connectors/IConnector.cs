@@ -6,7 +6,7 @@ public interface IConnector : INotifyPropertyChanged
 {
     public Action? PreEvaluateAction { get; }
 
-    public ConnectorStatus Status { get; }
+    public ConnectorFlags Flags { get; }
 
     public void OnConnectionEstablished();
 

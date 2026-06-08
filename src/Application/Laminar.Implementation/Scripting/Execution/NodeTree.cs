@@ -6,6 +6,7 @@ using Laminar.Contracts.Scripting.Connection;
 using Laminar.Contracts.Scripting.Execution;
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Domain.Notification;
+using Laminar.Domain.Notification.Collections;
 using Laminar.Implementation.Scripting.Connections;
 using Laminar.PluginFramework.NodeSystem.Connectors;
 
@@ -14,6 +15,7 @@ namespace Laminar.Implementation.Scripting.Execution;
 internal class NodeTree : INodeTree
 {
     private readonly ConditionalWeakTable<IConnector, ConnectorInformation> _treeInformation = [];
+    private readonly ConditionalWeakTable<IWrappedNode, NodeUpdates> _nodeUpdatesInformation = [];
     private readonly Dictionary<IWrappedNode, IDisposable> _nodeRowsChangedSubscriptions = [];
     private readonly ObservableCollection<IWrappedNode> _nodes = [];
     private readonly ObservableCollection<IConnection> _connections = [];
@@ -22,9 +24,13 @@ internal class NodeTree : INodeTree
     
     public IReadOnlyCollection<ConnectorConnectionInfo> GetConnectionsTo(IConnector connector) => GetConnectorInformation(connector).Connections.Values;
 
-    public IReadOnlyObservableCollection<IWrappedNode> Nodes => new Domain.Notification.ReadOnlyObservableCollection<IWrappedNode>(_nodes);
+    public IWrappedNode GetParentNode(IConnector connector) => GetConnectorInformation(connector).Owner;
 
-    public IReadOnlyObservableCollection<IConnection> Connections => new Domain.Notification.ReadOnlyObservableCollection<IConnection>(_connections);
+    public INodeUpdates GetUpdates(IWrappedNode node) => GetNodeUpdateTrigger(node);
+
+    public IReadOnlyObservableCollection<IWrappedNode> Nodes => new Domain.Notification.Collections.ReadOnlyObservableCollection<IWrappedNode>(_nodes);
+
+    public IReadOnlyObservableCollection<IConnection> Connections => new Domain.Notification.Collections.ReadOnlyObservableCollection<IConnection>(_connections);
     
     public void AddNode(IWrappedNode node)
     {
@@ -83,6 +89,10 @@ internal class NodeTree : INodeTree
         _connections.Add(newConnection);
         outputConnector.OnConnectionEstablished();
         inputConnector.OnConnectionEstablished();
+        
+        GetNodeUpdateTrigger(inputInfo.Owner).OnConnectionsChanged();
+        GetNodeUpdateTrigger(outputInfo.Owner).OnConnectionsChanged();
+        
         Changed?.Invoke(this, EventArgs.Empty);
 
         connection = newConnection;
@@ -109,6 +119,9 @@ internal class NodeTree : INodeTree
         inputConnector.OnConnectionSevered();
         outputConnector.OnConnectionSevered();
         
+        GetNodeUpdateTrigger(inputInfo.Owner).OnConnectionsChanged();
+        GetNodeUpdateTrigger(outputInfo.Owner).OnConnectionsChanged();
+        
         _connections.Remove(brokenConnector);
         Changed?.Invoke(this, EventArgs.Empty);
         return true;
@@ -116,6 +129,16 @@ internal class NodeTree : INodeTree
     
     private ConnectorInformation GetConnectorInformation(IConnector connector) => _treeInformation.GetValue(connector,
         _ => throw new InvalidOperationException("Connector not found"));
+
+    private NodeUpdates GetNodeUpdateTrigger(IWrappedNode node) =>
+        _nodeUpdatesInformation.GetValue(node, _ => new NodeUpdates());
     
     private record ConnectorInformation(IWrappedNode Owner, Dictionary<IConnector, ConnectorConnectionInfo> Connections);
+
+    private class NodeUpdates : INodeUpdates
+    {
+        public void OnConnectionsChanged() => ConnectionsChanged?.Invoke(this, EventArgs.Empty);
+        
+        public event EventHandler? ConnectionsChanged;
+    }
 }

@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Specialized;
 
-namespace Laminar.Domain.Notification;
+namespace Laminar.Domain.Notification.Collections;
 
 public abstract class ReadOnlyObservableCollectionBase<T> : IReadOnlyObservableCollection<T>, IList
 {

@@ -5,10 +5,9 @@
              xmlns:vm="using:Laminar.Avalonia.ViewModels"
              xmlns:dvm="using:Laminar.Avalonia.ViewModels.Design"
              xmlns:asp="using:Laminar.Avalonia.AdjustableStackPanel"
-             xmlns:sam="using:Laminar.Avalonia.SelectAndMove"
              xmlns:s="using:Laminar.Avalonia.Settings"
              xmlns:c="using:Laminar.Avalonia.Controls"
-             xmlns:init="using:Laminar.Avalonia.InitializationTargets"
+             xmlns:nw="using:Laminar.Contracts.Scripting.NodeWrapping"
              HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450" d:DataContext="{x:Static dvm:DesignViewModel.MainControl}"
              x:DataType="vm:MainControlViewModel"
@@ -28,21 +27,40 @@
                             asp:ResizeWidget.TargetSize="{Binding CurrentSidebarWidth, Mode=TwoWay}"/>
         </asp:AdjustableStackPanel>
         
-        <DockPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-            <asp:AdjustableStackPanel DockPanel.Dock="Top"
-                                      HorizontalAlignment="Stretch"
-                                      VerticalAlignment="Top"
-                                      TransitionDuration="{s:Setting InterfaceSettings.AnimationDuration}"
-                                      TransitionEasing="{DynamicResource AnimationEasing}">
-                <Border Classes="UiLayer"
-                        asp:ResizeWidget.TargetSize="{Binding NodePickerHeight, Mode=TwoWay}">
-                    <c:ItemPicker ItemsCategory="{Binding LoadedNodes}"/>
-                </Border>
-            </asp:AdjustableStackPanel>
-            
-            <ContentControl Classes="UiLayer"
-                            Content="{Binding ScriptEditor}"/>
-        </DockPanel>
+        <Panel Name="EditorRegion">
+            <DockPanel Name="EditorClip" 
+                       HorizontalAlignment="Stretch" 
+                       VerticalAlignment="Stretch">
+                <asp:AdjustableStackPanel DockPanel.Dock="Top"
+                                          HorizontalAlignment="Stretch"
+                                          ClipToBounds="False"
+                                          ZIndex="100"
+                                          VerticalAlignment="Top"
+                                          TransitionDuration="{s:Setting InterfaceSettings.AnimationDuration}"
+                                          TransitionEasing="{DynamicResource AnimationEasing}">
+                    <Border Classes="UiLayer"
+                            asp:ResizeWidget.TargetSize="{Binding NodePickerHeight, Mode=TwoWay}"
+                            ClipToBounds="False">
+                        <c:ItemPicker ItemsCategory="{Binding LoadedNodes}">
+                            <c:ItemPicker.Styles>
+                                <Style Selector="c|ItemPicker">
+                                    <Setter Property="Clip">
+                                        <RectangleGeometry Rect="{Binding #EditorClip.Bounds}"/>
+                                    </Setter>
+                                </Style>
+                                
+                                <Style Selector="c|ItemPickerItem" x:DataType="nw:IWrappedNode">
+                                    <Setter Property="IsHoveredOrDragging" Value="{Binding !IsCollapsed.Value, Mode=OneWayToSource}"/>
+                                </Style>
+                            </c:ItemPicker.Styles>
+                        </c:ItemPicker>
+                    </Border>
+                </asp:AdjustableStackPanel>
+                
+                <ContentControl Classes="UiLayer"
+                                Content="{Binding ScriptEditor}"/>
+            </DockPanel>
+        </Panel>
         
         <DockPanel.Resources>
             <ControlTheme x:Key="{x:Type asp:ResizeWidget}" TargetType="{x:Type asp:ResizeWidget}">

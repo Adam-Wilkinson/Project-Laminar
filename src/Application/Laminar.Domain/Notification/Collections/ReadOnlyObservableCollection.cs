@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 
-namespace Laminar.Domain.Notification;
+namespace Laminar.Domain.Notification.Collections;
 
 public class ReadOnlyObservableCollection<T>(ObservableCollection<T> core) : IReadOnlyObservableCollection<T>
 {

@@ -35,21 +35,21 @@ public class ColorInitialization(Application topLevel) : IAfterApplicationBuiltT
     {
         _themeForeground = topLevel.ActualThemeVariant == ThemeVariant.Light ? Colors.Black : Colors.White;
         
-        topLevel.Resources.GetResourceObservable("LaminarThemeAccent").Subscribe(new AnonymousObserver<object?>(primary =>
+        topLevel.Resources.GetResourceObservable("LaminarThemeAccent").Subscribe(new Domain.Notification.Value.AnonymousObserver<object?>(primary =>
         {
             if (primary is not Color primaryColor || primaryColor == _themeAccent) return;
             _themeAccent = primaryColor;
             ColorsChanged();
         }));
         
-        topLevel.Resources.GetResourceObservable("LaminarThemeForeground").Subscribe(new AnonymousObserver<object?>(foreground =>
+        topLevel.Resources.GetResourceObservable("LaminarThemeForeground").Subscribe(new Domain.Notification.Value.AnonymousObserver<object?>(foreground =>
         {
             if (foreground is not Color foregroundColor || foregroundColor == _themeForeground) return;
             _themeForeground = foregroundColor;
             ColorsChanged();
         }));
         
-        topLevel.Resources.GetResourceObservable("LaminarThemeBackground").Subscribe(new AnonymousObserver<object?>(background =>
+        topLevel.Resources.GetResourceObservable("LaminarThemeBackground").Subscribe(new Domain.Notification.Value.AnonymousObserver<object?>(background =>
         {
             if (background is not Color backgroundColor || backgroundColor == _themeBackground) return;
             _themeBackground = backgroundColor;

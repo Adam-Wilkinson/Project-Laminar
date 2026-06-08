@@ -1,11 +1,13 @@
+using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Laminar.Avalonia.ViewModels.Services;
 using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Scripting.Connection;
+using Laminar.Contracts.Scripting.Execution;
 using Laminar.Contracts.Scripting.NodeWrapping;
-using Laminar.Domain.Notification;
+using Laminar.Domain.Notification.Collections;
 using Laminar.PluginFramework.NodeSystem.Connectors;
 using LaminarPoint = Laminar.Domain.ValueObjects.Point;
 using AvaloniaPoint = Avalonia.Point;
@@ -20,6 +22,14 @@ public partial class ScriptEditorViewModel(IScript script, IScriptEditor editor,
     [ObservableProperty]
     public partial IReadOnlyList<object>? CurrentSelection { get; set; }
 
+    public INodeTreeView NodeTree => script.NodeTreeView;
+
+    public static readonly ICommand NodeDragStartedCommand 
+        = new RelayCommand<IWrappedNode>(node => node?.IsCollapsed.Value = false);
+    
+    public static readonly ICommand NodeDragEndedCommand
+        = new RelayCommand<IWrappedNode>(node => node?.IsCollapsed.Value = true);
+    
     public IReadOnlyObservableCollection<ScriptEditorItemModel> VisualElements { get; } =
         new FlattenedObservableTree<ScriptEditorItemModel>(
                 script.NodeTreeView.Nodes.ObservableMap(node => new ScriptEditorItemModel(node)),
@@ -37,24 +47,25 @@ public partial class ScriptEditorViewModel(IScript script, IScriptEditor editor,
 
     public IConnector? StartConnectionFrom(IConnector connector)
     {
-        switch (connector.Status)
+        if (connector.Flags.HasFlag(ConnectorFlags.AcceptsConnections))
         {
-            case ConnectorStatus.AcceptsConnections:
-                _userActionSession = userActionManager.BeginSession();
-                return connector;
-            case ConnectorStatus.ConnectionsSaturated:
-                var connections = script.NodeTreeView.GetConnectionsTo(connector);
-                if (connections.Count == 0) return null;
-                var connectionInfo = connections.First();
-
-                _userActionSession ??= userActionManager.BeginSession();
-                _userActionSession.ExecuteAction(editor.DeleteConnectionAction(script, connectionInfo.Connection));
-
-                return connectionInfo.OppositeConnector;
-            case ConnectorStatus.DoesNotAcceptConnections:
-            default:
-                return null;
+            _userActionSession = userActionManager.BeginSession();
+            return connector;            
         }
+
+        if (connector.Flags == (ConnectorFlags.HasConnections | ConnectorFlags.ConnectionsSaturated))
+        {
+            var connections = script.NodeTreeView.GetConnectionsTo(connector);
+            if (connections.Count == 0) return null;
+            var connectionInfo = connections.First();
+
+            _userActionSession ??= userActionManager.BeginSession();
+            _userActionSession.ExecuteAction(editor.DeleteConnectionAction(script, connectionInfo.Connection));
+
+            return connectionInfo.OppositeConnector;
+        }
+
+        return null;
     }
 
     public bool HoverConnection(IConnector first, IConnector second)

@@ -23,7 +23,7 @@ public class BeingDraggedHandler : Interactive
     public static readonly RoutedEvent<BeingDraggedEventArgs> HoverEndedEvent =
         RoutedEvent.Register<BeingDraggedHandler, BeingDraggedEventArgs>(nameof(HoverEnded), RoutingStrategies.Direct);
     
-    public static readonly AttachedProperty<bool> IsBeingDraggedProperty = AvaloniaProperty.RegisterAttached<BeingDraggedHandler, AvaloniaObject, bool>("IsBeingDragged");
+    public static readonly AttachedProperty<bool> IsBeingDraggedProperty = AvaloniaProperty.RegisterAttached<BeingDraggedHandler, AvaloniaObject, bool>("IsBeingDragged", inherits: true);
     public static bool GetIsBeingDragged(AvaloniaObject control) => control.GetValue(IsBeingDraggedProperty);
     public static void SetIsBeingDragged(AvaloniaObject control, bool value) => control.SetValue(IsBeingDraggedProperty, value);
     

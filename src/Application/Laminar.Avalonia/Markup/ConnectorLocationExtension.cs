@@ -1,9 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Globalization;
 using Avalonia;
 using Avalonia.Data;
-using Avalonia.Data.Converters;
 using Avalonia.Layout;
 using Avalonia.Markup.Xaml;
 using Avalonia.VisualTree;
@@ -33,56 +29,29 @@ public class ConnectorLocationExtension : MarkupExtension
                 throw new InvalidOperationException("ConnectorLocationExtension can only target visuals");
             }
 
-            var transformedCenterObserver = new TransformedCenterObservable(targetVisual, registry);
-    
-            return new MultiBinding
-            {
-                Bindings = 
-                [
-                    _connectorBinding, 
-                    transformedCenterObserver.ToBinding(),
-                ],
-                Converter = new TransformedCenterValueConverter(),
-                ConverterParameter = transformedCenterObserver
-            };
+            return DependentObservableBinding.Create(_connectorBinding, new TransformedCenterObservable(targetVisual, registry));
         });
 }
 
-public class TransformedCenterValueConverter : IMultiValueConverter
-{
-    public object Convert(IList<object?> values, Type targetType, object? parameter, CultureInfo culture)
-    {
-        if (Equals(values[0], AvaloniaProperty.UnsetValue) || Equals(values[1], AvaloniaProperty.UnsetValue))
-        {
-            return AvaloniaProperty.UnsetValue;
-        }
-        
-        if (parameter is not TransformedCenterObservable observer || values[0] is not IConnector connector || values[1] is not Point returnValue)
-            return new BindingNotification(new InvalidCastException(), BindingErrorType.Error);
-
-        observer.SetConnector(connector);
-        return returnValue;
-    }
-}
-
-public class TransformedCenterObservable(Visual owner, ConnectorRegistry registry) : IObservable<Point>
+public class TransformedCenterObservable(Visual owner, ConnectorRegistry registry) : IDependentObservable<IConnector, Point>
 {
     private readonly List<Subscription> _subscriptions = [];
     
-    private IConnector? _currentConnector;
     private Visual? _trackedVisual;
     
-    public IDisposable Subscribe(IObserver<Point> observer)
-        => new Subscription(this, observer, owner, _trackedVisual);
-    
-    public void SetConnector(IConnector connector)
+    public IDisposable Subscribe(IObserver<Point> observer) => new Subscription(this, observer, owner, _trackedVisual);
+
+    public IConnector? Dependency
     {
-        if (Equals(_currentConnector, connector)) return;
-        _currentConnector = connector;
-        _trackedVisual = registry.GetVisualForConnector(connector);
-        foreach (var sub in _subscriptions)
+        get;
+        set
         {
-            sub.UpdateTrackedVisual(_trackedVisual);
+            field = value;
+            _trackedVisual = field is not null ? registry.GetVisualForConnector(field) : null;
+            foreach (var subscription in _subscriptions)
+            {
+                subscription.UpdateTrackedVisual(_trackedVisual);
+            }
         }
     }
     
@@ -104,6 +73,7 @@ public class TransformedCenterObservable(Visual owner, ConnectorRegistry registr
             _trackedVisual = trackedVisual;
             
             _ownerVisual.DetachedFromVisualTree += OwnerDetachedFromVisualTree; 
+            _ownerVisual.PropertyChanged += ConnectorPropertyChanged;
             _root._subscriptions.Add(this);
             if (_trackedVisual is null)
             {
@@ -115,15 +85,25 @@ public class TransformedCenterObservable(Visual owner, ConnectorRegistry registr
             }
         }
 
+        private void ConnectorPropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
+        {
+            if (e.Property == Visual.RenderTransformProperty)
+            {
+                PublishCurrentPosition();
+            }
+        }
+
         private void OwnerDetachedFromVisualTree(object? sender, VisualTreeAttachmentEventArgs e) => Dispose();
 
         public void UpdateTrackedVisual(Visual? visualToTrack)
         {
             _trackedVisual?.AttachedToVisualTree -= TrackedVisualMoved;
             _trackedVisual?.DetachedFromVisualTree -= CommonAncestorOnLayoutUpdated;
+            _trackedVisual?.PropertyChanged -= ConnectorPropertyChanged;
             _trackedVisual = visualToTrack;
             _trackedVisual?.AttachedToVisualTree += CommonAncestorOnLayoutUpdated;
             _trackedVisual?.DetachedFromVisualTree += TrackedVisualMoved;
+            _trackedVisual?.PropertyChanged += ConnectorPropertyChanged;
             UpdateCommonAncestor();
         }
 
@@ -146,10 +126,10 @@ public class TransformedCenterObservable(Visual owner, ConnectorRegistry registr
 
         private void PublishCurrentPosition()
         {
-            if (_disposed || _trackedVisual?.GetVisualParent()?.TransformToVisual(_ownerVisual) is not { } transform) 
+            if (_disposed || _trackedVisual?.TransformToVisual(_ownerVisual) is not { } transform) 
                 return;
 
-            var next = _trackedVisual.Bounds.Center.Transform(transform);
+            var next = new Point(_trackedVisual.Bounds.Width / 2, _trackedVisual.Bounds.Height / 2).Transform(transform);
             
             _observer.OnNext(next);
         }
@@ -159,6 +139,7 @@ public class TransformedCenterObservable(Visual owner, ConnectorRegistry registr
             if (_disposed) return;
             _disposed = true;
             _ownerVisual.DetachedFromVisualTree -= OwnerDetachedFromVisualTree;
+            _ownerVisual.PropertyChanged -= ConnectorPropertyChanged;
             _root._subscriptions.Remove(this);
             _observer.OnCompleted();
         }

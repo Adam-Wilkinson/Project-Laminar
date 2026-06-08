@@ -3,10 +3,12 @@
                     xmlns:vm="using:Laminar.Avalonia.ViewModels"
                     xmlns:t="using:Laminar.Avalonia.ToolSystem"
                     xmlns:s="using:Laminar.Avalonia.Settings"
+                    xmlns:c="using:Laminar.Avalonia.Controls"
                     xmlns:lang="using:Laminar.Avalonia.Assets.Lang"
                     xmlns:shapes="using:Laminar.Avalonia.Shapes"
                     xmlns:conv="using:Laminar.Avalonia.Converters"
                     xmlns:fe="using:Laminar.Contracts.Storage.FileExplorer"
+                    xmlns:nw="using:Laminar.Contracts.Scripting.NodeWrapping"
                     xmlns:init="using:Laminar.Avalonia.InitializationTargets">
     
     <!-- Edit Menu Tool -->
@@ -34,27 +36,8 @@
 			    <Panel>
 				    <t:GeometryIcon Data="{Binding IconGeometry}"
 				                    IsVisible="{Binding IconGeometry, Converter={x:Static ObjectConverters.IsNotNull}}"/>
-				    <Path Stroke="{DynamicResource {x:Static init:ColorInitialization.LaminarForegroundKey}}"
-				          IsVisible="{Binding IconGeometry, Converter={x:Static ObjectConverters.IsNull}}"
-				          StrokeThickness="2"
-				          Margin="5"
-				          Data="M 1,0 10,10 l -9,10 -1,-1 L 8,10 -0,1 Z"
-				          Name="PART_ExpandCollapseChevron"
-				          Classes.IsExpanded="{Binding IsExpanded}">
-					    <Path.Styles>
-						    <Style Selector="Path:not(.IsExpanded)">
-							    <Setter Property="RenderTransform" Value="rotate(0deg)"/>
-						    </Style>
-						    <Style Selector="Path.IsExpanded">
-							    <Setter Property="RenderTransform" Value="rotate(90deg)"/>
-						    </Style>
-					    </Path.Styles>
-					    <Path.Transitions>
-						    <Transitions>
-							    <TransformOperationsTransition Property="RenderTransform" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
-						    </Transitions>
-					    </Path.Transitions>
-				    </Path>
+				    <c:ExpandCollapseChevron IsExpanded="{Binding IsExpanded}"
+				                             IsVisible="{Binding IconGeometry, Converter={x:Static ObjectConverters.IsNull}}"/>
 			    </Panel>
 		    </DataTemplate>
 	    </t:Tool.IconTemplate>
@@ -396,9 +379,24 @@
                    CommandBinding="{Binding DeleteSelectionCommand}"
                    DefaultIconGeometry="{x:Static shapes:PathData.DeleteIcon}"/>
     
+    <t:PropertySetterTool x:Key="Tools.ScriptEditor.NodeTools.ToggleExpanded" x:DataType="nw:IWrappedNode"
+                          NameKey="Toggle Expanded"
+                          PropertyBinding="{Binding IsCollapsed.Value}">
+	    <t:PropertySetterTool.IconTemplate>
+		    <DataTemplate x:DataType="nw:IWrappedNode">
+			    <c:ExpandCollapseChevron IsExpanded="{Binding !IsCollapsed.Value}"/>
+		    </DataTemplate>
+	    </t:PropertySetterTool.IconTemplate>
+    </t:PropertySetterTool>
+    
+	<t:Toolbox x:Key="Tools.ScriptEditor.NodeTools" NameKey="Node Tools">
+		<StaticResource ResourceKey="Tools.ScriptEditor.NodeTools.ToggleExpanded"/>
+	</t:Toolbox>
+    
     <t:Toolbox x:Key="Tools.ScriptEditor" x:DataType="vm:ScriptEditorViewModel"
                NameKey="Script Editor Tools">
 	    <StaticResource ResourceKey="Tools.ScriptEditor.DeleteSelection"/>
+	    <StaticResource ResourceKey="Tools.ScriptEditor.NodeTools"/>
     </t:Toolbox>
     
     <t:Toolbox x:Key="{x:Static t:Tool.ToolRootKey}" NameKey="LaminarToolRoot">

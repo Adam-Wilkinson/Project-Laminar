@@ -16,7 +16,7 @@ internal readonly struct EstablishConnectionAction(
 
     public IInputConnector InputConnector { get; } = inputConnector;
     
-    public bool CanExecute { get; } = outputConnector.CanConnectTo(inputConnector) || inputConnector.CanConnectTo(outputConnector);
+    public bool CanExecute { get; } = outputConnector.CouldConnectTo(inputConnector) || inputConnector.CouldConnectTo(outputConnector);
 
     public Task<IUserActionResult> Execute()
     {
@@ -26,14 +26,14 @@ internal readonly struct EstablishConnectionAction(
         }
         
         List<IUserAction> totalRequiredActions = [];
-        if (InputConnector.Status == ConnectorStatus.ConnectionsSaturated
+        if (InputConnector.Flags.HasFlag(ConnectorFlags.ConnectionsSaturated)
             && nodeTree.GetConnectionsTo(InputConnector).FirstOrDefault()?.OppositeConnector is IOutputConnector
                 problemOutputConnector)
         {
             totalRequiredActions.Add(new SeverConnectionAction(problemOutputConnector, InputConnector, nodeTree));
         }
 
-        if (OutputConnector.Status == ConnectorStatus.ConnectionsSaturated
+        if (OutputConnector.Flags.HasFlag(ConnectorFlags.ConnectionsSaturated)
             && nodeTree.GetConnectionsTo(OutputConnector).FirstOrDefault()?.OppositeConnector is IInputConnector
                 problemInputConnector)
         {

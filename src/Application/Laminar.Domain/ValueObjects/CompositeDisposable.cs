@@ -10,7 +10,7 @@ namespace Laminar.Domain.ValueObjects;
 /// <summary>
 /// Represents a group of disposable resources that are disposed together.
 /// </summary>
-public sealed class CompositeDisposable : ICollection<IDisposable>
+public sealed class CompositeDisposable : ICollection<IDisposable>, IDisposable
 {
     private readonly Lock _gate = new();
     private bool _disposed;

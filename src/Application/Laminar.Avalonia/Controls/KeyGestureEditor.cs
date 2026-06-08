@@ -40,18 +40,18 @@ public class KeyGestureEditor : TemplatedControl
     
     public KeyGestureEditor()
     {
-        this.GetObservable(GestureProperty).Subscribe(new AnonymousObserver<KeyGesture>(newValue =>
+        this.GetObservable(GestureProperty).Subscribe(new Domain.Notification.Value.AnonymousObserver<KeyGesture>(newValue =>
         {
             _currentGesture = newValue;
             RefreshText();
         }));
 
-        this.GetObservable(FormatStringProperty).Subscribe(new AnonymousObserver<string?>(newFormatString =>
+        this.GetObservable(FormatStringProperty).Subscribe(new Domain.Notification.Value.AnonymousObserver<string?>(newFormatString =>
         {
             RefreshText();
         }));
 
-        this.GetObservable(StateProperty).Subscribe(new AnonymousObserver<KeyGestureInterfaceState>(newValue =>
+        this.GetObservable(StateProperty).Subscribe(new Domain.Notification.Value.AnonymousObserver<KeyGestureInterfaceState>(newValue =>
         {
             if (newValue is not KeyGestureInterfaceState.None)
             {

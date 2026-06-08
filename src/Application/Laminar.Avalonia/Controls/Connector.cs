@@ -111,6 +111,7 @@ public class Connector : Shape
         PseudoClasses.Remove(DragActivePseudoclass);
         IsHitTestVisible = true;
         args.Handled = true;
+        _originalClickOffset = null;
         Startpoint = new Point(0, 0);
         Endpoint = new Point(0, 0);
     }

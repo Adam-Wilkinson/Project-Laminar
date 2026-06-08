@@ -1,4 +1,5 @@
 using Laminar.Domain.Notification;
+using Laminar.Domain.Notification.Collections;
 
 namespace Laminar.Contracts.Storage.FileExplorer;
 

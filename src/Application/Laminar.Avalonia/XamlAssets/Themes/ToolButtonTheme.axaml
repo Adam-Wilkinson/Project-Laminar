@@ -104,7 +104,7 @@
                 </Border>
             </Template>
         </Setter>
-        <Setter Property="Classes.HasChildren" Value="{Binding ChildTools, Converter={StaticResource NullOrEmptyConverter}}"/>
+        <Setter Property="Classes.HasChildren" Value="{Binding ChildTools, Converter={StaticResource HasValueConverter}}"/>
         <Style Selector="^.HasChildren">
             <Setter Property="Flyout">
                 <!-- There is a MenuFlyout which does this simpler, but the bindings don't work. If that's fixed, this can be simplified-->

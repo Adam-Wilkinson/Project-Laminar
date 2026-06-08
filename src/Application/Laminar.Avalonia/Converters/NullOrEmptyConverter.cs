@@ -11,7 +11,7 @@ public class NullOrEmptyConverter : IValueConverter
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture) =>
         value switch
         {
-            ICollection collection => collection.Count > 0,
+            ICollection collection => collection.Count == 0,
             string str => string.IsNullOrWhiteSpace(str),
             KeyGesture keyGesture => keyGesture is { Key: Key.None, KeyModifiers: KeyModifiers.None },
             bool boolean => boolean,

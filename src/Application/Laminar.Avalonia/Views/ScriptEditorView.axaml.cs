@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Laminar.Avalonia.ViewModels;
 
 namespace Laminar.Avalonia.Views;
 

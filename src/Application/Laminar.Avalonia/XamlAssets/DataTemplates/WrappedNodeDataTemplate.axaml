@@ -1,13 +1,18 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="using:System"
                     xmlns:scr="using:Laminar.Contracts.Scripting.NodeWrapping"
                     xmlns:c="using:Laminar.Avalonia.Controls"
+                    xmlns:t="using:Laminar.Avalonia.ToolSystem"
                     xmlns:comp="using:Laminar.PluginFramework.NodeSystem.Components"
                     xmlns:conn="using:Laminar.PluginFramework.NodeSystem.Connectors"
                     xmlns:sam="using:Laminar.Avalonia.SelectAndMove"
                     xmlns:s="using:Laminar.Avalonia.Settings"
                     xmlns:m="using:Laminar.Avalonia.Markup"
                     xmlns:init="using:Laminar.Avalonia.InitializationTargets">
+    
+    <sys:Double x:Key="NodeHeaderHeight">40</sys:Double>
+    
     <ControlTheme TargetType="c:Connector" x:Key="IoConnectorPath" x:DataType="conn:IConnector">
         <Setter Property="IsVisible" Value="{Binding Converter={x:Static ObjectConverters.IsNotNull}}"/>
         <Setter Property="Fill" Value="{Binding ColorHex, TargetNullValue={x:Static Brushes.White}, Converter={StaticResource ParseBrushConverter}}"/>
@@ -17,12 +22,16 @@
         <Setter Property="ConnectionWidth" Value="13"/>
         <Setter Property="TipLength" Value="10"/>
         <Setter Property="m:ConnectorRegistry.RegisteredConnector" Value="{Binding}"/>
+        <Setter Property="Classes.HasConnections" Value="{Binding Flags, Converter={StaticResource HasFlagConverter}, ConverterParameter={x:Static conn:ConnectorFlags.HasConnections}}"/>
+        <Setter Property="Classes.HasNoConnections" Value="{Binding Flags, Converter={StaticResource MissingFlagConverter}, ConverterParameter={x:Static conn:ConnectorFlags.HasConnections}}"/>
         <Setter Property="Width" Value="0"/>
         <Setter Property="Height" Value="0"/>
         <Setter Property="ClipToBounds" Value="False"/>
         <Setter Property="Transitions">
             <Transitions>
                 <DoubleTransition Property="ConnectionWidth" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
+                <DoubleTransition Property="Opacity" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
+                <TransformOperationsTransition Property="RenderTransform" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
             </Transitions>
         </Setter>
         
@@ -36,14 +45,16 @@
     </ControlTheme>
     
     <DataTemplate DataType="comp:INodeRow" x:Key="NodeRowDataTemplate">
-        <Panel Margin="6" 
+        <Panel Name="NodeRowRoot"
                Opacity="{Binding Opacity.Value}"
-               Height="{s:UiScaled 40}">
-            <ContentControl Content="{Binding CentralDisplay}"/>
+               ClipToBounds="False">
+            <ContentControl Name="CentralDisplay" 
+                            Content="{Binding CentralDisplay}"
+                            ClipToBounds="False"/>
             
             <c:Connector Theme="{StaticResource IoConnectorPath}" 
-                         RenderTransform="translatex(-16px)"
                          HorizontalAlignment="Left"
+                         RenderTransform="{m:ConnectorRenderTransformCalculator {StaticResource NodeHeaderHeight}}"
                          DragMode="{Binding $self.(m:ConnectorRegistry.ConnectorGestureLive), 
                             Converter={StaticResource ParameterOrNullConverter}, 
                             ConverterParameter={x:Static c:ConnectorDragMode.MoveStart},
@@ -51,8 +62,8 @@
                          DataContext="{Binding InputConnector}"/>
             
             <c:Connector Theme="{StaticResource IoConnectorPath}"
-                         RenderTransform="translatex(2px)"
                          HorizontalAlignment="Right"
+                         RenderTransform="{m:ConnectorRenderTransformCalculator {StaticResource NodeHeaderHeight}}"
                          DragMode="{Binding $self.(m:ConnectorRegistry.ConnectorGestureLive), 
                             Converter={StaticResource ParameterOrNullConverter}, 
                             ConverterParameter={x:Static c:ConnectorDragMode.MoveEnd},
@@ -62,19 +73,84 @@
     </DataTemplate>
     
     <DataTemplate DataType="scr:IWrappedNode" x:Key="WrappedNodeDataTemplate">
-        <Panel Name="NodeRoot">
+        <Panel Name="NodeRoot" ClipToBounds="False"
+               Background="{DynamicResource {x:Static init:ColorInitialization.LaminarNonForegroundKey}}">
+            
+            <t:ToolMenu.ContextToolbox>
+                <t:Toolbox NameKey="Node" x:DataType="scr:IWrappedNode">
+                    <StaticResource ResourceKey="Tools.ScriptEditor.NodeTools.ToggleExpanded"/>
+                </t:Toolbox>
+            </t:ToolMenu.ContextToolbox>
+            
             <Border Name="MainPanelBorder"
                     Background="{DynamicResource {x:Static init:ColorInitialization.LaminarNonForegroundKey}}"
                     VerticalAlignment="Top"
                     ClipToBounds="False"
                     BorderThickness="3">
-                <DockPanel Width="250">
-                    <ContentControl DockPanel.Dock="Top"
-                                    Content="{Binding NameRow}" 
-                                    ClipToBounds="False"
-                                    Background="{DynamicResource {x:Static init:ColorInitialization.LaminarAccentBackgroundKey}}"/>
+                <DockPanel Name="ConnectorOffsetTarget" 
+                           Width="250" 
+                           ClipToBounds="False">
+                    <Panel DockPanel.Dock="Top" HorizontalAlignment="Stretch">
+                        <ContentControl Content="{Binding NameRow}" 
+                                        ClipToBounds="False"
+                                        Height="{StaticResource NodeHeaderHeight}"
+                                        Background="{DynamicResource {x:Static init:ColorInitialization.LaminarAccentBackgroundKey}}"/>
+                        <Button Margin="5,0,0,0"
+                                Height="30"
+                                Width="30"
+                                VerticalAlignment="Center"
+                                HorizontalAlignment="Left"
+                                IsVisible="{Binding $parent.((scr:IWrappedNode)DataContext)?.Rows, Converter={StaticResource HasValueConverter}, TargetNullValue={x:False}}"
+                                DataContext="{Binding 
+                                    Converter={StaticResource ToolInstancer},
+                                    ConverterParameter={StaticResource Tools.ScriptEditor.NodeTools.ToggleExpanded}}"
+                                Theme="{StaticResource ToolButton}"/>
+                    </Panel>
                     <ItemsControl ItemsSource="{Binding Rows}"
-                                  ClipToBounds="False"/>
+                                  Background="{DynamicResource {x:Static init:ColorInitialization.LaminarNonForegroundKey}}"
+                                  Classes.IsCollapsed="{Binding IsCollapsed.Value}"
+                                  ClipToBounds="False">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel ClipToBounds="False"
+                                            Background="{DynamicResource {x:Static init:ColorInitialization.LaminarNonForegroundKey}}"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        
+                        <ItemsControl.Styles>
+                            
+                            <Style Selector="ItemsControl.IsCollapsed">
+                                <Style Selector="^ > ContentPresenter > Panel#NodeRowRoot">
+                                    <Style Selector="^ > ContentControl#CentralDisplay">
+                                        <Setter Property="Height" Value="0"/>
+                                        <Setter Property="Margin" Value="0"/>
+                                        <Setter Property="Opacity" Value="0"/>
+                                    </Style>
+                                
+                                    <Style Selector="^ > c|Connector.HasNoConnections">
+                                        <Setter Property="Opacity" Value="0"/>
+                                    </Style>
+                                </Style>
+                            </Style>
+                            
+                            <Style Selector="ItemsControl">
+                                <Style Selector="^ > ContentPresenter > Panel#NodeRowRoot > ContentControl#CentralDisplay">
+                                    <Setter Property="Height" Value="{s:UiScaled 40}"/>
+                                    <Setter Property="Margin" Value="5"/>
+                                    <Setter Property="Opacity" Value="1"/>
+                                    <Setter Property="Transitions">
+                                        <Transitions>
+                                            <DoubleTransition Property="Opacity" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
+                                            <DoubleTransition Property="Height" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
+                                            <ThicknessTransition Property="Margin" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
+                                        </Transitions>
+                                    </Setter>
+                                </Style>
+                            </Style>
+                            
+                        </ItemsControl.Styles>
+                        
+                    </ItemsControl>
                 </DockPanel>
             </Border>
             

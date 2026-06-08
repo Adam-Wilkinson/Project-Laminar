@@ -1,4 +1,6 @@
 ﻿using Laminar.Domain.Notification;
+using Laminar.Domain.Notification.Collections;
+using Laminar.Domain.Notification.Value;
 using Laminar.Domain.ValueObjects;
 using Laminar.PluginFramework.NodeSystem;
 using Laminar.PluginFramework.NodeSystem.Components;
@@ -10,8 +12,10 @@ public interface IWrappedNode : INotificationClient<LaminarExecutionContext>
     GuidIdentifier<IWrappedNode> Id { get; }
 
     INodeRow NameRow { get; }
-
+    
     IReadOnlyObservableCollection<INodeRow> Rows { get; }
+    
+    ObservableValue<bool> IsCollapsed { get; set; }
 
     ObservableValue<Point> Location { get; }
 

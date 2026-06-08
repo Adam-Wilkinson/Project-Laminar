@@ -1,5 +1,7 @@
 ﻿using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Domain.Notification;
+using Laminar.Domain.Notification.Collections;
+using Laminar.Domain.Notification.Value;
 using Laminar.Domain.ValueObjects;
 using Laminar.Implementation.Scripting.Execution;
 using Laminar.PluginFramework.NodeSystem;
@@ -32,8 +34,10 @@ public sealed class WrappedNode : IWrappedNode, IDisposable
     public INode CoreNode { get; }
 
     public INodeRow NameRow { get; }
-
+    
     public IReadOnlyObservableCollection<INodeRow> Rows { get; set; }
+
+    public ObservableValue<bool> IsCollapsed { get; set; } = new(false);
 
     public ObservableValue<Point> Location { get; set; } = new(new Point { X = 0, Y = 0 });
 

@@ -1,35 +1,4 @@
-using System.ComponentModel;
-
-namespace Laminar.Domain.ValueObjects;
-
-public interface IObservableValue<T> : IReadOnlyObservableValue<T>, IValueSink<T>
-{   
-    public new T Value { get; set; }
-}
-
-public interface IReadOnlyObservableValue<T> : ICovariantObservableValue<T>
-{
-    public event EventHandler<ObservableValueChangedEventArgs<T>>? OnChanged;
-}
-
-public interface ICovariantObservableValue<out T> : IObservableValueBase
-{
-    public T Value { get; }
-
-    public event EventHandler CovariantOnChanged;
-}
-
-public interface IObservableValueBase : INotifyPropertyChanged
-{
-    public static readonly PropertyChangedEventArgs ValueChangedEventArgs = new(nameof(ICovariantObservableValue<>.Value));
-}
-
-public readonly struct ObservableValueChangedEventArgs<T>(T oldValue, T newValue)
-{
-    public T OldValue => oldValue;
-    
-    public T NewValue => newValue;
-}
+namespace Laminar.Domain.Notification.Value;
 
 public static class ObservableValueExtensions
 {
