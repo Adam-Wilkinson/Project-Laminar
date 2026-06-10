@@ -30,11 +30,11 @@ internal abstract class LaminarStorageItem : ILaminarStorageItem
         if (!PersistentStorage.ContainsKey(NameKey))
         {
             ArgumentNullException.ThrowIfNull(nameWithExtension);
-            PersistentStorage[NameKey].SetDefaultAndGet(nameWithExtension);
+            PersistentStorage[NameKey].GetValueOrDefault(nameWithExtension);
         }
 
         _nameWithExtension = PersistentStorage[NameKey].GetValue<string>().Value;
-        _isEnabled = PersistentStorage[nameof(IsEnabled)].SetDefaultAndGet(true).Value;
+        _isEnabled = PersistentStorage[nameof(IsEnabled)].GetValueOrDefault(true).Value;
     }
 
     protected ILogger<LaminarStorageItem> Logger { get; }
@@ -61,7 +61,7 @@ internal abstract class LaminarStorageItem : ILaminarStorageItem
         set
         {
             if (!SetField(ref _isEnabled, value)) return;
-            PersistentStorage.SetValue(nameof(IsEnabled), value);
+            PersistentStorage[nameof(IsEnabled)].GetValue<bool>().Value = value;
             OnEffectivelyEnabledChanged();
         }
     }
@@ -94,7 +94,7 @@ internal abstract class LaminarStorageItem : ILaminarStorageItem
         }
 
         _nameWithExtension = newNameWithExtension;
-        PersistentStorage.SetValue(nameof(NameKey), _nameWithExtension);
+        PersistentStorage[nameof(NameKey)].GetValue<string>().Value = _nameWithExtension;
         OnPropertyChanged(nameof(Path));
     }
 

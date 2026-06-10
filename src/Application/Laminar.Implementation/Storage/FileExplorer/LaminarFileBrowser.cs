@@ -35,8 +35,8 @@ internal class LaminarFileBrowser : ILaminarFileBrowser, IDisposable
 
         var rootFolderPaths = dataManager
             .GetDataStore(DataStoreKey.PersistentData)
-            ["FileBrowser"].SetDefaultAndGet(dataManager.GetHeadlessNode<IPersistentDictionary>()).Value
-            ["RootFolders"].SetDefaultAndGet<List<FileSystemPath>>([RoamingDataFolder.ChildPath("Default")]);
+            ["FileBrowser"].GetOrCreateCollection<IPersistentDictionary>()
+            ["RootFolders"].GetValueOrDefault<List<FileSystemPath>>([RoamingDataFolder.ChildPath("Default")]);
         
         RootFolders = rootFolderPaths.ToObservableCollection().ObservableMap(factory.CreateRootFolder);
         _rootFoldersChangedSubscription = RootFolders.SubscribeForEach(onRemoved: folder => folder.Dispose());

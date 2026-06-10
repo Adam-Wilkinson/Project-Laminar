@@ -1,80 +1,82 @@
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using Laminar.Contracts.Storage.PersistentData;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Laminar.Implementation.Storage.PersistentData;
 
-internal class PersistentDictionary(IServiceProvider serviceProvider) 
-    : PersistentDataNode(serviceProvider), IPersistentDictionary
+internal class PersistentDictionary(IServiceProvider serviceProvider) : IPersistentDictionary
 {
-    internal Dictionary<string, IPersistentDataPoint> InternalValues { get; } = [];
-
-    public IPersistentValue<T>? TryGetValue<T>(string key) where T : notnull
-        => InternalValues.TryGetValue(key, out var result) ? result.GetValue<T>() : null;
+    private readonly Dictionary<string, IPersistentDataPoint> _internalValues = [];
     
-    public bool SetValue<T>(string key, T value) where T : notnull
-    {
-        if (!InternalValues.TryGetValue(key, out var result)) return false;
-        
-        result.GetValue<T>().Value = value;
-        return true;
+    public object Encode(IPersistentDataTranscoder transcoder) =>
+        transcoder.EncodeElement(_internalValues.ToDictionary(
+            x => x.Key, 
+            x => x.Value.Encode(transcoder)))
+        ?? throw new InvalidOperationException();
 
+    public void Decode(IPersistentDataTranscoder transcoder, object encoded)
+    {
+        var dictionary = (Dictionary<string, object>)transcoder.DecodeElement(encoded, typeof(Dictionary<string, object>))!;
+        foreach (var (key, value) in dictionary)
+        {
+            GetPersistentData(key).Decode(transcoder, value);
+        }
     }
 
-    public bool RemoveValue(string key)
+    public bool Remove(string key)
     {
-        if (!InternalValues.TryGetValue(key, out var value)) return false;
-        RemoveValue(value);
-        InternalValues.Remove(key);
+        if (!_internalValues.Remove(key, out var value)) return false;
+        value.OnInvalidated -= ChildInvalidated;
+        OnInvalidated?.Invoke(this, EventArgs.Empty);
         return true;
-
     }
     
+    public void Clear()
+    {
+        foreach (var value in _internalValues.Values)
+        {
+            value.OnInvalidated -= ChildInvalidated;
+        }
+        _internalValues.Clear();
+        OnInvalidated?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void ChildInvalidated(object? sender, EventArgs e)
+    {
+        OnInvalidated?.Invoke(sender, e);
+    }
+
     public IPersistentDataPoint GetPersistentData(string key)
     {
-        if (InternalValues.TryGetValue(key, out IPersistentDataPoint? value))
+        if (_internalValues.TryGetValue(key, out IPersistentDataPoint? value))
         {
             return value;
         }
 
-        var newValue = CreateValue();
-        InternalValues[key] = newValue;
+        var newValue = ActivatorUtilities.CreateInstance<PersistentDataPoint>(serviceProvider);
+        _internalValues[key] = newValue;
+        newValue.OnInvalidated += ChildInvalidated;
+        OnInvalidated?.Invoke(this, EventArgs.Empty);
         return newValue;
     }
 
-    public IEnumerator<KeyValuePair<string, IPersistentDataPoint>> GetEnumerator() => InternalValues.GetEnumerator();
+    public IEnumerator<KeyValuePair<string, IPersistentDataPoint>> GetEnumerator() => _internalValues.GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-    public void Add(KeyValuePair<string, IPersistentDataPoint> item) => InternalValues.Add(item.Key, item.Value);
-
-    public void Clear() => InternalValues.Clear();
-
-    public bool Contains(KeyValuePair<string, IPersistentDataPoint> item) => InternalValues.ContainsKey(item.Key);
-
-    public void CopyTo(KeyValuePair<string, IPersistentDataPoint>[] array, int arrayIndex) 
-        => ((ICollection<KeyValuePair<string, IPersistentDataPoint>>)InternalValues).CopyTo(array, arrayIndex);
-
-    public bool Remove(KeyValuePair<string, IPersistentDataPoint> item) => InternalValues.Remove(item.Key);
-
-    public int Count => InternalValues.Count;
-    public bool IsReadOnly => false;
-
-    public void Add(string key, IPersistentDataPoint value) => InternalValues.Add(key, value);
-
-    public bool ContainsKey(string key) => InternalValues.ContainsKey(key);
-
-    public bool Remove(string key) => InternalValues.Remove(key);
-
+    
+    public int Count => _internalValues.Count;
+    
+    public bool ContainsKey(string key) => _internalValues.ContainsKey(key);
+    
     public bool TryGetValue(string key, [MaybeNullWhen(false)] out IPersistentDataPoint value)
-        => InternalValues.TryGetValue(key, out value);
+        => _internalValues.TryGetValue(key, out value);
 
-    public IPersistentDataPoint this[string key]
-    {
-        get => GetPersistentData(key);
-        set => InternalValues[key] = value;
-    }
+    public IPersistentDataPoint this[string key] => GetPersistentData(key);
+    
+    public IEnumerable<string> Keys => _internalValues.Keys;
+    
+    public IEnumerable<IPersistentDataPoint> Values => _internalValues.Values;
 
-    public ICollection<string> Keys => InternalValues.Keys;
-    public ICollection<IPersistentDataPoint> Values => InternalValues.Values;
+    public event EventHandler? OnInvalidated;
 }

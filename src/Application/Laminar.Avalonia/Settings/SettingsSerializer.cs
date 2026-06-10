@@ -1,10 +1,5 @@
-using System;
-using System.IO;
 using System.Windows.Input;
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Reactive;
-using Avalonia.Threading;
 using Laminar.Avalonia.InitializationTargets;
 using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.DataManagement;
@@ -53,27 +48,12 @@ public class SettingsSerializer(TopLevel topLevel, IPersistentDataManager persis
 
     private void SerializeSetting(Setting setting, string settingKey)
     {
-        var newSettingObservable = _settingsDataStore[settingKey]
-            .SetDefaultAndGet(setting.Value, serializationKeyOverride: setting.Value.GetType());
-
-        setting.Value = newSettingObservable.Value;
+        var settingPersistentValue = _settingsDataStore[settingKey]
+            .GetValueOrDefault(setting.Value, serializationKeyOverride: setting.Value.GetType());
         
-        newSettingObservable.OnChanged += (_, valueChangedArgs) =>
-        {
-            if (!Dispatcher.UIThread.CheckAccess())
-            {
-                Dispatcher.UIThread.Invoke(() => setting.Value = valueChangedArgs.NewValue!);
-            }
-            else
-            {
-                setting.Value = valueChangedArgs.NewValue!;   
-            }
-        };
-
-        setting.GetObservable(Setting.ValueProperty).Subscribe(new Domain.Notification.Value.AnonymousObserver<object>(x =>
-            _settingsDataStore.SetValue(settingKey, x)));
-
-        setting.ResetCommand = new ResetSettingCommand(_settingsDataStore, settingKey);
+        setting[!Setting.ValueProperty] = settingPersistentValue.ToBinding();
+        
+        setting.ResetCommand = new ResetSettingCommand(settingPersistentValue);
     }
     
     private class ResetSettingCommand : ICommand
@@ -81,12 +61,9 @@ public class SettingsSerializer(TopLevel topLevel, IPersistentDataManager persis
         private readonly IPersistentValue<object> _settingPersistent;
         private bool _canExecute;
 
-        public ResetSettingCommand(IPersistentDictionary settingsDataStore, string settingKey)
+        public ResetSettingCommand(IPersistentValue<object> settingPersistent)
         {
-            if (settingsDataStore.TryGetValue<object>(settingKey) is not { } settingObservable)
-                throw new InvalidOperationException($"Unable to find setting {settingKey}");
-            
-            _settingPersistent = settingObservable;
+            _settingPersistent = settingPersistent;
             _settingPersistent.OnChanged += (_, _) =>
             {
                 bool canNowExecute = !Equals(_settingPersistent.Value, _settingPersistent.DefaultValue);

@@ -2,7 +2,6 @@ using System.Runtime.ExceptionServices;
 using Laminar.Contracts.Base;
 using Laminar.Contracts.Storage.IO;
 using Laminar.Contracts.Storage.PersistentData;
-using Laminar.PluginFramework.Serialization;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Laminar.Implementation.Storage.PersistentData;
@@ -12,9 +11,8 @@ internal class PersistentDataStore : IPersistentDataStore, IDisposable
     private static readonly TimeSpan FlushDelay = TimeSpan.FromMilliseconds(200);
     
     private readonly IFileContents _file;
-    private readonly ISerializer _serializer;
-    private readonly bool _isInitialized = false;
     private readonly IDispatcher _dispatcher;
+    private readonly IPersistentDataTranscoder _transcoder;
     
     private CancellationTokenSource? _flushCts;
     private bool _isDisposed;
@@ -23,25 +21,19 @@ internal class PersistentDataStore : IPersistentDataStore, IDisposable
         IPersistentDataTranscoder persistentDataTranscoder,
         IFileContents file,
         IServiceProvider serviceProvider,
-        ISerializer serializer,
         IDispatcher dispatcher)
     {
-        _serializer = serializer;
         _file = file;
         _dispatcher = dispatcher;
-        Transcoder = persistentDataTranscoder;
+        _transcoder = persistentDataTranscoder;
         Root = ActivatorUtilities.CreateInstance<PersistentDictionary>(serviceProvider);
-        ((PersistentDictionary)Root).Owner = this;
-        _isInitialized = true;
+        Root.OnInvalidated += OnChildValueInvalidated;
         FileToDataNode();
     }
-
-    public IPersistentDataTranscoder Transcoder { get; }
-    public event EventHandler? TranscoderChanged { add { } remove { } }
-
-    public void OnChildValueInvalidated()
+    
+    public void OnChildValueInvalidated(object? sender, EventArgs e)
     {
-        if (!_isInitialized || _isDisposed) return;
+        if (_isDisposed) return;
         ScheduleFlush();
     }
 
@@ -72,8 +64,8 @@ internal class PersistentDataStore : IPersistentDataStore, IDisposable
     public void SynchronousFlush()
     {
         _flushCts?.Cancel();
-        var serialized = _serializer.SerializeObject(Root, typeof(IPersistentDictionary));
-        _file.Contents = Transcoder.ToBytes(serialized);
+        var encoded = Root.Encode(_transcoder);
+        _file.Contents = _transcoder.ElementToBytes(encoded);
     }
     
     private void FileToDataNode()
@@ -83,20 +75,15 @@ internal class PersistentDataStore : IPersistentDataStore, IDisposable
             return;
         }
         
-        var decoded = Transcoder.FromBytes<Dictionary<string, object>>(_file.Contents);
-        ArgumentNullException.ThrowIfNull(decoded);
-        _serializer.DeserializeObject(new DeserializationRequest
-        {
-            Serialized = decoded,
-            TargetType = typeof(IPersistentDictionary),
-            ExistingInstance = Root
-        });
+        var decoded = _transcoder.BytesToElement(_file.Contents) ?? throw new InvalidOperationException();
+        Root.Decode(_transcoder, decoded);
     }
 
     public void Dispose()
     {
         _file.Dispose();
         _flushCts?.Dispose();
+        Root.OnInvalidated -= OnChildValueInvalidated;
         _isDisposed = true;
         GC.SuppressFinalize(this);
     }

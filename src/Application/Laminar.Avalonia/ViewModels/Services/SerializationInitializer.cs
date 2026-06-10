@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -14,8 +11,8 @@ public class SerializationInitializer(IPersistentDataManager dataManager) : IVie
     private readonly Dictionary<ViewModelBase, string> _serializationPrefixes = [];
     private readonly Dictionary<Type, Dictionary<string, ISerializedPropertyInfo>> _serializedPropertyInfos = [];
     private readonly IPersistentDictionary _dataStore = dataManager
-        .GetDataStore(DataStoreKey.PersistentData)["UserInterface"]
-        .SetDefaultAndGet(dataManager.GetHeadlessNode<IPersistentDictionary>()).Value;
+        .GetDataStore(DataStoreKey.PersistentData)
+        ["UserInterface"].GetOrCreateCollection<IPersistentDictionary>();
     
     public void Initialize(ViewModelBase? parentViewModel, ViewModelBase viewModel, string viewModelName)
     {
@@ -114,7 +111,7 @@ public interface ISerializedPropertyInfo
             if (target is not TTarget typedTarget || externalThis is not SerializedPropertyInfo<TTarget, TValue> typedThis)
                 throw new ArgumentException("Target is not of type " + typeof(TTarget).FullName);
 
-            var newValue = dataStore[ValueKey(prefix)].SetDefaultAndGet(DefaultValue);
+            var newValue = dataStore[ValueKey(prefix)].GetValueOrDefault(DefaultValue);
             newValue.OnChanged += (_, e) => typedThis.Setter(typedTarget, e.NewValue);
             Setter(typedTarget, newValue.Value);
         }
@@ -124,7 +121,7 @@ public interface ISerializedPropertyInfo
             if (target is not TTarget typedTarget)
                 throw new ArgumentException("Target is not of type " + typeof(TTarget).FullName);
             
-            dataStore.SetValue(ValueKey(prefix), Getter(typedTarget));
+            dataStore[ValueKey(prefix)].GetOrCreateCollection<IPersistentValue<TValue>>().Value = Getter(typedTarget);
         }
         
         private static Func<TTarget, TValue> ConstructGetter(PropertyInfo propertyInfo)

@@ -1,10 +1,10 @@
 namespace Laminar.Contracts.Storage.PersistentData;
 
-public interface IPersistentDataValueOwner
+public interface IEncodablePersistentData
 {
-    public IPersistentDataTranscoder? Transcoder { get; }
+    public object Encode(IPersistentDataTranscoder transcoder);
     
-    public event EventHandler? TranscoderChanged;
-    
-    public void OnChildValueInvalidated();
+    public void Decode(IPersistentDataTranscoder transcoder, object encoded);
+
+    public event EventHandler? OnInvalidated;
 }

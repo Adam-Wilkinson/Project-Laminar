@@ -17,9 +17,9 @@ internal class JsonPersistentDataTranscoder(
 
     public string FileExtension => ".json";
 
-    public byte[] ToBytes(object value) => Encoding.UTF8.GetBytes(JsonSerializer.Serialize(value, jsonOptions));
+    public byte[] ElementToBytes(object value) => Encoding.UTF8.GetBytes(JsonSerializer.Serialize(value, jsonOptions));
 
-    public T? FromBytes<T>(byte[] bytes) => JsonSerializer.Deserialize<T>(bytes, jsonOptions);
+    public object BytesToElement(byte[] bytes) => JsonSerializer.Deserialize<JsonElement>(bytes, jsonOptions);
 
     public object? EncodeElement(object value)
     {

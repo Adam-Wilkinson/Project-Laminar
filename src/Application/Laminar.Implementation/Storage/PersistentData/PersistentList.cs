@@ -1,89 +1,82 @@
 using System.Collections;
 using Laminar.Contracts.Storage.PersistentData;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Laminar.Implementation.Storage.PersistentData;
 
-internal class PersistentList(IServiceProvider serviceProvider) 
-    : PersistentDataNode(serviceProvider), IPersistentList
+internal class PersistentList(IServiceProvider serviceProvider) : IPersistentList
 {
-    internal List<IPersistentDataPoint> InternalValues { get; } = [];
+    private readonly List<IPersistentDataPoint> _internalValues = [];
 
-    public event EventHandler? ContentsChanged;
-
-    public void Add(IPersistentDataPoint item)
+    public IPersistentDataPoint AddNext()
     {
-        InternalValues.Add(item);
-        OnContentsChanged();
+        var newValue = ActivatorUtilities.CreateInstance<PersistentDataPoint>(serviceProvider);
+        newValue.OnInvalidated += OnChildInvalidated;
+        _internalValues.Add(newValue);
+        return newValue;
     }
 
     public void Clear()
     {
-        InternalValues.Clear();
-        OnContentsChanged();
+        foreach (var value in _internalValues)
+        {
+            value.OnInvalidated -= OnChildInvalidated;
+        }
+        
+        _internalValues.Clear();
+        OnInvalidated?.Invoke(this, EventArgs.Empty);
     }
 
-    public bool Contains(IPersistentDataPoint item) => InternalValues.Contains(item);
-
-    public void CopyTo(IPersistentDataPoint[] array, int arrayIndex) => InternalValues.CopyTo(array, arrayIndex);
-
+    private void OnChildInvalidated(object? sender, EventArgs e)
+    {
+        OnInvalidated?.Invoke(sender, e);
+    }
+    
     public bool Remove(IPersistentDataPoint item)
     {
-        var result = InternalValues.Remove(item);
-        OnContentsChanged();
-        return result;
+        if (!_internalValues.Remove(item)) return false;
+        item.OnInvalidated -= OnChildInvalidated;
+        OnInvalidated?.Invoke(this, EventArgs.Empty);
+        return true;
     }
 
-    public int Count => InternalValues.Count;
-    public bool IsReadOnly => false;
-
-    public IPersistentValue<T> AddAndInitialize<T>(T initialValue, object? deserializationContext = null,
-        Type? serializationKeyOverride = null) where T : notnull 
-        => InsertAndInitialize(Count, initialValue,  deserializationContext, serializationKeyOverride);
-
-    public IPersistentValue<T> InsertAndInitialize<T>(int index, T initialValue, 
-        object? deserializationContext = null, Type? serializationKeyOverride = null) where T : notnull
-    {
-        var point = CreateValue();
-        var result = point.SetDefaultAndGet(initialValue, serializationKeyOverride ?? typeof(T), deserializationContext);
-        InternalValues.Insert(index, point);
-        OnContentsChanged();
-        return result;
-    }
-
-    public IPersistentValue<T> GetValue<T>(int index) where T : notnull
-        => InternalValues[index].GetValue<T>();
-
-    public void SetValue<T>(int index, T value) where T : notnull
-        => InternalValues[index].GetValue<T>().Value = value;
+    public int Count => _internalValues.Count;
     
-    internal void OnContentsChanged() => ContentsChanged?.Invoke(this, EventArgs.Empty);
-    
-    public IEnumerator<IPersistentDataPoint> GetEnumerator() => InternalValues.GetEnumerator();
+    public IEnumerator<IPersistentDataPoint> GetEnumerator() => _internalValues.GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    public IPersistentDataPoint this[int index] => _internalValues[index];
     
-    public int IndexOf(IPersistentDataPoint item) => InternalValues.IndexOf(item);
+    public object Encode(IPersistentDataTranscoder transcoder) 
+        => _internalValues.Select(x => x.Encode(transcoder)).ToArray();
 
-    public void Insert(int index, IPersistentDataPoint item)
+    public void Decode(IPersistentDataTranscoder transcoder, object encoded)
     {
-        InternalValues.Insert(index, item);
-        OnContentsChanged();
-    }
-
-    public void RemoveAt(int index)
-    {
-        RemoveValue(InternalValues[index]);
-        InternalValues.RemoveAt(index);
-        OnContentsChanged();
-    }
-
-    public IPersistentDataPoint this[int index]
-    {
-        get => InternalValues[index];
-        set
+        var decoded = (List<object>)transcoder.DecodeElement(encoded, typeof(List<object>))!;
+        for (int i = 0; i < Math.Min(decoded.Count, _internalValues.Count); i++)
         {
-            InternalValues[index] = value;
-            OnContentsChanged();
+            _internalValues[i].Decode(transcoder, decoded[i]);
+        }
+
+        if (decoded.Count > _internalValues.Count)
+        {
+            int currentIndex = _internalValues.Count;
+            while (decoded.Count > currentIndex)
+            {
+                AddNext().Decode(transcoder, decoded[currentIndex]);
+                currentIndex++;
+            }
+        }
+
+        if (_internalValues.Count > decoded.Count)
+        {
+            while (_internalValues.Count > decoded.Count)
+            {
+                Remove(_internalValues[^1]);
+            }
         }
     }
+
+    public event EventHandler? OnInvalidated;
 }

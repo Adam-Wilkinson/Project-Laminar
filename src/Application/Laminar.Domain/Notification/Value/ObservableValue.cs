@@ -77,4 +77,6 @@ public abstract class ObservableValueBase<T> : IObservableValue<T>
             _parent._subscriptions.Remove(this);
         }
     }
+
+    public Type ValueType => typeof(T);
 }

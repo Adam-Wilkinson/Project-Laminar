@@ -1,150 +1,107 @@
-using Laminar.Contracts.Base;
 using Laminar.Contracts.Storage.PersistentData;
-using Laminar.Domain.Exceptions;
 using Laminar.PluginFramework.Serialization;
-using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Laminar.Implementation.Storage.PersistentData;
 
-internal class PersistentDataPoint : IPersistentDataPoint
+internal class PersistentDataPoint(ISerializer serializer, IServiceProvider serviceProvider) : IPersistentDataPoint
 {
-    private readonly ISerializer _serializer;
-    private readonly ILogger<PersistentDataPoint> _logger;
-    private readonly IExceptionHandler _exceptionHandler;
-
-    private IPersistentValueInternal? _persistentValue;
+    private IEncodablePersistentData? _materializedValue;
+    private IPersistentDataTranscoder? _lastTranscoder;
     private object? _encodedValue;
-
-    public PersistentDataPoint(IPersistentDataNode owner,
-        ISerializer serializer, 
-        IExceptionHandler exceptionHandler,
-        ILogger<PersistentDataPoint> logger)
-    {
-        _serializer = serializer;
-        _logger = logger;
-        Owner = owner;
-        _exceptionHandler = exceptionHandler;
-        Owner.TranscoderChanged += (_, _) => InvalidateEncodedValue();
-    }
-
-    public IPersistentDataNode Owner { get; }
-
-    public DataPointState State { get; private set; }
-
-    public object EncodedValue
-    {
-        get
-        {
-            if (_encodedValue is not null) return _encodedValue;
-            
-            if (Owner.Transcoder is null) throw new InvalidOperationException("Cannot read encoded value without a transcoder");
-            if (State is not DataPointState.Active) throw new InvalidOperationException("Cannot read encoded value without a data point state");
-            if (_persistentValue is null) throw new  InvalidOperationException("Cannot read encoded value without a persistent data point");
-
-            _encodedValue = _persistentValue.GetEncoded(Owner.Transcoder);
-            return _encodedValue;
-        }
-        set
-        {
-            if (Equals(value, _encodedValue)) return;
-            _encodedValue = value;
-
-            if (State is not DataPointState.Active) return;
-            
-            if (!UpdateValueFromEncoded())
-            {
-                _exceptionHandler.OnException(new ErrorDecodingValueException());
-                InvalidateEncodedValue();
-            }
-        }
-    }
     
-    public IPersistentValue<T> SetDefaultAndGet<T>(T defaultValue, Type? serializationKeyOverride = null, 
-        object? deserializationContext = null) where T : notnull
+    public void Reset()
     {
-        var newValue = Initialize(() => new PersistentValue<T>(defaultValue, serializationKeyOverride,
-            deserializationContext, this, _serializer));
-        
-        if (!UpdateValueFromEncoded())
-        {
-            if (_encodedValue is not null) 
-                _exceptionHandler.OnException(new ErrorDecodingValueException());
+        _materializedValue?.OnInvalidated -= ChildInvalidated;
+        _materializedValue = null;
+        _encodedValue = null;
+    }
 
-            InvalidateEncodedValue();
+    public T GetOrCreateCollection<T>(T? knownValue) where T : class, IEncodablePersistentData
+    {
+        if (_materializedValue is not null)
+        {
+            return (T)_materializedValue ?? throw new InvalidOperationException("This persistent data point is of a different type");
+        }
+
+        T newCollection = knownValue ?? serviceProvider.GetRequiredService<T>();
+
+        if (_lastTranscoder is not null && _encodedValue is not null)
+        {
+            newCollection.Decode(_lastTranscoder, _encodedValue);
         }
         
+        newCollection.OnInvalidated += ChildInvalidated;
+        _materializedValue = newCollection;
+        return newCollection;
+    }
+
+    public IPersistentValue<T> GetValue<T>(Type? serializationKeyOverride = null, object? deserializationContext = null) where T : notnull
+    {
+        if (_materializedValue is IPersistentValue<T> persistentValue)
+        {
+            return persistentValue;
+        }
+
+        if (_lastTranscoder is null || _encodedValue is null)
+        {
+            throw new InvalidOperationException("In order to get an uninitialized value, this data point needs both a transcoder and encoded value");
+        }
+
+        var newValue = PersistentValue<T>.FromEncodedValue(_encodedValue, serializationKeyOverride, 
+            deserializationContext, serializer, _lastTranscoder);
+        newValue.OnInvalidated += ChildInvalidated;
+        _materializedValue = newValue;
         return newValue;
     }
 
-    public IPersistentValue<T> GetValue<T>() where T : notnull
+    public IPersistentValue<T> GetValueOrDefault<T>(T defaultValue, Type? serializationKeyOverride = null, 
+        object? deserializationContext = null) where T : notnull
     {
-        if (State == DataPointState.Deleted)
+        var newValue = new PersistentValue<T>(defaultValue, serializationKeyOverride, deserializationContext, serializer);
+
+        if (_encodedValue is not null && _lastTranscoder is not null)
         {
-            throw new InvalidOperationException("Cannot get deleted data point value");
+            newValue.Decode(_lastTranscoder, _encodedValue);
         }
         
-        if (State == DataPointState.Active)
-        {
-            return _persistentValue as IPersistentValue<T> ?? throw new InvalidCastException();
-        }
-
-        if (_encodedValue is null)
-        {
-            throw new InvalidOperationException("Uninitialized values need an encoded value to be retrieved");
-        }
-
-        if (Owner.Transcoder is null)
-        {
-            throw new InvalidOperationException("Cannot read encoded value without a transcoder");
-        }
-
-        return Initialize(() => PersistentValue<T>.FromEncodedValue(_encodedValue, null,
-            null, this, _serializer, Owner.Transcoder));
+        newValue.OnInvalidated += ChildInvalidated;
+        _materializedValue = newValue;
+        return newValue;
     }
+
+    public object Encode(IPersistentDataTranscoder transcoder)
+    {
+        if (_materializedValue is null)
+        {
+            _lastTranscoder = transcoder;
+            return _encodedValue ?? throw new InvalidOperationException("Cannot encode uninitialized data point");
+        }
+
+        if (ReferenceEquals(transcoder, _lastTranscoder) && _encodedValue is not null)
+        {
+            return _encodedValue;
+        }
+
+        _lastTranscoder = transcoder;
+        _encodedValue = _materializedValue.Encode(transcoder);
+        return _encodedValue;
+    }
+
+    public void Decode(IPersistentDataTranscoder transcoder, object encoded)
+    {
+        _lastTranscoder = transcoder;
+        if (ReferenceEquals(_encodedValue, encoded)) return;
+        
+        _encodedValue = encoded;
+        _materializedValue?.Decode(transcoder, encoded);
+    }
+
+    public event EventHandler? OnInvalidated;
     
-    public void OnDeletion()
+    private void ChildInvalidated(object? sender, EventArgs e)
     {
-        _persistentValue?.Delete();
-        State = DataPointState.Deleted;
-    }
-
-    public void InvalidateEncodedValue()
-    {
-        if (State is not DataPointState.Active) return;
         _encodedValue = null;
-        Owner.OnChildValueInvalidated();
-    }
-
-    private bool UpdateValueFromEncoded()
-    {
-        if (Owner.Transcoder is null || _encodedValue is null || _persistentValue is null)
-        {
-            return false;
-        }
-        
-        try
-        {
-            return _persistentValue.TrySetFromEncoded(_encodedValue, Owner.Transcoder);
-        }
-        catch (DeserializationError exception)
-        {
-            _exceptionHandler.OnException(exception);
-            return false;
-        }
-    }
-
-    private T Initialize<T>(Func<T> initializer) where T : IPersistentValueInternal
-    {
-        if (State is not DataPointState.Uninitialized)
-            throw new InvalidOperationException("This function can only be called on uninitialized data");
-        
-        Owner.ChildIsInitializing = true;
-        
-        T value = initializer();
-        _persistentValue = value;
-
-        State = DataPointState.Active;
-        Owner.ChildIsInitializing = false;
-        return value;
+        OnInvalidated?.Invoke(sender, e);
     }
 }

@@ -1,22 +1,16 @@
 namespace Laminar.Contracts.Storage.PersistentData;
 
-public interface IPersistentDataPoint
+/// <summary>
+/// Holds encoded data without a known target type, to be initialized later.
+/// Encoded values are also cached at these point to avoid recomputation 
+/// </summary>
+public interface IPersistentDataPoint : IEncodablePersistentData
 {
-    public IPersistentValue<T> SetDefaultAndGet<T>(T defaultValue, Type? serializationKeyOverride = null, 
-        object? deserializationContext = null) where T : notnull;
-
-    public IPersistentValue<T> GetValue<T>() where T : notnull; 
+    public void Reset();
     
-    public object EncodedValue { get; set; }
+    public T GetOrCreateCollection<T>(T? knownValue = null) where T : class, IEncodablePersistentData;
     
-    public DataPointState State { get; }
-
-    public void OnDeletion();
-}
-
-public enum DataPointState
-{
-    Uninitialized = 0,
-    Active = 1,
-    Deleted = 2,
+    public IPersistentValue<T> GetValue<T>(Type? serializationKeyOverride = null, object? deserializationContext = null) where T : notnull;
+    
+    public IPersistentValue<T> GetValueOrDefault<T>(T defaultValue, Type? serializationKeyOverride = null, object? deserializationContext = null) where T : notnull;
 }

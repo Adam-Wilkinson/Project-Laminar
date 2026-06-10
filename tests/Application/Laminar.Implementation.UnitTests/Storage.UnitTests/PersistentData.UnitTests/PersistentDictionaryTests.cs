@@ -145,7 +145,7 @@ public class PersistentDictionaryTests
 
             sut["key"].SetDefaultAndGet(10);
 
-            var result = sut.RemoveValue("key");
+            var result = sut.Remove("key");
 
             result.Should().BeTrue();
             sut.InternalValues.Should().NotContainKey("key");
@@ -156,7 +156,7 @@ public class PersistentDictionaryTests
         {
             var sut = CreateNode();
 
-            var result = sut.RemoveValue("missing");
+            var result = sut.Remove("missing");
 
             result.Should().BeFalse();
         }

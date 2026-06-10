@@ -26,7 +26,7 @@ public class PersistentDataStoreTests
             var decoded = new Dictionary<string, object>();
 
             file.Contents.Returns(bytes);
-            transcoder.FromBytes<Dictionary<string, object>>(bytes).Returns(decoded);
+            transcoder.BytesToElement<Dictionary<string, object>>(bytes).Returns(decoded);
 
             file.ContentsChanged += Raise.Event<EventHandler>(file, EventArgs.Empty);
 
@@ -53,7 +53,7 @@ public class PersistentDataStoreTests
 
             serializer.SerializeObject(root, typeof(IPersistentDictionary)).Returns(serialized);
 
-            transcoder.ToBytes(serialized).Returns(bytes);
+            transcoder.ElementToBytes(serialized).Returns(bytes);
 
             root["key"].SetDefaultAndGet(10);
             root.SetValue("key", 20);
@@ -75,7 +75,7 @@ public class PersistentDataStoreTests
             var file = Substitute.For<IFileContents>();
             var serializer = Substitute.For<ISerializer>();
             file.Contents.Returns(bytes);
-            transcoder.FromBytes<Dictionary<string, object>>(bytes).Returns(decoded);
+            transcoder.BytesToElement<Dictionary<string, object>>(bytes).Returns(decoded);
 
             var store = CreateStore(transcoder, file, serializer);
 
@@ -104,13 +104,13 @@ public class PersistentDataStoreTests
 
             serializer.SerializeObject(store.Root, typeof(IPersistentDictionary)).Returns(serialized);
 
-            transcoder.ToBytes(serialized).Returns(bytes);
+            transcoder.ElementToBytes(serialized).Returns(bytes);
 
             store.OnChildValueInvalidated();
             store.SynchronousFlush();
 
             serializer.Received(1).SerializeObject(store.Root, typeof(IPersistentDictionary));
-            transcoder.Received(1).ToBytes(serialized);
+            transcoder.Received(1).ElementToBytes(serialized);
             file.Contents = bytes;
         }
     }
