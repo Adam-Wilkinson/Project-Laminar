@@ -11,59 +11,38 @@ internal class PersistentDataStore : IPersistentDataStore, IDisposable
     private static readonly TimeSpan FlushDelay = TimeSpan.FromMilliseconds(200);
     
     private readonly IFileContents _file;
-    private readonly IDispatcher _dispatcher;
     private readonly IPersistentDataTranscoder _transcoder;
+    private readonly Timer _flushTimer;
+    private readonly Lock _timerLock = new();
     
-    private CancellationTokenSource? _flushCts;
     private bool _isDisposed;
     
     public PersistentDataStore(
         IPersistentDataTranscoder persistentDataTranscoder,
         IFileContents file,
-        IServiceProvider serviceProvider,
-        IDispatcher dispatcher)
+        IServiceProvider serviceProvider)
     {
         _file = file;
-        _dispatcher = dispatcher;
         _transcoder = persistentDataTranscoder;
+        _flushTimer = new(_ => SynchronousFlush(), null, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
         Root = ActivatorUtilities.CreateInstance<PersistentDictionary>(serviceProvider);
-        Root.OnInvalidated += OnChildValueInvalidated;
         FileToDataNode();
+        Root.OnInvalidated += OnChildValueInvalidated;
     }
     
     public void OnChildValueInvalidated(object? sender, EventArgs e)
     {
         if (_isDisposed) return;
-        ScheduleFlush();
+        lock (_timerLock)
+        {
+            _flushTimer.Change(FlushDelay, Timeout.InfiniteTimeSpan);
+        }
     }
 
     public IPersistentDictionary Root { get; }
     
-    private void ScheduleFlush()
-    {
-        _flushCts?.Cancel();
-        _flushCts = new CancellationTokenSource();
-
-        CancellationToken token = _flushCts.Token;
-
-        Task.Run(async () =>
-        {
-            try
-            {
-                await Task.Delay(FlushDelay, token);
-                SynchronousFlush();
-            }
-            catch (TaskCanceledException) { }
-            catch (Exception ex)
-            {
-                await _dispatcher.InvokeAsync(() => ExceptionDispatchInfo.Capture(ex).Throw());
-            }
-        }, token);
-    }
-
     public void SynchronousFlush()
     {
-        _flushCts?.Cancel();
         var encoded = Root.Encode(_transcoder);
         _file.Contents = _transcoder.ElementToBytes(encoded);
     }
@@ -82,8 +61,8 @@ internal class PersistentDataStore : IPersistentDataStore, IDisposable
     public void Dispose()
     {
         _file.Dispose();
-        _flushCts?.Dispose();
         Root.OnInvalidated -= OnChildValueInvalidated;
+        _flushTimer.Dispose();
         _isDisposed = true;
         GC.SuppressFinalize(this);
     }
