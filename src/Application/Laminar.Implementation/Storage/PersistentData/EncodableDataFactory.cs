@@ -16,6 +16,6 @@ public class EncodableDataFactory(ISerializer serializer, IServiceProvider servi
             serializer, transcoder);
 
     public IPersistentDataPoint GetDataPoint() => new PersistentDataPoint(this);
-    
-    public T GetEncodableData<T>() where T : class, IEncodablePersistentData => ActivatorUtilities.CreateInstance<T>(serviceProvider);
+
+    public T GetEncodableData<T>() where T : class, IEncodablePersistentData => serviceProvider.GetRequiredService<T>();
 }
