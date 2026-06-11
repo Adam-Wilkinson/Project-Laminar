@@ -4,7 +4,7 @@ using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 namespace Laminar.PluginFramework.UserInterface;
 
 public interface IInterfaceData<out TInterfaceDefinition, TValue> : IInterfaceData<TValue>
-    where TInterfaceDefinition : IUserInterfaceDefinition, new() where TValue : notnull
+    where TInterfaceDefinition : IUserInterfaceDefinition where TValue : notnull
 {
     public new TInterfaceDefinition Definition { get; }
 

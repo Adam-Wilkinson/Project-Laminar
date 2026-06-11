@@ -8,8 +8,8 @@ internal class NodeComponentFactory : INodeComponentFactory
 {
     public INodeComponentCloner<T> Cloner<T>(Func<T> cloner, int startCount) where T : INodeComponent => new NodeRowCloner<T>(cloner, startCount);
 
-    public INodeRow CreateSingleRow(IInput? input, IInterfaceData displayValue, IOutput? output) =>
-        new NodeRow(input, output)
+    public INodeRow<T> CreateSingleRow<T>(IInput? input, T displayValue, IOutput? output) where T : IInterfaceData =>
+        new NodeRow<T>(input, output)
         {
             CentralDisplay = displayValue, 
             InputConnector = input?.Connector, 

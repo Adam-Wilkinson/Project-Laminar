@@ -1,4 +1,5 @@
 ﻿using Laminar.Contracts.Scripting.NodeWrapping;
+using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.Notification;
 using Laminar.Domain.Notification.Collections;
 using Laminar.Domain.Notification.Value;
@@ -7,6 +8,7 @@ using Laminar.Implementation.Scripting.Execution;
 using Laminar.PluginFramework.NodeSystem;
 using Laminar.PluginFramework.NodeSystem.Components;
 using Laminar.PluginFramework.UserInterface;
+using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
 namespace Laminar.Implementation.Scripting.NodeWrapping;
 
@@ -15,14 +17,18 @@ public sealed class WrappedNode : IWrappedNode, IDisposable
     private readonly IDisposable _rowsChangedSubscription;
     private Action? _preEvaluateAction;
     
-    public WrappedNode(INodeRow nameRow, INode node)
+    public WrappedNode(INodeRow<IInterfaceData<EditableLabel, string>> nameRow, INode node, IPersistentDictionary persistentDictionary)
     {
         CoreNode = node;
         NameRow = nameRow;
 
         Rows = new FlattenedObservableTree<INodeRow>(node.Components);
         _rowsChangedSubscription = Rows.SubscribeForEach(RegisterRow, RowRemoved);
-
+        
+        Id = persistentDictionary[nameof(Id)].GetValueOrDefault(GuidIdentifier<IWrappedNode>.New()).Value;
+        IsCollapsed = persistentDictionary[nameof(IsCollapsed)].GetValueOrDefault(false);
+        Location = persistentDictionary[nameof(Location)].GetValueOrDefault(new Point {X = 0, Y = 0});
+        
         foreach (var row in Rows)
         {
             RegisterRow(row);
@@ -33,15 +39,15 @@ public sealed class WrappedNode : IWrappedNode, IDisposable
 
     public INode CoreNode { get; }
 
-    public INodeRow NameRow { get; }
+    public INodeRow<IInterfaceData<EditableLabel, string>> NameRow { get; }
     
     public IReadOnlyObservableCollection<INodeRow> Rows { get; set; }
 
-    public ObservableValue<bool> IsCollapsed { get; set; } = new(false);
+    public IObservableValue<bool> IsCollapsed { get; }
 
-    public ObservableValue<Point> Location { get; set; } = new(new Point { X = 0, Y = 0 });
+    public IObservableValue<Point> Location { get; }
 
-    public GuidIdentifier<IWrappedNode> Id { get; } = GuidIdentifier<IWrappedNode>.New();
+    public GuidIdentifier<IWrappedNode> Id { get; }
 
     public void TriggerNotification(LaminarExecutionContext context)
     {

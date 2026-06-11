@@ -1,5 +1,7 @@
 ﻿using Laminar.Contracts.Scripting.NodeWrapping;
+using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.Notification;
+using Laminar.Implementation.Base.UserInterface;
 using Laminar.PluginFramework;
 using Laminar.PluginFramework.NodeSystem;
 using Laminar.PluginFramework.NodeSystem.Components;
@@ -8,7 +10,7 @@ using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
 namespace Laminar.Implementation.Scripting.NodeWrapping;
 
-public class NodeFactory : INodeFactory
+public class NodeFactory(IEncodableDataFactory dataFactory) : INodeFactory
 {
     public IWrappedNode CreateMatchingNode(IWrappedNode node, INotificationClient<LaminarExecutionContext>? userChangedValueClient = null)
     {
@@ -20,7 +22,11 @@ public class NodeFactory : INodeFactory
 
     public IWrappedNode WrapNode(INode node, INotificationClient<LaminarExecutionContext>? userChangedValueNotificationClient)
     {
-        return new WrappedNode(CreateNameRowFor(node), node) { UserChangedValueNotificationClient = userChangedValueNotificationClient };
+        var persistentDictionary = dataFactory.GetEncodableData<IPersistentDictionary>();
+        return new WrappedNode(CreateNameRowFor(node, persistentDictionary), node, persistentDictionary)
+        {
+            UserChangedValueNotificationClient = userChangedValueNotificationClient
+        };
     }
 
     public IWrappedNode WrapNode<T>(INotificationClient<LaminarExecutionContext>? userChangedValueNotificationClient) where T : INode, new()
@@ -29,13 +35,6 @@ public class NodeFactory : INodeFactory
         return WrapNode(output, userChangedValueNotificationClient);
     }
 
-    private static INodeRow CreateNameRowFor(INode node) => 
-        LaminarFactory.Component.CreateSingleRow(null, 
-            new InterfaceData<EditableLabel, string>
-            {
-                Name = "", 
-                Definition = new EditableLabel(), 
-                IsUserEditable = true,
-                Value = node.NodeName
-            }, null);
+    private static INodeRow<IInterfaceData<EditableLabel, string>> CreateNameRowFor(INode node, IPersistentDictionary persistentDictionary) => 
+        LaminarFactory.Component.CreateSingleRow(null, persistentDictionary.GetValueInterface(node.NodeName, "", new EditableLabel()), null);
 }
