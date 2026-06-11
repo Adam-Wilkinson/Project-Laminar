@@ -13,12 +13,10 @@ using Laminar.Implementation.Base.UserInterface;
 using Laminar.Implementation.Storage.FileExplorer;
 using Laminar.Implementation.Storage.PersistentData;
 using Laminar.Implementation.Storage.Serialization;
+using Laminar.Implementation.Storage.IO;
 using Laminar.PluginFramework.Registration;
 using Laminar.PluginFramework.Serialization;
 using Microsoft.Extensions.DependencyInjection;
-using FileSystem = Laminar.Implementation.Storage.IO.FileSystem;
-using LaminarFileSystemMonitor = Laminar.Implementation.Storage.FileExplorer.LaminarFileSystemMonitor;
-using LaminarStorageItemFactory = Laminar.Implementation.Storage.FileExplorer.LaminarStorageItemFactory;
 
 namespace Laminar.Implementation.Extensions.ServiceInitializers;
 
@@ -31,6 +29,7 @@ public static class LaminarServices
             .AddSingleton<IPersistentDataManager, PersistentDataManager>()
             .AddTransient<IPersistentDictionary, PersistentDictionary>()
             .AddTransient<IPersistentList, PersistentList>()
+            .AddSingleton<IEncodableDataFactory, EncodableDataFactory>()
             .AddSingleton<ISerializer, Serializer>()
             
             .AddScoped<IUserActionManager, UserActionManager>()

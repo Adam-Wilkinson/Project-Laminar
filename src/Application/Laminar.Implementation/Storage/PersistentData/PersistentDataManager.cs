@@ -34,13 +34,7 @@ internal class PersistentDataManager(
         };
 
         var file = fileSystem.GetFile(dataStoreKey.Location.ChildPath(dataStoreKey.Name + transcoder.FileExtension));
-
-        var newDataStore = dataStoreKey.DataType switch
-        {
-            PersistentDataType.Json => ActivatorUtilities.CreateInstance<PersistentDataStore>(serviceProvider, new JsonPersistentDataTranscoder(jsonTranscoderLogger), file),
-            var unknown => throw new UnknownDataTypeException(unknown),
-        };
-
+        var newDataStore = ActivatorUtilities.CreateInstance<PersistentDataStore>(serviceProvider, transcoder, file);
         _dataStores[dataStoreKey] = newDataStore;
         return newDataStore.Root;
     }
@@ -54,7 +48,7 @@ internal class PersistentDataManager(
         }
     }
 
-    public T GetHeadlessNode<T>() where T : IPersistentDataValueOwner => serviceProvider.GetRequiredService<T>();
+    public T GetHeadless<T>() where T : IEncodablePersistentData => serviceProvider.GetRequiredService<T>();
 
     public void Dispose()
     {

@@ -11,5 +11,7 @@ public interface ICovariantObservableValue<out T> : IObservableValueBase, IObser
 
 public interface IObservableValueBase : INotifyPropertyChanged
 {
+    public Type ValueType { get; }
+    
     public static readonly PropertyChangedEventArgs ValueChangedEventArgs = new(nameof(ICovariantObservableValue<>.Value));
 }

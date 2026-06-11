@@ -1,10 +1,7 @@
-using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Linq;
 using Laminar.Contracts.Storage.FileExplorer;
 using Laminar.Contracts.Storage.IO;
 using Laminar.Contracts.Storage.PersistentData;
-using Laminar.Domain.Notification;
 using Laminar.Domain.Notification.Collections;
 using Laminar.Domain.ValueObjects;
 using Microsoft.Extensions.Logging;
@@ -39,7 +36,7 @@ internal class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
             fileSystem.CreateDirectory(fileSystemPath);
         }
         
-        IsExpanded = PersistentStorage[nameof(IsExpanded)].SetDefaultAndGet(false).Value;
+        IsExpanded = PersistentStorage[nameof(IsExpanded)].GetValueOrDefault(false).Value;
     }
     
     public LaminarStorageFolder(
@@ -65,8 +62,8 @@ internal class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
             if (_contentsInternal is not null) return _contentsInternal;
 
             _contentsInternal = new SourcedObservableCollection<ILaminarStorageItem>(PersistentStorage[nameof(Contents)]
-                .SetDefaultAndGet(_persistentDataManager.GetHeadlessNode<IPersistentList>()).Value
-                .Select(x => _factory.FromPersistentData(x.GetValue<IPersistentDictionary>().Value, this)));
+                .GetOrCreateCollection<IPersistentList>()
+                .Select(x => _factory.FromPersistentData(x.GetOrCreateCollection<IPersistentDictionary>(), this)));
             
             _contentsInternal.CollectionChanged += OnContentsChanged;
             Refresh();
@@ -92,7 +89,7 @@ internal class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
         set
         {
             if (!SetField(ref field, value)) return;
-            PersistentStorage.SetValue(nameof(IsExpanded), value);
+            PersistentStorage[nameof(IsExpanded)].GetValue<bool>().Value = value;
         }
     }
     
@@ -124,14 +121,15 @@ internal class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
     private void SyncContentsToPersistentData()
     {
         if (!_persistentContentsDirty || _contentsInternal is null) return;
-        
-        var newPersistentList = _persistentDataManager.GetHeadlessNode<IPersistentList>();
+
+        var newPersistentList = _persistentDataManager.GetHeadless<IPersistentList>();
         foreach (var child in _contentsInternal.Cast<LaminarStorageItem>())
         {
-            newPersistentList.AddAndInitialize(child.PersistentStorage);
+            newPersistentList.AddNext().GetOrCreateCollection(child.PersistentStorage);
         }
         
-        PersistentStorage[nameof(Contents)].GetValue<IPersistentList>().Value = newPersistentList;
+        PersistentStorage[nameof(Contents)].Reset();
+        PersistentStorage[nameof(Contents)].GetOrCreateCollection(newPersistentList);
 
         _persistentContentsDirty = false;
     }

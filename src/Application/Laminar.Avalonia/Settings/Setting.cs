@@ -1,4 +1,3 @@
-using System;
 using System.Globalization;
 using System.Windows.Input;
 using Avalonia;
@@ -7,7 +6,6 @@ using Avalonia.Data;
 using Avalonia.Data.Converters;
 using Avalonia.Media;
 using Avalonia.Metadata;
-using Avalonia.Reactive;
 using Laminar.PluginFramework.UserInterface;
 using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
@@ -101,6 +99,8 @@ public class Setting : SettingsItem, IInterfaceData
         get => GetValue(DefinitionProperty);
         set => SetValue(DefinitionProperty, value);
     }
+
+    public void SetValue(object newValue) => ((IInterfaceData)this).Value = newValue;
 
     object IInterfaceData.Value
     {

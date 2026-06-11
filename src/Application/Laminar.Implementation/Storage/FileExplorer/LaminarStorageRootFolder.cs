@@ -54,7 +54,7 @@ internal class LaminarStorageRootFolder : LaminarStorageFolder, ILaminarStorageR
         _fileSystem.Move(oldPath, newPath);
         _path = newPath;
         OnPropertyChanged(nameof(Path));
-        PersistentStorage.SetValue(nameof(NameKey), newNameWithExtension);
+        PersistentStorage[nameof(NameKey)].GetValue<string>().Value = newNameWithExtension;
         
         _currentMonitor.Dispose();
         _currentMonitor = _fileSystemMonitor.StartMonitoring(this);

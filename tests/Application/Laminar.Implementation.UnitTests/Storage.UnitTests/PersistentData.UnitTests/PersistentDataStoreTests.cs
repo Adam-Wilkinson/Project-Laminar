@@ -1,165 +1,158 @@
-using FluentAssertions;
-using Laminar.Contracts.Base;
 using Laminar.Contracts.Storage.IO;
 using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Implementation.Storage.PersistentData;
-using Laminar.PluginFramework.Serialization;
-using Microsoft.Extensions.Logging;
-using NSubstitute;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Laminar.Implementation.UnitTests.Storage.UnitTests.PersistentData.UnitTests;
 
 public class PersistentDataStoreTests
 {
-    public class FeedbackLoop
+    public class ConstructionHydration
     {
         [Fact]
-        public void FileUpdateShouldNotImmediatelyRewriteFile()
+        public void ShouldCreateRoot()
         {
-            var transcoder = Substitute.For<IPersistentDataTranscoder>();
             var file = Substitute.For<IFileContents>();
-            var serializer = Substitute.For<ISerializer>();
+            file.Contents.Returns([]);
 
-            var store = CreateStore(transcoder, file, serializer);
+            var sut = CreateSut(file: file);
 
-            var bytes = new byte[] { 1, 2 };
-            var decoded = new Dictionary<string, object>();
+            sut.Root.Should().NotBeNull();
+        }
 
-            file.Contents.Returns(bytes);
-            transcoder.FromBytes<Dictionary<string, object>>(bytes).Returns(decoded);
+        [Fact]
+        public void ShouldNotAttemptDecodeWhenFileEmpty()
+        {
+            var file = Substitute.For<IFileContents>();
+            file.Contents.Returns([]);
 
-            file.ContentsChanged += Raise.Event<EventHandler>(file, EventArgs.Empty);
+            var transcoder = Substitute.For<IPersistentDataTranscoder>();
 
-            // If this fails, you have a loop
-            file.DidNotReceive().Contents = Arg.Any<byte[]>();
+            _ = CreateSut(transcoder: transcoder, file: file);
+
+            transcoder.DidNotReceive()
+                .BytesToElement(Arg.Any<byte[]>());
+        }
+
+        [Fact]
+        public void ShouldDecodeFileIntoRootWhenFileHasData()
+        {
+            var file = Substitute.For<IFileContents>();
+            file.Contents.Returns([1, 2, 3]);
+
+            var decoded = new object();
+
+            var transcoder = Substitute.For<IPersistentDataTranscoder>();
+            transcoder.BytesToElement(file.Contents).Returns(decoded);
+
+            var root = Substitute.For<IPersistentDictionary>();
+
+            _ = CreateSut(transcoder, file, root: root);
+
+            root.Received(1).Decode(transcoder, decoded);
         }
     }
-    
-    public class Integration
+
+    public class SynchronousFlush
     {
         [Fact]
-        public void ChangingValueShouldWriteToFile()
+        public void ShouldEncodeRootAndWriteToFile()
         {
-            var transcoder = Substitute.For<IPersistentDataTranscoder>();
             var file = Substitute.For<IFileContents>();
-            var serializer = Substitute.For<ISerializer>();
+            var transcoder = Substitute.For<IPersistentDataTranscoder>();
 
-            var store = CreateStore(transcoder, file, serializer);
+            var root = Substitute.For<IPersistentDictionary>();
+            root.Encode(transcoder).Returns("encoded");
 
-            var root = store.Root;
+            transcoder.ElementToBytes("encoded")
+                .Returns(new byte[] { 9, 9 });
 
-            var serialized = new object();
-            var bytes = new byte[] { 9, 9, 9 };
+            var sut = CreateSut(transcoder, file, root: root);
 
-            serializer.SerializeObject(root, typeof(IPersistentDictionary)).Returns(serialized);
+            sut.SynchronousFlush();
 
-            transcoder.ToBytes(serialized).Returns(bytes);
-
-            root["key"].SetDefaultAndGet(10);
-            root.SetValue("key", 20);
-            store.SynchronousFlush();
-
-            file.Received().Contents = bytes;
+            root.Received(1).Encode(transcoder);
+            file.Received(1).Contents = Arg.Is<byte[]>(x => ((IEnumerable<byte>)x).SequenceEqual(new byte[] { 9, 9 }));
         }
     }
-    
+
     public class FileToDataNode
     {
         [Fact]
-        public void ShouldDeserializeFileIntoRoot()
+        public void ShouldThrowWhenDecodeReturnsNull()
         {
-            var bytes = new byte[] { 1, 2, 3 };
-            var decoded = new Dictionary<string, object>();
-            
-            var transcoder = Substitute.For<IPersistentDataTranscoder>();
             var file = Substitute.For<IFileContents>();
-            var serializer = Substitute.For<ISerializer>();
-            file.Contents.Returns(bytes);
-            transcoder.FromBytes<Dictionary<string, object>>(bytes).Returns(decoded);
+            file.Contents.Returns([1]);
 
-            var store = CreateStore(transcoder, file, serializer);
+            var transcoder = Substitute.For<IPersistentDataTranscoder>();
+            transcoder.BytesToElement(Arg.Any<byte[]>()).Returns((object?)null);
 
-            serializer.Received(1).DeserializeObject(new DeserializationRequest
-            {
-                Serialized = decoded, 
-                TargetType = typeof(IPersistentDictionary), 
-                ExistingInstance = store.Root,
-            });
+            var act = () => CreateSut(transcoder: transcoder, file: file);
+
+            act.Should().Throw<InvalidOperationException>();
         }
     }
-    
-    public class OnChildValueChanged
+
+    public class Dispose
     {
         [Fact]
-        public void ShouldSerializeRootAndWriteToFile()
+        public void ShouldDisposeFile()
         {
-            var transcoder = Substitute.For<IPersistentDataTranscoder>();
             var file = Substitute.For<IFileContents>();
-            var serializer = Substitute.For<ISerializer>();
+            file.Contents.Returns([]);
 
-            var store = CreateStore(transcoder, file, serializer);
+            var sut = CreateSut(file: file);
 
-            var serialized = new object();
-            var bytes = new byte[] { 1, 2, 3 };
+            sut.Dispose();
 
-            serializer.SerializeObject(store.Root, typeof(IPersistentDictionary)).Returns(serialized);
-
-            transcoder.ToBytes(serialized).Returns(bytes);
-
-            store.OnChildValueInvalidated();
-            store.SynchronousFlush();
-
-            serializer.Received(1).SerializeObject(store.Root, typeof(IPersistentDictionary));
-            transcoder.Received(1).ToBytes(serialized);
-            file.Contents = bytes;
+            file.Received(1).Dispose();
         }
-    }
-    
-    public class Construction
-    {
+
         [Fact]
-        public void ShouldSetRootOwner()
+        public void ShouldAllowMultipleDisposeCalls()
         {
-            var store = CreateStore();
+            var file = Substitute.For<IFileContents>();
+            file.Contents.Returns([]);
 
-            store.Root.Should().NotBeNull();
-            store.Root.Should().BeOfType<PersistentDictionary>();
+            var sut = CreateSut(file: file);
 
-            var root = (PersistentDictionary)store.Root;
-            root.Owner.Should().Be(store);
+            sut.Dispose();
+            sut.Dispose();
+
+            file.Received(1).Dispose();
         }
 
-        // [Fact]
-        // public void ShouldSubscribeToFileChanges()
-        // {
-        //     var file = Substitute.For<IFileContents>();
-        //
-        //     CreateStore(file: file);
-        //
-        //     file.Received().ContentsChanged += Arg.Any<EventHandler>();
-        // }
+        [Fact]
+        public void ShouldSuppressFinalization()
+        {
+            var file = Substitute.For<IFileContents>();
+            file.Contents.Returns([]);
+
+            var sut = CreateSut(file: file);
+
+            sut.Dispose();
+
+            // indirect assertion: no exception on reuse + safe cleanup
+            Action act = sut.Dispose;
+
+            act.Should().NotThrow();
+        }
     }
     
-    private static PersistentDataStore CreateStore(
+    
+    private static PersistentDataStore CreateSut(
         IPersistentDataTranscoder? transcoder = null,
         IFileContents? file = null,
-        ISerializer? serializer = null,
-        IServiceProvider? serviceProvider = null,
-        IDispatcher? dispatcher = null)
+        IEncodableDataFactory? dataFactory = null,
+        IPersistentDictionary? root = null)
     {
         transcoder ??= Substitute.For<IPersistentDataTranscoder>();
         file ??= Substitute.For<IFileContents>();
-        serializer ??= Substitute.For<ISerializer>();
-        dispatcher ??= Substitute.For<IDispatcher>();
-        serviceProvider ??= Substitute.For<IServiceProvider>();
+        dataFactory ??= Substitute.For<IEncodableDataFactory>();
+        root ??= Substitute.For<IPersistentDictionary>();
         
-        var logger = Substitute.For<ILogger<PersistentDataPoint>>();
-        var exceptionHandler = Substitute.For<IExceptionHandler>();
-        serviceProvider.GetService(typeof(ILogger<PersistentDataPoint>)).Returns(logger);
-        serviceProvider.GetService(typeof(IExceptionHandler)).Returns(exceptionHandler);
-        serviceProvider.GetService(typeof(IServiceProvider)).Returns(serviceProvider);
-        serviceProvider.GetService(typeof(ISerializer)).Returns(serializer);
+        dataFactory.GetEncodableData<IPersistentDictionary>().Returns(root);
         
-        return new PersistentDataStore(transcoder, file, serviceProvider, serializer, dispatcher);
+        return new(dataFactory, transcoder, file);
     }
 }

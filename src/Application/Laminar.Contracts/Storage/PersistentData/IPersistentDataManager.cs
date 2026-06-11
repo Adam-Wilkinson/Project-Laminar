@@ -7,6 +7,6 @@ public interface IPersistentDataManager : IDisposable
     public IPersistentDictionary GetDataStore(DataStoreKey dataStoreKey);
 
     public void ForgetDataStore(DataStoreKey dataStoreKey);
-    
-    public T GetHeadlessNode<T>() where T : IPersistentDataValueOwner;
+
+    public T GetHeadless<T>() where T : IEncodablePersistentData;
 }

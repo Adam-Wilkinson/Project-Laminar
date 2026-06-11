@@ -35,6 +35,7 @@ public class NodeFactory : INodeFactory
             {
                 Name = "", 
                 Definition = new EditableLabel(), 
+                IsUserEditable = true,
                 Value = node.NodeName
             }, null);
 }

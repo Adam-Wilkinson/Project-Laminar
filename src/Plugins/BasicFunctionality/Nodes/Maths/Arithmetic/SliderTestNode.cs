@@ -13,7 +13,7 @@ public partial class SliderTestNode : INode
 {
     [ShowInNode] private readonly ManualNodeRow<None, InterfaceData<Slider, double>, IValueOutput<double>> SliderRow =
         Component.ManualOutputRow(
-            new InterfaceData<Slider,double> { Definition = new Slider { Min = 0.0, Max = 5.0 }, Value = 2, Name = "Test Slider Display" },
+            new InterfaceData<Slider,double> { Definition = new Slider { Min = 0.0, Max = 5.0 }, IsUserEditable = true, Value = 2, Name = "Test Slider Display" },
             NodeIO.ValueOutput("Test Slider Output", 0.0));
 
     public string NodeName => "Slider Test";

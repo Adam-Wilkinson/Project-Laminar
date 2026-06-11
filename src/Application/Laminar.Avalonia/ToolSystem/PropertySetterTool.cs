@@ -98,6 +98,8 @@ public class BoundPropertyContainer : StyledElement, IInterfaceData
     }
     
     public IUserInterfaceDefinition? Definition { get; }
+    
+    public void SetValue(object newValue) => SetValue(ValueProperty, newValue);
 
     public BindingPriority Priority { get; init; }
     

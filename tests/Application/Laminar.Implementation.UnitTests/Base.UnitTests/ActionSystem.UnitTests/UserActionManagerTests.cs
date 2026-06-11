@@ -299,7 +299,7 @@ public class UserActionManagerTests
 
             chainSimplifier.Received(1)
                 .Simplify(
-                    Arg.Any<List<IUserAction>>(),
+                    Arg.Any<List<IUserAction>>(), 
                     Arg.Is<ICollection<IUserActionSimplifier>>(x => x.Contains(simplifier)));
         }
     }

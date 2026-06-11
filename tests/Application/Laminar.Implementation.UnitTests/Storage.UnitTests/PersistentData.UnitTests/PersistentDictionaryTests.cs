@@ -1,295 +1,320 @@
-using FluentAssertions;
-using Laminar.Contracts.Base;
 using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Implementation.Storage.PersistentData;
-using Laminar.PluginFramework.Serialization;
-using Microsoft.Extensions.Logging;
-using NSubstitute;
 
 namespace Laminar.Implementation.UnitTests.Storage.UnitTests.PersistentData.UnitTests;
 
 public class PersistentDictionaryTests
 {
-    [Fact]
-    public void ChildNodeShouldHaveCorrectOwner()
-    {
-        var rootOwner = Substitute.For<IPersistentDataValueOwner>();
-
-        var node = CreateNode();
-        node.Owner = rootOwner;
-
-        var child = node["child"].SetDefaultAndGet(CreateNode());
-
-        child.Value.Owner.Should().Be(node);
-    }
-    
-    public class GetPersistentData
+    public class Indexer
     {
         [Fact]
-        public void ShouldCreateValueIfMissing()
+        public void ShouldCreateValueWhenKeyDoesNotExist()
         {
-            var sut = CreateNode();
-            var value = sut.GetPersistentData("key");
+            var sut = new PersistentDictionary(Substitute.For<IEncodableDataFactory>());
+
+            var value = sut["key"];
+
             value.Should().NotBeNull();
+            sut.Count.Should().Be(1);
+            sut.ContainsKey("key").Should().BeTrue();
         }
 
         [Fact]
-        public void ShouldReturnSameInstanceIfExists()
+        public void ShouldReturnExistingValueWhenKeyAlreadyExists()
         {
-            var sut = CreateNode();
+            var sut = new PersistentDictionary(Substitute.For<IEncodableDataFactory>());
 
-            var first = sut.GetPersistentData("key");
-            var second = sut.GetPersistentData("key");
+            var value1 = sut["key"];
+            var value2 = sut["key"];
 
-            second.Should().BeSameAs(first);
+            value2.Should().BeSameAs(value1);
+            sut.Count.Should().Be(1);
+        }
+
+        [Fact]
+        public void ShouldRaiseInvalidatedWhenCreatingNewValue()
+        {
+            var sut = new PersistentDictionary(Substitute.For<IEncodableDataFactory>());
+
+            var raised = false;
+            sut.OnInvalidated += (_, _) => raised = true;
+
+            _ = sut["key"];
+
+            raised.Should().BeTrue();
+        }
+
+        [Fact]
+        public void ShouldNotRaiseInvalidatedWhenReturningExistingValue()
+        {
+            var sut = new PersistentDictionary(Substitute.For<IEncodableDataFactory>());
+            _ = sut["key"];
+
+            var count = 0;
+            sut.OnInvalidated += (_, _) => count++;
+
+            _ = sut["key"];
+
+            count.Should().Be(0);
         }
     }
     
-    public class OnChildValueChanged
+    public class Remove
     {
         [Fact]
-        public void ShouldForwardToOwner()
+        public void ShouldReturnFalseWhenKeyDoesNotExist()
         {
-            var sut = CreateNode();
-            var owner = Substitute.For<IPersistentDataValueOwner>();
+            var sut = new PersistentDictionary(Substitute.For<IEncodableDataFactory>());
 
-            sut.Owner = owner;
+            var result = sut.Remove("missing");
 
-            owner.Received(1).OnChildValueInvalidated();
-            
-            sut.OnChildValueInvalidated();
-
-            owner.Received(2).OnChildValueInvalidated();
+            result.Should().BeFalse();
         }
 
         [Fact]
-        public void ShouldDoNothingIfNoOwner()
+        public void ShouldReturnTrueWhenKeyExists()
         {
-            var sut = CreateNode();
+            var sut = new PersistentDictionary(Substitute.For<IEncodableDataFactory>());
+            _ = sut["key"];
 
-            sut.Invoking(x => x.OnChildValueInvalidated())
-                .Should().NotThrow();
-        }
-    }
-    
-    public class Owner
-    {
-        [Fact]
-        public void ShouldExposeTranscoderFromOwner()
-        {
-            var owner = Substitute.For<IPersistentDataValueOwner>();
-            var transcoder = Substitute.For<IPersistentDataTranscoder>();
+            var result = sut.Remove("key");
 
-            owner.Transcoder.Returns(transcoder);
-
-            var sut = CreateNode();
-
-            sut.Owner = owner;
-
-            sut.Transcoder.Should().Be(transcoder);
+            result.Should().BeTrue();
         }
 
-        [Fact]
-        public void ShouldRaiseTranscoderChangedWhenOwnerSet()
-        {
-            var sut = CreateNode();
-            var owner = Substitute.For<IPersistentDataValueOwner>();
-
-            using var mon = sut.Monitor();
-
-            sut.Owner = owner;
-
-            mon.Should().Raise(nameof(sut.TranscoderChanged));
-        }
-
-        [Fact]
-        public void ShouldPropagateOwnerTranscoderChanged()
-        {
-            var sut = CreateNode();
-            var owner = CreateNode();
-
-            sut.Owner = owner;
-            owner.RegisterChildNode(sut);
-            
-            using var mon = sut.Monitor();
-
-            owner.OnTranscoderChanged();
-
-            mon.Should().Raise(nameof(sut.TranscoderChanged));
-        }
-
-        [Fact]
-        public void ShouldUnsubscribeFromPreviousOwner()
-        {
-            var sut = CreateNode();
-            var owner1 = CreateNode();
-            var owner2 = CreateNode();
-
-            sut.Owner = owner1;
-            sut.Owner = owner2;
-
-            using var mon = sut.Monitor();
-
-            owner1.OnTranscoderChanged();
-
-            mon.Should().NotRaise(nameof(sut.TranscoderChanged));
-        }
-    }
-    
-    public class RemoveValue
-    {
         [Fact]
         public void ShouldRemoveValue()
         {
-            var sut = CreateNode();
+            var sut = new PersistentDictionary(Substitute.For<IEncodableDataFactory>());
+            _ = sut["key"];
 
-            sut["key"].SetDefaultAndGet(10);
+            sut.Remove("key");
 
-            var result = sut.RemoveValue("key");
-
-            result.Should().BeTrue();
-            sut.InternalValues.Should().NotContainKey("key");
+            sut.ContainsKey("key").Should().BeFalse();
         }
 
         [Fact]
-        public void ShouldReturnFalseIfKeyMissing()
+        public void ShouldRaiseInvalidatedWhenValueRemoved()
         {
-            var sut = CreateNode();
+            var sut = new PersistentDictionary(Substitute.For<IEncodableDataFactory>());
+            _ = sut["key"];
 
-            var result = sut.RemoveValue("missing");
+            var raised = false;
+            sut.OnInvalidated += (_, _) => raised = true;
 
-            result.Should().BeFalse();
+            sut.Remove("key");
+
+            raised.Should().BeTrue();
+        }
+
+        [Fact]
+        public void ShouldNotRaiseInvalidatedWhenKeyDoesNotExist()
+        {
+            var sut = new PersistentDictionary(Substitute.For<IEncodableDataFactory>());
+
+            var count = 0;
+            sut.OnInvalidated += (_, _) => count++;
+
+            sut.Remove("missing");
+
+            count.Should().Be(0);
         }
     }
     
-    public class SetValue
+    public class Clear
     {
         [Fact]
-        public void ShouldReturnFalseIfKeyMissing()
+        public void ShouldRemoveAllValues()
         {
-            var sut = CreateNode();
+            var sut = new PersistentDictionary(Substitute.For<IEncodableDataFactory>());
 
-            var result = sut.SetValue("missing", 10);
+            _ = sut["a"];
+            _ = sut["b"];
 
-            result.Should().BeFalse();
+            sut.Clear();
+
+            sut.Count.Should().Be(0);
         }
 
         [Fact]
-        public void ShouldSetValueIfExists()
+        public void ShouldRaiseInvalidated()
         {
-            var sut = CreateNode();
+            var sut = new PersistentDictionary(Substitute.For<IEncodableDataFactory>());
 
-            sut["key"].SetDefaultAndGet(10);
+            var raisedCount = 0;
+            sut.OnInvalidated += (_, _) => raisedCount++;
 
-            var result = sut.SetValue("key", 20);
+            sut.Clear();
 
-            result.Should().BeTrue();
-            sut.TryGetValue<int>("key")!.Value.Should().Be(20);
+            raisedCount.Should().Be(1);
         }
     }
     
-    public class TryGetValue
+    public class Encode
     {
         [Fact]
-        public void ShouldReturnNullIfMissing()
+        public void ShouldEncodeAllValues()
         {
-            var sut = CreateNode();
+            var transcoder = Substitute.For<IPersistentDataTranscoder>();
+            var dataFactory = Substitute.For<IEncodableDataFactory>();
+                
+            var value1 = Substitute.For<IPersistentDataPoint>();
+            var value2 = Substitute.For<IPersistentDataPoint>();
 
-            var result = sut.TryGetValue<int>("missing");
+            value1.Encode(transcoder).Returns("encoded1");
+            value2.Encode(transcoder).Returns("encoded2");
 
-            result.Should().BeNull();
+            var sut = new PersistentDictionary(dataFactory);
+            dataFactory.GetDataPoint().Returns(value1);
+            _ = sut["one"];
+                
+            dataFactory.GetDataPoint().Returns(value2);
+            _ = sut["two"];
+
+            transcoder.EncodeElement(
+                    Arg.Is<Dictionary<string, object>>(x =>
+                        (string)x["one"] == "encoded1" &&
+                        (string)x["two"] == "encoded2"))
+                .Returns("final");
+
+            var result = sut.Encode(transcoder);
+
+            result.Should().Be("final");
         }
 
         [Fact]
-        public void ShouldReturnValueIfPresent()
+        public void ShouldThrowWhenTranscoderReturnsNull()
         {
-            var sut = CreateNode();
+            var transcoder = Substitute.For<IPersistentDataTranscoder>();
 
-            sut["key"].SetDefaultAndGet(42);
+            var sut = new PersistentDictionary(Substitute.For<IEncodableDataFactory>());
 
-            var result = sut.TryGetValue<int>("key");
+            transcoder.EncodeElement(Arg.Any<object>()).Returns((object?)null);
 
-            result.Should().NotBeNull();
-            result!.Value.Should().Be(42);
+            var action = () => sut.Encode(transcoder);
+
+            action.Should().Throw<InvalidOperationException>();
         }
     }
     
-    public class InitializeDefaultValue
+    public class Decode
     {
         [Fact]
-        public void ShouldInitializeAndReturnObservable()
+        public void ShouldDecodeAllEntriesIntoPersistentData()
         {
-            var sut = CreateNode();
+            var transcoder = Substitute.For<IPersistentDataTranscoder>();
+            var dataFactory = Substitute.For<IEncodableDataFactory>();
+            
+            var value1 = Substitute.For<IPersistentDataPoint>();
+            var value2 = Substitute.For<IPersistentDataPoint>();
 
-            var result = sut["key"].SetDefaultAndGet(10);
+            var sut = new PersistentDictionary(dataFactory);
+            dataFactory.GetDataPoint().Returns(value1);
+            _ = sut["one"];
+            dataFactory.GetDataPoint().Returns(value2);
+            _ = sut["two"];
 
-            result.Value.Should().Be(10);
-            sut.InternalValues.Should().ContainKey("key");
+            var decoded = new Dictionary<string, object>
+            {
+                ["one"] = "value1",
+                ["two"] = "value2"
+            };
+
+            transcoder.DecodeElement("encoded", typeof(Dictionary<string, object>)).Returns(decoded);
+
+            sut.Decode(transcoder, "encoded");
+
+            value1.Received(1).Decode(transcoder, "value1");
+            value2.Received(1).Decode(transcoder, "value2");
         }
 
         [Fact]
-        public void ShouldRaiseErrorIfValueExists()
+        public void ShouldCreateMissingPersistentDataPoints()
         {
-            var sut = CreateNode();
+            var transcoder = Substitute.For<IPersistentDataTranscoder>();
+            var dataFactory = Substitute.For<IEncodableDataFactory>();
+            dataFactory.GetDataPoint().Returns(Substitute.For<IPersistentDataPoint>());
+            
+            var decoded = new Dictionary<string, object>
+            {
+                ["one"] = "value1"
+            };
 
-            sut["key"].SetDefaultAndGet(10);
+            transcoder.DecodeElement("encoded", typeof(Dictionary<string, object>)).Returns(decoded);
 
-            sut.Invoking(x => x["key"].SetDefaultAndGet(20))
-                .Should().Throw<InvalidOperationException>();
+            var sut = new PersistentDictionary(dataFactory);
+
+            sut.Decode(transcoder, "encoded");
+
+            sut.ContainsKey("one").Should().BeTrue();
         }
     }
     
-    public class GetOrCreateChild
+    public class OnInvalidated
     {
         [Fact]
-        public void ShouldCreateNewChildIfNotInitialized()
+        public void ShouldRaiseWhenChildRaisesInvalidated()
         {
-            var sut = CreateNode();
+            var child = Substitute.For<IPersistentDataPoint>();
+            var dataFactory = Substitute.For<IEncodableDataFactory>();
+            dataFactory.GetDataPoint().Returns(child);
+            var sut = new PersistentDictionary(dataFactory);
+            _ = sut["key"];
+            
+            object? sender = null;
+            EventArgs? args = null;
 
-            var child = sut["child"];
+            sut.OnInvalidated += (s, e) =>
+            {
+                sender = s;
+                args = e;
+            };
 
-            child.Should().NotBeNull();
-            sut.InternalValues.Should().ContainKey("child");
+            child.OnInvalidated +=
+                Raise.Event<EventHandler>(child, EventArgs.Empty);
+
+            sender.Should().Be(child);
+            args.Should().BeSameAs(EventArgs.Empty);
         }
 
         [Fact]
-        public void ShouldReturnSameChildIfAlreadyInitialized()
+        public void ShouldStopListeningAfterRemove()
         {
-            var sut = CreateNode();
+            var child = Substitute.For<IPersistentDataPoint>();
+            var dataFactory = Substitute.For<IEncodableDataFactory>();
+            dataFactory.GetDataPoint().Returns(child);
+            var sut = new PersistentDictionary(dataFactory);
+            _ = sut["key"];
+            
+            sut.Remove("key");
 
-            var first = sut["child"];
-            var second = sut["child"];
+            var count = 0;
+            sut.OnInvalidated += (_, _) => count++;
 
-            second.Should().BeSameAs(first);
+            child.OnInvalidated +=
+                Raise.Event<EventHandler>(child, EventArgs.Empty);
+
+            count.Should().Be(0);
         }
 
         [Fact]
-        public void ShouldThrowIfValueExistsButIsWrongType()
+        public void ShouldStopListeningAfterClear()
         {
-            var sut = CreateNode();
+            var child = Substitute.For<IPersistentDataPoint>();
+            var dataFactory = Substitute.For<IEncodableDataFactory>();
+            dataFactory.GetDataPoint().Returns(child);
+            var sut = new PersistentDictionary(dataFactory);
+            _ = sut["key"];
 
-            var value = sut.GetPersistentData("child");
-            value.SetDefaultAndGet(123, typeof(int));
+            sut.Clear();
 
-            Assert.Throws<InvalidCastException>(() => sut["child"].GetValue<string>());
+            var count = 0;
+            sut.OnInvalidated += (_, _) => count++;
+
+            child.OnInvalidated +=
+                Raise.Event<EventHandler>(child, EventArgs.Empty);
+
+            count.Should().Be(0);
         }
-    }
-    
-    private static PersistentDictionary CreateNode(
-        ISerializer? serializer = null,
-        ILogger<PersistentDataPoint>? logger = null,
-        IExceptionHandler? exceptionHandler = null)
-    {
-        serializer ??= Substitute.For<ISerializer>();
-        logger ??= Substitute.For<ILogger<PersistentDataPoint>>();
-        exceptionHandler ??= Substitute.For<IExceptionHandler>();
-        
-        var serviceProvider = Substitute.For<IServiceProvider>();
-        serviceProvider.GetService(typeof(ISerializer)).Returns(serializer);
-        serviceProvider.GetService(typeof(ILogger<PersistentDataPoint>)).Returns(logger);
-        serviceProvider.GetService(typeof(IExceptionHandler)).Returns(exceptionHandler);
-        serviceProvider.GetService(typeof(IServiceProvider)).Returns(serviceProvider);
-        
-        return new PersistentDictionary(serviceProvider);
     }
 }

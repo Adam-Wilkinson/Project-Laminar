@@ -13,10 +13,5 @@ public interface ISourcedInterfaceData<T> : IInterfaceData<T>, IRefreshable, ILa
 
     public IUserInterfaceDefinition? Viewer { get; set; }
 
-    /// <summary>
-    /// Sets the value even when it is not user editable, and without triggering execution
-    /// </summary>
-    public void QuietSetValue(T value); 
-
     bool IInterfaceData.IsUserEditable => IsUserEditable;
 }
