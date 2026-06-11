@@ -26,4 +26,16 @@ public readonly struct Point
     }
     
     public double SquaredDistance() => X * X + Y * Y;
+
+    public override string ToString() => $"({X}, {Y})";
+
+    public static Point Parse(string input)
+    {
+        int comma = input.IndexOf(',');
+        return new Point
+        {
+            X = double.Parse(input.AsSpan(1, comma - 1)),
+            Y = double.Parse(input.AsSpan(comma + 2,  input.Length - comma - 3)),
+        };
+    }
 }

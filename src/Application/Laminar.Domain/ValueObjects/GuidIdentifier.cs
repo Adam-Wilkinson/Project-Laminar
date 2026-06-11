@@ -4,14 +4,9 @@
 /// An identifier used throughout Project: Laminar
 /// </summary>
 /// <typeparam name="T">The parent class of the identifier, so it is strongly typed and can't be mixed up</typeparam>
-public class GuidIdentifier<T> : IEquatable<GuidIdentifier<T>>
+public class GuidIdentifier<T>(Guid guid) : IEquatable<GuidIdentifier<T>>
 {
-    private readonly Guid _value;
-
-    private GuidIdentifier(Guid guid)
-    {
-        _value = guid;
-    }
+    private readonly Guid _value = guid;
 
     public static GuidIdentifier<T> New()
     {

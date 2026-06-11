@@ -1,6 +1,6 @@
 ﻿namespace Laminar.PluginFramework.Serialization;
 
-public abstract class TypeSerializer : IConditionalSerializer
+public abstract class TypeSerializer : INotifyingConditionalSerializer
 {
     public abstract Type Type { get; }
     
@@ -11,6 +11,8 @@ public abstract class TypeSerializer : IConditionalSerializer
     public abstract object Serialize(object toSerialize);
 
     public abstract object DeSerialize(DeserializationRequest request);
+
+    public virtual INotifySerializedValueChanged? GetSerializedValueChangedNotifier(object target) => null;
 }
 
 public abstract class TypeSerializer<T> : TypeSerializer where T : notnull
@@ -26,6 +28,11 @@ public abstract class TypeSerializer<T> : TypeSerializer where T : notnull
         => DeSerializeOverride(request);
     
     protected abstract T DeSerializeOverride(DeserializationRequest request);
+
+    protected virtual INotifySerializedValueChanged? GetSerializedValueChangedNotifier(T target) => null;
+    
+    public sealed override INotifySerializedValueChanged? GetSerializedValueChangedNotifier(object target)
+        => GetSerializedValueChangedNotifier((T)target);
 }
 
 public abstract class TypeSerializer<T, TSerialized> : TypeSerializer<T>

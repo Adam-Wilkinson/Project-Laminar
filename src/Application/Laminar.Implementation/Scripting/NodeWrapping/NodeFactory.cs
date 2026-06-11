@@ -36,5 +36,9 @@ public class NodeFactory(IEncodableDataFactory dataFactory) : INodeFactory
     }
 
     private static INodeRow<IInterfaceData<EditableLabel, string>> CreateNameRowFor(INode node, IPersistentDictionary persistentDictionary) => 
-        LaminarFactory.Component.CreateSingleRow(null, persistentDictionary.GetValueInterface(node.NodeName, "", new EditableLabel()), null);
+        LaminarFactory.Component.CreateSingleRow(null, new ObservableValueInterfaceData<EditableLabel, string>(persistentDictionary["Name"].GetValueOrDefault(node.NodeName))
+        {
+            Name = "",
+            Definition = new EditableLabel()
+        }, null);
 }

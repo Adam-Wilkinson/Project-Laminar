@@ -49,13 +49,14 @@ public class Serializer : ISerializer
         => GetSerializer(request.TargetType).DeSerialize(request);
 
     public Type GetSerializedType(Type typeToSerialize)
-    {
+    {   
         return GetSerializer(typeToSerialize).SerializedTypeOrNull(typeToSerialize)!;
     }
 
     public INotifySerializedValueChanged GetSerializedValueChangedNotifier(object target, Type? overrideTypeKey = null) =>
-        GetSerializer(overrideTypeKey ?? target.GetType()) is INotifyingConditionalSerializer notifier
-            ? notifier.GetSerializedValueChangedNotifier(target) : DefaultNotifier;
+        GetSerializer(overrideTypeKey ?? target.GetType()) is INotifyingConditionalSerializer notifyingSerializer
+            && notifyingSerializer.GetSerializedValueChangedNotifier(target) is { } notifier
+            ? notifier : DefaultNotifier;
 
     private IConditionalSerializer GetSerializer(Type typeToSerialize)
     {
