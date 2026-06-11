@@ -22,7 +22,7 @@ public class DataInterfaceTemplate(TopLevel topLevel, IDataInterfaceFactory data
             [!StyledElement.DataContextProperty] = CompiledBinding.Create((IDataInterface<Control> x) => x.InterfaceData, source: result),
         };
 
-        result.InterfaceData?.Value = valueCache;
+        result.InterfaceData?.SetValue(valueCache);
         
         return returnValue;
     }

@@ -62,7 +62,7 @@ public class SourcedInterfaceData<T>(T initialValue)
         }
     }
 
-    public void SetValue(object value)
+    public void SetValue(T value)
     {
         SetField(ref _value, value, _valueChangedEventArgs);
     }
