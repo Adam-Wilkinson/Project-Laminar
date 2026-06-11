@@ -15,20 +15,16 @@ public class DataInterfaceTemplate(TopLevel topLevel, IDataInterfaceFactory data
         if (param is not IInterfaceData interfaceData) return null;
         
         var result = dataInterfaceFactory.GetDataInterface<Control>(interfaceData);
-        
-        // // Caching the value is required because sometimes Avalonia data coercion changes the value before data validation is fully initialized
-        // var valueCache = result.InterfaceData.Value;
-        // result.InterfaceFrontend.DataContext = result.InterfaceData;
-        // if (result.InterfaceData.IsUserEditable)
-        // {
-        //     result.InterfaceData.Value = valueCache;
-        // }
-
-        return new Decorator
+        var valueCache = interfaceData.Value;
+        var returnValue = new Decorator
         {
             [!Decorator.ChildProperty] = CompiledBinding.Create((IDataInterface<Control> x) => x.InterfaceFrontend, source: result),
             [!StyledElement.DataContextProperty] = CompiledBinding.Create((IDataInterface<Control> x) => x.InterfaceData, source: result),
         };
+
+        result.InterfaceData?.Value = valueCache;
+        
+        return returnValue;
     }
 
     public bool Match(object? data) => data is IInterfaceData;

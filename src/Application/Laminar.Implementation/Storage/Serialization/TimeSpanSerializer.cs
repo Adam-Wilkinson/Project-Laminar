@@ -1,4 +1,3 @@
-using System;
 using Laminar.PluginFramework.Serialization;
 
 namespace Laminar.Implementation.Storage.Serialization;
