@@ -1,11 +1,8 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Laminar.Contracts.Storage.FileExplorer;
 using Laminar.Contracts.Storage.IO;
 using Laminar.Contracts.Storage.PersistentData;
-using Laminar.Domain.Notification;
 using Laminar.Domain.Notification.Collections;
 using Laminar.Domain.ValueObjects;
 using Microsoft.Extensions.Logging;
@@ -94,7 +91,7 @@ internal abstract class LaminarStorageItem : ILaminarStorageItem
         }
 
         _nameWithExtension = newNameWithExtension;
-        PersistentStorage[nameof(NameKey)].GetValue<string>().Value = _nameWithExtension;
+        PersistentStorage[NameKey].GetValue<string>().Value = _nameWithExtension;
         OnPropertyChanged(nameof(Path));
     }
 
