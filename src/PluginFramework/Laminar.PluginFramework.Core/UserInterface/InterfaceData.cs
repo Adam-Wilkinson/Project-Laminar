@@ -8,11 +8,17 @@ public sealed class InterfaceData<TInterfaceDefinition, TValue> : IInterfaceData
     where TInterfaceDefinition : IUserInterfaceDefinition, new()
     where TValue : notnull
 {
+    private TValue _value = default!;
+    
     public TValue Value
     {
-        get;
-        set => SetField(ref field, value);
-    } = default!;
+        get => _value;
+        set
+        {
+            if (!IsUserEditable) throw new InvalidOperationException("This value is not user editable");
+            SetField(ref _value, value);
+        }
+    }
 
     public bool IsUserEditable { get; init; } = false;
 
@@ -21,6 +27,8 @@ public sealed class InterfaceData<TInterfaceDefinition, TValue> : IInterfaceData
         get;
         set => SetField(ref field, value);
     } = new();
+
+    public void SetValue(TValue newValue) => SetField(ref _value, newValue, nameof(Value));
 
     public required string Name { get; init; }
     

@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using Laminar.Contracts.Base;
 using Laminar.Contracts.Base.UserInterface;
 using Laminar.PluginFramework;
@@ -185,8 +181,7 @@ public class InterfaceDataGenericWrapper<TInterfaceDefinition, TValue> : IInterf
         set
         {
             if (!IsUserEditable) throw new InvalidOperationException();
-            if (_genericDataInternal is not null) _genericDataInternal.Value = value;
-            else _internal.Value = value;
+            SetValue(value);
         }
     }
 
@@ -199,10 +194,28 @@ public class InterfaceDataGenericWrapper<TInterfaceDefinition, TValue> : IInterf
     }
 
     public TInterfaceDefinition Definition { get; }
+    
+    public void SetValue(object newValue)
+    {
+        if (newValue is not TValue typedValue) throw new InvalidCastException();
+        SetValue(typedValue);
+    }
 
     public void Dispose()
     {
         _internal.PropertyChanged -= InterfaceData_PropertyChanged;
         GC.SuppressFinalize(this);
+    }
+
+    private void SetValue(TValue value)
+    {
+        if (_genericDataInternal is not null)
+        {
+            _genericDataInternal.Value = value;
+        }
+        else
+        {
+            _internal.Value = value;
+        }
     }
 }

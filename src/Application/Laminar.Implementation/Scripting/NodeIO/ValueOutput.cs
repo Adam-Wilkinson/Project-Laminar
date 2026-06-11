@@ -37,7 +37,7 @@ public class ValueOutput<T> : IValueOutput<T>, INotificationClient where T : not
     public T Value
     {
         get => InterfaceData.Value;
-        set => InterfaceData.QuietSetValue(value);
+        set => InterfaceData.SetValue(value);
     }
     
     public Action? PreEvaluateAction => null;
