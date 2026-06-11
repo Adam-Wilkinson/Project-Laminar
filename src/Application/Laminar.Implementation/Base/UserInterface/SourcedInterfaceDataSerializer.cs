@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using Laminar.PluginFramework.Serialization;
 
 namespace Laminar.Implementation.Base.UserInterface;
@@ -17,18 +18,43 @@ public class SourcedInterfaceDataSerializerFactory : IConditionalSerializerFacto
 
 public class SourcedInterfaceDataSerializer<T> : TypeSerializer<SourcedInterfaceData<T>, T> where T : notnull
 {
-    protected override T SerializeTyped(SourcedInterfaceData<T> toSerialize)
-    {
-        throw new NotImplementedException();
-    }
+    protected override T SerializeTyped(SourcedInterfaceData<T> toSerialize) => toSerialize.ValueWithoutProvider;
 
     protected override SourcedInterfaceData<T> DeSerializeTyped(DeserializationRequest<SourcedInterfaceData<T>, T> request)
     {
-        throw new NotImplementedException();
+        if (!request.HasExistingValue)
+            throw new InvalidOperationException("Deserializing sourced interface data requires existing value");
+
+        request.ExistingValue!.ValueWithoutProvider = request.Serialized;
+        return request.ExistingValue;
     }
 
-    protected override INotifySerializedValueChanged? GetSerializedValueChangedNotifier(T target)
+    protected override INotifySerializedValueChanged? GetSerializedValueChangedNotifier(SourcedInterfaceData<T> target) 
+        => new SerializedValueChangedListener(target);
+
+    private class SerializedValueChangedListener : INotifySerializedValueChanged
     {
-        throw new NotImplementedException();
+        private readonly SourcedInterfaceData<T> _target;
+        
+        public SerializedValueChangedListener(SourcedInterfaceData<T> target)
+        {
+            _target = target;
+            _target.PropertyChanged += TargetPropertyChanged;
+        }
+
+        private void TargetPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(SourcedInterfaceData<>.ValueWithoutProvider))
+            {
+                SerializedValueChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
+
+        public void Dispose()
+        {
+            _target.PropertyChanged -= TargetPropertyChanged;
+        }
+
+        public event EventHandler? SerializedValueChanged;
     }
 }

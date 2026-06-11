@@ -1,4 +1,5 @@
-﻿using Laminar.Contracts.Scripting.NodeWrapping;
+﻿using System.Collections.Specialized;
+using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.Notification;
 using Laminar.Domain.Notification.Collections;
@@ -15,15 +16,33 @@ namespace Laminar.Implementation.Scripting.NodeWrapping;
 public sealed class WrappedNode : IWrappedNode, IDisposable
 {
     private readonly IDisposable _rowsChangedSubscription;
+    private readonly IPersistentDictionary _persistentDictionary;
     private Action? _preEvaluateAction;
     
     public WrappedNode(INodeRow<IInterfaceData<EditableLabel, string>> nameRow, INode node, IPersistentDictionary persistentDictionary)
     {
         CoreNode = node;
         NameRow = nameRow;
+        _persistentDictionary = persistentDictionary;
 
         Rows = new FlattenedObservableTree<INodeRow>(node.Components);
         _rowsChangedSubscription = Rows.SubscribeForEach(RegisterRow, RowRemoved);
+        
+        var persistentRows = persistentDictionary[nameof(Rows)].GetOrCreateCollection<IPersistentList>();
+        int indexInMyRows = 0;
+        foreach (var persistentRow in persistentRows)
+        {
+            persistentRow.GetValueOrDefault(Rows[indexInMyRows]);
+            indexInMyRows++;
+        }
+
+        while (indexInMyRows <= Rows.Count)
+        {
+            persistentRows.AddNext().GetValueOrDefault(Rows[indexInMyRows]);
+            indexInMyRows++;
+        }
+        
+        Rows.CollectionChanged += RowsChanged;
         
         Id = persistentDictionary[nameof(Id)].GetValueOrDefault(GuidIdentifier<IWrappedNode>.New()).Value;
         IsCollapsed = persistentDictionary[nameof(IsCollapsed)].GetValueOrDefault(false);
@@ -32,6 +51,16 @@ public sealed class WrappedNode : IWrappedNode, IDisposable
         foreach (var row in Rows)
         {
             RegisterRow(row);
+        }
+    }
+
+    private void RowsChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        var persistentList = _persistentDictionary[nameof(Rows)].GetOrCreateCollection<IPersistentList>();
+        persistentList.Clear();
+        foreach (var row in Rows)
+        {
+            persistentList.AddNext().GetValueOrDefault(row);
         }
     }
 

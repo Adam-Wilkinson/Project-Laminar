@@ -14,8 +14,7 @@ public class SourcedInterfaceData<T>(T initialValue)
     private readonly PropertyChangedEventArgs _nameChangedEventArgs = new(nameof(Name));
 
     private T? _valueAtLastRefresh;
-    private T _value = initialValue;
-    
+
     public event PropertyChangedEventHandler? PropertyChanged;
 
     public required string Name
@@ -26,11 +25,13 @@ public class SourcedInterfaceData<T>(T initialValue)
 
     public T Value
     {
-        get => ValueProvider is null ? _value : ValueProvider.Value;
+        get => ValueProvider is null ? ValueWithoutProvider : ValueProvider.Value;
         set
         {
-            if (!IsUserEditable || !SetField(ref _value, value, _valueChangedEventArgs)) return;
-            ExecutionStarted?.Invoke(this, new LaminarExecutionContext(null, ExecutionFlags.ValueChanged));
+            if (!IsUserEditable) throw new InvalidOperationException();
+            ValueWithoutProvider = value;
+            PropertyChanged?.Invoke(this, _valueChangedEventArgs);
+            ExecutionStarted?.Invoke(this, new LaminarExecutionContext(null, ExecutionFlags.ValueChanged)); 
         }
     }
 
@@ -39,7 +40,7 @@ public class SourcedInterfaceData<T>(T initialValue)
         get;
         set
         {
-            if (Equals(_value, value)) return;
+            if (Equals(Viewer, value)) return;
             field = value;
             if (!IsUserEditable)
             {
@@ -53,7 +54,7 @@ public class SourcedInterfaceData<T>(T initialValue)
         get;
         set
         {
-            if (Equals(_value, value)) return;
+            if (Equals(Editor, value)) return;
             field = value;
             if (IsUserEditable)
             {
@@ -64,7 +65,12 @@ public class SourcedInterfaceData<T>(T initialValue)
 
     public void SetValue(T value)
     {
-        SetField(ref _value, value, _valueChangedEventArgs);
+        ValueWithoutProvider = value;
+
+        if (ValueProvider is null)
+        {
+            PropertyChanged?.Invoke(this, _valueChangedEventArgs);
+        }
     }
 
     public bool IsUserEditable
@@ -106,6 +112,12 @@ public class SourcedInterfaceData<T>(T initialValue)
         _valueAtLastRefresh = Value;
         PropertyChanged?.Invoke(this, _valueChangedEventArgs);
     }
+
+    internal T ValueWithoutProvider
+    {
+        get;
+        set => SetField(ref field, value);
+    } = initialValue;
 
     private bool SetField<TField>(ref TField field, TField value, [CallerMemberName] string? propertyName = null)
         => SetField(ref field, value, new PropertyChangedEventArgs(propertyName));
