@@ -1,11 +1,10 @@
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using Laminar.Contracts.Storage.PersistentData;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Laminar.Implementation.Storage.PersistentData;
 
-internal class PersistentDictionary(IServiceProvider serviceProvider) : IPersistentDictionary
+internal class PersistentDictionary(IEncodableDataFactory encodableDataFactory) : IPersistentDictionary
 {
     private readonly Dictionary<string, IPersistentDataPoint> _internalValues = [];
     
@@ -42,25 +41,6 @@ internal class PersistentDictionary(IServiceProvider serviceProvider) : IPersist
         OnInvalidated?.Invoke(this, EventArgs.Empty);
     }
 
-    private void ChildInvalidated(object? sender, EventArgs e)
-    {
-        OnInvalidated?.Invoke(sender, e);
-    }
-
-    public IPersistentDataPoint GetPersistentData(string key)
-    {
-        if (_internalValues.TryGetValue(key, out IPersistentDataPoint? value))
-        {
-            return value;
-        }
-
-        var newValue = ActivatorUtilities.CreateInstance<PersistentDataPoint>(serviceProvider);
-        _internalValues[key] = newValue;
-        newValue.OnInvalidated += ChildInvalidated;
-        OnInvalidated?.Invoke(this, EventArgs.Empty);
-        return newValue;
-    }
-
     public IEnumerator<KeyValuePair<string, IPersistentDataPoint>> GetEnumerator() => _internalValues.GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
@@ -79,4 +59,23 @@ internal class PersistentDictionary(IServiceProvider serviceProvider) : IPersist
     public IEnumerable<IPersistentDataPoint> Values => _internalValues.Values;
 
     public event EventHandler? OnInvalidated;
+    
+    private void ChildInvalidated(object? sender, EventArgs e)
+    {
+        OnInvalidated?.Invoke(sender, e);
+    }
+
+    private IPersistentDataPoint GetPersistentData(string key)
+    {
+        if (_internalValues.TryGetValue(key, out IPersistentDataPoint? value))
+        {
+            return value;
+        }
+
+        var newValue = encodableDataFactory.GetDataPoint();
+        _internalValues[key] = newValue;
+        newValue.OnInvalidated += ChildInvalidated;
+        OnInvalidated?.Invoke(this, EventArgs.Empty);
+        return newValue;
+    }
 }

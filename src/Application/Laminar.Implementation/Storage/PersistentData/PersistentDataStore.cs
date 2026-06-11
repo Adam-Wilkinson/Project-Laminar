@@ -1,5 +1,3 @@
-using System.Runtime.ExceptionServices;
-using Laminar.Contracts.Base;
 using Laminar.Contracts.Storage.IO;
 using Laminar.Contracts.Storage.PersistentData;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,30 +16,31 @@ internal class PersistentDataStore : IPersistentDataStore, IDisposable
     private bool _isDisposed;
     
     public PersistentDataStore(
-        IPersistentDataTranscoder persistentDataTranscoder,
-        IFileContents file,
-        IServiceProvider serviceProvider)
+        IEncodableDataFactory dataFactory,
+        IPersistentDataTranscoder persistentDataTranscoder, 
+        IFileContents file)
     {
         _file = file;
         _transcoder = persistentDataTranscoder;
         _flushTimer = new(_ => SynchronousFlush(), null, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
-        Root = ActivatorUtilities.CreateInstance<PersistentDictionary>(serviceProvider);
+        Root = dataFactory.GetEncodableData<IPersistentDictionary>();
         FileToDataNode();
         Root.OnInvalidated += OnChildValueInvalidated;
     }
-    
-    public void OnChildValueInvalidated(object? sender, EventArgs e)
-    {
-        if (_isDisposed) return;
-        lock (_timerLock)
-        {
-            _flushTimer.Change(FlushDelay, Timeout.InfiniteTimeSpan);
-        }
-    }
 
     public IPersistentDictionary Root { get; }
-    
-    public void SynchronousFlush()
+
+    public void Dispose()
+    {
+        if (_isDisposed) return;
+        _file.Dispose();
+        Root.OnInvalidated -= OnChildValueInvalidated;
+        _flushTimer.Dispose();
+        _isDisposed = true;
+        GC.SuppressFinalize(this);
+    }
+
+    internal void SynchronousFlush()
     {
         var encoded = Root.Encode(_transcoder);
         _file.Contents = _transcoder.ElementToBytes(encoded);
@@ -57,13 +56,13 @@ internal class PersistentDataStore : IPersistentDataStore, IDisposable
         var decoded = _transcoder.BytesToElement(_file.Contents) ?? throw new InvalidOperationException();
         Root.Decode(_transcoder, decoded);
     }
-
-    public void Dispose()
+    
+    private void OnChildValueInvalidated(object? sender, EventArgs e)
     {
-        _file.Dispose();
-        Root.OnInvalidated -= OnChildValueInvalidated;
-        _flushTimer.Dispose();
-        _isDisposed = true;
-        GC.SuppressFinalize(this);
+        if (_isDisposed) return;
+        lock (_timerLock)
+        {
+            _flushTimer.Change(FlushDelay, Timeout.InfiniteTimeSpan);
+        }
     }
 }

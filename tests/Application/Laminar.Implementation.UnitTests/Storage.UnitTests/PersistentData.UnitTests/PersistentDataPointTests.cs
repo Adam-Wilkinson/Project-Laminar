@@ -1,8 +1,5 @@
-using Laminar.Contracts.Base;
 using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Implementation.Storage.PersistentData;
-using Laminar.PluginFramework.Serialization;
-using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.UnitTests.Storage.UnitTests.PersistentData.UnitTests;
 
@@ -11,242 +8,419 @@ public class PersistentDataPointTests
     public class Reset
     {
         [Fact]
-        public void ShouldResetToDefault()
+        public void ShouldForgetMaterializedValue()
         {
-            var owner = Substitute.For<IPersistentDataNode>();
+            var value = Substitute.For<IPersistentValue<string>>();
+            var valueFactory = Substitute.For<IEncodableDataFactory>();
+            valueFactory.GetValueWithDefault("default", null, null).Returns(value);
+
+            var sut = new PersistentDataPoint(valueFactory);
+
+            sut.GetValueOrDefault("default");
+
+            sut.Reset();
+
+            var replacement = Substitute.For<IPersistentValue<string>>();
+            valueFactory.GetValueWithDefault("default", null, null)
+                .Returns(replacement);
+
+            sut.GetValueOrDefault("default")
+                .Should()
+                .BeSameAs(replacement);
+        }
+
+        [Fact]
+        public void ShouldClearEncodedValue()
+        {
             var transcoder = Substitute.For<IPersistentDataTranscoder>();
-            var serializer = Substitute.For<ISerializer>();
+            var sut = new PersistentDataPoint(Substitute.For<IEncodableDataFactory>());
 
-            owner.Transcoder.Returns(transcoder);
+            sut.Decode(transcoder, "encoded");
+            sut.Reset();
 
-            serializer.SerializeObject(10, typeof(int)).Returns(10);
-            transcoder.EncodeElement(10).Returns(10);
+            var action = () => sut.Encode(transcoder);
 
-            var sut = CreateValue(owner, serializer);
-            sut.GetValueOrDefault(10, typeof(int));
-
-            sut.GetValue<int>().Value = 20;
-            sut.GetValue<int>().Reset();
-
-            sut.GetValue<int>().Value.Should().Be(10);
+            action.Should().Throw<InvalidOperationException>()
+                .WithMessage("*Cannot encode uninitialized data point*");
         }
     }
     
-    public class DecodeFailure
+    public class GetOrCreateCollection
     {
         [Fact]
-        public void ShouldOverwriteEncodedValueOnDecodeFailure()
+        public void ShouldReturnKnownValueWhenProvided()
         {
-            var owner = Substitute.For<IPersistentDataNode>();
-            var transcoder = Substitute.For<IPersistentDataTranscoder>();
-            var serializer = Substitute.For<ISerializer>();
+            var collection = Substitute.For<IEncodablePersistentData>();
+            var dataFactory = Substitute.For<IEncodableDataFactory>();
+            dataFactory.GetEncodableData<IEncodablePersistentData>().Returns(collection);
 
-            owner.Transcoder.Returns(transcoder);
+            var sut = new PersistentDataPoint(dataFactory);
 
-            serializer.GetSerializedType(typeof(int)).Returns(typeof(int));
-            serializer.SerializeObject(10, typeof(int)).Returns(10);
-            transcoder.DecodeElement(999, typeof(int)).Returns((object?)null);
-            transcoder.EncodeElement(10).Returns(10);
+            var result = sut.GetOrCreateCollection(collection);
 
-            var sut = CreateValue(owner, serializer);
-            sut.EncodedValue = 999;
-
-            sut.GetValueOrDefault(10, typeof(int));
-
-            sut.EncodedValue.Should().Be(10);
-        }
-    }
-    
-    public class Decoding
-    {
-        [Fact]
-        public void ShouldDecodeOnInitialize()
-        {
-            var owner = Substitute.For<IPersistentDataNode>();
-            var transcoder = Substitute.For<IPersistentDataTranscoder>();
-            var serializer = Substitute.For<ISerializer>();
-
-            owner.Transcoder.Returns(transcoder);
-
-            serializer.GetSerializedType(typeof(int)).Returns(typeof(int));
-            transcoder.DecodeElement(50, typeof(int)).Returns(50);
-            serializer.DeserializeObject(new DeserializationRequest
-            {
-                Serialized = 50,
-                TargetType = typeof(int),
-                Context = null,
-                ExistingInstance = 0,
-            }).Returns(50);
-
-            var sut = CreateValue(owner, serializer);
-            sut.EncodedValue = 50;
-
-            sut.GetValueOrDefault(0, typeof(int));
-
-            sut.GetValue<int>().Value.Should().Be(50);
+            result.Should().BeSameAs(collection);
         }
 
         [Fact]
-        public void ShouldNotDecodeAfterInitialization()
+        public void ShouldResolveCollectionFromServiceProviderWhenKnownValueNull()
         {
-            var owner = Substitute.For<IPersistentDataNode>();
-            var transcoder = Substitute.For<IPersistentDataTranscoder>();
-            var serializer = Substitute.For<ISerializer>();
+            var collection = Substitute.For<IEncodablePersistentData>();
+            var dataFactory = Substitute.For<IEncodableDataFactory>();
+            dataFactory.GetEncodableData<IEncodablePersistentData>().Returns(collection);
 
-            owner.Transcoder.Returns(transcoder);
-
-            var sut = CreateValue(owner, serializer);
-            sut.GetValueOrDefault(10, typeof(int));
-
-            sut.EncodedValue = 99;
-
-            sut.GetValue<int>().Value.Should().Be(10);
-        }
-    }
-    
-    public class TranscoderChanged
-    {
-        [Fact]
-        public void ShouldNotHaveEffectWhenUninitialized()
-        {
-            var owner = Substitute.For<IPersistentDataNode>();
-            var transcoder = Substitute.For<IPersistentDataTranscoder>();
-            var serializer = Substitute.For<ISerializer>();
-            owner.Transcoder.Returns(transcoder);
-
-            var sut = CreateValue(owner, serializer);
-
-            owner.TranscoderChanged += Raise.Event<EventHandler>(owner, EventArgs.Empty);
-
-            Assert.Throws<InvalidOperationException>(sut.GetValue<int>);
-        }
-
-        [Fact]
-        public void ShouldReEncodeWhenTranscoderChanges()
-        {
-            var owner = Substitute.For<IPersistentDataNode>();
-            var transcoder = Substitute.For<IPersistentDataTranscoder>();
-            var serializer = Substitute.For<ISerializer>();
-
-            owner.Transcoder.Returns(transcoder);
-
-            serializer.SerializeObject(25, typeof(int)).Returns(25);
-            transcoder.EncodeElement(25).Returns(25);
-
-            var sut = CreateValue(owner, serializer);
-            sut.GetValueOrDefault(10, typeof(int));
-
-            sut.GetValue<int>().Value = 25;
-
-            owner.TranscoderChanged += Raise.Event<EventHandler>(owner, EventArgs.Empty);
-
-            var newEncodedValue = sut.EncodedValue;
-            transcoder.Received().EncodeElement(25);
-        }
-    }
-    
-    public class Encoding
-    {
-        [Fact]
-        public void ShouldEncodeValueWhenSet()
-        {
-            var owner = Substitute.For<IPersistentDataNode>();
-            var transcoder = Substitute.For<IPersistentDataTranscoder>();
-            var serializer = Substitute.For<ISerializer>();
-
-            owner.Transcoder.Returns(transcoder);
-
-            serializer.SerializeObject(20, typeof(int)).Returns(20);
-            transcoder.EncodeElement(20).Returns(20);
-
-            var sut = CreateValue(owner, serializer);
-            sut.GetValueOrDefault(10, typeof(int));
-
-            sut.GetValue<int>().Value = 20;
-
-            sut.EncodedValue.Should().Be(20);
-
-            transcoder.Received(1).EncodeElement(20);
-        }
-
-        [Fact]
-        public void ShouldNotEncodeWithoutTranscoder()
-        {
-            var owner = Substitute.For<IPersistentDataNode>();
-            owner.Transcoder.Returns((IPersistentDataTranscoder?)null);
-
-            var serializer = Substitute.For<ISerializer>();
-
-            var sut = CreateValue(owner, serializer);
-            sut.GetValueOrDefault(10, typeof(int));
-
-            sut.GetValue<int>().Value = 20;
-
-            serializer.DidNotReceive().SerializeObject(Arg.Any<object>(), Arg.Any<Type>());
-        }
-    }
-    
-    public class Initialize
-    {
-        [Fact]
-        public void ShouldUseDefaultValueWhenNoEncodedValue()
-        {
-            var sut = CreateValue();
-
-            sut.GetValueOrDefault(10);
-
-            sut.GetValue<int>().Value.Should().Be(10);
-        }
-
-        [Fact]
-        public void ShouldUseEncodedValueIfPresent()
-        {
-            var owner = Substitute.For<IPersistentDataNode>();
-            var transcoder = Substitute.For<IPersistentDataTranscoder>();
-            var serializer = Substitute.For<ISerializer>();
-
-            owner.Transcoder.Returns(transcoder);
-
-            transcoder.DecodeElement(42, typeof(int)).Returns(42);
-            serializer.GetSerializedType(typeof(int)).Returns(typeof(int));
-            serializer.DeserializeObject(new DeserializationRequest
-            {
-                Serialized = 42,
-                TargetType = typeof(int),
-                Context = null,
-                ExistingInstance = 0,
-            }).Returns(42);
-
-            var sut = CreateValue(owner, serializer);
+            var sut = new PersistentDataPoint(dataFactory);
             
-            sut.EncodedValue = 42;
-            sut.GetValueOrDefault(0);
+            var result = sut.GetOrCreateCollection<IEncodablePersistentData>(null);
 
-            sut.GetValue<int>().Value.Should().Be(42);
+            result.Should().BeSameAs(collection);
         }
 
         [Fact]
-        public void ShouldThrowIfInitializedTwice()
+        public void ShouldReturnExistingCollection()
         {
-            var sut = CreateValue();
+            var collection = Substitute.For<IEncodablePersistentData>();
+            var dataFactory = Substitute.For<IEncodableDataFactory>();
+            dataFactory.GetEncodableData<IEncodablePersistentData>().Returns(collection);
 
-            sut.GetValueOrDefault(1);
+            var sut = new PersistentDataPoint(dataFactory);
 
-            Assert.Throws<InvalidOperationException>(() => sut.GetValueOrDefault(2));
+            var result1 = sut.GetOrCreateCollection(collection);
+            var result2 = sut.GetOrCreateCollection<IEncodablePersistentData>(null);
+
+            result2.Should().BeSameAs(result1);
+        }
+
+        [Fact]
+        public void ShouldDecodeWhenEncodedValueExists()
+        {
+            var collection = Substitute.For<IEncodablePersistentData>();
+            var dataFactory = Substitute.For<IEncodableDataFactory>();
+            var transcoder = Substitute.For<IPersistentDataTranscoder>();
+            dataFactory.GetEncodableData<IEncodablePersistentData>().Returns(collection);
+
+            var sut = new PersistentDataPoint(dataFactory);
+
+            sut.Decode(transcoder, "encoded");
+
+            sut.GetOrCreateCollection(collection);
+
+            collection.Received(1).Decode(transcoder, "encoded");
+        }
+
+        [Fact]
+        public void ShouldSubscribeToInvalidation()
+        {
+            var collection = Substitute.For<IEncodablePersistentData>();
+            var dataFactory = Substitute.For<IEncodableDataFactory>();
+            dataFactory.GetEncodableData<IEncodablePersistentData>().Returns(collection);
+
+            var sut = new PersistentDataPoint(dataFactory);
+
+            sut.GetOrCreateCollection(collection);
+
+            var raised = false;
+            sut.OnInvalidated += (_, _) => raised = true;
+
+            collection.OnInvalidated += Raise.Event<EventHandler>(collection, EventArgs.Empty);
+
+            raised.Should().BeTrue();
         }
     }
     
-    private static PersistentDataPoint CreateValue(
-        IPersistentDataNode? owner = null,
-        ISerializer? serializer = null,
-        ILogger<PersistentDataPoint>? logger = null,
-        IExceptionHandler? exceptionHandler = null)
+    public class GetValue
     {
-        owner ??= Substitute.For<IPersistentDataNode>();
-        serializer ??= Substitute.For<ISerializer>();
-        logger ??= Substitute.For<ILogger<PersistentDataPoint>>();
-        exceptionHandler ??= Substitute.For<IExceptionHandler>();
+        [Fact]
+        public void ShouldThrowWhenDataPointHasNoEncodedValue()
+        {
+            var sut = new PersistentDataPoint(Substitute.For<IEncodableDataFactory>());
 
-        return new PersistentDataPoint(owner, serializer, exceptionHandler, logger);
+            var action = () => sut.GetValue<string>();
+
+            action.Should()
+                .Throw<InvalidOperationException>()
+                .WithMessage("*needs both a transcoder and encoded value*");
+        }
+
+        [Fact]
+        public void ShouldCreateValueFromEncodedData()
+        {
+            var transcoder = Substitute.For<IPersistentDataTranscoder>();
+            var value = Substitute.For<IPersistentValue<string>>();
+            var factory = Substitute.For<IEncodableDataFactory>();
+
+            factory.GetValueFromEncoded<string>("encoded", transcoder, null, null)
+                .Returns(value);
+
+            var sut = new PersistentDataPoint(factory);
+
+            sut.Decode(transcoder, "encoded");
+            var result = sut.GetValue<string>();
+            result.Should().BeSameAs(value);
+        }
+
+        [Fact]
+        public void ShouldOnlyMaterializeOnce()
+        {
+            var transcoder = Substitute.For<IPersistentDataTranscoder>();
+            var value = Substitute.For<IPersistentValue<string>>();
+            var factory = Substitute.For<IEncodableDataFactory>();
+
+            factory.GetValueFromEncoded<string>(
+                    Arg.Any<object>(),
+                    Arg.Any<IPersistentDataTranscoder>(),
+                    Arg.Any<Type>(),
+                    Arg.Any<object>())
+                .Returns(value);
+
+            var sut = new PersistentDataPoint(factory);
+
+            sut.Decode(transcoder, "encoded");
+
+            var result1 = sut.GetValue<string>();
+            var result2 = sut.GetValue<string>();
+
+            result2.Should().BeSameAs(result1);
+
+            factory.Received(1)
+                .GetValueFromEncoded<string>(
+                    Arg.Any<object>(),
+                    Arg.Any<IPersistentDataTranscoder>(),
+                    Arg.Any<Type>(),
+                    Arg.Any<object>());
+        }
+
+        [Fact]
+        public void ShouldSubscribeToInvalidation()
+        {
+            var transcoder = Substitute.For<IPersistentDataTranscoder>();
+            var value = Substitute.For<IPersistentValue<string>>();
+            var factory = Substitute.For<IEncodableDataFactory>();
+
+            factory.GetValueFromEncoded<string>(
+                    Arg.Any<object>(),
+                    Arg.Any<IPersistentDataTranscoder>(),
+                    Arg.Any<Type>(),
+                    Arg.Any<object>())
+                .Returns(value);
+
+            var sut = new PersistentDataPoint(factory);
+
+            sut.Decode(transcoder, "encoded");
+
+            sut.GetValue<string>();
+
+            var raised = false;
+            sut.OnInvalidated += (_, _) => raised = true;
+
+            value.OnInvalidated += Raise.Event<EventHandler>(value, EventArgs.Empty);
+
+            raised.Should().BeTrue();
+        }
+    }
+    
+    public class GetValueOrDefault
+    {
+        [Fact]
+        public void ShouldCreateValueUsingFactory()
+        {
+            var value = Substitute.For<IPersistentValue<string>>();
+
+            var factory = Substitute.For<IEncodableDataFactory>();
+            factory.GetValueWithDefault("default", null, null)
+                .Returns(value);
+
+            var sut = new PersistentDataPoint(factory);
+
+            var result = sut.GetValueOrDefault("default");
+
+            result.Should().BeSameAs(value);
+        }
+
+        [Fact]
+        public void ShouldDecodeExistingEncodedValue()
+        {
+            var transcoder = Substitute.For<IPersistentDataTranscoder>();
+            var value = Substitute.For<IPersistentValue<string>>();
+            var factory = Substitute.For<IEncodableDataFactory>();
+            factory.GetValueWithDefault("default", null, null)
+                .Returns(value);
+
+            var sut = new PersistentDataPoint(factory);
+
+            sut.Decode(transcoder, "encoded");
+
+            sut.GetValueOrDefault("default");
+
+            value.Received(1)
+                .Decode(transcoder, "encoded");
+        }
+
+        [Fact]
+        public void ShouldNotDecodeWhenNoEncodedValueExists()
+        {
+            var value = Substitute.For<IPersistentValue<string>>();
+            var factory = Substitute.For<IEncodableDataFactory>();
+            factory.GetValueWithDefault("default", null, null)
+                .Returns(value);
+
+            var sut = new PersistentDataPoint(factory);
+
+            sut.GetValueOrDefault("default");
+
+            value.DidNotReceive()
+                .Decode(
+                    Arg.Any<IPersistentDataTranscoder>(),
+                    Arg.Any<object>());
+        }
+    }
+    
+    public class Encode
+    {
+        [Fact]
+        public void ShouldThrowWhenUninitialized()
+        {
+            var transcoder = Substitute.For<IPersistentDataTranscoder>();
+            var sut = new PersistentDataPoint(Substitute.For<IEncodableDataFactory>());
+
+            var action = () => sut.Encode(transcoder);
+
+            action.Should().Throw<InvalidOperationException>();
+        }
+
+        [Fact]
+        public void ShouldReturnStoredEncodedValueWhenNotMaterialized()
+        {
+            var transcoder = Substitute.For<IPersistentDataTranscoder>();
+            var sut = new PersistentDataPoint(Substitute.For<IEncodableDataFactory>());
+            sut.Decode(transcoder, "encoded");
+
+            var result = sut.Encode(transcoder);
+
+            result.Should().Be("encoded");
+        }
+
+        [Fact]
+        public void ShouldEncodeMaterializedValue()
+        {
+            var value = Substitute.For<IPersistentValue<string>>();
+            value.Encode(Arg.Any<IPersistentDataTranscoder>())
+                .Returns("encoded");
+            var factory = Substitute.For<IEncodableDataFactory>();
+            factory.GetValueWithDefault("default", null, null)
+                .Returns(value);
+
+            var sut = new PersistentDataPoint(factory);
+
+            sut.GetValueOrDefault("default");
+
+            var transcoder = Substitute.For<IPersistentDataTranscoder>();
+
+            var result = sut.Encode(transcoder);
+
+            result.Should().Be("encoded");
+        }
+
+        [Fact]
+        public void ShouldReuseCachedEncodingForSameTranscoder()
+        {
+            var transcoder = Substitute.For<IPersistentDataTranscoder>();
+
+            var value = Substitute.For<IPersistentValue<string>>();
+            value.Encode(transcoder).Returns("encoded");
+
+            var factory = Substitute.For<IEncodableDataFactory>();
+            factory.GetValueWithDefault("default", null, null)
+                .Returns(value);
+
+            var sut = new PersistentDataPoint(factory);
+
+            sut.GetValueOrDefault("default");
+
+            sut.Encode(transcoder);
+            sut.Encode(transcoder);
+
+            value.Received(1).Encode(transcoder);
+        }
+
+        [Fact]
+        public void ShouldReencodeForDifferentTranscoder()
+        {
+            var transcoder1 = Substitute.For<IPersistentDataTranscoder>();
+            var transcoder2 = Substitute.For<IPersistentDataTranscoder>();
+
+            var value = Substitute.For<IPersistentValue<string>>();
+
+            var factory = Substitute.For<IEncodableDataFactory>();
+            factory.GetValueWithDefault("default", null, null)
+                .Returns(value);
+
+            var sut = new PersistentDataPoint(factory);
+
+            sut.GetValueOrDefault("default");
+
+            sut.Encode(transcoder1);
+            sut.Encode(transcoder2);
+
+            value.Received(1).Encode(transcoder1);
+            value.Received(1).Encode(transcoder2);
+        }
+    }
+    
+    public class Decode
+    {
+        [Fact]
+        public void ShouldStoreEncodedValue()
+        {
+            var transcoder = Substitute.For<IPersistentDataTranscoder>();
+
+            var sut = new PersistentDataPoint(Substitute.For<IEncodableDataFactory>());
+
+            sut.Decode(transcoder, "encoded");
+
+            sut.Encode(transcoder).Should().Be("encoded");
+        }
+
+        [Fact]
+        public void ShouldForwardDecodeToMaterializedValue()
+        {
+            var value = Substitute.For<IPersistentValue<string>>();
+
+            var factory = Substitute.For<IEncodableDataFactory>();
+            factory.GetValueWithDefault("default", null, null)
+                .Returns(value);
+
+            var sut = new PersistentDataPoint(factory);
+
+            sut.GetValueOrDefault("default");
+
+            var transcoder = Substitute.For<IPersistentDataTranscoder>();
+
+            sut.Decode(transcoder, "encoded");
+
+            value.Received(1).Decode(transcoder, "encoded");
+        }
+
+        [Fact]
+        public void ShouldNotDecodeWhenEncodedReferenceHasNotChanged()
+        {
+            var value = Substitute.For<IPersistentValue<string>>();
+
+            var factory = Substitute.For<IEncodableDataFactory>();
+            factory.GetValueWithDefault("default", null, null)
+                .Returns(value);
+
+            var sut = new PersistentDataPoint(factory);
+
+            sut.GetValueOrDefault("default");
+
+            var transcoder = Substitute.For<IPersistentDataTranscoder>();
+
+            var encoded = new object();
+
+            sut.Decode(transcoder, encoded);
+            sut.Decode(transcoder, encoded);
+
+            value.Received(1).Decode(transcoder, encoded);
+        }
     }
 }

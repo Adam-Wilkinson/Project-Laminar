@@ -1,10 +1,8 @@
 using Laminar.Contracts.Storage.PersistentData;
-using Laminar.PluginFramework.Serialization;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Laminar.Implementation.Storage.PersistentData;
 
-internal class PersistentDataPoint(ISerializer serializer, IServiceProvider serviceProvider) : IPersistentDataPoint
+internal class PersistentDataPoint(IEncodableDataFactory valueFactory) : IPersistentDataPoint
 {
     private IEncodablePersistentData? _materializedValue;
     private IPersistentDataTranscoder? _lastTranscoder;
@@ -24,7 +22,7 @@ internal class PersistentDataPoint(ISerializer serializer, IServiceProvider serv
             return (T)_materializedValue ?? throw new InvalidOperationException("This persistent data point is of a different type");
         }
 
-        T newCollection = knownValue ?? serviceProvider.GetRequiredService<T>();
+        T newCollection = knownValue ?? valueFactory.GetEncodableData<T>();
 
         if (_lastTranscoder is not null && _encodedValue is not null)
         {
@@ -38,9 +36,9 @@ internal class PersistentDataPoint(ISerializer serializer, IServiceProvider serv
 
     public IPersistentValue<T> GetValue<T>(Type? serializationKeyOverride = null, object? deserializationContext = null) where T : notnull
     {
-        if (_materializedValue is IPersistentValue<T> persistentValue)
+        if (_materializedValue is not null)
         {
-            return persistentValue;
+            return (IPersistentValue<T>)_materializedValue ?? throw new InvalidOperationException("This persistent data point is of a different type");
         }
 
         if (_lastTranscoder is null || _encodedValue is null)
@@ -48,8 +46,8 @@ internal class PersistentDataPoint(ISerializer serializer, IServiceProvider serv
             throw new InvalidOperationException("In order to get an uninitialized value, this data point needs both a transcoder and encoded value");
         }
 
-        var newValue = PersistentValue<T>.FromEncodedValue(_encodedValue, serializationKeyOverride, 
-            deserializationContext, serializer, _lastTranscoder);
+        var newValue = valueFactory.GetValueFromEncoded<T>(_encodedValue, _lastTranscoder, serializationKeyOverride,
+            deserializationContext);
         newValue.OnInvalidated += ChildInvalidated;
         _materializedValue = newValue;
         return newValue;
@@ -58,7 +56,12 @@ internal class PersistentDataPoint(ISerializer serializer, IServiceProvider serv
     public IPersistentValue<T> GetValueOrDefault<T>(T defaultValue, Type? serializationKeyOverride = null, 
         object? deserializationContext = null) where T : notnull
     {
-        var newValue = new PersistentValue<T>(defaultValue, serializationKeyOverride, deserializationContext, serializer);
+        if (_materializedValue is not null)
+        {
+            return (IPersistentValue<T>)_materializedValue ?? throw new InvalidOperationException("This persistent data point is of a different type");
+        }
+        
+        var newValue = valueFactory.GetValueWithDefault(defaultValue, serializationKeyOverride, deserializationContext);
 
         if (_encodedValue is not null && _lastTranscoder is not null)
         {

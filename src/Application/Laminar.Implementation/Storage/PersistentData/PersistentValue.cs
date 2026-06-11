@@ -49,15 +49,15 @@ internal class PersistentValue<T> : ObservableValueBase<T>, IPersistentValue<T> 
 
     public bool HasDefaultValue { get; private init; } = true;
 
-    public T DefaultValue => _defaultValue ?? throw new Exception("This persistent value does not have a default");
+    public T DefaultValue => HasDefaultValue && _defaultValue is not null
+        ? _defaultValue
+        : throw new Exception("This persistent value does not have a default");
 
     public void Reset()
     {
-        if (_defaultValue is not null) Value = _defaultValue;
+        if (HasDefaultValue && _defaultValue is not null) Value = _defaultValue;
     }
-
-    public void Delete() => CleanupValue();
-
+    
     protected override void BeforeValueChanged() => CleanupValue();
     
     protected override void AfterValueChanged() => EstablishValue();

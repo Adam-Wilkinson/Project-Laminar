@@ -1,16 +1,15 @@
 using System.Collections;
 using Laminar.Contracts.Storage.PersistentData;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Laminar.Implementation.Storage.PersistentData;
 
-internal class PersistentList(IServiceProvider serviceProvider) : IPersistentList
+internal class PersistentList(IEncodableDataFactory dataFactory) : IPersistentList
 {
     private readonly List<IPersistentDataPoint> _internalValues = [];
 
     public IPersistentDataPoint AddNext()
     {
-        var newValue = ActivatorUtilities.CreateInstance<PersistentDataPoint>(serviceProvider);
+        var newValue = dataFactory.GetDataPoint();
         newValue.OnInvalidated += OnChildInvalidated;
         _internalValues.Add(newValue);
         return newValue;
