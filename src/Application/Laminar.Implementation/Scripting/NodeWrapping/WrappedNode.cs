@@ -6,6 +6,7 @@ using Laminar.Domain.Notification.Collections;
 using Laminar.Domain.Notification.Value;
 using Laminar.Domain.ValueObjects;
 using Laminar.Implementation.Scripting.Execution;
+using Laminar.Implementation.Storage.PersistentData;
 using Laminar.PluginFramework.NodeSystem;
 using Laminar.PluginFramework.NodeSystem.Components;
 using Laminar.PluginFramework.UserInterface;
@@ -24,7 +25,11 @@ public sealed class WrappedNode : IWrappedNode, IDisposable
         CoreNode = node;
         NameRow = nameRow;
         _persistentDictionary = persistentDictionary;
-
+        
+        Id = persistentDictionary[nameof(Id)].GetValueOrDefault(GuidIdentifier<IWrappedNode>.New()).Value;
+        IsCollapsed = persistentDictionary[nameof(IsCollapsed)].GetValueOrDefault(false);
+        Location = persistentDictionary[nameof(Location)].GetValueOrDefault(new Point {X = 0, Y = 0});
+        
         Rows = new FlattenedObservableTree<INodeRow>(node.Components);
         _rowsChangedSubscription = Rows.SubscribeForEach(RegisterRow, RowRemoved);
         
@@ -32,21 +37,17 @@ public sealed class WrappedNode : IWrappedNode, IDisposable
         int indexInMyRows = 0;
         foreach (var persistentRow in persistentRows)
         {
-            persistentRow.GetValueOrDefault(Rows[indexInMyRows]);
+            persistentRow.GetValueOrDefault(Rows[indexInMyRows], Rows[indexInMyRows].GetType());
             indexInMyRows++;
         }
 
-        while (indexInMyRows <= Rows.Count)
+        while (indexInMyRows < Rows.Count)
         {
-            persistentRows.AddNext().GetValueOrDefault(Rows[indexInMyRows]);
+            persistentRows.AddNext().GetValueOrDefault(Rows[indexInMyRows], Rows[indexInMyRows].GetType());
             indexInMyRows++;
         }
         
         Rows.CollectionChanged += RowsChanged;
-        
-        Id = persistentDictionary[nameof(Id)].GetValueOrDefault(GuidIdentifier<IWrappedNode>.New()).Value;
-        IsCollapsed = persistentDictionary[nameof(IsCollapsed)].GetValueOrDefault(false);
-        Location = persistentDictionary[nameof(Location)].GetValueOrDefault(new Point {X = 0, Y = 0});
         
         foreach (var row in Rows)
         {
@@ -60,7 +61,7 @@ public sealed class WrappedNode : IWrappedNode, IDisposable
         persistentList.Clear();
         foreach (var row in Rows)
         {
-            persistentList.AddNext().GetValueOrDefault(row);
+            persistentList.AddNext().GetValueOrDefault(row, row.GetType());
         }
     }
 
@@ -93,6 +94,12 @@ public sealed class WrappedNode : IWrappedNode, IDisposable
         {
             UserChangedValueNotificationClient.TriggerNotification(context);
         }
+    }
+
+    public byte[] ToPersistentValue()
+    {
+        var transcoder = new JsonPersistentDataTranscoder(null!);
+        return transcoder.ElementToBytes(_persistentDictionary.Encode(transcoder));
     }
 
     public void Update(LaminarExecutionContext context)

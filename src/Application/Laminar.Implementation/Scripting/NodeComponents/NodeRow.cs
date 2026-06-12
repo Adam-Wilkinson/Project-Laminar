@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Domain.Extensions;
 using Laminar.PluginFramework.NodeSystem;
 using Laminar.PluginFramework.NodeSystem.Components;

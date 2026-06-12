@@ -1,4 +1,8 @@
+using System.Text;
 using System.Windows.Input;
+using Avalonia.Controls;
+using Avalonia.Input;
+using Avalonia.Input.Platform;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Laminar.Avalonia.ViewModels.Services;
@@ -14,8 +18,12 @@ using AvaloniaPoint = Avalonia.Point;
 
 namespace Laminar.Avalonia.ViewModels;
 
-public partial class ScriptEditorViewModel(IScript script, IScriptEditor editor, IUserActionManager userActionManager)
-    : DropTargetViewModel, IConnectionInteractionHandler
+public partial class ScriptEditorViewModel(
+    IScript script, 
+    IScriptEditor editor, 
+    IUserActionManager userActionManager,
+    TopLevel topLevel)
+    : DropTargetViewModel, IConnectionInteractionHandler, IClipboardProvider
 {
     private IUserActionSession? _userActionSession;
 
@@ -114,5 +122,20 @@ public partial class ScriptEditorViewModel(IScript script, IScriptEditor editor,
     partial void OnCurrentSelectionChanged(IReadOnlyList<object>? value)
     {
         OnPropertyChanged(nameof(CanDeleteSelection));
+        OnPropertyChanged(nameof(CanCopyToClipboard));
     }
+
+    [RelayCommand]
+    private async Task CopyToClipboard()
+    {
+        if (CurrentSelection?.FirstOrDefault(x => x is ScriptEditorItemModel) is not 
+                ScriptEditorItemModel { CoreElement: IWrappedNode node } 
+            || topLevel.Clipboard is not { } clipboard) return;
+        
+        var transfer = new DataTransfer();
+        transfer.Add(DataTransferItem.CreateText(Encoding.UTF8.GetString(node.ToPersistentValue())));
+        await clipboard.SetDataAsync(transfer);
+    }
+
+    public bool CanCopyToClipboard => CurrentSelection is not null && CurrentSelection.OfType<IWrappedNode>().Any();
 }

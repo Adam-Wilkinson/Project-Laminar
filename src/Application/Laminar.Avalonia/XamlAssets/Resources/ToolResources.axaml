@@ -1,6 +1,7 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:vm="using:Laminar.Avalonia.ViewModels"
+                    xmlns:vms="using:Laminar.Avalonia.ViewModels.Services"
                     xmlns:t="using:Laminar.Avalonia.ToolSystem"
                     xmlns:s="using:Laminar.Avalonia.Settings"
                     xmlns:c="using:Laminar.Avalonia.Controls"
@@ -24,6 +25,10 @@
 					   Gesture="Ctrl+y" 
 					   DefaultIconGeometry="{x:Static shapes:PathData.RedoIcon}"
 					   CommandBinding="{Binding RedoCommand}"/>
+        <t:CommandTool NameKey="Copy" x:DataType="vms:IClipboardProvider"
+                       Gesture="Ctrl+c"
+                       DefaultIconGeometry="{x:Static shapes:PathData.Copy}"
+                       CommandBinding="{Binding CopyToClipboardCommand}"/>
     </t:Toolbox>
     
     <!-- Tool that toggles whether a TreeViewItem is expanded -->

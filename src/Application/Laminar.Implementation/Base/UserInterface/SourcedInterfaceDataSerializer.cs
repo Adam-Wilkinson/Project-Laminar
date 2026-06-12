@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using Laminar.PluginFramework.Serialization;
+using Laminar.PluginFramework.UserInterface;
 
 namespace Laminar.Implementation.Base.UserInterface;
 
@@ -7,30 +8,48 @@ public class SourcedInterfaceDataSerializerFactory : IConditionalSerializerFacto
 {
     public IConditionalSerializer? TryCreateSerializerFor(Type type)
     {
-        if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(SourcedInterfaceData<>))
+        if (GetSourcedInterfaceDataType(type) is { } sourcedInterfaceDataType)
         {
-            return Activator.CreateInstance(typeof(SourcedInterfaceDataSerializer<>).MakeGenericType(type)) as IConditionalSerializer;
+            return Activator.CreateInstance(typeof(SourcedInterfaceDataSerializer<>).MakeGenericType(sourcedInterfaceDataType.GetGenericArguments()[0])) as IConditionalSerializer;
+        }
+
+        return null;
+    }
+
+    private static Type? GetSourcedInterfaceDataType(Type type)
+    {
+        if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(ISourcedInterfaceData<>))
+        {
+            return type;
+        }
+
+        if (type.IsAssignableTo(typeof(IInterfaceData))
+            && type.GetInterfaces().FirstOrDefault(x =>
+                    x.IsGenericType && x.GetGenericTypeDefinition() == typeof(ISourcedInterfaceData<>))
+                is { } sourcedInterfaceDataType)
+        {
+            return sourcedInterfaceDataType;
         }
 
         return null;
     }
 }
 
-public class SourcedInterfaceDataSerializer<T> : TypeSerializer<SourcedInterfaceData<T>, T> where T : notnull
+public class SourcedInterfaceDataSerializer<T> : TypeSerializer<ISourcedInterfaceData<T>, T> where T : notnull
 {
-    protected override T SerializeTyped(SourcedInterfaceData<T> toSerialize) => toSerialize.ValueWithoutProvider;
+    protected override T SerializeTyped(ISourcedInterfaceData<T> toSerialize) => ((SourcedInterfaceData<T>)toSerialize).ValueWithoutProvider;
 
-    protected override SourcedInterfaceData<T> DeSerializeTyped(DeserializationRequest<SourcedInterfaceData<T>, T> request)
+    protected override ISourcedInterfaceData<T> DeSerializeTyped(DeserializationRequest<ISourcedInterfaceData<T>, T> request)
     {
-        if (!request.HasExistingValue)
+        if (!request.HasExistingValue || request.ExistingValue is not SourcedInterfaceData<T> existingValue)
             throw new InvalidOperationException("Deserializing sourced interface data requires existing value");
 
-        request.ExistingValue!.ValueWithoutProvider = request.Serialized;
-        return request.ExistingValue;
+        existingValue.ValueWithoutProvider = request.Serialized;
+        return existingValue;
     }
 
-    protected override INotifySerializedValueChanged? GetSerializedValueChangedNotifier(SourcedInterfaceData<T> target) 
-        => new SerializedValueChangedListener(target);
+    protected override INotifySerializedValueChanged? GetSerializedValueChangedNotifier(ISourcedInterfaceData<T> target) 
+        => new SerializedValueChangedListener((SourcedInterfaceData<T>)target);
 
     private class SerializedValueChangedListener : INotifySerializedValueChanged
     {

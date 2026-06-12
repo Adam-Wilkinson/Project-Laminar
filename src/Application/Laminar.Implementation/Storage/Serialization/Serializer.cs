@@ -102,7 +102,7 @@ public class Serializer : ISerializer
 
         foreach (var type in assembly.GetTypes())
         {
-            if (!type.ContainsGenericParameters 
+            if (type is { ContainsGenericParameters: false, IsAbstract: false, IsInterface: false }
                 && type != typeof(PrimitiveSerializer)
                 && type.GetInterfaces().Contains(typeof(IConditionalSerializer))
                 && ActivatorUtilities.CreateInstance(_serviceProvider, type) is IConditionalSerializer conditionalSerializer)
@@ -110,7 +110,7 @@ public class Serializer : ISerializer
                 RegisterSerializer(conditionalSerializer);
             }
 
-            if (!type.ContainsGenericParameters 
+            if (type is { ContainsGenericParameters: false, IsAbstract: false, IsInterface: false } 
                 && type.GetInterfaces().Contains(typeof(IConditionalSerializerFactory))
                 && type != typeof(DefaultSerializerFactory)
                 && ActivatorUtilities.CreateInstance(_serviceProvider, type) is IConditionalSerializerFactory factory)

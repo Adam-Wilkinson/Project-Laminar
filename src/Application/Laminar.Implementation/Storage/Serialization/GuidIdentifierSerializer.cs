@@ -9,7 +9,7 @@ public class GuidIdentifierSerializerFactory : IConditionalSerializerFactory
     {
         if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(GuidIdentifier<>))
         {
-            return Activator.CreateInstance(typeof(GuidIdentifierSerializer<>).MakeGenericType(type)) as IConditionalSerializer;
+            return Activator.CreateInstance(typeof(GuidIdentifierSerializer<>).MakeGenericType(type.GetGenericArguments()[0])) as IConditionalSerializer;
         }
 
         return null;
