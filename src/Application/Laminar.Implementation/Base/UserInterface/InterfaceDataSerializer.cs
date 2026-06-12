@@ -41,20 +41,31 @@ public class InterfaceDataSerializer<T>(ISerializer serializer) : TypeSerializer
 {
     public override Type SerializedType => serializer.GetSerializedType(typeof(T));
     
-    protected override object SerializeOverride(IInterfaceData<T> toSerialize) 
-        => serializer.SerializeObject(toSerialize.Value);
+    protected override object SerializeOverride(IInterfaceData<T> toSerialize)
+    {
+        var persistentValue = toSerialize is IPersistenceOverrideInterfaceData<T> persistenceOverride
+            ? persistenceOverride.PersistentValue
+            : toSerialize.Value;
+        
+        return serializer.SerializeObject(persistentValue);
+    }
 
     protected override IInterfaceData<T> DeSerializeOverride(DeserializationRequest request)
     {
-        if (request.ExistingInstance is not IInterfaceData<T> existingValue)
+        if (request.ExistingInstance is not IInterfaceData<T> existingInstance)
             throw new InvalidOperationException("Deserializing interface data requires existing value");
 
-        existingValue.SetValue(serializer.DeserializeObject(request with
+        var existingValue = existingInstance is IPersistenceOverrideInterfaceData<T> persistenceOverride
+            ? persistenceOverride.PersistentValue
+            : existingInstance.Value;
+            
+        existingInstance.SetValue(serializer.DeserializeObject(request with
         {
-            TargetType = typeof(T), ExistingInstance = existingValue.Value
+            TargetType = typeof(T), 
+            ExistingInstance = existingValue,
         }));
         
-        return existingValue;
+        return existingInstance;
     }
 
     protected override INotifySerializedValueChanged GetSerializedValueChangedNotifier(IInterfaceData<T> target) 
@@ -72,7 +83,7 @@ public class InterfaceDataSerializer<T>(ISerializer serializer) : TypeSerializer
 
         private void TargetPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(IInterfaceData<>.Value) && _target.IsUserEditable)
+            if ((e.PropertyName == nameof(IInterfaceData<>.Value) && _target.IsUserEditable) || e.PropertyName == nameof(IPersistenceOverrideInterfaceData<>.PersistentValue))
             {
                 SerializedValueChanged?.Invoke(this, EventArgs.Empty);
             }

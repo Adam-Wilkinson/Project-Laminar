@@ -3,7 +3,7 @@ using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
 namespace Laminar.PluginFramework.UserInterface;
 
-public interface ISourcedInterfaceData<T> : IInterfaceData<T>, IRefreshable, ILaminarExecutionSource where T : notnull
+public interface ISourcedInterfaceData<T> : IPersistenceOverrideInterfaceData<T>, IRefreshable, ILaminarExecutionSource where T : notnull
 {
     public new bool IsUserEditable { get; set; }
     

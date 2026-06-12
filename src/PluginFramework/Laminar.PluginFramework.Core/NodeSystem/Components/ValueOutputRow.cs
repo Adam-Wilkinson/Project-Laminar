@@ -1,5 +1,4 @@
-﻿using System;
-using Laminar.PluginFramework.NodeSystem.IO.Value;
+﻿using Laminar.PluginFramework.NodeSystem.IO.Value;
 using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
 namespace Laminar.PluginFramework.NodeSystem.Components;

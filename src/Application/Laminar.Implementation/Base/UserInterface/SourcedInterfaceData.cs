@@ -7,8 +7,7 @@ using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
 namespace Laminar.Implementation.Base.UserInterface;
 
-public class SourcedInterfaceData<T>(T initialValue) 
-    : ISourcedInterfaceData<T> where T : notnull
+public class SourcedInterfaceData<T>(T initialValue) : ISourcedInterfaceData<T> where T : notnull
 {
     private readonly PropertyChangedEventArgs _valueChangedEventArgs = new(nameof(Value));
     private readonly PropertyChangedEventArgs _nameChangedEventArgs = new(nameof(Name));
@@ -25,11 +24,12 @@ public class SourcedInterfaceData<T>(T initialValue)
 
     public T Value
     {
-        get => ValueProvider is null ? ValueWithoutProvider : ValueProvider.Value;
+        get => ValueProvider is null ? PersistentValue : ValueProvider.Value;
         set
         {
             if (!IsUserEditable) throw new InvalidOperationException();
-            ValueWithoutProvider = value;
+            _valueAtLastRefresh = value;
+            PersistentValue = value;
             PropertyChanged?.Invoke(this, _valueChangedEventArgs);
             ExecutionStarted?.Invoke(this, new LaminarExecutionContext(null, ExecutionFlags.ValueChanged)); 
         }
@@ -65,7 +65,7 @@ public class SourcedInterfaceData<T>(T initialValue)
 
     public void SetValue(T value)
     {
-        ValueWithoutProvider = value;
+        PersistentValue = value;
 
         if (ValueProvider is null)
         {
@@ -113,7 +113,7 @@ public class SourcedInterfaceData<T>(T initialValue)
         PropertyChanged?.Invoke(this, _valueChangedEventArgs);
     }
 
-    internal T ValueWithoutProvider
+    public T PersistentValue
     {
         get;
         set => SetField(ref field, value);

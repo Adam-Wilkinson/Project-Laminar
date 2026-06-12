@@ -15,6 +15,11 @@ public interface IInterfaceData<TValue> : IInterfaceData where TValue : notnull
 {
     public new TValue Value { get; set; }
 
+    /// <summary>
+    /// Sets the value.
+    /// Unlike the setter of <see cref="Value"/>, this also works when <see cref="IInterfaceData.IsUserEditable"/> is false, and should be treated as quiet access to the internal state of the interface data.    
+    /// </summary>
+    /// <param name="newValue">The new value</param>
     public void SetValue(TValue newValue);
     
     object IInterfaceData.Value
@@ -37,7 +42,8 @@ public interface IInterfaceData : INotifyPropertyChanged
     public IUserInterfaceDefinition? Definition { get; }
 
     /// <summary>
-    /// Sets the value. Unlike the setter of <see cref="Value"/>, this also works when <see cref="IsUserEditable"/> is false 
+    /// Sets the value.
+    /// Unlike the setter of <see cref="Value"/>, this also works when <see cref="IsUserEditable"/> is false, and should be treated as quiet access to the internal state of the interface data.    
     /// </summary>
     /// <param name="newValue">The new value</param>
     public void SetValue(object newValue);

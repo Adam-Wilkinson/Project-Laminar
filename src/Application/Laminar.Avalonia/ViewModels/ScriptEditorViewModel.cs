@@ -129,7 +129,7 @@ public partial class ScriptEditorViewModel(
             || topLevel.Clipboard is not { } clipboard) return;
         
         var transfer = new DataTransfer();
-        transfer.Add(DataTransferItem.CreateText(Encoding.UTF8.GetString(node.ToPersistentValue(DefaultClipboardTranscoder))));
+        transfer.Add(DataTransferItem.CreateText(Encoding.UTF8.GetString(node.ToPersistentValue(new JsonPersistentDataTranscoder(null!)))));
         await clipboard.SetDataAsync(transfer);
     }
 
