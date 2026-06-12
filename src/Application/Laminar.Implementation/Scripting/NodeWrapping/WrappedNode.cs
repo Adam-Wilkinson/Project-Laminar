@@ -1,5 +1,4 @@
-﻿using System.Collections.Specialized;
-using Laminar.Contracts.Scripting.NodeWrapping;
+﻿using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.Notification;
 using Laminar.Domain.Notification.Collections;
@@ -17,6 +16,7 @@ namespace Laminar.Implementation.Scripting.NodeWrapping;
 public sealed class WrappedNode : IWrappedNode, IDisposable
 {
     private readonly IDisposable _rowsChangedSubscription;
+    private readonly IDisposable _persistentRowsSynchronizer;
     private readonly IPersistentDictionary _persistentDictionary;
     private Action? _preEvaluateAction;
     
@@ -32,36 +32,18 @@ public sealed class WrappedNode : IWrappedNode, IDisposable
         
         Rows = new FlattenedObservableTree<INodeRow>(node.Components);
         _rowsChangedSubscription = Rows.SubscribeForEach(RegisterRow, RowRemoved);
-        
-        var persistentRows = persistentDictionary[nameof(Rows)].GetOrCreateCollection<IPersistentList>();
-        int indexInMyRows = 0;
-        foreach (var persistentRow in persistentRows)
-        {
-            persistentRow.GetValueOrDefault(Rows[indexInMyRows], Rows[indexInMyRows].GetType());
-            indexInMyRows++;
-        }
 
-        while (indexInMyRows < Rows.Count)
-        {
-            persistentRows.AddNext().GetValueOrDefault(Rows[indexInMyRows], Rows[indexInMyRows].GetType());
-            indexInMyRows++;
-        }
-        
-        Rows.CollectionChanged += RowsChanged;
+        _persistentRowsSynchronizer = new PersistentListSynchronizer<INodeRow>(
+            persistentDictionary[nameof(Rows)].GetOrCreateCollection<IPersistentList>(),
+            Rows,
+            new PersistentValueAdapter<INodeRow>(row => row.GetType())
+            {
+                Mode = PersistenceAdapterMode.Hydrate
+            });
         
         foreach (var row in Rows)
         {
             RegisterRow(row);
-        }
-    }
-
-    private void RowsChanged(object? sender, NotifyCollectionChangedEventArgs e)
-    {
-        var persistentList = _persistentDictionary[nameof(Rows)].GetOrCreateCollection<IPersistentList>();
-        persistentList.Clear();
-        foreach (var row in Rows)
-        {
-            persistentList.AddNext().GetValueOrDefault(row, row.GetType());
         }
     }
 
@@ -159,5 +141,6 @@ public sealed class WrappedNode : IWrappedNode, IDisposable
     public void Dispose()
     {
         _rowsChangedSubscription.Dispose();
+        _persistentRowsSynchronizer.Dispose();
     }
 }

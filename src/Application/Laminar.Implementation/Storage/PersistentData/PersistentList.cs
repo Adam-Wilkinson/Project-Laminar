@@ -15,6 +15,31 @@ internal class PersistentList(IEncodableDataFactory dataFactory) : IPersistentLi
         return newValue;
     }
 
+    public IPersistentDataPoint Insert(int index)
+    {
+        IPersistentDataPoint newValue = dataFactory.GetDataPoint();
+        newValue.OnInvalidated += OnChildInvalidated;
+        _internalValues.Insert(index, newValue);
+        return newValue;
+    }
+
+    public void Move(int oldIndex, int newIndex, int itemCount)
+    {
+        var movedItems = _internalValues.GetRange(oldIndex, itemCount);
+        _internalValues.RemoveRange(oldIndex, itemCount);
+        _internalValues.InsertRange(newIndex, movedItems);
+        OnInvalidated?.Invoke(this, EventArgs.Empty);
+    }
+
+    public IPersistentDataPoint RemoveAt(int index)
+    {
+        var value = _internalValues[index];
+        _internalValues.RemoveAt(index);
+        value.OnInvalidated -= OnChildInvalidated;
+        OnInvalidated?.Invoke(this, EventArgs.Empty);
+        return value;
+    }
+
     public void Clear()
     {
         foreach (var value in _internalValues)
