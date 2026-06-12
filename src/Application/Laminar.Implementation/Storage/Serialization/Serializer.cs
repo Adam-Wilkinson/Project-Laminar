@@ -1,35 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
+﻿using System.Reflection;
 using Laminar.PluginFramework.Serialization;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Laminar.Implementation.Storage.Serialization;
 
-public class Serializer : ISerializer
+public class Serializer(IServiceProvider serviceProvider) : ISerializer
 {
     private static readonly INotifySerializedValueChanged DefaultNotifier = new NullNotifier();
-    
-    private readonly IServiceProvider _serviceProvider;
+
+    private static readonly PrimitiveSerializer PrimitiveSerializer = new();
     private readonly HashSet<Assembly> _scannedAssemblies = [];
-    private readonly DefaultSerializerFactory _defaultSerializerFactory; 
-    private readonly Dictionary<Type, IConditionalSerializer> _typeSerializers = [];
     private readonly List<IConditionalSerializer> _conditionalSerializers = [];
     private readonly List<IConditionalSerializerFactory> _conditionalSerializerFactories = [];
-    
-    public Serializer(IServiceProvider serviceProvider)
-    {
-        _serviceProvider = serviceProvider;
-        _defaultSerializerFactory = new DefaultSerializerFactory(this);
-    }
+    private readonly Dictionary<Type, IConditionalSerializer> _typeSerializerMap = [];
 
     public void RegisterSerializer(IConditionalSerializer serializer)
     {
         switch (serializer)
         {
             case TypeSerializer typeSerializer:
-                _typeSerializers[typeSerializer.Type] = typeSerializer;
+                _typeSerializerMap[typeSerializer.Type] = typeSerializer;
                 break;
             default:
                 _conditionalSerializers.Add(serializer);
@@ -64,7 +54,7 @@ public class Serializer : ISerializer
         EnsureAssemblyInit(typeof(Serializer).Assembly);
         EnsureAssemblyInit(typeToSerialize.Assembly);
         
-        if (_typeSerializers.TryGetValue(typeToSerialize, out var typeSerializer))
+        if (_typeSerializerMap.TryGetValue(typeToSerialize, out var typeSerializer))
         {
             return typeSerializer;
         }
@@ -73,7 +63,7 @@ public class Serializer : ISerializer
         {
             if (factory.TryCreateSerializerFor(typeToSerialize) is { } serializer)
             {
-                _typeSerializers.Add(typeToSerialize, serializer);
+                _typeSerializerMap.Add(typeToSerialize, serializer);
                 return serializer;
             }
         }
@@ -81,13 +71,14 @@ public class Serializer : ISerializer
         if (_conditionalSerializers.FirstOrDefault(serializer => serializer.SerializedTypeOrNull(typeToSerialize) is not null) is
             { } conditionalSerializer)
         {
-            _typeSerializers.Add(typeToSerialize, conditionalSerializer);
+            _typeSerializerMap.Add(typeToSerialize, conditionalSerializer);
             return conditionalSerializer;
         }
 
-        if (_defaultSerializerFactory.TryCreateSerializerFor(typeToSerialize) is { } defaultSerializer)
+        if (PrimitiveSerializer.SerializedTypeOrNull(typeToSerialize) is not null)
         {
-            return defaultSerializer;
+            _typeSerializerMap.Add(typeToSerialize, PrimitiveSerializer);
+            return PrimitiveSerializer;
         }
         
         throw new NotSupportedException($"No serializer found for type {typeToSerialize.FullName}.");
@@ -105,15 +96,14 @@ public class Serializer : ISerializer
             if (type is { ContainsGenericParameters: false, IsAbstract: false, IsInterface: false }
                 && type != typeof(PrimitiveSerializer)
                 && type.GetInterfaces().Contains(typeof(IConditionalSerializer))
-                && ActivatorUtilities.CreateInstance(_serviceProvider, type) is IConditionalSerializer conditionalSerializer)
+                && ActivatorUtilities.CreateInstance(serviceProvider, type) is IConditionalSerializer conditionalSerializer)
             {
                 RegisterSerializer(conditionalSerializer);
             }
 
             if (type is { ContainsGenericParameters: false, IsAbstract: false, IsInterface: false } 
                 && type.GetInterfaces().Contains(typeof(IConditionalSerializerFactory))
-                && type != typeof(DefaultSerializerFactory)
-                && ActivatorUtilities.CreateInstance(_serviceProvider, type) is IConditionalSerializerFactory factory)
+                && ActivatorUtilities.CreateInstance(serviceProvider, type) is IConditionalSerializerFactory factory)
             {
                 RegisterFactory(factory);
             }

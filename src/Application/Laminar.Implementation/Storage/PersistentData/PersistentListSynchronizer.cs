@@ -69,7 +69,7 @@ internal sealed class PersistentListSynchronizer<T> : IDisposable
                 int addedIndex = e.NewStartingIndex;
                 foreach (var newItem in e.NewItems!.Cast<T>())
                 {
-                    _persistenceAdapter.Persist(newItem, _persistentList.Insert(addedIndex));
+                    _persistenceAdapter.Hydrate(newItem, _persistentList.Insert(addedIndex));
                     addedIndex++;
                 }
                 break;

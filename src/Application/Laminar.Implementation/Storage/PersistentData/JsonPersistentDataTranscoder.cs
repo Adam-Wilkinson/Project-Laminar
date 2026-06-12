@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.Storage.PersistentData;
 
-internal class JsonPersistentDataTranscoder(
+public class JsonPersistentDataTranscoder(
     JsonSerializerOptions jsonOptions, 
     ILogger<JsonPersistentDataTranscoder> logger) 
     : IPersistentDataTranscoder

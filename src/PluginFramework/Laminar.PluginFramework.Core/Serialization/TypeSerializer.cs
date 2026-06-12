@@ -6,7 +6,7 @@ public abstract class TypeSerializer : INotifyingConditionalSerializer
     
     public abstract Type SerializedType { get; }
     
-    public Type? SerializedTypeOrNull(Type typeToSerialize) => typeToSerialize == Type ? SerializedType : null;
+    public Type? SerializedTypeOrNull(Type typeToSerialize) => Type.IsAssignableFrom(typeToSerialize) ? SerializedType : null;
     
     public abstract object Serialize(object toSerialize);
 

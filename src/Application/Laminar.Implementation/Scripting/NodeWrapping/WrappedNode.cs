@@ -77,11 +77,8 @@ public sealed class WrappedNode : IWrappedNode, IDisposable
         }
     }
 
-    public byte[] ToPersistentValue()
-    {
-        var transcoder = new JsonPersistentDataTranscoder(null!);
-        return transcoder.ElementToBytes(_persistentDictionary.Encode(transcoder));
-    }
+    public byte[] ToPersistentValue(IPersistentDataTranscoder transcoder) 
+        => transcoder.ElementToBytes(_persistentDictionary.Encode(transcoder));
 
     public void Update(LaminarExecutionContext context)
     {

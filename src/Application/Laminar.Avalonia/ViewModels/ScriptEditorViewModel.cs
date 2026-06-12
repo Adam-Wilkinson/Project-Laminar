@@ -11,7 +11,9 @@ using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Scripting.Connection;
 using Laminar.Contracts.Scripting.Execution;
 using Laminar.Contracts.Scripting.NodeWrapping;
+using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.Notification.Collections;
+using Laminar.Implementation.Storage.PersistentData;
 using Laminar.PluginFramework.NodeSystem.Connectors;
 using LaminarPoint = Laminar.Domain.ValueObjects.Point;
 using AvaloniaPoint = Avalonia.Point;
@@ -25,18 +27,12 @@ public partial class ScriptEditorViewModel(
     TopLevel topLevel)
     : DropTargetViewModel, IConnectionInteractionHandler, IClipboardProvider
 {
+    private static readonly IPersistentDataTranscoder DefaultClipboardTranscoder = new JsonPersistentDataTranscoder(null!); 
+    
     private IUserActionSession? _userActionSession;
 
     [ObservableProperty]
     public partial IReadOnlyList<object>? CurrentSelection { get; set; }
-
-    public INodeTreeView NodeTree => script.NodeTreeView;
-
-    public static readonly ICommand NodeDragStartedCommand 
-        = new RelayCommand<IWrappedNode>(node => node?.IsCollapsed.Value = false);
-    
-    public static readonly ICommand NodeDragEndedCommand
-        = new RelayCommand<IWrappedNode>(node => node?.IsCollapsed.Value = true);
     
     public IReadOnlyObservableCollection<ScriptEditorItemModel> VisualElements { get; } =
         new FlattenedObservableTree<ScriptEditorItemModel>(
@@ -133,7 +129,7 @@ public partial class ScriptEditorViewModel(
             || topLevel.Clipboard is not { } clipboard) return;
         
         var transfer = new DataTransfer();
-        transfer.Add(DataTransferItem.CreateText(Encoding.UTF8.GetString(node.ToPersistentValue())));
+        transfer.Add(DataTransferItem.CreateText(Encoding.UTF8.GetString(node.ToPersistentValue(DefaultClipboardTranscoder))));
         await clipboard.SetDataAsync(transfer);
     }
 

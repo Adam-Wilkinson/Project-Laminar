@@ -1,4 +1,5 @@
-﻿using Laminar.Domain.Notification;
+﻿using Laminar.Contracts.Storage.PersistentData;
+using Laminar.Domain.Notification;
 using Laminar.Domain.Notification.Collections;
 using Laminar.Domain.Notification.Value;
 using Laminar.Domain.ValueObjects;
@@ -21,7 +22,7 @@ public interface IWrappedNode : INotificationClient<LaminarExecutionContext>
 
     IObservableValue<Point> Location { get; }
 
-    public byte[] ToPersistentValue();
+    public byte[] ToPersistentValue(IPersistentDataTranscoder dataTranscoder);
     
     void Update(LaminarExecutionContext context);
 }
