@@ -27,7 +27,7 @@ internal class LaminarStorageRootFolder : LaminarStorageFolder, ILaminarStorageR
         ILaminarFileSystemMonitor monitor,
         ILogger<LaminarStorageItem> logger) 
         : base(path, factory, fileSystem, 
-            persistentDataManager.GetDataStore(new DataStoreKey(InfoFileName, PersistentDataType.Json, path)), persistentDataManager, logger)
+            persistentDataManager.GetDataStore(new DataStoreKey(InfoFileName, PersistentDataType.Json, path)), logger)
     {
         _path = path;
         // TODO: .json probably should not be hard-coded

@@ -4,6 +4,8 @@ namespace Laminar.Implementation.Storage.PersistentData;
 
 internal class PersistentDataPoint(IEncodableDataFactory valueFactory) : IPersistentDataPoint
 {
+    private const string UninitializedValue = "[UNINITIALIZED DATA POINT]";
+    
     private IEncodablePersistentData? _materializedValue;
     private IPersistentDataTranscoder? _lastTranscoder;
     private object? _encodedValue;
@@ -13,6 +15,7 @@ internal class PersistentDataPoint(IEncodableDataFactory valueFactory) : IPersis
         _materializedValue?.OnInvalidated -= ChildInvalidated;
         _materializedValue = null;
         _encodedValue = null;
+        OnInvalidated?.Invoke(this, EventArgs.Empty);
     }
 
     public T GetOrCreateCollection<T>(T? knownValue) where T : class, IEncodablePersistentData
@@ -31,6 +34,7 @@ internal class PersistentDataPoint(IEncodableDataFactory valueFactory) : IPersis
         
         newCollection.OnInvalidated += ChildInvalidated;
         _materializedValue = newCollection;
+        OnInvalidated?.Invoke(this, EventArgs.Empty);
         return newCollection;
     }
 
@@ -50,6 +54,7 @@ internal class PersistentDataPoint(IEncodableDataFactory valueFactory) : IPersis
             deserializationContext);
         newValue.OnInvalidated += ChildInvalidated;
         _materializedValue = newValue;
+        OnInvalidated?.Invoke(this, EventArgs.Empty);
         return newValue;
     }
 
@@ -70,6 +75,7 @@ internal class PersistentDataPoint(IEncodableDataFactory valueFactory) : IPersis
         
         newValue.OnInvalidated += ChildInvalidated;
         _materializedValue = newValue;
+        OnInvalidated?.Invoke(this, EventArgs.Empty);
         return newValue;
     }
 
@@ -78,7 +84,7 @@ internal class PersistentDataPoint(IEncodableDataFactory valueFactory) : IPersis
         if (_materializedValue is null)
         {
             _lastTranscoder = transcoder;
-            return _encodedValue ?? throw new InvalidOperationException("Cannot encode uninitialized data point");
+            return _encodedValue ?? UninitializedValue;
         }
 
         if (ReferenceEquals(transcoder, _lastTranscoder) && _encodedValue is not null)
@@ -94,7 +100,7 @@ internal class PersistentDataPoint(IEncodableDataFactory valueFactory) : IPersis
     public void Decode(IPersistentDataTranscoder transcoder, object encoded)
     {
         _lastTranscoder = transcoder;
-        if (ReferenceEquals(_encodedValue, encoded)) return;
+        if (ReferenceEquals(_encodedValue, encoded) || Equals(encoded, UninitializedValue)) return;
         
         _encodedValue = encoded;
         _materializedValue?.Decode(transcoder, encoded);

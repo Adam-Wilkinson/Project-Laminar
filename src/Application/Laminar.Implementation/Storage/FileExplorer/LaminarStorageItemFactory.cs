@@ -45,7 +45,7 @@ internal partial class LaminarStorageItemFactory(
         var isFolder = persistentDictionary[IsFolder].GetValueOrDefault(fileSystem.IsDirectory(newItemPath));
         
         LaminarStorageItem newItem = isFolder.Value
-            ? new LaminarStorageFolder(internalParent, this, fileSystem, persistentDictionary, persistentDataManager, logger)
+            ? new LaminarStorageFolder(internalParent, this, fileSystem, persistentDictionary, logger)
             : new LaminarStorageFile(internalParent, fileSystem, persistentDictionary, logger);
         
         RegisterNewItem(newItem);

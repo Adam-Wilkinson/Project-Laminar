@@ -13,6 +13,7 @@ internal class PersistentList(IEncodableDataFactory dataFactory) : IPersistentLi
         var newValue = dataFactory.GetDataPoint();
         newValue.OnInvalidated += OnChildInvalidated;
         _internalValues.Add(newValue);
+        OnInvalidated?.Invoke(this, EventArgs.Empty);
         return newValue;
     }
 
@@ -21,6 +22,7 @@ internal class PersistentList(IEncodableDataFactory dataFactory) : IPersistentLi
         IPersistentDataPoint newValue = dataFactory.GetDataPoint();
         newValue.OnInvalidated += OnChildInvalidated;
         _internalValues.Insert(index, newValue);
+        OnInvalidated?.Invoke(this, EventArgs.Empty);
         return newValue;
     }
 

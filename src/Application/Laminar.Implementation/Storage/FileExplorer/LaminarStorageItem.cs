@@ -65,11 +65,9 @@ internal abstract class LaminarStorageItem : ILaminarStorageItem
 
     public virtual bool IsEffectivelyEnabled => IsEnabled && (ParentFolder is null || ParentFolder.IsEffectivelyEnabled);
     
-    public bool NeedsName { get; set => SetField(ref field, value); }
-    
     public event EventHandler? RootFolderDisposed;
 
-    protected void OnParentRootFolderDisposed(object? sender, EventArgs e) => RootFolderDisposed?.Invoke(sender, e);
+    protected virtual void OnParentRootFolderDisposed(object? sender, EventArgs e) => RootFolderDisposed?.Invoke(sender, e);
 
     public ILaminarStorageFolder? ParentFolder { get; private set; }
 

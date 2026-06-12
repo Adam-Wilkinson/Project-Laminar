@@ -1,9 +1,9 @@
-using System.Collections.Specialized;
 using Laminar.Contracts.Storage.FileExplorer;
 using Laminar.Contracts.Storage.IO;
 using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.Notification.Collections;
 using Laminar.Domain.ValueObjects;
+using Laminar.Implementation.Storage.PersistentData;
 using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.Storage.FileExplorer;
@@ -12,24 +12,20 @@ internal class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
 {
     private readonly ILaminarStorageItemFactory _factory;
     private readonly IFileSystem _fileSystem;
-    private readonly IPersistentDataManager _persistentDataManager;
     
     private SourcedObservableCollection<ILaminarStorageItem>? _contentsInternal;
-    private bool _persistentContentsDirty = true;
-    private bool _isRefreshing;
+    private IDisposable? _contentsChangedSubscription;
     
     protected LaminarStorageFolder(
         FileSystemPath fileSystemPath,
         ILaminarStorageItemFactory factory,
         IFileSystem fileSystem,
         IPersistentDictionary persistentData,
-        IPersistentDataManager persistentDataManager,
         ILogger<LaminarStorageItem> logger)
         : base(fileSystem, logger, persistentData, fileSystemPath.NameAndExtension)
     {
         _fileSystem = fileSystem;
         _factory = factory;
-        _persistentDataManager = persistentDataManager;
         
         if (!fileSystem.Exists(fileSystemPath))
         {
@@ -44,10 +40,9 @@ internal class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
         ILaminarStorageItemFactory factory, 
         IFileSystem fileSystem, 
         IPersistentDictionary persistentData,
-        IPersistentDataManager persistentDataManager,
         ILogger<LaminarStorageItem> logger) 
         : this(parent.Path.ChildPath(persistentData[NameKey].GetValue<string>().Value), 
-            factory, fileSystem, persistentData, persistentDataManager, logger)
+            factory, fileSystem, persistentData, logger)
     {
         SetParent(parent);
         Refresh();
@@ -61,26 +56,23 @@ internal class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
         {
             if (_contentsInternal is not null) return _contentsInternal;
 
-            _contentsInternal = new SourcedObservableCollection<ILaminarStorageItem>(PersistentStorage[nameof(Contents)]
+            _contentsInternal = new SourcedObservableCollection<ILaminarStorageItem>([]);
+
+            var persistenceSubscription = PersistentStorage[nameof(Contents)]
                 .GetOrCreateCollection<IPersistentList>()
-                .Select(x => _factory.FromPersistentData(x.GetOrCreateCollection<IPersistentDictionary>(), this)));
+                .InitializeAndSyncTo(_contentsInternal,
+                    new EncodableDataAdapter<ILaminarStorageItem, IPersistentDictionary>(
+                        item => ((LaminarStorageItem)item).PersistentStorage,
+                        storage => _factory.FromPersistentData(storage, this)
+                    ));
+
+            var forEachSubscription =
+                _contentsInternal.SubscribeForEach(item => ((LaminarStorageItem)item).SetParent(this));
             
-            _contentsInternal.CollectionChanged += OnContentsChanged;
+            _contentsChangedSubscription = new CompositeDisposable(persistenceSubscription, forEachSubscription);
             Refresh();
             return _contentsInternal;
         }
-    }
-
-    private void OnContentsChanged(object? sender, NotifyCollectionChangedEventArgs e)
-    {
-        if (_isRefreshing) return;
-        _persistentContentsDirty = true;
-        foreach (var item in e.NewItems?.Cast<LaminarStorageItem>() ?? [])
-        {
-            item.SetParent(this);
-        }
-        
-        SyncContentsToPersistentData();
     }
 
     public bool IsExpanded
@@ -107,31 +99,17 @@ internal class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
     protected override void RefreshOverride()
     { 
         if (_contentsInternal is null) return;
-        _isRefreshing = true;
         _contentsInternal.ChangeSourceTo(GetChildren(), SourcedCollectionMode.SetEquality);
         foreach (var child in Contents)
         {
             child.Refresh();
         }
-
-        _isRefreshing = false;
-        SyncContentsToPersistentData();
     }
 
-    private void SyncContentsToPersistentData()
+    protected override void OnParentRootFolderDisposed(object? sender, EventArgs e)
     {
-        if (!_persistentContentsDirty || _contentsInternal is null) return;
-
-        var newPersistentList = _persistentDataManager.GetHeadless<IPersistentList>();
-        foreach (var child in _contentsInternal.Cast<LaminarStorageItem>())
-        {
-            newPersistentList.AddNext().GetOrCreateCollection(child.PersistentStorage);
-        }
-        
-        PersistentStorage[nameof(Contents)].Reset();
-        PersistentStorage[nameof(Contents)].GetOrCreateCollection(newPersistentList);
-
-        _persistentContentsDirty = false;
+        _contentsChangedSubscription?.Dispose();
+        base.OnParentRootFolderDisposed(sender, e);
     }
 
     private IEnumerable<ILaminarStorageItem> GetChildren()
