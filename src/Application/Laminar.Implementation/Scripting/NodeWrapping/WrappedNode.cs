@@ -33,10 +33,9 @@ public sealed class WrappedNode : IWrappedNode, IDisposable
         Rows = new FlattenedObservableTree<INodeRow>(node.Components);
         _rowsChangedSubscription = Rows.SubscribeForEach(RegisterRow, RowRemoved);
 
-        _persistentRowsSynchronizer = new PersistentListSynchronizer<INodeRow>(
-            persistentDictionary[nameof(Rows)].GetOrCreateCollection<IPersistentList>(),
-            Rows,
-            new PersistentValueAdapter<INodeRow>(row => row.GetType())
+        _persistentRowsSynchronizer = persistentDictionary[nameof(Rows)]
+            .GetOrCreateCollection<IPersistentList>()
+            .InitializeAndSyncTo(Rows, new PersistentValueAdapter<INodeRow>(row => row.GetType())
             {
                 Mode = PersistenceAdapterMode.Hydrate
             });

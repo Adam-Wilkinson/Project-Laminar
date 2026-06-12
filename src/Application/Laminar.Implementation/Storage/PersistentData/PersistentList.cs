@@ -1,5 +1,6 @@
 using System.Collections;
 using Laminar.Contracts.Storage.PersistentData;
+using Laminar.Domain.Notification.Collections;
 
 namespace Laminar.Implementation.Storage.PersistentData;
 
@@ -50,6 +51,9 @@ internal class PersistentList(IEncodableDataFactory dataFactory) : IPersistentLi
         _internalValues.Clear();
         OnInvalidated?.Invoke(this, EventArgs.Empty);
     }
+
+    public IDisposable InitializeAndSyncTo<T>(IReadOnlyObservableCollection<T> target, IPersistenceAdapter<T> adapter)
+        => new PersistentListSynchronizer<T>(this, target, adapter);
 
     private void OnChildInvalidated(object? sender, EventArgs e)
     {

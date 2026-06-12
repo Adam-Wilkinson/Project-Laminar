@@ -4,7 +4,7 @@ using Laminar.Domain.Notification.Collections;
 
 namespace Laminar.Implementation.Storage.PersistentData;
 
-public sealed class PersistentListSynchronizer<T> : IDisposable
+internal sealed class PersistentListSynchronizer<T> : IDisposable
 {
     private readonly INotifyCollectionChanged _notifyCollectionChanged;
     private readonly IPersistenceAdapter<T> _persistenceAdapter;

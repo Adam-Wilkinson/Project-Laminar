@@ -1,3 +1,5 @@
+using Laminar.Domain.Notification.Collections;
+
 namespace Laminar.Contracts.Storage.PersistentData;
 
 public interface IPersistentList : IEncodablePersistentData, IReadOnlyList<IPersistentDataPoint> 
@@ -11,4 +13,6 @@ public interface IPersistentList : IEncodablePersistentData, IReadOnlyList<IPers
     public IPersistentDataPoint RemoveAt(int index);
     
     public void Clear();
+
+    public IDisposable InitializeAndSyncTo<T>(IReadOnlyObservableCollection<T> target, IPersistenceAdapter<T> adapter);
 }
