@@ -8,5 +8,7 @@ public interface ILoadedNodeManager
 {
     public IReadOnlyItemCategory<ILoadedNodeInfo> LoadedNodes { get; }
 
+    public ILoadedNodeInfo? GetInfoFrom(Type nodeType);
+    
     public void AddNodeToCategory<TNode>(string categoryPath, IRegisteredPlugin pluginHost) where TNode : INode, new();
 }

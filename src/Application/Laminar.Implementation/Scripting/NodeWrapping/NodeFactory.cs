@@ -11,10 +11,41 @@ using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
 namespace Laminar.Implementation.Scripting.NodeWrapping;
 
-public class NodeFactory(IEncodableDataFactory dataFactory) : INodeFactory
+public class NodeFactory(
+    IEncodableDataFactory dataFactory,
+    ILoadedNodeManager loadedNodeManager,
+    IPluginRegistry pluginRegistry) : INodeFactory
 {
     private const string PluginKey = "Plugin";
     private const string TypeKey = "Type";
+
+    public IWrappedNode FromPersistentData(IPersistentDictionary persistentDictionary,
+        INotificationClient<LaminarExecutionContext>? userChangedValueClient = null)
+    {
+        string pluginName = persistentDictionary[PluginKey].GetValue<string>().Value;
+        string nodeTypeName = persistentDictionary[TypeKey].GetValue<string>().Value;
+        
+        var plugin = pluginRegistry.GetPluginFromName(pluginName);
+        var pluginType = plugin.RuntimeAssembly.GetType(nodeTypeName);
+
+        if (pluginType is null)
+        {
+            throw new InvalidOperationException($"Unable to find node type {nodeTypeName} in plugin {pluginName}");
+        }
+        
+        if (loadedNodeManager.GetInfoFrom(pluginType) is not { } loadedNodeInfo)
+        {
+            throw new InvalidOperationException($"Unable to get node info for type {pluginType}");
+        }
+        
+        return FromNodeInfo(loadedNodeInfo, userChangedValueClient);
+    }
+    
+    public IWrappedNode FromNodeInfo(ILoadedNodeInfo nodeInfo,
+        INotificationClient<LaminarExecutionContext>? userChangedValueClient = null)
+    {
+        return WrapNode(nodeInfo.CreateInstance(), userChangedValueClient);
+    }
     
     public IWrappedNode CreateMatchingNode(IWrappedNode node, INotificationClient<LaminarExecutionContext>? userChangedValueClient = null)
     {

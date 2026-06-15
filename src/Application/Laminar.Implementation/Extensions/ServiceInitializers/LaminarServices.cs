@@ -1,4 +1,3 @@
-using System.Runtime.Loader;
 using Laminar.Contracts.Base;
 using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.Base.PluginLoading;
@@ -14,7 +13,6 @@ using Laminar.Implementation.Storage.FileExplorer;
 using Laminar.Implementation.Storage.PersistentData;
 using Laminar.Implementation.Storage.Serialization;
 using Laminar.Implementation.Storage.IO;
-using Laminar.PluginFramework.Registration;
 using Laminar.PluginFramework.Serialization;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -23,9 +21,7 @@ namespace Laminar.Implementation.Extensions.ServiceInitializers;
 public static class LaminarServices
 {
     public static IServiceCollection AddLaminarServices(
-        this IServiceCollection services, 
-        FrontendDependency frontendDependency,
-        AssemblyLoadContext? defaultLoadContext) => services
+        this IServiceCollection services) => services
             .AddSingleton<IPersistentDataManager, PersistentDataManager>()
             .AddTransient<IPersistentDictionary, PersistentDictionary>()
             .AddTransient<IPersistentList, PersistentList>()
@@ -38,8 +34,11 @@ public static class LaminarServices
             .AddSingleton<IDataInterfaceFactory, DataInterfaceFactory>()
             .AddSingleton<ITypeInfoStore, TypeInfoStore>()
             
+            .AddSingleton<IPluginStartupService, PluginStartupService>()
+            .AddSingleton<IPluginLoader, PluginLoader>()
             .AddSingleton<IPluginHostFactory, PluginHostFactory>()
-            .AddSingleton<IPluginLoader>(provider => ActivatorUtilities.CreateInstance<PluginLoader>(provider, frontendDependency, defaultLoadContext ?? AssemblyLoadContext.Default))
+            .AddSingleton<IWritablePluginRegistry, PluginRegistry>()
+            .AddSingleton<IPluginRegistry>(provider => provider.GetRequiredService<IWritablePluginRegistry>())
             
             .AddSingleton<ILaminarStorageItemFactory, LaminarStorageItemFactory>()
             .AddSingleton<IDeletedStorageItemCache, DeletedStorageItemCache>()

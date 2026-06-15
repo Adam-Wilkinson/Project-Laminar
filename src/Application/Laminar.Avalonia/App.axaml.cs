@@ -47,7 +47,7 @@ public partial class App : Application
             desktop.MainWindow = MainWindow;
             
             var services = new ServiceCollection()
-                .AddLaminarServices(FrontendDependency.Avalonia, DefaultLoadContext)
+                .AddLaminarServices()
                 .AddViewModels()
                 .AddDescendantsSingleton<IBeforeApplicationBuiltTarget>()
                 .AddDescendantsSingleton<IAfterApplicationBuiltTarget>()
@@ -69,7 +69,7 @@ public partial class App : Application
                 .AddSingleton<Contracts.Base.IDispatcher, AvaloniaDispatcher>()
                 .BuildServiceProvider();
             
-            services.InitializeLaminar<App>();
+            services.InitializeLaminar<App>(FrontendDependency.Avalonia, DefaultLoadContext);
             services.GetServices<IBeforeApplicationBuiltTarget>().Initialize();
             desktop.MainWindow.DataContext = services.GetRequiredService<MainWindowViewModel>();
             services.GetServices<IAfterApplicationBuiltTarget>().Initialize();

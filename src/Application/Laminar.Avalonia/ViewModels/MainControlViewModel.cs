@@ -1,11 +1,8 @@
-using Avalonia.Controls;
-using Avalonia.Controls.Templates;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Laminar.Avalonia.ViewModels.Services;
 using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Domain;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Laminar.Avalonia.ViewModels;
 
@@ -14,12 +11,16 @@ public partial class MainControlViewModel : ViewModelBase, IDisposable
     private readonly ScopedViewModel<FileNavigatorViewModel> _scopedFileNavigator;
     private readonly ScopedViewModel<ScriptEditorViewModel> _scopedScriptEditor;
 
-    public MainControlViewModel(IServiceProvider serviceProvider, ILoadedNodeManager loadedNodeManager, IScriptFactory scriptFactory)
+    public MainControlViewModel(
+        IServiceProvider serviceProvider, 
+        ILoadedNodeManager loadedNodeManager,
+        INodeFactory nodeFactory,
+        IScriptFactory scriptFactory)
     {
         _scopedFileNavigator = new ScopedViewModel<FileNavigatorViewModel>(serviceProvider);
         _scopedScriptEditor = new ScopedViewModel<ScriptEditorViewModel>(serviceProvider, scriptFactory.CreateScript());
         OnExpandedSidebarWidthChanged(ExpandedSidebarWidth);
-        LoadedNodes = loadedNodeManager.LoadedNodes.RecursiveMap(nodeInfo => nodeInfo.CreateInstance());
+        LoadedNodes = loadedNodeManager.LoadedNodes.RecursiveMap(nodeInfo => nodeFactory.FromNodeInfo(nodeInfo));
     }
 
     public IReadOnlyItemCategory<object> LoadedNodes { get; }
