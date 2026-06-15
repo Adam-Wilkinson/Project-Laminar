@@ -1,4 +1,5 @@
-﻿using Laminar.Contracts.Scripting.NodeWrapping;
+﻿using Laminar.Contracts.Base.PluginLoading;
+using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Domain;
 using Laminar.PluginFramework.NodeSystem;
 
@@ -6,12 +7,13 @@ namespace Laminar.Implementation.Scripting.NodeWrapping;
 
 public class LoadedNodeManager(INodeFactory nodeFactory) : ILoadedNodeManager
 {
-    public ItemCategory<IWrappedNode> LoadedNodes { get; } = new("root");
+    private readonly ItemCategory<ILoadedNodeInfo> _writableLoadedNodes = new ("root");
+    
+    public IReadOnlyItemCategory<ILoadedNodeInfo> LoadedNodes => _writableLoadedNodes;
 
-    public void AddNodeToCategory<TNode>(TNode newNode, string categoryPath)
+    public void AddNodeToCategory<TNode>(string categoryPath, IRegisteredPlugin pluginHost)
         where TNode : INode, new()
     {
-        var container = nodeFactory.WrapNode(newNode, null);
-        LoadedNodes.AddItem(container, categoryPath);
+        _writableLoadedNodes.AddItem(new LoadedNodeInfo<TNode>(pluginHost, nodeFactory), categoryPath);
     }
 }

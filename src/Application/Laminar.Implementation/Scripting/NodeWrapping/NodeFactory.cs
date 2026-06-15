@@ -1,4 +1,5 @@
-﻿using Laminar.Contracts.Scripting.NodeWrapping;
+﻿using Laminar.Contracts.Base.PluginLoading;
+using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.Notification;
 using Laminar.Implementation.Base.UserInterface;
@@ -12,6 +13,9 @@ namespace Laminar.Implementation.Scripting.NodeWrapping;
 
 public class NodeFactory(IEncodableDataFactory dataFactory) : INodeFactory
 {
+    private const string PluginKey = "Plugin";
+    private const string TypeKey = "Type";
+    
     public IWrappedNode CreateMatchingNode(IWrappedNode node, INotificationClient<LaminarExecutionContext>? userChangedValueClient = null)
     {
         if (node is not WrappedNode wrapped || Activator.CreateInstance(wrapped.CoreNode.GetType()) is not INode newNode) 

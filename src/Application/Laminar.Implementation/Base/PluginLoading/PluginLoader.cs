@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.Base.PluginLoading;
 
-public class PluginLoader(
+internal sealed class PluginLoader(
     FrontendDependency frontend,
     AssemblyLoadContext defaultLoadContext,
     IPluginHostFactory pluginHostFactory, 
@@ -45,7 +45,9 @@ public class PluginLoader(
             }
         }
     }
-    
+
+    public IRegisteredPlugin GetPluginFor(INode node) => _registeredPlugins.Values.First(plugin => plugin.ContainsNode(node));
+
     private void EnsureModuleLoaded(Module module)
     {
         if (module.GetCustomAttribute<HasFrontendDependencyAttribute>() is { } attr && attr.FrontendDependency != frontend)
@@ -72,48 +74,5 @@ public class PluginLoader(
         RegisteredPlugin registeredPlugin = new(plugin, pluginHostFactory);
         registeredPlugin.Load();
         _registeredPlugins.Add(registeredPlugin.PluginName, registeredPlugin);
-    }
-
-    private class RegisteredPlugin : IRegisteredPlugin
-    {
-        private readonly IPluginHost _host;
-        private readonly IPlugin _plugin;
-        private readonly Dictionary<string, Type> _registeredNodesByName = [];
-        private readonly HashSet<Type> _registeredNodes = [];
-
-        public RegisteredPlugin(IPlugin plugin, IPluginHostFactory pluginHostFactory)
-        {
-            _host = pluginHostFactory.GetPluginHost(this);
-            _plugin = plugin;
-            PluginName = plugin.PluginName;
-            PluginDescription = plugin.PluginDescription;
-        }
-
-        public string PluginName { get; }
-
-        public string PluginDescription { get; }
-
-        public void RegisterNode(INode node)
-        {
-            _registeredNodes.Add(node.GetType());
-            _registeredNodesByName.Add(node.NodeName, node.GetType());
-        }
-
-        public bool ContainsNode(INode node)
-        {
-            return _registeredNodes.Contains(node.GetType());
-        }
-
-        public IReadOnlyDictionary<string, Type> RegisteredNodes => _registeredNodesByName;
-
-        public void Load()
-        {
-            _plugin.Register(_host);
-        }
-
-        public void Unload()
-        {
-            throw new NotImplementedException();
-        }
     }
 }

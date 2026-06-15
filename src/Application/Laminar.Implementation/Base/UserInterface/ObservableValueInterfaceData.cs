@@ -29,29 +29,3 @@ public class ObservableValueInterfaceData<TEditor, TValue>(IObservableValue<TVal
     
     public void SetValue(TValue newValue) => Value = newValue;
 }
-
-public static class ObservableValueInterfaceDataExtensions
-{
-    extension(IPersistentDictionary persistentDictionary)
-    {
-        public IInterfaceData<TEditor, TValue> GetValueInterface<TEditor, TValue>(string valueName, TEditor definition) 
-            where TEditor : IUserInterfaceDefinition where TValue : notnull
-        {
-            return new ObservableValueInterfaceData<TEditor, TValue>(persistentDictionary[valueName].GetValue<TValue>())
-            {
-                Name = valueName,
-                Definition = definition
-            };
-        }
-        
-        public IInterfaceData<TEditor, TValue> GetValueInterface<TEditor, TValue>(TValue defaultValue, string valueName, TEditor definition) 
-            where TEditor : IUserInterfaceDefinition where TValue : notnull
-        {
-            return new ObservableValueInterfaceData<TEditor, TValue>(persistentDictionary[valueName].GetValueOrDefault(defaultValue))
-            {
-                Name = valueName,
-                Definition = definition
-            };
-        }
-    }
-}
