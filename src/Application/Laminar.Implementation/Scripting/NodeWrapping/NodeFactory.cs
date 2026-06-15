@@ -11,10 +11,7 @@ using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
 namespace Laminar.Implementation.Scripting.NodeWrapping;
 
-public class NodeFactory(
-    IEncodableDataFactory dataFactory,
-    ILoadedNodeManager loadedNodeManager,
-    IPluginRegistry pluginRegistry) : INodeFactory
+public class NodeFactory(IEncodableDataFactory dataFactory, ILoadedNodeManager loadedNodeManager, IPluginRegistry pluginRegistry) : INodeFactory
 {
     private const string PluginKey = "Plugin";
     private const string TypeKey = "Type";
@@ -38,42 +35,28 @@ public class NodeFactory(
             throw new InvalidOperationException($"Unable to get node info for type {pluginType}");
         }
         
-        return FromNodeInfo(loadedNodeInfo, userChangedValueClient);
-    }
-    
-    public IWrappedNode FromNodeInfo(ILoadedNodeInfo nodeInfo,
-        INotificationClient<LaminarExecutionContext>? userChangedValueClient = null)
-    {
-        return WrapNode(nodeInfo.CreateInstance(), userChangedValueClient);
-    }
-    
-    public IWrappedNode CreateMatchingNode(IWrappedNode node, INotificationClient<LaminarExecutionContext>? userChangedValueClient = null)
-    {
-        if (node is not WrappedNode wrapped || Activator.CreateInstance(wrapped.CoreNode.GetType()) is not INode newNode) 
-            throw new InvalidOperationException();
+        var node = loadedNodeInfo.CreateInstance();
         
-        return WrapNode(newNode, userChangedValueClient);
-    }
-
-    public IWrappedNode WrapNode(INode node, INotificationClient<LaminarExecutionContext>? userChangedValueNotificationClient)
-    {
-        var persistentDictionary = dataFactory.GetEncodableData<IPersistentDictionary>();
-        return new WrappedNode(CreateNameRowFor(node, persistentDictionary), node, persistentDictionary)
-        {
-            UserChangedValueNotificationClient = userChangedValueNotificationClient
-        };
-    }
-
-    public IWrappedNode WrapNode<T>(INotificationClient<LaminarExecutionContext>? userChangedValueNotificationClient) where T : INode, new()
-    {
-        T output = new();
-        return WrapNode(output, userChangedValueNotificationClient);
-    }
-
-    private static INodeRow<IInterfaceData<EditableLabel, string>> CreateNameRowFor(INode node, IPersistentDictionary persistentDictionary) => 
-        LaminarFactory.Component.CreateSingleRow(null, new ObservableValueInterfaceData<EditableLabel, string>(persistentDictionary["Name"].GetValueOrDefault(node.NodeName))
+        var nameRow = LaminarFactory.Component.CreateSingleRow(null, new ObservableValueInterfaceData<EditableLabel, string>(persistentDictionary["Name"].GetValueOrInitialize(node.NodeName))
         {
             Name = "",
             Definition = new EditableLabel()
         }, null);
+        
+        return new WrappedNode(node, persistentDictionary)
+        {
+            NameRow = nameRow,
+            Info = loadedNodeInfo,
+            UserChangedValueNotificationClient = userChangedValueClient
+        };
+    }
+
+    public IWrappedNode FromNodeInfo(ILoadedNodeInfo loadedNode, INotificationClient<LaminarExecutionContext>? userChangedValueNotificationClient)
+    {
+        ArgumentNullException.ThrowIfNull(loadedNode.NodeType.FullName);
+        var persistentDictionary = dataFactory.GetEncodableData<IPersistentDictionary>();
+        persistentDictionary[PluginKey].GetValueOrInitialize(loadedNode.Plugin.PluginName);
+        persistentDictionary[TypeKey].GetValueOrInitialize(loadedNode.NodeType.FullName);
+        return FromPersistentData(persistentDictionary, userChangedValueNotificationClient);
+    }
 }

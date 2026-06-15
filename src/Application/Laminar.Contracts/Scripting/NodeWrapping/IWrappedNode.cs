@@ -22,6 +22,8 @@ public interface IWrappedNode : INotificationClient<LaminarExecutionContext>
 
     IObservableValue<Point> Location { get; }
 
+    public ILoadedNodeInfo Info { get; }
+    
     public byte[] ToPersistentValue(IPersistentDataTranscoder dataTranscoder);
     
     void Update(LaminarExecutionContext context);

@@ -49,7 +49,7 @@ public class SettingsSerializer(TopLevel topLevel, IPersistentDataManager persis
     private void SerializeSetting(Setting setting, string settingKey)
     {
         var settingPersistentValue = _settingsDataStore[settingKey]
-            .GetValueOrDefault(setting.Value, serializationKeyOverride: setting.Value.GetType());
+            .GetValueOrInitialize(setting.Value, serializationKeyOverride: setting.Value.GetType());
         
         setting[!Setting.ValueProperty] = settingPersistentValue.ToBinding();
         

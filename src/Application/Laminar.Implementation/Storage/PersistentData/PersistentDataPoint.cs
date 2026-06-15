@@ -58,7 +58,7 @@ internal class PersistentDataPoint(IEncodableDataFactory valueFactory) : IPersis
         return newValue;
     }
 
-    public IPersistentValue<T> GetValueOrDefault<T>(T defaultValue, Type? serializationKeyOverride = null, 
+    public IPersistentValue<T> GetValueOrInitialize<T>(T defaultValue, Type? serializationKeyOverride = null, 
         object? deserializationContext = null) where T : notnull
     {
         if (_materializedValue is not null)

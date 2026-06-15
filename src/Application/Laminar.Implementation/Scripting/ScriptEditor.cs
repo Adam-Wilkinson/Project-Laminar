@@ -3,6 +3,7 @@ using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Scripting.Connection;
 using Laminar.Contracts.Scripting.Execution;
 using Laminar.Contracts.Scripting.NodeWrapping;
+using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.Extensions;
 using Laminar.Domain.ValueObjects;
 using Laminar.Implementation.Base.ActionSystem;
@@ -21,9 +22,19 @@ internal class ScriptEditor(
     
     public IUserAction AddMatchingNodeAction(IScript script, IWrappedNode node, Point location)
     {
-        IWrappedNode newNode = nodeFactory.CreateMatchingNode(node, script.ExecutionInstance);
+        IWrappedNode newNode = nodeFactory.FromNodeInfo(node.Info, script.ExecutionInstance);
         newNode.Location.Value = location;
         return new AddNodeAction(newNode, (INodeTree)script.NodeTreeView);
+    }
+
+    public IUserAction PasteFromPersistentDataAction(IScript script, IEncodablePersistentData data)
+    {
+        if (data is not IPersistentDictionary persistentDictionary)
+            throw new InvalidOperationException();
+        
+        var node = nodeFactory.FromPersistentData(persistentDictionary, script.ExecutionInstance);
+        node.Location.Value += new Point { X = 50, Y = 50 };
+        return new AddNodeAction(node, (INodeTree)script.NodeTreeView);
     }
 
     public IUserAction? FindBridgeConnectorsAction(IScript script, IConnector connectorOne, IConnector connectorTwo)

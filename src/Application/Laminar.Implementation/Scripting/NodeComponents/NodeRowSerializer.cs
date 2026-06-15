@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Laminar.PluginFramework.NodeSystem.Components;
 using Laminar.PluginFramework.Serialization;
 
@@ -34,11 +35,15 @@ public class NodeRowSerializer(ISerializer serializer) : INotifyingConditionalSe
             throw new InvalidOperationException();
         }
         
-        return serializer.DeserializeObject(request with
+        var centralDisplay = serializer.DeserializeObject(request with
         {
             ExistingInstance = existingNodeRow.CentralDisplay,
             TargetType = existingNodeRow.CentralDisplay.GetType()
         });
+
+        Debug.Assert(ReferenceEquals(centralDisplay, existingNodeRow.CentralDisplay));
+        
+        return existingNodeRow;
     }
 
     public INotifySerializedValueChanged GetSerializedValueChangedNotifier(object target) 

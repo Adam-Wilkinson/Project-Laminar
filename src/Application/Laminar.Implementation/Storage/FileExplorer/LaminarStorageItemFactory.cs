@@ -42,7 +42,7 @@ internal partial class LaminarStorageItemFactory(
             return recentDeletion;
         }
 
-        var isFolder = persistentDictionary[IsFolder].GetValueOrDefault(fileSystem.IsDirectory(newItemPath));
+        var isFolder = persistentDictionary[IsFolder].GetValueOrInitialize(fileSystem.IsDirectory(newItemPath));
         
         LaminarStorageItem newItem = isFolder.Value
             ? new LaminarStorageFolder(internalParent, this, fileSystem, persistentDictionary, logger)
@@ -62,8 +62,8 @@ internal partial class LaminarStorageItemFactory(
         }
 
         IPersistentDictionary persistentData = persistentDataManager.GetHeadless<IPersistentDictionary>();
-        persistentData[LaminarStorageItem.NameKey].GetValueOrDefault(itemNameAndExtension);
-        persistentData[IsFolder].GetValueOrDefault(isFolder);
+        persistentData[LaminarStorageItem.NameKey].GetValueOrInitialize(itemNameAndExtension);
+        persistentData[IsFolder].GetValueOrInitialize(isFolder);
         return FromPersistentData(persistentData, parent);
     }
 

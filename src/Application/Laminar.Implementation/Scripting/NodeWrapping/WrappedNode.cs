@@ -15,20 +15,20 @@ namespace Laminar.Implementation.Scripting.NodeWrapping;
 
 public sealed class WrappedNode : IWrappedNode, IDisposable
 {
+    private readonly INode _coreNode;
     private readonly IDisposable _rowsChangedSubscription;
     private readonly IDisposable _persistentRowsSynchronizer;
     private readonly IPersistentDictionary _persistentDictionary;
     private Action? _preEvaluateAction;
     
-    public WrappedNode(INodeRow<IInterfaceData<EditableLabel, string>> nameRow, INode node, IPersistentDictionary persistentDictionary)
+    public WrappedNode(INode node, IPersistentDictionary persistentDictionary)
     {
-        CoreNode = node;
-        NameRow = nameRow;
+        _coreNode = node;
         _persistentDictionary = persistentDictionary;
         
-        Id = persistentDictionary[nameof(Id)].GetValueOrDefault(GuidIdentifier<IWrappedNode>.New()).Value;
-        IsCollapsed = persistentDictionary[nameof(IsCollapsed)].GetValueOrDefault(false);
-        Location = persistentDictionary[nameof(Location)].GetValueOrDefault(new Point {X = 0, Y = 0});
+        Id = persistentDictionary[nameof(Id)].GetValueOrInitialize(GuidIdentifier<IWrappedNode>.New()).Value;
+        IsCollapsed = persistentDictionary[nameof(IsCollapsed)].GetValueOrInitialize(false);
+        Location = persistentDictionary[nameof(Location)].GetValueOrInitialize(new Point {X = 0, Y = 0});
         
         Rows = new FlattenedObservableTree<INodeRow>(node.Components);
         _rowsChangedSubscription = Rows.SubscribeForEach(RegisterRow, RowRemoved);
@@ -48,10 +48,10 @@ public sealed class WrappedNode : IWrappedNode, IDisposable
 
     public INotificationClient<LaminarExecutionContext>? UserChangedValueNotificationClient { get; set; }
 
-    public INode CoreNode { get; }
+    public required INodeRow<IInterfaceData<EditableLabel, string>> NameRow { get; init; }
 
-    public INodeRow<IInterfaceData<EditableLabel, string>> NameRow { get; }
-    
+    public required ILoadedNodeInfo Info { get; init; }
+
     public IReadOnlyObservableCollection<INodeRow> Rows { get; set; }
 
     public IObservableValue<bool> IsCollapsed { get; }
@@ -84,7 +84,7 @@ public sealed class WrappedNode : IWrappedNode, IDisposable
     {
         _preEvaluateAction?.Invoke();
 
-        CoreNode.Evaluate();
+        _coreNode.Evaluate();
 
         if (!context.ExecutionFlags.IsUiUpdate) return;
         
@@ -132,7 +132,7 @@ public sealed class WrappedNode : IWrappedNode, IDisposable
         TriggerNotification(e);
     }
 
-    public override string ToString() => $"{NameRow.CentralDisplay.Value} ({CoreNode})";
+    public override string ToString() => $"{NameRow.CentralDisplay.Value} ({_coreNode})";
 
     public void Dispose()
     {

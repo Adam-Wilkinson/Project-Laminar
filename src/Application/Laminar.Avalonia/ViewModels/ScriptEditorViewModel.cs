@@ -24,6 +24,7 @@ public partial class ScriptEditorViewModel(
     IScript script, 
     IScriptEditor editor, 
     IUserActionManager userActionManager,
+    IEncodableDataFactory dataFactory,
     TopLevel topLevel)
     : DropTargetViewModel, IConnectionInteractionHandler, IClipboardProvider
 {
@@ -121,7 +122,7 @@ public partial class ScriptEditorViewModel(
         OnPropertyChanged(nameof(CanCopyToClipboard));
     }
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanCopyToClipboard))]
     private async Task CopyToClipboard()
     {
         if (CurrentSelection?.FirstOrDefault(x => x is ScriptEditorItemModel) is not 
@@ -133,5 +134,23 @@ public partial class ScriptEditorViewModel(
         await clipboard.SetDataAsync(transfer);
     }
 
-    public bool CanCopyToClipboard => CurrentSelection is not null && CurrentSelection.OfType<IWrappedNode>().Any();
+    [RelayCommand]
+    private async Task PasteFromClipboard()
+    {
+        if (topLevel.Clipboard is not { } clipboard) return;
+
+        var result = await clipboard.TryGetDataAsync();
+        if (result is null) return;
+        foreach (var transferItem in result.Items)
+        {
+            var stringResult = await transferItem.TryGetTextAsync();
+            if (stringResult is null) continue;
+            var dictionary = dataFactory.GetEncodableData<IPersistentDictionary>();
+            dictionary.Decode(DefaultClipboardTranscoder, DefaultClipboardTranscoder.BytesToElement(Encoding.UTF8.GetBytes(stringResult))!);
+            var pasteAction = editor.PasteFromPersistentDataAction(script, dictionary);
+            await userActionManager.ExecuteAction(pasteAction);
+        }
+    }
+
+    public bool CanCopyToClipboard => CurrentSelection is not null && CurrentSelection.Any(x => x is ScriptEditorItemModel { CoreElement: IWrappedNode });
 }

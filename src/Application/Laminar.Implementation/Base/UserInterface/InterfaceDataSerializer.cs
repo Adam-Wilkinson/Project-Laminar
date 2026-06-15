@@ -58,12 +58,21 @@ public class InterfaceDataSerializer<T>(ISerializer serializer) : TypeSerializer
         var existingValue = existingInstance is IPersistenceOverrideInterfaceData<T> persistenceOverride
             ? persistenceOverride.PersistentValue
             : existingInstance.Value;
-            
-        existingInstance.SetValue(serializer.DeserializeObject(request with
+
+        T newValue = (T)serializer.DeserializeObject(request with
         {
-            TargetType = typeof(T), 
+            TargetType = typeof(T),
             ExistingInstance = existingValue,
-        }));
+        });
+
+        if (existingInstance.IsUserEditable)
+        {
+            existingInstance.Value = newValue;
+        }
+        else
+        {
+            existingInstance.SetValue(newValue);
+        }
         
         return existingInstance;
     }

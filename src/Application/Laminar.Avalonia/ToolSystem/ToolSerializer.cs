@@ -54,7 +54,7 @@ public class ToolSerializer(TopLevel topLevel, IPersistentDataManager persistent
 
         var currentToolDataStore = _toolDataStore[uniqueToolKey].GetOrCreateCollection<IPersistentDictionary>();
         
-        var persistentGestureValue = currentToolDataStore[KeyGesture].GetValueOrDefault(tool.Gesture);
+        var persistentGestureValue = currentToolDataStore[KeyGesture].GetValueOrInitialize(tool.Gesture);
 
         tool[!Tool.GestureProperty] = persistentGestureValue.ToBinding();
 
@@ -63,7 +63,7 @@ public class ToolSerializer(TopLevel topLevel, IPersistentDataManager persistent
             persistentGestureValue.Reset();
         };
         
-        var persistentQuickAccess = currentToolDataStore[QuickAccess].GetValueOrDefault(tool.QuickAccess);
+        var persistentQuickAccess = currentToolDataStore[QuickAccess].GetValueOrInitialize(tool.QuickAccess);
         
         tool.QuickAccess.Clear();
         tool.QuickAccess.AddRange(persistentQuickAccess.Value);

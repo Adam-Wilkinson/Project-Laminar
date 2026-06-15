@@ -20,6 +20,8 @@
     <t:ToolMenu.ContextToolbox>
         <t:Toolbox NameKey="Script Editor" DataType="vm:ScriptEditorViewModel">
             <StaticResource ResourceKey="Tools.ScriptEditor.DeleteSelection"/>
+            <StaticResource ResourceKey="Tools.Edit.Copy"/>
+            <StaticResource ResourceKey="Tools.Edit.Paste"/>
         </t:Toolbox>
     </t:ToolMenu.ContextToolbox>
     
@@ -49,8 +51,8 @@
         
         <sam:SelectAndMove.Styles>
             <Style Selector="sam|SelectAndMove > ContentPresenter" x:DataType="vm:ScriptEditorItemModel">
-                <Setter Property="Canvas.Left" Value="{Binding Position.X}"/>
-                <Setter Property="Canvas.Top" Value="{Binding Position.Y}"/>
+                <Setter Property="Canvas.Left" Value="{Binding Left, Mode=TwoWay}"/>
+                <Setter Property="Canvas.Top" Value="{Binding Top, Mode=TwoWay}"/>
                 <Setter Property="ClipToBounds" Value="False"/>
                 <Setter Property="sam:Selection.IsSelectable" Value="{Binding IsSelectable}"/>
                 <Setter Property="sam:Selection.IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>

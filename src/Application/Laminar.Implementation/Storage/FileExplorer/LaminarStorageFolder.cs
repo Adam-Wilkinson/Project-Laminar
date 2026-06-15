@@ -32,7 +32,7 @@ internal class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
             fileSystem.CreateDirectory(fileSystemPath);
         }
         
-        IsExpanded = PersistentStorage[nameof(IsExpanded)].GetValueOrDefault(false).Value;
+        IsExpanded = PersistentStorage[nameof(IsExpanded)].GetValueOrInitialize(false).Value;
     }
     
     public LaminarStorageFolder(

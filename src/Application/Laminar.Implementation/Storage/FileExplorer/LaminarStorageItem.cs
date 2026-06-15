@@ -27,11 +27,11 @@ internal abstract class LaminarStorageItem : ILaminarStorageItem
         if (!PersistentStorage.ContainsKey(NameKey))
         {
             ArgumentNullException.ThrowIfNull(nameWithExtension);
-            PersistentStorage[NameKey].GetValueOrDefault(nameWithExtension);
+            PersistentStorage[NameKey].GetValueOrInitialize(nameWithExtension);
         }
 
         _nameWithExtension = PersistentStorage[NameKey].GetValue<string>().Value;
-        _isEnabled = PersistentStorage[nameof(IsEnabled)].GetValueOrDefault(true).Value;
+        _isEnabled = PersistentStorage[nameof(IsEnabled)].GetValueOrInitialize(true).Value;
     }
 
     protected ILogger<LaminarStorageItem> Logger { get; }

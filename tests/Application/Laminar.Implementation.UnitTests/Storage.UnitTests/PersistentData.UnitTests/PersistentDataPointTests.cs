@@ -16,7 +16,7 @@ public class PersistentDataPointTests
 
             var sut = new PersistentDataPoint(valueFactory);
 
-            sut.GetValueOrDefault("default");
+            sut.GetValueOrInitialize("default");
 
             sut.Reset();
 
@@ -24,7 +24,7 @@ public class PersistentDataPointTests
             valueFactory.GetValueWithDefault("default", null, null)
                 .Returns(replacement);
 
-            sut.GetValueOrDefault("default")
+            sut.GetValueOrInitialize("default")
                 .Should()
                 .BeSameAs(replacement);
         }
@@ -231,7 +231,7 @@ public class PersistentDataPointTests
 
             var sut = new PersistentDataPoint(factory);
 
-            var result = sut.GetValueOrDefault("default");
+            var result = sut.GetValueOrInitialize("default");
 
             result.Should().BeSameAs(value);
         }
@@ -249,7 +249,7 @@ public class PersistentDataPointTests
 
             sut.Decode(transcoder, "encoded");
 
-            sut.GetValueOrDefault("default");
+            sut.GetValueOrInitialize("default");
 
             value.Received(1)
                 .Decode(transcoder, "encoded");
@@ -265,7 +265,7 @@ public class PersistentDataPointTests
 
             var sut = new PersistentDataPoint(factory);
 
-            sut.GetValueOrDefault("default");
+            sut.GetValueOrInitialize("default");
 
             value.DidNotReceive()
                 .Decode(
@@ -311,7 +311,7 @@ public class PersistentDataPointTests
 
             var sut = new PersistentDataPoint(factory);
 
-            sut.GetValueOrDefault("default");
+            sut.GetValueOrInitialize("default");
 
             var transcoder = Substitute.For<IPersistentDataTranscoder>();
 
@@ -334,7 +334,7 @@ public class PersistentDataPointTests
 
             var sut = new PersistentDataPoint(factory);
 
-            sut.GetValueOrDefault("default");
+            sut.GetValueOrInitialize("default");
 
             sut.Encode(transcoder);
             sut.Encode(transcoder);
@@ -356,7 +356,7 @@ public class PersistentDataPointTests
 
             var sut = new PersistentDataPoint(factory);
 
-            sut.GetValueOrDefault("default");
+            sut.GetValueOrInitialize("default");
 
             sut.Encode(transcoder1);
             sut.Encode(transcoder2);
@@ -391,7 +391,7 @@ public class PersistentDataPointTests
 
             var sut = new PersistentDataPoint(factory);
 
-            sut.GetValueOrDefault("default");
+            sut.GetValueOrInitialize("default");
 
             var transcoder = Substitute.For<IPersistentDataTranscoder>();
 
@@ -411,7 +411,7 @@ public class PersistentDataPointTests
 
             var sut = new PersistentDataPoint(factory);
 
-            sut.GetValueOrDefault("default");
+            sut.GetValueOrInitialize("default");
 
             var transcoder = Substitute.For<IPersistentDataTranscoder>();
 

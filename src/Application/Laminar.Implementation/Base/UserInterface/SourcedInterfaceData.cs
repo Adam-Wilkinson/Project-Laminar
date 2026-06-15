@@ -29,6 +29,7 @@ public class SourcedInterfaceData<T>(T initialValue) : ISourcedInterfaceData<T> 
         {
             if (!IsUserEditable) throw new InvalidOperationException();
             _valueAtLastRefresh = value;
+            if (EqualityComparer<T>.Default.Equals(value, PersistentValue)) return;
             PersistentValue = value;
             PropertyChanged?.Invoke(this, _valueChangedEventArgs);
             ExecutionStarted?.Invoke(this, new LaminarExecutionContext(null, ExecutionFlags.ValueChanged)); 
