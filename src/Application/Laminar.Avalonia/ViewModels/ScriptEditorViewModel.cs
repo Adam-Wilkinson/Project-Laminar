@@ -1,3 +1,4 @@
+using System.Collections.Specialized;
 using System.Text;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -28,15 +29,18 @@ public partial class ScriptEditorViewModel(
 {
     private static readonly IPersistentDataTranscoder DefaultClipboardTranscoder = new JsonPersistentDataTranscoder(null!); 
     
+    private readonly Dictionary<object, ScriptEditorItemModel> _itemModels = [];
+    private FlattenedObservableTree<ScriptEditorItemModel>? _models;
+    
     private IUserActionSession? _userActionSession;
 
     [ObservableProperty]
     public partial IReadOnlyList<object>? CurrentSelection { get; set; }
     
-    public IReadOnlyObservableCollection<ScriptEditorItemModel> VisualElements { get; } =
-        new FlattenedObservableTree<ScriptEditorItemModel>(
-                script.WritableNodeTree.Nodes.ObservableMap(node => new ScriptEditorItemModel(node)),
-                script.WritableNodeTree.Connections.ObservableMap(connection => new ScriptEditorItemModel(connection)));
+    public IReadOnlyObservableCollection<ScriptEditorItemModel> VisualElements 
+        => _models ??= new FlattenedObservableTree<ScriptEditorItemModel>(
+                script.WritableNodeTree.Nodes.ObservableMap(CreateItemModel),
+                script.WritableNodeTree.Connections.ObservableMap(CreateItemModel));
     
     public override bool Drop(object? payload, AvaloniaPoint location, object? receptacleTag)
     {
@@ -166,6 +170,10 @@ public partial class ScriptEditorViewModel(
 
         var result = await clipboard.TryGetDataAsync();
         if (result is null) return;
+
+        CurrentSelection = [];
+        VisualElements.CollectionChanged += SelectNewItems;
+
         foreach (var transferItem in result.Items)
         {
             var stringResult = await transferItem.TryGetTextAsync();
@@ -176,7 +184,36 @@ public partial class ScriptEditorViewModel(
             var pasteAction = editor.AddSubTree(script, deserializedNodeTree);
             await userActionManager.ExecuteAction(pasteAction);
         }
+        
+        VisualElements.CollectionChanged -= SelectNewItems;
+        
+        return;
+        
+        void SelectNewItems(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.NewItems is not null)
+            {
+                foreach (var element in e.NewItems.Cast<ScriptEditorItemModel>())
+                {
+                    element.IsSelected = true;
+                }
+            }
+        }
     }
 
     public bool CanCopyToClipboard => CurrentSelection is not null && CurrentSelection.Any(x => x is ScriptEditorItemModel { CoreElement: IWrappedNode });
+
+    private ScriptEditorItemModel CreateItemModel(object target)
+    {
+        var output = target switch
+        {
+            IConnection connection => new ScriptEditorItemModel(connection),
+            IWrappedNode node => new ScriptEditorItemModel(node),
+            not null => throw new InvalidOperationException($"Unknown script editor item model {target}"),
+            null => throw new ArgumentNullException(nameof(target))
+        };
+        
+        _itemModels[target] = output;
+        return output;
+    }
 }
