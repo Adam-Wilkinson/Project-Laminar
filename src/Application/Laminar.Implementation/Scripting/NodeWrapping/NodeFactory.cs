@@ -59,4 +59,6 @@ public class NodeFactory(IEncodableDataFactory dataFactory, ILoadedNodeManager l
         persistentDictionary[TypeKey].GetValueOrInitialize(loadedNode.NodeType.FullName);
         return FromPersistentData(persistentDictionary, userChangedValueNotificationClient);
     }
+
+    private record PersistentNodeModel(string PluginName, string NodeType);
 }

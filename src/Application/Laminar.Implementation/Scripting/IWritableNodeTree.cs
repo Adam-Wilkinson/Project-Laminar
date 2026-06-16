@@ -1,11 +1,12 @@
 using System.Diagnostics.CodeAnalysis;
+using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Scripting.Connection;
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.PluginFramework.NodeSystem.Connectors;
 
-namespace Laminar.Contracts.Scripting.Execution;
+namespace Laminar.Implementation.Scripting;
 
-public interface INodeTree : INodeTreeView
+public interface IWritableNodeTree : INodeTree
 {
     public void AddNode(IWrappedNode node);
 

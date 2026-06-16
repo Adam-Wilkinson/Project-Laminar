@@ -15,10 +15,10 @@ public partial class MainControlViewModel : ViewModelBase, IDisposable
         IServiceProvider serviceProvider, 
         ILoadedNodeManager loadedNodeManager,
         INodeFactory nodeFactory,
-        IScriptFactory scriptFactory)
+        IScriptingFactory scriptingFactory)
     {
         _scopedFileNavigator = new ScopedViewModel<FileNavigatorViewModel>(serviceProvider);
-        _scopedScriptEditor = new ScopedViewModel<ScriptEditorViewModel>(serviceProvider, scriptFactory.CreateScript());
+        _scopedScriptEditor = new ScopedViewModel<ScriptEditorViewModel>(serviceProvider, scriptingFactory.CreateScript());
         OnExpandedSidebarWidthChanged(ExpandedSidebarWidth);
         LoadedNodes = loadedNodeManager.LoadedNodes.RecursiveMap(nodeInfo => nodeFactory.FromNodeInfo(nodeInfo));
     }

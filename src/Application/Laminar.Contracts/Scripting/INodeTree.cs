@@ -1,12 +1,13 @@
 ﻿using Laminar.Contracts.Scripting.Connection;
 using Laminar.Contracts.Scripting.NodeWrapping;
-using Laminar.Domain.Notification;
+using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.Notification.Collections;
+using Laminar.Domain.ValueObjects;
 using Laminar.PluginFramework.NodeSystem.Connectors;
 
-namespace Laminar.Contracts.Scripting.Execution;
+namespace Laminar.Contracts.Scripting;
 
-public interface INodeTreeView
+public interface INodeTree : IDisposable
 {
     public event EventHandler? Changed;
 
@@ -14,11 +15,17 @@ public interface INodeTreeView
 
     public IWrappedNode GetParentNode(IConnector connector);
 
+    public IWrappedNode GetNodeByKey(string key);
+
+    public string GetNodeKey(IWrappedNode node);
+    
     public INodeUpdates GetUpdates(IWrappedNode node);
     
     public IReadOnlyObservableCollection<IWrappedNode> Nodes { get; }
 
     public IReadOnlyObservableCollection<IConnection> Connections { get; }
+    
+    public IEncodablePersistentData PersistentData { get; }
 }
 
 public record ConnectorConnectionInfo(IConnection Connection, IConnector OppositeConnector, IWrappedNode ConnectedNode);

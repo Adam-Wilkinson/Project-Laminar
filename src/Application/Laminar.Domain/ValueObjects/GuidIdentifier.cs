@@ -6,6 +6,7 @@
 /// <typeparam name="T">The parent class of the identifier, so it is strongly typed and can't be mixed up</typeparam>
 public class GuidIdentifier<T>(Guid guid) : IEquatable<GuidIdentifier<T>>
 {
+    private const string Format = "d";
     private readonly Guid _value = guid;
 
     public static GuidIdentifier<T> New()
@@ -37,7 +38,7 @@ public class GuidIdentifier<T>(Guid guid) : IEquatable<GuidIdentifier<T>>
 
     public override string ToString()
     {
-        return _value.ToString();
+        return _value.ToString(Format);
     }
 
     public static bool operator ==(GuidIdentifier<T>? lhs, GuidIdentifier<T>? rhs)
@@ -46,4 +47,6 @@ public class GuidIdentifier<T>(Guid guid) : IEquatable<GuidIdentifier<T>>
     }
 
     public static bool operator !=(GuidIdentifier<T> lhs, GuidIdentifier<T> rhs) => !(lhs == rhs);
+    
+    public static GuidIdentifier<T> Parse(string source) => new(Guid.ParseExact(source, Format));
 }

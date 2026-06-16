@@ -35,7 +35,7 @@ public sealed class WrappedNode : IWrappedNode, IDisposable
 
         _persistentRowsSynchronizer = persistentDictionary[nameof(Rows)]
             .GetOrCreateCollection<IPersistentList>()
-            .InitializeAndSyncTo(Rows, new PersistentValueAdapter<INodeRow>(row => row.GetType())
+            .InitializeAndSyncTo(Rows, new PersistentValueAdapter<INodeRow>(row => row?.GetType() ?? typeof(INodeRow))
             {
                 Mode = PersistenceAdapterMode.Hydrate
             });
@@ -60,6 +60,8 @@ public sealed class WrappedNode : IWrappedNode, IDisposable
 
     public GuidIdentifier<IWrappedNode> Id { get; }
 
+    public IEncodablePersistentData PersistentData => _persistentDictionary;
+    
     public void TriggerNotification(LaminarExecutionContext context)
     {
         if (context.ExecutionSource is null)
@@ -76,9 +78,6 @@ public sealed class WrappedNode : IWrappedNode, IDisposable
             UserChangedValueNotificationClient.TriggerNotification(context);
         }
     }
-
-    public byte[] ToPersistentValue(IPersistentDataTranscoder transcoder) 
-        => transcoder.ElementToBytes(_persistentDictionary.Encode(transcoder));
 
     public void Update(LaminarExecutionContext context)
     {

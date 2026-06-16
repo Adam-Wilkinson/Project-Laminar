@@ -23,8 +23,8 @@ public interface IWrappedNode : INotificationClient<LaminarExecutionContext>
     IObservableValue<Point> Location { get; }
 
     public ILoadedNodeInfo Info { get; }
-    
-    public byte[] ToPersistentValue(IPersistentDataTranscoder dataTranscoder);
-    
+
+    public IEncodablePersistentData PersistentData { get; }
+
     void Update(LaminarExecutionContext context);
 }

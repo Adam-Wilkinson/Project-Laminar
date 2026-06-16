@@ -1,8 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Laminar.Contracts.Scripting.Connection;
 using Laminar.Contracts.Scripting.NodeWrapping;
-
-using AvaloniaPoint = Avalonia.Point;
 using LaminarPoint = Laminar.Domain.ValueObjects.Point;
 
 namespace Laminar.Avalonia.ViewModels;

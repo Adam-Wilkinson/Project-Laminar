@@ -1,14 +1,17 @@
-﻿using Laminar.Contracts.Scripting.Connection;
+﻿using Laminar.Contracts.Scripting;
+using Laminar.Contracts.Scripting.Connection;
 using Laminar.PluginFramework.NodeSystem.Connectors;
 
 namespace Laminar.Implementation.Scripting.Connections;
 
-internal class Connection : IConnection, IEqualityComparer<IConnection>
+internal class Connection(INodeTree nodeTree) : IConnection, IEqualityComparer<IConnection>
 {
     public required IInputConnector InputConnector { get; init; }
 
     public required IOutputConnector OutputConnector { get; init; }
 
+    public INodeTree OwningNodeTree => nodeTree;
+    
     public bool Equals(IConnection? x, IConnection? y)
     {
         if (ReferenceEquals(x, y)) return true;

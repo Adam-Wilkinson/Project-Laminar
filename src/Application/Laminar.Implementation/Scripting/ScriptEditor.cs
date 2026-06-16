@@ -1,13 +1,12 @@
 ﻿using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Scripting.Connection;
-using Laminar.Contracts.Scripting.Execution;
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Contracts.Storage.PersistentData;
-using Laminar.Domain.Extensions;
 using Laminar.Domain.ValueObjects;
 using Laminar.Implementation.Base.ActionSystem;
 using Laminar.Implementation.Scripting.Actions;
+using Laminar.Implementation.Scripting.NodeWrapping;
 using Laminar.PluginFramework.NodeSystem.Connectors;
 
 namespace Laminar.Implementation.Scripting;
@@ -24,45 +23,67 @@ internal class ScriptEditor(
     {
         IWrappedNode newNode = nodeFactory.FromNodeInfo(node.Info, script.ExecutionInstance);
         newNode.Location.Value = location;
-        return new AddNodeAction(newNode, (INodeTree)script.NodeTreeView);
+        return new AddNodeAction(newNode, (IWritableNodeTree)script.WritableNodeTree);
     }
 
-    public IUserAction PasteFromPersistentDataAction(IScript script, IEncodablePersistentData data)
+    public IUserAction AddSubTree(IScript script, IEncodablePersistentData data)
     {
         if (data is not IPersistentDictionary persistentDictionary)
             throw new InvalidOperationException();
         
         var node = nodeFactory.FromPersistentData(persistentDictionary, script.ExecutionInstance);
         node.Location.Value += new Point { X = 50, Y = 50 };
-        return new AddNodeAction(node, (INodeTree)script.NodeTreeView);
+        return new AddNodeAction(node, (IWritableNodeTree)script.WritableNodeTree);
     }
 
     public IUserAction? FindBridgeConnectorsAction(IScript script, IConnector connectorOne, IConnector connectorTwo)
     {
         if (connectorOne is IInputConnector inputConnectorOne && connectorTwo is IOutputConnector outputConnectorTwo)
         {
-            return FindBridgeActionOrdered((INodeTree)script.NodeTreeView, inputConnectorOne, outputConnectorTwo);
+            return FindBridgeActionOrdered((IWritableNodeTree)script.WritableNodeTree, inputConnectorOne, outputConnectorTwo);
         }
 
         if (connectorOne is IOutputConnector outputConnectorOne && connectorTwo is IInputConnector inputConnectorTwo)
         {
-            return FindBridgeActionOrdered((INodeTree)script.NodeTreeView, inputConnectorTwo, outputConnectorOne);
+            return FindBridgeActionOrdered((IWritableNodeTree)script.WritableNodeTree, inputConnectorTwo, outputConnectorOne);
         }
 
         return null;
     }
 
     public IUserAction DeleteConnectionAction(IScript script, IConnection connection)
-        => new SeverConnectionAction(connection.OutputConnector, connection.InputConnector, (INodeTree)script.NodeTreeView);
+        => new SeverConnectionAction(connection.OutputConnector, connection.InputConnector, (IWritableNodeTree)script.WritableNodeTree);
 
     public IUserAction DeleteNodeAction(IScript script, IWrappedNode node)
-        => new DeleteNodeAction(node, (INodeTree)script.NodeTreeView);
+        => new DeleteNodeAction(node, (IWritableNodeTree)script.WritableNodeTree);
 
-    private IUserAction? FindBridgeActionOrdered(INodeTree nodeTree, IInputConnector inputConnector, IOutputConnector outputConnector)
+    public IUserAction AddSubTree(IScript script, INodeTree subTree)
+    {
+        List<IUserAction> actions = [];
+        foreach (var node in subTree.Nodes)
+        {
+            if (node is WrappedNode wrappedNode)
+            {
+                wrappedNode.UserChangedValueNotificationClient = script.ExecutionInstance;
+            }
+
+            actions.Add(new AddNodeAction(node, (IWritableNodeTree)script.WritableNodeTree));
+        }
+
+        foreach (var connection in subTree.Connections)
+        {
+            actions.Add(new EstablishConnectionAction(connection.OutputConnector, connection.InputConnector,
+                (IWritableNodeTree)script.WritableNodeTree));
+        }
+
+        return new CompoundAction(actions);
+    }
+
+    private IUserAction? FindBridgeActionOrdered(IWritableNodeTree writableNodeTree, IInputConnector inputConnector, IOutputConnector outputConnector)
     {
         foreach (var bridger in connectionBridgers)
         {
-            if (bridger.TryGetBridgeAction(outputConnector, inputConnector, nodeTree) is not
+            if (bridger.TryGetBridgeAction(outputConnector, inputConnector, writableNodeTree) is not
                 { } action) continue;
 
             return action;

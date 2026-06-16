@@ -1,4 +1,5 @@
-﻿using Laminar.Contracts.Scripting.Execution;
+﻿using Laminar.Contracts.Scripting;
+using Laminar.Contracts.Scripting.Execution;
 
 namespace Laminar.Implementation.Scripting.Execution;
 
@@ -10,9 +11,9 @@ internal class ScriptExecutionManager(IExecutionOrderFinder executionOrderFinder
 
     public bool DestroyExecutionInstance(IScriptExecutionInstance executionInstance) => _instances.Remove(executionInstance);
 
-    public IScriptExecutionInstance CreateExecutionInstance(INodeTreeView nodeTreeView)
+    public IScriptExecutionInstance CreateExecutionInstance(Contracts.Scripting.INodeTree nodeTree)
     {
-        IScriptExecutionInstance newInstance = new ScriptExecutionInstance(nodeTreeView, executionOrderFinder);
+        IScriptExecutionInstance newInstance = new ScriptExecutionInstance(nodeTree, executionOrderFinder);
         _instances.Add(newInstance);
         return newInstance;
     }

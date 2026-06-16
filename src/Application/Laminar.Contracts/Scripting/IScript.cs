@@ -6,7 +6,7 @@ public interface IScript
 {
     public string Name { get; set; }
 
-    public INodeTreeView NodeTreeView { get; }
+    public INodeTree WritableNodeTree { get; }
 
     public IScriptExecutionInstance ExecutionInstance { get; }
 

@@ -25,6 +25,7 @@ public partial class ScriptEditorViewModel(
     IScriptEditor editor, 
     IUserActionManager userActionManager,
     IEncodableDataFactory dataFactory,
+    IScriptingFactory scriptingFactory,
     TopLevel topLevel)
     : DropTargetViewModel, IConnectionInteractionHandler, IClipboardProvider
 {
@@ -37,8 +38,8 @@ public partial class ScriptEditorViewModel(
     
     public IReadOnlyObservableCollection<ScriptEditorItemModel> VisualElements { get; } =
         new FlattenedObservableTree<ScriptEditorItemModel>(
-                script.NodeTreeView.Nodes.ObservableMap(node => new ScriptEditorItemModel(node)),
-                script.NodeTreeView.Connections.ObservableMap(connection => new ScriptEditorItemModel(connection)));
+                script.WritableNodeTree.Nodes.ObservableMap(node => new ScriptEditorItemModel(node)),
+                script.WritableNodeTree.Connections.ObservableMap(connection => new ScriptEditorItemModel(connection)));
     
     public override bool Drop(object? payload, AvaloniaPoint location, object? receptacleTag)
     {
@@ -60,7 +61,7 @@ public partial class ScriptEditorViewModel(
 
         if (connector.Flags == (ConnectorFlags.HasConnections | ConnectorFlags.ConnectionsSaturated))
         {
-            var connections = script.NodeTreeView.GetConnectionsTo(connector);
+            var connections = script.WritableNodeTree.GetConnectionsTo(connector);
             if (connections.Count == 0) return null;
             var connectionInfo = connections.First();
 
@@ -125,12 +126,31 @@ public partial class ScriptEditorViewModel(
     [RelayCommand(CanExecute = nameof(CanCopyToClipboard))]
     private async Task CopyToClipboard()
     {
-        if (CurrentSelection?.FirstOrDefault(x => x is ScriptEditorItemModel) is not 
-                ScriptEditorItemModel { CoreElement: IWrappedNode node } 
-            || topLevel.Clipboard is not { } clipboard) return;
+        if (!CanCopyToClipboard || topLevel.Clipboard is not { } clipboard) return;
+
+        List<IWrappedNode> selectedNodes = [];
+        List<IConnection> selectedConnections = [];
+        
+        foreach (var selected in CurrentSelection!.Cast<ScriptEditorItemModel>())
+        {
+            switch (selected.CoreElement)
+            {
+                case IWrappedNode wrappedNode:
+                    selectedNodes.Add(wrappedNode);
+                    break;
+                case IConnection connection:
+                    selectedConnections.Add(connection);
+                    break;
+            }
+        }
+        
+        var encodedNodeTree = scriptingFactory
+            .CreateNodeTree(selectedNodes, selectedConnections)
+            .PersistentData
+            .Encode(DefaultClipboardTranscoder);
         
         var transfer = new DataTransfer();
-        transfer.Add(DataTransferItem.CreateText(Encoding.UTF8.GetString(node.ToPersistentValue(new JsonPersistentDataTranscoder(null!)))));
+        transfer.Add(DataTransferItem.CreateText(Encoding.UTF8.GetString(DefaultClipboardTranscoder.ElementToBytes(encodedNodeTree))));
         await clipboard.SetDataAsync(transfer);
     }
 
@@ -147,7 +167,8 @@ public partial class ScriptEditorViewModel(
             if (stringResult is null) continue;
             var dictionary = dataFactory.GetEncodableData<IPersistentDictionary>();
             dictionary.Decode(DefaultClipboardTranscoder, DefaultClipboardTranscoder.BytesToElement(Encoding.UTF8.GetBytes(stringResult))!);
-            var pasteAction = editor.PasteFromPersistentDataAction(script, dictionary);
+            var deserializedNodeTree = scriptingFactory.CreateNodeTree(dictionary);
+            var pasteAction = editor.AddSubTree(script, deserializedNodeTree);
             await userActionManager.ExecuteAction(pasteAction);
         }
     }

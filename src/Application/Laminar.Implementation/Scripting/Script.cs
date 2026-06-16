@@ -1,22 +1,21 @@
 ﻿using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Scripting.Execution;
-using Laminar.Implementation.Scripting.Execution;
 
 namespace Laminar.Implementation.Scripting;
 
 internal class Script : IScript
 {
-    private readonly INodeTree _nodeTree;
+    private readonly IWritableNodeTree _writableNodeTree;
     
-    public Script(IScriptExecutionManager executionManager)
+    public Script(IScriptExecutionManager executionManager, IWritableNodeTree writableNodeTree)
     {
-        _nodeTree = new NodeTree();
-        ExecutionInstance = executionManager.CreateExecutionInstance(NodeTreeView);
+        _writableNodeTree = writableNodeTree;
+        ExecutionInstance = executionManager.CreateExecutionInstance(WritableNodeTree);
     }
 
     public string Name { get; set; } = "Unnamed Script";
 
-    public INodeTreeView NodeTreeView => _nodeTree;
+    public Contracts.Scripting.INodeTree WritableNodeTree => _writableNodeTree;
 
     public ScriptState State => ExecutionInstance.State;
 
