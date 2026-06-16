@@ -23,6 +23,11 @@
                    DefaultIconGeometry="{x:Static shapes:PathData.Paste}"
                    CommandBinding="{Binding PasteFromClipboardCommand}"/>
     
+    <t:CommandTool NameKey="Cut" x:Key="Tools.Edit.Cut" x:DataType="vms:IClipboardProvider"
+                   Gesture="Ctrl+x"
+                   DefaultIconGeometry="{x:Static shapes:PathData.Cut}"
+                   CommandBinding="{Binding CutCommand}"/>
+    
     <t:Toolbox NameKey="{x:Static lang:Resources.Edit}" 
                x:Key="Tools.Edit" x:DataType="vm:ViewModelBase" 
                DefaultIconGeometry="{x:Static shapes:PathData.EditIcon}"
@@ -37,6 +42,7 @@
 					   CommandBinding="{Binding RedoCommand}"/>
         <StaticResource ResourceKey="Tools.Edit.Copy"/>
         <StaticResource ResourceKey="Tools.Edit.Paste"/>
+        <StaticResource ResourceKey="Tools.Edit.Cut"/>
     </t:Toolbox>
     
     <!-- Tool that toggles whether a TreeViewItem is expanded -->

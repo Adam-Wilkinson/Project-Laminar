@@ -1,15 +1,12 @@
 using System.Text;
-using System.Windows.Input;
 using Avalonia.Controls;
 using Avalonia.Input;
-using Avalonia.Input.Platform;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Laminar.Avalonia.ViewModels.Services;
 using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Scripting.Connection;
-using Laminar.Contracts.Scripting.Execution;
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.Notification.Collections;
@@ -154,6 +151,14 @@ public partial class ScriptEditorViewModel(
         await clipboard.SetDataAsync(transfer);
     }
 
+    [RelayCommand(CanExecute = nameof(CanCopyToClipboard))]
+    private async Task Cut()
+    {
+        if (!CanCopyToClipboard || topLevel.Clipboard is null) return;
+        await CopyToClipboard();
+        DeleteSelection();
+    }
+    
     [RelayCommand]
     private async Task PasteFromClipboard()
     {

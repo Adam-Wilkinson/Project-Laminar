@@ -7,4 +7,6 @@ public interface IClipboardProvider
     public IAsyncRelayCommand CopyToClipboardCommand { get; }
 
     public IAsyncRelayCommand PasteFromClipboardCommand { get; }
+
+    public IAsyncRelayCommand CutCommand { get; }
 }
