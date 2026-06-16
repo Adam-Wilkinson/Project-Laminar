@@ -26,7 +26,6 @@ public sealed class WrappedNode : IWrappedNode, IDisposable
         _coreNode = node;
         _persistentDictionary = persistentDictionary;
         
-        Id = persistentDictionary[nameof(Id)].GetValueOrInitialize(GuidIdentifier<IWrappedNode>.New()).Value;
         IsCollapsed = persistentDictionary[nameof(IsCollapsed)].GetValueOrInitialize(false);
         Location = persistentDictionary[nameof(Location)].GetValueOrInitialize(new Point {X = 0, Y = 0});
         
@@ -57,9 +56,7 @@ public sealed class WrappedNode : IWrappedNode, IDisposable
     public IObservableValue<bool> IsCollapsed { get; }
 
     public IObservableValue<Point> Location { get; }
-
-    public GuidIdentifier<IWrappedNode> Id { get; }
-
+    
     public IEncodablePersistentData PersistentData => _persistentDictionary;
     
     public void TriggerNotification(LaminarExecutionContext context)

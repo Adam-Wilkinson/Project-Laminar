@@ -12,8 +12,6 @@ namespace Laminar.Contracts.Scripting.NodeWrapping;
 
 public interface IWrappedNode : INotificationClient<LaminarExecutionContext>
 {
-    GuidIdentifier<IWrappedNode> Id { get; }
-
     INodeRow<IInterfaceData<EditableLabel, string>> NameRow { get; }
     
     IReadOnlyObservableCollection<INodeRow> Rows { get; }
