@@ -1,6 +1,4 @@
 using Avalonia.Controls;
-using Avalonia.Input;
-using Laminar.Avalonia.ViewModels;
 
 namespace Laminar.Avalonia.Views;
 

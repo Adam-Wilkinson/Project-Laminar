@@ -26,7 +26,7 @@ public class ToolKeyBindManager(TopLevel defaultTopLevel) : IAfterApplicationBui
             {
                 keybind.TryHandle(e);
             }
-        }, handledEventsToo: true);
+        });
     }
     
     public void OnApplicationBuilt()

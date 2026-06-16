@@ -35,6 +35,8 @@
 					   Gesture="Ctrl+y" 
 					   DefaultIconGeometry="{x:Static shapes:PathData.RedoIcon}"
 					   CommandBinding="{Binding RedoCommand}"/>
+        <StaticResource ResourceKey="Tools.Edit.Copy"/>
+        <StaticResource ResourceKey="Tools.Edit.Paste"/>
     </t:Toolbox>
     
     <!-- Tool that toggles whether a TreeViewItem is expanded -->
