@@ -85,6 +85,7 @@
             <Border Name="MainPanelBorder"
                     Background="{DynamicResource {x:Static init:ColorInitialization.LaminarNonForegroundKey}}"
                     VerticalAlignment="Top"
+                    Classes.IsSelected="{Binding $parent[sam:SelectAndMoveItem].IsSelected, TargetNullValue={x:False}}"
                     ClipToBounds="False"
                     BorderThickness="3">
                 <DockPanel Name="ConnectorOffsetTarget" 
@@ -169,12 +170,12 @@
                     <Setter Property="Opacity" Value="0.1"/>
                 </Style>
                 
-                <Style Selector="Panel#NodeRoot[(sam|Selection.IsSelected)=True] Border#MainPanelBorder">
-                    <Setter Property="BorderBrush" Value="Gray"/>
-                </Style>
-                
-                <Style Selector="Panel#NodeRoot[(sam|Selection.IsSelected)=False] Border#MainPanelBorder">
+                <Style Selector="Border#MainPanelBorder">
                     <Setter Property="BorderBrush" Value="{DynamicResource {x:Static init:ColorInitialization.LaminarNonForegroundKey}}"/>
+                    
+                    <Style Selector="^.IsSelected">
+                        <Setter Property="BorderBrush" Value="Gray"/>
+                    </Style>
                 </Style>
             </Panel.Styles>
         </Panel>

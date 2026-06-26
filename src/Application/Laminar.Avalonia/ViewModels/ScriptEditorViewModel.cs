@@ -4,6 +4,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Laminar.Avalonia.SelectAndMove;
 using Laminar.Avalonia.ViewModels.Services;
 using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.Scripting;
@@ -35,7 +36,7 @@ public partial class ScriptEditorViewModel(
     private IUserActionSession? _userActionSession;
 
     [ObservableProperty]
-    public partial IReadOnlyList<object>? CurrentSelection { get; set; }
+    public partial CanvasSelectionModel? SelectionModel { get; set; }
     
     public IReadOnlyObservableCollection<ScriptEditorItemModel> VisualElements 
         => _models ??= new FlattenedObservableTree<ScriptEditorItemModel>(
@@ -89,23 +90,29 @@ public partial class ScriptEditorViewModel(
     [RelayCommand(CanExecute = nameof(CanDeleteSelection))]
     private void DeleteSelection()
     {
-        if (CurrentSelection is null || CurrentSelection.Count == 0) return;
+        if (SelectionModel is null || SelectionModel.SelectedItems.Count == 0) return;
 
         using var session = userActionManager.BeginSession();
-        foreach (var connection in CurrentSelection.Select(x => (x as ScriptEditorItemModel)?.CoreElement)
-                     .OfType<IConnection>())
+        foreach (var connection in SelectionModel.SelectedItems
+                     .Cast<ScriptEditorItemModel>()
+                     .Select(x => x.CoreElement)
+                     .OfType<IConnection>()
+                     .ToList())
         {
             session.ExecuteAction(editor.DeleteConnectionAction(script, connection));
         }
 
-        foreach (var connection in CurrentSelection.Select(x => (x as ScriptEditorItemModel)?.CoreElement)
-                     .OfType<IWrappedNode>())
+        foreach (var connection in SelectionModel.SelectedItems
+                     .Cast<ScriptEditorItemModel>()
+                     .Select(x => x.CoreElement)
+                     .OfType<IWrappedNode>()
+                     .ToList())
         {
             session.ExecuteAction(editor.DeleteNodeAction(script, connection));
         }
     }
 
-    public bool CanDeleteSelection => CurrentSelection is not null && CurrentSelection.Count > 0; 
+    public bool CanDeleteSelection => SelectionModel is not null && SelectionModel.SelectedItems.Count > 0; 
 
     public void CancelConnection()
     {
@@ -118,7 +125,26 @@ public partial class ScriptEditorViewModel(
         _userActionSession = null;
     }
 
-    partial void OnCurrentSelectionChanged(IReadOnlyList<object>? value)
+    partial void OnSelectionModelChanged(CanvasSelectionModel? oldValue, CanvasSelectionModel? newValue)
+    {
+        oldValue?.ItemDeselected -= OnDeselection;
+        oldValue?.ItemSelected -= OnSelection;
+        newValue?.ItemDeselected += OnDeselection;
+        newValue?.ItemSelected += OnSelection;
+    }
+
+    private void OnSelection(object? sender, CanvasSelectionModel.ItemSelectedEventArgs e)
+    {
+        OnCurrentSelectionChanged();
+    }
+
+    private void OnDeselection(object? sender, CanvasSelectionModel.ItemDeselectedEventArgs e)
+    {
+        OnCurrentSelectionChanged();
+    }
+
+
+    private void OnCurrentSelectionChanged()
     {
         OnPropertyChanged(nameof(CanDeleteSelection));
         OnPropertyChanged(nameof(CanCopyToClipboard));
@@ -132,7 +158,7 @@ public partial class ScriptEditorViewModel(
         List<IWrappedNode> selectedNodes = [];
         List<IConnection> selectedConnections = [];
         
-        foreach (var selected in CurrentSelection!.Cast<ScriptEditorItemModel>())
+        foreach (var selected in SelectionModel?.SelectedItems.Cast<ScriptEditorItemModel>() ?? [])
         {
             switch (selected.CoreElement)
             {
@@ -171,7 +197,7 @@ public partial class ScriptEditorViewModel(
         var result = await clipboard.TryGetDataAsync();
         if (result is null) return;
 
-        CurrentSelection = [];
+        SelectionModel?.DeselectAll();
         VisualElements.CollectionChanged += SelectNewItems;
 
         foreach (var transferItem in result.Items)
@@ -191,17 +217,16 @@ public partial class ScriptEditorViewModel(
         
         void SelectNewItems(object? sender, NotifyCollectionChangedEventArgs e)
         {
-            if (e.NewItems is not null)
+            if (e.NewItems is null) return;
+            
+            foreach (var element in e.NewItems.Cast<ScriptEditorItemModel>())
             {
-                foreach (var element in e.NewItems.Cast<ScriptEditorItemModel>())
-                {
-                    element.IsSelected = true;
-                }
+                element.IsSelected = true;
             }
         }
     }
 
-    public bool CanCopyToClipboard => CurrentSelection is not null && CurrentSelection.Any(x => x is ScriptEditorItemModel { CoreElement: IWrappedNode });
+    public bool CanCopyToClipboard => SelectionModel is not null && SelectionModel.SelectedItems.Cast<ScriptEditorItemModel>().Any(x => x.CoreElement is IWrappedNode);
 
     private ScriptEditorItemModel CreateItemModel(object target)
     {

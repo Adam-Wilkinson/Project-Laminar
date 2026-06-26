@@ -27,7 +27,7 @@
     
     <sam:SelectAndMove Name="SelectAndMove"
                        ItemsSource="{Binding VisualElements}"
-                       Selection="{Binding CurrentSelection, Mode=TwoWay}"
+                       SelectionModel="{Binding SelectionModel}"
                        ClipToBounds="True"
                        dd:DropTargetHandler.DropPositionRelativeTo="{Binding $self.TransformRoot}"
                        dd:DropTargetHandler.DropTarget="{Binding}"
@@ -50,13 +50,13 @@
         </sam:SelectAndMove.ItemsPanel>
         
         <sam:SelectAndMove.Styles>
-            <Style Selector="sam|SelectAndMove > ContentPresenter" x:DataType="vm:ScriptEditorItemModel">
-                <Setter Property="Canvas.Left" Value="{Binding Left, Mode=TwoWay}"/>
-                <Setter Property="Canvas.Top" Value="{Binding Top, Mode=TwoWay}"/>
+            <Style Selector="sam|SelectAndMoveItem" x:DataType="vm:ScriptEditorItemModel">
+                <Setter Property="Left" Value="{Binding Left, Mode=TwoWay}"/>
+                <Setter Property="Top" Value="{Binding Top, Mode=TwoWay}"/>
                 <Setter Property="ClipToBounds" Value="False"/>
-                <Setter Property="sam:Selection.IsSelectable" Value="{Binding IsSelectable}"/>
-                <Setter Property="sam:Selection.IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
-                <Setter Property="sam:MoveSelectionGesture.IsMovable" Value="{Binding IsMovable}"/>
+                <Setter Property="IsSelectable" Value="{Binding IsSelectable}"/>
+                <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
+                <Setter Property="IsMovable" Value="{Binding IsMovable}"/>
                 <Setter Property="sam:ZIndexLayerManger.ZIndexLayer" Value="{Binding LayerIndex}"/>
             </Style>
         </sam:SelectAndMove.Styles>
