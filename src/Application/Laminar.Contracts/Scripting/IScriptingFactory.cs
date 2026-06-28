@@ -10,5 +10,5 @@ public interface IScriptingFactory
 
     INodeTree CreateNodeTree(IEnumerable<IWrappedNode> nodes, IEnumerable<IConnection> connections);
         
-    INodeTree CreateNodeTree(IPersistentDictionary persistentDictionary);
+    INodeTree NodeTreeFromPersistentData(IPersistentDictionary persistentDictionary);
 }

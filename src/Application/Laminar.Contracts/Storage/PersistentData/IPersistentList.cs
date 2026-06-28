@@ -2,7 +2,7 @@ using Laminar.Domain.Notification.Collections;
 
 namespace Laminar.Contracts.Storage.PersistentData;
 
-public interface IPersistentList : IEncodablePersistentData, IReadOnlyList<IPersistentDataPoint> 
+public interface IPersistentList : IEncodableData, IReadOnlyList<IPersistentDataPoint> 
 {
     public IPersistentDataPoint AddNext();
 

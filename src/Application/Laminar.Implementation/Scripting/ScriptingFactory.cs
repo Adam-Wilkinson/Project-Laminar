@@ -21,7 +21,7 @@ internal class ScriptingFactory(
         return new WritableNodeTree(dataFactory.GetEncodableData<IPersistentDictionary>(), nodeFactory, nodes, connections);
     }
 
-    public INodeTree CreateNodeTree(IPersistentDictionary persistentDictionary)
+    public INodeTree NodeTreeFromPersistentData(IPersistentDictionary persistentDictionary)
     {
         return new WritableNodeTree(persistentDictionary, nodeFactory);
     }

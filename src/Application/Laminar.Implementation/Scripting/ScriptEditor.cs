@@ -26,7 +26,7 @@ internal class ScriptEditor(
         return new AddNodeAction(newNode, (IWritableNodeTree)script.WritableNodeTree);
     }
 
-    public IUserAction AddSubTree(IScript script, IEncodablePersistentData data)
+    public IUserAction AddSubTree(IScript script, IEncodableData data)
     {
         if (data is not IPersistentDictionary persistentDictionary)
             throw new InvalidOperationException();

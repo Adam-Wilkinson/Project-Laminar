@@ -2,24 +2,25 @@ using Laminar.Contracts.Storage.IO;
 using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.DataManagement;
 using Laminar.Domain.Exceptions;
-using Microsoft.Extensions.DependencyInjection;
+using Laminar.Domain.ValueObjects;
 using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.Storage.PersistentData;
 
-internal class PersistentDataManager(
-    IServiceProvider serviceProvider,
+internal sealed class PersistentDataManager(
+    IEncodableDataFactory dataFactory,
     IFileSystem fileSystem, 
     ILogger<JsonPersistentDataTranscoder> jsonTranscoderLogger) 
     : IPersistentDataManager
 {
-    private readonly Dictionary<DataStoreKey, PersistentDataStore> _dataStores = new();
-
+    private readonly Dictionary<DataStoreKey, IFileSyncedResource<PersistentDictionaryOwner>> _dataStores = [];
+    private readonly List<IFileSyncedResource<IEncodableDataOwner>> _allResources = [];
+    
     public IPersistentDictionary GetDataStore(DataStoreKey dataStoreKey)
     {
         if (_dataStores.TryGetValue(dataStoreKey, out var dataStore))
         {
-            return dataStore.Root;
+            return dataStore.Resource.Dictionary;
         }
         
         if (!fileSystem.Exists(dataStoreKey.Location))
@@ -33,30 +34,53 @@ internal class PersistentDataManager(
             var unknown => throw new UnknownDataTypeException(unknown),
         };
 
-        var file = fileSystem.GetFile(dataStoreKey.Location.ChildPath(dataStoreKey.Name + transcoder.FileExtension));
-        var newDataStore = ActivatorUtilities.CreateInstance<PersistentDataStore>(serviceProvider, transcoder, file);
-        _dataStores[dataStoreKey] = newDataStore;
-        return newDataStore.Root;
+        var filePath = dataStoreKey.Location.ChildPath(dataStoreKey.Name + transcoder.FileExtension);
+        var resource = GetFileSyncedResource(new PersistentDictionaryOwner(dataFactory.GetEncodableData<IPersistentDictionary>()), transcoder, filePath);
+        _dataStores[dataStoreKey] = resource;
+
+        return resource.Resource.Dictionary;
+    }
+
+    public IFileSyncedResource<T> GetFileSyncedResource<T>(T value, IPersistentDataTranscoder transcoder,
+        FileSystemPath filePath)
+        where T : class, IEncodableDataOwner
+    {
+        var returnValue = new FileSyncedResource<T>(value, filePath, transcoder, fileSystem);
+        _allResources.Add(returnValue);
+        returnValue.OnDisposed += OnResourceDisposed;
+        return returnValue;
+        
+        void OnResourceDisposed(object? sender, EventArgs e)
+        {
+            _allResources.Remove(returnValue);
+            returnValue.OnDisposed -= OnResourceDisposed;
+        }
     }
 
     public void ForgetDataStore(DataStoreKey dataStoreKey)
     {
-        if (_dataStores.TryGetValue(dataStoreKey, out var dataStore))
-        {
-            dataStore.Dispose();
-            _dataStores.Remove(dataStoreKey);
-        }
+        if (!_dataStores.TryGetValue(dataStoreKey, out var dataStore)) return;
+        dataStore.Dispose();
+        _dataStores.Remove(dataStoreKey);
     }
-
-    public T GetHeadless<T>() where T : IEncodablePersistentData => serviceProvider.GetRequiredService<T>();
 
     public void Dispose()
     {
-        foreach (var child in _dataStores.Values)
+        while (_dataStores.Count > 0)
         {
-            child.Dispose();
+            ForgetDataStore(_dataStores.Keys.First());
         }
+
+        while (_allResources.Count > 0)
+        {
+            _allResources[0].Dispose();
+        }
+    }
+
+    private class PersistentDictionaryOwner(IPersistentDictionary dictionary) : IEncodableDataOwner
+    {
+        public IPersistentDictionary Dictionary => dictionary;
         
-        GC.SuppressFinalize(this);
+        IEncodableData IEncodableDataOwner.Data => dictionary;
     }
 }

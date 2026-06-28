@@ -192,7 +192,7 @@ public class PersistentValueTests
                 serializer);
 
             var invalidatedCount = 0;
-            sut.OnInvalidated += (_, _) => invalidatedCount++;
+            sut.Invalidated += (_, _) => invalidatedCount++;
 
             sut.Value = "value2";
 
@@ -394,7 +394,7 @@ public class PersistentValueTests
                 serializer);
 
             var raised = false;
-            sut.OnInvalidated += (_, _) => raised = true;
+            sut.Invalidated += (_, _) => raised = true;
 
             notifier.SerializedValueChanged +=
                 Raise.Event<EventHandler>(notifier, EventArgs.Empty);

@@ -79,7 +79,7 @@ internal class WritableNodeTree : IWritableNodeTree
 
     public IReadOnlyObservableCollection<IConnection> Connections => _connections.ObservableMap(IConnection (Connection x) => x);
     
-    public IEncodablePersistentData PersistentData { get; }
+    public IEncodableData PersistentData { get; }
 
     public void AddNode(IWrappedNode node) => AddNode(node, null);
 

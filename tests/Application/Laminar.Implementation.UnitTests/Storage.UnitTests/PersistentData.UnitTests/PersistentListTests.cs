@@ -48,9 +48,9 @@ public class PersistentListTests
             sut.AddNext();
 
             var raised = false;
-            sut.OnInvalidated += (_, _) => raised = true;
+            sut.Invalidated += (_, _) => raised = true;
 
-            dataPoint.OnInvalidated += Raise.Event<EventHandler>(dataPoint, EventArgs.Empty);
+            dataPoint.Invalidated += Raise.Event<EventHandler>(dataPoint, EventArgs.Empty);
 
             raised.Should().BeTrue();
         }
@@ -112,7 +112,7 @@ public class PersistentListTests
             sut.AddNext();
 
             var raised = false;
-            sut.OnInvalidated += (_, _) => raised = true;
+            sut.Invalidated += (_, _) => raised = true;
 
             sut.Remove(item);
 
@@ -133,9 +133,9 @@ public class PersistentListTests
             sut.Remove(item);
 
             var count = 0;
-            sut.OnInvalidated += (_, _) => count++;
+            sut.Invalidated += (_, _) => count++;
 
-            item.OnInvalidated += Raise.Event<EventHandler>(item, EventArgs.Empty);
+            item.Invalidated += Raise.Event<EventHandler>(item, EventArgs.Empty);
 
             count.Should().Be(0);
         }
@@ -168,7 +168,7 @@ public class PersistentListTests
             var sut = new PersistentList(Substitute.For<IEncodableDataFactory>());
 
             var raised = false;
-            sut.OnInvalidated += (_, _) => raised = true;
+            sut.Invalidated += (_, _) => raised = true;
 
             sut.Clear();
 
@@ -189,9 +189,9 @@ public class PersistentListTests
             sut.Clear();
 
             var count = 0;
-            sut.OnInvalidated += (_, _) => count++;
+            sut.Invalidated += (_, _) => count++;
 
-            item.OnInvalidated += Raise.Event<EventHandler>(item, EventArgs.Empty);
+            item.Invalidated += Raise.Event<EventHandler>(item, EventArgs.Empty);
 
             count.Should().Be(0);
         }
@@ -370,13 +370,13 @@ public class PersistentListTests
             object? sender = null;
             EventArgs? args = null;
 
-            sut.OnInvalidated += (s, e) =>
+            sut.Invalidated += (s, e) =>
             {
                 sender = s;
                 args = e;
             };
 
-            child.OnInvalidated += Raise.Event<EventHandler>(child, EventArgs.Empty);
+            child.Invalidated += Raise.Event<EventHandler>(child, EventArgs.Empty);
 
             sender.Should().Be(child);
             args.Should().BeSameAs(EventArgs.Empty);

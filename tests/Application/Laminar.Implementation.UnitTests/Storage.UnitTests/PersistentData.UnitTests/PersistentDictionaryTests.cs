@@ -37,7 +37,7 @@ public class PersistentDictionaryTests
             var sut = new PersistentDictionary(Substitute.For<IEncodableDataFactory>());
 
             var raised = false;
-            sut.OnInvalidated += (_, _) => raised = true;
+            sut.Invalidated += (_, _) => raised = true;
 
             _ = sut["key"];
 
@@ -51,7 +51,7 @@ public class PersistentDictionaryTests
             _ = sut["key"];
 
             var count = 0;
-            sut.OnInvalidated += (_, _) => count++;
+            sut.Invalidated += (_, _) => count++;
 
             _ = sut["key"];
 
@@ -100,7 +100,7 @@ public class PersistentDictionaryTests
             _ = sut["key"];
 
             var raised = false;
-            sut.OnInvalidated += (_, _) => raised = true;
+            sut.Invalidated += (_, _) => raised = true;
 
             sut.Remove("key");
 
@@ -113,7 +113,7 @@ public class PersistentDictionaryTests
             var sut = new PersistentDictionary(Substitute.For<IEncodableDataFactory>());
 
             var count = 0;
-            sut.OnInvalidated += (_, _) => count++;
+            sut.Invalidated += (_, _) => count++;
 
             sut.Remove("missing");
 
@@ -142,7 +142,7 @@ public class PersistentDictionaryTests
             var sut = new PersistentDictionary(Substitute.For<IEncodableDataFactory>());
 
             var raisedCount = 0;
-            sut.OnInvalidated += (_, _) => raisedCount++;
+            sut.Invalidated += (_, _) => raisedCount++;
 
             sut.Clear();
 
@@ -264,13 +264,13 @@ public class PersistentDictionaryTests
             object? sender = null;
             EventArgs? args = null;
 
-            sut.OnInvalidated += (s, e) =>
+            sut.Invalidated += (s, e) =>
             {
                 sender = s;
                 args = e;
             };
 
-            child.OnInvalidated +=
+            child.Invalidated +=
                 Raise.Event<EventHandler>(child, EventArgs.Empty);
 
             sender.Should().Be(child);
@@ -289,9 +289,9 @@ public class PersistentDictionaryTests
             sut.Remove("key");
 
             var count = 0;
-            sut.OnInvalidated += (_, _) => count++;
+            sut.Invalidated += (_, _) => count++;
 
-            child.OnInvalidated +=
+            child.Invalidated +=
                 Raise.Event<EventHandler>(child, EventArgs.Empty);
 
             count.Should().Be(0);
@@ -309,9 +309,9 @@ public class PersistentDictionaryTests
             sut.Clear();
 
             var count = 0;
-            sut.OnInvalidated += (_, _) => count++;
+            sut.Invalidated += (_, _) => count++;
 
-            child.OnInvalidated +=
+            child.Invalidated +=
                 Raise.Event<EventHandler>(child, EventArgs.Empty);
 
             count.Should().Be(0);

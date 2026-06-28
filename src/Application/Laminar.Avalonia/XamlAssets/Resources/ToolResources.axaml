@@ -10,7 +10,8 @@
                     xmlns:conv="using:Laminar.Avalonia.Converters"
                     xmlns:fe="using:Laminar.Contracts.Storage.FileExplorer"
                     xmlns:nw="using:Laminar.Contracts.Scripting.NodeWrapping"
-                    xmlns:init="using:Laminar.Avalonia.InitializationTargets">
+                    xmlns:init="using:Laminar.Avalonia.InitializationTargets"
+                    xmlns:sam="using:Laminar.Avalonia.SelectAndMove">
     
     <!-- Edit Menu Tool -->
     <t:CommandTool NameKey="Copy" x:Key="Tools.Edit.Copy" x:DataType="vms:IClipboardProvider"
@@ -412,8 +413,7 @@
 		<StaticResource ResourceKey="Tools.ScriptEditor.NodeTools.ToggleExpanded"/>
 	</t:Toolbox>
     
-    <t:Toolbox x:Key="Tools.ScriptEditor" x:DataType="vm:ScriptEditorViewModel"
-               NameKey="Script Editor Tools">
+    <t:Toolbox x:Key="Tools.ScriptEditor" x:DataType="vm:ScriptEditorViewModel" NameKey="Script Editor Tools">
 	    <StaticResource ResourceKey="Tools.ScriptEditor.DeleteSelection"/>
 	    <StaticResource ResourceKey="Tools.ScriptEditor.NodeTools"/>
     </t:Toolbox>

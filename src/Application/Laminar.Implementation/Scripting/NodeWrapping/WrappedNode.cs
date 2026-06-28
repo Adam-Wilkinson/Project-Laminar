@@ -57,7 +57,7 @@ public sealed class WrappedNode : IWrappedNode, IDisposable
 
     public IObservableValue<Point> Location { get; }
     
-    public IEncodablePersistentData PersistentData => _persistentDictionary;
+    public IEncodableData PersistentData => _persistentDictionary;
     
     public void TriggerNotification(LaminarExecutionContext context)
     {

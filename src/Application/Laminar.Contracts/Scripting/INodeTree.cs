@@ -25,7 +25,7 @@ public interface INodeTree : IDisposable
 
     public IReadOnlyObservableCollection<IConnection> Connections { get; }
     
-    public IEncodablePersistentData PersistentData { get; }
+    public IEncodableData PersistentData { get; }
 }
 
 public record ConnectorConnectionInfo(IConnection Connection, IConnector OppositeConnector, IWrappedNode ConnectedNode);

@@ -11,18 +11,18 @@ internal class PersistentList(IEncodableDataFactory dataFactory) : IPersistentLi
     public IPersistentDataPoint AddNext()
     {
         var newValue = dataFactory.GetDataPoint();
-        newValue.OnInvalidated += OnChildInvalidated;
+        newValue.Invalidated += OnChildInvalidated;
         _internalValues.Add(newValue);
-        OnInvalidated?.Invoke(this, EventArgs.Empty);
+        Invalidated?.Invoke(this, EventArgs.Empty);
         return newValue;
     }
 
     public IPersistentDataPoint Insert(int index)
     {
         IPersistentDataPoint newValue = dataFactory.GetDataPoint();
-        newValue.OnInvalidated += OnChildInvalidated;
+        newValue.Invalidated += OnChildInvalidated;
         _internalValues.Insert(index, newValue);
-        OnInvalidated?.Invoke(this, EventArgs.Empty);
+        Invalidated?.Invoke(this, EventArgs.Empty);
         return newValue;
     }
 
@@ -31,15 +31,15 @@ internal class PersistentList(IEncodableDataFactory dataFactory) : IPersistentLi
         var movedItems = _internalValues.GetRange(oldIndex, itemCount);
         _internalValues.RemoveRange(oldIndex, itemCount);
         _internalValues.InsertRange(newIndex, movedItems);
-        OnInvalidated?.Invoke(this, EventArgs.Empty);
+        Invalidated?.Invoke(this, EventArgs.Empty);
     }
 
     public IPersistentDataPoint RemoveAt(int index)
     {
         var value = _internalValues[index];
         _internalValues.RemoveAt(index);
-        value.OnInvalidated -= OnChildInvalidated;
-        OnInvalidated?.Invoke(this, EventArgs.Empty);
+        value.Invalidated -= OnChildInvalidated;
+        Invalidated?.Invoke(this, EventArgs.Empty);
         return value;
     }
 
@@ -47,11 +47,11 @@ internal class PersistentList(IEncodableDataFactory dataFactory) : IPersistentLi
     {
         foreach (var value in _internalValues)
         {
-            value.OnInvalidated -= OnChildInvalidated;
+            value.Invalidated -= OnChildInvalidated;
         }
         
         _internalValues.Clear();
-        OnInvalidated?.Invoke(this, EventArgs.Empty);
+        Invalidated?.Invoke(this, EventArgs.Empty);
     }
 
     public IDisposable InitializeAndSyncTo<T>(IReadOnlyObservableCollection<T> target, IPersistenceAdapter<T> adapter)
@@ -59,14 +59,14 @@ internal class PersistentList(IEncodableDataFactory dataFactory) : IPersistentLi
 
     private void OnChildInvalidated(object? sender, EventArgs e)
     {
-        OnInvalidated?.Invoke(sender, e);
+        Invalidated?.Invoke(sender, e);
     }
     
     public bool Remove(IPersistentDataPoint item)
     {
         if (!_internalValues.Remove(item)) return false;
-        item.OnInvalidated -= OnChildInvalidated;
-        OnInvalidated?.Invoke(this, EventArgs.Empty);
+        item.Invalidated -= OnChildInvalidated;
+        Invalidated?.Invoke(this, EventArgs.Empty);
         return true;
     }
 
@@ -108,5 +108,5 @@ internal class PersistentList(IEncodableDataFactory dataFactory) : IPersistentLi
         }
     }
 
-    public event EventHandler? OnInvalidated;
+    public event EventHandler? Invalidated;
 }

@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using Laminar.Contracts.Storage.FileExplorer;
 using Laminar.Contracts.Storage.IO;
 using Laminar.Contracts.Storage.PersistentData;
@@ -13,7 +11,7 @@ namespace Laminar.Implementation.Storage.FileExplorer;
 internal partial class LaminarStorageItemFactory(
     IServiceProvider provider,
     IFileSystem fileSystem,
-    IPersistentDataManager persistentDataManager,
+    IEncodableDataFactory dataFactory,
     IDeletedStorageItemCache deletedItemCache, 
     ILogger<LaminarStorageItem> logger)
     : ILaminarStorageItemFactory
@@ -61,7 +59,7 @@ internal partial class LaminarStorageItemFactory(
             return item;
         }
 
-        IPersistentDictionary persistentData = persistentDataManager.GetHeadless<IPersistentDictionary>();
+        IPersistentDictionary persistentData = dataFactory.GetEncodableData<IPersistentDictionary>();
         persistentData[LaminarStorageItem.NameKey].GetValueOrInitialize(itemNameAndExtension);
         persistentData[IsFolder].GetValueOrInitialize(isFolder);
         return FromPersistentData(persistentData, parent);

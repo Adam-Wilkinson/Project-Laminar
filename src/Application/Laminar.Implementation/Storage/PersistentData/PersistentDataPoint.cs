@@ -6,19 +6,19 @@ internal class PersistentDataPoint(IEncodableDataFactory valueFactory) : IPersis
 {
     private const string UninitializedValue = "[UNINITIALIZED DATA POINT]";
     
-    private IEncodablePersistentData? _materializedValue;
+    private IEncodableData? _materializedValue;
     private IPersistentDataTranscoder? _lastTranscoder;
     private object? _encodedValue;
     
     public void Reset()
     {
-        _materializedValue?.OnInvalidated -= ChildInvalidated;
+        _materializedValue?.Invalidated -= ChildInvalidated;
         _materializedValue = null;
         _encodedValue = null;
-        OnInvalidated?.Invoke(this, EventArgs.Empty);
+        Invalidated?.Invoke(this, EventArgs.Empty);
     }
 
-    public T GetOrCreateCollection<T>(T? knownValue) where T : class, IEncodablePersistentData
+    public T GetOrCreateCollection<T>(T? knownValue) where T : class, IEncodableData
     {
         if (_materializedValue is not null)
         {
@@ -32,9 +32,9 @@ internal class PersistentDataPoint(IEncodableDataFactory valueFactory) : IPersis
             newCollection.Decode(_lastTranscoder, _encodedValue);
         }
         
-        newCollection.OnInvalidated += ChildInvalidated;
+        newCollection.Invalidated += ChildInvalidated;
         _materializedValue = newCollection;
-        OnInvalidated?.Invoke(this, EventArgs.Empty);
+        Invalidated?.Invoke(this, EventArgs.Empty);
         return newCollection;
     }
 
@@ -52,9 +52,9 @@ internal class PersistentDataPoint(IEncodableDataFactory valueFactory) : IPersis
 
         var newValue = valueFactory.GetValueFromEncoded<T>(_encodedValue, _lastTranscoder, serializationKeyOverride,
             deserializationContext);
-        newValue.OnInvalidated += ChildInvalidated;
+        newValue.Invalidated += ChildInvalidated;
         _materializedValue = newValue;
-        OnInvalidated?.Invoke(this, EventArgs.Empty);
+        Invalidated?.Invoke(this, EventArgs.Empty);
         return newValue;
     }
 
@@ -73,9 +73,9 @@ internal class PersistentDataPoint(IEncodableDataFactory valueFactory) : IPersis
             newValue.Decode(_lastTranscoder, _encodedValue);
         }
         
-        newValue.OnInvalidated += ChildInvalidated;
+        newValue.Invalidated += ChildInvalidated;
         _materializedValue = newValue;
-        OnInvalidated?.Invoke(this, EventArgs.Empty);
+        Invalidated?.Invoke(this, EventArgs.Empty);
         return newValue;
     }
 
@@ -106,11 +106,11 @@ internal class PersistentDataPoint(IEncodableDataFactory valueFactory) : IPersis
         _materializedValue?.Decode(transcoder, encoded);
     }
 
-    public event EventHandler? OnInvalidated;
+    public event EventHandler? Invalidated;
     
     private void ChildInvalidated(object? sender, EventArgs e)
     {
         _encodedValue = null;
-        OnInvalidated?.Invoke(sender, e);
+        Invalidated?.Invoke(sender, e);
     }
 }

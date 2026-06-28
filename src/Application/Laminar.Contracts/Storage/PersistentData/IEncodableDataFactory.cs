@@ -10,5 +10,5 @@ public interface IEncodableDataFactory
 
     public IPersistentDataPoint GetDataPoint();
     
-    public T GetEncodableData<T>() where T : class, IEncodablePersistentData;
+    public T GetEncodableData<T>() where T : class, IEncodableData;
 }

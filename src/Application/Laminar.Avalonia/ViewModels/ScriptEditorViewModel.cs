@@ -142,8 +142,7 @@ public partial class ScriptEditorViewModel(
     {
         OnCurrentSelectionChanged();
     }
-
-
+    
     private void OnCurrentSelectionChanged()
     {
         OnPropertyChanged(nameof(CanDeleteSelection));
@@ -206,7 +205,7 @@ public partial class ScriptEditorViewModel(
             if (stringResult is null) continue;
             var dictionary = dataFactory.GetEncodableData<IPersistentDictionary>();
             dictionary.Decode(DefaultClipboardTranscoder, DefaultClipboardTranscoder.BytesToElement(Encoding.UTF8.GetBytes(stringResult))!);
-            var deserializedNodeTree = scriptingFactory.CreateNodeTree(dictionary);
+            var deserializedNodeTree = scriptingFactory.NodeTreeFromPersistentData(dictionary);
             var pasteAction = editor.AddSubTree(script, deserializedNodeTree);
             await userActionManager.ExecuteAction(pasteAction);
         }

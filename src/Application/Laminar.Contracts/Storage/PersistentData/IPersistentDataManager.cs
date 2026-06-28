@@ -1,4 +1,5 @@
 using Laminar.Domain.DataManagement;
+using Laminar.Domain.ValueObjects;
 
 namespace Laminar.Contracts.Storage.PersistentData;
 
@@ -8,5 +9,6 @@ public interface IPersistentDataManager : IDisposable
 
     public void ForgetDataStore(DataStoreKey dataStoreKey);
 
-    public T GetHeadless<T>() where T : IEncodablePersistentData;
+    IFileSyncedResource<T> GetFileSyncedResource<T>(T value, IPersistentDataTranscoder transcoder, FileSystemPath filePath)
+        where T : class, IEncodableDataOwner;
 }

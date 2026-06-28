@@ -50,9 +50,9 @@ public class PersistentDataPointTests
         [Fact]
         public void ShouldReturnKnownValueWhenProvided()
         {
-            var collection = Substitute.For<IEncodablePersistentData>();
+            var collection = Substitute.For<IEncodableData>();
             var dataFactory = Substitute.For<IEncodableDataFactory>();
-            dataFactory.GetEncodableData<IEncodablePersistentData>().Returns(collection);
+            dataFactory.GetEncodableData<IEncodableData>().Returns(collection);
 
             var sut = new PersistentDataPoint(dataFactory);
 
@@ -64,13 +64,13 @@ public class PersistentDataPointTests
         [Fact]
         public void ShouldResolveCollectionFromServiceProviderWhenKnownValueNull()
         {
-            var collection = Substitute.For<IEncodablePersistentData>();
+            var collection = Substitute.For<IEncodableData>();
             var dataFactory = Substitute.For<IEncodableDataFactory>();
-            dataFactory.GetEncodableData<IEncodablePersistentData>().Returns(collection);
+            dataFactory.GetEncodableData<IEncodableData>().Returns(collection);
 
             var sut = new PersistentDataPoint(dataFactory);
             
-            var result = sut.GetOrCreateCollection<IEncodablePersistentData>(null);
+            var result = sut.GetOrCreateCollection<IEncodableData>(null);
 
             result.Should().BeSameAs(collection);
         }
@@ -78,14 +78,14 @@ public class PersistentDataPointTests
         [Fact]
         public void ShouldReturnExistingCollection()
         {
-            var collection = Substitute.For<IEncodablePersistentData>();
+            var collection = Substitute.For<IEncodableData>();
             var dataFactory = Substitute.For<IEncodableDataFactory>();
-            dataFactory.GetEncodableData<IEncodablePersistentData>().Returns(collection);
+            dataFactory.GetEncodableData<IEncodableData>().Returns(collection);
 
             var sut = new PersistentDataPoint(dataFactory);
 
             var result1 = sut.GetOrCreateCollection(collection);
-            var result2 = sut.GetOrCreateCollection<IEncodablePersistentData>(null);
+            var result2 = sut.GetOrCreateCollection<IEncodableData>(null);
 
             result2.Should().BeSameAs(result1);
         }
@@ -93,10 +93,10 @@ public class PersistentDataPointTests
         [Fact]
         public void ShouldDecodeWhenEncodedValueExists()
         {
-            var collection = Substitute.For<IEncodablePersistentData>();
+            var collection = Substitute.For<IEncodableData>();
             var dataFactory = Substitute.For<IEncodableDataFactory>();
             var transcoder = Substitute.For<IPersistentDataTranscoder>();
-            dataFactory.GetEncodableData<IEncodablePersistentData>().Returns(collection);
+            dataFactory.GetEncodableData<IEncodableData>().Returns(collection);
 
             var sut = new PersistentDataPoint(dataFactory);
 
@@ -110,18 +110,18 @@ public class PersistentDataPointTests
         [Fact]
         public void ShouldSubscribeToInvalidation()
         {
-            var collection = Substitute.For<IEncodablePersistentData>();
+            var collection = Substitute.For<IEncodableData>();
             var dataFactory = Substitute.For<IEncodableDataFactory>();
-            dataFactory.GetEncodableData<IEncodablePersistentData>().Returns(collection);
+            dataFactory.GetEncodableData<IEncodableData>().Returns(collection);
 
             var sut = new PersistentDataPoint(dataFactory);
 
             sut.GetOrCreateCollection(collection);
 
             var raised = false;
-            sut.OnInvalidated += (_, _) => raised = true;
+            sut.Invalidated += (_, _) => raised = true;
 
-            collection.OnInvalidated += Raise.Event<EventHandler>(collection, EventArgs.Empty);
+            collection.Invalidated += Raise.Event<EventHandler>(collection, EventArgs.Empty);
 
             raised.Should().BeTrue();
         }
@@ -210,9 +210,9 @@ public class PersistentDataPointTests
             sut.GetValue<string>();
 
             var raised = false;
-            sut.OnInvalidated += (_, _) => raised = true;
+            sut.Invalidated += (_, _) => raised = true;
 
-            value.OnInvalidated += Raise.Event<EventHandler>(value, EventArgs.Empty);
+            value.Invalidated += Raise.Event<EventHandler>(value, EventArgs.Empty);
 
             raised.Should().BeTrue();
         }

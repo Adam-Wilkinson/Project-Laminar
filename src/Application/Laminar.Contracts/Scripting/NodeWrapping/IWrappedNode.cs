@@ -22,7 +22,7 @@ public interface IWrappedNode : INotificationClient<LaminarExecutionContext>
 
     public ILoadedNodeInfo Info { get; }
 
-    public IEncodablePersistentData PersistentData { get; }
+    public IEncodableData PersistentData { get; }
 
     void Update(LaminarExecutionContext context);
 }

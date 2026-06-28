@@ -3,7 +3,7 @@ using Laminar.Contracts.Storage.PersistentData;
 namespace Laminar.Implementation.Storage.PersistentData;
 
 public class EncodableDataAdapter<TValue, TEncodable>(Func<TValue, TEncodable> toEncodable, Func<TEncodable, TValue> fromEncodable) : IPersistenceAdapter<TValue>
-    where TEncodable : class, IEncodablePersistentData
+    where TEncodable : class, IEncodableData
 {
     public void Persist(TValue value, IPersistentDataPoint dataPoint)
     {

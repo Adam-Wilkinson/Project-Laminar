@@ -62,7 +62,7 @@ internal class PersistentValue<T> : ObservableValueBase<T>, IPersistentValue<T> 
     
     protected override void AfterValueChanged() => EstablishValue();
 
-    private void OnSerializedValueChanged(object? sender, EventArgs e) => OnInvalidated?.Invoke(sender, e);
+    private void OnSerializedValueChanged(object? sender, EventArgs e) => Invalidated?.Invoke(sender, e);
 
     private void CleanupValue()
     {
@@ -78,7 +78,7 @@ internal class PersistentValue<T> : ObservableValueBase<T>, IPersistentValue<T> 
         
         _serializedValueChangedNotifier = _serializer.GetSerializedValueChangedNotifier(Value, _typeSerializationKey);
         _serializedValueChangedNotifier.SerializedValueChanged += OnSerializedValueChanged;
-        OnInvalidated?.Invoke(this, EventArgs.Empty);
+        Invalidated?.Invoke(this, EventArgs.Empty);
     }
     
     public object Encode(IPersistentDataTranscoder transcoder)
@@ -93,7 +93,7 @@ internal class PersistentValue<T> : ObservableValueBase<T>, IPersistentValue<T> 
             Value);
     }
 
-    public event EventHandler? OnInvalidated;
+    public event EventHandler? Invalidated;
     
     private static T GetValueFromEncoded(object encodedValue, ISerializer serializer, IPersistentDataTranscoder transcoder, Type typeSerializationKey,
         object? deserializationContext, object? existingValue)
