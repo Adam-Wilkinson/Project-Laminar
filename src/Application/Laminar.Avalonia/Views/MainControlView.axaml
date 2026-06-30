@@ -57,9 +57,7 @@
                     </Border>
                 </asp:AdjustableStackPanel>
                 
-                <ContentControl Classes="UiLayer"
-                                ClipToBounds="True"
-                                Content="{Binding ScriptEditor}"/>
+                <ContentControl Content="{Binding CentralFileEditor}"/>
             </DockPanel>
         </Panel>
         

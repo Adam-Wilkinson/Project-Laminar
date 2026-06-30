@@ -191,6 +191,8 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
             OnPropertyChanged(nameof(CanChangeIsEnabled));
             OnPropertyChanged(nameof(IsEffectivelyEnabled));
             OnPropertyChanged(nameof(IsEnabled));
+            OpenCommand.NotifyCanExecuteChanged();
+            AddItemCommand.NotifyCanExecuteChanged();
 
             if (IsExpanded)
             {
@@ -210,10 +212,10 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
         Children?.Add(_fromItemTypeFactory(itemType));
     }
 
-    [RelayCommand(CanExecute = nameof(IsFile))]
+    [RelayCommand(CanExecute = nameof(CanExecuteOpenCommand))]
     private async Task Open()
     {
-        if (CoreItem is not ILaminarStorageFile file)
+        if (CoreItem is not ILaminarStorageFile)
             return;
 
         FileNavigatorItemViewModel? currentTarget = this;
@@ -229,13 +231,17 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
             return;
         }
         
-        await ofs.RequestOpenFile(file);
+        await ofs.RequestOpenFile(this);
     }
 
-    public bool IsFolder() => CoreItem is ILaminarStorageFolder;
+    public bool IsFolder => CoreItem is ILaminarStorageFolder;
     
-    public bool IsFile() => CoreItem is ILaminarStorageFile;
+    public bool CanExecuteOpenCommand => CoreItem is ILaminarStorageFile && !IsOpen;
 
+    [ObservableProperty] 
+    [NotifyCanExecuteChangedFor(nameof(OpenCommand))]
+    public partial bool IsOpen { get; set; }
+    
     [RelayCommand]
     private void Rename() => NameBeingSet = true;
 

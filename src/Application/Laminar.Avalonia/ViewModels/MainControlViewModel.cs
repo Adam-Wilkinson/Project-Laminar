@@ -1,23 +1,22 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Laminar.Avalonia.ViewModels.Services;
+using Laminar.Avalonia.Views;
 using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Contracts.Storage.FileExplorer;
 using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain;
 using Laminar.Implementation.Storage.PersistentData;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Laminar.Avalonia.ViewModels;
 
 public partial class MainControlViewModel : ViewModelBase, IOpenFileService, IDisposable
 {
-    private readonly IServiceProvider _serviceProvider;
     private readonly ScopedViewModel<FileNavigatorViewModel> _scopedFileNavigator;
     private readonly IScriptingFactory _scriptingFactory;
     private readonly IPersistentDataTranscoder _scriptTranscoder;
-    private ScopedViewModel<ScriptEditorViewModel>? _scopedScriptEditor;
-    private ILaminarFileResource<IScript>? _openScriptFile;
     
     public MainControlViewModel(
         IServiceProvider serviceProvider, 
@@ -27,10 +26,9 @@ public partial class MainControlViewModel : ViewModelBase, IOpenFileService, IDi
         ILogger<JsonPersistentDataTranscoder> transcoderLogger)
     {
         _scopedFileNavigator = new ScopedViewModel<FileNavigatorViewModel>(serviceProvider, this);
-        _serviceProvider = serviceProvider;
-        
         _scriptingFactory = scriptingFactory;
         _scriptTranscoder = new JsonPersistentDataTranscoder(transcoderLogger);
+        CentralFileEditor = new OpenFileViewModel(serviceProvider);
         
         if (FindFirstFile(file => file.CoreItem?.Info.ContentsType == typeof(IScript)) is { } firstScript)
         {
@@ -57,8 +55,7 @@ public partial class MainControlViewModel : ViewModelBase, IOpenFileService, IDi
 
     public FileNavigatorViewModel FileNavigator => _scopedFileNavigator.ViewModel;
 
-    [ObservableProperty]
-    public partial ScriptEditorViewModel? ScriptEditor { get; private set; }
+    public OpenFileViewModel CentralFileEditor { get; }
 
     partial void OnSidebarExpandedChanged(bool value)
     {
@@ -78,25 +75,20 @@ public partial class MainControlViewModel : ViewModelBase, IOpenFileService, IDi
     public void Dispose()
     {
         _scopedFileNavigator.Dispose();
-        _scopedScriptEditor?.Dispose();
-        _openScriptFile?.Dispose();
+        CentralFileEditor.Dispose();
         GC.SuppressFinalize(this);
     }
 
-    public Task RequestOpenFile(ILaminarStorageFile file)
+    public Task RequestOpenFile(FileNavigatorItemViewModel file)
     {
-        if (file.Info.ContentsType != typeof(IScript)) return Task.CompletedTask;
-        
-        _openScriptFile?.Dispose();
-        _scopedScriptEditor?.Dispose();
-        ScriptEditor = null;
-        _openScriptFile = file.GetContentsAsResource(_scriptTranscoder, _scriptingFactory);
-        _scopedScriptEditor = new ScopedViewModel<ScriptEditorViewModel>(_serviceProvider, _openScriptFile.Value);
-        ScriptEditor = _scopedScriptEditor.ViewModel;
+        if (file.CoreItem?.Info.ContentsType != typeof(IScript)) return Task.CompletedTask;
+
+        CentralFileEditor.OpenFile(file, _scriptTranscoder, _scriptingFactory,
+            (provider, script) => ActivatorUtilities.CreateInstance<ScriptEditorViewModel>(provider, script));
         return Task.CompletedTask;
     }
 
-    private ILaminarStorageFile? FindFirstFile(Func<FileNavigatorItemViewModel, bool> predicate)
+    private FileNavigatorItemViewModel? FindFirstFile(Func<FileNavigatorItemViewModel, bool> predicate)
     {
         FileNavigatorItemViewModel? firstFile = FileNavigator.RootFiles[0];
         while (firstFile.CoreItem is not ILaminarStorageFile && !predicate(firstFile))
@@ -110,8 +102,8 @@ public partial class MainControlViewModel : ViewModelBase, IOpenFileService, IDi
 
             firstFile = firstFile.Children[0];
         }
-        
-        return firstFile?.CoreItem as ILaminarStorageFile;
+
+        return firstFile;
     }
 
     private FileNavigatorItemViewModel? GetNext(FileNavigatorItemViewModel? current)
