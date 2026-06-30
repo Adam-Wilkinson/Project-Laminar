@@ -57,7 +57,8 @@ public partial class MainControlViewModel : ViewModelBase, IOpenFileService, IDi
 
     public FileNavigatorViewModel FileNavigator => _scopedFileNavigator.ViewModel;
 
-    public ScriptEditorViewModel? ScriptEditor => _scopedScriptEditor?.ViewModel;
+    [ObservableProperty]
+    public partial ScriptEditorViewModel? ScriptEditor { get; private set; }
 
     partial void OnSidebarExpandedChanged(bool value)
     {
@@ -78,19 +79,21 @@ public partial class MainControlViewModel : ViewModelBase, IOpenFileService, IDi
     {
         _scopedFileNavigator.Dispose();
         _scopedScriptEditor?.Dispose();
+        _openScriptFile?.Dispose();
         GC.SuppressFinalize(this);
     }
 
-    public async Task RequestOpenFile(ILaminarStorageFile file)
+    public Task RequestOpenFile(ILaminarStorageFile file)
     {
-        if (file.Info.ContentsType != typeof(IScript)) return;
+        if (file.Info.ContentsType != typeof(IScript)) return Task.CompletedTask;
         
-        var script = file.GetContentsAsResource(_scriptTranscoder, _scriptingFactory);
         _openScriptFile?.Dispose();
-        _openScriptFile = script;
         _scopedScriptEditor?.Dispose();
+        ScriptEditor = null;
+        _openScriptFile = file.GetContentsAsResource(_scriptTranscoder, _scriptingFactory);
         _scopedScriptEditor = new ScopedViewModel<ScriptEditorViewModel>(_serviceProvider, _openScriptFile.Value);
-        OnPropertyChanged(nameof(ScriptEditor));
+        ScriptEditor = _scopedScriptEditor.ViewModel;
+        return Task.CompletedTask;
     }
 
     private ILaminarStorageFile? FindFirstFile(Func<FileNavigatorItemViewModel, bool> predicate)

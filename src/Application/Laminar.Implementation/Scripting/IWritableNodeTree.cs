@@ -14,7 +14,7 @@ public interface IWritableNodeTree : INodeTree
     
     public bool TryConnect(IOutputConnector outputConnector, IInputConnector inputConnector, [NotNullWhen(true)] out IConnection? connection);
 
-    public bool ConnectionExists(IOutputConnector outputConnector, IInputConnector inputConnector);
+    public bool ConnectionExists(IOutputConnector outputConnector, IInputConnector inputConnector, [NotNullWhen(true)] out IConnection? existingConnection);
     
     public bool SeverConnection(IOutputConnector outputConnector, IInputConnector inputConnector);
 }

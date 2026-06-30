@@ -8,11 +8,14 @@ using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.Notification.Collections;
 using Laminar.Implementation.Scripting.Connections;
 using Laminar.PluginFramework.NodeSystem.Connectors;
+using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.Scripting;
 
 internal class WritableNodeTree : IWritableNodeTree
 {
+    private readonly ILogger<WritableNodeTree> _logger;
+        
     private readonly Dictionary<IConnector, ConnectorInformation> _connectorsInformation = [];
     private readonly Dictionary<IWrappedNode, NodeInformation> _nodesInformation = [];
     private readonly Dictionary<string, IWrappedNode> _nodesDictionary = [];
@@ -24,10 +27,12 @@ internal class WritableNodeTree : IWritableNodeTree
     public WritableNodeTree(
         IPersistentDictionary persistentDictionary, 
         INodeFactory nodeFactory,
+        ILogger<WritableNodeTree> logger,
         IEnumerable<IWrappedNode>? nodes = null, 
         IEnumerable<IConnection>? connections = null)
     {
         PersistentData = persistentDictionary;
+        _logger = logger;
 
         _persistentNodes = persistentDictionary["Nodes"].GetOrCreateCollection<IPersistentDictionary>();
         foreach (var (key, dataPoint) in _persistentNodes)
@@ -146,6 +151,12 @@ internal class WritableNodeTree : IWritableNodeTree
     private bool TryConnectWithoutSerializing(IOutputConnector outputConnector, IInputConnector inputConnector,
         [NotNullWhen(true)] out Connection? connection)
     {
+        if (ConnectionExists(outputConnector, inputConnector, out var existingConnection) && existingConnection is Connection typedConnection)
+        {
+            connection = typedConnection;
+            return true;
+        }
+        
         if (!outputConnector.TryConnectTo(inputConnector) && !inputConnector.TryConnectTo(outputConnector))
         {
             connection = null;
@@ -177,13 +188,29 @@ internal class WritableNodeTree : IWritableNodeTree
         return true;
     }
 
-    public bool ConnectionExists(IOutputConnector outputConnector, IInputConnector inputConnector)
-        => GetConnectorInformation(outputConnector).Connections.ContainsKey(inputConnector) 
-           || GetConnectorInformation(inputConnector).Connections.ContainsKey(outputConnector);
+    public bool ConnectionExists(IOutputConnector outputConnector, IInputConnector inputConnector,
+        [NotNullWhen(true)] out IConnection? existingConnection)
+    {
+        if (GetConnectorInformation(outputConnector).Connections.TryGetValue(inputConnector, out var info))
+        {
+            existingConnection = info.Connection;
+            return true;
+        }
+
+        if (GetConnectorInformation(inputConnector).Connections.TryGetValue(outputConnector, out info))
+        {
+            _logger.LogWarning("Node tree found connection in one direction but not the other, this script is in an error state.");
+            existingConnection = info.Connection;
+            return true;
+        }
+        
+        existingConnection = null;
+        return false;
+    }
 
     public bool SeverConnection(IOutputConnector outputConnector, IInputConnector inputConnector)
     {
-        if (!ConnectionExists(outputConnector, inputConnector)) return false;
+        if (!ConnectionExists(outputConnector, inputConnector, out _)) return false;
 
         var inputInfo = GetConnectorInformation(inputConnector);
         var outputInfo = GetConnectorInformation(outputConnector);

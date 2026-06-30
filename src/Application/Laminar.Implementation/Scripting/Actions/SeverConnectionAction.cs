@@ -16,11 +16,11 @@ internal readonly struct SeverConnectionAction(
     
     public IInputConnector InputConnector { get; } = inputConnector;
 
-    public bool CanExecute => writableNodeTree.ConnectionExists(OutputConnector, InputConnector);
+    public bool CanExecute => writableNodeTree.ConnectionExists(OutputConnector, InputConnector, out _);
 
     public Task<IUserActionResult> Execute()
     {
-        if (!writableNodeTree.ConnectionExists(OutputConnector, InputConnector))
+        if (!writableNodeTree.ConnectionExists(OutputConnector, InputConnector, out _))
         {
             return Task.FromResult(IUserActionResult.Error(new ConnectionDoesNotExistException(OutputConnector, InputConnector)));
         }

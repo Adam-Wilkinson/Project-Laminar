@@ -28,7 +28,6 @@ public sealed class ResourceOnDisk<TValue, TData>
         _transcoder = transcoder;
         _fileContents = fileSystem.GetFile(filePath);
         _fileSystem = fileSystem;
-        _flushTimer = new(_ => SynchronousFlush(), null, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
         
         var data = dataFactory.GetEncodableData<TData>();
         if (_fileContents.Contents.Length > 0)
@@ -39,6 +38,8 @@ public sealed class ResourceOnDisk<TValue, TData>
         
         data.Invalidated += OnDataInvalidated;
         Resource = decodingFactory.FromPersistentData(data);
+        
+        _flushTimer = new(_ => SynchronousFlush(), null, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
     }
 
     public TValue Resource { get; }
@@ -68,6 +69,7 @@ public sealed class ResourceOnDisk<TValue, TData>
 
     internal void SynchronousFlush()
     {
+        if (_isDisposed) return;
         var encoded = Resource.Data.Encode(_transcoder);
         _fileContents.Contents = _transcoder.ElementToBytes(encoded);
     }
@@ -77,13 +79,14 @@ public sealed class ResourceOnDisk<TValue, TData>
         if (_isDisposed) return;
         lock (_timerLock)
         {
-            _flushTimer.Change(FlushDelay, Timeout.InfiniteTimeSpan);
+            _flushTimer?.Change(FlushDelay, Timeout.InfiniteTimeSpan);
         }
     }
 
     public void Dispose()
     {
         if (_isDisposed) return;
+        SynchronousFlush();
         _isDisposed = true;
         _fileContents.Dispose();
         Resource.Data.Invalidated -= OnDataInvalidated;
