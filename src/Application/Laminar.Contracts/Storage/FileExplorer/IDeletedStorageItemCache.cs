@@ -6,7 +6,7 @@ public interface IDeletedStorageItemCache
 {
     public void RegisterPotentialDeletion(ILaminarStorageItem potentialDeletion);
 
-    public ILaminarStorageItem? TryFind(FileSystemPath mightExist);
+    public ILaminarStorageItem? TryFindAndRemove(FileSystemPath mightExist);
     
-    public void Clear();
+    public void CommitDeletions();
 }

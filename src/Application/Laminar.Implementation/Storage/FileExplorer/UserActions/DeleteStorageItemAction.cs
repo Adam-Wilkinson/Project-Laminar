@@ -38,7 +38,15 @@ internal readonly struct DeleteStorageItemAction(LaminarStorageItem item, FileEx
             });
         }
         
-        return _internalAction.Execute();
+        var executionResult = _internalAction.Execute();
+
+        if (executionResult.Result is UserActionSuccess)
+        {
+            item.RaiseOnDeleted();
+        }
+        
+        
+        return executionResult;
     }
     
     private static string GetDeletedName(string name) => $"({DateTime.UtcNow.Ticks}) {name}";

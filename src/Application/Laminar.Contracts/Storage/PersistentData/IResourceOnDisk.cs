@@ -2,7 +2,7 @@ using Laminar.Domain.ValueObjects;
 
 namespace Laminar.Contracts.Storage.PersistentData;
 
-public interface IFileSyncedResource<out T> : IDisposable where T : class, IEncodableDataOwner
+public interface IResourceOnDisk<out T> : IDisposable where T : class, IEncodableDataOwner<IEncodableData>
 {
     public T Resource { get; }
     

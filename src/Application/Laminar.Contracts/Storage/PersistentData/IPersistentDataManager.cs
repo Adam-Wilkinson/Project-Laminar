@@ -9,6 +9,8 @@ public interface IPersistentDataManager : IDisposable
 
     public void ForgetDataStore(DataStoreKey dataStoreKey);
 
-    IFileSyncedResource<T> GetFileSyncedResource<T>(T value, IPersistentDataTranscoder transcoder, FileSystemPath filePath)
-        where T : class, IEncodableDataOwner;
+    public IResourceOnDisk<TValue> GetResourceOnDisk<TValue, TData>(FileSystemPath filePath, 
+        IPersistentDataTranscoder transcoder, IDecodingFactory<TValue, TData> factory)
+        where TValue : class, IEncodableDataOwner<TData>
+        where TData : class, IEncodableData;
 }

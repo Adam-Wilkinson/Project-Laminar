@@ -28,12 +28,13 @@ internal partial class LaminarStorageItemFactory(
 
         if (_allStorageItems.TryGetValue(newItemPath, out var existing))
         {
+            deletedItemCache.TryFindAndRemove(newItemPath);
             return ReferenceEquals(existing.PersistentStorage, persistentDictionary) 
                 ? existing 
                 : throw new InvalidOperationException("Attempt to deserialize existing storage item");
         }
 
-        if (deletedItemCache.TryFind(newItemPath) is LaminarStorageItem recentDeletion)
+        if (deletedItemCache.TryFindAndRemove(newItemPath) is LaminarStorageItem recentDeletion)
         {
             LogRequestedFileMatchesRecentDeletion(logger, newItemPath);
             _allStorageItems[newItemPath] = recentDeletion;
@@ -41,10 +42,10 @@ internal partial class LaminarStorageItemFactory(
         }
 
         var isFolder = persistentDictionary[IsFolder].GetValueOrInitialize(fileSystem.IsDirectory(newItemPath));
-        
+
         LaminarStorageItem newItem = isFolder.Value
-            ? new LaminarStorageFolder(internalParent, this, fileSystem, persistentDictionary, logger)
-            : new LaminarStorageFile(internalParent, fileSystem, persistentDictionary, logger);
+            ? ActivatorUtilities.CreateInstance<LaminarStorageFolder>(provider, internalParent, persistentDictionary)
+            : ActivatorUtilities.CreateInstance<LaminarStorageFile>(provider, internalParent, persistentDictionary);
         
         RegisterNewItem(newItem);
 
@@ -81,6 +82,9 @@ internal partial class LaminarStorageItemFactory(
         {
             _allStorageItems.Remove(e.OldValue);
             _allStorageItems[e.NewValue] = newItem;
+            
+            // The path has changed, but the item still exists. Clear any potential deletions during this move
+            deletedItemCache.TryFindAndRemove(e.NewValue);
         };
 
         newItem.RootFolderDisposed += (_, _) => _allStorageItems.Remove(newItem.Path);

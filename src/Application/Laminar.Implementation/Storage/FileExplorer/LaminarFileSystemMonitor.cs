@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Runtime.ExceptionServices;
-using System.Threading;
+﻿using System.Runtime.ExceptionServices;
 using System.Threading.Channels;
-using System.Threading.Tasks;
 using Laminar.Contracts.Base;
 using Laminar.Contracts.Storage.FileExplorer;
 using Laminar.Contracts.Storage.IO;
@@ -161,7 +156,7 @@ internal partial class LaminarFileSystemMonitor(
                 {
                     folder.Refresh();
                 }
-                deletedItemCache.Clear();
+                deletedItemCache.CommitDeletions();
             }
             catch (TaskCanceledException) { }
             catch (Exception ex)

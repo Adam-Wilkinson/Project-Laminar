@@ -1,7 +1,5 @@
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
+using System.Diagnostics.CodeAnalysis;
 using Laminar.Contracts.Storage.FileExplorer;
 using Laminar.Contracts.Storage.IO;
 using Laminar.Domain.ValueObjects;
@@ -12,13 +10,12 @@ internal class DeletedStorageItemCache(IFileSystem fileSystem) : IDeletedStorage
 {
     private static readonly TimeSpan DeletedItemMoveDetectionCooldown = new(0, 0, 2);
 
-    private readonly Dictionary<int, List<(StorageItemDescriptor descriptor, ILaminarStorageItem item, DateTime timestamp)>> _cache = [];
+    private readonly Dictionary<int, StorageItemDescriptorBucket> _cache = [];
 
     public void RegisterPotentialDeletion(ILaminarStorageItem potentialDeletion)
     {
         var descriptor = StorageItemDescriptor.FromItem(potentialDeletion);
 
-        // Not eligible (e.g. folder without initialized contents)
         if (descriptor is null)
             return;
 
@@ -26,46 +23,37 @@ internal class DeletedStorageItemCache(IFileSystem fileSystem) : IDeletedStorage
 
         if (!_cache.TryGetValue(hash, out var bucket))
         {
-            bucket = [];
+            bucket = new StorageItemDescriptorBucket();
             _cache[hash] = bucket;
         }
 
-        bucket.Add((descriptor.Value, potentialDeletion, DateTime.Now));
+        bucket.Add(descriptor.Value, potentialDeletion);
     }
 
-    public ILaminarStorageItem? TryFind(FileSystemPath path)
+    public ILaminarStorageItem? TryFindAndRemove(FileSystemPath path)
     {
         if (!fileSystem.Exists(path)) return null;
         
         var descriptor = StorageItemDescriptor.FromPath(path, fileSystem);
 
-        // If descriptor has no children for a folder, you still allow it,
-        // but matching will naturally fail unless it’s strong enough.
         int hash = ComputeHash(descriptor);
 
         if (!_cache.TryGetValue(hash, out var bucket))
             return null;
-
-        var now = DateTime.Now;
-
-        foreach (var (cachedDescriptor, item, timestamp) in bucket)
-        {
-            if (now - timestamp > DeletedItemMoveDetectionCooldown)
-                continue;
-
-            if (DescriptorsAreEqual(cachedDescriptor, descriptor))
-                return item;
-        }
-
-        return null;
+        
+        return bucket.TryGetAndPop(descriptor, out var item) ? item : null;
     }
 
-    public void Clear() => _cache.Clear();
-
-    // -------------------------
-    // Hashing (fast pre-filter)
-    // -------------------------
-
+    public void CommitDeletions()
+    {
+        while (_cache.Count > 0)
+        {
+            var (key, value) = _cache.First();
+            _cache.Remove(key);
+            value.DeleteAllContents();
+        }
+    }
+    
     private static int ComputeHash(StorageItemDescriptor d)
     {
         var hash = new HashCode();
@@ -110,9 +98,6 @@ internal class DeletedStorageItemCache(IFileSystem fileSystem) : IDeletedStorage
         return hash.ToHashCode();
     }
 
-    // -------------------------
-    // Exact comparison (safety)
-    // -------------------------
 
     private static bool DescriptorsAreEqual(StorageItemDescriptor a, StorageItemDescriptor b)
     {
@@ -153,9 +138,47 @@ internal class DeletedStorageItemCache(IFileSystem fileSystem) : IDeletedStorage
 
         return true;
     }
+    
+    private class StorageItemDescriptorBucket
+    {
+        private readonly List<(StorageItemDescriptor descriptor, ILaminarStorageItem item, DateTime timestamp)> _values = [];
+
+        public void Add(StorageItemDescriptor descriptor, ILaminarStorageItem item)
+        {
+            _values.Add((descriptor, item, DateTime.Now));
+        }
+
+        public bool TryGetAndPop(StorageItemDescriptor descriptor, [NotNullWhen(true)] out ILaminarStorageItem? item)
+        {
+            int hitIndex = _values.Index()
+                .FirstOrDefault(x => DateTime.Now - x.Item.timestamp < DeletedItemMoveDetectionCooldown && DescriptorsAreEqual(descriptor, x.Item.descriptor))
+                is var match
+                ? match.Index : -1;
+
+            if (hitIndex == -1)
+            {
+                item = null;
+                return false;
+            }
+
+            item = _values[hitIndex].item;
+            _values.RemoveAt(hitIndex);
+            return true;
+        }
+
+        public void DeleteAllContents()
+        {
+            foreach (var (_, item, _) in _values)
+            {
+                (item as LaminarStorageItem)?.RaiseOnDeleted();
+            }
+            
+            _values.Clear();
+        }
+    }
 }
 
-public readonly struct StorageItemDescriptor
+internal readonly struct StorageItemDescriptor
 {
     private static readonly IComparer<StorageItemDescriptor> Comparer = Comparer<StorageItemDescriptor>.Create(
         (x, y) => FileSystemPath.RuntimeStringComparer.Compare(x.Name, y.Name));

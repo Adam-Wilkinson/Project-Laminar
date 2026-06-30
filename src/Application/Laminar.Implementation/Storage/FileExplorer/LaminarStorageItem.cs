@@ -43,6 +43,8 @@ internal abstract class LaminarStorageItem : ILaminarStorageItem
     public virtual FileSystemPath Path => ParentFolder?.Path.ChildPath(_nameWithExtension) 
                                           ?? throw new InvalidOperationException("Non-root storage items must have a parent");
 
+    public abstract StorageItemType Info { get; }
+
     public string UserFriendlyName
     {
         get
@@ -67,6 +69,8 @@ internal abstract class LaminarStorageItem : ILaminarStorageItem
     
     public event EventHandler? RootFolderDisposed;
 
+    public event EventHandler? OnDeleted;
+    
     protected virtual void OnParentRootFolderDisposed(object? sender, EventArgs e) => RootFolderDisposed?.Invoke(sender, e);
 
     public ILaminarStorageFolder? ParentFolder { get; private set; }
@@ -118,9 +122,14 @@ internal abstract class LaminarStorageItem : ILaminarStorageItem
         OnPropertyChanged(nameof(Path));
     }
     
-    public virtual void OnEffectivelyEnabledChanged()
+    internal virtual void OnEffectivelyEnabledChanged()
     {
         OnPropertyChanged(nameof(IsEffectivelyEnabled));
+    }
+
+    internal void RaiseOnDeleted()
+    {
+        OnDeleted?.Invoke(this, EventArgs.Empty);
     }
 
     protected abstract void RefreshOverride();

@@ -6,16 +6,16 @@
              xmlns:c="using:Laminar.Avalonia.Controls"
              xmlns:t="using:Laminar.Avalonia.ToolSystem"
              xmlns:fe="using:Laminar.Contracts.Storage.FileExplorer"
-             xmlns:shapes="using:Laminar.Avalonia.Shapes"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Laminar.Avalonia.Views.FileNavigatorItemView"
              x:DataType="vm:FileNavigatorItemViewModel"
-             t:ToolMenu.QuickAccessKey="{Binding Type, 
+             t:ToolMenu.QuickAccessKey="{Binding Type.ItemTypeName, 
              Converter={StaticResource ToStringConverter}}">
     
     <UserControl.Resources>
         <ResourceDictionary>
             <t:Toolbox x:Key="ScriptContextMenu" DataType="vm:FileNavigatorItemViewModel" NameKey="Script">
+                <StaticResource ResourceKey="Tools.FileSystem.StorageItem.Open"/>
                 <StaticResource ResourceKey="Tools.FileSystem.StorageItem.Rename"/>
                 <StaticResource ResourceKey="Tools.FileSystem.StorageItem.ToggleEnabled"/>
                 <StaticResource ResourceKey="Tools.FileSystem.StorageItem.Delete"/>
@@ -28,14 +28,20 @@
                 <StaticResource ResourceKey="Tools.FileSystem.StorageItem.AddChild"/>
                 <StaticResource ResourceKey="Tools.FileSystem.StorageItem.OpenInFileBrowser"/>
             </t:Toolbox>
+            
+            <t:Toolbox x:Key="UnknownFileContextMenu" DataType="vm:FileNavigatorItemViewModel" NameKey="File">
+                <StaticResource ResourceKey="Tools.FileSystem.StorageItem.Rename"/>
+                <StaticResource ResourceKey="Tools.FileSystem.StorageItem.Delete"/>
+            </t:Toolbox>
         </ResourceDictionary>
     </UserControl.Resources>
     
     <t:ToolMenu.ContextToolbox>
         <MultiBinding Converter="{StaticResource SwitchConverter}">
             <Binding Path="Type"/>
-            <Binding Source="{StaticResource ScriptContextMenu}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static fe:StorageItemType.Script}"/>
             <Binding Source="{StaticResource FolderContextMenu}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static fe:StorageItemType.Folder}"/>
+            <Binding Source="{StaticResource ScriptContextMenu}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static fe:StorageItemType.Script}"/>
+            <Binding Source="{StaticResource UnknownFileContextMenu}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static fe:StorageItemType.Unknown}"/>
         </MultiBinding>
     </t:ToolMenu.ContextToolbox>
     
@@ -48,7 +54,7 @@
                       VerticalAlignment="Stretch"
                       HorizontalAlignment="Right"
                       ClipToBounds="True"
-                      ItemsSource="{t:QuickAccess {Binding Type, Converter={StaticResource ToStringConverter}}}">
+                      ItemsSource="{t:QuickAccess {CompiledBindingExtension Path=Type.ItemTypeName, DataType=vm:FileNavigatorItemViewModel, Converter={StaticResource ToStringConverter}}}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch"/>

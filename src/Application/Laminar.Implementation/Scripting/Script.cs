@@ -10,21 +10,13 @@ internal class Script : IScript
     
     private readonly IWritableNodeTree _writableNodeTree;
 
-    public Script(
-        IScriptExecutionManager executionManager, 
-        IPersistentDictionary persistentData,
-        IScriptingFactory scriptingFactory)
+    public Script(IScriptExecutionManager executionManager, IPersistentDictionary persistentData, IScriptingFactory scriptingFactory)
     {
         _writableNodeTree =
             (IWritableNodeTree)scriptingFactory.NodeTreeFromPersistentData(persistentData[NodeTreeKey]
                 .GetOrCreateCollection<IPersistentDictionary>());
         ExecutionInstance = executionManager.CreateExecutionInstance(WritableNodeTree);
-    }
-    
-    public Script(IScriptExecutionManager executionManager, IWritableNodeTree writableNodeTree)
-    {
-        _writableNodeTree = writableNodeTree;
-        ExecutionInstance = executionManager.CreateExecutionInstance(WritableNodeTree);
+        Data = persistentData;
     }
     
     public INodeTree WritableNodeTree => _writableNodeTree;
@@ -32,4 +24,6 @@ internal class Script : IScript
     public ScriptState State => ExecutionInstance.State;
 
     public IScriptExecutionInstance ExecutionInstance { get; }
+    
+    public IPersistentDictionary Data { get; }
 }

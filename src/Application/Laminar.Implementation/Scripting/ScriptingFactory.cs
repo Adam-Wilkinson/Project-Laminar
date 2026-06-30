@@ -13,16 +13,15 @@ internal class ScriptingFactory(
     INodeFactory nodeFactory)
     : IScriptingFactory
 {
-    public IScript CreateScript() => new Script(scriptExecutionManager,
-        new WritableNodeTree(dataFactory.GetEncodableData<IPersistentDictionary>(), nodeFactory));
+    public IScript CreateScript() 
+        => new Script(scriptExecutionManager, dataFactory.GetEncodableData<IPersistentDictionary>(), this);
 
-    public INodeTree CreateNodeTree(IEnumerable<IWrappedNode> nodes, IEnumerable<IConnection> connections)
-    {
-        return new WritableNodeTree(dataFactory.GetEncodableData<IPersistentDictionary>(), nodeFactory, nodes, connections);
-    }
+    public INodeTree CreateNodeTree(IEnumerable<IWrappedNode> nodes, IEnumerable<IConnection> connections) 
+        => new WritableNodeTree(dataFactory.GetEncodableData<IPersistentDictionary>(), nodeFactory, nodes, connections);
 
-    public INodeTree NodeTreeFromPersistentData(IPersistentDictionary persistentDictionary)
-    {
-        return new WritableNodeTree(persistentDictionary, nodeFactory);
-    }
+    public INodeTree NodeTreeFromPersistentData(IPersistentDictionary persistentDictionary) 
+        => new WritableNodeTree(persistentDictionary, nodeFactory);
+
+    public IScript FromPersistentData(IPersistentDictionary encodableData) 
+        => new Script(scriptExecutionManager, encodableData, this);
 }

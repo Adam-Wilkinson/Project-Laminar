@@ -4,7 +4,9 @@ using Laminar.Domain.ValueObjects;
 
 namespace Laminar.Implementation.Storage.PersistentData;
 
-public sealed class FileSyncedResource<T> : IFileSyncedResource<T> where T : class, IEncodableDataOwner
+public sealed class ResourceOnDisk<TValue, TData> 
+    : IResourceOnDisk<TValue> 
+    where TValue : class, IEncodableDataOwner<TData> where TData : class, IEncodableData
 {
     private static readonly TimeSpan FlushDelay = TimeSpan.FromMilliseconds(200);
     
@@ -16,28 +18,30 @@ public sealed class FileSyncedResource<T> : IFileSyncedResource<T> where T : cla
     private IFileContents _fileContents;
     private bool _isDisposed;
 
-    public FileSyncedResource(
-        T resource, 
+    public ResourceOnDisk(
         FileSystemPath filePath,
         IPersistentDataTranscoder transcoder,
-        IFileSystem fileSystem)
+        IFileSystem fileSystem,
+        IEncodableDataFactory dataFactory,
+        IDecodingFactory<TValue, TData> decodingFactory)
     {
-        Resource = resource;
         _transcoder = transcoder;
         _fileContents = fileSystem.GetFile(filePath);
         _fileSystem = fileSystem;
         _flushTimer = new(_ => SynchronousFlush(), null, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
         
+        var data = dataFactory.GetEncodableData<TData>();
         if (_fileContents.Contents.Length > 0)
         {
             var decoded = _transcoder.BytesToElement(_fileContents.Contents) ?? throw new InvalidOperationException();
-            Resource.Data.Decode(_transcoder, decoded);
+            data.Decode(_transcoder, decoded);
         }
         
-        Resource.Data.Invalidated += OnDataInvalidated;
+        data.Invalidated += OnDataInvalidated;
+        Resource = decodingFactory.FromPersistentData(data);
     }
 
-    public T Resource { get; }
+    public TValue Resource { get; }
 
     public IPersistentDataTranscoder Transcoder
     {

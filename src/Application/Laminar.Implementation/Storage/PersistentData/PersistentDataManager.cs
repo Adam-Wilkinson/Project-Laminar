@@ -13,14 +13,15 @@ internal sealed class PersistentDataManager(
     ILogger<JsonPersistentDataTranscoder> jsonTranscoderLogger) 
     : IPersistentDataManager
 {
-    private readonly Dictionary<DataStoreKey, IFileSyncedResource<PersistentDictionaryOwner>> _dataStores = [];
-    private readonly List<IFileSyncedResource<IEncodableDataOwner>> _allResources = [];
+    private readonly Dictionary<DataStoreKey, IResourceOnDisk<PersistentDictionaryOwner>> _dataStores = [];
+    private readonly List<IResourceOnDisk<IEncodableDataOwner<IEncodableData>>> _allResources = [];
+    private readonly PersistentDictionaryOwnerFactory _persistentDictionaryOwnerFactory = new();
     
     public IPersistentDictionary GetDataStore(DataStoreKey dataStoreKey)
     {
         if (_dataStores.TryGetValue(dataStoreKey, out var dataStore))
         {
-            return dataStore.Resource.Dictionary;
+            return dataStore.Resource.Data;
         }
         
         if (!fileSystem.Exists(dataStoreKey.Location))
@@ -35,17 +36,17 @@ internal sealed class PersistentDataManager(
         };
 
         var filePath = dataStoreKey.Location.ChildPath(dataStoreKey.Name + transcoder.FileExtension);
-        var resource = GetFileSyncedResource(new PersistentDictionaryOwner(dataFactory.GetEncodableData<IPersistentDictionary>()), transcoder, filePath);
+        var resource = GetResourceOnDisk(filePath, transcoder, _persistentDictionaryOwnerFactory);
         _dataStores[dataStoreKey] = resource;
 
-        return resource.Resource.Dictionary;
+        return resource.Resource.Data;
     }
 
-    public IFileSyncedResource<T> GetFileSyncedResource<T>(T value, IPersistentDataTranscoder transcoder,
-        FileSystemPath filePath)
-        where T : class, IEncodableDataOwner
+    public IResourceOnDisk<TValue> GetResourceOnDisk<TValue, TData>(FileSystemPath filePath, IPersistentDataTranscoder transcoder, IDecodingFactory<TValue, TData> factory)
+        where TValue : class, IEncodableDataOwner<TData>
+        where TData : class, IEncodableData
     {
-        var returnValue = new FileSyncedResource<T>(value, filePath, transcoder, fileSystem);
+        var returnValue = new ResourceOnDisk<TValue, TData>(filePath, transcoder, fileSystem, dataFactory, factory);
         _allResources.Add(returnValue);
         returnValue.OnDisposed += OnResourceDisposed;
         return returnValue;
@@ -77,10 +78,17 @@ internal sealed class PersistentDataManager(
         }
     }
 
-    private class PersistentDictionaryOwner(IPersistentDictionary dictionary) : IEncodableDataOwner
+    private class PersistentDictionaryOwnerFactory : IDecodingFactory<PersistentDictionaryOwner, IPersistentDictionary>
     {
-        public IPersistentDictionary Dictionary => dictionary;
-        
-        IEncodableData IEncodableDataOwner.Data => dictionary;
+        public PersistentDictionaryOwner FromPersistentData(IPersistentDictionary encodableData)
+        {
+            return new PersistentDictionaryOwner(encodableData);
+        }
+    }
+    
+    private class PersistentDictionaryOwner(IPersistentDictionary dictionary) 
+        : IEncodableDataOwner<IPersistentDictionary>
+    {
+        public IPersistentDictionary Data => dictionary;
     }
 }

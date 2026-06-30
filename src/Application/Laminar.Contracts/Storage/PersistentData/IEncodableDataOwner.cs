@@ -1,6 +1,6 @@
 namespace Laminar.Contracts.Storage.PersistentData;
 
-public interface IEncodableDataOwner
+public interface IEncodableDataOwner<out T> where T : IEncodableData
 {
-    public IEncodableData Data { get; }
+    public T Data { get; }
 }

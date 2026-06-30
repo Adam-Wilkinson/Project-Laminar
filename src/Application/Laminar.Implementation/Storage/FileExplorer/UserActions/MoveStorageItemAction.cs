@@ -24,7 +24,8 @@ internal readonly struct MoveStorageItemAction(
         if (item is ILaminarStorageRootFolder)
             return Task.FromResult(IUserActionResult.Error(new CannotMoveRootFolderException(item.UserFriendlyName)));
         
-        if (item.ParentFolder is not { } oldFolder || destinationFolder.Contents is not IObservableCollection<ILaminarStorageItem> destinationFolderContents) return Task.FromResult(IUserActionResult.Invalid());
+        if (item.ParentFolder is not { } oldFolder || destinationFolder.Contents is not IObservableCollection<ILaminarStorageItem> destinationFolderContents) 
+            return Task.FromResult(IUserActionResult.Error(new InvalidOperationException("Unable to find modifiable folder contents")));
         
         var indexInOldFolder = oldFolder.Contents.IndexOf(item);
         var indexInDestinationFolder = targetIndex ?? destinationFolder.Contents.Count;

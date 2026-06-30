@@ -1,6 +1,5 @@
 using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.Storage.FileExplorer;
-using Laminar.Domain.Notification;
 using Laminar.Domain.Notification.Collections;
 
 namespace Laminar.Implementation.Storage.FileExplorer.UserActions;
@@ -13,7 +12,7 @@ internal readonly struct AddStorageItemAction(
     FileExplorerActionDependencies dependencies) 
     : IUserAction
 {
-    public string ItemNameAndExtension { get; } = newItemName + GetExtension(itemType);
+    public string ItemNameAndExtension { get; } = newItemName + itemType.Extension;
 
     public LaminarStorageFolder Parent { get; } = parent;
     
@@ -24,7 +23,7 @@ internal readonly struct AddStorageItemAction(
     public Task<IUserActionResult> Execute()
     {
         var result = dependencies.StorageItemFactory.CreateChild(ItemNameAndExtension, Parent,
-            itemType is StorageItemType.Folder);
+            itemType == StorageItemType.Folder);
         
         (Parent.Contents as IObservableCollection<ILaminarStorageItem>)?.Insert(indexInParent, result);
         
@@ -46,11 +45,4 @@ internal readonly struct AddStorageItemAction(
 
         return IUserActionSimplification.NewEffectiveAction(new MoveStorageItemAction(removeAction.Target, Parent, indexInParent, dependencies));
     }
-
-    private static string GetExtension(StorageItemType type) => type switch
-    {
-        StorageItemType.Folder => string.Empty,
-        StorageItemType.Script => ".pls",
-        _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
-    };
 }

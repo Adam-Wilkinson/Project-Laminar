@@ -10,8 +10,7 @@
                     xmlns:conv="using:Laminar.Avalonia.Converters"
                     xmlns:fe="using:Laminar.Contracts.Storage.FileExplorer"
                     xmlns:nw="using:Laminar.Contracts.Scripting.NodeWrapping"
-                    xmlns:init="using:Laminar.Avalonia.InitializationTargets"
-                    xmlns:sam="using:Laminar.Avalonia.SelectAndMove">
+                    xmlns:init="using:Laminar.Avalonia.InitializationTargets">
     
     <!-- Edit Menu Tool -->
     <t:CommandTool NameKey="Copy" x:Key="Tools.Edit.Copy" x:DataType="vms:IClipboardProvider"
@@ -126,6 +125,12 @@
                    DefaultIconGeometry="{x:Static shapes:PathData.OpenExternalIcon}"
                    QuickAccess="Folder"/>
     
+    <t:CommandTool x:Key="Tools.FileSystem.StorageItem.Open" x:DataType="vm:FileNavigatorItemViewModel"
+                   NameKey="Open"
+                   CommandBinding="{Binding OpenCommand}"
+                   DefaultIconGeometry="{x:Static shapes:PathData.RightFacingArrow}"
+                   QuickAccess="Script"/>
+    
     <!-- File Navigator Tool -->
     <t:Toolbox x:Key="Tools.FileSystem.StorageItem" 
                NameKey="{x:Static lang:Resources.StorageItemTools}" 
@@ -156,6 +161,7 @@
 		<StaticResource ResourceKey="Tools.FileSystem.StorageItem.Delete"/>
 		<StaticResource ResourceKey="Tools.FileSystem.StorageItem.ToggleEnabled"/>
 		<StaticResource ResourceKey="Tools.FileSystem.StorageItem.OpenInFileBrowser"/>
+		<StaticResource ResourceKey="Tools.FileSystem.StorageItem.Open"/>
     </t:Toolbox>
     
     <t:CommandTool x:Key="Tools.FileSystem.Browser.Refresh" x:DataType="vm:FileNavigatorViewModel" NameKey="Refresh" 

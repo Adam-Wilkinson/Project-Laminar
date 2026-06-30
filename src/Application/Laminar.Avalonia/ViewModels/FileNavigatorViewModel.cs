@@ -1,13 +1,9 @@
-using System;
-using System.Diagnostics;
-using System.Threading.Tasks;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
 using Laminar.Avalonia.DragDrop;
 using Laminar.Avalonia.ViewModels.Services;
 using Laminar.Contracts.Storage.FileExplorer;
-using Laminar.Domain.Notification;
 using Laminar.Domain.Notification.Collections;
 using Laminar.Domain.ValueObjects;
 using Point = Avalonia.Point;
@@ -15,6 +11,7 @@ using Point = Avalonia.Point;
 namespace Laminar.Avalonia.ViewModels;
 
 public partial class FileNavigatorViewModel(
+    IOpenFileService openFileService,
     ILaminarFileBrowser fileBrowser,
     DialogService dialogService,
     Func<ILaminarStorageItem, FileNavigatorItemViewModel> fileNavigatorItemViewModelFactory)
@@ -29,6 +26,7 @@ public partial class FileNavigatorViewModel(
         fileBrowser.RootFolders.ObservableMap(x =>
         {
             var result = fileNavigatorItemViewModelFactory(x);
+            result.OpenFileService = openFileService;
             result.IsExpanded = true;
             return result;
         });
@@ -85,7 +83,6 @@ public partial class FileNavigatorViewModel(
         draggedItem.Parent.Children?.Remove(draggedItem);
         targetParent.Children?.Insert(targetIndex, draggedItem);
         return true;
-
     }
 
     public override bool Drop(object? payload, Point location, object? receptacleTag)

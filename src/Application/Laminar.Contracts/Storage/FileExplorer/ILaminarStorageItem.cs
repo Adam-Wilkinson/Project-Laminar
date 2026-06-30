@@ -11,6 +11,8 @@ public interface ILaminarStorageItem : INotifyPropertyChanged
 {
     public FileSystemPath Path { get; }
 
+    public StorageItemType Info { get; }
+    
     public string UserFriendlyName { get; }
 
     public bool IsEnabled { get; set; }
@@ -18,6 +20,8 @@ public interface ILaminarStorageItem : INotifyPropertyChanged
     public bool IsEffectivelyEnabled { get; }
     
     public ILaminarStorageFolder? ParentFolder { get; }
+
+    public event EventHandler? OnDeleted;
     
     public void Refresh();
 }

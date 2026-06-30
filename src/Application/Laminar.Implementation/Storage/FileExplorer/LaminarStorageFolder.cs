@@ -37,9 +37,9 @@ internal class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
     
     public LaminarStorageFolder(
         LaminarStorageFolder parent, 
+        IPersistentDictionary persistentData,
         ILaminarStorageItemFactory factory, 
         IFileSystem fileSystem, 
-        IPersistentDictionary persistentData,
         ILogger<LaminarStorageItem> logger) 
         : this(parent.Path.ChildPath(persistentData[NameKey].GetValue<string>().Value), 
             factory, fileSystem, persistentData, logger)
@@ -85,7 +85,9 @@ internal class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
         }
     }
     
-    public override void OnEffectivelyEnabledChanged()
+    public override StorageItemType Info => StorageItemType.Folder;
+    
+    internal override void OnEffectivelyEnabledChanged()
     {
         base.OnEffectivelyEnabledChanged();
         if (!ContentsIsInitialized) return; 
