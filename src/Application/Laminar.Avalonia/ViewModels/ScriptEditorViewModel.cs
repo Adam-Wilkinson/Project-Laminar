@@ -12,6 +12,7 @@ using Laminar.Contracts.Scripting.Connection;
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.Notification.Collections;
+using Laminar.Domain.Notification.Value;
 using Laminar.Implementation.Storage.PersistentData;
 using Laminar.PluginFramework.NodeSystem.Connectors;
 using LaminarPoint = Laminar.Domain.ValueObjects.Point;
@@ -37,7 +38,12 @@ public partial class ScriptEditorViewModel(
 
     [ObservableProperty]
     public partial CanvasSelectionModel? SelectionModel { get; set; }
+
+    [ObservableProperty] public partial double PanX { get; set; } = script.Pan.Value.X;
+    [ObservableProperty] public partial double PanY { get; set; } = script.Pan.Value.Y;
     
+    public IObservableValue<double> Zoom { get; } = script.Zoom;
+
     public IReadOnlyObservableCollection<ScriptEditorItemModel> VisualElements 
         => _models ??= new FlattenedObservableTree<ScriptEditorItemModel>(
                 script.WritableNodeTree.Nodes.ObservableMap(CreateItemModel),
@@ -226,6 +232,16 @@ public partial class ScriptEditorViewModel(
     }
 
     public bool CanCopyToClipboard => SelectionModel is not null && SelectionModel.SelectedItems.Cast<ScriptEditorItemModel>().Any(x => x.CoreElement is IWrappedNode);
+
+    partial void OnPanXChanged(double value)
+    {
+        script.Pan.Value = new LaminarPoint { X = PanX, Y = PanY };
+    }
+
+    partial void OnPanYChanged(double value)
+    {
+        script.Pan.Value = new LaminarPoint { X = PanX, Y = PanY };
+    }
 
     private ScriptEditorItemModel CreateItemModel(object target)
     {

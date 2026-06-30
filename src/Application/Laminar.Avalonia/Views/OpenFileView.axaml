@@ -16,7 +16,7 @@
                        Opacity="0.4"
                        HorizontalAlignment="Center"
                        VerticalAlignment="Center"
-                       Classes="h1"/>
+                       Classes="h2"/>
         </Panel>
     </Border>
 </UserControl>
