@@ -18,7 +18,7 @@ internal readonly struct RenameStorageItemAction(
     public Task<IUserActionResult> Execute()
     {
         var oldName = dependencies.FileSystem.GetNameWithoutExtension(item.Path);
-        var itemExtension = dependencies.FileSystem.GetExtension(oldName);
+        var itemExtension = dependencies.FileSystem.GetExtension(item.Path);
         
         if (item.ParentFolder is not { } parentFolder || Equals(oldName, newName))
         {

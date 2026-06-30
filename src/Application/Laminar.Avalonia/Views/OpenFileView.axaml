@@ -12,7 +12,8 @@
                             IsVisible="{Binding FileContents, Converter={x:Static ObjectConverters.IsNotNull}}"
                             ClipToBounds="True"/>
             <TextBlock IsVisible="{Binding FileContents, Converter={x:Static ObjectConverters.IsNull}}"
-                       Text="No File Open"
+                       Text="Open files will appear here"
+                       Opacity="0.4"
                        HorizontalAlignment="Center"
                        VerticalAlignment="Center"
                        Classes="h1"/>

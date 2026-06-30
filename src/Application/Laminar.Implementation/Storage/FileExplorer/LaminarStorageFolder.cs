@@ -108,6 +108,15 @@ internal class LaminarStorageFolder : LaminarStorageItem, ILaminarStorageFolder
         }
     }
 
+    protected override void OnDeletedOverride()
+    {
+        if (!ContentsIsInitialized) return;
+        foreach (var storageItem in Contents)
+        {
+            (storageItem as LaminarStorageItem)?.RaiseOnDeleted();
+        }
+    }
+
     protected override void OnParentRootFolderDisposed(object? sender, EventArgs e)
     {
         _contentsChangedSubscription?.Dispose();

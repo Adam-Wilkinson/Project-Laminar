@@ -126,13 +126,19 @@ internal abstract class LaminarStorageItem : ILaminarStorageItem
     {
         OnPropertyChanged(nameof(IsEffectivelyEnabled));
     }
-
+    
     internal void RaiseOnDeleted()
     {
+        OnDeletedOverride();
         OnDeleted?.Invoke(this, EventArgs.Empty);
     }
 
     protected abstract void RefreshOverride();
+
+    protected virtual void OnDeletedOverride()
+    {
+        
+    }
 
     protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {
