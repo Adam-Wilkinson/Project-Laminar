@@ -22,7 +22,7 @@
     <PackageVersion Include="HanumanInstitute.MvvmDialogs.Avalonia" Version="2.3.0" />
     <PackageVersion Include="HanumanInstitute.MvvmDialogs.Avalonia.MessageBox" Version="2.2.0" />
     <PackageVersion Include="Laminar.Avalonia.AdjustableStackPanel" Version="1.4.0" />
-    <PackageVersion Include="Laminar.Avalonia.SelectAndMove" Version="3.0.31-rc" />
+    <PackageVersion Include="Laminar.Avalonia.SelectAndMove" Version="3.0.33-rc" />
     <PackageVersion Include="Laminar.PluginFramework.Core" Version="$(PluginFrameworkVersion)" />
     <PackageVersion Include="Laminar.PluginFramework.SourceGeneration" Version="$(PluginFrameworkVersion)" />
     <PackageVersion Include="Laminar.PluginFramework" Version="$(PluginFrameworkVersion)" />
