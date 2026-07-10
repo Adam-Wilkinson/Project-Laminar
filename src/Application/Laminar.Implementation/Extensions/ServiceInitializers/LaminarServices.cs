@@ -36,8 +36,8 @@ public static class LaminarServices
             .AddSingleton<IWritablePluginRegistry, PluginRegistry>()
             .AddSingleton<IPluginRegistry>(provider => provider.GetRequiredService<IWritablePluginRegistry>())
         
-            .AddFileSystemServices()
-            
             .AddSingleton<IExceptionHandler, ExceptionHandler>()
+            
+            .AddFileSystemServices()
             .AddScriptingServices();
 }

@@ -2,6 +2,7 @@ using System.Collections.Specialized;
 using System.Text;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Input.Platform;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Laminar.Avalonia.SelectAndMove;
@@ -13,6 +14,7 @@ using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.Notification.Collections;
 using Laminar.Domain.Notification.Value;
+using Laminar.Domain.ValueObjects;
 using Laminar.Implementation.Storage.PersistentData;
 using Laminar.PluginFramework.NodeSystem.Connectors;
 using LaminarPoint = Laminar.Domain.ValueObjects.Point;
@@ -26,7 +28,7 @@ public partial class ScriptEditorViewModel(
     IUserActionManager userActionManager,
     IEncodableDataFactory dataFactory,
     IScriptingFactory scriptingFactory,
-    TopLevel topLevel)
+    Option<IClipboard> optionalClipboard)
     : DropTargetViewModel, IConnectionInteractionHandler, IClipboardProvider
 {
     private static readonly IPersistentDataTranscoder DefaultClipboardTranscoder = new JsonPersistentDataTranscoder(null!); 
@@ -158,7 +160,7 @@ public partial class ScriptEditorViewModel(
     [RelayCommand(CanExecute = nameof(CanCopyToClipboard))]
     private async Task CopyToClipboard()
     {
-        if (!CanCopyToClipboard || topLevel.Clipboard is not { } clipboard) return;
+        if (!CanCopyToClipboard || optionalClipboard.Value is not { } clipboard) return;
 
         List<IWrappedNode> selectedNodes = [];
         List<IConnection> selectedConnections = [];
@@ -189,7 +191,7 @@ public partial class ScriptEditorViewModel(
     [RelayCommand(CanExecute = nameof(CanCopyToClipboard))]
     private async Task Cut()
     {
-        if (!CanCopyToClipboard || topLevel.Clipboard is null) return;
+        if (!CanCopyToClipboard || optionalClipboard.Value is null) return;
         await CopyToClipboard();
         DeleteSelection();
     }
@@ -197,7 +199,7 @@ public partial class ScriptEditorViewModel(
     [RelayCommand]
     private async Task PasteFromClipboard()
     {
-        if (topLevel.Clipboard is not { } clipboard) return;
+        if (optionalClipboard.Value is not { } clipboard) return;
 
         var result = await clipboard.TryGetDataAsync();
         if (result is null) return;
