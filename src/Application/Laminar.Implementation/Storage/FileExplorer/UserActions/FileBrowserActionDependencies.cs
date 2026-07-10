@@ -14,7 +14,7 @@ public class FileBrowserActionDependencies
     
     public required IFileSystemRootFolder RecyclingBin { get; init; }
 
-    public required IFileSystemGraph Graph { get; init; }
+    public required IFileSystemCommandService CommandService { get; init; }
     
     public required IFileSystemItemRepository ItemRepository { get; init; }
 }

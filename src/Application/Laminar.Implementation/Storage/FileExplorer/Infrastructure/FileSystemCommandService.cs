@@ -39,7 +39,7 @@ internal sealed class FileSystemCommandService(
         fileSystem.Delete(oldPath);
     }
 
-    public IFileSystemFile AddFile(IFileSystemFolder parent, string fileNameAndExtension, int indexInParent)
+    public IFileSystemFile AddFile(IFileSystemFolder parent, int indexInParent, string fileNameAndExtension)
     {
         var newItemPath = parent.Path.ChildPath(fileNameAndExtension);
         if (!fileSystem.Exists(newItemPath))
@@ -50,7 +50,7 @@ internal sealed class FileSystemCommandService(
         return graph.AddFile(parent, indexInParent, fileNameAndExtension);
     }
 
-    public IFileSystemFolder AddFolder(IFileSystemFolder parent, string folderName, int indexInParent)
+    public IFileSystemFolder AddFolder(IFileSystemFolder parent, int indexInParent, string folderName)
     {
         var newItemPath = parent.Path.ChildPath(folderName);
         if (!fileSystem.Exists(newItemPath))

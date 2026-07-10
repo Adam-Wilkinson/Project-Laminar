@@ -56,7 +56,7 @@ internal readonly struct MoveStorageItemAction(
 
         try
         {
-            dependencies.Graph.Move(item, destinationFolder, indexInDestinationFolder);
+            dependencies.CommandService.Move(item, destinationFolder, indexInDestinationFolder);
         }
         catch (IOException exception)
         {

@@ -51,6 +51,7 @@ public partial class App : Application
             var services = new ServiceCollection()
                 .AddLaminarServices()
                 .AddViewModels()
+                .AddUserActionHandlers()
                 .AddDescendantsSingleton<IBeforeApplicationBuiltTarget>()
                 .AddDescendantsSingleton<IAfterApplicationBuiltTarget>()
                 .AddDescendantsSingleton<IPlugin>()
@@ -68,7 +69,6 @@ public partial class App : Application
                 .AddSingleton<IDialogFactory>(new DialogFactory())
                 .AddSingleton<IDialogManager, DialogManager>()
                 .AddSingleton<IDialogService, HanumanInstitute.MvvmDialogs.Avalonia.DialogService>()
-                .AddUserActionHandlers()
                 .AddSingleton<Contracts.Base.IDispatcher, AvaloniaDispatcher>()
                 .BuildServiceProvider();
             

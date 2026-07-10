@@ -1,4 +1,3 @@
-using System;
 using HanumanInstitute.MvvmDialogs;
 using Laminar.Contracts.Storage.FileExplorer;
 using Laminar.Implementation.Extensions.ServiceInitializers;

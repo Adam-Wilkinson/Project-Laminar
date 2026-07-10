@@ -8,7 +8,7 @@ public interface IFileSystemCommandService
 
     public void Delete(IFileSystemItem item);
 
-    public IFileSystemFile AddFile(IFileSystemFolder parent, string fileNameAndExtension, int indexInParent);
+    public IFileSystemFile AddFile(IFileSystemFolder parent, int indexInParent, string fileNameAndExtension);
 
-    public IFileSystemFolder AddFolder(IFileSystemFolder parent, string folderName, int indexInParent);
+    public IFileSystemFolder AddFolder(IFileSystemFolder parent, int indexInParent, string folderName);
 }

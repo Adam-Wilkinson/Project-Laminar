@@ -23,7 +23,7 @@ internal class FileBrowser : IFileBrowser, IDisposable
     public FileBrowser(
         IUserActionManager actionManager,
         IFileSystemItemFactory factory,
-        IFileSystemGraph graph,
+        IFileSystemCommandService commandService,
         IFileSystemItemRepository repository,
         IPersistentDataManager dataManager,
         IFileSystem fileSystem)
@@ -45,7 +45,7 @@ internal class FileBrowser : IFileBrowser, IDisposable
             RecyclingBin = _recyclingBin,
             FileSystem = _fileSystem,
             RootFolders = rootFolderPaths,
-            Graph = graph,
+            CommandService = commandService,
             ItemRepository = repository
         };
         

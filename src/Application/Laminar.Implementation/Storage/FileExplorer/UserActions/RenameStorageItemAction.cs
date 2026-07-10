@@ -61,7 +61,7 @@ internal readonly struct RenameStorageItemAction(
         
         try
         {
-            dependencies.Graph.Rename(item, newName + itemExtension);
+            dependencies.CommandService.Rename(item, newName + itemExtension);
         }
         catch (IOException exception)
         {

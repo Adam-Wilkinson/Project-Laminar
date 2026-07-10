@@ -23,8 +23,8 @@ internal readonly struct AddStorageItemAction(
     public Task<IUserActionResult> Execute()
     {
         IFileSystemItem newItem = itemType.IsFolder
-            ? dependencies.Graph.AddFolder(Parent, indexInParent, ItemNameAndExtension)
-            : dependencies.Graph.AddFile(Parent, indexInParent, ItemNameAndExtension);
+            ? dependencies.CommandService.AddFolder(Parent, indexInParent, ItemNameAndExtension)
+            : dependencies.CommandService.AddFile(Parent, indexInParent, ItemNameAndExtension);
         
         return Task.FromResult(IUserActionResult.Success(newItem, new DeleteStorageItemAction(newItem, dependencies)));
     }
