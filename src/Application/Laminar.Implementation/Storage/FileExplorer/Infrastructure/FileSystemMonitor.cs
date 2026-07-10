@@ -2,36 +2,47 @@
 using System.Threading.Channels;
 using Laminar.Contracts.Base;
 using Laminar.Contracts.Storage.FileExplorer;
+using Laminar.Contracts.Storage.FileExplorer.Infrastructure;
 using Laminar.Contracts.Storage.IO;
 using Laminar.Domain.ValueObjects;
 using Microsoft.Extensions.Logging;
 
-namespace Laminar.Implementation.Storage.FileExplorer;
+namespace Laminar.Implementation.Storage.FileExplorer.Infrastructure;
 
-internal partial class LaminarFileSystemMonitor(
-    IDeletedStorageItemCache deletedItemCache,
+internal sealed class FileSystemMonitor(
+    IFileSystemSynchronizer fileSystemSynchronizer,
     IFileSystem fileSystem,
-    ILaminarStorageItemFactory factory,
     IDispatcher dispatcher,
-    ILogger<ILaminarFileSystemMonitor> logger)
-    : ILaminarFileSystemMonitor, IDisposable
+    ILogger<IFileSystemMonitor> logger)
+    : IFileSystemMonitor, IDisposable
 {
     private static readonly TimeSpan FileSystemModifiedRefreshDelay = new(0, 0, 0, 0, 300);
 
-    private readonly Channel<LaminarFileSystemEvent> _updateChannel = Channel.CreateUnbounded<LaminarFileSystemEvent>(
+    private readonly Channel<MonitorEventArgs> _updateChannel = Channel.CreateUnbounded<MonitorEventArgs>(
     new UnboundedChannelOptions
     {
         SingleReader = true,
         SingleWriter = false,
     });
-    private readonly HashSet<ILaminarStorageRootFolder> _outdatedFolders = [];
-    private readonly Lock _outdatedFoldersLock = new();
+    private readonly HashSet<IFileSystemRootFolder> _outdatedFolders = [];
+    private readonly Lock _mutationLock = new();
     private readonly List<IDisposable> _monitors = [];
+
+    private readonly HashSet<(WatcherChangeTypes changeType, FileSystemPath? oldPath, FileSystemPath? newPath)> _suppressedEvents = [];
+    private readonly Lock _suppressedEventsLock = new();
 
     private Task? _processFileSystemEventsTask;
     private CancellationTokenSource? _refreshCts;
 
-    public IDisposable StartMonitoring(ILaminarStorageRootFolder folder, FileSystemPath[]? excludedPaths = null)
+    public void SuppressNotification(WatcherChangeTypes changeType, FileSystemPath? oldPath, FileSystemPath? newPath)
+    {
+        lock (_suppressedEventsLock)
+        {
+            _suppressedEvents.Add((changeType, oldPath, newPath));
+        }
+    }
+
+    public IDisposable StartMonitoring(IFileSystemRootFolder folder, FileSystemPath[]? excludedPaths = null)
     {
         _processFileSystemEventsTask ??= Task.Run(ProcessFileSystemEvents);
         excludedPaths ??= [];
@@ -49,17 +60,28 @@ internal partial class LaminarFileSystemMonitor(
         return folderWatcher;
     }
 
-    private void OnFileSystemEvent(FileSystemEventArgs e, ILaminarStorageRootFolder folder, FileSystemPath[] excludedPaths)
+    private void OnFileSystemEvent(FileSystemEventArgs e, IFileSystemRootFolder folder, FileSystemPath[] excludedPaths)
     {
-        if (excludedPaths.Contains(new FileSystemPath(e.FullPath)))
+        if (excludedPaths.Contains(e.FullPath))
         {
             return;
         }
+
+        var laminarEvent = e.ChangeType switch
+        {
+            WatcherChangeTypes.Changed => FileSystemEvent.Changed(e.FullPath),
+            WatcherChangeTypes.Created => FileSystemEvent.Created(e.FullPath),
+            WatcherChangeTypes.Deleted => FileSystemEvent.Deleted(e.FullPath),
+            WatcherChangeTypes.Renamed when e is RenamedEventArgs renamed => 
+                FileSystemEvent.Renamed(renamed.OldFullPath, renamed.FullPath),
+            var unknown => 
+                throw new InvalidOperationException($"Cannot make match for event type {unknown}")
+        };
         
-        _updateChannel.Writer.TryWrite(new LaminarFileSystemEvent(e, folder));
+        _updateChannel.Writer.TryWrite(new MonitorEventArgs(folder, laminarEvent));
     }
 
-    private void OnFileSystemError(ErrorEventArgs e, ILaminarStorageRootFolder folder)
+    private void OnFileSystemError(ErrorEventArgs e, IFileSystemRootFolder folder)
     {
         logger.LogError(e.GetException(), "Error when processing file system changed events. Refreshing manually");
         folder.Refresh();
@@ -89,43 +111,15 @@ internal partial class LaminarFileSystemMonitor(
         }
     }
 
-    private void HandleFileSystemEvent(LaminarFileSystemEvent laminarFileSystemEvent)
+    private void HandleFileSystemEvent(MonitorEventArgs monitorEventArgs)
     {
         _refreshCts?.Cancel();
         _refreshCts = new CancellationTokenSource();
         
-        lock (_outdatedFoldersLock)
+        lock (_mutationLock)
         {
-            _outdatedFolders.Add(laminarFileSystemEvent.OriginatingFolder);
-        }
-
-        FileSystemEventArgs e = laminarFileSystemEvent.EventArgs;
-        if (e.Name is null) return;
-        switch (e.ChangeType)
-        {
-            case WatcherChangeTypes.Renamed:
-                if (e is not RenamedEventArgs renamedEventArgs 
-                    || Path.GetFileName(renamedEventArgs.Name) is not { } newName 
-                    || factory.TryGetExisting(renamedEventArgs.OldFullPath) is not LaminarStorageItem renamedItem)
-                {
-                    LogCouldNotFindRenamedItem(e.Name);
-                    break;
-                }
-                renamedItem.Rename(newName);
-                break;
-            case WatcherChangeTypes.Deleted:
-                if (factory.TryGetExisting(e.FullPath) is not { } deletedItem)
-                {
-                    LogCouldNotFindDeletedItem(e.Name);
-                    break;
-                }
-                deletedItemCache.RegisterPotentialDeletion(deletedItem);
-                break;
-            case WatcherChangeTypes.Created:
-            case WatcherChangeTypes.Changed:
-            case WatcherChangeTypes.All:
-            default:
-                break;
+            _outdatedFolders.Add(monitorEventArgs.RootFolder); 
+            fileSystemSynchronizer.OnFileSystemEvent(monitorEventArgs.FileSystemEvent);
         }
 
         ScheduleRefresh();
@@ -145,18 +139,14 @@ internal partial class LaminarFileSystemMonitor(
                 await Task.Delay(FileSystemModifiedRefreshDelay, token);
                 logger.LogTrace("Triggering file system refresh after detected change");
 
-                List<ILaminarStorageRootFolder> snapshot;
-                lock (_outdatedFoldersLock)
+                List<IFileSystemRootFolder> snapshot;
+                lock (_mutationLock)
                 {
                     snapshot = [.. _outdatedFolders];
                     _outdatedFolders.Clear();
                 }
 
-                foreach (var folder in snapshot)
-                {
-                    folder.Refresh();
-                }
-                deletedItemCache.CommitDeletions();
+                fileSystemSynchronizer.ReconcileAndReset(snapshot);
             }
             catch (TaskCanceledException) { }
             catch (Exception ex)
@@ -165,9 +155,7 @@ internal partial class LaminarFileSystemMonitor(
             }
         }, token);
     }
-
-    private record struct LaminarFileSystemEvent(FileSystemEventArgs EventArgs, ILaminarStorageRootFolder OriginatingFolder);
-
+    
     public void Dispose()
     {
         _refreshCts?.Dispose();
@@ -176,13 +164,7 @@ internal partial class LaminarFileSystemMonitor(
         {
             monitor.Dispose();
         }
-        
-        GC.SuppressFinalize(this);
     }
 
-    [LoggerMessage(LogLevel.Warning, "Could not find renamed item {oldName}, this may result in a rename operation being considered as separate delete and create operations")]
-    partial void LogCouldNotFindRenamedItem(string oldName);
-
-    [LoggerMessage(LogLevel.Warning, "Could not find deleted item {itemName}, this may result in a move operation being missed")]
-    partial void LogCouldNotFindDeletedItem(string itemName);
+    private record struct MonitorEventArgs(IFileSystemRootFolder RootFolder, FileSystemEvent FileSystemEvent);
 }

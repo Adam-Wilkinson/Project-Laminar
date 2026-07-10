@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
+using Avalonia.Threading;
 
 namespace Laminar.Avalonia.ViewModels.Services;
 

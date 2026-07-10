@@ -5,13 +5,13 @@ namespace Laminar.Contracts.Storage.FileExplorer;
 
 /// <summary>
 /// A representation of a storage item on the file system that is read-only,
-/// which is modified by the <see cref="ILaminarFileBrowser"/>
+/// which is modified by the <see cref="IFileBrowser"/>
 /// </summary>
-public interface ILaminarStorageItem : INotifyPropertyChanged
+public interface IFileSystemItem : INotifyPropertyChanged
 {
     public FileSystemPath Path { get; }
 
-    public StorageItemType Info { get; }
+    public FileSystemItemType Info { get; }
     
     public string UserFriendlyName { get; }
 
@@ -19,7 +19,7 @@ public interface ILaminarStorageItem : INotifyPropertyChanged
     
     public bool IsEffectivelyEnabled { get; }
     
-    public ILaminarStorageFolder? ParentFolder { get; }
+    public IFileSystemFolder? ParentFolder { get; }
 
     public event EventHandler? OnDeleted;
     

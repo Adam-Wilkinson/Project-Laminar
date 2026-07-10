@@ -2,9 +2,9 @@ using Laminar.Domain.ValueObjects;
 
 namespace Laminar.Contracts.Storage.PersistentData;
 
-public interface IResourceOnDisk<out T> : IDisposable where T : class, IEncodableDataOwner<IEncodableData>
+public interface IDataOnDisk<out T> : IDisposable where T : class, IEncodableData
 {
-    public T Resource { get; }
+    public T Data { get; }
     
     public IPersistentDataTranscoder Transcoder { get; set; }
     

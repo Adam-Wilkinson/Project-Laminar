@@ -2,9 +2,9 @@ using Laminar.Contracts.Storage.PersistentData;
 
 namespace Laminar.Contracts.Storage.FileExplorer;
 
-public interface ILaminarFileResource<out T> : IDisposable where T : IEncodableDataOwner<IEncodableData>
+public interface IFileResource<out T> : IDisposable where T : IEncodableDataOwner<IEncodableData>
 {
-    public ILaminarStorageFile File { get; }
+    public IFileSystemFile FileSystemFile { get; }
     
     public T Value { get; }
 

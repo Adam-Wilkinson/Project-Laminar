@@ -39,9 +39,9 @@
     <t:ToolMenu.ContextToolbox>
         <MultiBinding Converter="{StaticResource SwitchConverter}">
             <Binding Path="Type"/>
-            <Binding Source="{StaticResource FolderContextMenu}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static fe:StorageItemType.Folder}"/>
-            <Binding Source="{StaticResource ScriptContextMenu}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static fe:StorageItemType.Script}"/>
-            <Binding Source="{StaticResource UnknownFileContextMenu}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static fe:StorageItemType.Unknown}"/>
+            <Binding Source="{StaticResource FolderContextMenu}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static fe:FileSystemItemType.Folder}"/>
+            <Binding Source="{StaticResource ScriptContextMenu}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static fe:FileSystemItemType.Script}"/>
+            <Binding Source="{StaticResource UnknownFileContextMenu}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static fe:FileSystemItemType.Unknown}"/>
         </MultiBinding>
     </t:ToolMenu.ContextToolbox>
     

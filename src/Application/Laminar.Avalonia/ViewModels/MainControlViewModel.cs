@@ -91,7 +91,7 @@ public partial class MainControlViewModel : ViewModelBase, IOpenFileService, IDi
     private FileNavigatorItemViewModel? FindFirstFile(Func<FileNavigatorItemViewModel, bool> predicate)
     {
         FileNavigatorItemViewModel? firstFile = FileNavigator.RootFiles[0];
-        while (firstFile.CoreItem is not ILaminarStorageFile && !predicate(firstFile))
+        while (firstFile.CoreItem is not IFileSystemFile && !predicate(firstFile))
         {
             if (firstFile.Children is null || firstFile.Children.Count == 0)
             {

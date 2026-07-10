@@ -6,7 +6,7 @@ public interface IUserActionResult
     
     public static IUserActionResult Success<T>(T returnValue, IUserAction inverseAction) => new UserActionSuccess<T>(returnValue, inverseAction);
     
-    public static IUserActionResult Invalid() => new UserActionInvalid();
+    public static IUserActionResult Ineffectual() => new UserActionIneffectual();
     
     public static IUserActionResult Error(Exception exception) =>  new UserActionError(exception);
 
@@ -38,7 +38,7 @@ public record UserActionSuccess(IUserAction InverseAction) : IUserActionResult;
 
 public record UserActionAlternative(IUserAction AlternativeAction) : IUserActionResult;
 
-public record UserActionInvalid : IUserActionResult;
+public record UserActionIneffectual : IUserActionResult;
 
 public record UserActionError(Exception Exception) : IUserActionResult;
 

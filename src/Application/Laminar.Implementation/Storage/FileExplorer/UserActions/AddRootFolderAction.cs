@@ -5,7 +5,7 @@ namespace Laminar.Implementation.Storage.FileExplorer.UserActions;
 
 internal readonly struct AddRootFolderAction(
     FileSystemPath folderPath, 
-    FileExplorerActionDependencies dependencies) : IUserAction
+    FileBrowserActionDependencies dependencies) : IUserAction
 {
     public bool CanExecute => true;
     

@@ -1,4 +1,5 @@
 using Laminar.Contracts.Base.ActionSystem;
+using Laminar.Contracts.Storage.FileExplorer;
 using Laminar.Domain.Enums.ActionResolutions;
 using Laminar.Domain.Exceptions;
 using Laminar.Domain.ValueObjects;
@@ -8,10 +9,10 @@ namespace Laminar.Implementation.Storage.FileExplorer.UserActions;
 
 internal readonly struct RenameStorageItemAction(
     string newName, 
-    LaminarStorageItem item, 
-    FileExplorerActionDependencies dependencies) : IUserAction
+    IFileSystemItem item, 
+    FileBrowserActionDependencies dependencies) : IUserAction
 {
-    public LaminarStorageItem Target => item;
+    public IFileSystemItem Target => item;
     
     public bool CanExecute { get; } = !dependencies.FileSystem.GetNameWithoutExtension(item.Path).Equals(newName);
 
@@ -19,10 +20,15 @@ internal readonly struct RenameStorageItemAction(
     {
         var oldName = dependencies.FileSystem.GetNameWithoutExtension(item.Path);
         var itemExtension = dependencies.FileSystem.GetExtension(item.Path);
-        
-        if (item.ParentFolder is not { } parentFolder || Equals(oldName, newName))
+
+        if (Equals(oldName, newName))
         {
-            return Task.FromResult(IUserActionResult.Invalid());
+            return Task.FromResult(IUserActionResult.Ineffectual());
+        }
+        
+        if (item.ParentFolder is not { } parentFolder)
+        {
+            return Task.FromResult(IUserActionResult.Error(new InvalidOperationException("The storage item does not have a parent")));
         }
 
         if (newName.ContainsAny(Path.GetInvalidFileNameChars()))
@@ -31,17 +37,14 @@ internal readonly struct RenameStorageItemAction(
         }
 
         string name = newName;
-        FileExplorerActionDependencies actionDependencies = dependencies;
+        FileBrowserActionDependencies actionDependencies = dependencies;
         
-        if (parentFolder.Contents.FirstOrDefault(sibling => name.Equals(
+        if (parentFolder.LoadOrGetContents().FirstOrDefault(sibling => name.Equals(
                 actionDependencies.FileSystem.GetNameWithoutExtension(sibling.Path), FileSystemPath.RuntimeStringComparison)) 
             is { } clash)
         {
-            if (clash is not LaminarStorageItem internalItem) 
-                return Task.FromResult(IUserActionResult.Error(new InvalidOperationException("Clash with an item of a type I cannot handle")));
-            
             RenameStorageItemAction renameAction = this;
-            LaminarStorageItem targetItem = item;
+            IFileSystemItem targetItem = item;
             
             return Task.FromResult<IUserActionResult>(new ResolvableError<NamingConflictResolution>
             {
@@ -49,7 +52,7 @@ internal readonly struct RenameStorageItemAction(
                 Resolve = resolution => resolution switch
                 {
                     NamingConflictResolution.IncrementName => new AlternativeActionFound(new RenameStorageItemAction(name + " (1)", targetItem, actionDependencies)),
-                    NamingConflictResolution.ReplaceItem => new AlternativeActionFound(new CompoundAction(new DeleteStorageItemAction(internalItem, actionDependencies), renameAction)),
+                    NamingConflictResolution.ReplaceItem => new AlternativeActionFound(new CompoundAction(new DeleteStorageItemAction(clash, actionDependencies), renameAction)),
                     _ => throw new InvalidOperationException(),
                 },
                 OnCancelled = item.Refresh,
@@ -58,7 +61,7 @@ internal readonly struct RenameStorageItemAction(
         
         try
         {
-            item.Rename(newName + itemExtension);
+            dependencies.Graph.Rename(item, newName + itemExtension);
         }
         catch (IOException exception)
         {
@@ -67,6 +70,4 @@ internal readonly struct RenameStorageItemAction(
         
         return Task.FromResult(IUserActionResult.Success(new RenameStorageItemAction(oldName, item, dependencies)));
     }
-
-    public bool IsInverseOf(IUserAction action) => false;
 }

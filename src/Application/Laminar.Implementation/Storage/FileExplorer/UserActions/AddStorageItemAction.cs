@@ -6,15 +6,15 @@ namespace Laminar.Implementation.Storage.FileExplorer.UserActions;
 
 internal readonly struct AddStorageItemAction(
     string newItemName, 
-    LaminarStorageFolder parent, 
+    IFileSystemFolder parent, 
     int indexInParent,
-    StorageItemType itemType,
-    FileExplorerActionDependencies dependencies) 
+    FileSystemItemType itemType,
+    FileBrowserActionDependencies dependencies) 
     : IUserAction
 {
     public string ItemNameAndExtension { get; } = newItemName + itemType.Extension;
 
-    public LaminarStorageFolder Parent { get; } = parent;
+    public IFileSystemFolder Parent { get; } = parent;
     
     public int IndexInParent => indexInParent;
     
@@ -22,27 +22,10 @@ internal readonly struct AddStorageItemAction(
         
     public Task<IUserActionResult> Execute()
     {
-        var result = dependencies.StorageItemFactory.CreateChild(ItemNameAndExtension, Parent,
-            itemType == StorageItemType.Folder);
+        IFileSystemItem newItem = itemType.IsFolder
+            ? dependencies.Graph.AddFolder(Parent, indexInParent, ItemNameAndExtension)
+            : dependencies.Graph.AddFile(Parent, indexInParent, ItemNameAndExtension);
         
-        (Parent.Contents as IObservableCollection<ILaminarStorageItem>)?.Insert(indexInParent, result);
-        
-        if (result is not LaminarStorageItem storageItemInternal) throw new InvalidOperationException();
-        return Task.FromResult(IUserActionResult.Success(result, new DeleteStorageItemAction(storageItemInternal, dependencies)));
-    }
-
-    public IUserActionSimplification GetSimplificationAfter(IUserAction previousAction)
-    {
-        if (previousAction is not DeleteStorageItemAction removeAction ||
-            removeAction.Target.Path.NameAndExtension != ItemNameAndExtension ||
-            removeAction.Target.ParentFolder != Parent) 
-            return IUserActionSimplification.None();
-        
-        if (Parent.Contents.IndexOf(removeAction.Target) == indexInParent)
-        {
-            return IUserActionSimplification.Undoes();
-        }
-
-        return IUserActionSimplification.NewEffectiveAction(new MoveStorageItemAction(removeAction.Target, Parent, indexInParent, dependencies));
+        return Task.FromResult(IUserActionResult.Success(newItem, new DeleteStorageItemAction(newItem, dependencies)));
     }
 }

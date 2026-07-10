@@ -1,4 +1,5 @@
 using Laminar.Contracts.Base.ActionSystem;
+using Laminar.Contracts.Storage.FileExplorer;
 using Laminar.Domain.ValueObjects;
 
 namespace Laminar.Implementation.Storage.FileExplorer.UserActions;
@@ -6,7 +7,7 @@ namespace Laminar.Implementation.Storage.FileExplorer.UserActions;
 internal readonly struct RemoveRootFolderAction(
     FileSystemPath rootFolderPath,
     bool fullyCleanup,
-    FileExplorerActionDependencies dependencies) : IUserAction
+    FileBrowserActionDependencies dependencies) : IUserAction
 {
     public bool CanExecute => true;
     
@@ -14,8 +15,15 @@ internal readonly struct RemoveRootFolderAction(
 
     public Task<IUserActionResult> Execute()
     {
-        if (dependencies.StorageItemFactory.TryGetExisting(rootFolderPath) is not LaminarStorageRootFolder rootFolder)
-            return Task.FromResult(IUserActionResult.Invalid());
+        if (!dependencies.ItemRepository.TryGetExisting(rootFolderPath, out var existing))
+        {
+            return Task.FromResult(IUserActionResult.Ineffectual());
+        }
+
+        if (existing is not IFileSystemRootFolder rootFolder)
+        {
+            return Task.FromResult(IUserActionResult.Error(new InvalidOperationException("Attempt to remove an item that is not a root folder")));
+        }
         
         var currentList = new List<FileSystemPath>(dependencies.RootFolders.Value);
         currentList.Remove(rootFolderPath);

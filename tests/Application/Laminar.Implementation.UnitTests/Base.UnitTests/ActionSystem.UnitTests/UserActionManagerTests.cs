@@ -46,13 +46,13 @@ public class UserActionManagerTests
         {
             var action = Substitute.For<IUserAction>();
             action.CanExecute.Returns(true);
-            action.Execute().Returns(IUserActionResult.Invalid());
+            action.Execute().Returns(IUserActionResult.Ineffectual());
             var sut = CreateManager();
             
             await sut.ExecuteAction(action);
             var result = await sut.Undo();
 
-            result.Should().BeOfType<UserActionInvalid>();
+            result.Should().BeOfType<UserActionIneffectual>();
         }
     }
 
@@ -65,7 +65,7 @@ public class UserActionManagerTests
 
             var result = await sut.Undo();
 
-            result.Should().BeOfType<UserActionInvalid>();
+            result.Should().BeOfType<UserActionIneffectual>();
         }
 
         [Fact]
@@ -111,7 +111,7 @@ public class UserActionManagerTests
 
             var result = await sut.Redo();
 
-            result.Should().BeOfType<UserActionInvalid>();
+            result.Should().BeOfType<UserActionIneffectual>();
         }
 
         [Fact]
@@ -146,7 +146,7 @@ public class UserActionManagerTests
             var result = await sut.ResolveExecutionAsync(action);
 
             
-            result.Should().BeOfType<UserActionInvalid>();
+            result.Should().BeOfType<UserActionIneffectual>();
             await action.DidNotReceive().Execute();
         }
 

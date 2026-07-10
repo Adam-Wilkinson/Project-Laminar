@@ -7,7 +7,7 @@ namespace Laminar.Avalonia.ViewModels;
 
 public sealed partial class OpenFileViewModel(IServiceProvider serviceProvider) : ViewModelBase, IDisposable
 {
-    private ILaminarFileResource<IEncodableDataOwner<IEncodableData>>? _fileResource;
+    private IFileResource<IEncodableDataOwner<IEncodableData>>? _fileResource;
     private FileNavigatorItemViewModel? _currentlyOpenModel;
     private IDisposable? _currentViewModelScope;
 
@@ -36,7 +36,7 @@ public sealed partial class OpenFileViewModel(IServiceProvider serviceProvider) 
         where TValue : class, IEncodableDataOwner<TData>
         where TViewModel : ViewModelBase
     {
-        if (fileViewModel.CoreItem is not ILaminarStorageFile coreFile)
+        if (fileViewModel.CoreItem is not IFileSystemFile coreFile)
         {
             throw new ArgumentException("Opening a view model that's not a file");
         }

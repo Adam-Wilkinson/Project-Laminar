@@ -1,0 +1,12 @@
+using Laminar.Contracts.Storage.FileExplorer;
+
+namespace Laminar.Implementation.Storage.FileExplorer.Infrastructure;
+
+internal interface IMutableFileSystemItem
+{
+    internal void SetNameInternal(FileSystemGraph.MutationToken _, string newNameWithExtension);
+    
+    internal void SetParentInternal(FileSystemGraph.MutationToken _, IFileSystemFolder newParent);
+    
+    internal void RaiseOnDeleted();
+}

@@ -32,7 +32,7 @@ internal partial class UserActionManager(
     public async Task<IUserActionResult> Undo()
     {
         LogUndoRequested(_id);
-        if (_undoList.Count <= 0) return IUserActionResult.Invalid();
+        if (_undoList.Count <= 0) return IUserActionResult.Ineffectual();
         IUserActionResult actionResult = await ResolveExecutionAsync(_undoList.Pop());
 
         if (actionResult is UserActionSuccess { InverseAction: { } inverse })
@@ -47,7 +47,7 @@ internal partial class UserActionManager(
     public async Task<IUserActionResult> Redo()
     {
         LogRedoRequested(_id);
-        if (_redoList.Count <= 0) return IUserActionResult.Invalid();
+        if (_redoList.Count <= 0) return IUserActionResult.Ineffectual();
         IUserActionResult actionResult = await ResolveExecutionAsync(_redoList.Pop());
 
         if (actionResult is UserActionSuccess { InverseAction: { } inverse })
@@ -77,7 +77,7 @@ internal partial class UserActionManager(
     public async Task<IUserActionResult> ResolveExecutionAsync(IUserAction action)
     {
         LogResolvingAction(_id, action);
-        if (!action.CanExecute) return IUserActionResult.Invalid();
+        if (!action.CanExecute) return IUserActionResult.Ineffectual();
         var result = await action.Execute();
         if (result is UserActionSuccess success) return success;
 

@@ -4,9 +4,7 @@ using Laminar.Domain.ValueObjects;
 
 namespace Laminar.Implementation.Storage.PersistentData;
 
-public sealed class ResourceOnDisk<TValue, TData> 
-    : IResourceOnDisk<TValue> 
-    where TValue : class, IEncodableDataOwner<TData> where TData : class, IEncodableData
+public sealed class DataOnDisk<TData> : IDataOnDisk<TData> where TData : class, IEncodableData
 {
     private static readonly TimeSpan FlushDelay = TimeSpan.FromMilliseconds(200);
     
@@ -18,18 +16,17 @@ public sealed class ResourceOnDisk<TValue, TData>
     private IFileContents _fileContents;
     private bool _isDisposed;
 
-    public ResourceOnDisk(
+    public DataOnDisk(
         FileSystemPath filePath,
         IPersistentDataTranscoder transcoder,
         IFileSystem fileSystem,
-        IEncodableDataFactory dataFactory,
-        IDecodingFactory<TValue, TData> decodingFactory)
+        TData data)
     {
         _transcoder = transcoder;
         _fileContents = fileSystem.GetFile(filePath);
         _fileSystem = fileSystem;
+        Data = data;
         
-        var data = dataFactory.GetEncodableData<TData>();
         if (_fileContents.Contents.Length > 0)
         {
             var decoded = _transcoder.BytesToElement(_fileContents.Contents) ?? throw new InvalidOperationException();
@@ -37,12 +34,11 @@ public sealed class ResourceOnDisk<TValue, TData>
         }
         
         data.Invalidated += OnDataInvalidated;
-        Resource = decodingFactory.FromPersistentData(data);
         
         _flushTimer = new(_ => SynchronousFlush(), null, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
     }
 
-    public TValue Resource { get; }
+    public TData Data { get; }
 
     public IPersistentDataTranscoder Transcoder
     {
@@ -70,7 +66,7 @@ public sealed class ResourceOnDisk<TValue, TData>
     internal void SynchronousFlush()
     {
         if (_isDisposed) return;
-        var encoded = Resource.Data.Encode(_transcoder);
+        var encoded = Data.Encode(_transcoder);
         _fileContents.Contents = _transcoder.ElementToBytes(encoded);
     }
 
@@ -89,7 +85,7 @@ public sealed class ResourceOnDisk<TValue, TData>
         SynchronousFlush();
         _isDisposed = true;
         _fileContents.Dispose();
-        Resource.Data.Invalidated -= OnDataInvalidated;
+        Data.Invalidated -= OnDataInvalidated;
         lock (_timerLock)
         {
             _flushTimer.Change(FlushDelay, Timeout.InfiniteTimeSpan);

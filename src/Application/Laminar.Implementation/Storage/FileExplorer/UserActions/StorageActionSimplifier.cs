@@ -3,7 +3,7 @@ using Laminar.Contracts.Base.ActionSystem;
 
 namespace Laminar.Implementation.Storage.FileExplorer.UserActions;
 
-public class StorageActionSimplifier(FileExplorerActionDependencies dependencies) : IUserActionSimplifier
+public class StorageActionSimplifier(FileBrowserActionDependencies dependencies) : IUserActionSimplifier
 {
     public IUserActionSimplification Simplify(IUserAction first, IUserAction second) => (first, second) switch
     {
@@ -34,7 +34,7 @@ public class StorageActionSimplifier(FileExplorerActionDependencies dependencies
             delete.Target.ParentFolder != add.Parent) 
             return IUserActionSimplification.None();
         
-        if (add.Parent.Contents.IndexOf(delete.Target) == add.IndexInParent)
+        if (add.Parent.LoadOrGetContents().IndexOf(delete.Target) == add.IndexInParent)
         {
             return IUserActionSimplification.Undoes();
         }

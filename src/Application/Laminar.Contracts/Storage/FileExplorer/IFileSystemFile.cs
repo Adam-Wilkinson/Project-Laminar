@@ -2,11 +2,11 @@
 
 namespace Laminar.Contracts.Storage.FileExplorer;
 
-public interface ILaminarStorageFile : ILaminarStorageItem
+public interface IFileSystemFile : IFileSystemItem
 {
     public long SizeOnDisk { get; }
     
-    public ILaminarFileResource<TValue> GetContentsAsResource<TValue, TData>(IPersistentDataTranscoder transcoder,
+    public IFileResource<TValue> GetContentsAsResource<TValue, TData>(IPersistentDataTranscoder transcoder,
         IDecodingFactory<TValue, TData> factory)
         where TValue : class, IEncodableDataOwner<TData>, IEncodableDataOwner<IEncodableData> 
         where TData : class, IEncodableData;

@@ -12,9 +12,9 @@ namespace Laminar.Avalonia.ViewModels;
 
 public partial class FileNavigatorViewModel(
     IOpenFileService openFileService,
-    ILaminarFileBrowser fileBrowser,
+    IFileBrowser fileBrowser,
     DialogService dialogService,
-    Func<ILaminarStorageItem, FileNavigatorItemViewModel> fileNavigatorItemViewModelFactory)
+    Func<IFileSystemItem, FileNavigatorItemViewModel> fileNavigatorItemViewModelFactory)
     : DropTargetViewModel
 {
     private static readonly TimeSpan ExpandHoveredOverFolderDelay = new(0, 0, 0, 0, 500);
@@ -88,7 +88,7 @@ public partial class FileNavigatorViewModel(
     public override bool Drop(object? payload, Point location, object? receptacleTag)
     {
         if (_currentHoverMove is not var (targetItem, targetIndex) ||
-            targetItem.CoreItem is not ILaminarStorageFolder targetFolder) return false;
+            targetItem.CoreItem is not IFileSystemFolder targetFolder) return false;
         if (payload is not FileNavigatorItemViewModel draggedItem) return false;
         
         if (draggedItem.CoreItem is not null)

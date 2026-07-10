@@ -51,7 +51,7 @@ public class CompoundActionTests
 
             var result = await sut.Execute();
 
-            result.Should().BeOfType<UserActionInvalid>();
+            result.Should().BeOfType<UserActionIneffectual>();
 
             await action1.DidNotReceive().Execute();
             await action2.DidNotReceive().Execute();
@@ -107,7 +107,7 @@ public class CompoundActionTests
             action1.CanExecute.Returns(true);
             action2.CanExecute.Returns(true);
             action1.Execute().Returns(Task.FromResult(IUserActionResult.Success(inverse1)));
-            var failure = IUserActionResult.Invalid();
+            var failure = IUserActionResult.Ineffectual();
 
             action2.Execute().Returns(Task.FromResult(failure));
             var sut = new CompoundAction(action1, action2);
@@ -143,7 +143,7 @@ public class CompoundActionTests
             action3.CanExecute.Returns(true);
             action1.Execute().Returns(Task.FromResult(IUserActionResult.Success(inverse1)));
             action2.Execute().Returns(Task.FromResult(IUserActionResult.Success(inverse2)));
-            action3.Execute().Returns(Task.FromResult(IUserActionResult.Invalid()));
+            action3.Execute().Returns(Task.FromResult(IUserActionResult.Ineffectual()));
 
             var sut = new CompoundAction(action1, action2, action3);
 

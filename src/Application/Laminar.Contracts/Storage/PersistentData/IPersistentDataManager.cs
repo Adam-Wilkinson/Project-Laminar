@@ -6,11 +6,12 @@ namespace Laminar.Contracts.Storage.PersistentData;
 public interface IPersistentDataManager : IDisposable
 {
     public IPersistentDictionary GetDataStore(DataStoreKey dataStoreKey);
-
+    
     public void ForgetDataStore(DataStoreKey dataStoreKey);
 
-    public IResourceOnDisk<TValue> GetResourceOnDisk<TValue, TData>(FileSystemPath filePath, 
-        IPersistentDataTranscoder transcoder, IDecodingFactory<TValue, TData> factory)
-        where TValue : class, IEncodableDataOwner<TData>
+    public IDataOnDisk<TData> GetDataOnDisk<TData>(
+        FileSystemPath filePath, 
+        IPersistentDataTranscoder transcoder,
+        TData? initialValue = null)
         where TData : class, IEncodableData;
 }
