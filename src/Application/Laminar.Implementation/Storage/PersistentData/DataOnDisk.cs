@@ -23,7 +23,7 @@ public sealed class DataOnDisk<TData> : IDataOnDisk<TData> where TData : class, 
         TData data)
     {
         _transcoder = transcoder;
-        _fileContents = fileSystem.GetFile(filePath);
+        _fileContents = fileSystem.GetFileContents(filePath);
         _fileSystem = fileSystem;
         Data = data;
         
@@ -56,7 +56,7 @@ public sealed class DataOnDisk<TData> : IDataOnDisk<TData> where TData : class, 
         set
         {
             _fileContents.Dispose();
-            _fileContents = _fileSystem.GetFile(value);
+            _fileContents = _fileSystem.GetFileContents(value);
             OnDataInvalidated(null, EventArgs.Empty);
         }
     }

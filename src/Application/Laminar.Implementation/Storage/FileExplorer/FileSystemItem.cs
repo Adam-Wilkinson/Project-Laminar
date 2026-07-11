@@ -72,6 +72,7 @@ internal abstract class FileSystemItem : IFileSystemItem, IMutableFileSystemItem
         if (!_fileSystem.Exists(Path))
         {
             _graph.Delete(this);
+            return;
         }
         
         RefreshOverride();

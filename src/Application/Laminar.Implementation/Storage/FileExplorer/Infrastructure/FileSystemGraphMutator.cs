@@ -36,7 +36,7 @@ internal sealed class FileSystemGraphMutator(
                     || !repository.TryGetExisting(createdPathParent, out var parentOfCreatedItem)
                     || parentOfCreatedItem is not IFileSystemFolder parentFolder)
                 {
-                    logger.LogWarning("Unable to create storage item because parent folder could not be found");
+                    logger.LogWarning("Unable to create storage item model at {path} because parent folder could not be found in existing item repository", mutation.NewPath);
                     break;
                 }
             

@@ -4,7 +4,7 @@ namespace Laminar.Contracts.Storage.FileExplorer;
 
 public interface IFileResource<out T> : IDisposable where T : IEncodableDataOwner<IEncodableData>
 {
-    public IFileSystemFile FileSystemFile { get; }
+    public IFileSystemFile File { get; }
     
     public T Value { get; }
 

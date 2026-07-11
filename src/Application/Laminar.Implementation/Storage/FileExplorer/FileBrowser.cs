@@ -38,7 +38,9 @@ internal class FileBrowser : IFileBrowser, IDisposable
             ["RootFolders"].GetValueOrInitialize<List<FileSystemPath>>([RoamingDataFolder.ChildPath("Default")]);
         
         RootFolders = rootFolderPaths.ToObservableCollection().ObservableMap(factory.CreateRootFolder);
-        _rootFoldersChangedSubscription = RootFolders.SubscribeForEach(onRemoved: folder => folder.Dispose());
+        _rootFoldersChangedSubscription = RootFolders.SubscribeForEach(
+            onRemoved: folder => folder.Dispose()
+            );
 
         _actionDependencies = new()
         {

@@ -47,7 +47,7 @@ internal sealed class FileSystemMonitor(
         _processFileSystemEventsTask ??= Task.Run(ProcessFileSystemEvents);
         excludedPaths ??= [];
         
-        var folderWatcher = fileSystem.CreateFileWatcher(folder.Path);
+        var folderWatcher = fileSystem.GetFileWatcher(folder.Path);
         folderWatcher.IncludeSubdirectories = true;
         folderWatcher.EnableRaisingEvents = true;
 

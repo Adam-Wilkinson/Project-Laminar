@@ -60,6 +60,8 @@ internal readonly struct MoveStorageItemAction(
         }
         catch (IOException exception)
         {
+            oldFolder.Refresh();
+            destinationFolder.Refresh();
             return Task.FromResult(IUserActionResult.Error(exception));
         }
 

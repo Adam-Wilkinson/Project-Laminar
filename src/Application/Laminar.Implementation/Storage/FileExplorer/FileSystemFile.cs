@@ -2,24 +2,25 @@ using Laminar.Contracts.Storage.FileExplorer;
 using Laminar.Contracts.Storage.FileExplorer.Infrastructure;
 using Laminar.Contracts.Storage.IO;
 using Laminar.Contracts.Storage.PersistentData;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Laminar.Implementation.Storage.FileExplorer;
 
 internal class FileSystemFile : FileSystemItem, IFileSystemFile
 {
+    private readonly IServiceProvider _serviceProvider;
     private readonly IFileSystem _fileSystem;
-    private readonly IPersistentDataManager _persistentDataManager;
     
     public FileSystemFile(
         FileSystemFolder parent,
         IPersistentDictionary persistentData,
         IFileSystem fileSystem,
-        IPersistentDataManager persistentDataManager,
-        IFileSystemGraph graph)
+        IFileSystemGraph graph,
+        IServiceProvider serviceProvider)
         : base(persistentData, fileSystem, graph)
     {
+        _serviceProvider = serviceProvider;
         _fileSystem = fileSystem;
-        _persistentDataManager = persistentDataManager;
         SetParent(parent);
         Info = FileSystemItemType.FromExtension(fileSystem.GetExtension(ComputePathFromParent(parent)));
         Refresh();
@@ -29,9 +30,9 @@ internal class FileSystemFile : FileSystemItem, IFileSystemFile
 
     public IFileResource<TValue> GetContentsAsResource<TValue, TData>(IPersistentDataTranscoder transcoder,
         IDecodingFactory<TValue, TData> factory)
-        where TValue : class, IEncodableDataOwner<TData>, IEncodableDataOwner<IEncodableData> 
-        where TData : class, IEncodableData 
-        => new FileResource<TValue, TData>(_persistentDataManager, transcoder, factory, this);
+        where TValue : class, IEncodableDataOwner<TData>, IEncodableDataOwner<IEncodableData>
+        where TData : class, IEncodableData
+        => ActivatorUtilities.CreateInstance<FileResource<TValue, TData>>(_serviceProvider, this, transcoder, factory);
 
     public override FileSystemItemType Info { get; }
 

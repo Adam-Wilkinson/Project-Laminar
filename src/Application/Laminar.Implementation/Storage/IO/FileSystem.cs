@@ -78,11 +78,14 @@ internal partial class FileSystem(ILogger<IFileSystem> fileSystemLogger, ILogger
         return false;
     }
     
-    public IFileWatcher CreateFileWatcher(FileSystemPath path, string filter = "") 
+    public IFileWatcher GetFileWatcher(FileSystemPath path, string filter = "") 
         => string.IsNullOrEmpty(filter) ? new FileWatcher(path.ToString()) : new FileWatcher(path.ToString(), filter);
 
-    public IFileStream CreateFile(FileSystemPath path)
-        => FileStream.Create(path);
+    public IFileStream CreateFile(FileSystemPath path) => FileStream.Create(path);
+
+    public IFileWaiter GetFileWaiter(FileSystemPath path, TimeSpan? waitWarningDuration = null) => new FileWaiter(path, waitWarningDuration, this);
+    
+    public IFileContents GetFileContents(FileSystemPath path) => new FileContents(this, path, fileLogger);
     
     public Task WriteBytes(FileSystemPath path, byte[] bytes, CancellationToken cancellationToken = default) 
         => File.WriteAllBytesAsync(path.ToString(), bytes, cancellationToken);
@@ -97,9 +100,6 @@ internal partial class FileSystem(ILogger<IFileSystem> fileSystemLogger, ILogger
 
     public void CreateDirectory(FileSystemPath path) 
         => Directory.CreateDirectory(path.ToString());
-    
-    public IFileContents GetFile(FileSystemPath path) 
-        => new FileContents(this, path, fileLogger);
 
     [LoggerMessage(LogLevel.Trace, "Moving an item from '{sourcePath}' to '{destPath}'")]
     static partial void LogFileSystemMove(ILogger<IFileSystem> fileSystemLogger, FileSystemPath sourcePath, FileSystemPath destPath);
