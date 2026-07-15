@@ -1,7 +1,7 @@
 using System.Collections.Specialized;
 using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.Storage.FileExplorer;
-using Laminar.Contracts.Storage.FileExplorer.Infrastructure;
+using Laminar.Contracts.Storage.FileExplorer.Graph;
 using Laminar.Contracts.Storage.IO;
 using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.DataManagement;

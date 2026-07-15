@@ -1,4 +1,4 @@
-namespace Laminar.Implementation.Storage.FileExplorer.Infrastructure;
+namespace Laminar.Implementation.Storage.FileExplorer.Graph;
 
 internal interface IMutableFileSystemRootFolder : IMutableFileSystemFolder
 {

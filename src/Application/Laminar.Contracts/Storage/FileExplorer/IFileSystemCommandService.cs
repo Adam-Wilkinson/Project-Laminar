@@ -1,4 +1,4 @@
-namespace Laminar.Contracts.Storage.FileExplorer.Infrastructure;
+namespace Laminar.Contracts.Storage.FileExplorer;
 
 public interface IFileSystemCommandService
 {

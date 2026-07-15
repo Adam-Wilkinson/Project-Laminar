@@ -1,7 +1,7 @@
 using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.ValueObjects;
 
-namespace Laminar.Contracts.Storage.FileExplorer.Infrastructure;
+namespace Laminar.Contracts.Storage.FileExplorer.Graph;
 
 public interface IFileSystemItemFactory
 {

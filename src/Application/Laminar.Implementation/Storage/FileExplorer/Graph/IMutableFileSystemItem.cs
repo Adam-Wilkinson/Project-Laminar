@@ -1,6 +1,6 @@
 using Laminar.Contracts.Storage.FileExplorer;
 
-namespace Laminar.Implementation.Storage.FileExplorer.Infrastructure;
+namespace Laminar.Implementation.Storage.FileExplorer.Graph;
 
 internal interface IMutableFileSystemItem
 {

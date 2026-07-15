@@ -1,9 +1,10 @@
 using Laminar.Contracts.Storage.FileExplorer;
-using Laminar.Contracts.Storage.FileExplorer.Infrastructure;
+using Laminar.Contracts.Storage.FileExplorer.Graph;
+using Laminar.Contracts.Storage.FileExplorer.Synchronization;
 using Laminar.Contracts.Storage.IO;
 using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.ValueObjects;
-using Laminar.Implementation.Storage.FileExplorer.Infrastructure;
+using Laminar.Implementation.Storage.FileExplorer.Graph;
 using Laminar.Implementation.Storage.PersistentData;
 
 namespace Laminar.Implementation.Storage.FileExplorer;

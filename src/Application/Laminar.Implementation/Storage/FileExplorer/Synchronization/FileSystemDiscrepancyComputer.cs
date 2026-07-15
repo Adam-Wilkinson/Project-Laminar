@@ -1,9 +1,9 @@
 using Laminar.Contracts.Storage.FileExplorer;
-using Laminar.Contracts.Storage.FileExplorer.Infrastructure;
+using Laminar.Contracts.Storage.FileExplorer.Synchronization;
 using Laminar.Contracts.Storage.IO;
 using Laminar.Domain.Extensions;
 
-namespace Laminar.Implementation.Storage.FileExplorer.Infrastructure;
+namespace Laminar.Implementation.Storage.FileExplorer.Synchronization;
 
 internal sealed class FileSystemDiscrepancyComputer(
     IFileSystem fileSystem) : IFileSystemDiscrepancyComputer

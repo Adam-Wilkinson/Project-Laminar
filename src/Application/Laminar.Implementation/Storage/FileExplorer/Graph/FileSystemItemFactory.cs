@@ -1,10 +1,10 @@
 using Laminar.Contracts.Storage.FileExplorer;
-using Laminar.Contracts.Storage.FileExplorer.Infrastructure;
+using Laminar.Contracts.Storage.FileExplorer.Graph;
 using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.ValueObjects;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Laminar.Implementation.Storage.FileExplorer.Infrastructure;
+namespace Laminar.Implementation.Storage.FileExplorer.Graph;
 
 internal sealed class FileSystemItemFactory(IServiceProvider provider, IEncodableDataFactory dataFactory)
     : IFileSystemItemFactory

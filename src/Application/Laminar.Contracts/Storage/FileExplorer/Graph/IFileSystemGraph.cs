@@ -1,6 +1,6 @@
 using Laminar.Contracts.Storage.PersistentData;
 
-namespace Laminar.Contracts.Storage.FileExplorer.Infrastructure;
+namespace Laminar.Contracts.Storage.FileExplorer.Graph;
 
 /// <summary>
 /// Manages the in-memory representation of the file system graph, which may consist of several trees. This class does NOT touch the file system.

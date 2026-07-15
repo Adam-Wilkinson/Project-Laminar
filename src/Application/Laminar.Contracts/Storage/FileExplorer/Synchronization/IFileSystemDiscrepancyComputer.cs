@@ -1,4 +1,4 @@
-namespace Laminar.Contracts.Storage.FileExplorer.Infrastructure;
+namespace Laminar.Contracts.Storage.FileExplorer.Synchronization;
 
 /// <summary>
 /// Ensures that the given storage graphs and root folders are synchronized with the 

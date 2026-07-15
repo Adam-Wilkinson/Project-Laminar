@@ -3,7 +3,7 @@ using Laminar.Contracts.Storage.FileExplorer;
 using Laminar.Domain.Enums.ActionResolutions;
 using Laminar.Domain.Exceptions;
 using Laminar.Implementation.Base.ActionSystem;
-using Laminar.Implementation.Storage.FileExplorer.Infrastructure;
+using Laminar.Implementation.Storage.FileExplorer.Graph;
 
 namespace Laminar.Implementation.Storage.FileExplorer.UserActions;
 

@@ -1,8 +1,10 @@
 using Laminar.Contracts.Storage.FileExplorer;
-using Laminar.Contracts.Storage.FileExplorer.Infrastructure;
+using Laminar.Contracts.Storage.FileExplorer.Graph;
+using Laminar.Contracts.Storage.FileExplorer.Synchronization;
 using Laminar.Contracts.Storage.IO;
 using Laminar.Implementation.Storage.FileExplorer;
-using Laminar.Implementation.Storage.FileExplorer.Infrastructure;
+using Laminar.Implementation.Storage.FileExplorer.Graph;
+using Laminar.Implementation.Storage.FileExplorer.Synchronization;
 using Laminar.Implementation.Storage.IO;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -25,8 +27,8 @@ public static class FileSystemServicesExtension
             .AddSingleton<IFileSystemMutationComputer, FileSystemMutationComputer>()
             .AddSingleton<IFileSystemItemHasher, FileSystemItemHasher>()
             .AddSingleton<IFileSystemSynchronizer, FileSystemSynchronizer>()
-            .AddSingleton<IWritableFileSystemItemRepository, WritableFileSystemItemRepository>()
-            .AddSingleton<IFileSystemItemRepository>(provider => provider.GetRequiredService<IWritableFileSystemItemRepository>())
+            .AddSingleton<IMutableFileSystemItemRepository, FileSystemItemRepository>()
+            .AddSingleton<IFileSystemItemRepository>(provider => provider.GetRequiredService<IMutableFileSystemItemRepository>())
             .AddSingleton<Func<IFileSystemEventHashBucket>>(provider => () => ActivatorUtilities.CreateInstance<FileSystemEventHashBucket>(provider))
             .AddSingleton<IFileSystemDiscrepancyComputer, FileSystemDiscrepancyComputer>()
             

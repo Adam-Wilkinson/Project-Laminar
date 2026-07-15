@@ -1,11 +1,11 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Laminar.Contracts.Storage.FileExplorer;
-using Laminar.Contracts.Storage.FileExplorer.Infrastructure;
+using Laminar.Contracts.Storage.FileExplorer.Graph;
 using Laminar.Contracts.Storage.IO;
 using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.ValueObjects;
-using Laminar.Implementation.Storage.FileExplorer.Infrastructure;
+using Laminar.Implementation.Storage.FileExplorer.Graph;
 
 namespace Laminar.Implementation.Storage.FileExplorer;
 

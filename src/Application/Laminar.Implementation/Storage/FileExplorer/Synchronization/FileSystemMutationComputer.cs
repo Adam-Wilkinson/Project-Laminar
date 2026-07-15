@@ -1,7 +1,8 @@
-using Laminar.Contracts.Storage.FileExplorer.Infrastructure;
+using Laminar.Contracts.Storage.FileExplorer.Graph;
+using Laminar.Contracts.Storage.FileExplorer.Synchronization;
 using Microsoft.Extensions.Logging;
 
-namespace Laminar.Implementation.Storage.FileExplorer.Infrastructure;
+namespace Laminar.Implementation.Storage.FileExplorer.Synchronization;
 
 internal sealed class FileSystemMutationComputer(
     Func<IFileSystemEventHashBucket> hashBucketFactory,

@@ -2,9 +2,9 @@ using System.Diagnostics.CodeAnalysis;
 using Laminar.Contracts.Storage.FileExplorer;
 using Laminar.Domain.ValueObjects;
 
-namespace Laminar.Implementation.Storage.FileExplorer.Infrastructure;
+namespace Laminar.Implementation.Storage.FileExplorer.Graph;
 
-internal sealed class WritableFileSystemItemRepository : IWritableFileSystemItemRepository
+internal sealed class FileSystemItemRepository : IMutableFileSystemItemRepository
 {
     private readonly Dictionary<FileSystemPath, IFileSystemItem> _items = [];
     private readonly Dictionary<FileSystemPath, IFileSystemItem?> _outdatedItems = [];

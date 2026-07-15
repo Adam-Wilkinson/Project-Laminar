@@ -1,12 +1,12 @@
 using Laminar.Contracts.Storage.FileExplorer;
-using Laminar.Contracts.Storage.FileExplorer.Infrastructure;
+using Laminar.Contracts.Storage.FileExplorer.Graph;
 using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.DataManagement;
 
-namespace Laminar.Implementation.Storage.FileExplorer.Infrastructure;
+namespace Laminar.Implementation.Storage.FileExplorer.Graph;
 
 internal sealed class FileSystemGraph(
-    IWritableFileSystemItemRepository repository,
+    IMutableFileSystemItemRepository repository,
     IFileSystemItemFactory itemFactory) : IFileSystemGraph, IDisposable
 {
     private static MutationToken _token = null!;

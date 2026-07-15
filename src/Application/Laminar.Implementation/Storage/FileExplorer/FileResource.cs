@@ -4,7 +4,6 @@ using Laminar.Contracts.Storage.FileExplorer;
 using Laminar.Contracts.Storage.IO;
 using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.Exceptions;
-using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.Storage.FileExplorer;
 
