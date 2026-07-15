@@ -8,7 +8,7 @@ using Laminar.Implementation.Storage.PersistentData;
 
 namespace Laminar.Implementation.Storage.FileExplorer;
 
-internal class FileSystemRootFolder : FileSystemFolder, IFileSystemRootFolder
+internal class FileSystemRootFolder : FileSystemFolder, IFileSystemRootFolder, IMutableFileSystemRootFolder
 {
     private const string InfoFileName = ".laminar.data";
     private readonly IFileSystem _fileSystem;
@@ -54,23 +54,19 @@ internal class FileSystemRootFolder : FileSystemFolder, IFileSystemRootFolder
         _currentMonitor = _fileSystemMonitor.StartMonitoring(this, [ _persistentData.Location ]);
         OnPropertyChanged(nameof(Path));
     }
-    
-    public void Dispose(bool cleanupInfoFiles)
-    {
-        Dispose();
-        if (cleanupInfoFiles)
-        {
-            _fileSystem.Delete(_persistentData.Location);
-        }
-    }
-    
-    public void Dispose()
+
+    public void OnRemoved(FileSystemGraph.MutationToken _, bool cleanupInfoFiles)
     {
         if (_isDisposed) return;
         _isDisposed = true;
         _currentMonitor.Dispose();
         _persistentData.Dispose();
-        OnParentRootFolderDisposed(this, EventArgs.Empty);
-        GC.SuppressFinalize(this);
+        
+        if (cleanupInfoFiles)
+        {
+            _fileSystem.Delete(_persistentData.Location);
+        }
+        
+        OnDeleted();
     }
 }

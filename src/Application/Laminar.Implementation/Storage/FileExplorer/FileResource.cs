@@ -40,7 +40,7 @@ internal sealed class FileResource<TValue, TData> : IFileResource<TValue>
         
         File = file;
         File.PropertyChanged += OnFilePropertyChanged;
-        File.OnDeleted += OnFileDeleted;
+        File.Deleted += OnFileDeleted;
     }
 
     public IFileSystemFile File { get; }
@@ -55,7 +55,7 @@ internal sealed class FileResource<TValue, TData> : IFileResource<TValue>
         _isDisposed = true;
         CleanupDiskResource();
         File.PropertyChanged -= OnFilePropertyChanged;
-        File.OnDeleted -= OnFileDeleted;
+        File.Deleted -= OnFileDeleted;
     }
 
     private void OnFileDeleted(object? sender, EventArgs e)

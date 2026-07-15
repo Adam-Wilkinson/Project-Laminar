@@ -48,7 +48,7 @@ internal sealed class FileSystemMutationComputer(
                 
                 handledArgs.Add(evt);
                 handledArgs.Add(correspondingCreation);
-                yield return new FileSystemGraphMutation(GraphMutationType.Moved, evt.OldPath, correspondingCreation.NewPath);
+                yield return new FileSystemGraphMutation(FileSystemGraphMutationType.Move, evt.OldPath, correspondingCreation.NewPath);
                 continue;
             }
 
@@ -64,15 +64,15 @@ internal sealed class FileSystemMutationComputer(
                 
                 handledArgs.Add(correspondingDeletion);
                 handledArgs.Add(evt);
-                yield return new FileSystemGraphMutation(GraphMutationType.Moved, correspondingDeletion.OldPath, evt.NewPath);
+                yield return new FileSystemGraphMutation(FileSystemGraphMutationType.Move, correspondingDeletion.OldPath, evt.NewPath);
                 continue;
             }
 
             yield return evt.ChangeType switch
             {
-                WatcherChangeTypes.Created => new(GraphMutationType.Created, evt.OldPath, evt.NewPath),
-                WatcherChangeTypes.Deleted => new(GraphMutationType.Deleted, evt.OldPath, evt.NewPath),
-                WatcherChangeTypes.Renamed => new(GraphMutationType.Renamed, evt.OldPath, evt.NewPath),
+                WatcherChangeTypes.Created => new(FileSystemGraphMutationType.Creation, evt.OldPath, evt.NewPath),
+                WatcherChangeTypes.Deleted => new(FileSystemGraphMutationType.Deletion, evt.OldPath, evt.NewPath),
+                WatcherChangeTypes.Renamed => new(FileSystemGraphMutationType.Rename, evt.OldPath, evt.NewPath),
                 var unknown => throw new InvalidOperationException($"Unable to handle file system event {unknown}")
             };
         }

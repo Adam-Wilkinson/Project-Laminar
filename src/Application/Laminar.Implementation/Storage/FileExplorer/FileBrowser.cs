@@ -1,10 +1,10 @@
+using System.Collections.Specialized;
 using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.Storage.FileExplorer;
 using Laminar.Contracts.Storage.FileExplorer.Infrastructure;
 using Laminar.Contracts.Storage.IO;
 using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.DataManagement;
-using Laminar.Domain.Extensions;
 using Laminar.Domain.Notification.Collections;
 using Laminar.Domain.ValueObjects;
 using Laminar.Implementation.Storage.FileExplorer.UserActions;
@@ -14,41 +14,39 @@ namespace Laminar.Implementation.Storage.FileExplorer;
 
 internal class FileBrowser : IFileBrowser, IDisposable
 {
-    private readonly IFileSystemRootFolder _recyclingBin;
     private readonly IUserActionManager _actionManager;
     private readonly IFileSystem _fileSystem;
     private readonly FileBrowserActionDependencies _actionDependencies;
-    private readonly IDisposable _rootFoldersChangedSubscription;
+    private readonly IPersistentValue<List<FileSystemPath>> _rootFolderPaths;
     
     public FileBrowser(
         IUserActionManager actionManager,
-        IFileSystemItemFactory factory,
+        IFileSystemGraph graph,
         IFileSystemCommandService commandService,
-        IFileSystemItemRepository repository,
         IPersistentDataManager dataManager,
         IFileSystem fileSystem)
     {
         _actionManager = actionManager;
         _fileSystem = fileSystem;
-        _recyclingBin = factory.CreateRootFolder(LocalDataFolder.ChildPath("Recycling Bin"));
 
-        var rootFolderPaths = dataManager
+        _rootFolderPaths = dataManager
             .GetDataStore(DataStoreKey.PersistentData)
             ["FileBrowser"].GetOrCreateCollection<IPersistentDictionary>()
             ["RootFolders"].GetValueOrInitialize<List<FileSystemPath>>([RoamingDataFolder.ChildPath("Default")]);
-        
-        RootFolders = rootFolderPaths.ToObservableCollection().ObservableMap(factory.CreateRootFolder);
-        _rootFoldersChangedSubscription = RootFolders.SubscribeForEach(
-            onRemoved: folder => folder.Dispose()
-            );
+
+        foreach (var path in _rootFolderPaths.Value)
+        {
+            graph.Roots.AddRoot(path);
+        }
+
+        RootFolders = graph.Roots;
+        RootFolders.CollectionChanged += OnRootsChanged;
 
         _actionDependencies = new()
         {
-            RecyclingBin = _recyclingBin,
             FileSystem = _fileSystem,
-            RootFolders = rootFolderPaths,
+            Graph = graph,
             CommandService = commandService,
-            ItemRepository = repository
         };
         
         actionManager.RegisterSimplifier(new StorageActionSimplifier(_actionDependencies));
@@ -75,11 +73,15 @@ internal class FileBrowser : IFileBrowser, IDisposable
         => _actionManager.ExecuteAction(new RenameStorageItemAction(newName, itemToRename, _actionDependencies));
 
     public bool OpenInSystemFileBrowser(IFileSystemItem item) => _fileSystem.OpenInSystemFileBrowser(item.Path);
-
+    
+    private void OnRootsChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        _rootFolderPaths.Value = RootFolders.Select(x => x.Path).ToList();
+    }
+    
     public void Dispose()
     {
-        _recyclingBin.Dispose();
-        _rootFoldersChangedSubscription.Dispose();
+        RootFolders.CollectionChanged -= OnRootsChanged;
         GC.SuppressFinalize(this);
     }
 }

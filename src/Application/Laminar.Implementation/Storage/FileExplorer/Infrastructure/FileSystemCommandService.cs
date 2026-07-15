@@ -35,7 +35,7 @@ internal sealed class FileSystemCommandService(
     public void Delete(IFileSystemItem item)
     {
         var oldPath = item.Path;
-        graph.Delete(item);
+        graph.Remove(item);
         fileSystem.Delete(oldPath);
     }
 

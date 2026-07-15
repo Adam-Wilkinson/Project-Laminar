@@ -8,5 +8,5 @@ internal interface IMutableFileSystemItem
     
     internal void SetParentInternal(FileSystemGraph.MutationToken _, IFileSystemFolder newParent);
     
-    internal void RaiseOnDeleted();
+    internal void OnDeleted();
 }

@@ -59,19 +59,15 @@ internal abstract class FileSystemItem : IFileSystemItem, IMutableFileSystemItem
 
     public virtual bool IsEffectivelyEnabled => IsEnabled && (ParentFolder is null || ParentFolder.IsEffectivelyEnabled);
     
-    public event EventHandler? RootFolderDisposed;
-
-    public event EventHandler? OnDeleted;
+    public event EventHandler? Deleted;
     
-    protected virtual void OnParentRootFolderDisposed(object? sender, EventArgs e) => RootFolderDisposed?.Invoke(sender, e);
-
     public IFileSystemFolder? ParentFolder { get; private set; }
 
     public void Refresh()
     {
         if (!_fileSystem.Exists(Path))
         {
-            _graph.Delete(this);
+            _graph.Remove(this);
             return;
         }
         
@@ -88,10 +84,10 @@ internal abstract class FileSystemItem : IFileSystemItem, IMutableFileSystemItem
 
     public void SetParentInternal(FileSystemGraph.MutationToken _, IFileSystemFolder newParent) => SetParent(newParent);
 
-    public void RaiseOnDeleted()
+    public void OnDeleted()
     {
         OnDeletedOverride();
-        OnDeleted?.Invoke(this, EventArgs.Empty);
+        Deleted?.Invoke(this, EventArgs.Empty);
     }
     
     internal virtual void OnEffectivelyEnabledChanged()
@@ -104,9 +100,7 @@ internal abstract class FileSystemItem : IFileSystemItem, IMutableFileSystemItem
         if (ParentFolder == newParent)
             return;
         
-        (ParentFolder as FileSystemItem)?.RootFolderDisposed -= OnParentRootFolderDisposed;
         ParentFolder = newParent;
-        (ParentFolder as FileSystemItem)?.RootFolderDisposed += OnParentRootFolderDisposed;
         OnPropertyChanged(nameof(Path));
     }
     

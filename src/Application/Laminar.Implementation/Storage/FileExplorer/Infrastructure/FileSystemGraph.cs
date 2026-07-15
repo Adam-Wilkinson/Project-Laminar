@@ -1,14 +1,20 @@
 using Laminar.Contracts.Storage.FileExplorer;
 using Laminar.Contracts.Storage.FileExplorer.Infrastructure;
 using Laminar.Contracts.Storage.PersistentData;
+using Laminar.Domain.DataManagement;
 
 namespace Laminar.Implementation.Storage.FileExplorer.Infrastructure;
 
 internal sealed class FileSystemGraph(
     IWritableFileSystemItemRepository repository,
-    IFileSystemItemFactory itemFactory) : IFileSystemGraph
+    IFileSystemItemFactory itemFactory) : IFileSystemGraph, IDisposable
 {
     private static MutationToken _token = null!;
+    private readonly FileSystemRoots _roots = new(_token, repository, itemFactory);
+
+    public IFileSystemRoots Roots => _roots;
+
+    public IFileSystemRootFolder RecyclingBin => field ??= _roots.CreateDetachedRoot(DataLocations.LocalDataFolder.ChildPath("Recycling Bin"));
 
     public void Move(IFileSystemItem item, IFileSystemFolder newParent, int newIndex)
     {
@@ -34,11 +40,11 @@ internal sealed class FileSystemGraph(
         repository.Add(_token, item);
     }
 
-    public void Delete(IFileSystemItem item)
+    public void Remove(IFileSystemItem item)
     {
         repository.Remove(_token, item);
         ToMutable(item.ParentFolder).RemoveChildInternal(_token, item);
-        ToMutable(item).RaiseOnDeleted();
+        ToMutable(item).OnDeleted();
     }
 
     public IFileSystemFolder AddFolder(IFileSystemFolder parent, int indexInParent, string name)
@@ -103,6 +109,15 @@ internal sealed class FileSystemGraph(
 
         private MutationToken()
         {
+        }
+    }
+
+    public void Dispose()
+    {
+        Roots.RemoveRootAt(RecyclingBin.Path, false);
+        while (Roots.Count > 0)
+        {
+            Roots.RemoveRootAt(Roots[0].Path, false);
         }
     }
 }

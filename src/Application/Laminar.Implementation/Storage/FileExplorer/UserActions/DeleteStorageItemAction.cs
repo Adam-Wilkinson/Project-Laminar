@@ -12,7 +12,7 @@ internal readonly struct DeleteStorageItemAction(IFileSystemItem item, FileBrows
 {
     private readonly CompoundAction _internalAction = new(
         new RenameStorageItemAction(GetDeletedName(dependencies.FileSystem.GetNameWithoutExtension(item.Path)), item, dependencies), 
-        new MoveStorageItemAction(item, dependencies.RecyclingBin, null, dependencies));
+        new MoveStorageItemAction(item, dependencies.Graph.RecyclingBin, null, dependencies));
 
     public IFileSystemItem Target => item;
     
@@ -43,7 +43,7 @@ internal readonly struct DeleteStorageItemAction(IFileSystemItem item, FileBrows
 
         if (executionResult.Result is UserActionSuccess && item is IMutableFileSystemItem itemInternal)
         {
-            itemInternal.RaiseOnDeleted();
+            itemInternal.OnDeleted();
         }
         
         

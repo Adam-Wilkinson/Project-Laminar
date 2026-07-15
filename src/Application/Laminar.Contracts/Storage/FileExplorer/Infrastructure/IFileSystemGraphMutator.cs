@@ -7,12 +7,12 @@ public interface IFileSystemGraphMutator
     public void Apply(FileSystemGraphMutation mutation, IFileSystemGraph graph);
 }
 
-public record struct FileSystemGraphMutation(GraphMutationType EventType, FileSystemPath? OldPath, FileSystemPath? NewPath);
+public record struct FileSystemGraphMutation(FileSystemGraphMutationType Type, FileSystemPath? OldPath, FileSystemPath? NewPath);
     
-public enum GraphMutationType
+public enum FileSystemGraphMutationType
 {
-    Created,
-    Deleted,
-    Renamed,
-    Moved
+    Creation,
+    Deletion,
+    Rename,
+    Move
 }

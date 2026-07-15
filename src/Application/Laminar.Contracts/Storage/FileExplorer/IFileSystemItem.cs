@@ -21,7 +21,7 @@ public interface IFileSystemItem : INotifyPropertyChanged
     
     public IFileSystemFolder? ParentFolder { get; }
 
-    public event EventHandler? OnDeleted;
+    public event EventHandler? Deleted;
     
     public void Refresh();
 }

@@ -95,7 +95,7 @@ internal class FileSystemFolder : FileSystemItem, IFileSystemFolder, IMutableFil
         if (Contents is null) return;
         foreach (var storageItem in Contents)
         {
-            (storageItem as IMutableFileSystemItem)?.RaiseOnDeleted();
+            (storageItem as IMutableFileSystemItem)?.OnDeleted();
         }
     }
 

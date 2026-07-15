@@ -12,9 +12,9 @@ internal sealed class FileSystemGraphMutator(
 {
     public void Apply(FileSystemGraphMutation mutation, IFileSystemGraph graph)
     {
-        switch (mutation.EventType)
+        switch (mutation.Type)
         {
-            case GraphMutationType.Moved when repository.TryGetExisting(mutation.OldPath!.Value, out var item):
+            case FileSystemGraphMutationType.Move when repository.TryGetExisting(mutation.OldPath!.Value, out var item):
                 if (mutation.NewPath?.Parent is not { } newParentPath
                     || !repository.TryGetExisting(newParentPath, out var newParent)
                     || newParent is not IFileSystemFolder newParentFolder)
@@ -31,7 +31,7 @@ internal sealed class FileSystemGraphMutator(
                 graph.Move(item, newParentFolder, 0);
                 break;   
                 
-            case GraphMutationType.Created:
+            case FileSystemGraphMutationType.Creation:
                 if (mutation.NewPath?.Parent is not { } createdPathParent
                     || !repository.TryGetExisting(createdPathParent, out var parentOfCreatedItem)
                     || parentOfCreatedItem is not IFileSystemFolder parentFolder)
@@ -56,15 +56,15 @@ internal sealed class FileSystemGraphMutator(
             
                 break;
                 
-            case GraphMutationType.Deleted:
+            case FileSystemGraphMutationType.Deletion:
                 if (repository.TryGetExisting(mutation.OldPath!.Value, out var deletedItem))
                 {
-                    graph.Delete(deletedItem);
+                    graph.Remove(deletedItem);
                 }
             
                 break;
                 
-            case GraphMutationType.Renamed:
+            case FileSystemGraphMutationType.Rename:
                 if (repository.TryGetExisting(mutation.OldPath!.Value, out var renamedItem))
                 {
                     graph.Rename(renamedItem, mutation.NewPath!.Value.NameAndExtension);

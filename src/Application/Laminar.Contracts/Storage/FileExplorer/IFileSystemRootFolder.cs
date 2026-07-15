@@ -1,6 +1,5 @@
 namespace Laminar.Contracts.Storage.FileExplorer;
 
-public interface IFileSystemRootFolder : IFileSystemFolder, IDisposable
+public interface IFileSystemRootFolder : IFileSystemFolder
 {
-    public void Dispose(bool cleanupInfoFiles);
 }
