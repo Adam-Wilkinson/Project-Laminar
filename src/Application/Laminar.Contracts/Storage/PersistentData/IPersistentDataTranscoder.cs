@@ -8,7 +8,7 @@ public interface IPersistentDataTranscoder
     
     object? BytesToElement(byte[] bytes);
     
-    public object? EncodeElement(object value);
+    public object? EncodeElement(object? value);
     
     public object? DecodeElement(object value, Type targetType);
     

@@ -21,7 +21,7 @@ public class JsonPersistentDataTranscoder(
 
     public object BytesToElement(byte[] bytes) => JsonSerializer.Deserialize<JsonElement>(bytes, jsonOptions);
 
-    public object? EncodeElement(object value)
+    public object? EncodeElement(object? value)
     {
         try
         {

@@ -39,15 +39,22 @@ public class SourcedInterfaceDataSerializerFactory(ISerializer serializer) : ICo
 
 public class InterfaceDataSerializer<T>(ISerializer serializer) : TypeSerializer<IInterfaceData<T>> where T : notnull
 {
-    public override Type SerializedType => serializer.GetSerializedType(typeof(T));
+    public override Type SerializedType => serializer.GetSerializedType(typeof(T?));
     
-    protected override object SerializeOverride(IInterfaceData<T> toSerialize)
+    protected override object? SerializeOverride(IInterfaceData<T> toSerialize)
     {
-        var persistentValue = toSerialize is IPersistenceOverrideInterfaceData<T> persistenceOverride
-            ? persistenceOverride.PersistentValue
-            : toSerialize.Value;
+        if (toSerialize is not IPersistenceOverrideInterfaceData<T> persistenceOverride)
+        {
+            return toSerialize.IsUserEditable ? serializer.SerializeObject(toSerialize.Value) : null;
+        }
+
+        if (persistenceOverride.PersistenceBehaviour == PersistenceBehaviour.Never ||
+            persistenceOverride is { PersistenceBehaviour: PersistenceBehaviour.WhenUserEditable, IsUserEditable: false })
+        {
+            return null;
+        }
         
-        return serializer.SerializeObject(persistentValue);
+        return serializer.SerializeObject(persistenceOverride.PersistentValue);
     }
 
     protected override IInterfaceData<T> DeSerializeOverride(DeserializationRequest request)
@@ -59,12 +66,17 @@ public class InterfaceDataSerializer<T>(ISerializer serializer) : TypeSerializer
             ? persistenceOverride.PersistentValue
             : existingInstance.Value;
 
-        T newValue = (T)serializer.DeserializeObject(request with
+        if (request.Serialized is null)
+        {
+            return existingInstance;
+        }
+        
+        T newValue = serializer.DeserializeObject(request with
         {
             TargetType = typeof(T),
             ExistingInstance = existingValue,
-        });
-
+        }) is T deserialized ? deserialized : throw new InvalidCastException();
+        
         if (existingInstance.IsUserEditable)
         {
             existingInstance.Value = newValue;
@@ -92,7 +104,24 @@ public class InterfaceDataSerializer<T>(ISerializer serializer) : TypeSerializer
 
         private void TargetPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            if ((e.PropertyName == nameof(IInterfaceData<>.Value) && _target.IsUserEditable) || e.PropertyName == nameof(IPersistenceOverrideInterfaceData<>.PersistentValue))
+            if (_target is not IPersistenceOverrideInterfaceData<T> persistenceOverride)
+            {
+                if (e.PropertyName == nameof(IInterfaceData<>.Value))
+                {
+                    SerializedValueChanged?.Invoke(this, EventArgs.Empty);
+                }
+                
+                return;
+            }
+
+            if (e.PropertyName == nameof(IPersistenceOverrideInterfaceData<>.PersistenceBehaviour))
+            {
+                SerializedValueChanged?.Invoke(this, EventArgs.Empty);
+                return;
+            }
+            
+            if (persistenceOverride is { PersistenceBehaviour: PersistenceBehaviour.WhenUserEditable, IsUserEditable: true } 
+                && e.PropertyName == nameof(IInterfaceData<>.Value))
             {
                 SerializedValueChanged?.Invoke(this, EventArgs.Empty);
             }

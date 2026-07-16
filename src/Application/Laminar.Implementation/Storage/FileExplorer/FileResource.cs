@@ -46,7 +46,7 @@ internal sealed class FileResource<TValue, TData> : IFileResource<TValue>
 
     public TValue Value { get; }
 
-    public event EventHandler? OnDeleted;
+    public event EventHandler? Deleted;
 
     public void Dispose()
     {
@@ -60,7 +60,7 @@ internal sealed class FileResource<TValue, TData> : IFileResource<TValue>
     private void OnFileDeleted(object? sender, EventArgs e)
     {
         Dispose();
-        OnDeleted?.Invoke(this, EventArgs.Empty);
+        Deleted?.Invoke(this, EventArgs.Empty);
     }
 
     private void OnFilePropertyChanged(object? sender, PropertyChangedEventArgs e)

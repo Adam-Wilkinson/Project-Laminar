@@ -8,9 +8,9 @@ public abstract class TypeSerializer : INotifyingConditionalSerializer
     
     public Type? SerializedTypeOrNull(Type typeToSerialize) => Type.IsAssignableFrom(typeToSerialize) ? SerializedType : null;
     
-    public abstract object Serialize(object toSerialize);
+    public abstract object? Serialize(object toSerialize);
 
-    public abstract object DeSerialize(DeserializationRequest request);
+    public abstract object? DeSerialize(DeserializationRequest request);
 
     public virtual INotifySerializedValueChanged? GetSerializedValueChangedNotifier(object target) => null;
 }
@@ -19,12 +19,12 @@ public abstract class TypeSerializer<T> : TypeSerializer where T : notnull
 {
     public sealed override Type Type { get; } = typeof(T);
  
-    public sealed override object Serialize(object toSerialize)
-        => SerializeOverride((T)toSerialize);
+    public sealed override object? Serialize(object? toSerialize)
+        => toSerialize is not null ? SerializeOverride((T)toSerialize) : null;
     
-    protected abstract object SerializeOverride(T toSerialize);
+    protected abstract object? SerializeOverride(T toSerialize);
     
-    public sealed override object DeSerialize(DeserializationRequest request) 
+    public sealed override object? DeSerialize(DeserializationRequest request) 
         => DeSerializeOverride(request);
     
     protected abstract T DeSerializeOverride(DeserializationRequest request);

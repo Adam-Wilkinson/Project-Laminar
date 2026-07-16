@@ -43,13 +43,13 @@ public class CollectionSerializer<TElement, TSerialized, TEnumerable>(ISerialize
     private static readonly MethodInfo AddMethod = typeof(TEnumerable).GetMethod("Add")!;
     
     protected override SerializedCollection<TSerialized, TEnumerable> SerializeTyped(TEnumerable toSerialize) 
-        => new(toSerialize.Select(x => (TSerialized)serializer.SerializeObject(x, typeof(TElement))));
+        => new(toSerialize.Select(x => serializer.SerializeObject(x, typeof(TElement)) is TSerialized serialized ? serialized : throw new InvalidOperationException()));
 
     protected override TEnumerable DeSerializeTyped(
         DeserializationRequest<TEnumerable, SerializedCollection<TSerialized, TEnumerable>> request)
     {
         var enumerable = request.Serialized.Select(x
-            => (TElement)serializer.DeserializeObject(new DeserializationRequest
+            => serializer.DeserializeObject(new DeserializationRequest
             {
                 Serialized = x,
                 TargetType = typeof(TElement),

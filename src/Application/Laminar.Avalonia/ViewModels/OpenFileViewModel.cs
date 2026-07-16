@@ -17,7 +17,7 @@ public sealed partial class OpenFileViewModel(IServiceProvider serviceProvider) 
         _currentlyOpenModel = null;
         
         _fileResource?.Dispose();
-        _fileResource?.OnDeleted -= OnFileResourceDeleted;
+        _fileResource?.Deleted -= OnFileResourceDeleted;
         _fileResource = null;
         
         _currentViewModelScope?.Dispose();
@@ -52,7 +52,7 @@ public sealed partial class OpenFileViewModel(IServiceProvider serviceProvider) 
             new ScopedViewModel<TViewModel>(serviceProvider, sp => viewModelFactory(sp, resource.Value));
         _currentViewModelScope = scopedViewModel;
         _fileResource = resource;
-        _fileResource.OnDeleted += OnFileResourceDeleted;
+        _fileResource.Deleted += OnFileResourceDeleted;
         _currentlyOpenModel = fileViewModel;
         _currentlyOpenModel.IsOpen = true;
         FileContents = scopedViewModel.ViewModel;

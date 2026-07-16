@@ -2,8 +2,10 @@ namespace Laminar.PluginFramework.Serialization;
 
 public readonly struct DeserializationRequest<TValue, TSerialized>(DeserializationRequest untyped)
 {
-    public TSerialized Serialized { get; } = (TSerialized)untyped.Serialized;
+    public TSerialized Serialized { get; } = untyped.Serialized is TSerialized serialized ? serialized : default!;
+    
     public object? Context { get; } = untyped.Context;
+    
     public TValue? ExistingValue { get; } 
         = untyped.ExistingInstance switch
         {
@@ -17,7 +19,7 @@ public readonly struct DeserializationRequest<TValue, TSerialized>(Deserializati
 
 public readonly struct DeserializationRequest
 {
-    public required object Serialized { get; init; }
+    public required object? Serialized { get; init; }
     public required Type TargetType { get; init; }
 
     public object? ExistingInstance { get; init; }

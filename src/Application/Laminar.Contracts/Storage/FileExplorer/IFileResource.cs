@@ -8,5 +8,5 @@ public interface IFileResource<out T> : IDisposable where T : IEncodableDataOwne
     
     public T Value { get; }
 
-    public event EventHandler? OnDeleted;
+    public event EventHandler? Deleted;
 }

@@ -3,24 +3,24 @@ using Laminar.PluginFramework.UserInterface;
 
 namespace Laminar.PluginFramework.NodeSystem.Components;
 
-public abstract class SingleItemNodeComponent : INodeComponent
+public abstract class SingleItemNodeComponent<TComponent> : INodeComponent where TComponent : INodeComponent
 {
-    private INodeComponent? _component;
-
-    protected INodeComponent? ChildComponent
+    protected TComponent? ChildComponent
     {
-        get => _component;
+        get;
         set
         {
-            if (value is null)
-            {
-                return;
-            }
-
-            _component = value;
-            _component.Opacity.AddFactor(Opacity);
-            _component.StartExecution += (o, e) => StartExecution?.Invoke(o, e);
+            field?.StartExecution -= OnFieldStartExecution;
+            field?.Opacity.RemoveFactor(Opacity);
+            field = value;
+            field?.Opacity.AddFactor(Opacity);
+            field?.StartExecution += OnFieldStartExecution;
         }
+    }
+
+    private void OnFieldStartExecution(object? sender, LaminarExecutionContext e)
+    {
+        StartExecution?.Invoke(this, e);
     }
 
     public Opacity Opacity { get; } = new();
@@ -29,7 +29,12 @@ public abstract class SingleItemNodeComponent : INodeComponent
 
     public IEnumerator<INodeComponent> GetEnumerator()
     {
-        yield return _component!;
+        if (ChildComponent is null)
+        {
+            yield break;
+        }
+        
+        yield return ChildComponent;
     }
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

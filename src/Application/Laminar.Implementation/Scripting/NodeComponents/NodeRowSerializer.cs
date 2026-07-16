@@ -24,7 +24,7 @@ public class NodeRowSerializer(ISerializer serializer) : INotifyingConditionalSe
         return null;
     }
 
-    public object Serialize(object toSerialize) => toSerialize is not INodeRow nodeRow
+    public object? Serialize(object toSerialize) => toSerialize is not INodeRow nodeRow
         ? throw new InvalidOperationException()
         : serializer.SerializeObject(nodeRow.CentralDisplay, nodeRow.CentralDisplay.GetType());
 

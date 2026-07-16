@@ -6,9 +6,9 @@ public interface ISerializer
 {
     public void EnsureAssemblyInit(Assembly assembly);
     
-    public object SerializeObject(object toSerialize, Type? overrideTypeKey = null);
+    public object? SerializeObject(object? toSerialize, Type? overrideTypeKey = null);
 
-    public object DeserializeObject(DeserializationRequest request);
+    public object? DeserializeObject(DeserializationRequest request);
     
     public void RegisterSerializer(IConditionalSerializer serializer);
     
@@ -31,7 +31,7 @@ public static class SerializerExtensions
                 Context = deserializationContext,
             }) is T typed ? typed : default;
 
-        public object Deserialize(object serialized, Type targetType) => serializer.DeserializeObject(
+        public object? Deserialize(object serialized, Type targetType) => serializer.DeserializeObject(
             new DeserializationRequest
             {
                 Serialized = serialized,

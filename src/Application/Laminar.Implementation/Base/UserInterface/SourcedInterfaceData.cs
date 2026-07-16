@@ -105,7 +105,9 @@ public class SourcedInterfaceData<T>(T initialValue) : ISourcedInterfaceData<T> 
             ExecutionStarted?.Invoke(this, new LaminarExecutionContext(null, ExecutionFlags.ValueChanged));
         }
     }
-
+    
+    public PersistenceBehaviour PersistenceBehaviour { get; set => SetField(ref field, value); } 
+        = PersistenceBehaviour.WhenUserEditable;
 
     public void Refresh()
     {

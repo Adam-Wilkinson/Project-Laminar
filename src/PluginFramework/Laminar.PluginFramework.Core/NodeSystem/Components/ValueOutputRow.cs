@@ -1,9 +1,10 @@
 ﻿using Laminar.PluginFramework.NodeSystem.IO.Value;
+using Laminar.PluginFramework.UserInterface;
 using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
 namespace Laminar.PluginFramework.NodeSystem.Components;
 
-public class ValueOutputRow<T> : SingleItemNodeComponent where T : notnull
+public class ValueOutputRow<T> : SingleItemNodeComponent<INodeRow<ISourcedInterfaceData<T>>> where T : notnull
 {
     private readonly IValueOutput<T> _valueOutput;
 

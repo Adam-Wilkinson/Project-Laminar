@@ -4,7 +4,7 @@ public interface IConditionalSerializer
 {
     public Type? SerializedTypeOrNull(Type typeToSerialize);
     
-    public object Serialize(object toSerialize);
+    public object? Serialize(object toSerialize);
 
-    public object DeSerialize(DeserializationRequest request);
+    public object? DeSerialize(DeserializationRequest request);
 }

@@ -28,19 +28,8 @@ internal sealed class FileSystemMonitor(
     private readonly Lock _mutationLock = new();
     private readonly List<IDisposable> _monitors = [];
 
-    private readonly HashSet<(WatcherChangeTypes changeType, FileSystemPath? oldPath, FileSystemPath? newPath)> _suppressedEvents = [];
-    private readonly Lock _suppressedEventsLock = new();
-
     private Task? _processFileSystemEventsTask;
     private CancellationTokenSource? _refreshCts;
-
-    public void SuppressNotification(WatcherChangeTypes changeType, FileSystemPath? oldPath, FileSystemPath? newPath)
-    {
-        lock (_suppressedEventsLock)
-        {
-            _suppressedEvents.Add((changeType, oldPath, newPath));
-        }
-    }
 
     public IDisposable StartMonitoring(IFileSystemRootFolder folder, FileSystemPath[]? excludedPaths = null)
     {
@@ -137,7 +126,6 @@ internal sealed class FileSystemMonitor(
             try
             {
                 await Task.Delay(FileSystemModifiedRefreshDelay, token);
-                logger.LogTrace("Triggering file system refresh after detected change");
 
                 List<IFileSystemRootFolder> snapshot;
                 lock (_mutationLock)
