@@ -21,19 +21,9 @@ internal class ScriptEditor(
     
     public IUserAction AddMatchingNodeAction(IScript script, IWrappedNode node, Point location)
     {
-        IWrappedNode newNode = nodeFactory.FromNodeInfo(node.Info, script.ExecutionInstance);
+        IWrappedNode newNode = nodeFactory.FromNodeInfo(node.Info, script);
         newNode.Location.Value = location;
         return new AddNodeAction(newNode, (IWritableNodeTree)script.WritableNodeTree);
-    }
-
-    public IUserAction AddSubTree(IScript script, IEncodableData data)
-    {
-        if (data is not IPersistentDictionary persistentDictionary)
-            throw new InvalidOperationException();
-        
-        var node = nodeFactory.FromPersistentData(persistentDictionary, script.ExecutionInstance);
-        node.Location.Value += new Point { X = 50, Y = 50 };
-        return new AddNodeAction(node, (IWritableNodeTree)script.WritableNodeTree);
     }
 
     public IUserAction? FindBridgeConnectorsAction(IScript script, IConnector connectorOne, IConnector connectorTwo)
@@ -64,7 +54,7 @@ internal class ScriptEditor(
         {
             if (node is WrappedNode wrappedNode)
             {
-                wrappedNode.UserChangedValueNotificationClient = script.ExecutionInstance;
+                wrappedNode.UserChangedValueNotificationClient = script;
             }
 
             actions.Add(new AddNodeAction(node, (IWritableNodeTree)script.WritableNodeTree));

@@ -120,7 +120,8 @@ public class InterfaceDataSerializer<T>(ISerializer serializer) : TypeSerializer
                 return;
             }
             
-            if (persistenceOverride is { PersistenceBehaviour: PersistenceBehaviour.WhenUserEditable, IsUserEditable: true } 
+            if (persistenceOverride is { PersistenceBehaviour: PersistenceBehaviour.Always } 
+                    or { PersistenceBehaviour: PersistenceBehaviour.WhenUserEditable, IsUserEditable: true } 
                 && e.PropertyName == nameof(IInterfaceData<>.Value))
             {
                 SerializedValueChanged?.Invoke(this, EventArgs.Empty);

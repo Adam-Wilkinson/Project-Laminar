@@ -5,8 +5,10 @@ using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Scripting.Connection;
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Contracts.Storage.PersistentData;
+using Laminar.Domain.Notification;
 using Laminar.Domain.Notification.Collections;
 using Laminar.Implementation.Scripting.Connections;
+using Laminar.PluginFramework.NodeSystem;
 using Laminar.PluginFramework.NodeSystem.Connectors;
 using Microsoft.Extensions.Logging;
 
@@ -28,6 +30,7 @@ internal class WritableNodeTree : IWritableNodeTree
         IPersistentDictionary persistentDictionary, 
         INodeFactory nodeFactory,
         ILogger<WritableNodeTree> logger,
+        INotificationClient<LaminarExecutionContext>? userChangedValueClient = null,
         IEnumerable<IWrappedNode>? nodes = null, 
         IEnumerable<IConnection>? connections = null)
     {
@@ -37,7 +40,7 @@ internal class WritableNodeTree : IWritableNodeTree
         _persistentNodes = persistentDictionary["Nodes"].GetOrCreateCollection<IPersistentDictionary>();
         foreach (var (key, dataPoint) in _persistentNodes)
         {
-            AddNode(nodeFactory.FromPersistentData(dataPoint.GetOrCreateCollection<IPersistentDictionary>()), key);
+            AddNode(nodeFactory.FromPersistentData(dataPoint.GetOrCreateCollection<IPersistentDictionary>(), userChangedValueClient), key);
         }
 
         if (nodes is not null)

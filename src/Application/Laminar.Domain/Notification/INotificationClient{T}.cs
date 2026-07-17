@@ -2,5 +2,5 @@
 
 public interface INotificationClient<in T>
 {
-    public void TriggerNotification(T value);
+    public void TriggerNotification(T context);
 }
