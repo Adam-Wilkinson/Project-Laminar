@@ -146,7 +146,7 @@ internal class WritableNodeTree : IWritableNodeTree
             return false;
         }
 
-        _persistentConnections.AddNext().GetValueOrInitialize(connectionInternal, deserializationContext: this);
+        _persistentConnections.AddNext().GetValueOrInitialize<Connection>(connectionInternal, deserializationContext: this);
         connection = connectionInternal;
         return true;
     }
@@ -229,7 +229,13 @@ internal class WritableNodeTree : IWritableNodeTree
         
         _nodesInformation[inputInfo.Owner].Updates.OnConnectionsChanged();
         _nodesInformation[outputInfo.Owner].Updates.OnConnectionsChanged();
+
+        var persistentValueIndex = _persistentConnections.FirstIndexWhere(x =>
+            x.MaterializedValue is IPersistentValue<Connection> { Value: var foundConnection } &&
+            Equals(foundConnection.InputConnector, inputConnector) &&
+            Equals(foundConnection.OutputConnector, outputConnector));
         
+        _persistentConnections.RemoveAt(persistentValueIndex);
         _connections.Remove((Connection)brokenConnector);
         Changed?.Invoke(this, EventArgs.Empty);
         return true;

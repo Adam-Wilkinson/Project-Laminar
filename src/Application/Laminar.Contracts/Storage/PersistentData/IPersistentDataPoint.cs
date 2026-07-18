@@ -13,4 +13,6 @@ public interface IPersistentDataPoint : IEncodableData
     public IPersistentValue<T> GetValue<T>(Type? serializationKeyOverride = null, object? deserializationContext = null) where T : notnull;
     
     public IPersistentValue<T> GetValueOrInitialize<T>(T defaultValue, Type? serializationKeyOverride = null, object? deserializationContext = null) where T : notnull;
+
+    public IEncodableData? MaterializedValue { get; }
 }

@@ -43,6 +43,8 @@ internal class PersistentList(IEncodableDataFactory dataFactory) : IPersistentLi
         return value;
     }
 
+    public int FirstIndexWhere(Predicate<IPersistentDataPoint> predicate) => _internalValues.FindIndex(predicate);
+
     public void Clear()
     {
         foreach (var value in _internalValues)

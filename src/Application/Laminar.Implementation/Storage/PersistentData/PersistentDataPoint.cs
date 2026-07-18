@@ -6,23 +6,24 @@ internal class PersistentDataPoint(IEncodableDataFactory valueFactory) : IPersis
 {
     private const string UninitializedValue = "[UNINITIALIZED DATA POINT]";
     
-    private IEncodableData? _materializedValue;
     private IPersistentDataTranscoder? _lastTranscoder;
     private object? _encodedValue;
     
+    public IEncodableData? MaterializedValue { get; private set; }
+    
     public void Reset()
     {
-        _materializedValue?.Invalidated -= ChildInvalidated;
-        _materializedValue = null;
+        MaterializedValue?.Invalidated -= ChildInvalidated;
+        MaterializedValue = null;
         _encodedValue = null;
         Invalidated?.Invoke(this, EventArgs.Empty);
     }
-
+    
     public T GetOrCreateCollection<T>(T? knownValue) where T : class, IEncodableData
     {
-        if (_materializedValue is not null)
+        if (MaterializedValue is not null)
         {
-            return (T)_materializedValue ?? throw new InvalidOperationException("This persistent data point is of a different type");
+            return (T)MaterializedValue ?? throw new InvalidOperationException("This persistent data point is of a different type");
         }
 
         T newCollection = knownValue ?? valueFactory.GetEncodableData<T>();
@@ -33,16 +34,16 @@ internal class PersistentDataPoint(IEncodableDataFactory valueFactory) : IPersis
         }
         
         newCollection.Invalidated += ChildInvalidated;
-        _materializedValue = newCollection;
+        MaterializedValue = newCollection;
         Invalidated?.Invoke(this, EventArgs.Empty);
         return newCollection;
     }
 
     public IPersistentValue<T> GetValue<T>(Type? serializationKeyOverride = null, object? deserializationContext = null) where T : notnull
     {
-        if (_materializedValue is not null)
+        if (MaterializedValue is not null)
         {
-            return (IPersistentValue<T>)_materializedValue ?? throw new InvalidOperationException("This persistent data point is of a different type");
+            return (IPersistentValue<T>)MaterializedValue ?? throw new InvalidOperationException("This persistent data point is of a different type");
         }
 
         if (_lastTranscoder is null || _encodedValue is null)
@@ -53,7 +54,7 @@ internal class PersistentDataPoint(IEncodableDataFactory valueFactory) : IPersis
         var newValue = valueFactory.GetValueFromEncoded<T>(_encodedValue, _lastTranscoder, serializationKeyOverride,
             deserializationContext);
         newValue.Invalidated += ChildInvalidated;
-        _materializedValue = newValue;
+        MaterializedValue = newValue;
         Invalidated?.Invoke(this, EventArgs.Empty);
         return newValue;
     }
@@ -61,9 +62,9 @@ internal class PersistentDataPoint(IEncodableDataFactory valueFactory) : IPersis
     public IPersistentValue<T> GetValueOrInitialize<T>(T defaultValue, Type? serializationKeyOverride = null, 
         object? deserializationContext = null) where T : notnull
     {
-        if (_materializedValue is not null)
+        if (MaterializedValue is not null)
         {
-            return (IPersistentValue<T>)_materializedValue ?? throw new InvalidOperationException("This persistent data point is of a different type");
+            return (IPersistentValue<T>)MaterializedValue ?? throw new InvalidOperationException("This persistent data point is of a different type");
         }
         
         var newValue = valueFactory.GetValueWithDefault(defaultValue, serializationKeyOverride, deserializationContext);
@@ -74,14 +75,14 @@ internal class PersistentDataPoint(IEncodableDataFactory valueFactory) : IPersis
         }
         
         newValue.Invalidated += ChildInvalidated;
-        _materializedValue = newValue;
+        MaterializedValue = newValue;
         Invalidated?.Invoke(this, EventArgs.Empty);
         return newValue;
     }
 
     public object Encode(IPersistentDataTranscoder transcoder)
     {
-        if (_materializedValue is null)
+        if (MaterializedValue is null)
         {
             _lastTranscoder = transcoder;
             return _encodedValue ?? UninitializedValue;
@@ -93,7 +94,7 @@ internal class PersistentDataPoint(IEncodableDataFactory valueFactory) : IPersis
         }
 
         _lastTranscoder = transcoder;
-        _encodedValue = _materializedValue.Encode(transcoder);
+        _encodedValue = MaterializedValue.Encode(transcoder);
         return _encodedValue;
     }
 
@@ -103,7 +104,7 @@ internal class PersistentDataPoint(IEncodableDataFactory valueFactory) : IPersis
         if (ReferenceEquals(_encodedValue, encoded) || Equals(encoded, UninitializedValue)) return;
         
         _encodedValue = encoded;
-        _materializedValue?.Decode(transcoder, encoded);
+        MaterializedValue?.Decode(transcoder, encoded);
     }
 
     public event EventHandler? Invalidated;

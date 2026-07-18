@@ -12,6 +12,8 @@ public interface IPersistentList : IEncodableData, IReadOnlyList<IPersistentData
     
     public IPersistentDataPoint RemoveAt(int index);
     
+    public int FirstIndexWhere(Predicate<IPersistentDataPoint> predicate);
+    
     public void Clear();
 
     public IDisposable InitializeAndSyncTo<T>(IReadOnlyObservableCollection<T> target, IPersistenceAdapter<T> adapter);
