@@ -1,6 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Laminar.Avalonia.ViewModels.Services;
-using Laminar.Avalonia.Views;
 using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Contracts.Storage.FileExplorer;
@@ -85,8 +84,19 @@ public partial class MainControlViewModel : ViewModelBase, IOpenFileService, IDi
 
         CentralFileEditor.OpenFile(file, _scriptTranscoder, _scriptingFactory,
             (provider, script) => ActivatorUtilities.CreateInstance<ScriptEditorViewModel>(provider, script));
+
+        if (file.CoreItem is IFileSystemFile fileSystemFile)
+        {
+            FileOpened?.Invoke(this, fileSystemFile);
+        }
+        
         return Task.CompletedTask;
     }
+
+    public event EventHandler<IFileSystemFile>? FileOpened;
+    public event EventHandler<IFileSystemFile>? FileClosed { add { } remove { } }
+
+    public bool FileIsOpen(IFileSystemFile file) => CentralFileEditor.CurrentlyOpenFile == file;
 
     private FileNavigatorItemViewModel? FindFirstFile(Func<FileNavigatorItemViewModel, bool> predicate)
     {

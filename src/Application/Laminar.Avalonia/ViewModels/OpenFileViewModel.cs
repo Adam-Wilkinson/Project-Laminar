@@ -8,14 +8,10 @@ namespace Laminar.Avalonia.ViewModels;
 public sealed partial class OpenFileViewModel(IServiceProvider serviceProvider) : ViewModelBase, IDisposable
 {
     private IFileResource<IEncodableDataOwner<IEncodableData>>? _fileResource;
-    private FileNavigatorItemViewModel? _currentlyOpenModel;
     private IDisposable? _currentViewModelScope;
 
     public void Close()
     {
-        _currentlyOpenModel?.IsOpen = false;
-        _currentlyOpenModel = null;
-        
         _fileResource?.Dispose();
         _fileResource?.Deleted -= OnFileResourceDeleted;
         _fileResource = null;
@@ -53,8 +49,6 @@ public sealed partial class OpenFileViewModel(IServiceProvider serviceProvider) 
         _currentViewModelScope = scopedViewModel;
         _fileResource = resource;
         _fileResource.Deleted += OnFileResourceDeleted;
-        _currentlyOpenModel = fileViewModel;
-        _currentlyOpenModel.IsOpen = true;
         FileContents = scopedViewModel.ViewModel;
     }
 
@@ -62,6 +56,8 @@ public sealed partial class OpenFileViewModel(IServiceProvider serviceProvider) 
     {
         Close();
     }
+
+    public IFileSystemFile? CurrentlyOpenFile => _fileResource?.File;
 
     [ObservableProperty]
     public partial ViewModelBase? FileContents { get; private set; }

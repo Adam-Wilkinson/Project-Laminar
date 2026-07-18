@@ -98,10 +98,10 @@ internal class PersistentDataPoint(IEncodableDataFactory valueFactory) : IPersis
         return _encodedValue;
     }
 
-    public void Decode(IPersistentDataTranscoder transcoder, object encoded)
+    public void Decode(IPersistentDataTranscoder transcoder, object? encoded)
     {
         _lastTranscoder = transcoder;
-        if (ReferenceEquals(_encodedValue, encoded) || Equals(encoded, UninitializedValue)) return;
+        if (encoded is not null && ReferenceEquals(_encodedValue, encoded) || Equals(encoded, UninitializedValue)) return;
         
         _encodedValue = encoded;
         MaterializedValue?.Decode(transcoder, encoded);

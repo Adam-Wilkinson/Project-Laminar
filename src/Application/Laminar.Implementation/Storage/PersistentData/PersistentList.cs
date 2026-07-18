@@ -83,9 +83,11 @@ internal class PersistentList(IEncodableDataFactory dataFactory) : IPersistentLi
     public object Encode(IPersistentDataTranscoder transcoder) 
         => _internalValues.Select(x => x.Encode(transcoder)).ToArray();
 
-    public void Decode(IPersistentDataTranscoder transcoder, object encoded)
+    public void Decode(IPersistentDataTranscoder transcoder, object? encoded)
     {
-        var decoded = (List<object>)transcoder.DecodeElement(encoded, typeof(List<object>))!;
+        if (encoded is null) throw new InvalidCastException();
+        
+        var decoded = (List<object?>)transcoder.DecodeElement(encoded, typeof(List<object?>))!;
         for (int i = 0; i < Math.Min(decoded.Count, _internalValues.Count); i++)
         {
             _internalValues[i].Decode(transcoder, decoded[i]);

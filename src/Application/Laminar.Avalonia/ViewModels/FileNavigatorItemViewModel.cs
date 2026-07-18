@@ -168,6 +168,12 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
 
             NameBeingSet = false;
             Name = field.UserFriendlyName;
+            if (GetOpenFileService() is { } ofs && field is IFileSystemFile fileCoreItem)
+            {
+                IsOpen = ofs.FileIsOpen(fileCoreItem);
+                ofs.FileOpened += OpenFilesChanged;
+                ofs.FileClosed += OpenFilesChanged;
+            }
         
             field.FilterPropertyChanged(nameof(IFileSystemItem.Path)).OnNotification += 
                 (_, _) => Name = field.UserFriendlyName;
@@ -215,23 +221,10 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
     [RelayCommand(CanExecute = nameof(CanExecuteOpenCommand))]
     private async Task Open()
     {
-        if (CoreItem is not IFileSystemFile)
-            return;
-
-        FileNavigatorItemViewModel? currentTarget = this;
-        var ofs = OpenFileService;
-        while (ofs is null && currentTarget is not null)
+        if (CoreItem is IFileSystemFile && GetOpenFileService() is { } ofs)
         {
-            ofs = currentTarget.OpenFileService;
-            currentTarget = currentTarget.Parent;
+            await ofs.RequestOpenFile(this);
         }
-
-        if (ofs is null)
-        {
-            return;
-        }
-        
-        await ofs.RequestOpenFile(this);
     }
 
     public bool IsFolder => CoreItem is IFileSystemFolder;
@@ -240,7 +233,7 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
 
     [ObservableProperty] 
     [NotifyCanExecuteChangedFor(nameof(OpenCommand))]
-    public partial bool IsOpen { get; set; }
+    public partial bool IsOpen { get; private set; }
     
     [RelayCommand]
     private void Rename() => NameBeingSet = true;
@@ -344,8 +337,24 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
             InitializationState = TreeViewInitializationState.Uninitialized;
         }
     }
+
+    private IOpenFileService? GetOpenFileService()
+    {
+        FileNavigatorItemViewModel? currentTarget = this;
+        var ofs = OpenFileService;
+        while (ofs is null && currentTarget is not null)
+        {
+            ofs = currentTarget.OpenFileService;
+            currentTarget = currentTarget.Parent;
+        }
+
+        return ofs;
+    }
+
+    private void OpenFilesChanged(object? sender, IFileSystemFile _) 
+        => IsOpen = CoreItem is IFileSystemFile coreFile && (GetOpenFileService()?.FileIsOpen(coreFile) ?? false);
 }
-    
+
 public enum TreeViewInitializationState
 {
     Uninitialized,

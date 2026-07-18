@@ -14,9 +14,10 @@ internal class PersistentDictionary(IEncodableDataFactory encodableDataFactory) 
             x => x.Value.Encode(transcoder)))
         ?? throw new InvalidOperationException();
 
-    public void Decode(IPersistentDataTranscoder transcoder, object encoded)
+    public void Decode(IPersistentDataTranscoder transcoder, object? encoded)
     {
-        var dictionary = (Dictionary<string, object>)transcoder.DecodeElement(encoded, typeof(Dictionary<string, object>))!;
+        if (encoded is null) throw new InvalidCastException();
+        var dictionary = (Dictionary<string, object?>)transcoder.DecodeElement(encoded, typeof(Dictionary<string, object?>))!;
         foreach (var (key, value) in dictionary)
         {
             GetPersistentData(key).Decode(transcoder, value);

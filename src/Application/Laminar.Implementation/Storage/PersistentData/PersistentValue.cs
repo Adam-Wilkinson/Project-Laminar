@@ -87,7 +87,7 @@ internal class PersistentValue<T> : ObservableValueBase<T>, IPersistentValue<T> 
         return transcoder.EncodeElement(serialized) ?? throw new Exception();
     }
 
-    public void Decode(IPersistentDataTranscoder transcoder, object encoded)
+    public void Decode(IPersistentDataTranscoder transcoder, object? encoded)
     {
         Value = GetValueFromEncoded(encoded, _serializer, transcoder, _typeSerializationKey, _deserializationContext,
             Value);
@@ -95,12 +95,12 @@ internal class PersistentValue<T> : ObservableValueBase<T>, IPersistentValue<T> 
 
     public event EventHandler? Invalidated;
     
-    private static T GetValueFromEncoded(object encodedValue, ISerializer serializer, IPersistentDataTranscoder transcoder, Type typeSerializationKey,
+    private static T GetValueFromEncoded(object? encodedValue, ISerializer serializer, IPersistentDataTranscoder transcoder, Type typeSerializationKey,
         object? deserializationContext, object? existingValue)
     {
-        var decoded = transcoder.DecodeElement(encodedValue, serializer.GetSerializedType(typeSerializationKey));
-
-        if (decoded is null) throw new DeserializationError(new InvalidCastException());
+        var decoded = encodedValue is not null
+            ? transcoder.DecodeElement(encodedValue, serializer.GetSerializedType(typeSerializationKey))
+            : null;
         
         var newValue = serializer.DeserializeObject(new DeserializationRequest
         {
