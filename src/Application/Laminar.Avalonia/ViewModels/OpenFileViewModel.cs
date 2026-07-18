@@ -37,7 +37,11 @@ public sealed partial class OpenFileViewModel(IServiceProvider serviceProvider) 
             throw new ArgumentException("Opening a view model of the incorrect type");
         }
 
-        Close();
+        if (FileContents is not null)
+        {
+            Close();
+        }
+        
         var resource = file.GetContentsAsResource(dataTranscoder, decodingFactory);
         var scopedViewModel =
             new ScopedViewModel<TViewModel>(serviceProvider, sp => viewModelFactory(sp, resource.Value));

@@ -15,7 +15,7 @@ public abstract class TypeSerializer : INotifyingConditionalSerializer
     public virtual INotifySerializedValueChanged? GetSerializedValueChangedNotifier(object target) => null;
 }
 
-public abstract class TypeSerializer<T> : TypeSerializer where T : notnull
+public abstract class TypeSerializer<T> : TypeSerializer
 {
     public sealed override Type Type { get; } = typeof(T);
  
@@ -36,11 +36,10 @@ public abstract class TypeSerializer<T> : TypeSerializer where T : notnull
 }
 
 public abstract class TypeSerializer<T, TSerialized> : TypeSerializer<T>
-    where T : notnull where TSerialized : notnull
 {
     public sealed override Type SerializedType { get; } = typeof(TSerialized);
 
-    protected sealed override object SerializeOverride(T toSerialize) => 
+    protected sealed override object? SerializeOverride(T toSerialize) => 
         SerializeTyped(toSerialize);
     
     protected abstract TSerialized SerializeTyped(T toSerialize);
