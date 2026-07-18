@@ -52,18 +52,18 @@
                             Content="{Binding CentralDisplay}"
                             ClipToBounds="False"/>
             
+                         <!-- RenderTransform="{m:ConnectorRenderTransformCalculator {StaticResource NodeHeaderHeight}}" -->
             <c:Connector Theme="{StaticResource IoConnectorPath}" 
                          HorizontalAlignment="Left"
-                         RenderTransform="{m:ConnectorRenderTransformCalculator {StaticResource NodeHeaderHeight}}"
                          DragMode="{Binding $self.(m:ConnectorRegistry.ConnectorGestureLive), 
                             Converter={StaticResource ParameterOrNullConverter}, 
                             ConverterParameter={x:Static c:ConnectorDragMode.MoveStart},
                             TargetNullValue={x:Static c:ConnectorDragMode.None}}"
                          DataContext="{Binding InputConnector}"/>
             
+                         <!-- RenderTransform="{m:ConnectorRenderTransformCalculator {StaticResource NodeHeaderHeight}}" -->
             <c:Connector Theme="{StaticResource IoConnectorPath}"
                          HorizontalAlignment="Right"
-                         RenderTransform="{m:ConnectorRenderTransformCalculator {StaticResource NodeHeaderHeight}}"
                          DragMode="{Binding $self.(m:ConnectorRegistry.ConnectorGestureLive), 
                             Converter={StaticResource ParameterOrNullConverter}, 
                             ConverterParameter={x:Static c:ConnectorDragMode.MoveEnd},
