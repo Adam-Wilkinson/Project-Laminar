@@ -26,10 +26,10 @@ internal readonly struct MoveStorageItemAction(
         if (item.ParentFolder is not { } oldFolder) 
             return Task.FromResult(IUserActionResult.Error(new InvalidOperationException("Cannot move storage item without parent")));
         
-        var indexInOldFolder = oldFolder.LoadOrGetContents().IndexOf(item);
-        var indexInDestinationFolder = targetIndex ?? destinationFolder.LoadOrGetContents().Count;
+        var indexInOldFolder = oldFolder.GetOrLoadContents().IndexOf(item);
+        var indexInDestinationFolder = targetIndex ?? destinationFolder.GetOrLoadContents().Count;
      
-        if (destinationFolder.LoadOrGetContents().FirstOrDefault(NameEqualsItemName) is { } clash && !Equals(clash, item))
+        if (destinationFolder.GetOrLoadContents().FirstOrDefault(NameEqualsItemName) is { } clash && !Equals(clash, item))
         {
             FileBrowserActionDependencies actionDependencies = dependencies;
             MoveStorageItemAction moveAction = this;

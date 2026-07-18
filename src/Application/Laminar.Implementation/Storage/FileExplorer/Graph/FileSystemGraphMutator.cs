@@ -23,7 +23,7 @@ internal sealed class FileSystemGraphMutator(
                     break;
                 }
             
-                if (newParentFolder.LoadOrGetContents().Contains(item))
+                if (newParentFolder.GetOrLoadContents().Contains(item))
                 {
                     break;
                 } 
@@ -40,7 +40,7 @@ internal sealed class FileSystemGraphMutator(
                     break;
                 }
             
-                if (parentFolder.LoadOrGetContents().Any(x => x.Path == mutation.NewPath.Value))
+                if (parentFolder.GetOrLoadContents().Any(x => x.Path == mutation.NewPath.Value))
                 {
                     break;
                 }

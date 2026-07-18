@@ -28,11 +28,8 @@ public partial class MainControlViewModel : ViewModelBase, IOpenFileService, IDi
         _scriptingFactory = scriptingFactory;
         _scriptTranscoder = new JsonPersistentDataTranscoder(transcoderLogger);
         CentralFileEditor = new OpenFileViewModel(serviceProvider);
-        
-        if (FindFirstFile(file => file.CoreItem?.Info.ContentsType == typeof(IScript)) is { } firstScript)
-        {
-            _ = RequestOpenFile(firstScript);
-        }
+
+        _ = InitializeOpenFile();
         
         OnExpandedSidebarWidthChanged(ExpandedSidebarWidth);
         LoadedNodes = loadedNodeManager.LoadedNodes.RecursiveMap(nodeInfo => nodeFactory.FromNodeInfo(nodeInfo));
@@ -78,17 +75,14 @@ public partial class MainControlViewModel : ViewModelBase, IOpenFileService, IDi
         GC.SuppressFinalize(this);
     }
 
-    public Task RequestOpenFile(FileNavigatorItemViewModel file)
+    public Task RequestOpenFile(IFileSystemFile file)
     {
-        if (file.CoreItem?.Info.ContentsType != typeof(IScript)) return Task.CompletedTask;
+        if (file.Info.ContentsType != typeof(IScript)) return Task.CompletedTask;
 
         CentralFileEditor.OpenFile(file, _scriptTranscoder, _scriptingFactory,
             (provider, script) => ActivatorUtilities.CreateInstance<ScriptEditorViewModel>(provider, script));
 
-        if (file.CoreItem is IFileSystemFile fileSystemFile)
-        {
-            FileOpened?.Invoke(this, fileSystemFile);
-        }
+        FileOpened?.Invoke(this, file);
         
         return Task.CompletedTask;
     }
@@ -97,38 +91,50 @@ public partial class MainControlViewModel : ViewModelBase, IOpenFileService, IDi
     public event EventHandler<IFileSystemFile>? FileClosed { add { } remove { } }
 
     public bool FileIsOpen(IFileSystemFile file) => CentralFileEditor.CurrentlyOpenFile == file;
-
-    private FileNavigatorItemViewModel? FindFirstFile(Func<FileNavigatorItemViewModel, bool> predicate)
+    
+    private async Task InitializeOpenFile()
     {
-        FileNavigatorItemViewModel? firstFile = FileNavigator.RootFiles[0];
-        while (firstFile.CoreItem is not IFileSystemFile && !predicate(firstFile))
+        if (await FindFirstFileSystemItem(file => file.Info.ContentsType == typeof(IScript)) is IFileSystemFile firstScript)
         {
-            if (firstFile.Children is null || firstFile.Children.Count == 0)
+            await RequestOpenFile(firstScript);
+        }
+    }
+    
+    private async Task<IFileSystemItem?> FindFirstFileSystemItem(Func<IFileSystemItem, bool> predicate)
+    {
+        IFileSystemItem? currentItem = FileNavigator.RootFiles[0].CoreItem;
+        if (currentItem is null) return null;
+        while (!predicate(currentItem))
+        {
+            if (currentItem is not IFileSystemFolder currentFolder || (await currentFolder.GetOrLoadContentsAsync()).Count == 0)
             {
-                firstFile = GetNext(firstFile);
-                if (firstFile is null) break;
+                var nextFile = GetNext(currentItem);
+                if (nextFile is null) break;
+                currentItem = nextFile;
                 continue;
             }
 
-            firstFile = firstFile.Children[0];
+            currentItem = (await currentFolder.GetOrLoadContentsAsync())[0];
         }
 
-        return firstFile;
+        return currentItem;
     }
 
-    private FileNavigatorItemViewModel? GetNext(FileNavigatorItemViewModel? current)
+    private IFileSystemItem? GetNext(IFileSystemItem? current)
     {
-        if (current?.Parent is null) return null;
+        if (current?.ParentFolder is null) return null;
 
-        var currentItemIndexInParent = current.Parent!.Children!.IndexOf(current); 
-        while (currentItemIndexInParent == current.Children!.Count - 1)
+        var currentItemIndexInParent = current.ParentFolder!.Contents!.IndexOf(current);
+        
+        // We step up in the tree while the current item is the last item
+        while (currentItemIndexInParent == current.ParentFolder!.Contents!.Count - 1)
         {
-            if (current.Parent is null) return null;
-            current = current.Parent;
-            if (current.Parent is null) return null;
-            currentItemIndexInParent = current.Parent.Children!.IndexOf(current);
+            if (current.ParentFolder is null) return null;
+            current = current.ParentFolder;
+            if (current.ParentFolder is null) return null;
+            currentItemIndexInParent = current.ParentFolder.Contents!.IndexOf(current);
         }
 
-        return current.Parent!.Children[currentItemIndexInParent + 1];
+        return current.ParentFolder!.Contents[currentItemIndexInParent + 1];
     }
 }

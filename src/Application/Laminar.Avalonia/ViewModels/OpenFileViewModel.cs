@@ -24,7 +24,7 @@ public sealed partial class OpenFileViewModel(IServiceProvider serviceProvider) 
     }
     
     public void OpenFile<TValue, TData, TViewModel>(
-        FileNavigatorItemViewModel fileViewModel,
+        IFileSystemFile file,
         IPersistentDataTranscoder dataTranscoder,
         IDecodingFactory<TValue, TData> decodingFactory,
         Func<IServiceProvider, TValue, TViewModel> viewModelFactory)
@@ -32,18 +32,13 @@ public sealed partial class OpenFileViewModel(IServiceProvider serviceProvider) 
         where TValue : class, IEncodableDataOwner<TData>
         where TViewModel : ViewModelBase
     {
-        if (fileViewModel.CoreItem is not IFileSystemFile coreFile)
-        {
-            throw new ArgumentException("Opening a view model that's not a file");
-        }
-
-        if (coreFile.Info.ContentsType != typeof(TValue))
+        if (file.Info.ContentsType != typeof(TValue))
         {
             throw new ArgumentException("Opening a view model of the incorrect type");
         }
 
         Close();
-        var resource = coreFile.GetContentsAsResource(dataTranscoder, decodingFactory);
+        var resource = file.GetContentsAsResource(dataTranscoder, decodingFactory);
         var scopedViewModel =
             new ScopedViewModel<TViewModel>(serviceProvider, sp => viewModelFactory(sp, resource.Value));
         _currentViewModelScope = scopedViewModel;

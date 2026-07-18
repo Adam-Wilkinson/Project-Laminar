@@ -33,7 +33,7 @@ public class StorageActionSimplifier(FileBrowserActionDependencies dependencies)
             delete.Target.ParentFolder != add.Parent) 
             return IUserActionSimplification.None();
         
-        if (add.Parent.LoadOrGetContents().IndexOf(delete.Target) == add.IndexInParent)
+        if (add.Parent.GetOrLoadContents().IndexOf(delete.Target) == add.IndexInParent)
         {
             return IUserActionSimplification.Undoes();
         }

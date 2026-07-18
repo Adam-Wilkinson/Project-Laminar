@@ -9,22 +9,21 @@ namespace Laminar.Implementation.Storage.FileExplorer;
 
 internal class FileSystemFolder : FileSystemItem, IFileSystemFolder, IMutableFileSystemFolder
 {
-    private readonly IFileSystemItemRepository _itemRepository;
     private readonly IFileSystemGraph _graph;
     private readonly IFileSystem _fileSystem;
+    private readonly Lock _loadContentsLock = new();
     
     private IObservableCollection<IFileSystemItem>? _contentsInternal;
+    private Task<IReadOnlyObservableCollection<IFileSystemItem>>? _loadContentsTask;
     private IPersistentList? _persistentContents;
     
     protected FileSystemFolder(
         IPersistentDictionary persistentData,
-        IFileSystemItemRepository itemRepository,
         IFileSystem fileSystem,
         IFileSystemGraph graph)
         : base(persistentData, fileSystem, graph)
     {
         _fileSystem = fileSystem;
-        _itemRepository = itemRepository;
         _graph = graph;
         IsExpanded = PersistentStorage[nameof(IsExpanded)].GetValueOrInitialize(false).Value;
     }
@@ -32,10 +31,9 @@ internal class FileSystemFolder : FileSystemItem, IFileSystemFolder, IMutableFil
     public FileSystemFolder(
         FileSystemFolder parent, 
         IPersistentDictionary persistentData,
-        IFileSystemItemRepository itemRepository, 
         IFileSystem fileSystem,
         IFileSystemGraph graph) 
-        : this(persistentData, itemRepository, fileSystem, graph)
+        : this(persistentData, fileSystem, graph)
     {
         SetParent(parent);
         Refresh();
@@ -101,7 +99,11 @@ internal class FileSystemFolder : FileSystemItem, IFileSystemFolder, IMutableFil
 
     public void InsertChildInternal(FileSystemGraph.MutationToken _, IFileSystemItem newChild, int index)
     {
-        LoadOrGetContents();
+        if (_loadContentsTask is null)
+        {
+            GetOrLoadContents();
+        }
+        
         _contentsInternal?.Insert(index, newChild);
         if (newChild is not FileSystemItem childInternal) throw new InvalidOperationException();
         _persistentContents?.Insert(index).GetOrCreateCollection(childInternal.PersistentStorage);
@@ -109,7 +111,11 @@ internal class FileSystemFolder : FileSystemItem, IFileSystemFolder, IMutableFil
 
     public void RemoveChildInternal(FileSystemGraph.MutationToken _, IFileSystemItem child)
     {
-        LoadOrGetContents();
+        if (_loadContentsTask is null)
+        {
+            GetOrLoadContents();
+        }
+        
         var childIndex = _contentsInternal?.IndexOf(child);
         if (childIndex is null or -1) return;
         _contentsInternal?.RemoveAt(childIndex.Value);
@@ -118,15 +124,32 @@ internal class FileSystemFolder : FileSystemItem, IFileSystemFolder, IMutableFil
 
     public void MoveChildInternal(FileSystemGraph.MutationToken _, int oldIndex, int newIndex)
     {
-        LoadOrGetContents();
+        if (_loadContentsTask is null)
+        {
+            GetOrLoadContents();
+        }
+        
         _contentsInternal?.Move(oldIndex, newIndex);
         _persistentContents?.Move(oldIndex, newIndex, 1);
     }
 
-    public IReadOnlyObservableCollection<IFileSystemItem> LoadOrGetContents()
+    public Task<IReadOnlyObservableCollection<IFileSystemItem>> GetOrLoadContentsAsync()
+    {
+        lock (_loadContentsLock)
+        {
+            return _loadContentsTask ??= Task.Run(LoadContents);
+        }
+    }
+    
+    public IReadOnlyObservableCollection<IFileSystemItem> GetOrLoadContents()
     {
         if (_contentsInternal is not null) return _contentsInternal;
         
+        return GetOrLoadContentsAsync().GetAwaiter().GetResult();
+    }
+
+    private IReadOnlyObservableCollection<IFileSystemItem> LoadContents()
+    {
         _contentsInternal = new ObservableCollectionImpl<IFileSystemItem>([]);
         
         // When loading persistent contents from memory, we don't want changes to propagate back to _persistentContents
@@ -141,7 +164,7 @@ internal class FileSystemFolder : FileSystemItem, IFileSystemFolder, IMutableFil
         _persistentContents = persistentContents;
         
         Refresh();
-
+        
         return _contentsInternal;
     }
 }

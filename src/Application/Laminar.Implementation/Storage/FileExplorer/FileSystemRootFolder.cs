@@ -23,12 +23,11 @@ internal class FileSystemRootFolder : FileSystemFolder, IFileSystemRootFolder, I
     public FileSystemRootFolder(
         FileSystemPath path, 
         IPersistentDictionary persistentData,
-        IFileSystemItemRepository itemRepository,
         IFileSystem fileSystem,
         IPersistentDataManager persistentDataManager,
         IFileSystemMonitor monitor,
         IFileSystemGraph graph) 
-        : base(persistentData, itemRepository, fileSystem, graph)
+        : base(persistentData, fileSystem, graph)
     {
         _path = path;
         _fileSystem = fileSystem;

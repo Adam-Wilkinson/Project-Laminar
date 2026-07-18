@@ -20,7 +20,7 @@ internal sealed class FileSystemGraph(
     {
         if (Equals(item.ParentFolder, newParent))
         {
-            ToMutable(newParent).MoveChildInternal(_token, item.ParentFolder!.LoadOrGetContents().IndexOf(item), newIndex);
+            ToMutable(newParent).MoveChildInternal(_token, item.ParentFolder!.GetOrLoadContents().IndexOf(item), newIndex);
             return;
         }
         
@@ -70,7 +70,7 @@ internal sealed class FileSystemGraph(
         }
 
         var newItem = itemFactory.CreateFromPersistentData(parent, persistentDictionary);
-        AddItemInternal(parent, parent.LoadOrGetContents().Count, newItem);
+        AddItemInternal(parent, parent.GetOrLoadContents().Count, newItem);
         return newItem;
     }
 

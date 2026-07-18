@@ -39,7 +39,7 @@ internal readonly struct RenameStorageItemAction(
         string name = newName;
         FileBrowserActionDependencies actionDependencies = dependencies;
         
-        if (parentFolder.LoadOrGetContents().FirstOrDefault(sibling => name.Equals(
+        if (parentFolder.GetOrLoadContents().FirstOrDefault(sibling => name.Equals(
                 actionDependencies.FileSystem.GetNameWithoutExtension(sibling.Path), FileSystemPath.RuntimeStringComparison)) 
             is { } clash)
         {

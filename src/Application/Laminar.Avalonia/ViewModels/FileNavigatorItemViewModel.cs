@@ -221,9 +221,9 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
     [RelayCommand(CanExecute = nameof(CanExecuteOpenCommand))]
     private async Task Open()
     {
-        if (CoreItem is IFileSystemFile && GetOpenFileService() is { } ofs)
+        if (CoreItem is IFileSystemFile coreFile && GetOpenFileService() is { } ofs)
         {
-            await ofs.RequestOpenFile(this);
+            await ofs.RequestOpenFile(coreFile);
         }
     }
 
@@ -296,7 +296,7 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
             InitializationState = TreeViewInitializationState.ChildrenLoading;
         }
         
-        var mapped = folder.LoadOrGetContents().ObservableMap(_fromCoreItemFactory);
+        var mapped = (await folder.GetOrLoadContentsAsync()).ObservableMap(_fromCoreItemFactory);
         await Dispatcher.UIThread.InvokeAsync(() => _children?.ChangeSourceTo(mapped), DispatcherPriority.ContextIdle);
 
         lock (_stateLock)
