@@ -22,7 +22,10 @@ public class DataInterfaceTemplate(TopLevel topLevel, IDataInterfaceFactory data
             [!StyledElement.DataContextProperty] = CompiledBinding.Create((IDataInterface<Control> x) => x.InterfaceData, source: result),
         };
 
-        result.InterfaceData?.SetValue(valueCache);
+        if (result.InterfaceData?.IsUserEditable is true && !Equals(result.InterfaceData?.Value, valueCache))
+        {
+            result.InterfaceData?.Value = valueCache;
+        }
         
         return returnValue;
     }
