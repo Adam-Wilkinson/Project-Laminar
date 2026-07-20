@@ -77,7 +77,7 @@ public partial class ScriptEditorViewModel(
 
             _userActionSession ??= userActionManager.BeginSession();
             _userActionSession.ExecuteAction(editor.DeleteConnectionAction(script, connectionInfo.Connection));
-
+            
             return connectionInfo.OppositeConnector;
         }
 
@@ -89,7 +89,7 @@ public partial class ScriptEditorViewModel(
         _userActionSession ??= userActionManager.BeginSession();
 
         if (editor.FindBridgeConnectorsAction(script, first, second) is not { } bridgeAction) return false;
-        
+
         _userActionSession.ExecuteAction(bridgeAction);
         return true;
 
@@ -122,15 +122,21 @@ public partial class ScriptEditorViewModel(
 
     public bool CanDeleteSelection => SelectionModel is not null && SelectionModel.SelectedItems.Count > 0; 
 
-    public void CancelConnection()
+    public void CancelCurrentConnection()
     {
         _userActionSession?.Pop();
     }
 
-    public void ConfirmConnection()
+    public void ConfirmCurrentConnection()
     {
         _userActionSession?.Dispose();
         _userActionSession = null;
+    }
+
+    public void ExitInteraction()
+    {
+        _userActionSession?.Reset();
+        ConfirmCurrentConnection();
     }
 
     partial void OnSelectionModelChanged(CanvasSelectionModel? oldValue, CanvasSelectionModel? newValue)

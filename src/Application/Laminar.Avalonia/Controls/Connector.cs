@@ -1,5 +1,4 @@
 using Avalonia;
-using Avalonia.Animation;
 using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Shapes;
 using Avalonia.Interactivity;
@@ -39,8 +38,6 @@ public class Connector : Shape
         ConnectorRegistry.MoveConnectionIndicationEvent.AddClassHandler<Connector>((conn, args) => conn.OnMoveConnectionIndication(args));
         ConnectorRegistry.EndConnectionIndicationEvent.AddClassHandler<Connector>((conn, args) => conn.OnEndConnectionIndication(args));
     }
-
-    private Point? _originalClickOffset;
     
     public Point Startpoint
     {
@@ -78,24 +75,21 @@ public class Connector : Shape
         set => SetValue(AnimateHomeDurationProperty, value);
     }
     
-    protected override Geometry CreateDefiningGeometry()
-    {
-        return Connection.Generate(Startpoint, Endpoint, ConnectionWidth, TipLength);
-    }
-    
+    protected override Geometry CreateDefiningGeometry() 
+        => Connection.Generate(Startpoint, Endpoint, ConnectionWidth, TipLength);
+
     private void OnMoveConnectionIndication(MoveConnectionIndicationEventArgs args)
     {
         var relativePoint = args.PointerEvent.GetPosition(this);
-        _originalClickOffset ??= relativePoint;
         IsHitTestVisible = false;
         switch (DragMode)
         {
             case ConnectorDragMode.MoveEnd:
-                Endpoint = relativePoint - _originalClickOffset.Value;
+                Endpoint = relativePoint - args.Offset;
                 PseudoClasses.Add(DragActivePseudoclass);
                 break;
             case ConnectorDragMode.MoveStart:
-                Startpoint = relativePoint - _originalClickOffset.Value;
+                Startpoint = relativePoint - args.Offset;
                 PseudoClasses.Add(DragActivePseudoclass);
                 break;
             case ConnectorDragMode.None:
@@ -111,7 +105,6 @@ public class Connector : Shape
         PseudoClasses.Remove(DragActivePseudoclass);
         IsHitTestVisible = true;
         args.Handled = true;
-        _originalClickOffset = null;
         Startpoint = new Point(0, 0);
         Endpoint = new Point(0, 0);
     }

@@ -7,11 +7,11 @@
              xmlns:m="using:Laminar.Avalonia.Markup"
              xmlns:dd="using:Laminar.Avalonia.DragDrop"
              xmlns:t="using:Laminar.Avalonia.ToolSystem"
-             xmlns:g="using:Laminar.Avalonia.Gestures"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Laminar.Avalonia.Views.ScriptEditorView"
              x:DataType="vm:ScriptEditorViewModel"
              Background="Transparent"
+             m:ConnectorRegistry.ConnectionInteractionHandler="{Binding}"
              IsHitTestVisible="True">
     <UserControl.Resources>
         <m:ConnectorRegistry x:Key="{x:Static m:ConnectorRegistry.Key}"/>
@@ -21,6 +21,7 @@
         <t:Toolbox NameKey="Script Editor" DataType="vm:ScriptEditorViewModel">
             <StaticResource ResourceKey="Tools.ScriptEditor.DeleteSelection"/>
             <StaticResource ResourceKey="Tools.Edit.Copy"/>
+            <StaticResource ResourceKey="Tools.Edit.Cut"/>
             <StaticResource ResourceKey="Tools.Edit.Paste"/>
         </t:Toolbox>
     </t:ToolMenu.ContextToolbox>
@@ -35,23 +36,6 @@
                        dd:DropTargetHandler.DropPositionRelativeTo="{Binding $self.TransformRoot}"
                        dd:DropTargetHandler.DropTarget="{Binding}"
                        dd:DropTargetHandler.AnimateHomeOnDrop="False">
-        <sam:SelectAndMove.ItemTemplate>
-            <DataTemplate DataType="vm:ScriptEditorItemModel">
-                <ContentControl Content="{Binding CoreElement}"
-                                ClipToBounds="False"/>
-            </DataTemplate>
-        </sam:SelectAndMove.ItemTemplate>
-        
-        <sam:SelectAndMove.ItemsPanel>
-            <ItemsPanelTemplate>
-                <Canvas>
-                    <Canvas.GestureRecognizers>
-                        <g:MakeConnectionGesture ConnectionInteractionHandler="{Binding}"/>
-                    </Canvas.GestureRecognizers>
-                </Canvas>
-            </ItemsPanelTemplate>
-        </sam:SelectAndMove.ItemsPanel>
-        
         <sam:SelectAndMove.Styles>
             <Style Selector="sam|SelectAndMoveItem" x:DataType="vm:ScriptEditorItemModel">
                 <Setter Property="Left" Value="{Binding Left, Mode=TwoWay}"/>
@@ -61,6 +45,7 @@
                 <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
                 <Setter Property="IsMovable" Value="{Binding IsMovable}"/>
                 <Setter Property="sam:ZIndexLayerManger.ZIndexLayer" Value="{Binding LayerIndex}"/>
+                <Setter Property="Content" Value="{Binding CoreElement}"/>
             </Style>
         </sam:SelectAndMove.Styles>
     </sam:SelectAndMove>

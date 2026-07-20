@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data;
+using Avalonia.Input;
 using Avalonia.Markup.Xaml;
 using Avalonia.Markup.Xaml.MarkupExtensions;
 using Avalonia.Media.Transformation;
@@ -71,7 +72,7 @@ public class ConnectorRenderTransformCalculator(object headerHeight) : MarkupExt
     
     private static IConnector FindConnectorFromTarget(object target)
     {
-        if (target is Visual targetVisual && ConnectorRegistry.GetRegisteredConnector(targetVisual) is { } connector)
+        if (target is InputElement targetElement && ConnectorRegistry.GetRegisteredConnector(targetElement) is { } connector)
         {
             return connector;
         }
