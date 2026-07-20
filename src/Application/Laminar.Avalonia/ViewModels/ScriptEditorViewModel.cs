@@ -48,8 +48,8 @@ public partial class ScriptEditorViewModel(
 
     public IReadOnlyObservableCollection<ScriptEditorItemModel> VisualElements 
         => _models ??= new FlattenedObservableTree<ScriptEditorItemModel>(
-                script.WritableNodeTree.Nodes.ObservableMap(CreateItemModel),
-                script.WritableNodeTree.Connections.ObservableMap(CreateItemModel));
+                script.NodeTree.Nodes.ObservableMap(CreateItemModel),
+                script.NodeTree.Connections.ObservableMap(CreateItemModel));
     
     public override bool Drop(object? payload, AvaloniaPoint location, object? receptacleTag)
     {
@@ -71,7 +71,7 @@ public partial class ScriptEditorViewModel(
 
         if (connector.Flags == (ConnectorFlags.HasConnections | ConnectorFlags.ConnectionsSaturated))
         {
-            var connections = script.WritableNodeTree.GetConnectionsTo(connector);
+            var connections = script.NodeTree.GetConnectionsTo(connector);
             if (connections.Count == 0) return null;
             var connectionInfo = connections.First();
 
@@ -88,6 +88,8 @@ public partial class ScriptEditorViewModel(
     {
         _userActionSession ??= userActionManager.BeginSession();
 
+        if (script.NodeTree.ConnectionExists(first, second, out _)) return false;
+        
         if (editor.FindBridgeConnectorsAction(script, first, second) is not { } bridgeAction) return false;
 
         _userActionSession.ExecuteAction(bridgeAction);

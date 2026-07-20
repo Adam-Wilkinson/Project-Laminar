@@ -7,7 +7,7 @@ using Laminar.PluginFramework.NodeSystem.Connectors;
 
 namespace Laminar.Avalonia.Markup;
 
-public sealed class ConnectionCreationSession : AvaloniaObject, IDisposable
+public sealed class ConnectionCreationSession : IDisposable
 {
     private readonly IConnector _firstClickedConnector;
     private readonly InputElement _targetElement;
@@ -50,12 +50,6 @@ public sealed class ConnectionCreationSession : AvaloniaObject, IDisposable
         e.Handled = true;
         e.PreventGestureRecognition();
         
-        _targetElement.RaiseEvent(new MoveConnectionIndicationEventArgs(ConnectorRegistry.MoveConnectionIndicationEvent, this)
-        {
-            PointerEvent = e,
-            Offset = _clickOffset
-        });
-        
         if (_potentialSecondConnector is not null)
         {
             // No change
@@ -67,8 +61,13 @@ public sealed class ConnectionCreationSession : AvaloniaObject, IDisposable
             // Remove old connection
             _interactionHandler.CancelCurrentConnection();
             _potentialSecondConnector = null;
-            ConnectorRegistry.SetConnectorGestureLive(_targetElement, true);
         }
+        
+        _targetElement.RaiseEvent(new MoveConnectionIndicationEventArgs(ConnectorRegistry.MoveConnectionIndicationEvent, this)
+        {
+            PointerEvent = e,
+            Offset = _clickOffset
+        });
         
         if (_targetElement.GetPresentationSource()?.RootVisual is not { } visualRoot) return;
 
@@ -85,7 +84,7 @@ public sealed class ConnectionCreationSession : AvaloniaObject, IDisposable
         }
         
         _potentialSecondConnector = _connectorRegistry.GetVisualForConnector(newSecondConnector);
-        ConnectorRegistry.SetConnectorGestureLive(_targetElement, false);
+        _targetElement.RaiseEvent(new RoutedEventArgs(ConnectorRegistry.EndConnectionIndicationEvent, this));
     }
 
     private void TargetElementOnPointerReleased(object? sender, PointerReleasedEventArgs e)
@@ -110,6 +109,5 @@ public sealed class ConnectionCreationSession : AvaloniaObject, IDisposable
         _targetElement.PointerMoved -= TargetElementOnPointerMoved;
         _targetElement.PointerReleased -= TargetElementOnPointerReleased;
         _targetElement.PointerCaptureLost -= TargetElementOnPointerCaptureLost;
-        ConnectorRegistry.SetConnectorGestureLive(_targetElement, true);
     }
 }

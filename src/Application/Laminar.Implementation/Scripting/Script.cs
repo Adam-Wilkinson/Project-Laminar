@@ -18,7 +18,7 @@ internal class Script : IScript
         _writableNodeTree = (IWritableNodeTree)scriptingFactory.NodeTreeFromPersistentData(
                 persistentData[NodeTreeKey].GetOrCreateCollection<IPersistentDictionary>(), this);
         
-        ExecutionInstance = executionManager.CreateExecutionInstance(WritableNodeTree);
+        ExecutionInstance = executionManager.CreateExecutionInstance(NodeTree);
         
         Pan = persistentData[nameof(Pan)].GetValueOrInitialize(new Point { X = 0, Y = 0 });
         Zoom = persistentData[nameof(Zoom)].GetValueOrInitialize(1.0);
@@ -26,7 +26,7 @@ internal class Script : IScript
         Data = persistentData;
     }
     
-    public INodeTree WritableNodeTree => _writableNodeTree;
+    public INodeTree NodeTree => _writableNodeTree;
 
     public ScriptState State => ExecutionInstance.State;
     

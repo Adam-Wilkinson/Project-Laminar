@@ -23,29 +23,29 @@ internal class ScriptEditor(
     {
         IWrappedNode newNode = nodeFactory.FromNodeInfo(node.Info, script);
         newNode.Location.Value = location;
-        return new AddNodeAction(newNode, (IWritableNodeTree)script.WritableNodeTree);
+        return new AddNodeAction(newNode, (IWritableNodeTree)script.NodeTree);
     }
 
     public IUserAction? FindBridgeConnectorsAction(IScript script, IConnector connectorOne, IConnector connectorTwo)
     {
         if (connectorOne is IInputConnector inputConnectorOne && connectorTwo is IOutputConnector outputConnectorTwo)
         {
-            return FindBridgeActionOrdered((IWritableNodeTree)script.WritableNodeTree, inputConnectorOne, outputConnectorTwo);
+            return FindBridgeActionOrdered((IWritableNodeTree)script.NodeTree, inputConnectorOne, outputConnectorTwo);
         }
 
         if (connectorOne is IOutputConnector outputConnectorOne && connectorTwo is IInputConnector inputConnectorTwo)
         {
-            return FindBridgeActionOrdered((IWritableNodeTree)script.WritableNodeTree, inputConnectorTwo, outputConnectorOne);
+            return FindBridgeActionOrdered((IWritableNodeTree)script.NodeTree, inputConnectorTwo, outputConnectorOne);
         }
 
         return null;
     }
 
     public IUserAction DeleteConnectionAction(IScript script, IConnection connection)
-        => new SeverConnectionAction(connection.OutputConnector, connection.InputConnector, (IWritableNodeTree)script.WritableNodeTree);
+        => new SeverConnectionAction(connection.OutputConnector, connection.InputConnector, (IWritableNodeTree)script.NodeTree);
 
     public IUserAction DeleteNodeAction(IScript script, IWrappedNode node)
-        => new DeleteNodeAction(node, (IWritableNodeTree)script.WritableNodeTree);
+        => new DeleteNodeAction(node, (IWritableNodeTree)script.NodeTree);
 
     public IUserAction AddSubTree(IScript script, INodeTree subTree)
     {
@@ -57,13 +57,13 @@ internal class ScriptEditor(
                 wrappedNode.UserChangedValueNotificationClient = script;
             }
 
-            actions.Add(new AddNodeAction(node, (IWritableNodeTree)script.WritableNodeTree));
+            actions.Add(new AddNodeAction(node, (IWritableNodeTree)script.NodeTree));
         }
 
         foreach (var connection in subTree.Connections)
         {
             actions.Add(new EstablishConnectionAction(connection.OutputConnector, connection.InputConnector,
-                (IWritableNodeTree)script.WritableNodeTree));
+                (IWritableNodeTree)script.NodeTree));
         }
 
         return new CompoundAction(actions);

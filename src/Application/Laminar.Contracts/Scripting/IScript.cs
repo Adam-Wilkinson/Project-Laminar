@@ -9,7 +9,7 @@ namespace Laminar.Contracts.Scripting;
 
 public interface IScript : IEncodableDataOwner<IPersistentDictionary>, INotificationClient<LaminarExecutionContext>
 {
-    public INodeTree WritableNodeTree { get; }
+    public INodeTree NodeTree { get; }
 
     public IScriptExecutionInstance ExecutionInstance { get; }
 

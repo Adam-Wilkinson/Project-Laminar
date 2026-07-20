@@ -191,16 +191,16 @@ internal class WritableNodeTree : IWritableNodeTree
         return true;
     }
 
-    public bool ConnectionExists(IOutputConnector outputConnector, IInputConnector inputConnector,
+    public bool ConnectionExists(IConnector firstConnector, IConnector secondConnector,
         [NotNullWhen(true)] out IConnection? existingConnection)
     {
-        if (GetConnectorInformation(outputConnector).Connections.TryGetValue(inputConnector, out var info))
+        if (GetConnectorInformation(firstConnector).Connections.TryGetValue(secondConnector, out var info))
         {
             existingConnection = info.Connection;
             return true;
         }
 
-        if (GetConnectorInformation(inputConnector).Connections.TryGetValue(outputConnector, out info))
+        if (GetConnectorInformation(secondConnector).Connections.TryGetValue(firstConnector, out info))
         {
             _logger.LogWarning("Node tree found connection in one direction but not the other, this script is in an error state.");
             existingConnection = info.Connection;

@@ -1,8 +1,8 @@
-﻿using Laminar.Contracts.Scripting.Connection;
+﻿using System.Diagnostics.CodeAnalysis;
+using Laminar.Contracts.Scripting.Connection;
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.Notification.Collections;
-using Laminar.Domain.ValueObjects;
 using Laminar.PluginFramework.NodeSystem.Connectors;
 
 namespace Laminar.Contracts.Scripting;
@@ -24,6 +24,8 @@ public interface INodeTree : IDisposable
     public IReadOnlyObservableCollection<IWrappedNode> Nodes { get; }
 
     public IReadOnlyObservableCollection<IConnection> Connections { get; }
+    
+    public bool ConnectionExists(IConnector firstConnector, IConnector secondConnector, [NotNullWhen(true)] out IConnection? existingConnection);
     
     public IEncodableData PersistentData { get; }
 }

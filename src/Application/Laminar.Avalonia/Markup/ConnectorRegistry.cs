@@ -32,10 +32,6 @@ public sealed class ConnectorRegistry : Interactive, IDisposable
     public static IConnectionInteractionHandler? GetConnectionInteractionHandler(InputElement obj) => obj.GetValue(ConnectionInteractionHandlerProperty);
     public static void SetConnectionInteractionHandler(InputElement obj, IConnectionInteractionHandler? value) =>  obj.SetValue(ConnectionInteractionHandlerProperty, value);
     
-    public static readonly AttachedProperty<bool> ConnectorGestureLiveProperty = AvaloniaProperty.RegisterAttached<ConnectorRegistry, InputElement, bool>("ConnectorGestureLive", defaultValue: true);
-    public static bool GetConnectorGestureLive(InputElement visual) => visual.GetValue(ConnectorGestureLiveProperty);
-    public static void SetConnectorGestureLive(InputElement visual, bool value) => visual.SetValue(ConnectorGestureLiveProperty, value);
-    
     public static readonly AttachedProperty<IConnector?> RegisteredConnectorProperty = AvaloniaProperty.RegisterAttached<ConnectorRegistry, InputElement, IConnector?>("RegisteredConnector");
     public static IConnector? GetRegisteredConnector(InputElement obj) => obj.GetValue(RegisteredConnectorProperty);
     public static void SetRegisteredConnector(InputElement obj, IConnector? value) => obj.SetValue(RegisteredConnectorProperty, value);
