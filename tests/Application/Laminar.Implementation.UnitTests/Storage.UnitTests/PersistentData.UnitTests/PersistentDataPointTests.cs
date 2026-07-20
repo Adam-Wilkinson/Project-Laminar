@@ -38,10 +38,8 @@ public class PersistentDataPointTests
             sut.Decode(transcoder, "encoded");
             sut.Reset();
 
-            var action = () => sut.Encode(transcoder);
-
-            action.Should().Throw<InvalidOperationException>()
-                .WithMessage("*Cannot encode uninitialized data point*");
+            sut.MaterializedValue.Should().Be(null);
+            sut.Encode(transcoder).Should().Be(PersistentDataPoint.UninitializedValue);
         }
     }
     
@@ -277,14 +275,12 @@ public class PersistentDataPointTests
     public class Encode
     {
         [Fact]
-        public void ShouldThrowWhenUninitialized()
+        public void ShouldUseUninitializedValue()
         {
             var transcoder = Substitute.For<IPersistentDataTranscoder>();
             var sut = new PersistentDataPoint(Substitute.For<IEncodableDataFactory>());
 
-            var action = () => sut.Encode(transcoder);
-
-            action.Should().Throw<InvalidOperationException>();
+            sut.Encode(transcoder).Should().Be(PersistentDataPoint.UninitializedValue);
         }
 
         [Fact]

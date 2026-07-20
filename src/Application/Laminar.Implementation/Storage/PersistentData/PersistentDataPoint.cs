@@ -4,7 +4,7 @@ namespace Laminar.Implementation.Storage.PersistentData;
 
 internal class PersistentDataPoint(IEncodableDataFactory valueFactory) : IPersistentDataPoint
 {
-    private const string UninitializedValue = "[UNINITIALIZED DATA POINT]";
+    internal const string UninitializedValue = "[UNINITIALIZED DATA POINT]";
     
     private IPersistentDataTranscoder? _lastTranscoder;
     private object? _encodedValue;
