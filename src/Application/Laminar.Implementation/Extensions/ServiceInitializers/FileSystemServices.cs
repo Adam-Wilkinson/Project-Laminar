@@ -20,16 +20,15 @@ public static class FileSystemServicesExtension
             
             .AddSingleton<IFileSystemCommandService, FileSystemCommandService>()
             .AddSingleton<IFileSystemGraph, FileSystemGraph>()
-            .AddSingleton<IFileSystemGraphMutator, FileSystemGraphMutator>()
+            .AddSingleton<IGraphMutationApplier, GraphMutationApplier>()
             
-            .AddSingleton<IFileSystemMonitor, FileSystemMonitor>()     
             .AddSingleton<IFileSystemMonitor, FileSystemMonitor>()
             .AddSingleton<IFileSystemMutationComputer, FileSystemMutationComputer>()
             .AddSingleton<IFileSystemItemHasher, FileSystemItemHasher>()
             .AddSingleton<IFileSystemSynchronizer, FileSystemSynchronizer>()
             .AddSingleton<IMutableFileSystemItemRepository, FileSystemItemRepository>()
             .AddSingleton<IFileSystemItemRepository>(provider => provider.GetRequiredService<IMutableFileSystemItemRepository>())
-            .AddSingleton<Func<IFileSystemEventHashBucket>>(provider => () => ActivatorUtilities.CreateInstance<FileSystemEventHashBucket>(provider))
+            .AddFactory<IOutdatedItemsBuffer?, IFileSystemEventHashBucket, FileSystemEventHashBucket>()
             .AddSingleton<IFileSystemDiscrepancyComputer, FileSystemDiscrepancyComputer>()
             
             .AddScoped<IFileBrowser, FileBrowser>();

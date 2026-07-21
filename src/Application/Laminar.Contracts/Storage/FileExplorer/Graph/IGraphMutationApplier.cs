@@ -2,7 +2,7 @@ using Laminar.Domain.ValueObjects;
 
 namespace Laminar.Contracts.Storage.FileExplorer.Graph;
 
-public interface IFileSystemGraphMutator
+public interface IGraphMutationApplier
 {
     public void Apply(FileSystemGraphMutation mutation, IFileSystemGraph graph);
 }

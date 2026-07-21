@@ -5,7 +5,7 @@ namespace Laminar.Contracts.Storage.FileExplorer.Synchronization;
 
 public interface IFileSystemMutationComputer
 {
-    public IEnumerable<FileSystemGraphMutation> ComputeMutationsAndClear();
+    public IEnumerable<FileSystemGraphMutation> ComputeMutationsAndClear(IOutdatedItemsBuffer? outdatedItems = null);
     
     public void AddEvent(FileSystemEvent fileSystemEvent);
 }

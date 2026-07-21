@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Laminar.Contracts.Storage.FileExplorer;
+using Laminar.Contracts.Storage.FileExplorer.Graph;
 using Laminar.Domain.ValueObjects;
 
 namespace Laminar.Implementation.Storage.FileExplorer.Graph;
@@ -7,21 +8,14 @@ namespace Laminar.Implementation.Storage.FileExplorer.Graph;
 internal sealed class FileSystemItemRepository : IMutableFileSystemItemRepository
 {
     private readonly Dictionary<FileSystemPath, IFileSystemItem> _items = [];
-    private readonly Dictionary<FileSystemPath, IFileSystemItem?> _outdatedItems = [];
-    
-    public bool TryGetOutdated(FileSystemPath outdatedPath, [NotNullWhen(true)] out IFileSystemItem? item)
-    {
-        if (_outdatedItems.TryGetValue(outdatedPath, out IFileSystemItem? outdatedItem) && outdatedItem != null)
-        {
-            item = outdatedItem;
-            return true;
-        }
-        
-        item = null;
-        return false;
-    }
+    private Dictionary<FileSystemPath, IFileSystemItem?> _outdatedItems = [];
 
-    public void ClearOutdated() => _outdatedItems.Clear();
+    public IOutdatedItemsBuffer DetachOutdatedItems()
+    {
+        var outdated = new OutdatedItemsBuffer(_outdatedItems);
+        _outdatedItems = [];
+        return outdated;
+    }
 
     public bool TryGetExisting(FileSystemPath path, [NotNullWhen(true)] out IFileSystemItem? item) 
         => _items.TryGetValue(path, out item);
@@ -53,6 +47,23 @@ internal sealed class FileSystemItemRepository : IMutableFileSystemItemRepositor
         foreach (var child in folder.Contents)
         {
             Remove(token, child);
+        }
+    }
+
+    private sealed class OutdatedItemsBuffer(
+        IReadOnlyDictionary<FileSystemPath, IFileSystemItem?> outdatedItemsDictionary) 
+        : IOutdatedItemsBuffer
+    {
+        public bool TryGetItem(FileSystemPath path, [NotNullWhen(true)] out IFileSystemItem? item)
+        {
+            if (outdatedItemsDictionary.TryGetValue(path, out IFileSystemItem? outdatedItem) && outdatedItem != null)
+            {
+                item = outdatedItem;
+                return true;
+            }
+        
+            item = null;
+            return false;
         }
     }
 }

@@ -8,4 +8,8 @@
       <ProjectReference Include="..\..\..\src\Application\Laminar.Implementation\Laminar.Implementation.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Storage.UnitTests\FileExplorer.UnitTests\" />
+    </ItemGroup>
+
 </Project>

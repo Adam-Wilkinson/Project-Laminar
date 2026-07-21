@@ -5,16 +5,16 @@ using Microsoft.Extensions.Logging;
 namespace Laminar.Implementation.Storage.FileExplorer.Synchronization;
 
 internal sealed class FileSystemMutationComputer(
-    Func<IFileSystemEventHashBucket> hashBucketFactory,
+    Func<IOutdatedItemsBuffer?, IFileSystemEventHashBucket> hashBucketFactory,
     ILogger<FileSystemMutationComputer> logger) 
     : IFileSystemMutationComputer
 {
     private readonly List<FileSystemEvent> _allEvents = [];
     
-    public IEnumerable<FileSystemGraphMutation> ComputeMutationsAndClear()
+    public IEnumerable<FileSystemGraphMutation> ComputeMutationsAndClear(IOutdatedItemsBuffer? outdatedFileLocations = null)
     {
-        IFileSystemEventHashBucket creationEvents = hashBucketFactory();
-        IFileSystemEventHashBucket deletionEvents = hashBucketFactory();
+        IFileSystemEventHashBucket creationEvents = hashBucketFactory(outdatedFileLocations);
+        IFileSystemEventHashBucket deletionEvents = hashBucketFactory(outdatedFileLocations);
 
         foreach (var fileSystemEventArgs in _allEvents)
         {
@@ -40,7 +40,7 @@ internal sealed class FileSystemMutationComputer(
             if (evt.ChangeType == WatcherChangeTypes.Deleted 
                 && creationEvents.TryGetInfoForPath(evt.OldPath, out var creationHashInfo))
             {
-                if (creationHashInfo.State is ItemHashCodeState.Clash 
+                if (creationHashInfo.State is HashBucketState.Clash 
                     || creationHashInfo.Event is not { } correspondingCreation)
                 {
                     logger.LogError("Storage item hashing clash. Unable to resolve move file system event");
@@ -56,7 +56,7 @@ internal sealed class FileSystemMutationComputer(
             if (evt.ChangeType == WatcherChangeTypes.Created
                 && deletionEvents.TryGetInfoForPath(evt.NewPath, out var deletionHashInfo))
             {
-                if (deletionHashInfo.State is ItemHashCodeState.Clash
+                if (deletionHashInfo.State is HashBucketState.Clash
                     || deletionHashInfo.Event is not { } correspondingDeletion)
                 {
                     logger.LogError("Storage item hashing clash. Unable to resolve move file system event");

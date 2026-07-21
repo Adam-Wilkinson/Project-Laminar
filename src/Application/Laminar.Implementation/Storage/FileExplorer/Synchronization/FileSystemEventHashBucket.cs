@@ -8,13 +8,14 @@ using Laminar.Domain.ValueObjects;
 namespace Laminar.Implementation.Storage.FileExplorer.Synchronization;
 
 internal sealed class FileSystemEventHashBucket(
+    IOutdatedItemsBuffer? outdatedFileLocations,
     IFileSystemItemHasher hasher,
     IFileSystem fileSystem,
     IFileSystemItemRepository repository) : IFileSystemEventHashBucket
 {
-    private readonly Dictionary<int, ItemHashCodeInfo> _hashInfos = [];
+    private readonly Dictionary<int, HashBucketInfo> _hashInfos = [];
 
-    public bool TryGetInfoForPath(FileSystemPath? path, out ItemHashCodeInfo info)
+    public bool TryGetInfoForPath(FileSystemPath? path, out HashBucketInfo info)
     {
         if (!TryHashByPath(path, out var hash))
         {
@@ -34,16 +35,16 @@ internal sealed class FileSystemEventHashBucket(
 
         if (_hashInfos.TryGetValue(hash, out var hashInfo))
         {
-            hashInfo.State = ItemHashCodeState.Clash;
+            hashInfo.State = HashBucketState.Clash;
             hashInfo.Event = null;
             return;
         }
 
-        _hashInfos[hash] = new ItemHashCodeInfo
+        _hashInfos[hash] = new HashBucketInfo
         {
             Event = fileSystemEvent,
             Hash = hash,
-            State = ItemHashCodeState.Single,
+            State = HashBucketState.Single,
         };
     }
     
@@ -73,7 +74,7 @@ internal sealed class FileSystemEventHashBucket(
     
     private bool TryResolveItem(FileSystemPath path, [NotNullWhen(true)] out IFileSystemItem? item)
     {
-        if (repository.TryGetOutdated(path, out var outdatedItem))
+        if (outdatedFileLocations is not null && outdatedFileLocations.TryGetItem(path, out var outdatedItem))
         {
             item = outdatedItem;
             return true;

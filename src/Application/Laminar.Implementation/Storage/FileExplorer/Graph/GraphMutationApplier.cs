@@ -5,10 +5,10 @@ using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.Storage.FileExplorer.Graph;
 
-internal sealed class FileSystemGraphMutator(
+internal sealed class GraphMutationApplier(
     IFileSystem fileSystem, 
     IFileSystemItemRepository repository,
-    ILogger<FileSystemGraphMutator> logger) : IFileSystemGraphMutator
+    ILogger<GraphMutationApplier> logger) : IGraphMutationApplier
 {
     public void Apply(FileSystemGraphMutation mutation, IFileSystemGraph graph)
     {

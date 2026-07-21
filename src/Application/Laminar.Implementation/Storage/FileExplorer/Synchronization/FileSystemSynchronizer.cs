@@ -8,7 +8,7 @@ namespace Laminar.Implementation.Storage.FileExplorer.Synchronization;
 public class FileSystemSynchronizer(
     IFileSystemGraph targetGraph,
     IFileSystemMutationComputer mutationComputer,
-    IFileSystemGraphMutator graphMutator,
+    IGraphMutationApplier graphMutationApplier,
     IFileSystemItemRepository itemRepository,
     IFileSystemDiscrepancyComputer discrepancyComputer,
     ILogger<FileSystemSynchronizer> logger) : IFileSystemSynchronizer
@@ -20,12 +20,18 @@ public class FileSystemSynchronizer(
 
     public void ReconcileAndReset(IReadOnlyCollection<IFileSystemRootFolder> targetFolders)
     {
-        foreach (var mutation in mutationComputer.ComputeMutationsAndClear())
-        {
-            graphMutator.Apply(mutation, targetGraph);
-        }
+        ReconcileAndResetInternal(targetFolders);
         
-        itemRepository.ClearOutdated();
+        // Clear the item repository outdated cache before next pass
+        _ = itemRepository.DetachOutdatedItems();
+    }
+
+    private void ReconcileAndResetInternal(IReadOnlyCollection<IFileSystemRootFolder> targetFolders)
+    {
+        foreach (var mutation in mutationComputer.ComputeMutationsAndClear(itemRepository.DetachOutdatedItems()))
+        {
+            graphMutationApplier.Apply(mutation, targetGraph);
+        }
 
         List<FileSystemEvent> differences = [];
 
@@ -48,12 +54,12 @@ public class FileSystemSynchronizer(
 
         foreach (var mutation in mutationComputer.ComputeMutationsAndClear())
         {
-            graphMutator.Apply(mutation, targetGraph);
+            graphMutationApplier.Apply(mutation, targetGraph);
         }
 
         foreach (var incorrectFolder in targetFolders.Where(x => discrepancyComputer.ComputeFolderDiscrepancies(x).Any()))
         {
-            logger.LogError("Neither incremental nor difference-based reconciliation worked for folder {0}. Triggering hard refresh", incorrectFolder);
+            logger.LogError("Neither incremental nor difference-based reconciliation worked for folder {incorrectFolder}. Triggering hard refresh", incorrectFolder);
             incorrectFolder.Refresh();
         }
     }

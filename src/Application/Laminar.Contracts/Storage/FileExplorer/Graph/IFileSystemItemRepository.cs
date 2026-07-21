@@ -5,9 +5,7 @@ namespace Laminar.Contracts.Storage.FileExplorer.Graph;
 
 public interface IFileSystemItemRepository
 {
-    public bool TryGetOutdated(FileSystemPath outdatedPath, [NotNullWhen(true)] out IFileSystemItem? item);
-
-    public void ClearOutdated();
+    public IOutdatedItemsBuffer DetachOutdatedItems();
     
     public bool TryGetExisting(FileSystemPath path, [NotNullWhen(true)] out IFileSystemItem? item);
 }
