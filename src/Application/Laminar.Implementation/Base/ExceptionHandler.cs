@@ -5,11 +5,11 @@ namespace Laminar.Implementation.Base;
 
 public class ExceptionHandler(IDispatcher dispatcher, IEnumerable<IExceptionSink> sinks) : IExceptionHandler
 {
-    public async Task OnExceptionAsync(Exception exception)
+    public async Task OnExceptionAsync(Exception exception, CancellationToken cancellationToken = default)
     {
         foreach (var sink in sinks)
         {
-            await sink.OnException(exception);
+            await sink.OnException(exception, cancellationToken);
         }
     }
     
@@ -21,7 +21,7 @@ public class ExceptionHandler(IDispatcher dispatcher, IEnumerable<IExceptionSink
             {
                 foreach (var sink in sinks)
                 {
-                    await sink.OnException(exception);
+                    await sink.OnException(exception, CancellationToken.None);
                 }
             }
             catch (Exception e)

@@ -1,4 +1,5 @@
 using Laminar.Contracts.Storage.PersistentData;
+using Laminar.Domain.ValueObjects;
 
 namespace Laminar.Contracts.Storage.FileExplorer.Graph;
 
@@ -46,4 +47,12 @@ public interface IFileSystemGraph
     public IFileSystemFile AddFile(IFileSystemFolder parent, int indexInParent, string nameAndExtension);
 
     public IFileSystemItem AddFromPersistentData(IFileSystemFolder parent, IPersistentDictionary persistentData);
+
+    /// <summary>
+    /// Gets an existing item, or loads the path to the item using <see cref="IFileSystemFolder.GetOrLoadContentsAsync"/>
+    /// </summary>
+    /// <param name="path">The path to the item</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>A task that returns the loaded item, or null if the item cannot be loaded</returns>
+    public Task<IFileSystemItem?> GetOrLoad(FileSystemPath path, CancellationToken cancellationToken);
 }

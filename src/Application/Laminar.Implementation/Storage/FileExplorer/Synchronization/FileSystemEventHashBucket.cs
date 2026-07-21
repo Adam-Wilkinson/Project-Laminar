@@ -80,7 +80,7 @@ internal sealed class FileSystemEventHashBucket(
             return true;
         }
 
-        if (repository.TryGetExisting(path, out var existing))
+        if (repository.TryGetItem(path, out var existing))
         {
             item = existing;
             return true;

@@ -17,7 +17,7 @@ internal sealed class FileSystemItemRepository : IMutableFileSystemItemRepositor
         return outdated;
     }
 
-    public bool TryGetExisting(FileSystemPath path, [NotNullWhen(true)] out IFileSystemItem? item) 
+    public bool TryGetItem(FileSystemPath path, [NotNullWhen(true)] out IFileSystemItem? item) 
         => _items.TryGetValue(path, out item);
 
     public void Add(FileSystemGraph.MutationToken token, IFileSystemItem item)

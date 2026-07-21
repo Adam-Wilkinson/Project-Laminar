@@ -7,5 +7,5 @@ public interface IFileSystemItemRepository
 {
     public IOutdatedItemsBuffer DetachOutdatedItems();
     
-    public bool TryGetExisting(FileSystemPath path, [NotNullWhen(true)] out IFileSystemItem? item);
+    public bool TryGetItem(FileSystemPath path, [NotNullWhen(true)] out IFileSystemItem? item);
 }

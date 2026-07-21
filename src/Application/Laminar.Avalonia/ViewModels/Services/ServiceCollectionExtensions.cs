@@ -18,6 +18,7 @@ public static class ServiceCollectionExtensions
             .AddDescendantsScoped<IViewModelInitializer>()
             .AddSingleton<IViewLocator, ViewLocator>()
             .AddSingleton<FileExplorerLoadingQueue>()
-            .AddSingleton<DialogService>();
+            .AddSingleton<DialogService>()
+            .AddSingleton<FileViewModelFactory>();
     }
 }

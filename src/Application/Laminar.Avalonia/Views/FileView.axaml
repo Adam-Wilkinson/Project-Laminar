@@ -4,14 +4,14 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:Laminar.Avalonia.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:DataType="vm:OpenFileViewModel"
-             x:Class="Laminar.Avalonia.Views.OpenFileView">
+             x:DataType="vm:FileViewModel"
+             x:Class="Laminar.Avalonia.Views.FileView">
     <Border Classes="UiLayer">
         <Panel Classes="UiLayer">
-            <ContentControl Content="{Binding FileContents}"
-                            IsVisible="{Binding FileContents, Converter={x:Static ObjectConverters.IsNotNull}}"
+            <ContentControl Content="{Binding CurrentFileViewModel}"
+                            IsVisible="{Binding CurrentFileViewModel, Converter={x:Static ObjectConverters.IsNotNull}}"
                             ClipToBounds="True"/>
-            <TextBlock IsVisible="{Binding FileContents, Converter={x:Static ObjectConverters.IsNull}}"
+            <TextBlock IsVisible="{Binding CurrentFileViewModel, Converter={x:Static ObjectConverters.IsNull}}"
                        Text="Open files will appear here"
                        Opacity="0.4"
                        HorizontalAlignment="Center"

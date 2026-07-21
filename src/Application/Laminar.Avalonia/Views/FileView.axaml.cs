@@ -4,9 +4,9 @@ using Avalonia.Markup.Xaml;
 
 namespace Laminar.Avalonia.Views;
 
-public partial class OpenFileView : UserControl
+public partial class FileView : UserControl
 {
-    public OpenFileView()
+    public FileView()
     {
         InitializeComponent();
     }

@@ -33,7 +33,7 @@ internal sealed class FileSystemRoots(
 
     public bool RemoveRootAt(FileSystemPath path, bool removeInfoFiles, out IFileSystemRootFolder? oldRoot)
     {
-        if (!repository.TryGetExisting(path, out var item))
+        if (!repository.TryGetItem(path, out var item))
         {
             oldRoot = null;
             return false;

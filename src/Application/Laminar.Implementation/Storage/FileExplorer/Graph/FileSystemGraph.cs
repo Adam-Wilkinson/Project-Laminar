@@ -1,7 +1,9 @@
+using System.Diagnostics;
 using Laminar.Contracts.Storage.FileExplorer;
 using Laminar.Contracts.Storage.FileExplorer.Graph;
 using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.DataManagement;
+using Laminar.Domain.ValueObjects;
 
 namespace Laminar.Implementation.Storage.FileExplorer.Graph;
 
@@ -64,7 +66,7 @@ internal sealed class FileSystemGraph(
     public IFileSystemItem AddFromPersistentData(IFileSystemFolder parent, IPersistentDictionary persistentDictionary)
     {
         var childName = persistentDictionary[IFileSystemItemFactory.PersistenceNameKey].GetValue<string>().Value;
-        if (repository.TryGetExisting(parent.Path.ChildPath(childName), out _))
+        if (repository.TryGetItem(parent.Path.ChildPath(childName), out _))
         {
             throw new InvalidOperationException("An item already exists at this path. This is likely an internal bug");
         }
@@ -72,6 +74,44 @@ internal sealed class FileSystemGraph(
         var newItem = itemFactory.CreateFromPersistentData(parent, persistentDictionary);
         AddItemInternal(parent, parent.GetOrLoadContents().Count, newItem);
         return newItem;
+    }
+
+    public async Task<IFileSystemItem?> GetOrLoad(FileSystemPath path, CancellationToken cancellationToken)
+    {
+        FileSystemPath loadedParent = path;
+        IFileSystemItem? item;
+        while (!repository.TryGetItem(loadedParent, out item) && loadedParent.Parent is { } parentPath)
+        {
+            loadedParent = parentPath;
+        }
+
+        if (item is null || item.Path == path)
+        {
+            return item;
+        }
+
+        string[] relativePath = path.SplitAfter(loadedParent);
+        foreach (var child in relativePath)
+        {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return null;
+            }
+            
+            if (item is not IFileSystemFolder currentFolder)
+            {
+                throw new InvalidOperationException($"Expected '{item.Path}' to be a folder while resolving '{path}'.");
+            }
+            
+            await currentFolder.GetOrLoadContentsAsync();
+            if (!repository.TryGetItem(currentFolder.Path.ChildPath(child), out item))
+            {
+                throw new InvalidOperationException("Loading folder contents did not load child path");
+            }
+        }
+
+        Debug.Assert(item.Path == path);
+        return item;
     }
 
     private void AddItemInternal(IFileSystemFolder parent, int indexInParent, IFileSystemItem item)

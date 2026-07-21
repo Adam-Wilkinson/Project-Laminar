@@ -4,11 +4,9 @@ namespace Laminar.Avalonia.ViewModels.Services;
 
 public interface IOpenFileService
 {
-    public Task RequestOpenFile(IFileSystemFile file);
+    public Task RequestOpenFile(IFileSystemFile newFile);
 
-    public event EventHandler<IFileSystemFile>? FileOpened;
-    
-    public event EventHandler<IFileSystemFile>? FileClosed;
+    public event EventHandler? OpenFilesChanged; 
     
     public bool FileIsOpen(IFileSystemFile file);
 }

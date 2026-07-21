@@ -14,9 +14,9 @@ internal sealed class GraphMutationApplier(
     {
         switch (mutation.Type)
         {
-            case FileSystemGraphMutationType.Move when repository.TryGetExisting(mutation.OldPath!.Value, out var item):
+            case FileSystemGraphMutationType.Move when repository.TryGetItem(mutation.OldPath!.Value, out var item):
                 if (mutation.NewPath?.Parent is not { } newParentPath
-                    || !repository.TryGetExisting(newParentPath, out var newParent)
+                    || !repository.TryGetItem(newParentPath, out var newParent)
                     || newParent is not IFileSystemFolder newParentFolder)
                 {
                     logger.LogWarning("Move is unable to be reflected by move event, unable to find new parent item");
@@ -33,7 +33,7 @@ internal sealed class GraphMutationApplier(
                 
             case FileSystemGraphMutationType.Creation:
                 if (mutation.NewPath?.Parent is not { } createdPathParent
-                    || !repository.TryGetExisting(createdPathParent, out var parentOfCreatedItem)
+                    || !repository.TryGetItem(createdPathParent, out var parentOfCreatedItem)
                     || parentOfCreatedItem is not IFileSystemFolder parentFolder)
                 {
                     logger.LogWarning("Unable to create storage item model at {path} because parent folder could not be found in existing item repository", mutation.NewPath);
@@ -57,7 +57,7 @@ internal sealed class GraphMutationApplier(
                 break;
                 
             case FileSystemGraphMutationType.Deletion:
-                if (repository.TryGetExisting(mutation.OldPath!.Value, out var deletedItem))
+                if (repository.TryGetItem(mutation.OldPath!.Value, out var deletedItem))
                 {
                     graph.Remove(deletedItem);
                 }
@@ -65,7 +65,7 @@ internal sealed class GraphMutationApplier(
                 break;
                 
             case FileSystemGraphMutationType.Rename:
-                if (repository.TryGetExisting(mutation.OldPath!.Value, out var renamedItem))
+                if (repository.TryGetItem(mutation.OldPath!.Value, out var renamedItem))
                 {
                     graph.Rename(renamedItem, mutation.NewPath!.Value.NameAndExtension);
                 }

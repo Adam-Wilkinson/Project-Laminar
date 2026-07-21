@@ -171,8 +171,8 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
             if (GetOpenFileService() is { } ofs && field is IFileSystemFile fileCoreItem)
             {
                 IsOpen = ofs.FileIsOpen(fileCoreItem);
-                ofs.FileOpened += OpenFilesChanged;
-                ofs.FileClosed += OpenFilesChanged;
+                ofs.OpenFilesChanged += OpenFilesChanged;
+                ofs.OpenFilesChanged += OpenFilesChanged;
             }
         
             field.FilterPropertyChanged(nameof(IFileSystemItem.Path)).OnNotification += 
@@ -351,7 +351,7 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
         return ofs;
     }
 
-    private void OpenFilesChanged(object? sender, IFileSystemFile _) 
+    private void OpenFilesChanged(object? sender, EventArgs _) 
         => IsOpen = CoreItem is IFileSystemFile coreFile && (GetOpenFileService()?.FileIsOpen(coreFile) ?? false);
 }
 
