@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -10,6 +11,7 @@ public static class Dotnet
     public const string Release = "Release";
     
     public static readonly string RepoRoot;
+    public static readonly string DotNetPath;
     
     static Dotnet()
     {
@@ -31,6 +33,7 @@ public static class Dotnet
         }
         
         if (RepoRoot is null) throw new InvalidOperationException("Could not find repo root");
+        DotNetPath = FindDotnet();
     }
     
     public static Task<DotnetResult> Build(string path, params string[] args) 
@@ -71,7 +74,7 @@ public static class Dotnet
 
         var psi = new ProcessStartInfo
         {
-            FileName = "dotnet",
+            FileName = DotNetPath,
             Arguments = $"{command} {args}",
             WorkingDirectory = repoRoot,
             RedirectStandardOutput = true,
@@ -185,6 +188,65 @@ public static class Dotnet
         }
 
         return pids;
+    }
+    
+    private static string FindDotnet()
+    {
+        // First choice: let the OS resolve it through PATH
+        try
+        {
+            var psi = new ProcessStartInfo
+            {
+                FileName = "dotnet",
+                Arguments = "--version",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+
+            using var process = Process.Start(psi);
+            process!.WaitForExit();
+
+            if (process.ExitCode == 0)
+                return "dotnet";
+        }
+        catch (Win32Exception)
+        {
+            // Not on PATH
+        }
+
+        // Fallback One: Get environment variable
+        if (Environment.GetEnvironmentVariable("DOTNET_ROOT") is { } root)
+        {
+            return Path.Combine(root, "dotnet");
+        }
+        
+        // Fallback Two: Some hardcoded options
+        var candidates = new List<string>();
+
+        if (OperatingSystem.IsWindows())
+        {
+            candidates.Add(Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
+                "dotnet",
+                "dotnet.exe"));
+        }
+        else
+        {
+            candidates.Add("/usr/bin/dotnet");
+            candidates.Add(Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                ".dotnet",
+                "dotnet"));
+        }
+        
+        foreach (var candidate in candidates.Where(File.Exists))
+        {
+            return candidate;
+        }
+
+        throw new InvalidOperationException("Could not find dotnet. Please install the .NET SDK and ensure it is available on PATH.");
     }
 }
 
