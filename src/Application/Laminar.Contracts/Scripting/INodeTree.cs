@@ -15,7 +15,7 @@ public interface INodeTree : IDisposable
 
     public IWrappedNode GetParentNode(IConnector connector);
 
-    public IWrappedNode GetNodeByKey(string key);
+    public bool TryGetNodeByKey(string key, [NotNullWhen(true)] out IWrappedNode? node);
 
     public string GetNodeKey(IWrappedNode node);
     

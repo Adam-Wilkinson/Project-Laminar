@@ -112,7 +112,7 @@ internal class PersistentValue<T> : ObservableValueBase<T>, IPersistentValue<T> 
 
         if (newValue is not T typedValue)
         {
-            throw new DeserializationError(new InvalidCastException());
+            throw new DeserializationError<T>(new InvalidCastException());
         }
 
         return typedValue;

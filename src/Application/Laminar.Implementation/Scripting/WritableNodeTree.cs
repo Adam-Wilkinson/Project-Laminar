@@ -1,10 +1,12 @@
 ﻿using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using Laminar.Contracts.Base;
 using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Scripting.Connection;
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Contracts.Storage.PersistentData;
+using Laminar.Domain.Exceptions;
 using Laminar.Domain.Notification.Collections;
 using Laminar.Implementation.Scripting.Connections;
 using Laminar.PluginFramework.NodeSystem.Connectors;
@@ -28,6 +30,7 @@ internal class WritableNodeTree : IWritableNodeTree
         IPersistentDictionary persistentDictionary, 
         INodeFactory nodeFactory,
         ILogger<WritableNodeTree> logger,
+        IExceptionHandler exceptionHandler,
         IEnumerable<IWrappedNode>? nodes = null, 
         IEnumerable<IConnection>? connections = null)
     {
@@ -50,12 +53,23 @@ internal class WritableNodeTree : IWritableNodeTree
 
         _persistentConnections = persistentDictionary["Connections"].GetOrCreateCollection<IPersistentList>();
 
-        foreach (var dataPoint in _persistentConnections)
+        int i = 0;
+        while (i < _persistentConnections.Count)
         {
-            var connection = dataPoint.GetValue<Connection>(deserializationContext: this).Value;
-            if (!TryConnectWithoutSerializing(connection.OutputConnector, connection.InputConnector, out _))
+            try
             {
-                throw new InvalidOperationException($"Could not connect {connection.OutputConnector} to {connection.InputConnector}");
+                var connection = _persistentConnections[i].GetValue<Connection>(deserializationContext: this).Value;
+                if (!TryConnectWithoutSerializing(connection.OutputConnector, connection.InputConnector, out _))
+                {
+                    throw new CouldNotConnectException(connection.OutputConnector, connection.InputConnector);
+                }
+
+                i++;
+            }
+            catch (DeserializationError ex) 
+            {
+                exceptionHandler.OnException(ex);
+                _persistentConnections.RemoveAt(i);
             }
         }
         
@@ -74,7 +88,7 @@ internal class WritableNodeTree : IWritableNodeTree
 
     public IWrappedNode GetParentNode(IConnector connector) => GetConnectorInformation(connector).Owner;
     
-    public IWrappedNode GetNodeByKey(string key) => _nodesDictionary[key];
+    public bool TryGetNodeByKey(string key, [NotNullWhen(true)] out IWrappedNode? node) => _nodesDictionary.TryGetValue(key, out node);
     
     public string GetNodeKey(IWrappedNode node) => _nodesInformation[node].DictionaryKey;
 

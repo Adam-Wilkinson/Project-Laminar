@@ -1,3 +1,4 @@
+using Laminar.Domain.Exceptions;
 using Laminar.PluginFramework.Serialization;
 
 namespace Laminar.Implementation.Scripting.Connections;
@@ -37,15 +38,19 @@ internal class ConnectionSerializer : TypeSerializer<Connection, string>
         var inputKey = inputParts[0];
         var inputIndex = int.Parse(inputParts[1]);
 
-        var outputNode = writableNodeTree.GetNodeByKey(outputKey);
+        if (!writableNodeTree.TryGetNodeByKey(outputKey, out var outputNode) ||
+            !writableNodeTree.TryGetNodeByKey(inputKey, out var inputNode))
+        {
+            throw new DeserializationError<Connection>(new KeyNotFoundException("The nodes on either end of a deserialized connection do not exist"));
+        }
+        
         var outputConnector = outputNode.Rows[outputIndex].OutputConnector;
 
-        var inputNode = writableNodeTree.GetNodeByKey(inputKey);
         var inputConnector = inputNode.Rows[inputIndex].InputConnector;
         
         if (outputConnector is null || inputConnector is null)
         {
-            throw new InvalidOperationException($"The connectors that need connecting are null {outputConnector} and {inputConnector}");
+            throw new DeserializationError<Connection>(new InvalidOperationException($"The connectors that need connecting are null {outputConnector} and {inputConnector}"));
         }
 
         return new Connection(writableNodeTree)

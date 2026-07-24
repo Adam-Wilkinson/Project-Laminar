@@ -15,6 +15,8 @@ internal class UserPromptExceptionSink(DialogService dialogService) : IException
             CannotMoveRootFolderException {FolderName: var folderName} => ("Cannot move item", $"The storage item '{folderName}' is a root folder, and therefore cannot be moved"),
             FileCreationTimeoutException {FilePath: var path} => ("Cannot find file", $"Timed out waiting for file {path} to be created. Triggering a file browser refresh, your files may get closed and you may lose some work."),
             DirectoryNotFoundException {Message: var message} => ("Directory not found", message),
+            CouldNotConnectException {OutputConnector: var output, InputConnector: var input} => ("Connection creation exception", $"The connectors '{output}' and '{input}' cannot be connected"),
+            DeserializationError {TargetType: var type, InnerException: var deserializationInner} => ($"Error deserializing '{type}'", deserializationInner?.Message ?? "Unknown error"),
             _ => ("Error executing action", exception.Message)
         };
 

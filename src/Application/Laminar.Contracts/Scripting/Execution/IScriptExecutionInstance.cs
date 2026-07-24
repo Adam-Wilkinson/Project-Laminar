@@ -3,7 +3,7 @@ using Laminar.PluginFramework.NodeSystem;
 
 namespace Laminar.Contracts.Scripting.Execution;
 
-public interface IScriptExecutionInstance : INotificationClient<LaminarExecutionContext>
+public interface IScriptExecutionInstance : INotificationClient<LaminarExecutionContext>, IDisposable
 {
     /// <summary>
     /// The current state of the script
