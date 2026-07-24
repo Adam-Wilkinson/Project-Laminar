@@ -173,6 +173,7 @@ public class PersistentDictionaryTests
 
             transcoder.EncodeElement(
                     Arg.Is<Dictionary<string, object>>(x =>
+                        x != null && 
                         (string)x["one"] == "encoded1" &&
                         (string)x["two"] == "encoded2"))
                 .Returns("final");

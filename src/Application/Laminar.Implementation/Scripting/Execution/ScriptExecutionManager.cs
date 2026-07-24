@@ -11,7 +11,7 @@ internal class ScriptExecutionManager(IExecutionOrderFinder executionOrderFinder
 
     public bool DestroyExecutionInstance(IScriptExecutionInstance executionInstance) => _instances.Remove(executionInstance);
 
-    public IScriptExecutionInstance CreateExecutionInstance(Contracts.Scripting.INodeTree nodeTree)
+    public IScriptExecutionInstance CreateExecutionInstance(INodeTree nodeTree)
     {
         IScriptExecutionInstance newInstance = new ScriptExecutionInstance(nodeTree, executionOrderFinder);
         _instances.Add(newInstance);

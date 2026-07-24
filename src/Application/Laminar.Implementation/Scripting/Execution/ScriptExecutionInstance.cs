@@ -4,8 +4,7 @@ using Laminar.PluginFramework.NodeSystem;
 
 namespace Laminar.Implementation.Scripting.Execution;
 
-internal class ScriptExecutionInstance(Contracts.Scripting.INodeTree nodeTree, IExecutionOrderFinder orderFinder)
-    : IScriptExecutionInstance
+internal class ScriptExecutionInstance(INodeTree nodeTree, IExecutionOrderFinder orderFinder) : IScriptExecutionInstance
 {
     public ScriptState State { get; private set; } = ScriptState.Active;
 

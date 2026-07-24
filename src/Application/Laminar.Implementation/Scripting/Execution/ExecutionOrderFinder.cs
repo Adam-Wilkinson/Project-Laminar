@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Laminar.Contracts.Scripting;
+﻿using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Scripting.Execution;
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.PluginFramework.NodeSystem;
@@ -13,13 +11,21 @@ internal class ExecutionOrderFinder : IExecutionOrderFinder
 {
     private readonly Dictionary<(object, int), OrderFinderInstance> _calculatedBranches = new();
 
-    public IConditionalExecutionBranch[] GetExecutionBranchesFrom(LaminarExecutionContext context, Contracts.Scripting.INodeTree tree)
+    public IConditionalExecutionBranch[] GetExecutionBranchesFrom(LaminarExecutionContext context, INodeTree tree)
     {
         ArgumentNullException.ThrowIfNull(context.ExecutionSource);
 
         if (_calculatedBranches.TryGetValue((context.ExecutionSource, context.ExecutionFlags.AsNumber), out var instance))
         {
-            return instance.Branches();
+            if (instance.Tree == tree)
+            {
+                return instance.Branches();
+            }
+            
+            instance.Dispose();
+            OrderFinderInstance replacement = new(context, tree);
+            _calculatedBranches[(context.ExecutionSource, context.ExecutionFlags.AsNumber)] = replacement;
+            return replacement.Branches();
         }
 
         OrderFinderInstance newFinder = new(context, tree);
@@ -27,9 +33,8 @@ internal class ExecutionOrderFinder : IExecutionOrderFinder
         return newFinder.Branches();
     }
 
-    private class OrderFinderInstance
+    private class OrderFinderInstance : IDisposable
     {
-        private readonly Contracts.Scripting.INodeTree _tree;
         private readonly object _source;
         private readonly ExecutionFlags _flags;
         private readonly Lock _lockObject = new();
@@ -38,15 +43,17 @@ internal class ExecutionOrderFinder : IExecutionOrderFinder
         private List<IOutputConnector>? _remainingBranchStarters;
         private List<IWrappedNode>? _currentBranchOrder;
 
-        public OrderFinderInstance(LaminarExecutionContext context, Contracts.Scripting.INodeTree tree)
+        public OrderFinderInstance(LaminarExecutionContext context, INodeTree tree)
         {
-            _tree = tree;
+            Tree = tree;
             _flags = context.ExecutionFlags;
             _source = context.ExecutionSource!;
 
-            _tree.Changed += (_, _) => _lastCalculation = null;
+            Tree.Changed += OnTreeChanged;
         }
 
+        public INodeTree Tree { get; }
+        
         public IConditionalExecutionBranch[] Branches()
         {
             return _lastCalculation ??= FindExecutionPath(_source, _flags);
@@ -111,7 +118,7 @@ internal class ExecutionOrderFinder : IExecutionOrderFinder
 
         private void FindPathFromOutputConnector(IOutputConnector currentBranchStarter, ExecutionFlags executionFlags)
         {
-            var currentConnectionsLevel = _tree.GetConnectionsTo(currentBranchStarter);
+            var currentConnectionsLevel = Tree.GetConnectionsTo(currentBranchStarter);
             List<ConnectorConnectionInfo> nextConnectionsLevel = [];
 
             while (currentConnectionsLevel.Count > 0)
@@ -145,7 +152,7 @@ internal class ExecutionOrderFinder : IExecutionOrderFinder
         private IReadOnlyCollection<ConnectorConnectionInfo>? GetConnectionsIfBranchContinues(INodeRow row, ExecutionFlags flags)
         {
             if (row.OutputConnector is not { } outputConnector
-                || _tree.GetConnectionsTo(outputConnector) is not { } connections)
+                || Tree.GetConnectionsTo(outputConnector) is not { } connections)
                 return null;
             
             switch (outputConnector.PassUpdate(flags))
@@ -160,6 +167,16 @@ internal class ExecutionOrderFinder : IExecutionOrderFinder
                 default:
                     return null;
             }
+        }
+
+        private void OnTreeChanged(object? sender, EventArgs e)
+        {
+            _lastCalculation = null;
+        }
+
+        public void Dispose()
+        {
+            Tree.Changed -= OnTreeChanged;
         }
     }
 }

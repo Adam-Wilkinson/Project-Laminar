@@ -1,5 +1,4 @@
 ﻿using Laminar.Contracts.Base.ActionSystem;
-using Laminar.Contracts.Scripting.Execution;
 using Laminar.Domain.Exceptions;
 using Laminar.Implementation.Base.ActionSystem;
 using Laminar.PluginFramework.NodeSystem.Connectors;
@@ -16,7 +15,7 @@ internal readonly struct EstablishConnectionAction(
 
     public IInputConnector InputConnector { get; } = inputConnector;
     
-    public bool CanExecute { get; } = outputConnector.CouldConnectTo(inputConnector) || inputConnector.CouldConnectTo(outputConnector);
+    public bool CanExecute { get; } = outputConnector.CanConnectTo(inputConnector) || inputConnector.CanConnectTo(outputConnector);
 
     public Task<IUserActionResult> Execute()
     {

@@ -17,29 +17,26 @@ internal class ValueInputConnector<T>(ITypeInfoStore typeInfoStore) : IInputConn
 
     public Action? PreEvaluateAction => Input.PreEvaluateAction;
 
-    public void OnConnectionEstablished()
+    public void OnConnectedTo(IOutputConnector output)
     {
+        if (output is IOutputConnector<IValueOutput<T>> outputConnector)
+        {
+            Input.SetValueProvider(outputConnector.Output);
+        }
+        
         Flags = ConnectorFlags.HasConnections | ConnectorFlags.ConnectionsSaturated;
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Flags)));
     }
 
-    public void OnConnectionSevered()
+    public void OnDisconnectedFrom(IOutputConnector _)
     {
         Input.SetValueProvider(null);
         Flags = ConnectorFlags.AcceptsConnections;
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Flags)));
     }
 
-    public bool CouldConnectTo(IOutputConnector connector)
+    public bool CanConnectTo(IOutputConnector connector)
         => connector is IOutputConnector<IValueOutput<T>>;
-
-    public bool TryConnectTo(IOutputConnector connector)
-    {
-        if (connector is not IOutputConnector<IValueOutput<T>> outputConnector) return false;
-        
-        Input.SetValueProvider(outputConnector.Output);
-        return true;
-    }
 
     public override string ToString() => $"Value Input '{Input.InterfaceData.Name}' (Value: {Input.Value})";
 }

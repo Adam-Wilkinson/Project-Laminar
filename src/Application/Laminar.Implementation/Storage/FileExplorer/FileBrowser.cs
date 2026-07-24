@@ -1,4 +1,5 @@
 using System.Collections.Specialized;
+using Laminar.Contracts.Base;
 using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.Storage.FileExplorer;
 using Laminar.Contracts.Storage.FileExplorer.Graph;
@@ -14,6 +15,8 @@ namespace Laminar.Implementation.Storage.FileExplorer;
 
 internal class FileBrowser : IFileBrowser, IDisposable
 {
+    private static readonly FileSystemPath DefaultRootFolder = RoamingDataFolder.ChildPath("Default");
+    
     private readonly IUserActionManager _actionManager;
     private readonly IFileSystem _fileSystem;
     private readonly FileBrowserActionDependencies _actionDependencies;
@@ -24,7 +27,8 @@ internal class FileBrowser : IFileBrowser, IDisposable
         IFileSystemGraph graph,
         IFileSystemCommandService commandService,
         IPersistentDataManager dataManager,
-        IFileSystem fileSystem)
+        IFileSystem fileSystem,
+        IExceptionHandler exceptionHandler)
     {
         _actionManager = actionManager;
         _fileSystem = fileSystem;
@@ -32,10 +36,16 @@ internal class FileBrowser : IFileBrowser, IDisposable
         _rootFolderPaths = dataManager
             .GetDataStore(DataStoreKey.PersistentData)
             ["FileBrowser"].GetOrCreateCollection<IPersistentDictionary>()
-            ["RootFolders"].GetValueOrInitialize<List<FileSystemPath>>([RoamingDataFolder.ChildPath("Default")]);
+            ["RootFolders"].GetValueOrInitialize<List<FileSystemPath>>([DefaultRootFolder]);
 
         foreach (var path in _rootFolderPaths.Value)
         {
+            if (!fileSystem.Exists(path) && path != DefaultRootFolder)
+            {
+                exceptionHandler.OnException(new DirectoryNotFoundException($"The root folder at '{path}' could not be found on disk"));
+                continue;
+            }
+            
             graph.Roots.AddRoot(path);
         }
 

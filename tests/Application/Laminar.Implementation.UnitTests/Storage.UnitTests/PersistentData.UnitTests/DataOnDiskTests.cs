@@ -100,7 +100,7 @@ public class DataOnDiskTests
             sut.SynchronousFlush();
 
             file.Received(1).Contents =
-                Arg.Is<byte[]>(x => ((IEnumerable<byte>)x).SequenceEqual(new byte[] { 9, 8, 7 }));
+                Arg.Is<byte[]>(x => x != null && ((IEnumerable<byte>)x).SequenceEqual(new byte[] { 9, 8, 7 }));
         }
     }
 

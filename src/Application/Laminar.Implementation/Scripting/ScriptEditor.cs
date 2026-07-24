@@ -2,11 +2,9 @@
 using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Scripting.Connection;
 using Laminar.Contracts.Scripting.NodeWrapping;
-using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.ValueObjects;
 using Laminar.Implementation.Base.ActionSystem;
 using Laminar.Implementation.Scripting.Actions;
-using Laminar.Implementation.Scripting.NodeWrapping;
 using Laminar.PluginFramework.NodeSystem.Connectors;
 
 namespace Laminar.Implementation.Scripting;
@@ -21,7 +19,7 @@ internal class ScriptEditor(
     
     public IUserAction AddMatchingNodeAction(IScript script, IWrappedNode node, Point location)
     {
-        IWrappedNode newNode = nodeFactory.FromNodeInfo(node.Info, script);
+        IWrappedNode newNode = nodeFactory.FromNodeInfo(node.Info);
         newNode.Location.Value = location;
         return new AddNodeAction(newNode, (IWritableNodeTree)script.NodeTree);
     }
@@ -50,21 +48,14 @@ internal class ScriptEditor(
     public IUserAction AddSubTree(IScript script, INodeTree subTree)
     {
         List<IUserAction> actions = [];
-        foreach (var node in subTree.Nodes)
-        {
-            if (node is WrappedNode wrappedNode)
-            {
-                wrappedNode.UserChangedValueNotificationClient = script;
-            }
+        actions.AddRange(subTree.Nodes
+            .Select(node => new AddNodeAction(node, (IWritableNodeTree)script.NodeTree))
+            .Cast<IUserAction>());
 
-            actions.Add(new AddNodeAction(node, (IWritableNodeTree)script.NodeTree));
-        }
-
-        foreach (var connection in subTree.Connections)
-        {
-            actions.Add(new EstablishConnectionAction(connection.OutputConnector, connection.InputConnector,
-                (IWritableNodeTree)script.NodeTree));
-        }
+        actions.AddRange(subTree.Connections
+            .Select(connection => new EstablishConnectionAction(connection.OutputConnector, connection.InputConnector, 
+                (IWritableNodeTree)script.NodeTree))
+            .Cast<IUserAction>());
 
         return new CompoundAction(actions);
     }

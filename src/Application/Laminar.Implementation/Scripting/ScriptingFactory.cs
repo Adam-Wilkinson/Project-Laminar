@@ -17,14 +17,14 @@ internal class ScriptingFactory(
     : IScriptingFactory
 {
     public IScript CreateScript() 
-        => new Script(scriptExecutionManager, dataFactory.GetEncodableData<IPersistentDictionary>(), this);
-
-    public INodeTree CreateNodeTree(IEnumerable<IWrappedNode> nodes, IEnumerable<IConnection> connections, INotificationClient<LaminarExecutionContext>? userChangedValueClient = null) 
-        => new WritableNodeTree(dataFactory.GetEncodableData<IPersistentDictionary>(), nodeFactory, logger, userChangedValueClient, nodes, connections);
-
-    public INodeTree NodeTreeFromPersistentData(IPersistentDictionary persistentDictionary, INotificationClient<LaminarExecutionContext>? userChangedValueClient = null) 
-        => new WritableNodeTree(persistentDictionary, nodeFactory, logger, userChangedValueClient);
+        => new Script(dataFactory.GetEncodableData<IPersistentDictionary>(), scriptExecutionManager, this);
 
     public IScript FromPersistentData(IPersistentDictionary encodableData) 
-        => new Script(scriptExecutionManager, encodableData, this);
+        => new Script(encodableData, scriptExecutionManager, this);
+
+    public INodeTree CreateNodeTree(IEnumerable<IWrappedNode> nodes, IEnumerable<IConnection> connections, INotificationClient<LaminarExecutionContext>? userChangedValueClient = null) 
+        => new WritableNodeTree(dataFactory.GetEncodableData<IPersistentDictionary>(), nodeFactory, logger, nodes, connections);
+
+    public INodeTree NodeTreeFromPersistentData(IPersistentDictionary persistentDictionary, INotificationClient<LaminarExecutionContext>? userChangedValueClient = null) 
+        => new WritableNodeTree(persistentDictionary, nodeFactory, logger);
 }

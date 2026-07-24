@@ -53,6 +53,7 @@ internal sealed class FileResource<TValue, TData> : IFileResource<TValue>
         if (_isDisposed) return;
         _isDisposed = true;
         CleanupDiskResource();
+        (Value as IDisposable)?.Dispose();
         File.PropertyChanged -= OnFilePropertyChanged;
         File.Deleted -= OnFileDeleted;
     }

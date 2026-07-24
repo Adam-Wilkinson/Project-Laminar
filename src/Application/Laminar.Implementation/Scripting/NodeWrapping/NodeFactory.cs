@@ -16,8 +16,7 @@ public class NodeFactory(IEncodableDataFactory dataFactory, ILoadedNodeManager l
     private const string PluginKey = "Plugin";
     private const string TypeKey = "Type";
 
-    public IWrappedNode FromPersistentData(IPersistentDictionary persistentDictionary,
-        INotificationClient<LaminarExecutionContext>? userChangedValueClient = null)
+    public IWrappedNode FromPersistentData(IPersistentDictionary persistentDictionary)
     {
         string pluginName = persistentDictionary[PluginKey].GetValue<string>().Value;
         string nodeTypeName = persistentDictionary[TypeKey].GetValue<string>().Value;
@@ -46,19 +45,16 @@ public class NodeFactory(IEncodableDataFactory dataFactory, ILoadedNodeManager l
         return new WrappedNode(node, persistentDictionary)
         {
             NameRow = nameRow,
-            Info = loadedNodeInfo,
-            UserChangedValueNotificationClient = userChangedValueClient
+            Info = loadedNodeInfo
         };
     }
 
-    public IWrappedNode FromNodeInfo(ILoadedNodeInfo loadedNode, INotificationClient<LaminarExecutionContext>? userChangedValueNotificationClient)
+    public IWrappedNode FromNodeInfo(ILoadedNodeInfo loadedNode)
     {
         ArgumentNullException.ThrowIfNull(loadedNode.NodeType.FullName);
         var persistentDictionary = dataFactory.GetEncodableData<IPersistentDictionary>();
         persistentDictionary[PluginKey].GetValueOrInitialize(loadedNode.Plugin.PluginName);
         persistentDictionary[TypeKey].GetValueOrInitialize(loadedNode.NodeType.FullName);
-        return FromPersistentData(persistentDictionary, userChangedValueNotificationClient);
+        return FromPersistentData(persistentDictionary);
     }
-
-    private record PersistentNodeModel(string PluginName, string NodeType);
 }

@@ -10,7 +10,7 @@ internal class ValueOutputConnector<T>(ITypeInfoStore typeInfoStore, IValueOutpu
     : IOutputConnector<IValueOutput<T>> where T : notnull
 {
     private T _valueAtLastUpdate = output.Value;
-    private int _connectionCount = 0;
+    private int _connectionCount;
 
     public event PropertyChangedEventHandler? PropertyChanged;
     
@@ -22,32 +22,29 @@ internal class ValueOutputConnector<T>(ITypeInfoStore typeInfoStore, IValueOutpu
 
     public ConnectorFlags Flags { get; private set; } = ConnectorFlags.AcceptsConnections;
 
-    public void OnConnectionEstablished()
+    public void OnConnectedTo(IInputConnector input)
     {
+        if (input is IInputConnector<IValueInput<T>> inputConnector)
+        {
+            inputConnector.Input.SetValueProvider(Output);
+        }
+        
         Flags = ConnectorFlags.AcceptsConnections | ConnectorFlags.HasConnections;
         _connectionCount++;
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Flags)));
     }
 
-    public void OnConnectionSevered()
+    public void OnDisconnectedFrom(IInputConnector _)
     {
         _connectionCount--;
-        if (_connectionCount == 0)
-        {
-            Flags = ConnectorFlags.AcceptsConnections;   
-        }
+        Flags = ConnectorFlags.AcceptsConnections;
+        if (_connectionCount > 0)
+            Flags |= ConnectorFlags.HasConnections;
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Flags)));
     }
 
-    public bool CouldConnectTo(IInputConnector connector)
-        => connector is IInputConnector<IValueInput<T>>; 
-    
-    public bool TryConnectTo(IInputConnector connector)
-    {
-        if (connector is not IInputConnector<IValueInput<T>> inputConnector) return false;
-        inputConnector.Input.SetValueProvider(Output);
-        return true;
-    }
+    public bool CanConnectTo(IInputConnector connector)
+        => connector is IInputConnector<IValueInput<T>>;
 
     public PassUpdateOption PassUpdate(ExecutionFlags executionFlags)
     {

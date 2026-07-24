@@ -5,10 +5,8 @@ using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Scripting.Connection;
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Contracts.Storage.PersistentData;
-using Laminar.Domain.Notification;
 using Laminar.Domain.Notification.Collections;
 using Laminar.Implementation.Scripting.Connections;
-using Laminar.PluginFramework.NodeSystem;
 using Laminar.PluginFramework.NodeSystem.Connectors;
 using Microsoft.Extensions.Logging;
 
@@ -17,7 +15,7 @@ namespace Laminar.Implementation.Scripting;
 internal class WritableNodeTree : IWritableNodeTree
 {
     private readonly ILogger<WritableNodeTree> _logger;
-        
+    
     private readonly Dictionary<IConnector, ConnectorInformation> _connectorsInformation = [];
     private readonly Dictionary<IWrappedNode, NodeInformation> _nodesInformation = [];
     private readonly Dictionary<string, IWrappedNode> _nodesDictionary = [];
@@ -30,7 +28,6 @@ internal class WritableNodeTree : IWritableNodeTree
         IPersistentDictionary persistentDictionary, 
         INodeFactory nodeFactory,
         ILogger<WritableNodeTree> logger,
-        INotificationClient<LaminarExecutionContext>? userChangedValueClient = null,
         IEnumerable<IWrappedNode>? nodes = null, 
         IEnumerable<IConnection>? connections = null)
     {
@@ -40,7 +37,7 @@ internal class WritableNodeTree : IWritableNodeTree
         _persistentNodes = persistentDictionary["Nodes"].GetOrCreateCollection<IPersistentDictionary>();
         foreach (var (key, dataPoint) in _persistentNodes)
         {
-            AddNode(nodeFactory.FromPersistentData(dataPoint.GetOrCreateCollection<IPersistentDictionary>(), userChangedValueClient), key);
+            AddNode(nodeFactory.FromPersistentData(dataPoint.GetOrCreateCollection<IPersistentDictionary>()), key);
         }
 
         if (nodes is not null)
@@ -160,7 +157,7 @@ internal class WritableNodeTree : IWritableNodeTree
             return true;
         }
         
-        if (!outputConnector.TryConnectTo(inputConnector) && !inputConnector.TryConnectTo(outputConnector))
+        if (!outputConnector.CanConnectTo(inputConnector) && !inputConnector.CanConnectTo(outputConnector))
         {
             connection = null;
             return false;
@@ -179,8 +176,6 @@ internal class WritableNodeTree : IWritableNodeTree
         outputInfo.Connections.Add(inputConnector, new ConnectorConnectionInfo(newConnection, inputConnector, inputInfo.Owner));
 
         _connections.Add(newConnection);
-        outputConnector.OnConnectionEstablished();
-        inputConnector.OnConnectionEstablished();
         
         _nodesInformation[inputInfo.Owner].Updates.OnConnectionsChanged();
         _nodesInformation[outputInfo.Owner].Updates.OnConnectionsChanged();
@@ -223,9 +218,6 @@ internal class WritableNodeTree : IWritableNodeTree
 
         inputInfo.Connections.Remove(outputConnector);
         outputInfo.Connections.Remove(inputConnector);
-
-        inputConnector.OnConnectionSevered();
-        outputConnector.OnConnectionSevered();
         
         _nodesInformation[inputInfo.Owner].Updates.OnConnectionsChanged();
         _nodesInformation[outputInfo.Owner].Updates.OnConnectionsChanged();

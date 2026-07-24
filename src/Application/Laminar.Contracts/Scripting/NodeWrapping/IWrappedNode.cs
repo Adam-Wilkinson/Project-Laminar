@@ -22,7 +22,9 @@ public interface IWrappedNode : INotificationClient<LaminarExecutionContext>
 
     public ILoadedNodeInfo Info { get; }
 
+    public INotificationClient<LaminarExecutionContext>? UserChangedValueNotificationClient { get; set; }
+    
     public IEncodableData PersistentData { get; }
-
+    
     void Update(LaminarExecutionContext context);
 }
