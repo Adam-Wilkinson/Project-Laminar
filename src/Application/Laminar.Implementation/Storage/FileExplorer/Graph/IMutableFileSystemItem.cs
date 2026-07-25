@@ -2,7 +2,7 @@ using Laminar.Contracts.Storage.FileExplorer;
 
 namespace Laminar.Implementation.Storage.FileExplorer.Graph;
 
-internal interface IMutableFileSystemItem
+internal interface IMutableFileSystemItem : IFileSystemItem
 {
     internal void SetNameInternal(FileSystemGraph.MutationToken _, string newNameWithExtension);
     

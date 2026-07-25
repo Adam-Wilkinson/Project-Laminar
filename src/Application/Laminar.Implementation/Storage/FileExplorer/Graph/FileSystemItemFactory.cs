@@ -15,13 +15,13 @@ internal sealed class FileSystemItemFactory(IServiceProvider provider, IEncodabl
     public IFileSystemFolder CreateFolder(IFileSystemFolder parent, string name) 
         => CreateFolderInternal(parent, CreatePersistentData(name, true));
     
+    public IFileSystemRootFolder CreateRootFolder(FileSystemPath path) 
+        => ActivatorUtilities.CreateInstance<FileSystemRootFolder>(provider, path, CreatePersistentData(path.NameAndExtension, true));
+    
     public IFileSystemItem CreateFromPersistentData(IFileSystemFolder parent, IPersistentDictionary persistentDictionary) 
         => persistentDictionary[IFileSystemItemFactory.PersistenceIsFolderKey].GetValue<bool>().Value
             ? CreateFolderInternal(parent, persistentDictionary)
             : CreateFileInternal(parent, persistentDictionary);
-    
-    public IFileSystemRootFolder CreateRootFolder(FileSystemPath path) 
-        => ActivatorUtilities.CreateInstance<FileSystemRootFolder>(provider, path, CreatePersistentData(path.NameAndExtension, true));
 
     private IPersistentDictionary CreatePersistentData(string nameAndExtension, bool isFolder)
     {

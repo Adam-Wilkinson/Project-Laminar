@@ -7,7 +7,7 @@ using Laminar.Implementation.Storage.FileExplorer.Graph;
 
 namespace Laminar.Implementation.Storage.FileExplorer;
 
-internal class FileSystemFolder : FileSystemItem, IFileSystemFolder, IMutableFileSystemFolder
+internal class FileSystemFolder : FileSystemItem, IMutableFileSystemFolder
 {
     private readonly IFileSystemGraph _graph;
     private readonly IFileSystem _fileSystem;
@@ -29,7 +29,7 @@ internal class FileSystemFolder : FileSystemItem, IFileSystemFolder, IMutableFil
     }
     
     public FileSystemFolder(
-        FileSystemFolder parent, 
+        IFileSystemFolder parent, 
         IPersistentDictionary persistentData,
         IFileSystem fileSystem,
         IFileSystemGraph graph) 

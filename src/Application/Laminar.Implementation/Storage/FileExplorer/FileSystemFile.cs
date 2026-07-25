@@ -12,7 +12,7 @@ internal class FileSystemFile : FileSystemItem, IFileSystemFile
     private readonly IFileSystem _fileSystem;
     
     public FileSystemFile(
-        FileSystemFolder parent,
+        IFileSystemFolder parent,
         IPersistentDictionary persistentData,
         IFileSystem fileSystem,
         IFileSystemGraph graph,

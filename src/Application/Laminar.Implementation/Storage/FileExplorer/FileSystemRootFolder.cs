@@ -1,4 +1,3 @@
-using Laminar.Contracts.Storage.FileExplorer;
 using Laminar.Contracts.Storage.FileExplorer.Graph;
 using Laminar.Contracts.Storage.FileExplorer.Synchronization;
 using Laminar.Contracts.Storage.IO;
@@ -9,7 +8,7 @@ using Laminar.Implementation.Storage.PersistentData;
 
 namespace Laminar.Implementation.Storage.FileExplorer;
 
-internal class FileSystemRootFolder : FileSystemFolder, IFileSystemRootFolder, IMutableFileSystemRootFolder
+internal class FileSystemRootFolder : FileSystemFolder, IMutableFileSystemRootFolder
 {
     private const string InfoFileName = ".laminar.data";
     private readonly IFileSystem _fileSystem;

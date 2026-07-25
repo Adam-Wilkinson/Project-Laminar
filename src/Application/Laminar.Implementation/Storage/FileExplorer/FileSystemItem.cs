@@ -9,7 +9,7 @@ using Laminar.Implementation.Storage.FileExplorer.Graph;
 
 namespace Laminar.Implementation.Storage.FileExplorer;
 
-internal abstract class FileSystemItem : IFileSystemItem, IMutableFileSystemItem
+internal abstract class FileSystemItem : IMutableFileSystemItem
 {
     private readonly IFileSystem _fileSystem;
     private readonly IFileSystemGraph _graph;

@@ -22,7 +22,7 @@ public readonly struct FileSystemPath(string absolutePath) : IEquatable<FileSyst
     
     public FileSystemPath ChildPath(string childName) => new(Path.Join(_path, childName));
 
-    public FileSystemPath? Parent => Path.GetDirectoryName(_path) is { } parent ? new(parent) : null;
+    public FileSystemPath? Parent => Path.GetDirectoryName(_path) is { } parent && !string.IsNullOrWhiteSpace(parent) ? new(parent) : null;
 
     public string NameAndExtension => Path.GetFileName(_path);
     

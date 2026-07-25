@@ -114,6 +114,8 @@ internal sealed class FileSystemGraph(
         return item;
     }
 
+    internal static MutationToken GetTestingToken() => _token;
+
     private void AddItemInternal(IFileSystemFolder parent, int indexInParent, IFileSystemItem item)
     {
         ToMutable(parent).InsertChildInternal(_token, item, indexInParent);
