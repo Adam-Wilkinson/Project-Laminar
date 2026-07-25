@@ -33,10 +33,14 @@ internal sealed class FileSystemEventHashBucket(
             return;
         }
 
-        if (_hashInfos.TryGetValue(hash, out var hashInfo))
+        if (_hashInfos.TryGetValue(hash, out _))
         {
-            hashInfo.State = HashBucketState.Clash;
-            hashInfo.Event = null;
+            _hashInfos[hash] = new HashBucketInfo
+            {
+                Hash = hash,
+                Event = null,
+                State = HashBucketState.Clash,
+            };
             return;
         }
 

@@ -4,5 +4,5 @@ public interface IFileSystemSynchronizer
 {
     public void OnFileSystemEvent(FileSystemEvent e);
 
-    public void ReconcileAndReset(IReadOnlyCollection<IFileSystemRootFolder> targetFolders);
+    public void ReconcileAndReset(IReadOnlyCollection<IFileSystemFolder> targetFolders);
 }

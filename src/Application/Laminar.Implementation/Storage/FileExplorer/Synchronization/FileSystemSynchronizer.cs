@@ -18,7 +18,7 @@ public class FileSystemSynchronizer(
         mutationComputer.AddEvent(e);
     }
 
-    public void ReconcileAndReset(IReadOnlyCollection<IFileSystemRootFolder> targetFolders)
+    public void ReconcileAndReset(IReadOnlyCollection<IFileSystemFolder> targetFolders)
     {
         ReconcileAndResetInternal(targetFolders);
         
@@ -26,7 +26,7 @@ public class FileSystemSynchronizer(
         _ = itemRepository.DetachOutdatedItems();
     }
 
-    private void ReconcileAndResetInternal(IReadOnlyCollection<IFileSystemRootFolder> targetFolders)
+    private void ReconcileAndResetInternal(IReadOnlyCollection<IFileSystemFolder> targetFolders)
     {
         foreach (var mutation in mutationComputer.ComputeMutationsAndClear(itemRepository.DetachOutdatedItems()))
         {
