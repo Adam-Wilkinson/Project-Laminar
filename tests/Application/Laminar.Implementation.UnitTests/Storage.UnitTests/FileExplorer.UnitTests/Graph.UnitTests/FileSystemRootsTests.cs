@@ -193,7 +193,7 @@ public class FileSystemRootsTests
         public void ShouldThrowWhenItemAtPathIsNotRootFolder()
         {
             var repository = CreateRepository();
-            var item = CreateItem();
+            var item = MockFactory.CreateItem();
             var path = item.Path;
 
             repository.TryGetItem(path, out Arg.Any<IFileSystemItem?>()).Returns(x =>
@@ -301,34 +301,8 @@ public class FileSystemRootsTests
     {
         var root = Substitute.For<IMutableFileSystemRootFolder>();
 
-        root.Path.Returns(path ?? "Root");
+        root.Path.Returns(path ?? MockFactory.CreatePath());
 
         return root;
-    }
-    
-
-    private static IMutableFileSystemItem CreateItem(
-        FileSystemPath? path = null,
-        IMutableFileSystemFolder? parent = null)
-    {
-        var item = Substitute.For<IMutableFileSystemItem>();
-
-        path ??= "ItemPath";
-
-        item.Path.Returns(path.Value);
-        item.ParentFolder.Returns(parent);
-
-        return item;
-    }
-    
-    private static FileSystemPath CreatePath(
-        FileSystemPath? parent = null,
-        string? name = null)
-    {
-        parent ??= "Parent";
-        name ??= "Child";
-        var path = parent.Value.ChildPath(name);
-        
-        return path;
     }
 }

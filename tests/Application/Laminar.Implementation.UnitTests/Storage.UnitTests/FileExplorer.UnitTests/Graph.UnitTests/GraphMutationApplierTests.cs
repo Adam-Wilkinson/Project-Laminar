@@ -1,8 +1,6 @@
 using Laminar.Contracts.Storage.FileExplorer;
 using Laminar.Contracts.Storage.FileExplorer.Graph;
 using Laminar.Contracts.Storage.IO;
-using Laminar.Domain.Notification.Collections;
-using Laminar.Domain.ValueObjects;
 using Laminar.Implementation.Storage.FileExplorer.Graph;
 using Microsoft.Extensions.Logging;
 
@@ -15,10 +13,10 @@ public class GraphMutationApplierTests
         [Fact]
         public void ShouldMoveItemWhenNewParentExists()
         {
-            var oldPath = CreatePath("Old");
-            var newPath = CreatePath("New");
-            var item = CreateItem(oldPath);
-            var newParent = CreateFolder(oldPath.Parent);
+            var oldPath = MockFactory.CreatePath();
+            var newPath = MockFactory.CreatePath();
+            var item = MockFactory.CreateItem(oldPath);
+            var newParent = MockFactory.CreateFolder(oldPath.Parent);
             var mutation = new FileSystemGraphMutation(FileSystemGraphMutationType.Move, oldPath, newPath);
 
             var repository = CreateRepository();
@@ -46,9 +44,9 @@ public class GraphMutationApplierTests
         [Fact]
         public void ShouldNotMoveItemWhenNewParentCannotBeFound()
         {
-            var oldPath = CreatePath(name: "Old");
-            var newPath = CreatePath(name: "New");
-            var item = CreateItem();
+            var oldPath = MockFactory.CreatePath();
+            var newPath = MockFactory.CreatePath();
+            var item = MockFactory.CreateItem();
             var mutation = new FileSystemGraphMutation(FileSystemGraphMutationType.Move, oldPath, newPath);
 
             var repository = CreateRepository();
@@ -72,10 +70,10 @@ public class GraphMutationApplierTests
         [Fact]
         public void ShouldNotMoveItemWhenAlreadyInNewParentContents()
         {
-            var oldPath = CreatePath("Old");
-            var newPath = CreatePath("New");
-            var item = CreateItem();
-            var newParent = CreateFolder(contents: [item]);
+            var oldPath = MockFactory.CreatePath();
+            var newPath = MockFactory.CreatePath();
+            var item = MockFactory.CreateItem();
+            var newParent = MockFactory.CreateFolder(contents: [item]);
 
             var mutation = new FileSystemGraphMutation(
                 FileSystemGraphMutationType.Move,
@@ -110,27 +108,23 @@ public class GraphMutationApplierTests
         [Fact]
         public void ShouldAddFolderWhenPathIsDirectory()
         {
-            var newPath = CreatePath("New");
-            var parent = CreateFolder();
+            var newPath = MockFactory.CreatePath();
+            var parent = MockFactory.CreateFolder();
             var mutation = new FileSystemGraphMutation(FileSystemGraphMutationType.Creation, null, newPath);
 
             var repository = CreateRepository();
             var fileSystem = CreateFileSystem();
             var graph = CreateGraph();
 
-            repository.TryGetItem(newPath.Parent!.Value, out Arg.Any<IFileSystemItem?>())
-                .Returns(x =>
-                {
-                    x[1] = parent;
-                    return true;
-                });
+            repository.TryGetItem(newPath.Parent!.Value, out Arg.Any<IFileSystemItem?>()).Returns(x =>
+            {
+                x[1] = parent;
+                return true;
+            });
             
-            fileSystem.IsDirectory(newPath)
-                .Returns(true);
+            fileSystem.IsDirectory(newPath).Returns(true);
 
-            var sut = CreateApplier(
-                fileSystem: fileSystem,
-                repository: repository);
+            var sut = CreateApplier(fileSystem: fileSystem, repository: repository);
 
             sut.Apply(mutation, graph);
 
@@ -140,8 +134,8 @@ public class GraphMutationApplierTests
         [Fact]
         public void ShouldAddFileWhenPathIsNotDirectory()
         {
-            var newPath = CreatePath();
-            var parent = CreateFolder();
+            var newPath = MockFactory.CreatePath();
+            var parent = MockFactory.CreateFolder();
             var mutation = new FileSystemGraphMutation(FileSystemGraphMutationType.Creation, null, newPath);
 
             var repository = CreateRepository();
@@ -166,7 +160,7 @@ public class GraphMutationApplierTests
         [Fact]
         public void ShouldNotCreateWhenParentCannotBeFound()
         {
-            var newPath = CreatePath("New");
+            var newPath = MockFactory.CreatePath();
             var mutation = new FileSystemGraphMutation(FileSystemGraphMutationType.Creation, null, newPath);
 
             var repository = CreateRepository();
@@ -186,9 +180,9 @@ public class GraphMutationApplierTests
         [Fact]
         public void ShouldNotCreateWhenItemAlreadyExists()
         {
-            var newPath = CreatePath("New");
-            var existingItem = CreateItem(newPath);
-            var parent = CreateFolder(contents: [existingItem]);
+            var newPath = MockFactory.CreatePath();
+            var existingItem = MockFactory.CreateItem(newPath);
+            var parent = MockFactory.CreateFolder(contents: [existingItem]);
 
             var mutation = new FileSystemGraphMutation(FileSystemGraphMutationType.Creation, null, newPath);
 
@@ -215,8 +209,8 @@ public class GraphMutationApplierTests
         [Fact]
         public void ShouldRemoveExistingItem()
         {
-            var oldPath = CreatePath("Old");
-            var item = CreateItem();
+            var oldPath = MockFactory.CreatePath();
+            var item = MockFactory.CreateItem();
 
             var mutation = new FileSystemGraphMutation(FileSystemGraphMutationType.Deletion, oldPath, null);
 
@@ -239,7 +233,7 @@ public class GraphMutationApplierTests
         [Fact]
         public void ShouldIgnoreDeletionWhenItemDoesNotExist()
         {
-            var oldPath = CreatePath("Old");
+            var oldPath = MockFactory.CreatePath();
 
             var mutation = new FileSystemGraphMutation(FileSystemGraphMutationType.Deletion, oldPath, null);
 
@@ -261,9 +255,9 @@ public class GraphMutationApplierTests
         [Fact]
         public void ShouldRenameExistingItem()
         {
-            var oldPath = CreatePath("Old");
-            var newPath = CreatePath("New");
-            var item = CreateItem();
+            var oldPath = MockFactory.CreatePath();
+            var newPath = MockFactory.CreatePath();
+            var item = MockFactory.CreateItem();
 
             var mutation = new FileSystemGraphMutation(FileSystemGraphMutationType.Rename, oldPath, newPath);
 
@@ -326,52 +320,5 @@ public class GraphMutationApplierTests
     private static IFileSystemGraph CreateGraph()
     {
         return Substitute.For<IFileSystemGraph>();
-    }
-    
-    
-
-    private static IMutableFileSystemItem CreateItem(
-        FileSystemPath? path = null,
-        IMutableFileSystemFolder? parent = null)
-    {
-        var item = Substitute.For<IMutableFileSystemItem>();
-
-        path ??= CreatePath();
-
-        item.Path.Returns(path.Value);
-        item.ParentFolder.Returns(parent);
-
-        return item;
-    }
-    
-    private static IMutableFileSystemFolder CreateFolder(
-        FileSystemPath? path = null,
-        IMutableFileSystemFolder? parent = null,
-        IReadOnlyList<IFileSystemItem>? contents = null)
-    {
-        var folder = Substitute.For<IMutableFileSystemFolder>();
-
-        path ??= CreatePath();
-        contents ??= [];
-        
-        IReadOnlyObservableCollection<IFileSystemItem> contentsObservable = new ObservableCollectionImpl<IFileSystemItem>(contents);
-
-        folder.Path.Returns(path.Value);
-        folder.ParentFolder.Returns(parent);
-        folder.GetOrLoadContents().Returns(contentsObservable);
-        folder.GetOrLoadContentsAsync().Returns(Task.FromResult(contentsObservable));
-
-        return folder;
-    }
-    
-    private static FileSystemPath CreatePath(
-        FileSystemPath? parent = null,
-        string? name = null)
-    {
-        parent ??= "Parent";
-        name ??= "Child";
-        var path = parent.Value.ChildPath(name);
-        
-        return path;
     }
 }

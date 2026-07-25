@@ -1,9 +1,7 @@
-using Laminar.Contracts.Storage.FileExplorer;
 using Laminar.Contracts.Storage.FileExplorer.Graph;
 using Laminar.Contracts.Storage.FileExplorer.Synchronization;
 using Laminar.Contracts.Storage.IO;
 using Laminar.Contracts.Storage.PersistentData;
-using Laminar.Domain.ValueObjects;
 using Laminar.Implementation.Storage.FileExplorer;
 using Laminar.Implementation.Storage.FileExplorer.Graph;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,15 +12,17 @@ public class FileSystemItemFactoryTests
 {
     public class CreateFile
     {
+        private const string FileName = "File.txt";
+        
         [Fact]
         public void ShouldCreateFile()
         {
-            var parent = CreateParent();
-            var data = CreatePersistentDictionary();
+            var parent = MockFactory.CreateFolder();
+            var data = MockFactory.CreateItemData();
             var dataFactory = CreateDataFactory(data);
             var sut = CreateFactory(dataFactory: dataFactory);
 
-            var result = sut.CreateFile(parent, "File.txt");
+            var result = sut.CreateFile(parent, FileName);
 
             result.Should().BeOfType<FileSystemFile>();
         }
@@ -30,32 +30,34 @@ public class FileSystemItemFactoryTests
         [Fact]
         public void ShouldInitializePersistentData()
         {
-            var parent = CreateParent();
-            var data = CreatePersistentDictionary();
-            var name = CreateValue<string>();
-            var isFolder = CreateValue<bool>();
+            var parent = MockFactory.CreateFolder();
+            var data = MockFactory.CreateItemData();
+            var name = MockFactory.CreateDataPoint<string>(FileName);
+            var isFolder = MockFactory.CreateDataPoint<bool>(false);
             data[IFileSystemItemFactory.PersistenceNameKey].Returns(name);
             data[IFileSystemItemFactory.PersistenceIsFolderKey].Returns(isFolder);
 
             var sut = CreateFactory(dataFactory: CreateDataFactory(data));
 
-            sut.CreateFile(parent, "File.txt");
+            sut.CreateFile(parent, FileName);
 
-            name.Received(1).GetValueOrInitialize("File.txt");
+            name.Received(1).GetValueOrInitialize(FileName);
             isFolder.Received(1).GetValueOrInitialize(false);
         }
     }
 
     public class CreateFolder
     {
+        private const string FolderName = "Folder";
+        
         [Fact]
         public void ShouldCreateFolder()
         {
-            var parent = CreateParent();
-            var data = CreatePersistentDictionary();
+            var parent = MockFactory.CreateFolder();
+            var data = MockFactory.CreateItemData();
             var sut = CreateFactory(dataFactory: CreateDataFactory(data));
 
-            var result = sut.CreateFolder(parent, "Folder");
+            var result = sut.CreateFolder(parent, FolderName);
 
             result.Should().BeOfType<FileSystemFolder>();
         }
@@ -63,29 +65,31 @@ public class FileSystemItemFactoryTests
         [Fact]
         public void ShouldInitializePersistentData()
         {
-            var parent = CreateParent();
-            var data = CreatePersistentDictionary();
-            var name = CreateValue<string>();
-            var isFolder = CreateValue<bool>();
+            var parent = MockFactory.CreateFolder();
+            var data = MockFactory.CreateItemData();
+            var name = MockFactory.CreateDataPoint<string>(FolderName);
+            var isFolder = MockFactory.CreateDataPoint<bool>(true);
             data[IFileSystemItemFactory.PersistenceNameKey].Returns(name);
             data[IFileSystemItemFactory.PersistenceIsFolderKey].Returns(isFolder);
 
             var sut = CreateFactory(dataFactory: CreateDataFactory(data));
 
-            sut.CreateFolder(parent, "Folder");
+            sut.CreateFolder(parent, FolderName);
 
-            name.Received(1).GetValueOrInitialize("Folder");
+            name.Received(1).GetValueOrInitialize(FolderName);
             isFolder.Received(1).GetValueOrInitialize(true);
         }
     }
 
     public class CreateRootFolder
     {
+        private const string RootName = "Root";
+        
         [Fact]
         public void ShouldCreateRootFolder()
         {
-            var path = "Root";
-            var data = CreatePersistentDictionary();
+            var path = MockFactory.CreatePath(name: RootName);
+            var data = MockFactory.CreateItemData();
             var sut = CreateFactory(dataFactory: CreateDataFactory(data));
 
             var result = sut.CreateRootFolder(path);
@@ -96,18 +100,17 @@ public class FileSystemItemFactoryTests
         [Fact]
         public void ShouldInitializePersistentData()
         {
-            var path = "Root";
-            var data = CreatePersistentDictionary();
-            var name = CreateValue<string>();
-            var isFolder = CreateValue<bool>();
+            var data = MockFactory.CreateItemData();
+            var name = MockFactory.CreateDataPoint<string>(RootName);
+            var isFolder = MockFactory.CreateDataPoint<bool>(true);
             data[IFileSystemItemFactory.PersistenceNameKey].Returns(name);
             data[IFileSystemItemFactory.PersistenceIsFolderKey].Returns(isFolder);
 
             var sut = CreateFactory(dataFactory: CreateDataFactory(data));
 
-            sut.CreateRootFolder(path);
+            sut.CreateRootFolder(RootName);
 
-            name.Received(1).GetValueOrInitialize("Root");
+            name.Received(1).GetValueOrInitialize(RootName);
             isFolder.Received(1).GetValueOrInitialize(true);
         }
     }
@@ -117,17 +120,12 @@ public class FileSystemItemFactoryTests
         [Fact]
         public void ShouldCreateFolderWhenPersistentDataRepresentsFolder()
         {
-            var parent = CreateParent();
-            var isFolderValue = Substitute.For<IPersistentValue<bool>>();
-            isFolderValue.Value.Returns(true);
-            var persistent = CreatePersistentDictionary();
-            persistent[IFileSystemItemFactory.PersistenceIsFolderKey]
-                .GetValue<bool>()
-                .Returns(isFolderValue);
+            var parent = MockFactory.CreateFolder();
+            var persistentData = MockFactory.CreateItemData("Folder Name", true);
 
             var sut = CreateFactory();
 
-            var result = sut.CreateFromPersistentData(parent, persistent);
+            var result = sut.CreateFromPersistentData(parent, persistentData);
 
             result.Should().BeOfType<FileSystemFolder>();
         }
@@ -135,17 +133,12 @@ public class FileSystemItemFactoryTests
         [Fact]
         public void ShouldCreateFileWhenPersistentDataRepresentsFile()
         {
-            var parent = CreateParent();
-            var isFolderValue = Substitute.For<IPersistentValue<bool>>();
-            isFolderValue.Value.Returns(false);
-            var persistent = CreatePersistentDictionary();
-            persistent[IFileSystemItemFactory.PersistenceIsFolderKey]
-                .GetValue<bool>()
-                .Returns(isFolderValue);
+            var parent = MockFactory.CreateFolder();
+            var persistentData = MockFactory.CreateItemData("File Name", false);
 
             var sut = CreateFactory();
 
-            var result = sut.CreateFromPersistentData(parent, persistent);
+            var result = sut.CreateFromPersistentData(parent, persistentData);
 
             result.Should().BeOfType<FileSystemFile>();
         }
@@ -155,7 +148,7 @@ public class FileSystemItemFactoryTests
     {
         return new FileSystemItemFactory(
             CreateServiceProvider(),
-            dataFactory ?? CreateDataFactory(CreatePersistentDictionary()));
+            dataFactory ?? CreateDataFactory(MockFactory.CreateItemData()));
     }
 
     private static IServiceProvider CreateServiceProvider()
@@ -176,33 +169,5 @@ public class FileSystemItemFactoryTests
         var factory = Substitute.For<IEncodableDataFactory>();
         factory.GetEncodableData<IPersistentDictionary>().Returns(dictionary);
         return factory;
-    }
-
-    private static IPersistentDictionary CreatePersistentDictionary()
-    {
-        var dictionary = Substitute.For<IPersistentDictionary>();
-
-        var nameValue = CreateValue<string>();
-        var isFolderValue = CreateValue<bool>();
-        
-        dictionary[IFileSystemItemFactory.PersistenceNameKey].Returns(nameValue);
-        dictionary[IFileSystemItemFactory.PersistenceIsFolderKey].Returns(isFolderValue);
-
-        return dictionary;
-    }
-
-    private static IPersistentDataPoint CreateValue<T>() where T : notnull
-    {
-        var value = Substitute.For<IPersistentValue<T>>();
-        var point = Substitute.For<IPersistentDataPoint>();
-        point.GetValue<T>().Returns(value);
-        return point;
-    }
-
-    private static IFileSystemFolder CreateParent()
-    {
-        var parent = Substitute.For<IFileSystemFolder>();
-        parent.Path.Returns(new FileSystemPath("ParentPath"));
-        return parent;
     }
 }
