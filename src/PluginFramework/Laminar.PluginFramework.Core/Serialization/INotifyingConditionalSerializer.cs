@@ -2,5 +2,5 @@ namespace Laminar.PluginFramework.Serialization;
 
 public interface INotifyingConditionalSerializer : IConditionalSerializer
 {
-    public INotifySerializedValueChanged GetSerializedValueChangedNotifier(object target);
+    public INotifySerializedValueChanged? GetSerializedValueChangedNotifier(object target);
 }

@@ -6,7 +6,6 @@ using Laminar.Implementation.Extensions;
 using Laminar.Implementation.Extensions.ServiceInitializers;
 using Laminar.PluginFramework.NodeSystem;
 using Laminar.PluginFramework.Registration;
-using Laminar.PluginFramework.UserInterface;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Laminar.Benchmarks;
@@ -15,9 +14,9 @@ namespace Laminar.Benchmarks;
 public class ValuePassingBenchmark
 {
     private readonly IServiceProvider _serviceProvider = new ServiceCollection()
-        .AddLaminarServices(FrontendDependency.None, null)
+        .AddLaminarServices()
         .BuildServiceProvider()
-        .InitializeLaminar<Program>();
+        .InitializeLaminar<Program>(FrontendDependency.None, null);
     
     private IScript? _script1;
     private IScriptEditor? _scriptEditor;
@@ -31,7 +30,7 @@ public class ValuePassingBenchmark
     [GlobalSetup]
     public void Setup()
     {
-        _script1 = _serviceProvider.GetService<IScriptFactory>()!.CreateScript();
+        _script1 = _serviceProvider.GetService<IScriptingFactory>()!.CreateScript();
         _scriptEditor = _serviceProvider.GetService<IScriptEditor>()!;
         _nodeWrapperFactory = _serviceProvider.GetService<INodeFactory>()!;
 

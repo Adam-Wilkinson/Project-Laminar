@@ -5,7 +5,7 @@ namespace Laminar.Implementation.Storage.FileExplorer.UserActions;
 
 internal readonly struct AddRootFolderAction(
     FileSystemPath folderPath, 
-    FileExplorerActionDependencies dependencies) : IUserAction
+    FileBrowserActionDependencies dependencies) : IUserAction
 {
     public bool CanExecute => true;
     
@@ -13,8 +13,7 @@ internal readonly struct AddRootFolderAction(
     
     public Task<IUserActionResult> Execute()
     {
-        var currentList = new List<FileSystemPath>(dependencies.RootFolders.Value) { folderPath };
-        dependencies.RootFolders.Value = currentList;
+        dependencies.Graph.Roots.AddRoot(RootFolderPath);
         return Task.FromResult(IUserActionResult.Success(new RemoveRootFolderAction(folderPath, true, dependencies)));
     }
 }

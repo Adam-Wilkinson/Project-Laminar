@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Laminar.PluginFramework.Serialization;
 
 namespace Laminar.Implementation.Storage.Serialization;
@@ -27,15 +24,18 @@ public class EnumerableSerializer<TElement, TSerializedElement>(ISerializer seri
     where TElement : notnull
     where TSerializedElement : notnull
 {
-    protected override IEnumerable<TSerializedElement> SerializeTyped(IEnumerable<TElement> toSerialize) 
-        => toSerialize.Select(x => (TSerializedElement)serializer.SerializeObject(x, typeof(TElement)));
+    protected override IEnumerable<TSerializedElement> SerializeTyped(IEnumerable<TElement> toSerialize)
+        => toSerialize.Select(x =>
+            serializer.SerializeObject(x, typeof(TElement)) is TSerializedElement serializedElement
+                ? serializedElement
+                : throw new InvalidOperationException());
 
     protected override IEnumerable<TElement> DeSerializeTyped(
         DeserializationRequest<IEnumerable<TElement>, IEnumerable<TSerializedElement>> request)
-        => request.Serialized.Select(x => (TElement)serializer.DeserializeObject(new DeserializationRequest
+        => request.Serialized.Select(x => serializer.DeserializeObject(new DeserializationRequest
         {
             Serialized = x,
             TargetType = typeof(TElement),
             Context = request.Context
-        }));
+        }) is TElement element ? element : throw new InvalidOperationException());
 }

@@ -1,6 +1,7 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:vm="using:Laminar.Avalonia.ViewModels"
+                    xmlns:vms="using:Laminar.Avalonia.ViewModels.Services"
                     xmlns:t="using:Laminar.Avalonia.ToolSystem"
                     xmlns:s="using:Laminar.Avalonia.Settings"
                     xmlns:c="using:Laminar.Avalonia.Controls"
@@ -12,6 +13,21 @@
                     xmlns:init="using:Laminar.Avalonia.InitializationTargets">
     
     <!-- Edit Menu Tool -->
+    <t:CommandTool NameKey="Copy" x:Key="Tools.Edit.Copy" x:DataType="vms:IClipboardProvider"
+                   Gesture="Ctrl+c"
+                   DefaultIconGeometry="{x:Static shapes:PathData.Copy}"
+                   CommandBinding="{Binding CopyToClipboardCommand}"/>
+    
+    <t:CommandTool NameKey="Paste" x:Key="Tools.Edit.Paste" x:DataType="vms:IClipboardProvider"
+                   Gesture="Ctrl+v"
+                   DefaultIconGeometry="{x:Static shapes:PathData.Paste}"
+                   CommandBinding="{Binding PasteFromClipboardCommand}"/>
+    
+    <t:CommandTool NameKey="Cut" x:Key="Tools.Edit.Cut" x:DataType="vms:IClipboardProvider"
+                   Gesture="Ctrl+x"
+                   DefaultIconGeometry="{x:Static shapes:PathData.Cut}"
+                   CommandBinding="{Binding CutCommand}"/>
+    
     <t:Toolbox NameKey="{x:Static lang:Resources.Edit}" 
                x:Key="Tools.Edit" x:DataType="vm:ViewModelBase" 
                DefaultIconGeometry="{x:Static shapes:PathData.EditIcon}"
@@ -24,6 +40,9 @@
 					   Gesture="Ctrl+y" 
 					   DefaultIconGeometry="{x:Static shapes:PathData.RedoIcon}"
 					   CommandBinding="{Binding RedoCommand}"/>
+        <StaticResource ResourceKey="Tools.Edit.Copy"/>
+        <StaticResource ResourceKey="Tools.Edit.Paste"/>
+        <StaticResource ResourceKey="Tools.Edit.Cut"/>
     </t:Toolbox>
     
     <!-- Tool that toggles whether a TreeViewItem is expanded -->
@@ -55,11 +74,11 @@
 	    <t:CommandTool NameKey="{x:Static lang:Resources.AddFolder}" 
 	                   DefaultIconGeometry="{x:Static shapes:PathData.FolderIcon}"
 	                   CommandBinding="{Binding AddItemCommand}"
-	                   CommandParameter="{x:Static fe:StorageItemType.Folder}"/>
+	                   CommandParameter="{x:Static fe:FileSystemItemType.Folder}"/>
 	    <t:CommandTool NameKey="{x:Static lang:Resources.AddScript}" 
 	                   DefaultIconGeometry="{x:Static shapes:PathData.ScriptIcon}"
 	                   CommandBinding="{Binding AddItemCommand}"
-	                   CommandParameter="{x:Static fe:StorageItemType.Script}"/>
+	                   CommandParameter="{x:Static fe:FileSystemItemType.Script}"/>
     </t:Toolbox>
     
     <t:CommandTool x:Key="Tools.FileSystem.StorageItem.Delete" x:DataType="vm:FileNavigatorItemViewModel" 
@@ -69,8 +88,8 @@
 	    <t:Tool.DescriptionBinding>
 		    <MultiBinding Converter="{StaticResource SwitchConverter}">
 			    <Binding Path="Type"/>
-			    <Binding Source="{x:Static lang:Resources.DeleteFolder}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static fe:StorageItemType.Folder}"/>
-			    <Binding Source="{x:Static lang:Resources.DeleteScript}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static fe:StorageItemType.Script}"/>
+			    <Binding Source="{x:Static lang:Resources.DeleteFolder}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static fe:FileSystemItemType.Folder}"/>
+			    <Binding Source="{x:Static lang:Resources.DeleteScript}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static fe:FileSystemItemType.Script}"/>
 		    </MultiBinding>
 	    </t:Tool.DescriptionBinding>
     </t:CommandTool>
@@ -106,6 +125,12 @@
                    DefaultIconGeometry="{x:Static shapes:PathData.OpenExternalIcon}"
                    QuickAccess="Folder"/>
     
+    <t:CommandTool x:Key="Tools.FileSystem.StorageItem.Open" x:DataType="vm:FileNavigatorItemViewModel"
+                   NameKey="Open"
+                   CommandBinding="{Binding OpenCommand}"
+                   DefaultIconGeometry="{x:Static shapes:PathData.RightFacingArrow}"
+                   QuickAccess="Script"/>
+    
     <!-- File Navigator Tool -->
     <t:Toolbox x:Key="Tools.FileSystem.StorageItem" 
                NameKey="{x:Static lang:Resources.StorageItemTools}" 
@@ -113,8 +138,8 @@
 	    <t:Tool.DescriptionBinding>
 		    <MultiBinding Converter="{StaticResource SwitchConverter}">
 			    <Binding Path="Type"/>
-			    <Binding Source="{x:Static lang:Resources.FolderTools}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static fe:StorageItemType.Folder}"/>
-			    <Binding Source="{x:Static lang:Resources.ScriptTools}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static fe:StorageItemType.Script}"/>
+			    <Binding Source="{x:Static lang:Resources.FolderTools}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static fe:FileSystemItemType.Folder}"/>
+			    <Binding Source="{x:Static lang:Resources.ScriptTools}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static fe:FileSystemItemType.Script}"/>
 		    </MultiBinding>
 	    </t:Tool.DescriptionBinding>
 	    <t:Tool.IconTemplate>
@@ -123,8 +148,8 @@
 	                <PathIcon.Data>
 		                <MultiBinding Converter="{StaticResource SwitchConverter}">
 			                <Binding Path="Type"/>
-			                <Binding Source="{x:Static shapes:PathData.FolderIcon}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static fe:StorageItemType.Folder}"/>
-			                <Binding Source="{x:Static shapes:PathData.ScriptIcon}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static fe:StorageItemType.Script}"/>
+			                <Binding Source="{x:Static shapes:PathData.FolderIcon}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static fe:FileSystemItemType.Folder}"/>
+			                <Binding Source="{x:Static shapes:PathData.ScriptIcon}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static fe:FileSystemItemType.Script}"/>
 		                </MultiBinding>
 	                </PathIcon.Data>
                 </PathIcon>
@@ -136,6 +161,7 @@
 		<StaticResource ResourceKey="Tools.FileSystem.StorageItem.Delete"/>
 		<StaticResource ResourceKey="Tools.FileSystem.StorageItem.ToggleEnabled"/>
 		<StaticResource ResourceKey="Tools.FileSystem.StorageItem.OpenInFileBrowser"/>
+		<StaticResource ResourceKey="Tools.FileSystem.StorageItem.Open"/>
     </t:Toolbox>
     
     <t:CommandTool x:Key="Tools.FileSystem.Browser.Refresh" x:DataType="vm:FileNavigatorViewModel" NameKey="Refresh" 
@@ -393,8 +419,7 @@
 		<StaticResource ResourceKey="Tools.ScriptEditor.NodeTools.ToggleExpanded"/>
 	</t:Toolbox>
     
-    <t:Toolbox x:Key="Tools.ScriptEditor" x:DataType="vm:ScriptEditorViewModel"
-               NameKey="Script Editor Tools">
+    <t:Toolbox x:Key="Tools.ScriptEditor" x:DataType="vm:ScriptEditorViewModel" NameKey="Script Editor Tools">
 	    <StaticResource ResourceKey="Tools.ScriptEditor.DeleteSelection"/>
 	    <StaticResource ResourceKey="Tools.ScriptEditor.NodeTools"/>
     </t:Toolbox>

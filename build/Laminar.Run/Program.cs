@@ -58,9 +58,7 @@ try
 finally
 {
     var weakRef = new WeakReference(loadContext);
-
-    loadContext.Unload();
-
+    
     for (var i = 0; weakRef.IsAlive && i < 10; i++)
     {
         GC.Collect();

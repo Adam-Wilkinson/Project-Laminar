@@ -9,24 +9,24 @@ namespace Laminar.Implementation.Scripting.Actions;
 internal readonly struct SeverConnectionAction(
     IOutputConnector outputConnector,
     IInputConnector inputConnector,
-    INodeTree nodeTree)
+    IWritableNodeTree writableNodeTree)
     : IUserAction
 {
     public IOutputConnector OutputConnector { get; } = outputConnector;
     
     public IInputConnector InputConnector { get; } = inputConnector;
 
-    public bool CanExecute => nodeTree.ConnectionExists(OutputConnector, InputConnector);
+    public bool CanExecute => writableNodeTree.ConnectionExists(OutputConnector, InputConnector, out _);
 
     public Task<IUserActionResult> Execute()
     {
-        if (!nodeTree.ConnectionExists(OutputConnector, InputConnector))
+        if (!writableNodeTree.ConnectionExists(OutputConnector, InputConnector, out _))
         {
             return Task.FromResult(IUserActionResult.Error(new ConnectionDoesNotExistException(OutputConnector, InputConnector)));
         }
         
-        nodeTree.SeverConnection(OutputConnector, InputConnector);
-        return Task.FromResult(IUserActionResult.Success(new EstablishConnectionAction(OutputConnector, InputConnector, nodeTree)));
+        writableNodeTree.SeverConnection(OutputConnector, InputConnector);
+        return Task.FromResult(IUserActionResult.Success(new EstablishConnectionAction(OutputConnector, InputConnector, writableNodeTree)));
     }
 
     public override string ToString() => $"Sever connection between {OutputConnector} and {InputConnector}";

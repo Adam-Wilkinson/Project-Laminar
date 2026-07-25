@@ -23,6 +23,9 @@ public partial class ItemPicker : ItemsControl
     public static readonly StyledProperty<IReadOnlyItemCategory<object>> ItemsCategoryProperty 
         = AvaloniaProperty.Register<ItemPicker, IReadOnlyItemCategory<object>>(nameof(ItemsCategory));
 
+    public static readonly StyledProperty<Func<object, object>> ItemMapProperty =
+        AvaloniaProperty.Register<ItemPicker, Func<object, object>>(nameof(ItemMap), defaultValue: o => o);
+    
     /// <summary>
     /// Defines the <see cref="Scroll"/> property.
     /// </summary>
@@ -33,24 +36,6 @@ public partial class ItemPicker : ItemsControl
     {
         ItemsCategoryProperty.Changed.AddClassHandler<ItemPicker>((p, args) => p.ItemsCategoryChanged(args));
         ItemsPanelProperty.OverrideDefaultValue<ItemPicker>(DefaultPanel);
-    }
-
-    private void ItemsCategoryChanged(AvaloniaPropertyChangedEventArgs args)
-    {
-        var currentCategory = args.GetNewValue<IReadOnlyItemCategory<object>>();
-        IReadOnlyList<object>? initialItems = null;
-        
-        while (initialItems is null || initialItems.Count == 0)
-        {
-            initialItems = currentCategory.Items;
-            if (currentCategory.SubCategories.Count == 0)
-            {
-                break;
-            }
-            currentCategory = currentCategory.SubCategories[0];
-        }
-        MenuItemSelected(initialItems);
-        
     }
     
     public IReadOnlyItemCategory<object> ItemsCategory
@@ -63,6 +48,12 @@ public partial class ItemPicker : ItemsControl
     {
         get;
         private set => SetAndRaise(ScrollProperty, ref field, value);
+    }
+
+    public Func<object, object> ItemMap
+    {
+        get => GetValue(ItemMapProperty);
+        set => SetValue(ItemMapProperty, value);
     }
 
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
@@ -84,7 +75,24 @@ public partial class ItemPicker : ItemsControl
     [RelayCommand]
     private void MenuItemSelected(IReadOnlyList<object> category)
     {
-        ItemsSource = category;
+        ItemsSource = category.Select(ItemMap);
+    }
+
+    private void ItemsCategoryChanged(AvaloniaPropertyChangedEventArgs args)
+    {
+        var currentCategory = args.GetNewValue<IReadOnlyItemCategory<object>>();
+        IReadOnlyList<object>? initialItems = null;
+        
+        while (initialItems is null || initialItems.Count == 0)
+        {
+            initialItems = currentCategory.Items;
+            if (currentCategory.SubCategories.Count == 0)
+            {
+                break;
+            }
+            currentCategory = currentCategory.SubCategories[0];
+        }
+        MenuItemSelected(initialItems);
     }
 }
 

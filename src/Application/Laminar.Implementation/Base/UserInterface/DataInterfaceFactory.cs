@@ -154,7 +154,7 @@ public partial class DataInterfaceFactory(ITypeInfoStore typeInfoStore, ILogger<
 }
 
 public class InterfaceDataGenericWrapper<TInterfaceDefinition, TValue> : IInterfaceData<TInterfaceDefinition, TValue>, IDisposable
-    where TInterfaceDefinition : IUserInterfaceDefinition, new() where TValue : notnull
+    where TInterfaceDefinition : IUserInterfaceDefinition where TValue : notnull
 {
     private readonly IInterfaceData _internal;
     private readonly IInterfaceData<TValue>? _genericDataInternal;

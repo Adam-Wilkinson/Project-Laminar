@@ -12,7 +12,7 @@ internal class FileStream : IFileStream
         _internal = internalStream;
     }
 
-    public static FileStream Create(FileSystemPath path) => new(System.IO.File.Create(path.ToString()));
+    public static FileStream Create(FileSystemPath path) => new(File.Create(path.ToString()));
 
     public void Close() => _internal.Close();
 }

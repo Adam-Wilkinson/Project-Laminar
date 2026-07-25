@@ -10,7 +10,7 @@ namespace Laminar.Avalonia.ViewModels.Design;
 public static class DesignViewModel
 {
     private static readonly IServiceProvider DesignServiceProvider = new ServiceCollection()
-        .AddTransient<ILaminarFileBrowser, DesignFileBrowser>()
+        .AddTransient<IFileBrowser, DesignFileBrowser>()
         .AddTransient<IDialogService, global::HanumanInstitute.MvvmDialogs.Avalonia.DialogService>()
         .AddViewModels()
         .BuildServiceProvider();

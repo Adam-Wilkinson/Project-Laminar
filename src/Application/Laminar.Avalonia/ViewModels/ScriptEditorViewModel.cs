@@ -1,39 +1,54 @@
-using System.Windows.Input;
+using System.Collections.Specialized;
+using System.Text;
+using Avalonia.Input;
+using Avalonia.Input.Platform;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Laminar.Avalonia.SelectAndMove;
 using Laminar.Avalonia.ViewModels.Services;
 using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Scripting.Connection;
-using Laminar.Contracts.Scripting.Execution;
 using Laminar.Contracts.Scripting.NodeWrapping;
+using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.Notification.Collections;
+using Laminar.Domain.Notification.Value;
+using Laminar.Domain.ValueObjects;
+using Laminar.Implementation.Storage.PersistentData;
 using Laminar.PluginFramework.NodeSystem.Connectors;
 using LaminarPoint = Laminar.Domain.ValueObjects.Point;
 using AvaloniaPoint = Avalonia.Point;
 
 namespace Laminar.Avalonia.ViewModels;
 
-public partial class ScriptEditorViewModel(IScript script, IScriptEditor editor, IUserActionManager userActionManager)
-    : DropTargetViewModel, IConnectionInteractionHandler
+public partial class ScriptEditorViewModel(
+    IScript script, 
+    IScriptEditor editor, 
+    IUserActionManager userActionManager,
+    IEncodableDataFactory dataFactory,
+    IScriptingFactory scriptingFactory,
+    Option<IClipboard> optionalClipboard)
+    : DropTargetViewModel, IConnectionInteractionHandler, IClipboardProvider
 {
+    private static readonly IPersistentDataTranscoder DefaultClipboardTranscoder = new JsonPersistentDataTranscoder(null!); 
+    
+    private readonly Dictionary<object, ScriptEditorItemModel> _itemModels = [];
+    private FlattenedObservableTree<ScriptEditorItemModel>? _models;
+    
     private IUserActionSession? _userActionSession;
 
     [ObservableProperty]
-    public partial IReadOnlyList<object>? CurrentSelection { get; set; }
+    public partial CanvasSelectionModel? SelectionModel { get; set; }
 
-    public INodeTreeView NodeTree => script.NodeTreeView;
+    [ObservableProperty] public partial double PanX { get; set; } = script.Pan.Value.X;
+    [ObservableProperty] public partial double PanY { get; set; } = script.Pan.Value.Y;
+    
+    public IObservableValue<double> Zoom { get; } = script.Zoom;
 
-    public static readonly ICommand NodeDragStartedCommand 
-        = new RelayCommand<IWrappedNode>(node => node?.IsCollapsed.Value = false);
-    
-    public static readonly ICommand NodeDragEndedCommand
-        = new RelayCommand<IWrappedNode>(node => node?.IsCollapsed.Value = true);
-    
-    public IReadOnlyObservableCollection<ScriptEditorItemModel> VisualElements { get; } =
-        new FlattenedObservableTree<ScriptEditorItemModel>(
-                script.NodeTreeView.Nodes.ObservableMap(node => new ScriptEditorItemModel(node)),
-                script.NodeTreeView.Connections.ObservableMap(connection => new ScriptEditorItemModel(connection)));
+    public IReadOnlyObservableCollection<ScriptEditorItemModel> VisualElements 
+        => _models ??= new FlattenedObservableTree<ScriptEditorItemModel>(
+                script.NodeTree.Nodes.ObservableMap(CreateItemModel),
+                script.NodeTree.Connections.ObservableMap(CreateItemModel));
     
     public override bool Drop(object? payload, AvaloniaPoint location, object? receptacleTag)
     {
@@ -55,13 +70,13 @@ public partial class ScriptEditorViewModel(IScript script, IScriptEditor editor,
 
         if (connector.Flags == (ConnectorFlags.HasConnections | ConnectorFlags.ConnectionsSaturated))
         {
-            var connections = script.NodeTreeView.GetConnectionsTo(connector);
+            var connections = script.NodeTree.GetConnectionsTo(connector);
             if (connections.Count == 0) return null;
             var connectionInfo = connections.First();
 
             _userActionSession ??= userActionManager.BeginSession();
             _userActionSession.ExecuteAction(editor.DeleteConnectionAction(script, connectionInfo.Connection));
-
+            
             return connectionInfo.OppositeConnector;
         }
 
@@ -72,8 +87,10 @@ public partial class ScriptEditorViewModel(IScript script, IScriptEditor editor,
     {
         _userActionSession ??= userActionManager.BeginSession();
 
-        if (editor.FindBridgeConnectorsAction(script, first, second) is not { } bridgeAction) return false;
+        if (script.NodeTree.ConnectionExists(first, second, out _)) return false;
         
+        if (editor.FindBridgeConnectorsAction(script, first, second) is not { } bridgeAction) return false;
+
         _userActionSession.ExecuteAction(bridgeAction);
         return true;
 
@@ -82,37 +99,170 @@ public partial class ScriptEditorViewModel(IScript script, IScriptEditor editor,
     [RelayCommand(CanExecute = nameof(CanDeleteSelection))]
     private void DeleteSelection()
     {
-        if (CurrentSelection is null || CurrentSelection.Count == 0) return;
+        if (SelectionModel is null || SelectionModel.SelectedItems.Count == 0) return;
 
         using var session = userActionManager.BeginSession();
-        foreach (var connection in CurrentSelection.Select(x => (x as ScriptEditorItemModel)?.CoreElement)
-                     .OfType<IConnection>())
+        foreach (var connection in SelectionModel.SelectedItems
+                     .Cast<ScriptEditorItemModel>()
+                     .Select(x => x.CoreElement)
+                     .OfType<IConnection>()
+                     .ToList())
         {
             session.ExecuteAction(editor.DeleteConnectionAction(script, connection));
         }
 
-        foreach (var connection in CurrentSelection.Select(x => (x as ScriptEditorItemModel)?.CoreElement)
-                     .OfType<IWrappedNode>())
+        foreach (var connection in SelectionModel.SelectedItems
+                     .Cast<ScriptEditorItemModel>()
+                     .Select(x => x.CoreElement)
+                     .OfType<IWrappedNode>()
+                     .ToList())
         {
             session.ExecuteAction(editor.DeleteNodeAction(script, connection));
         }
     }
 
-    public bool CanDeleteSelection => CurrentSelection is not null && CurrentSelection.Count > 0; 
+    public bool CanDeleteSelection => SelectionModel is not null && SelectionModel.SelectedItems.Count > 0; 
 
-    public void CancelConnection()
+    public void CancelCurrentConnection()
     {
         _userActionSession?.Pop();
     }
 
-    public void ConfirmConnection()
+    public void ConfirmCurrentConnection()
     {
         _userActionSession?.Dispose();
         _userActionSession = null;
     }
 
-    partial void OnCurrentSelectionChanged(IReadOnlyList<object>? value)
+    public void ExitInteraction()
+    {
+        _userActionSession?.Reset();
+        ConfirmCurrentConnection();
+    }
+
+    partial void OnSelectionModelChanged(CanvasSelectionModel? oldValue, CanvasSelectionModel? newValue)
+    {
+        oldValue?.ItemDeselected -= OnDeselection;
+        oldValue?.ItemSelected -= OnSelection;
+        newValue?.ItemDeselected += OnDeselection;
+        newValue?.ItemSelected += OnSelection;
+    }
+
+    private void OnSelection(object? sender, CanvasSelectionModel.ItemSelectedEventArgs e)
+    {
+        OnCurrentSelectionChanged();
+    }
+
+    private void OnDeselection(object? sender, CanvasSelectionModel.ItemDeselectedEventArgs e)
+    {
+        OnCurrentSelectionChanged();
+    }
+    
+    private void OnCurrentSelectionChanged()
     {
         OnPropertyChanged(nameof(CanDeleteSelection));
+        OnPropertyChanged(nameof(CanCopyToClipboard));
+    }
+
+    [RelayCommand(CanExecute = nameof(CanCopyToClipboard))]
+    private async Task CopyToClipboard()
+    {
+        if (!CanCopyToClipboard || optionalClipboard.Value is not { } clipboard) return;
+
+        List<IWrappedNode> selectedNodes = [];
+        List<IConnection> selectedConnections = [];
+        
+        foreach (var selected in SelectionModel?.SelectedItems.Cast<ScriptEditorItemModel>() ?? [])
+        {
+            switch (selected.CoreElement)
+            {
+                case IWrappedNode wrappedNode:
+                    selectedNodes.Add(wrappedNode);
+                    break;
+                case IConnection connection:
+                    selectedConnections.Add(connection);
+                    break;
+            }
+        }
+        
+        var encodedNodeTree = scriptingFactory
+            .CreateNodeTree(selectedNodes, selectedConnections)
+            .PersistentData
+            .Encode(DefaultClipboardTranscoder);
+        
+        var transfer = new DataTransfer();
+        transfer.Add(DataTransferItem.CreateText(Encoding.UTF8.GetString(DefaultClipboardTranscoder.ElementToBytes(encodedNodeTree))));
+        await clipboard.SetDataAsync(transfer);
+    }
+
+    [RelayCommand(CanExecute = nameof(CanCopyToClipboard))]
+    private async Task Cut()
+    {
+        if (!CanCopyToClipboard || optionalClipboard.Value is null) return;
+        await CopyToClipboard();
+        DeleteSelection();
+    }
+    
+    [RelayCommand]
+    private async Task PasteFromClipboard()
+    {
+        if (optionalClipboard.Value is not { } clipboard) return;
+
+        var result = await clipboard.TryGetDataAsync();
+        if (result is null) return;
+
+        SelectionModel?.DeselectAll();
+        VisualElements.CollectionChanged += SelectNewItems;
+
+        foreach (var transferItem in result.Items)
+        {
+            var stringResult = await transferItem.TryGetTextAsync();
+            if (stringResult is null) continue;
+            var dictionary = dataFactory.GetEncodableData<IPersistentDictionary>();
+            dictionary.Decode(DefaultClipboardTranscoder, DefaultClipboardTranscoder.BytesToElement(Encoding.UTF8.GetBytes(stringResult))!);
+            var deserializedNodeTree = scriptingFactory.NodeTreeFromPersistentData(dictionary);
+            var pasteAction = editor.AddSubTree(script, deserializedNodeTree);
+            await userActionManager.ExecuteAction(pasteAction);
+        }
+        
+        VisualElements.CollectionChanged -= SelectNewItems;
+        
+        return;
+        
+        void SelectNewItems(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.NewItems is null) return;
+            
+            foreach (var element in e.NewItems.Cast<ScriptEditorItemModel>())
+            {
+                element.IsSelected = true;
+            }
+        }
+    }
+
+    public bool CanCopyToClipboard => SelectionModel is not null && SelectionModel.SelectedItems.Cast<ScriptEditorItemModel>().Any(x => x.CoreElement is IWrappedNode);
+
+    partial void OnPanXChanged(double value)
+    {
+        script.Pan.Value = new LaminarPoint { X = PanX, Y = PanY };
+    }
+
+    partial void OnPanYChanged(double value)
+    {
+        script.Pan.Value = new LaminarPoint { X = PanX, Y = PanY };
+    }
+
+    private ScriptEditorItemModel CreateItemModel(object target)
+    {
+        var output = target switch
+        {
+            IConnection connection => new ScriptEditorItemModel(connection),
+            IWrappedNode node => new ScriptEditorItemModel(node),
+            not null => throw new InvalidOperationException($"Unknown script editor item model {target}"),
+            null => throw new ArgumentNullException(nameof(target))
+        };
+        
+        _itemModels[target] = output;
+        return output;
     }
 }

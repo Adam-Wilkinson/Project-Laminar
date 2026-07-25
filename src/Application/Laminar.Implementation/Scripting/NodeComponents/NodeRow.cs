@@ -8,7 +8,7 @@ using Laminar.PluginFramework.UserInterface;
 
 namespace Laminar.Implementation.Scripting.NodeComponents;
 
-internal class NodeRow(IInput? input, IOutput? output) : INodeRow
+internal class NodeRow<T>(IInput? input, IOutput? output) : INodeRow<T> where T : IInterfaceData
 {
     public event EventHandler<LaminarExecutionContext>? StartExecution
     {
@@ -52,7 +52,7 @@ internal class NodeRow(IInput? input, IOutput? output) : INodeRow
 
     public required IOutputConnector? OutputConnector { get; init; }
 
-    public required IInterfaceData CentralDisplay { get; init; }
+    public required T CentralDisplay { get; init; }
 
     public Opacity Opacity { get; } = new();
 

@@ -1,21 +1,19 @@
 using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.Storage.FileExplorer;
-using Laminar.Domain.Notification;
-using Laminar.Domain.Notification.Collections;
 
 namespace Laminar.Implementation.Storage.FileExplorer.UserActions;
 
 internal readonly struct AddStorageItemAction(
     string newItemName, 
-    LaminarStorageFolder parent, 
+    IFileSystemFolder parent, 
     int indexInParent,
-    StorageItemType itemType,
-    FileExplorerActionDependencies dependencies) 
+    FileSystemItemType itemType,
+    FileBrowserActionDependencies dependencies) 
     : IUserAction
 {
-    public string ItemNameAndExtension { get; } = newItemName + GetExtension(itemType);
+    public string ItemNameAndExtension { get; } = newItemName + itemType.Extension;
 
-    public LaminarStorageFolder Parent { get; } = parent;
+    public IFileSystemFolder Parent { get; } = parent;
     
     public int IndexInParent => indexInParent;
     
@@ -23,34 +21,10 @@ internal readonly struct AddStorageItemAction(
         
     public Task<IUserActionResult> Execute()
     {
-        var result = dependencies.StorageItemFactory.CreateChild(ItemNameAndExtension, Parent,
-            itemType is StorageItemType.Folder);
+        IFileSystemItem newItem = itemType.IsFolder
+            ? dependencies.CommandService.AddFolder(Parent, indexInParent, ItemNameAndExtension)
+            : dependencies.CommandService.AddFile(Parent, indexInParent, ItemNameAndExtension);
         
-        (Parent.Contents as IObservableCollection<ILaminarStorageItem>)?.Insert(indexInParent, result);
-        
-        if (result is not LaminarStorageItem storageItemInternal) throw new InvalidOperationException();
-        return Task.FromResult(IUserActionResult.Success(result, new DeleteStorageItemAction(storageItemInternal, dependencies)));
+        return Task.FromResult(IUserActionResult.Success(newItem, new DeleteStorageItemAction(newItem, dependencies)));
     }
-
-    public IUserActionSimplification GetSimplificationAfter(IUserAction previousAction)
-    {
-        if (previousAction is not DeleteStorageItemAction removeAction ||
-            removeAction.Target.Path.NameAndExtension != ItemNameAndExtension ||
-            removeAction.Target.ParentFolder != Parent) 
-            return IUserActionSimplification.None();
-        
-        if (Parent.Contents.IndexOf(removeAction.Target) == indexInParent)
-        {
-            return IUserActionSimplification.Undoes();
-        }
-
-        return IUserActionSimplification.NewEffectiveAction(new MoveStorageItemAction(removeAction.Target, Parent, indexInParent, dependencies));
-    }
-
-    private static string GetExtension(StorageItemType type) => type switch
-    {
-        StorageItemType.Folder => string.Empty,
-        StorageItemType.Script => ".pls",
-        _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
-    };
 }

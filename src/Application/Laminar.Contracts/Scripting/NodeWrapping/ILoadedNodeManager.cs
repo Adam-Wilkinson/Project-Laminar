@@ -1,11 +1,14 @@
-﻿using Laminar.Domain;
+﻿using Laminar.Contracts.Base.PluginLoading;
+using Laminar.Domain;
 using Laminar.PluginFramework.NodeSystem;
 
 namespace Laminar.Contracts.Scripting.NodeWrapping;
 
 public interface ILoadedNodeManager
 {
-    public ItemCategory<IWrappedNode> LoadedNodes { get; }
+    public IReadOnlyItemCategory<ILoadedNodeInfo> LoadedNodes { get; }
 
-    public void AddNodeToCategory<TNode>(TNode newNode, string categoryPath) where TNode : INode, new();
+    public ILoadedNodeInfo? GetInfoFrom(Type nodeType);
+    
+    public void AddNodeToCategory<TNode>(string categoryPath, IRegisteredPlugin pluginHost) where TNode : INode, new();
 }

@@ -29,7 +29,8 @@
         <Setter Property="ClipToBounds" Value="False"/>
         <Setter Property="Transitions">
             <Transitions>
-                <DoubleTransition Property="ConnectionWidth" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
+                <!-- Geometry animation on pointer over is broken as of Avalonia 12.1, remove this when that issue is resolved -->
+                <!-- <DoubleTransition Property="ConnectionWidth" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/> -->
                 <DoubleTransition Property="Opacity" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
                 <TransformOperationsTransition Property="RenderTransform" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
             </Transitions>
@@ -53,21 +54,15 @@
                             ClipToBounds="False"/>
             
             <c:Connector Theme="{StaticResource IoConnectorPath}" 
-                         HorizontalAlignment="Left"
                          RenderTransform="{m:ConnectorRenderTransformCalculator {StaticResource NodeHeaderHeight}}"
-                         DragMode="{Binding $self.(m:ConnectorRegistry.ConnectorGestureLive), 
-                            Converter={StaticResource ParameterOrNullConverter}, 
-                            ConverterParameter={x:Static c:ConnectorDragMode.MoveStart},
-                            TargetNullValue={x:Static c:ConnectorDragMode.None}}"
+                         HorizontalAlignment="Left"
+                         DragMode="MoveStart"
                          DataContext="{Binding InputConnector}"/>
             
             <c:Connector Theme="{StaticResource IoConnectorPath}"
-                         HorizontalAlignment="Right"
                          RenderTransform="{m:ConnectorRenderTransformCalculator {StaticResource NodeHeaderHeight}}"
-                         DragMode="{Binding $self.(m:ConnectorRegistry.ConnectorGestureLive), 
-                            Converter={StaticResource ParameterOrNullConverter}, 
-                            ConverterParameter={x:Static c:ConnectorDragMode.MoveEnd},
-                            TargetNullValue={x:Static c:ConnectorDragMode.None}}"
+                         HorizontalAlignment="Right"
+                         DragMode="MoveEnd"
                          DataContext="{Binding OutputConnector}"/>
         </Panel>
     </DataTemplate>
@@ -85,6 +80,7 @@
             <Border Name="MainPanelBorder"
                     Background="{DynamicResource {x:Static init:ColorInitialization.LaminarNonForegroundKey}}"
                     VerticalAlignment="Top"
+                    Classes.IsSelected="{Binding $parent[sam:SelectAndMoveItem].IsSelected, TargetNullValue={x:False}}"
                     ClipToBounds="False"
                     BorderThickness="3">
                 <DockPanel Name="ConnectorOffsetTarget" 
@@ -169,12 +165,12 @@
                     <Setter Property="Opacity" Value="0.1"/>
                 </Style>
                 
-                <Style Selector="Panel#NodeRoot[(sam|Selection.IsSelected)=True] Border#MainPanelBorder">
-                    <Setter Property="BorderBrush" Value="Gray"/>
-                </Style>
-                
-                <Style Selector="Panel#NodeRoot[(sam|Selection.IsSelected)=False] Border#MainPanelBorder">
+                <Style Selector="Border#MainPanelBorder">
                     <Setter Property="BorderBrush" Value="{DynamicResource {x:Static init:ColorInitialization.LaminarNonForegroundKey}}"/>
+                    
+                    <Style Selector="^.IsSelected">
+                        <Setter Property="BorderBrush" Value="Gray"/>
+                    </Style>
                 </Style>
             </Panel.Styles>
         </Panel>

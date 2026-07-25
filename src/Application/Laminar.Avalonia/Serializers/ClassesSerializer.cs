@@ -4,15 +4,15 @@ using Laminar.PluginFramework.Serialization;
 
 namespace Laminar.Avalonia.Serializers;
 
-public class ClassesSerializer : TypeSerializer<Classes, string>, INotifyingConditionalSerializer
+public class ClassesSerializer : TypeSerializer<Classes, string>
 {
     protected override string SerializeTyped(Classes toSerialize) => string.Join(' ', toSerialize);
 
     protected override Classes DeSerializeTyped(DeserializationRequest<Classes, string> request)
         => Classes.Parse(request.Serialized);
 
-    public INotifySerializedValueChanged GetSerializedValueChangedNotifier(object target)
-        => new ClassesChangedNotifier((Classes)target);
+    protected override INotifySerializedValueChanged? GetSerializedValueChangedNotifier(Classes target)
+        => new ClassesChangedNotifier(target);
     
     private class ClassesChangedNotifier : INotifySerializedValueChanged
     {

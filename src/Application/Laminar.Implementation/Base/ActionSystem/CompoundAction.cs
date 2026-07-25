@@ -18,7 +18,7 @@ public class CompoundAction(IEnumerable<IUserAction> actions) : IUserAction
     {
         if (_actions.Any(userAction => !userAction.CanExecute))
         {
-            return IUserActionResult.Invalid();
+            return IUserActionResult.Ineffectual();
         }
         
         var executedUndoActions = new Stack<IUserAction>();

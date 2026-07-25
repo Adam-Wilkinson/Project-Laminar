@@ -7,15 +7,13 @@ using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
 namespace Laminar.Implementation.Base.UserInterface;
 
-public class SourcedInterfaceData<T>(T initialValue) 
-    : ISourcedInterfaceData<T> where T : notnull
+public class SourcedInterfaceData<T>(T initialValue) : ISourcedInterfaceData<T> where T : notnull
 {
     private readonly PropertyChangedEventArgs _valueChangedEventArgs = new(nameof(Value));
     private readonly PropertyChangedEventArgs _nameChangedEventArgs = new(nameof(Name));
 
     private T? _valueAtLastRefresh;
-    private T _value = initialValue;
-    
+
     public event PropertyChangedEventHandler? PropertyChanged;
 
     public required string Name
@@ -26,11 +24,15 @@ public class SourcedInterfaceData<T>(T initialValue)
 
     public T Value
     {
-        get => ValueProvider is null ? _value : ValueProvider.Value;
+        get => ValueProvider is null ? PersistentValue : ValueProvider.Value;
         set
         {
-            if (!IsUserEditable || !SetField(ref _value, value, _valueChangedEventArgs)) return;
-            ExecutionStarted?.Invoke(this, new LaminarExecutionContext(null, ExecutionFlags.ValueChanged));
+            if (!IsUserEditable) throw new InvalidOperationException();
+            _valueAtLastRefresh = value;
+            if (EqualityComparer<T>.Default.Equals(value, PersistentValue)) return;
+            PersistentValue = value;
+            PropertyChanged?.Invoke(this, _valueChangedEventArgs);
+            ExecutionStarted?.Invoke(this, new LaminarExecutionContext(null, ExecutionFlags.ValueChanged)); 
         }
     }
 
@@ -39,7 +41,7 @@ public class SourcedInterfaceData<T>(T initialValue)
         get;
         set
         {
-            if (Equals(_value, value)) return;
+            if (Equals(Viewer, value)) return;
             field = value;
             if (!IsUserEditable)
             {
@@ -53,7 +55,7 @@ public class SourcedInterfaceData<T>(T initialValue)
         get;
         set
         {
-            if (Equals(_value, value)) return;
+            if (Equals(Editor, value)) return;
             field = value;
             if (IsUserEditable)
             {
@@ -64,7 +66,12 @@ public class SourcedInterfaceData<T>(T initialValue)
 
     public void SetValue(T value)
     {
-        SetField(ref _value, value, _valueChangedEventArgs);
+        PersistentValue = value;
+
+        if (ValueProvider is null)
+        {
+            PropertyChanged?.Invoke(this, _valueChangedEventArgs);
+        }
     }
 
     public bool IsUserEditable
@@ -98,7 +105,9 @@ public class SourcedInterfaceData<T>(T initialValue)
             ExecutionStarted?.Invoke(this, new LaminarExecutionContext(null, ExecutionFlags.ValueChanged));
         }
     }
-
+    
+    public PersistenceBehaviour PersistenceBehaviour { get; set => SetField(ref field, value); } 
+        = PersistenceBehaviour.WhenUserEditable;
 
     public void Refresh()
     {
@@ -106,6 +115,12 @@ public class SourcedInterfaceData<T>(T initialValue)
         _valueAtLastRefresh = Value;
         PropertyChanged?.Invoke(this, _valueChangedEventArgs);
     }
+
+    public T PersistentValue
+    {
+        get;
+        set => SetField(ref field, value);
+    } = initialValue;
 
     private bool SetField<TField>(ref TField field, TField value, [CallerMemberName] string? propertyName = null)
         => SetField(ref field, value, new PropertyChangedEventArgs(propertyName));

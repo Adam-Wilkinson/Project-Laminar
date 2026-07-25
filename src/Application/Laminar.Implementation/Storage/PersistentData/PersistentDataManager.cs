@@ -2,24 +2,25 @@ using Laminar.Contracts.Storage.IO;
 using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.DataManagement;
 using Laminar.Domain.Exceptions;
-using Microsoft.Extensions.DependencyInjection;
+using Laminar.Domain.ValueObjects;
 using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.Storage.PersistentData;
 
-internal class PersistentDataManager(
-    IServiceProvider serviceProvider,
+internal sealed class PersistentDataManager(
+    IEncodableDataFactory dataFactory,
     IFileSystem fileSystem, 
     ILogger<JsonPersistentDataTranscoder> jsonTranscoderLogger) 
     : IPersistentDataManager
 {
-    private readonly Dictionary<DataStoreKey, PersistentDataStore> _dataStores = new();
-
+    private readonly Dictionary<DataStoreKey, IDataOnDisk<IPersistentDictionary>> _dataStores = [];
+    private readonly List<IDataOnDisk<IEncodableData>> _allResources = [];
+    
     public IPersistentDictionary GetDataStore(DataStoreKey dataStoreKey)
     {
         if (_dataStores.TryGetValue(dataStoreKey, out var dataStore))
         {
-            return dataStore.Root;
+            return dataStore.Data;
         }
         
         if (!fileSystem.Exists(dataStoreKey.Location))
@@ -33,30 +34,49 @@ internal class PersistentDataManager(
             var unknown => throw new UnknownDataTypeException(unknown),
         };
 
-        var file = fileSystem.GetFile(dataStoreKey.Location.ChildPath(dataStoreKey.Name + transcoder.FileExtension));
-        var newDataStore = ActivatorUtilities.CreateInstance<PersistentDataStore>(serviceProvider, transcoder, file);
-        _dataStores[dataStoreKey] = newDataStore;
-        return newDataStore.Root;
+        var filePath = dataStoreKey.Location.ChildPath(dataStoreKey.Name + transcoder.FileExtension);
+        var resource = GetDataOnDisk<IPersistentDictionary>(filePath, transcoder);
+        _dataStores[dataStoreKey] = resource;
+
+        return resource.Data;
+    }
+
+    public IDataOnDisk<TData> GetDataOnDisk<TData>(
+        FileSystemPath filePath, 
+        IPersistentDataTranscoder transcoder, 
+        TData? initialValue = null)
+        where TData : class, IEncodableData
+    {
+        initialValue ??= dataFactory.GetEncodableData<TData>();
+        var returnValue = new DataOnDisk<TData>(filePath, transcoder, fileSystem, initialValue);
+        _allResources.Add(returnValue);
+        returnValue.OnDisposed += OnResourceDisposed;
+        return returnValue;
+        
+        void OnResourceDisposed(object? sender, EventArgs e)
+        {
+            _allResources.Remove(returnValue);
+            returnValue.OnDisposed -= OnResourceDisposed;
+        }
     }
 
     public void ForgetDataStore(DataStoreKey dataStoreKey)
     {
-        if (_dataStores.TryGetValue(dataStoreKey, out var dataStore))
-        {
-            dataStore.Dispose();
-            _dataStores.Remove(dataStoreKey);
-        }
+        if (!_dataStores.TryGetValue(dataStoreKey, out var dataStore)) return;
+        dataStore.Dispose();
+        _dataStores.Remove(dataStoreKey);
     }
-
-    public T GetHeadless<T>() where T : IEncodablePersistentData => serviceProvider.GetRequiredService<T>();
 
     public void Dispose()
     {
-        foreach (var child in _dataStores.Values)
+        while (_dataStores.Count > 0)
         {
-            child.Dispose();
+            ForgetDataStore(_dataStores.Keys.First());
         }
-        
-        GC.SuppressFinalize(this);
+
+        while (_allResources.Count > 0)
+        {
+            _allResources[0].Dispose();
+        }
     }
 }

@@ -22,7 +22,7 @@ public class FileContentsTests
         var mockFileWatcher = Substitute.For<IFileWatcher>();
         var mockFileSystem = Substitute.For<IFileSystem>();
         mockFileSystem.ReadBytesAsync(FilePath).Returns(initialFileContents);
-        mockFileSystem.CreateFileWatcher(Arg.Any<FileSystemPath>(), Arg.Any<string>()).Returns(mockFileWatcher);
+        mockFileSystem.GetFileWatcher(Arg.Any<FileSystemPath>(), Arg.Any<string>()).Returns(mockFileWatcher);
         mockFileSystem.Exists(FilePath).Returns(true);
         
         using var sut = new FileContents(mockFileSystem, FilePath, _logger);
@@ -45,7 +45,7 @@ public class FileContentsTests
         var mockFileWatcher = Substitute.For<IFileWatcher>();
         var mockFileSystem = Substitute.For<IFileSystem>();
         mockFileSystem.ReadBytesAsync(FilePath, Arg.Any<CancellationToken>()).Returns(initialFileContents);
-        mockFileSystem.CreateFileWatcher(Arg.Any<FileSystemPath>(), Arg.Any<string>()).Returns(mockFileWatcher);
+        mockFileSystem.GetFileWatcher(Arg.Any<FileSystemPath>(), Arg.Any<string>()).Returns(mockFileWatcher);
         mockFileSystem.Exists(FilePath).Returns(true);
         
         using var sut = new FileContents(mockFileSystem, FilePath, _logger);
@@ -70,7 +70,7 @@ public class FileContentsTests
         var mockFileSystem = Substitute.For<IFileSystem>();
         var mockFileStream = Substitute.For<IFileStream>();
         mockFileSystem.ReadBytesAsync(FilePath).Returns(initialFileContents);
-        mockFileSystem.CreateFileWatcher(Arg.Any<FileSystemPath>(), Arg.Any<string>()).Returns(mockFileWatcher);
+        mockFileSystem.GetFileWatcher(Arg.Any<FileSystemPath>(), Arg.Any<string>()).Returns(mockFileWatcher);
         mockFileSystem.CreateFile(FilePath).Returns(mockFileStream);
         
         using var sut = new FileContents(mockFileSystem, FilePath, _logger);
@@ -95,7 +95,7 @@ public class FileContentsTests
         var mockFileSystem = Substitute.For<IFileSystem>();
         mockFileSystem.ReadBytesAsync(FilePath).Returns(initialFileContents);
         mockFileSystem.ReadBytes(FilePath).Returns(initialFileContents);
-        mockFileSystem.CreateFileWatcher(Arg.Any<FileSystemPath>(), Arg.Any<string>()).Returns(mockFileWatcher);
+        mockFileSystem.GetFileWatcher(Arg.Any<FileSystemPath>(), Arg.Any<string>()).Returns(mockFileWatcher);
         mockFileSystem.Exists(FilePath).Returns(true);
     
         using var sut = new FileContents(mockFileSystem, FilePath, _logger);

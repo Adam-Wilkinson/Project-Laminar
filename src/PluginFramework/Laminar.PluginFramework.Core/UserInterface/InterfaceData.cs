@@ -4,7 +4,7 @@ using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
 namespace Laminar.PluginFramework.UserInterface;
 
-public sealed class InterfaceData<TInterfaceDefinition, TValue> : IInterfaceData<TInterfaceDefinition, TValue>
+public sealed class InterfaceData<TInterfaceDefinition, TValue> : IInterfaceData<TInterfaceDefinition, TValue>, IPersistenceOverrideInterfaceData<TValue>
     where TInterfaceDefinition : IUserInterfaceDefinition, new()
     where TValue : notnull
 {
@@ -16,7 +16,8 @@ public sealed class InterfaceData<TInterfaceDefinition, TValue> : IInterfaceData
         set
         {
             if (!IsUserEditable) throw new InvalidOperationException("This value is not user editable");
-            SetField(ref _value, value);
+            if (!SetField(ref _value, value)) return;
+            OnPropertyChanged(nameof(IPersistenceOverrideInterfaceData<>.PersistentValue));
         }
     }
 
@@ -32,6 +33,9 @@ public sealed class InterfaceData<TInterfaceDefinition, TValue> : IInterfaceData
 
     public required string Name { get; init; }
     
+    public PersistenceBehaviour PersistenceBehaviour { get; set => SetField(ref field, value); } 
+        = PersistenceBehaviour.WhenUserEditable;
+    
     public event PropertyChangedEventHandler? PropertyChanged;
 
     private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
@@ -39,11 +43,18 @@ public sealed class InterfaceData<TInterfaceDefinition, TValue> : IInterfaceData
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
+    
     private bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
     {
         if (EqualityComparer<T>.Default.Equals(field, value)) return false;
         field = value;
         OnPropertyChanged(propertyName);
         return true;
+    }
+
+    TValue IPersistenceOverrideInterfaceData<TValue>.PersistentValue
+    {
+        get => Value;
+        set => SetValue(value);
     }
 }

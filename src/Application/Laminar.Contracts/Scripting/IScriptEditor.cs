@@ -15,4 +15,6 @@ public interface IScriptEditor
     public IUserAction DeleteConnectionAction(IScript script, IConnection connection);
     
     public IUserAction DeleteNodeAction(IScript script, IWrappedNode node);
+    
+    public IUserAction AddSubTree(IScript script, INodeTree subTree);
 }

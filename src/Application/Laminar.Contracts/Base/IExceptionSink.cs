@@ -2,5 +2,5 @@ namespace Laminar.Contracts.Base;
 
 public interface IExceptionSink
 {
-    public Task OnException(Exception exception);
+    public Task OnException(Exception exception, CancellationToken cancellationToken);
 }

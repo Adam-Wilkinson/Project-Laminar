@@ -3,13 +3,27 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:uid="using:Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions"
+             xmlns:conv="using:BasicFunctionality.Avalonia.Converters"
              xmlns:local="using:BasicFunctionality.Avalonia"
              mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="40" d:DataContext="{x:Static uid:StringViewer.DesignInstance}"
              x:DataType="uid:StringViewer+IXamlTarget"
              x:Class="BasicFunctionality.Avalonia.UserControls.StringDisplay">
 	<local:ValueEditorPanel Background="Transparent">
-		<TextBlock VerticalAlignment="Center" Name="NameDisplay" local:ValueEditorPanel.Position="Nameplate" Text="{Binding Name}"/>
-		<TextBlock VerticalAlignment="Center" Name="ValueViewer" Margin="5,0,0,0"/>
+		<TextBlock VerticalAlignment="Center" 
+		           Name="NameDisplay" 
+		           local:ValueEditorPanel.Position="Nameplate" 
+		           Text="{Binding Name}"/>
+		<TextBlock VerticalAlignment="Center" 
+		           Name="ValueViewer" 
+		           Margin="5,0,0,0">
+			<TextBlock.Text>
+				<MultiBinding Converter="{x:Static conv:TruncateStringConverter.Instance}">
+					<Binding Path="Value"/>
+					<Binding Path="Definition.MaxStringLength"/>
+					<Binding Path="Definition.ToStringFunction"/>
+				</MultiBinding>
+			</TextBlock.Text>
+		</TextBlock>
 	</local:ValueEditorPanel>
 	
 	<UserControl.Styles>

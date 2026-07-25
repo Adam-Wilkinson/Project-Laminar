@@ -5,22 +5,22 @@ using Laminar.Domain.Exceptions;
 
 namespace Laminar.Implementation.Scripting.Actions;
 
-internal readonly struct AddNodeAction(IWrappedNode node, INodeTree nodeTree)
+internal readonly struct AddNodeAction(IWrappedNode node, IWritableNodeTree writableNodeTree)
     : IUserAction
 {
     public IWrappedNode Node { get; } = node;
     
-    public bool CanExecute => !nodeTree.Nodes.Contains(Node);
+    public bool CanExecute => !writableNodeTree.Nodes.Contains(Node);
 
     public Task<IUserActionResult> Execute()
     {
-        if (nodeTree.Nodes.Contains(Node))
+        if (writableNodeTree.Nodes.Contains(Node))
         {
             return Task.FromResult(IUserActionResult.Error(new NodeTreeContainsNodeException(Node)));
         }
         
-        nodeTree.AddNode(Node);
-        return Task.FromResult(IUserActionResult.Success(new DeleteNodeAction(Node, nodeTree)));
+        writableNodeTree.AddNode(Node);
+        return Task.FromResult(IUserActionResult.Success(new DeleteNodeAction(Node, writableNodeTree)));
     }
 
     public override string ToString()

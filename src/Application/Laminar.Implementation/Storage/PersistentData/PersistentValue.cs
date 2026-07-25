@@ -62,7 +62,7 @@ internal class PersistentValue<T> : ObservableValueBase<T>, IPersistentValue<T> 
     
     protected override void AfterValueChanged() => EstablishValue();
 
-    private void OnSerializedValueChanged(object? sender, EventArgs e) => OnInvalidated?.Invoke(sender, e);
+    private void OnSerializedValueChanged(object? sender, EventArgs e) => Invalidated?.Invoke(sender, e);
 
     private void CleanupValue()
     {
@@ -78,7 +78,7 @@ internal class PersistentValue<T> : ObservableValueBase<T>, IPersistentValue<T> 
         
         _serializedValueChangedNotifier = _serializer.GetSerializedValueChangedNotifier(Value, _typeSerializationKey);
         _serializedValueChangedNotifier.SerializedValueChanged += OnSerializedValueChanged;
-        OnInvalidated?.Invoke(this, EventArgs.Empty);
+        Invalidated?.Invoke(this, EventArgs.Empty);
     }
     
     public object Encode(IPersistentDataTranscoder transcoder)
@@ -87,20 +87,20 @@ internal class PersistentValue<T> : ObservableValueBase<T>, IPersistentValue<T> 
         return transcoder.EncodeElement(serialized) ?? throw new Exception();
     }
 
-    public void Decode(IPersistentDataTranscoder transcoder, object encoded)
+    public void Decode(IPersistentDataTranscoder transcoder, object? encoded)
     {
         Value = GetValueFromEncoded(encoded, _serializer, transcoder, _typeSerializationKey, _deserializationContext,
             Value);
     }
 
-    public event EventHandler? OnInvalidated;
+    public event EventHandler? Invalidated;
     
-    private static T GetValueFromEncoded(object encodedValue, ISerializer serializer, IPersistentDataTranscoder transcoder, Type typeSerializationKey,
+    private static T GetValueFromEncoded(object? encodedValue, ISerializer serializer, IPersistentDataTranscoder transcoder, Type typeSerializationKey,
         object? deserializationContext, object? existingValue)
     {
-        var decoded = transcoder.DecodeElement(encodedValue, serializer.GetSerializedType(typeSerializationKey));
-
-        if (decoded is null) throw new DeserializationError(new InvalidCastException());
+        var decoded = encodedValue is not null
+            ? transcoder.DecodeElement(encodedValue, serializer.GetSerializedType(typeSerializationKey))
+            : null;
         
         var newValue = serializer.DeserializeObject(new DeserializationRequest
         {
@@ -112,7 +112,7 @@ internal class PersistentValue<T> : ObservableValueBase<T>, IPersistentValue<T> 
 
         if (newValue is not T typedValue)
         {
-            throw new DeserializationError(new InvalidCastException());
+            throw new DeserializationError<T>(new InvalidCastException());
         }
 
         return typedValue;

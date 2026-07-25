@@ -14,9 +14,10 @@ internal class PersistentDictionary(IEncodableDataFactory encodableDataFactory) 
             x => x.Value.Encode(transcoder)))
         ?? throw new InvalidOperationException();
 
-    public void Decode(IPersistentDataTranscoder transcoder, object encoded)
+    public void Decode(IPersistentDataTranscoder transcoder, object? encoded)
     {
-        var dictionary = (Dictionary<string, object>)transcoder.DecodeElement(encoded, typeof(Dictionary<string, object>))!;
+        if (encoded is null) throw new InvalidCastException();
+        var dictionary = (Dictionary<string, object?>)transcoder.DecodeElement(encoded, typeof(Dictionary<string, object?>))!;
         foreach (var (key, value) in dictionary)
         {
             GetPersistentData(key).Decode(transcoder, value);
@@ -26,8 +27,8 @@ internal class PersistentDictionary(IEncodableDataFactory encodableDataFactory) 
     public bool Remove(string key)
     {
         if (!_internalValues.Remove(key, out var value)) return false;
-        value.OnInvalidated -= ChildInvalidated;
-        OnInvalidated?.Invoke(this, EventArgs.Empty);
+        value.Invalidated -= OnChildInvalidated;
+        Invalidated?.Invoke(this, EventArgs.Empty);
         return true;
     }
     
@@ -35,10 +36,10 @@ internal class PersistentDictionary(IEncodableDataFactory encodableDataFactory) 
     {
         foreach (var value in _internalValues.Values)
         {
-            value.OnInvalidated -= ChildInvalidated;
+            value.Invalidated -= OnChildInvalidated;
         }
         _internalValues.Clear();
-        OnInvalidated?.Invoke(this, EventArgs.Empty);
+        Invalidated?.Invoke(this, EventArgs.Empty);
     }
 
     public IEnumerator<KeyValuePair<string, IPersistentDataPoint>> GetEnumerator() => _internalValues.GetEnumerator();
@@ -58,11 +59,11 @@ internal class PersistentDictionary(IEncodableDataFactory encodableDataFactory) 
     
     public IEnumerable<IPersistentDataPoint> Values => _internalValues.Values;
 
-    public event EventHandler? OnInvalidated;
+    public event EventHandler? Invalidated;
     
-    private void ChildInvalidated(object? sender, EventArgs e)
+    private void OnChildInvalidated(object? sender, EventArgs e)
     {
-        OnInvalidated?.Invoke(sender, e);
+        Invalidated?.Invoke(sender, e);
     }
 
     private IPersistentDataPoint GetPersistentData(string key)
@@ -74,8 +75,8 @@ internal class PersistentDictionary(IEncodableDataFactory encodableDataFactory) 
 
         var newValue = encodableDataFactory.GetDataPoint();
         _internalValues[key] = newValue;
-        newValue.OnInvalidated += ChildInvalidated;
-        OnInvalidated?.Invoke(this, EventArgs.Empty);
+        newValue.Invalidated += OnChildInvalidated;
+        Invalidated?.Invoke(this, EventArgs.Empty);
         return newValue;
     }
 }

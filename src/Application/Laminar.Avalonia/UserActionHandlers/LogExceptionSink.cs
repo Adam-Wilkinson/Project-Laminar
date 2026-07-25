@@ -1,14 +1,11 @@
-﻿using System;
-using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
+﻿using Microsoft.Extensions.Logging;
 using Laminar.Contracts.Base;
-using Laminar.Domain;
 
 namespace Laminar.Avalonia.UserActionHandlers;
 
 internal class LogExceptionSink(ILogger<LogExceptionSink> logger) : IExceptionSink
 {
-    public Task OnException(Exception exception)
+    public Task OnException(Exception exception, CancellationToken cancellationToken)
     {
         logger.LogError(exception, "An uncaught error occured");
         return Task.CompletedTask;

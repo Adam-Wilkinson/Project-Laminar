@@ -9,15 +9,16 @@
         <shapes:Connection Startpoint="{m:ConnectorLocation {CompiledBinding OutputConnector}}"
                            Endpoint="{m:ConnectorLocation {CompiledBinding InputConnector}}"
                            Fill="{Binding OutputConnector.ColorHex, Converter={StaticResource ParseBrushConverter}}"
+                           Classes.IsSelected="{Binding $parent[sam:SelectAndMoveItem].IsSelected, FallbackValue={x:False}}"
                            StrokeThickness="2"
                            ConnectionWidth="10">
             <shapes:Connection.Styles>
                 <Style Selector="shapes|Connection">
                     <Setter Property="Stroke" Value="Gray"/>
-                </Style>
-                
-                <Style Selector="shapes|Connection[(sam|Selection.IsSelected)=True]">
-                    <Setter Property="Stroke" Value="{DynamicResource {x:Static init:ColorInitialization.LaminarForegroundKey}}"/>
+                        
+                    <Style Selector="^.IsSelected">
+                        <Setter Property="Stroke" Value="{DynamicResource {x:Static init:ColorInitialization.LaminarForegroundKey}}"/>
+                    </Style>
                 </Style>
             </shapes:Connection.Styles>
         </shapes:Connection>

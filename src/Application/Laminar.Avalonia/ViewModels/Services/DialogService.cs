@@ -15,39 +15,40 @@ public class DialogService(TopLevel topLevel, IDialogService dialogService)
 {
     private INotifyPropertyChanged? TopLevelViewModel => field ??= topLevel.DataContext as INotifyPropertyChanged;
 
-    public async Task<DialogOption> PromptUserResponse(LaminarDialogViewModel viewModel)
+    public async Task<DialogOption> PromptUserResponse(LaminarDialogViewModel viewModel, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(TopLevelViewModel);
+        cancellationToken.Register(() => viewModel.CloseTarget?.Close());
         await dialogService.ShowDialogAsync(TopLevelViewModel, viewModel);
         return viewModel.SelectedOption;
     }
 
     public async Task<bool> PromptYesNo(string title, string message) 
-        => (await PromptUserResponse(new LaminarDialogViewModel
-    {
-        Options = [ DialogOption.No, DialogOption.Yes ],
-        Title = title,
-        Message = message,
-        SelectedOptionIndex = 1,
-        CancelledOptionIndex = 0,
-    })) == DialogOption.Yes;
+        => await PromptUserResponse(new LaminarDialogViewModel
+        {
+            Options = [ DialogOption.No, DialogOption.Yes ],
+            Title = title,
+            Message = message,
+            SelectedOptionIndex = 1,
+            CancelledOptionIndex = 0,
+        }) == DialogOption.Yes;
 
-    public async Task<bool> PromptCancelOk(string title, string message) => 
-        (await PromptUserResponse(new LaminarDialogViewModel
-    {
-        Options = [ DialogOption.Cancel, DialogOption.Ok ],
-        Title = title,
-        Message = message,
-        SelectedOptionIndex = 1,
-        CancelledOptionIndex = 0,
-    })) == DialogOption.Ok;
+    public async Task<bool> PromptCancelOk(string title, string message) 
+        => await PromptUserResponse(new LaminarDialogViewModel
+        {
+            Options = [ DialogOption.Cancel, DialogOption.Ok ],
+            Title = title,
+            Message = message,
+            SelectedOptionIndex = 1,
+            CancelledOptionIndex = 0,
+        }) == DialogOption.Ok;
 
-    public async Task PromptError(string title, string message) => await PromptUserResponse(new LaminarDialogViewModel
+    public async Task PromptError(string title, string message, CancellationToken cancellationToken = default) => await PromptUserResponse(new LaminarDialogViewModel
     {
         Options = [ DialogOption.Ok ],
         Title = title,
         Message = message,
-    });
+    }, cancellationToken);
 
     public async Task<FileSystemPath?> PromptForFolder(WellKnownFolder? startingLocation = null)
     {

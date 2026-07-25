@@ -3,17 +3,18 @@ using Laminar.Contracts.Storage.FileExplorer;
 using Laminar.Domain.Enums.ActionResolutions;
 using Laminar.Domain.Exceptions;
 using Laminar.Implementation.Base.ActionSystem;
+using Laminar.Implementation.Storage.FileExplorer.Graph;
 
 namespace Laminar.Implementation.Storage.FileExplorer.UserActions;
 
-internal readonly struct DeleteStorageItemAction(LaminarStorageItem item, FileExplorerActionDependencies dependencies) 
+internal readonly struct DeleteStorageItemAction(IFileSystemItem item, FileBrowserActionDependencies dependencies) 
     : IUserAction
 {
     private readonly CompoundAction _internalAction = new(
         new RenameStorageItemAction(GetDeletedName(dependencies.FileSystem.GetNameWithoutExtension(item.Path)), item, dependencies), 
-        new MoveStorageItemAction(item, dependencies.RecyclingBin, null, dependencies));
+        new MoveStorageItemAction(item, dependencies.Graph.RecyclingBin, null, dependencies));
 
-    public LaminarStorageItem Target => item;
+    public IFileSystemItem Target => item;
     
     public bool CanExecute => _internalAction.CanExecute;
 
@@ -21,10 +22,10 @@ internal readonly struct DeleteStorageItemAction(LaminarStorageItem item, FileEx
     {
         item.Refresh();
         
-        if (item is ILaminarStorageRootFolder rootFolder)
+        if (item is IFileSystemRootFolder rootFolder)
         {
             CompoundAction? action = _internalAction;
-            FileExplorerActionDependencies actionDependencies = dependencies;
+            FileBrowserActionDependencies actionDependencies = dependencies;
             return Task.FromResult<IUserActionResult>(new ResolvableError<DeleteRootFolderConfirmation>
             {
                 Exception = new DeleteRootFolderException(rootFolder.Path),
@@ -38,7 +39,15 @@ internal readonly struct DeleteStorageItemAction(LaminarStorageItem item, FileEx
             });
         }
         
-        return _internalAction.Execute();
+        var executionResult = _internalAction.Execute();
+
+        if (executionResult.Result is UserActionSuccess && item is IMutableFileSystemItem itemInternal)
+        {
+            itemInternal.OnDeleted();
+        }
+        
+        
+        return executionResult;
     }
     
     private static string GetDeletedName(string name) => $"({DateTime.UtcNow.Ticks}) {name}";

@@ -1,9 +1,10 @@
 ﻿using Laminar.PluginFramework.NodeSystem.IO.Value;
+using Laminar.PluginFramework.UserInterface;
 using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
 namespace Laminar.PluginFramework.NodeSystem.Components;
 
-public class ValueInputRow<T> : SingleItemNodeComponent where T : notnull
+public class ValueInputRow<T> : SingleItemNodeComponent<INodeRow<ISourcedInterfaceData<T>>> where T : notnull
 {
     private readonly IValueInput<T> _valueInput;
 

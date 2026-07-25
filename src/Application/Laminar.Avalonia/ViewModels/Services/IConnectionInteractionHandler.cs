@@ -13,7 +13,9 @@ public interface IConnectionInteractionHandler
     
     public bool HoverConnection(IConnector first, IConnector second);
 
-    public void CancelConnection();
+    public void CancelCurrentConnection();
     
-    public void ConfirmConnection();
+    public void ConfirmCurrentConnection();
+
+    public void ExitInteraction();
 }

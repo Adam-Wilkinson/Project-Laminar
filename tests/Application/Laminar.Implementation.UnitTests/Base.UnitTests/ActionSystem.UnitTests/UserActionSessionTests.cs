@@ -43,7 +43,7 @@ public class UserActionSessionTests
         {
             var owner = Substitute.For<IUserActionSessionHost>();
             var action = Substitute.For<IUserAction>();
-            owner.ResolveExecutionAsync(action).Returns(IUserActionResult.Invalid());
+            owner.ResolveExecutionAsync(action).Returns(IUserActionResult.Ineffectual());
             var session = new UserActionSession(owner);
 
             await session.ExecuteAction(action);

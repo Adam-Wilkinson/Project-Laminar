@@ -1,5 +1,6 @@
 using System.Collections;
 using Laminar.Contracts.Storage.PersistentData;
+using Laminar.Domain.Notification.Collections;
 
 namespace Laminar.Implementation.Storage.PersistentData;
 
@@ -10,32 +11,64 @@ internal class PersistentList(IEncodableDataFactory dataFactory) : IPersistentLi
     public IPersistentDataPoint AddNext()
     {
         var newValue = dataFactory.GetDataPoint();
-        newValue.OnInvalidated += OnChildInvalidated;
+        newValue.Invalidated += OnChildInvalidated;
         _internalValues.Add(newValue);
+        Invalidated?.Invoke(this, EventArgs.Empty);
         return newValue;
     }
+
+    public IPersistentDataPoint Insert(int index)
+    {
+        IPersistentDataPoint newValue = dataFactory.GetDataPoint();
+        newValue.Invalidated += OnChildInvalidated;
+        _internalValues.Insert(index, newValue);
+        Invalidated?.Invoke(this, EventArgs.Empty);
+        return newValue;
+    }
+
+    public void Move(int oldIndex, int newIndex, int itemCount)
+    {
+        var movedItems = _internalValues.GetRange(oldIndex, itemCount);
+        _internalValues.RemoveRange(oldIndex, itemCount);
+        _internalValues.InsertRange(newIndex, movedItems);
+        Invalidated?.Invoke(this, EventArgs.Empty);
+    }
+
+    public IPersistentDataPoint RemoveAt(int index)
+    {
+        var value = _internalValues[index];
+        _internalValues.RemoveAt(index);
+        value.Invalidated -= OnChildInvalidated;
+        Invalidated?.Invoke(this, EventArgs.Empty);
+        return value;
+    }
+
+    public int FirstIndexWhere(Predicate<IPersistentDataPoint> predicate) => _internalValues.FindIndex(predicate);
 
     public void Clear()
     {
         foreach (var value in _internalValues)
         {
-            value.OnInvalidated -= OnChildInvalidated;
+            value.Invalidated -= OnChildInvalidated;
         }
         
         _internalValues.Clear();
-        OnInvalidated?.Invoke(this, EventArgs.Empty);
+        Invalidated?.Invoke(this, EventArgs.Empty);
     }
+
+    public IDisposable InitializeAndSyncTo<T>(IReadOnlyObservableCollection<T> target, IPersistenceAdapter<T> adapter)
+        => new PersistentListSynchronizer<T>(this, target, adapter);
 
     private void OnChildInvalidated(object? sender, EventArgs e)
     {
-        OnInvalidated?.Invoke(sender, e);
+        Invalidated?.Invoke(sender, e);
     }
     
     public bool Remove(IPersistentDataPoint item)
     {
         if (!_internalValues.Remove(item)) return false;
-        item.OnInvalidated -= OnChildInvalidated;
-        OnInvalidated?.Invoke(this, EventArgs.Empty);
+        item.Invalidated -= OnChildInvalidated;
+        Invalidated?.Invoke(this, EventArgs.Empty);
         return true;
     }
 
@@ -50,9 +83,11 @@ internal class PersistentList(IEncodableDataFactory dataFactory) : IPersistentLi
     public object Encode(IPersistentDataTranscoder transcoder) 
         => _internalValues.Select(x => x.Encode(transcoder)).ToArray();
 
-    public void Decode(IPersistentDataTranscoder transcoder, object encoded)
+    public void Decode(IPersistentDataTranscoder transcoder, object? encoded)
     {
-        var decoded = (List<object>)transcoder.DecodeElement(encoded, typeof(List<object>))!;
+        if (encoded is null) throw new InvalidCastException();
+        
+        var decoded = (List<object?>)transcoder.DecodeElement(encoded, typeof(List<object?>))!;
         for (int i = 0; i < Math.Min(decoded.Count, _internalValues.Count); i++)
         {
             _internalValues[i].Decode(transcoder, decoded[i]);
@@ -77,5 +112,5 @@ internal class PersistentList(IEncodableDataFactory dataFactory) : IPersistentLi
         }
     }
 
-    public event EventHandler? OnInvalidated;
+    public event EventHandler? Invalidated;
 }

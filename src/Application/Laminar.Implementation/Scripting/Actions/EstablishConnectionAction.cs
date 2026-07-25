@@ -1,5 +1,4 @@
 ﻿using Laminar.Contracts.Base.ActionSystem;
-using Laminar.Contracts.Scripting.Execution;
 using Laminar.Domain.Exceptions;
 using Laminar.Implementation.Base.ActionSystem;
 using Laminar.PluginFramework.NodeSystem.Connectors;
@@ -9,14 +8,14 @@ namespace Laminar.Implementation.Scripting.Actions;
 internal readonly struct EstablishConnectionAction(
     IOutputConnector outputConnector,
     IInputConnector inputConnector,
-    INodeTree nodeTree)
+    IWritableNodeTree writableNodeTree)
     : IUserAction
 {
     public IOutputConnector OutputConnector { get; } = outputConnector;
 
     public IInputConnector InputConnector { get; } = inputConnector;
     
-    public bool CanExecute { get; } = outputConnector.CouldConnectTo(inputConnector) || inputConnector.CouldConnectTo(outputConnector);
+    public bool CanExecute { get; } = outputConnector.CanConnectTo(inputConnector) || inputConnector.CanConnectTo(outputConnector);
 
     public Task<IUserActionResult> Execute()
     {
@@ -27,23 +26,23 @@ internal readonly struct EstablishConnectionAction(
         
         List<IUserAction> totalRequiredActions = [];
         if (InputConnector.Flags.HasFlag(ConnectorFlags.ConnectionsSaturated)
-            && nodeTree.GetConnectionsTo(InputConnector).FirstOrDefault()?.OppositeConnector is IOutputConnector
+            && writableNodeTree.GetConnectionsTo(InputConnector).FirstOrDefault()?.OppositeConnector is IOutputConnector
                 problemOutputConnector)
         {
-            totalRequiredActions.Add(new SeverConnectionAction(problemOutputConnector, InputConnector, nodeTree));
+            totalRequiredActions.Add(new SeverConnectionAction(problemOutputConnector, InputConnector, writableNodeTree));
         }
 
         if (OutputConnector.Flags.HasFlag(ConnectorFlags.ConnectionsSaturated)
-            && nodeTree.GetConnectionsTo(OutputConnector).FirstOrDefault()?.OppositeConnector is IInputConnector
+            && writableNodeTree.GetConnectionsTo(OutputConnector).FirstOrDefault()?.OppositeConnector is IInputConnector
                 problemInputConnector)
         {
-            totalRequiredActions.Add(new SeverConnectionAction(OutputConnector, problemInputConnector, nodeTree));
+            totalRequiredActions.Add(new SeverConnectionAction(OutputConnector, problemInputConnector, writableNodeTree));
         }
 
         if (totalRequiredActions.Count == 0)
         {
-            return Task.FromResult(nodeTree.TryConnect(OutputConnector, InputConnector, out _)
-                ? IUserActionResult.Success(new SeverConnectionAction(OutputConnector, InputConnector, nodeTree))
+            return Task.FromResult(writableNodeTree.TryConnect(OutputConnector, InputConnector, out _)
+                ? IUserActionResult.Success(new SeverConnectionAction(OutputConnector, InputConnector, writableNodeTree))
                 : IUserActionResult.Error(new CouldNotConnectException(OutputConnector, InputConnector)));
         }
         

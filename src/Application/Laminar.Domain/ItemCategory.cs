@@ -2,6 +2,12 @@
 
 public class ItemCategory<T>(string categoryName) : IReadOnlyItemCategory<T>
 {
+    public ItemCategory(string categoryName, List<ItemCategory<T>> subCategories, List<T> items) : this(categoryName)
+    {
+        _items = items;
+        _subCategories = subCategories;
+    }
+    
     public const char SeparationChar = '/';
 
     private readonly List<string> _subCategoryNames = [];

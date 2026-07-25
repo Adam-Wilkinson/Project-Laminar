@@ -1,23 +1,30 @@
-﻿using Laminar.Domain.Notification;
+﻿using Laminar.Contracts.Storage.PersistentData;
+using Laminar.Domain.Notification;
 using Laminar.Domain.Notification.Collections;
 using Laminar.Domain.Notification.Value;
 using Laminar.Domain.ValueObjects;
 using Laminar.PluginFramework.NodeSystem;
 using Laminar.PluginFramework.NodeSystem.Components;
+using Laminar.PluginFramework.UserInterface;
+using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
 namespace Laminar.Contracts.Scripting.NodeWrapping;
 
 public interface IWrappedNode : INotificationClient<LaminarExecutionContext>
 {
-    GuidIdentifier<IWrappedNode> Id { get; }
-
-    INodeRow NameRow { get; }
+    INodeRow<IInterfaceData<EditableLabel, string>> NameRow { get; }
     
     IReadOnlyObservableCollection<INodeRow> Rows { get; }
     
-    ObservableValue<bool> IsCollapsed { get; set; }
+    IObservableValue<bool> IsCollapsed { get; }
 
-    ObservableValue<Point> Location { get; }
+    IObservableValue<Point> Location { get; }
 
+    public ILoadedNodeInfo Info { get; }
+
+    public INotificationClient<LaminarExecutionContext>? UserChangedValueNotificationClient { get; set; }
+    
+    public IEncodableData PersistentData { get; }
+    
     void Update(LaminarExecutionContext context);
 }

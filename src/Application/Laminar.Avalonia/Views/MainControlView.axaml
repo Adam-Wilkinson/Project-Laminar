@@ -50,15 +50,14 @@
                                 </Style>
                                 
                                 <Style Selector="c|ItemPickerItem" x:DataType="nw:IWrappedNode">
-                                    <Setter Property="IsHoveredOrDragging" Value="{Binding !IsCollapsed.Value, Mode=OneWayToSource}"/>
+                                    <Setter Property="IsHoveredOrDragging" Value="{Binding !IsCollapsed.Value}"/>
                                 </Style>
                             </c:ItemPicker.Styles>
                         </c:ItemPicker>
                     </Border>
                 </asp:AdjustableStackPanel>
                 
-                <ContentControl Classes="UiLayer"
-                                Content="{Binding ScriptEditor}"/>
+                <ContentControl Content="{Binding CentralFileEditor}"/>
             </DockPanel>
         </Panel>
         

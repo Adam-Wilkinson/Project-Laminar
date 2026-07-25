@@ -1,28 +1,44 @@
 ﻿using Laminar.Contracts.Scripting.NodeWrapping;
+using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.Notification;
 using Laminar.Domain.Notification.Collections;
 using Laminar.Domain.Notification.Value;
 using Laminar.Domain.ValueObjects;
 using Laminar.Implementation.Scripting.Execution;
+using Laminar.Implementation.Storage.PersistentData;
 using Laminar.PluginFramework.NodeSystem;
 using Laminar.PluginFramework.NodeSystem.Components;
 using Laminar.PluginFramework.UserInterface;
+using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
 namespace Laminar.Implementation.Scripting.NodeWrapping;
 
 public sealed class WrappedNode : IWrappedNode, IDisposable
 {
+    private readonly INode _coreNode;
     private readonly IDisposable _rowsChangedSubscription;
+    private readonly IDisposable _persistentRowsSynchronizer;
+    private readonly IPersistentDictionary _persistentDictionary;
     private Action? _preEvaluateAction;
     
-    public WrappedNode(INodeRow nameRow, INode node)
+    public WrappedNode(INode node, IPersistentDictionary persistentDictionary)
     {
-        CoreNode = node;
-        NameRow = nameRow;
-
+        _coreNode = node;
+        _persistentDictionary = persistentDictionary;
+        
+        IsCollapsed = persistentDictionary[nameof(IsCollapsed)].GetValueOrInitialize(false);
+        Location = persistentDictionary[nameof(Location)].GetValueOrInitialize(new Point {X = 0, Y = 0});
+        
         Rows = new FlattenedObservableTree<INodeRow>(node.Components);
         _rowsChangedSubscription = Rows.SubscribeForEach(RegisterRow, RowRemoved);
 
+        _persistentRowsSynchronizer = persistentDictionary[nameof(Rows)]
+            .GetOrCreateCollection<IPersistentList>()
+            .InitializeAndSyncTo(Rows, new PersistentValueAdapter<INodeRow>(row => row?.GetType() ?? typeof(INodeRow))
+            {
+                Mode = PersistenceAdapterMode.Hydrate
+            });
+        
         foreach (var row in Rows)
         {
             RegisterRow(row);
@@ -31,18 +47,18 @@ public sealed class WrappedNode : IWrappedNode, IDisposable
 
     public INotificationClient<LaminarExecutionContext>? UserChangedValueNotificationClient { get; set; }
 
-    public INode CoreNode { get; }
+    public required INodeRow<IInterfaceData<EditableLabel, string>> NameRow { get; init; }
 
-    public INodeRow NameRow { get; }
-    
+    public required ILoadedNodeInfo Info { get; init; }
+
     public IReadOnlyObservableCollection<INodeRow> Rows { get; set; }
 
-    public ObservableValue<bool> IsCollapsed { get; set; } = new(false);
+    public IObservableValue<bool> IsCollapsed { get; }
 
-    public ObservableValue<Point> Location { get; set; } = new(new Point { X = 0, Y = 0 });
-
-    public GuidIdentifier<IWrappedNode> Id { get; } = GuidIdentifier<IWrappedNode>.New();
-
+    public IObservableValue<Point> Location { get; }
+    
+    public IEncodableData PersistentData => _persistentDictionary;
+    
     public void TriggerNotification(LaminarExecutionContext context)
     {
         if (context.ExecutionSource is null)
@@ -64,7 +80,7 @@ public sealed class WrappedNode : IWrappedNode, IDisposable
     {
         _preEvaluateAction?.Invoke();
 
-        CoreNode.Evaluate();
+        _coreNode.Evaluate();
 
         if (!context.ExecutionFlags.IsUiUpdate) return;
         
@@ -112,10 +128,11 @@ public sealed class WrappedNode : IWrappedNode, IDisposable
         TriggerNotification(e);
     }
 
-    public override string ToString() => $"{NameRow.CentralDisplay.Value} ({CoreNode})";
+    public override string ToString() => $"{NameRow.CentralDisplay.Value} ({_coreNode})";
 
     public void Dispose()
     {
         _rowsChangedSubscription.Dispose();
+        _persistentRowsSynchronizer.Dispose();
     }
 }

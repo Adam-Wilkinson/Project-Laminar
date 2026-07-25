@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.Storage.PersistentData;
 
-internal class JsonPersistentDataTranscoder(
+public class JsonPersistentDataTranscoder(
     JsonSerializerOptions jsonOptions, 
     ILogger<JsonPersistentDataTranscoder> logger) 
     : IPersistentDataTranscoder
@@ -21,7 +21,7 @@ internal class JsonPersistentDataTranscoder(
 
     public object BytesToElement(byte[] bytes) => JsonSerializer.Deserialize<JsonElement>(bytes, jsonOptions);
 
-    public object? EncodeElement(object value)
+    public object? EncodeElement(object? value)
     {
         try
         {

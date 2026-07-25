@@ -6,6 +6,7 @@ using Laminar.Implementation.Base.UserInterface;
 using Laminar.PluginFramework.NodeSystem;
 using Laminar.PluginFramework.NodeSystem.IO;
 using Laminar.PluginFramework.NodeSystem.IO.Value;
+using Laminar.PluginFramework.UserInterface;
 using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
 namespace Laminar.Implementation.Scripting.NodeIO;
@@ -27,6 +28,7 @@ internal class NodeIOFactory(ITypeInfoStore typeInfoStore) : INodeIOFactory
                 Name = valueName,
                 Editor = editor,
                 Viewer = viewer,
+                PersistenceBehaviour = PersistenceBehaviour.Always
             }
         };
 

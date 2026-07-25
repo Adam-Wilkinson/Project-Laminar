@@ -14,7 +14,7 @@ public interface IFileSystem
     
     public void Move(FileSystemPath sourcePath, FileSystemPath destPath);
     
-    public IFileWatcher CreateFileWatcher(FileSystemPath path, string filter = "");
+    public IFileWatcher GetFileWatcher(FileSystemPath path, string filter = "");
     
     public IFileStream CreateFile(FileSystemPath path);
     
@@ -28,13 +28,17 @@ public interface IFileSystem
     
     public void CreateDirectory(FileSystemPath path);
     
-    public IFileContents GetFile(FileSystemPath path);
+    public IFileContents GetFileContents(FileSystemPath path);
+    
+    public IFileWaiter GetFileWaiter(FileSystemPath path, TimeSpan? waitWarningDuration = null);
     
     public bool OpenInSystemFileBrowser(FileSystemPath path);
     
     public IEnumerable<FileSystemPath> EnumerateChildren(FileSystemPath path);
     
     public void Delete(FileSystemPath path);
+    
     string GetNameWithoutExtension(FileSystemPath path);
+    
     string GetExtension(FileSystemPath path);
 }

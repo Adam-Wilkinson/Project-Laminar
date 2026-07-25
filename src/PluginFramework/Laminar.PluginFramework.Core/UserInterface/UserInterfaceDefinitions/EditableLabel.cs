@@ -8,18 +8,14 @@ public class EditableLabel : IUserInterfaceDefinition, INotifyPropertyChanged
     
     public interface IXamlTarget : IInterfaceData<EditableLabel, string>;
 
-    private bool _isBeingEdited;
-
     public bool IsBeingEdited
     {
-        get => _isBeingEdited;
+        get;
         set
         {
-            if (_isBeingEdited != value)
-            {
-                _isBeingEdited = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsBeingEdited)));
-            }
+            if (field == value) return;
+            field = value;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsBeingEdited)));
         }
     }
 

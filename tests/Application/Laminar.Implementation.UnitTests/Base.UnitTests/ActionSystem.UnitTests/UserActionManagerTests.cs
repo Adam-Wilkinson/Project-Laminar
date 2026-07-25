@@ -1,4 +1,3 @@
-using CommunityToolkit.Mvvm.ComponentModel.__Internals;
 using Laminar.Contracts.Base;
 using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Implementation.Base.ActionSystem;
@@ -46,13 +45,13 @@ public class UserActionManagerTests
         {
             var action = Substitute.For<IUserAction>();
             action.CanExecute.Returns(true);
-            action.Execute().Returns(IUserActionResult.Invalid());
+            action.Execute().Returns(IUserActionResult.Ineffectual());
             var sut = CreateManager();
             
             await sut.ExecuteAction(action);
             var result = await sut.Undo();
 
-            result.Should().BeOfType<UserActionInvalid>();
+            result.Should().BeOfType<UserActionIneffectual>();
         }
     }
 
@@ -65,7 +64,7 @@ public class UserActionManagerTests
 
             var result = await sut.Undo();
 
-            result.Should().BeOfType<UserActionInvalid>();
+            result.Should().BeOfType<UserActionIneffectual>();
         }
 
         [Fact]
@@ -111,7 +110,7 @@ public class UserActionManagerTests
 
             var result = await sut.Redo();
 
-            result.Should().BeOfType<UserActionInvalid>();
+            result.Should().BeOfType<UserActionIneffectual>();
         }
 
         [Fact]
@@ -146,7 +145,7 @@ public class UserActionManagerTests
             var result = await sut.ResolveExecutionAsync(action);
 
             
-            result.Should().BeOfType<UserActionInvalid>();
+            result.Should().BeOfType<UserActionIneffectual>();
             await action.DidNotReceive().Execute();
         }
 
@@ -300,7 +299,7 @@ public class UserActionManagerTests
             chainSimplifier.Received(1)
                 .Simplify(
                     Arg.Any<List<IUserAction>>(), 
-                    Arg.Is<ICollection<IUserActionSimplifier>>(x => x.Contains(simplifier)));
+                    Arg.Is<ICollection<IUserActionSimplifier>>(x => x != null && x.Contains(simplifier)));
         }
     }
 

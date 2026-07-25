@@ -3,6 +3,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Laminar.Avalonia.ViewModels.Services;
 using Laminar.PluginFramework.NodeSystem.Connectors;
 
 namespace Laminar.Avalonia.Markup;
@@ -17,21 +18,23 @@ public class MoveConnectionIndicationEventArgs(RoutedEvent routedEvent, object? 
     : RoutedEventArgs(routedEvent, sender)
 {
     public required PointerEventArgs PointerEvent { get; init; }
+
+    public required Point Offset { get; init; }
 }
 
-public class ConnectorRegistry : Interactive
+public sealed class ConnectorRegistry : Interactive, IDisposable
 {
     public const string Key = "ConnectorRegistry";
     
-    private static readonly ConditionalWeakTable<Visual, VisualTracker> TrackedVisuals = [];
+    private static readonly ConditionalWeakTable<InputElement, VisualTracker> TrackedVisuals = [];
     
-    public static readonly AttachedProperty<bool> ConnectorGestureLiveProperty = AvaloniaProperty.RegisterAttached<ConnectorRegistry, Visual, bool>("ConnectorGestureLive", defaultValue: true);
-    public static bool GetConnectorGestureLive(Visual visual) => visual.GetValue(ConnectorGestureLiveProperty);
-    public static void SetConnectorGestureLive(Visual visual, bool value) => visual.SetValue(ConnectorGestureLiveProperty, value);
+    public static readonly AttachedProperty<IConnectionInteractionHandler?> ConnectionInteractionHandlerProperty = AvaloniaProperty.RegisterAttached<ConnectorRegistry, InputElement, IConnectionInteractionHandler?>("ConnectionInteractionHandler", inherits: true);
+    public static IConnectionInteractionHandler? GetConnectionInteractionHandler(InputElement obj) => obj.GetValue(ConnectionInteractionHandlerProperty);
+    public static void SetConnectionInteractionHandler(InputElement obj, IConnectionInteractionHandler? value) =>  obj.SetValue(ConnectionInteractionHandlerProperty, value);
     
-    public static readonly AttachedProperty<IConnector?> RegisteredConnectorProperty = AvaloniaProperty.RegisterAttached<ConnectorRegistry, Visual, IConnector?>("RegisteredConnector");
-    public static IConnector? GetRegisteredConnector(Visual obj) => obj.GetValue(RegisteredConnectorProperty);
-    public static void SetRegisteredConnector(Visual obj, IConnector? value) => obj.SetValue(RegisteredConnectorProperty, value);
+    public static readonly AttachedProperty<IConnector?> RegisteredConnectorProperty = AvaloniaProperty.RegisterAttached<ConnectorRegistry, InputElement, IConnector?>("RegisteredConnector");
+    public static IConnector? GetRegisteredConnector(InputElement obj) => obj.GetValue(RegisteredConnectorProperty);
+    public static void SetRegisteredConnector(InputElement obj, IConnector? value) => obj.SetValue(RegisteredConnectorProperty, value);
     
     public static readonly RoutedEvent<ConnectorRegistrationEventArgs> ConnectorRegisteredEvent = RoutedEvent.Register<ConnectorRegistry, ConnectorRegistrationEventArgs>(nameof(ConnectorRegistered), RoutingStrategies.Direct);
     public event EventHandler<ConnectorRegistrationEventArgs>? ConnectorRegistered
@@ -53,10 +56,10 @@ public class ConnectorRegistry : Interactive
     
     static ConnectorRegistry()
     {
-        RegisteredConnectorProperty.Changed.AddClassHandler<Visual>(RegisteredConnectorChanged);
+        RegisteredConnectorProperty.Changed.AddClassHandler<InputElement>(RegisteredConnectorChanged);
     }
 
-    private static void RegisteredConnectorChanged(Visual visual, AvaloniaPropertyChangedEventArgs arg)
+    private static void RegisteredConnectorChanged(InputElement visual, AvaloniaPropertyChangedEventArgs arg)
     {
         var (oldValue, newValue) = arg.GetOldAndNewValue<IConnector?>();
         var tracker = TrackedVisuals.GetValue(visual, v => new VisualTracker(v));
@@ -72,10 +75,26 @@ public class ConnectorRegistry : Interactive
         }
     }
     
-    private readonly Dictionary<IConnector, Visual> _internalDictionary = [];
-    
-    public Visual GetVisualForConnector(IConnector connector) =>  _internalDictionary[connector];
+    private readonly Dictionary<IConnector, InputElement> _internalDictionary = [];
 
+    private ConnectionCreationSession? _connectionCreationSession;
+    
+    public InputElement GetVisualForConnector(IConnector connector) => _internalDictionary[connector];
+    
+    public bool TryGetVisualForConnector(IConnector connector, out InputElement? visual) 
+        => _internalDictionary.TryGetValue(connector, out visual);
+    
+    private void BeginMakeConnectionGesture(InputElement element, PointerPressedEventArgs e)
+    {
+        _connectionCreationSession?.Dispose();
+        if (GetRegisteredConnector(element) is { } connector 
+            && GetConnectionInteractionHandler(element) is { } interactionHandler
+            && interactionHandler.StartConnectionFrom(connector) is { } initialConnector)
+        {
+            _connectionCreationSession = new(initialConnector, e, this, interactionHandler, element);
+        }
+    }
+    
     private void RemoveConnectorVisual(IConnector connector)
     {
         if (_internalDictionary.TryGetValue(connector, out var oldOwner))
@@ -90,7 +109,7 @@ public class ConnectorRegistry : Interactive
         _internalDictionary.Remove(connector);
     }
     
-    private void SetConnectorVisual(IConnector connector, Visual visual)
+    private void SetConnectorVisual(IConnector connector, InputElement visual)
     {
         if (_internalDictionary.TryGetValue(connector, out var oldOwner))
         {
@@ -109,22 +128,28 @@ public class ConnectorRegistry : Interactive
     
     private class VisualTracker : IDisposable
     {
-        private readonly Visual _visual;
+        private readonly InputElement _element;
         private readonly IDisposable _subscription;
         
-        public VisualTracker(Visual visual)
+        public VisualTracker(InputElement element)
         {
-            _visual = visual;
+            _element = element;
             
-            _subscription = visual.GetResourceObservable(Key)
+            _subscription = element.GetResourceObservable(Key)
                 .Subscribe(new Domain.Notification.Value.AnonymousObserver<object?>(ConnectorRegistryChanged));
+            
+            _element.DetachedFromVisualTree += OnDetachedFromElementTree;
+            _element.PointerPressed += ElementOnPointerPressed; 
+        }
 
-            _visual.DetachedFromVisualTree += OnDetachedFromVisualTree;
+        private void ElementOnPointerPressed(object? sender, PointerPressedEventArgs e)
+        {
+            Registry?.BeginMakeConnectionGesture(_element, e);
         }
 
         public ConnectorRegistry? Registry { get; private set; }
         
-        private void OnDetachedFromVisualTree(object? sender, VisualTreeAttachmentEventArgs e)
+        private void OnDetachedFromElementTree(object? sender, VisualTreeAttachmentEventArgs e)
         {
             Dispose();
         }
@@ -135,10 +160,10 @@ public class ConnectorRegistry : Interactive
 
             var oldRegistry = Registry;
             var newRegistry = newValue as ConnectorRegistry;
-            if (GetRegisteredConnector(_visual) is { } connector)
+            if (GetRegisteredConnector(_element) is { } connector)
             {
                 oldRegistry?.RemoveConnectorVisual(connector);
-                newRegistry?.SetConnectorVisual(connector, _visual);
+                newRegistry?.SetConnectorVisual(connector, _element);
             }
 
             Registry = newRegistry;
@@ -146,14 +171,20 @@ public class ConnectorRegistry : Interactive
         
         public void Dispose()
         {
-            if (GetRegisteredConnector(_visual) is { } connector)
+            if (GetRegisteredConnector(_element) is { } connector)
             {
                 Registry?.RemoveConnectorVisual(connector);
             }
             
-            TrackedVisuals.Remove(_visual);
-            _visual.DetachedFromVisualTree -= OnDetachedFromVisualTree;
+            TrackedVisuals.Remove(_element);
+            _element.DetachedFromVisualTree -= OnDetachedFromElementTree;
+            _element.PointerPressed -= ElementOnPointerPressed; 
             _subscription.Dispose();
         }
+    }
+
+    public void Dispose()
+    {
+        _connectionCreationSession?.Dispose();
     }
 }

@@ -1,13 +1,9 @@
-using System;
-using System.Diagnostics;
-using System.Threading.Tasks;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
 using Laminar.Avalonia.DragDrop;
 using Laminar.Avalonia.ViewModels.Services;
 using Laminar.Contracts.Storage.FileExplorer;
-using Laminar.Domain.Notification;
 using Laminar.Domain.Notification.Collections;
 using Laminar.Domain.ValueObjects;
 using Point = Avalonia.Point;
@@ -15,9 +11,10 @@ using Point = Avalonia.Point;
 namespace Laminar.Avalonia.ViewModels;
 
 public partial class FileNavigatorViewModel(
-    ILaminarFileBrowser fileBrowser,
+    IOpenFileService openFileService,
+    IFileBrowser fileBrowser,
     DialogService dialogService,
-    Func<ILaminarStorageItem, FileNavigatorItemViewModel> fileNavigatorItemViewModelFactory)
+    Func<IFileSystemItem, FileNavigatorItemViewModel> fileNavigatorItemViewModelFactory)
     : DropTargetViewModel
 {
     private static readonly TimeSpan ExpandHoveredOverFolderDelay = new(0, 0, 0, 0, 500);
@@ -29,6 +26,7 @@ public partial class FileNavigatorViewModel(
         fileBrowser.RootFolders.ObservableMap(x =>
         {
             var result = fileNavigatorItemViewModelFactory(x);
+            result.OpenFileService = openFileService;
             result.IsExpanded = true;
             return result;
         });
@@ -85,13 +83,12 @@ public partial class FileNavigatorViewModel(
         draggedItem.Parent.Children?.Remove(draggedItem);
         targetParent.Children?.Insert(targetIndex, draggedItem);
         return true;
-
     }
 
     public override bool Drop(object? payload, Point location, object? receptacleTag)
     {
         if (_currentHoverMove is not var (targetItem, targetIndex) ||
-            targetItem.CoreItem is not ILaminarStorageFolder targetFolder) return false;
+            targetItem.CoreItem is not IFileSystemFolder targetFolder) return false;
         if (payload is not FileNavigatorItemViewModel draggedItem) return false;
         
         if (draggedItem.CoreItem is not null)

@@ -7,10 +7,6 @@ public interface IConnector : INotifyPropertyChanged
     public Action? PreEvaluateAction { get; }
 
     public ConnectorFlags Flags { get; }
-
-    public void OnConnectionEstablished();
-
-    public void OnConnectionSevered();
     
     public string ColorHex { get; }
 }

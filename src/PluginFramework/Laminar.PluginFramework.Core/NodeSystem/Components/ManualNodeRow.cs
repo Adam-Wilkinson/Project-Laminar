@@ -3,10 +3,10 @@ using Laminar.PluginFramework.UserInterface;
 
 namespace Laminar.PluginFramework.NodeSystem.Components;
 
-public class ManualNodeRow<TInput, TDisplay, TOutput> : SingleItemNodeComponent
+public class ManualNodeRow<TInput, TDisplay, TOutput> : SingleItemNodeComponent<INodeRow<TDisplay>>
     where TDisplay : IInterfaceData
 {
-    internal ManualNodeRow(INodeRow row)
+    internal ManualNodeRow(INodeRow<TDisplay> row)
     {
         ChildComponent = row;
     }

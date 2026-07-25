@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Primitives;
+using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Reactive;
 using Laminar.Avalonia.DragDrop;
@@ -16,7 +17,7 @@ public class ItemPickerItem : ContentControl
     private Control? _dragTarget;
     private IDisposable? _dragTargetBeingDraggedObservable;
     
-    public static readonly DirectProperty<ItemPickerItem, bool> IsHoveredOrDraggingProperty = AvaloniaProperty.RegisterDirect<ItemPickerItem, bool>(nameof(IsHoveredOrDragging), ipi => ipi.IsHoveredOrDragging);
+    public static readonly DirectProperty<ItemPickerItem, bool> IsHoveredOrDraggingProperty = AvaloniaProperty.RegisterDirect<ItemPickerItem, bool>(nameof(IsHoveredOrDragging), ipi => ipi.IsHoveredOrDragging, defaultBindingMode: BindingMode.OneWayToSource);
     
     public bool IsHoveredOrDragging
     {

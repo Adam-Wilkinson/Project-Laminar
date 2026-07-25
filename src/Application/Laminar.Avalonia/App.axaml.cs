@@ -18,7 +18,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using System.Runtime.InteropServices;
 using System.Runtime.Loader;
+using Avalonia.Input.Platform;
 using CommunityToolkit.Mvvm.Input;
+using Laminar.Domain.ValueObjects;
 
 namespace Laminar.Avalonia;
 public partial class App : Application
@@ -47,13 +49,15 @@ public partial class App : Application
             desktop.MainWindow = MainWindow;
             
             var services = new ServiceCollection()
-                .AddLaminarServices(FrontendDependency.Avalonia, DefaultLoadContext)
+                .AddLaminarServices()
                 .AddViewModels()
+                .AddUserActionHandlers()
                 .AddDescendantsSingleton<IBeforeApplicationBuiltTarget>()
                 .AddDescendantsSingleton<IAfterApplicationBuiltTarget>()
                 .AddDescendantsSingleton<IPlugin>()
-                .AddSingleton(desktop.MainWindow.StorageProvider)
                 .AddSingleton<TopLevel>(desktop.MainWindow)
+                .AddSingleton(desktop.MainWindow.StorageProvider)
+                .AddSingleton(Option<IClipboard>.FromNullable(desktop.MainWindow.Clipboard))
                 .AddSingleton<Application>(this)
                 .AddLogging(builder => builder.AddSerilog(
                     new LoggerConfiguration()
@@ -65,11 +69,10 @@ public partial class App : Application
                 .AddSingleton<IDialogFactory>(new DialogFactory())
                 .AddSingleton<IDialogManager, DialogManager>()
                 .AddSingleton<IDialogService, HanumanInstitute.MvvmDialogs.Avalonia.DialogService>()
-                .AddUserActionHandlers()
                 .AddSingleton<Contracts.Base.IDispatcher, AvaloniaDispatcher>()
                 .BuildServiceProvider();
             
-            services.InitializeLaminar<App>();
+            services.InitializeLaminar<App>(FrontendDependency.Avalonia, DefaultLoadContext);
             services.GetServices<IBeforeApplicationBuiltTarget>().Initialize();
             desktop.MainWindow.DataContext = services.GetRequiredService<MainWindowViewModel>();
             services.GetServices<IAfterApplicationBuiltTarget>().Initialize();

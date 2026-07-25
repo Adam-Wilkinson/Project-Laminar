@@ -48,7 +48,7 @@ internal partial class FileContents : IFileContents
 
         var parent = path.Parent ?? throw new InvalidOperationException("File must have parent");
 
-        _fileWatcher = _fileSystem.CreateFileWatcher(parent, path.NameAndExtension);
+        _fileWatcher = _fileSystem.GetFileWatcher(parent, path.NameAndExtension);
         _fileWatcher.NotifyFilter = NotifyFilters.LastWrite;
         _fileWatcher.EnableRaisingEvents = true;
         _fileWatcher.Changed += FileChanged;

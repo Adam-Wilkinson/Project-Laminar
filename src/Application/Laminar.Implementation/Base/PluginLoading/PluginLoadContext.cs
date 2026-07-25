@@ -3,7 +3,7 @@ using System.Runtime.Loader;
 
 namespace Laminar.Implementation.Base.PluginLoading;
 
-internal class PluginLoadContext(string pluginPath, AssemblyLoadContext? defaultLoadContext) : AssemblyLoadContext
+internal sealed class PluginLoadContext(string pluginPath, AssemblyLoadContext? defaultLoadContext) : AssemblyLoadContext
 {
     private readonly AssemblyDependencyResolver _resolver = new(pluginPath);
 

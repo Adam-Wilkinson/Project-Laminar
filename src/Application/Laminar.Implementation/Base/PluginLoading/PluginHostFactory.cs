@@ -7,7 +7,7 @@ using Laminar.PluginFramework.Serialization;
 
 namespace Laminar.Implementation.Base.PluginLoading;
 
-internal class PluginHostFactory(
+internal sealed class PluginHostFactory(
     ITypeInfoStore typeInfoStore,
     ILoadedNodeManager loadedNodeManager,
     IDataInterfaceFactory dataInterfaceFactory,
@@ -16,6 +16,6 @@ internal class PluginHostFactory(
 {
     public IPluginHost GetPluginHost(IRegisteredPlugin registeredPlugin)
     {
-        return new PluginHost(registeredPlugin, typeInfoStore, loadedNodeManager, dataInterfaceFactory, serializer);
+        return new PluginHost((RegisteredPlugin)registeredPlugin, typeInfoStore, loadedNodeManager, dataInterfaceFactory, serializer);
     }
 }
