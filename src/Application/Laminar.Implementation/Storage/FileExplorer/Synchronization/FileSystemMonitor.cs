@@ -19,11 +19,12 @@ internal sealed class FileSystemMonitor(
     private static readonly TimeSpan FileSystemModifiedRefreshDelay = new(0, 0, 0, 0, 300);
 
     private readonly Channel<MonitorEventArgs> _updateChannel = Channel.CreateUnbounded<MonitorEventArgs>(
-    new UnboundedChannelOptions
-    {
-        SingleReader = true,
-        SingleWriter = false,
-    });
+        new UnboundedChannelOptions
+        {
+            SingleReader = true,
+            SingleWriter = false,
+        });
+    
     private readonly HashSet<IFileSystemRootFolder> _outdatedFolders = [];
     private readonly Lock _mutationLock = new();
     private readonly List<IDisposable> _monitors = [];
