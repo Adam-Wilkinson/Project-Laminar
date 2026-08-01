@@ -5,6 +5,7 @@
   <Folder Name="/build/">
     <Project Path="build/Laminar.Build/Laminar.Build.csproj" />
     <Project Path="build/Laminar.Run/Laminar.Run.csproj" />
+    <Project Path="build\Laminar.PluginFrameworkSetup\Laminar.PluginFrameworkSetup.csproj" />
   </Folder>
   <Folder Name="/sandboxes/">
     <Project Path="sandboxes/BasicFunctionality.Avalonia.UIViewer/BasicFunctionality.Avalonia.UIViewer.csproj" />

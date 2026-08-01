@@ -5,8 +5,4 @@
         <TargetFramework>net10.0</TargetFramework>
     </PropertyGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\Laminar.PluginFrameworkSetup\Laminar.PluginFrameworkSetup.csproj" />
-    </ItemGroup>
-
 </Project>

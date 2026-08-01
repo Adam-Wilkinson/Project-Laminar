@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using Bootstrapping;
 using Laminar.Build;
+using Laminar.PluginFrameworkSetup;
 using Laminar.Runner;
 
 const string targetFrameworkVersion = "net10.0";
@@ -75,6 +76,7 @@ finally
 }
 
 return;
+
 static void CopyFilesRecursively(string sourcePath, string targetPath)
 {
     foreach (string dirPath in Directory.GetDirectories(sourcePath, "*", SearchOption.AllDirectories))
