@@ -3,9 +3,9 @@ using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace Laminar.Build;
+namespace Laminar.PluginFrameworkSetup;
 
-public static class Dotnet
+public static partial class Dotnet
 {
     public const string Debug = "Debug";
     public const string Release = "Release";
@@ -60,7 +60,7 @@ public static class Dotnet
 
     public const string NoRestore = "--no-restore";
     
-    private static readonly Regex PidRegex = new(@"\((\d+)\)", RegexOptions.Compiled);
+    private static readonly Regex PidRegex = GeneratePigRegex();
 
     private static async Task<DotnetResult> RunDotnet(
         string repoRoot,
@@ -248,6 +248,9 @@ public static class Dotnet
 
         throw new InvalidOperationException("Could not find dotnet. Please install the .NET SDK and ensure it is available on PATH.");
     }
+
+    [GeneratedRegex(@"\((\d+)\)", RegexOptions.Compiled)]
+    private static partial Regex GeneratePigRegex();
 }
 
 public record DotnetResult(int ExitCode, string StdOut, string StdErr, string Command);
