@@ -2,25 +2,42 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Project: Laminar plugin manifest schema",
   "description": "The schema required for the manifests of Project: Laminar plugins",
+  
+  "definitions": {
+    "lang-supported-string": {
+      "type": ["string", "object"]
+    }
+  },
+  
   "type": "object",
   "properties": {
-    "file-name": { 
+    "id": { 
       "type": "string",
-      "title": "The name of the plugin file",
-      "description": "The version number will be appended to this to make the package file",
+      "title": "The unique identifier of the plugin",
+      "description": "The version number will be appended to this to make the package file name",
       "pattern": "^[\\w\\s.\\-]+$"
     },
     "version": {
       "type": "number",
       "title": "The version of the plugin",
-      "description": "Appended to 'file-name' to make the name of the package file"
+      "description": "Appended to the id to make the name of the package file name"
+    },
+    "entrypoint": {
+      "type": "string",
+      "title": "The entrypoint dll that should be targeted by the plugin loader",
+      "description": "Automatically added by the packager if not provided"
+    },
+    "plugin-framework-version": {
+      "type": "number",
+      "title": "The version of the plugin framework that this plugin depends on",
+      "description": "Automatically added by the packager if not provided"
     },
     "user-friendly-name": {
-      "type": "string",
+      "$ref": "#/definitions/lang-supported-string",
       "title": "The name of the plugin shown to the user"
     },
     "description": {
-      "type": "string",
+      "$ref": "#/definitions/lang-supported-string",
       "title": "A user-friendly description of the plugin"
     },
     "supported_platforms": {
@@ -40,7 +57,12 @@
           "Avalonia"
         ]
       }
+    },
+    "plugin_dependencies": {
+      "type": "array",
+      "title": "List of plugins that this plugin depends on",
+      "items": { "type": "string" }
     }
   },
-  "required": ["file-name", "version"]
+  "required": ["id", "version"]
 }

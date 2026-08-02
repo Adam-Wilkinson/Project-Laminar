@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace Laminar.PluginFrameworkSetup;
+namespace DotnetHelper;
 
 public static partial class Dotnet
 {
@@ -44,6 +44,10 @@ public static partial class Dotnet
         => RunDotnet(RepoRoot, "pack", $"{path} -c {BuildConfig} {string.Join(" ", args)}")
             .ThrowOnError();
 
+    public static Task<DotnetResult> Publish(string path, params string[] args)
+        => RunDotnet(RepoRoot, "publish", $"{path} -c {BuildConfig} {string.Join(" ", args)}")
+            .ThrowOnError(); 
+    
     public static Task<DotnetResult> Restore(params string[] args)
         => RunDotnet(RepoRoot, "restore",  $"ProjectLaminar.slnx {string.Join(" ", args)}");
 

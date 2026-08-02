@@ -18,6 +18,7 @@
   </Folder>
   <Folder Name="/src/">
     <Project Path="src/Bootstrapping/Bootstrapping.csproj" />
+    <Project Path="src/DotnetHelper/DotnetHelper.csproj" />
   </Folder>
   <Folder Name="/src/Application/">
     <File Path="src/Application/Laminar.Avalonia/Lang/Resources.resx" />
@@ -31,6 +32,7 @@
     <File Path="src/PluginFramework/Directory.Build.targets" />
     <File Path="src/PluginFramework/version.json" />
     <File Path="src\PluginFramework\manifest.schema.json" />
+    <Project Path="src/PluginFramework/Laminar.PluginFramework.CLI/Laminar.PluginFramework.CLI.csproj" />
     <Project Path="src/PluginFramework/Laminar.PluginFramework.Core/Laminar.PluginFramework.Core.csproj" />
     <Project Path="src/PluginFramework/Laminar.PluginFramework.SourceGeneration/Laminar.PluginFramework.SourceGeneration.csproj" />
     <Project Path="src/PluginFramework/Laminar.PluginFramework.Version/Laminar.PluginFramework.Version.csproj" />
