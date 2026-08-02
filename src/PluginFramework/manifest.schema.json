@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Project: Laminar plugin manifest schema",
+  "description": "The schema required for the manifests of Project: Laminar plugins",
+  "type": "object",
+  "properties": {
+    "name": { 
+      "type": "string",
+      "title": "The name of the plugin"
+    },
+    "version": {
+      "type": "number",
+      "title": "The version of the plugin. The combination of this and the name result in a unique plugin"
+    },
+    "description": {
+      "type": "string",
+      "title": "A user-friendly description of the plugin"
+    },
+    "supported_platforms": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "Windows",
+          "MacOS",
+          "Linux"
+        ]
+      }
+    },
+    "frontend_dependencies": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "Avalonia"
+        ]
+      }
+    },
+    "required": ["name", "version"]
+  }
+}
