@@ -1,0 +1,7 @@
+{
+  "file-name": "basic-functionality",
+  "version": 0.1,
+  "user-friendly-name": "Basic Functionality",
+  "description": "Adds the base feature set of nodes to Project: Laminar",
+  "supported_platforms": ["Windows", "MacOS", "Linux"]
+}

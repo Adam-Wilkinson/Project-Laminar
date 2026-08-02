@@ -4,13 +4,20 @@
   "description": "The schema required for the manifests of Project: Laminar plugins",
   "type": "object",
   "properties": {
-    "name": { 
+    "file-name": { 
       "type": "string",
-      "title": "The name of the plugin"
+      "title": "The name of the plugin file",
+      "description": "The version number will be appended to this to make the package file",
+      "pattern": "^[\\w\\s.\\-]+$"
     },
     "version": {
       "type": "number",
-      "title": "The version of the plugin. The combination of this and the name result in a unique plugin"
+      "title": "The version of the plugin",
+      "description": "Appended to 'file-name' to make the name of the package file"
+    },
+    "user-friendly-name": {
+      "type": "string",
+      "title": "The name of the plugin shown to the user"
     },
     "description": {
       "type": "string",
@@ -33,7 +40,7 @@
           "Avalonia"
         ]
       }
-    },
-    "required": ["name", "version"]
-  }
+    }
+  },
+  "required": ["file-name", "version"]
 }

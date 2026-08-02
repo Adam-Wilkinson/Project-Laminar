@@ -1,0 +1,8 @@
+{
+  "file-name": "base-ui-avalonia",
+  "version": 0.1,
+  "user-friendly-name": "Base UI Elements",
+  "description": "Adds the basic editors to the UI",
+  "frontend_dependencies": ["Avalonia"],
+  "supported_platforms": ["Windows", "Linux", "MacOS"]
+}
