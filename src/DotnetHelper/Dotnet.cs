@@ -61,6 +61,12 @@ public static partial class Dotnet
     public static Task<DotnetResult> ShutdownBuildServer(params string[] args)
         => RunDotnet(null, "build-server", "shutdown");
     
+    public static Task<DotnetResult> New(string template)
+        => RunDotnet(null, "new", template);
+
+    public static Task<DotnetResult> Tool(string command, params string[] args)
+        => RunDotnet(null, "tool", $"{command} {string.Join(" ", args)}");
+    
     public static string BuildConfig { get; private set; } = Release;
     
     public static string PluginFrameworkVersion(string frameworkVersion) => $"/p:PluginFrameworkVersion={frameworkVersion}";
@@ -70,6 +76,10 @@ public static partial class Dotnet
     public const string EmitPluginFrameworkVersion = "/p:EmitPluginFrameworkVersion=true";
 
     public const string NoRestore = "--no-restore";
+
+    public const string Prerelease = "--prerelease";
+
+    public const string Local = "--local";
     
     private static readonly Regex PidRegex = GeneratePigRegex();
 

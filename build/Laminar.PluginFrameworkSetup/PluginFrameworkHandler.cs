@@ -5,9 +5,10 @@ namespace Laminar.PluginFrameworkSetup;
 public static class PluginFrameworkHandler
 {
     private const string PluginFrameworkVersion = "src/PluginFramework/Laminar.PluginFramework.Version/Laminar.PluginFramework.Version.csproj";
+    private const string PluginFrameworkCLI = "Laminar.PluginFramework.CLI";
     private static readonly string[] PluginFrameworkPackages =
     [
-        "Laminar.PluginFramework.CLI",
+        PluginFrameworkCLI,
         "Laminar.PluginFramework.Core",
         "Laminar.PluginFramework.SourceGeneration",
         "Laminar.PluginFramework",
@@ -65,6 +66,9 @@ public static class PluginFrameworkHandler
             // Repo should be stable, restore to check:
             await Dotnet.Restore();
             await Dotnet.ShutdownBuildServer();
+
+            await Dotnet.New("tool-manifest");
+            await Dotnet.Tool("update", PluginFrameworkCLI, Dotnet.Prerelease, Dotnet.Local);
         }
     }
     
