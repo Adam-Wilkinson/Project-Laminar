@@ -1,6 +1,7 @@
 {
   "id": "basic-functionality",
-  "version": 0.1,
+  "majorVersion": 0,
+  "minorVersion": 1,
   "user-friendly-name": {
     "en": "Basic Functionality"
   },

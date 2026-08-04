@@ -17,10 +17,30 @@
       "description": "The version number will be appended to this to make the package file name",
       "pattern": "^[\\w\\s.\\-]+$"
     },
-    "version": {
+    "majorVersion": {
       "type": "number",
-      "title": "The version of the plugin",
-      "description": "Appended to the id to make the name of the package file name"
+      "title": "The major version number",
+      "description": "Typically incremented for significant changes, and always incremented for breaking changes. Semantic versioning is recommended for Project: Laminar plugins"
+    },
+    "minorVersion": {
+      "type": "number",
+      "title": "The minor version number",
+      "description": "Incremented when features are added",
+      "default": 0
+    },
+    "patchVersion": {
+      "oneOf": [
+        { "const": "auto" },
+        { "type": "number"}
+      ],
+      "title": "The patch version",
+      "description": "This is typically automatically incremented, but you can opt-in to manual patch version support",
+      "default": "auto"
+    },
+    "prereleaseVersion": {
+      "type": "string",
+      "title": "The prerelease version, used to indicate an unstable release",
+      "description": ""
     },
     "user-friendly-name": {
       "$ref": "#/definitions/lang-supported-string",
@@ -58,5 +78,5 @@
       "title": "The destination path that the built plugin will be output to"
     }
   },
-  "required": ["id", "version"]
+  "required": ["id", "majorVersion", "minorVersion"]
 }

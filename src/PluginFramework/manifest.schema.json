@@ -18,7 +18,7 @@
       "pattern": "^[\\w\\s.\\-]+$"
     },
     "version": {
-      "type": "number",
+      "type": "string",
       "title": "The version of the plugin",
       "description": "Appended to the id to make the name of the package file name"
     },
