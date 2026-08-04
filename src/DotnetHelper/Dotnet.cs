@@ -32,7 +32,7 @@ public static partial class Dotnet
         
         while (fullPath is not null)
         {
-            if (Directory.Exists(fullPath) && Directory.EnumerateFiles(fullPath).Any(x => x.EndsWith(".sln") || x.EndsWith(".slnx")))
+            if (File.GetAttributes(fullPath).HasFlag(FileAttributes.Directory) && Directory.EnumerateFiles(fullPath).Any(x => x.EndsWith(".sln") || x.EndsWith(".slnx")))
             {
                 return fullPath;
             }
