@@ -28,16 +28,16 @@ public static partial class Dotnet
     
     public static string? TryGetRepoRoot(string? path = null)
     {
-        var dir = new DirectoryInfo(path ?? AppContext.BaseDirectory);
-
-        while (dir is not null)
+        string? fullPath = Path.GetFullPath(path ?? AppContext.BaseDirectory);
+        
+        while (fullPath is not null)
         {
-            if (Directory.EnumerateFiles(dir.FullName).Any(x => x.EndsWith(".sln") || x.EndsWith(".slnx")))
+            if (Directory.Exists(fullPath) && Directory.EnumerateFiles(fullPath).Any(x => x.EndsWith(".sln") || x.EndsWith(".slnx")))
             {
-                return dir.FullName;
+                return fullPath;
             }
 
-            dir = dir.Parent;
+            fullPath = Path.GetDirectoryName(fullPath);
         }
 
         return null;
