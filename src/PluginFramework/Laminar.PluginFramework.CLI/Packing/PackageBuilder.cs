@@ -23,8 +23,14 @@ public static class PackageBuilder
         
         await using var pluginDataFile = File.OpenRead(pluginDir);
         var pluginData = PluginData.Parse(pluginDataFile);
-
-        var pluginFullName = $"{(string)pluginData.Id}.{(int)pluginData.MajorVersion}.{(int)pluginData.MinorVersion}.{(int)pluginData.PatchVersion}";
+        
+        var pluginFullName = $"{(string)pluginData.Id}.{(int)pluginData.MajorVersion}.{(int)pluginData.MinorVersion}";
+        
+        if (pluginData.PatchVersion.AsNumber.HasDotnetBacking)
+        {
+            pluginFullName += $".{(int)pluginData.PatchVersion}";
+        }
+        
         var prerelease = (string)pluginData.PrereleaseVersion;
         if (!string.IsNullOrEmpty(prerelease))
         {
