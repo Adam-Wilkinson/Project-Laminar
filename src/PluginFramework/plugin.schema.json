@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Project: Laminar plugin schema",
+  "description": "The schema required for plugins of Project: Laminar plugins",
+
+  "definitions": {
+    "lang-supported-string": {
+      "type": ["string", "object"]
+    }
+  },
+
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "title": "The unique identifier of the plugin",
+      "description": "The version number will be appended to this to make the package file name",
+      "pattern": "^[\\w\\s.\\-]+$"
+    },
+    "version": {
+      "type": "number",
+      "title": "The version of the plugin",
+      "description": "Appended to the id to make the name of the package file name"
+    },
+    "user-friendly-name": {
+      "$ref": "#/definitions/lang-supported-string",
+      "title": "The name of the plugin shown to the user"
+    },
+    "description": {
+      "$ref": "#/definitions/lang-supported-string",
+      "title": "A user-friendly description of the plugin"
+    },
+    "supported_platforms": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "Windows",
+          "MacOS",
+          "Linux"
+        ]
+      }
+    },
+    "frontend_dependencies": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "Avalonia"
+        ]
+      }
+    },
+    "plugin_dependencies": {
+      "type": "array",
+      "title": "List of plugins that this plugin depends on",
+      "items": { "type": "string" }
+    },
+    "output_path": {
+      "type": "string",
+      "title": "The destination path that the built plugin will be output to"
+    }
+  },
+  "required": ["id", "version"]
+}
