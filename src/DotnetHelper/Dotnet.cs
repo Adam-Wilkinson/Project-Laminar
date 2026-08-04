@@ -10,7 +10,6 @@ public static partial class Dotnet
     public const string Debug = "Debug";
     public const string Release = "Release";
     
-    public static readonly string RepoRoot;
     public static readonly string DotNetPath;
     
     static Dotnet()
@@ -18,41 +17,49 @@ public static partial class Dotnet
 #if DEBUG
         BuildConfig = Debug;
 #endif
-        
-        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+
+        DotNetPath = FindDotnet();
+    }
+
+    public static string GetRepoRoot(string? path = null)
+    {
+        return TryGetRepoRoot(path) ?? throw new InvalidOperationException($"Unable to locate repo root from path '{path}'");
+    }
+    
+    public static string? TryGetRepoRoot(string? path = null)
+    {
+        var dir = new DirectoryInfo(path ?? AppContext.BaseDirectory);
 
         while (dir is not null)
         {
-            if (Directory.Exists(Path.Combine(dir.FullName, ".git")))
+            if (Directory.EnumerateFiles(dir.FullName).Any(x => x.EndsWith(".sln") || x.EndsWith(".slnx")))
             {
-                RepoRoot = dir.FullName;
-                break;   
+                return dir.FullName;
             }
 
             dir = dir.Parent;
         }
-        
-        if (RepoRoot is null) throw new InvalidOperationException("Could not find repo root");
-        DotNetPath = FindDotnet();
+
+        return null;
     }
     
     public static Task<DotnetResult> Build(string path, params string[] args) 
-        => RunDotnet(RepoRoot, "build", $"{path} -c {BuildConfig} {string.Join(" ", args)}")
+        => RunDotnet(path, "build", $"{path} -c {BuildConfig} {string.Join(" ", args)}")
             .ThrowOnError();
 
     public static Task<DotnetResult> Pack(string path, params string[] args)
-        => RunDotnet(RepoRoot, "pack", $"{path} -c {BuildConfig} {string.Join(" ", args)}")
+        => RunDotnet(path, "pack", $"{path} -c {BuildConfig} {string.Join(" ", args)}")
             .ThrowOnError();
 
     public static Task<DotnetResult> Publish(string path, params string[] args)
-        => RunDotnet(RepoRoot, "publish", $"{path} -c {BuildConfig} {string.Join(" ", args)}")
+        => RunDotnet(path, "publish", $"{path} -c {BuildConfig} {string.Join(" ", args)}")
             .ThrowOnError(); 
     
-    public static Task<DotnetResult> Restore(params string[] args)
-        => RunDotnet(RepoRoot, "restore",  $"ProjectLaminar.slnx {string.Join(" ", args)}");
+    public static Task<DotnetResult> Restore(string? path = null, params string[] args)
+        => RunDotnet(path, "restore",  $"{path} {string.Join(" ", args)}");
 
     public static Task<DotnetResult> ShutdownBuildServer(params string[] args)
-        => RunDotnet(RepoRoot, "build-server", "shutdown");
+        => RunDotnet(null, "build-server", "shutdown");
     
     public static string BuildConfig { get; private set; } = Release;
     
@@ -67,7 +74,7 @@ public static partial class Dotnet
     private static readonly Regex PidRegex = GeneratePigRegex();
 
     private static async Task<DotnetResult> RunDotnet(
-        string repoRoot,
+        string? path,
         string command,
         string args)
     {
@@ -75,7 +82,8 @@ public static partial class Dotnet
 
         var stdout = new StringBuilder();
         var stderr = new StringBuilder();
-
+        var repoRoot = TryGetRepoRoot() ?? TryGetRepoRoot(path) ?? throw new InvalidOperationException("Unable to find repo root");
+        
         var psi = new ProcessStartInfo
         {
             FileName = DotNetPath,

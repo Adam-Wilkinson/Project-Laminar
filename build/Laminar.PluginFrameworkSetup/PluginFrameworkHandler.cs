@@ -7,19 +7,20 @@ public static class PluginFrameworkHandler
     private const string PluginFrameworkVersion = "src/PluginFramework/Laminar.PluginFramework.Version/Laminar.PluginFramework.Version.csproj";
     private static readonly string[] PluginFrameworkPackages =
     [
+        "Laminar.PluginFramework.CLI",
         "Laminar.PluginFramework.Core",
         "Laminar.PluginFramework.SourceGeneration",
         "Laminar.PluginFramework",
     ];
-    
-    private static readonly string PluginFrameworkVersionFile = Path.Combine(Dotnet.RepoRoot, ".nuget.local", "PluginFramework.Version.props");
+
+    private static readonly string LocalNuget = Path.Combine(Dotnet.GetRepoRoot(), ".nuget.local");
+    private static readonly string PluginFrameworkVersionFile = Path.Combine(LocalNuget, "PluginFramework.Version.props");
     
     public static async Task Setup()
     {
-        var localNuget = Path.Combine(Dotnet.RepoRoot, ".nuget.local");
-        if (!Directory.Exists(localNuget))
+        if (!Directory.Exists(LocalNuget))
         {
-            Directory.CreateDirectory(localNuget);
+            Directory.CreateDirectory(LocalNuget);
         }
         
         await Dotnet.ShutdownBuildServer();
@@ -42,7 +43,7 @@ public static class PluginFrameworkHandler
         foreach (var pluginFramework in PluginFrameworkPackages)
         {
             if (!currentPluginVersionValid) break;
-            if (!File.Exists(Path.Combine(localNuget, $"{pluginFramework}.{pluginVersion}.nupkg")))
+            if (!File.Exists(Path.Combine(LocalNuget, $"{pluginFramework}.{pluginVersion}.nupkg")))
             {
                 Console.WriteLine("Unable to find package {0} of expected version {1}", pluginFramework, pluginVersion);
                 currentPluginVersionValid = false;

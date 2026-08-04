@@ -413,3 +413,6 @@ FodyWeavers.xsd
 
 # Local nuget repository
 .nuget.local/
+
+# Dotnet tool configs
+dotnet-tools.json
