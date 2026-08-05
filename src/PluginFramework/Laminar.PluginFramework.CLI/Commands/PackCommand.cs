@@ -1,4 +1,5 @@
 using System.CommandLine;
+using DotnetHelper;
 using Laminar.PluginFramework.CLI.Packing;
 
 namespace Laminar.PluginFramework.CLI.Commands;
@@ -25,6 +26,7 @@ public static class PackCommand
             packCommand.SetAction((result, ct) => PackageBuilder.BuildAsync(
                 result.GetValue(projectArgument)!, 
                 result.GetValue(outputOption),
+                new Dotnet(),
                 ct));
             
             parentCommand.Add(packCommand);

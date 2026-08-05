@@ -13,9 +13,17 @@ public static class PluginFrameworkHandler
         "Laminar.PluginFramework.SourceGeneration",
         "Laminar.PluginFramework",
     ];
-
-    private static readonly string LocalNuget = Path.Combine(Dotnet.GetRepoRoot(), ".nuget.local");
-    private static readonly string PluginFrameworkVersionFile = Path.Combine(LocalNuget, "PluginFramework.Version.props");
+    
+    private static readonly string LocalNuget;
+    private static readonly string PluginFrameworkVersionFile;
+    private static readonly IDotnet Dotnet;
+    
+    static PluginFrameworkHandler()
+    {
+        Dotnet = new Dotnet();
+        LocalNuget = Path.Combine(Dotnet.GetRepoRoot(), ".nuget.local");
+        PluginFrameworkVersionFile = Path.Combine(LocalNuget, "Laminar.PluginFramework.Version");
+    }
     
     public static async Task Setup()
     {
@@ -28,7 +36,7 @@ public static class PluginFrameworkHandler
 
         // Get PluginFramework version via probe project
         var output =
-            await Dotnet.Pack(PluginFrameworkVersion, Dotnet.EmitPluginFrameworkVersion, Dotnet.DoNotUseSharedCompilation);
+            await Dotnet.Pack(PluginFrameworkVersion, IDotnet.EmitPluginFrameworkVersion, IDotnet.DoNotUseSharedCompilation);
 
         var pluginVersion = ExtractPluginFrameworkVersion(output.StdOut);
         var persistentPluginVersion = await GetPersistentPluginFrameworkVersion();
@@ -58,7 +66,7 @@ public static class PluginFrameworkHandler
             foreach (var pluginFramework in PluginFrameworkPackages)
             {
                 await Dotnet.Pack($"src/PluginFramework/{pluginFramework}/{pluginFramework}.csproj",
-                    Dotnet.PluginFrameworkVersion(pluginVersion), Dotnet.DoNotUseSharedCompilation);
+                    IDotnet.PluginFrameworkVersion(pluginVersion), IDotnet.DoNotUseSharedCompilation);
             }
 
             await SetPersistentPluginFrameworkVersion(pluginVersion);
@@ -68,7 +76,7 @@ public static class PluginFrameworkHandler
             await Dotnet.ShutdownBuildServer();
 
             await Dotnet.New("tool-manifest");
-            await Dotnet.Tool("update", PluginFrameworkCLI, Dotnet.Prerelease, Dotnet.Local);
+            await Dotnet.Tool("update", PluginFrameworkCLI, IDotnet.Prerelease, IDotnet.Local);
         }
     }
     

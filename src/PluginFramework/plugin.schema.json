@@ -17,18 +17,18 @@
       "description": "The version number will be appended to this to make the package file name",
       "pattern": "^[\\w\\s.\\-]+$"
     },
-    "majorVersion": {
+    "major-version": {
       "type": "number",
       "title": "The major version number",
       "description": "Typically incremented for significant changes, and always incremented for breaking changes. Semantic versioning is recommended for Project: Laminar plugins"
     },
-    "minorVersion": {
+    "minor-version": {
       "type": "number",
       "title": "The minor version number",
       "description": "Incremented when features are added",
       "default": 0
     },
-    "patchVersion": {
+    "patch-version": {
       "oneOf": [
         { "const": "auto" },
         { "type": "number"}
@@ -37,7 +37,7 @@
       "description": "This is typically automatically incremented, but you can opt-in to manual patch version support",
       "default": "auto"
     },
-    "prereleaseVersion": {
+    "prerelease-version": {
       "type": "string",
       "title": "The prerelease version, used to indicate an unstable release",
       "description": ""
@@ -50,7 +50,7 @@
       "$ref": "#/definitions/lang-supported-string",
       "title": "A user-friendly description of the plugin"
     },
-    "supported_platforms": {
+    "supported-platforms": {
       "type": "array",
       "items": {
         "enum": [
@@ -60,7 +60,7 @@
         ]
       }
     },
-    "frontend_dependencies": {
+    "frontend-dependencies": {
       "type": "array",
       "items": {
         "enum": [
@@ -68,12 +68,12 @@
         ]
       }
     },
-    "plugin_dependencies": {
+    "plugin-dependencies": {
       "type": "array",
       "title": "List of plugins that this plugin depends on",
       "items": { "type": "string" }
     },
-    "output_path": {
+    "output-path": {
       "type": "string",
       "title": "The destination path that the built plugin will be output to"
     }

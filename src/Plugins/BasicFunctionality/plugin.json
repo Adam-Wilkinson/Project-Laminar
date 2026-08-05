@@ -1,12 +1,12 @@
 {
   "id": "basic-functionality",
-  "majorVersion": 0,
-  "minorVersion": 1,
+  "major-version": 0,
+  "minor-version": 1,
   "user-friendly-name": {
     "en": "Basic Functionality"
   },
   "description": {
     "en": "Adds the base feature set of nodes to Project: Laminar"
   },
-  "supported_platforms": ["Windows", "MacOS", "Linux"]
+  "supported-platforms": ["Windows", "MacOS", "Linux"]
 }

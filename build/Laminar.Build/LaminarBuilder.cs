@@ -19,12 +19,12 @@ public static class LaminarBuilder
         // Build plugins
         foreach (var plugin in Plugins)
         {
-            await Dotnet.Build($"src/Plugins/{plugin}/{plugin}.csproj", Dotnet.NoRestore);
+            await Dotnet.Build($"src/Plugins/{plugin}/{plugin}.csproj", IDotnet.NoRestore);
             await Dotnet.ShutdownBuildServer();
         }
 
         // Build app
-        await Dotnet.Build(App, Dotnet.NoRestore);
+        await Dotnet.Build(App, IDotnet.NoRestore);
         await Dotnet.ShutdownBuildServer();
     }
 }

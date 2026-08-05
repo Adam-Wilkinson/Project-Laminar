@@ -52,6 +52,7 @@
     <Project Path="tests/Application/Laminar.Implementation.UnitTests/Laminar.Implementation.UnitTests.csproj" />
   </Folder>
   <Folder Name="/tests/PluginFramework/">
+    <Project Path="tests/PluginFramework/Laminar.PluginFramework.CLI.UnitTests/Laminar.PluginFramework.CLI.UnitTests.csproj" />
     <Project Path="tests/PluginFramework/Laminar.PluginFramework.UnitTests/Laminar.PluginFramework.UnitTests.csproj" />
   </Folder>
 </Solution>

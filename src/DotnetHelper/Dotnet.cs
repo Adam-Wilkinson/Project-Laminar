@@ -5,28 +5,27 @@ using System.Text.RegularExpressions;
 
 namespace DotnetHelper;
 
-public static partial class Dotnet
+public partial class Dotnet : IDotnet
 {
-    public const string Debug = "Debug";
-    public const string Release = "Release";
+    private static readonly Regex PidRegex = GeneratePigRegex();
     
-    public static readonly string DotNetPath;
-    
-    static Dotnet()
+    public Dotnet()
     {
 #if DEBUG
-        BuildConfig = Debug;
+        BuildConfig = IDotnet.Debug;
 #endif
 
         DotNetPath = FindDotnet();
     }
+    
+    public string DotNetPath { get; }
 
-    public static string GetRepoRoot(string? path = null)
+    public string GetRepoRoot(string? path = null)
     {
         return TryGetRepoRoot(path) ?? throw new InvalidOperationException($"Unable to locate repo root from path '{path}'");
     }
     
-    public static string? TryGetRepoRoot(string? path = null)
+    public string? TryGetRepoRoot(string? path = null)
     {
         string? fullPath = Path.GetFullPath(path ?? AppContext.BaseDirectory);
         
@@ -43,47 +42,34 @@ public static partial class Dotnet
         return null;
     }
     
-    public static Task<DotnetResult> Build(string path, params string[] args) 
+    public Task<DotnetResult> Build(string path, params string[] args) 
         => RunDotnet(path, "build", $"{path} -c {BuildConfig} {string.Join(" ", args)}")
             .ThrowOnError();
 
-    public static Task<DotnetResult> Pack(string path, params string[] args)
+    public Task<DotnetResult> Pack(string path, params string[] args)
         => RunDotnet(path, "pack", $"{path} -c {BuildConfig} {string.Join(" ", args)}")
             .ThrowOnError();
 
-    public static Task<DotnetResult> Publish(string path, params string[] args)
+    public Task<DotnetResult> Publish(string path, params string[] args)
         => RunDotnet(path, "publish", $"{path} -c {BuildConfig} {string.Join(" ", args)}")
             .ThrowOnError(); 
     
-    public static Task<DotnetResult> Restore(string? path = null, params string[] args)
+    public Task<DotnetResult> Restore(string? path = null, params string[] args)
         => RunDotnet(path, "restore",  $"{path} {string.Join(" ", args)}");
 
-    public static Task<DotnetResult> ShutdownBuildServer(params string[] args)
+    public Task<DotnetResult> ShutdownBuildServer(params string[] args)
         => RunDotnet(null, "build-server", "shutdown");
     
-    public static Task<DotnetResult> New(string template)
+    public Task<DotnetResult> New(string template)
         => RunDotnet(null, "new", template);
 
-    public static Task<DotnetResult> Tool(string command, params string[] args)
+    public Task<DotnetResult> Tool(string command, params string[] args)
         => RunDotnet(null, "tool", $"{command} {string.Join(" ", args)}");
     
-    public static string BuildConfig { get; private set; } = Release;
+    public static string BuildConfig { get; private set; } = IDotnet.Release;
     
-    public static string PluginFrameworkVersion(string frameworkVersion) => $"/p:PluginFrameworkVersion={frameworkVersion}";
 
-    public const string DoNotUseSharedCompilation = "/p:UseSharedCompilation=false";
-    
-    public const string EmitPluginFrameworkVersion = "/p:EmitPluginFrameworkVersion=true";
-
-    public const string NoRestore = "--no-restore";
-
-    public const string Prerelease = "--prerelease";
-
-    public const string Local = "--local";
-    
-    private static readonly Regex PidRegex = GeneratePigRegex();
-
-    private static async Task<DotnetResult> RunDotnet(
+    private async Task<DotnetResult> RunDotnet(
         string? path,
         string command,
         string args)
@@ -273,29 +259,4 @@ public static partial class Dotnet
 
     [GeneratedRegex(@"\((\d+)\)", RegexOptions.Compiled)]
     private static partial Regex GeneratePigRegex();
-}
-
-public record DotnetResult(int ExitCode, string StdOut, string StdErr, string Command);
-
-internal static class DotnetResultHelpers
-{
-    extension(Task<DotnetResult> resultTask)
-    {
-        public async Task<DotnetResult> ThrowOnError()
-        {
-            var result = await resultTask;
-
-            if (result.ExitCode != 0)
-            {
-                Console.WriteLine($"dotnet {result.Command} failed. Exit code: {result.ExitCode}");
-                Console.WriteLine("StdOut:");
-                Console.WriteLine(result.StdOut);
-                Console.WriteLine("StdErr:");
-                await Console.Error.WriteLineAsync(result.StdErr);
-                throw new Exception($"dotnet {result.Command} failed. Exit code: {result.ExitCode}");
-            }
-
-            return result;
-        }
-    }
 }

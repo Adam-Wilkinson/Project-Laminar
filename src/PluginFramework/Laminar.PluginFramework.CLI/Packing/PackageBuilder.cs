@@ -5,9 +5,13 @@ namespace Laminar.PluginFramework.CLI.Packing;
 
 public static class PackageBuilder
 {
-    public static async Task BuildAsync(FileInfo csProjFile, DirectoryInfo? outputDirectory, CancellationToken ct)
+    public static async Task BuildAsync(
+        FileInfo csProjFile, 
+        DirectoryInfo? outputDirectory,
+        IDotnet dotnet,
+        CancellationToken ct)
     {
-        await Dotnet.Publish(csProjFile.FullName);
+        await dotnet.Publish(csProjFile.FullName);
 
         if (csProjFile.Directory is not { } parentDir)
         {
@@ -23,20 +27,25 @@ public static class PackageBuilder
         
         await using var pluginDataFile = File.OpenRead(pluginDir);
         var pluginData = PluginData.Parse(pluginDataFile);
+        var pluginVersion = GetPluginVersion(pluginData);
         
+        Debug.WriteLine($"Published plugin {pluginVersion}");
+    }
+
+    public static string GetPluginVersion(PluginData pluginData)
+    {
         var pluginFullName = $"{(string)pluginData.Id}.{(int)pluginData.MajorVersion}.{(int)pluginData.MinorVersion}";
         
         if (pluginData.PatchVersion.AsNumber.HasDotnetBacking)
         {
             pluginFullName += $".{(int)pluginData.PatchVersion}";
         }
-        
-        var prerelease = (string)pluginData.PrereleaseVersion;
-        if (!string.IsNullOrEmpty(prerelease))
+
+        if (pluginData.PrereleaseVersion.AsString.HasDotnetBacking)
         {
-            pluginFullName += "-" + prerelease;
+            pluginFullName += "-" + (string)pluginData.PrereleaseVersion;
         }
-        
-        Debug.WriteLine($"Published plugin {pluginFullName}");
+
+        return pluginFullName;
     }
 }
