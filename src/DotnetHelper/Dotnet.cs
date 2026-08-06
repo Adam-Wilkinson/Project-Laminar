@@ -71,6 +71,9 @@ public partial class Dotnet : IDotnet
     public Task<DotnetResult> Tool(string command, params string[] args)
         => RunDotnet(null, "tool", $"{command} {string.Join(" ", args)}");
     
+    public Task<DotnetResult> Run(string command, params string[] args)
+        => RunDotnet(null, command, string.Join(" ", args));
+    
     public string BuildConfig { get; private set; } = IDotnet.Release;
     
 

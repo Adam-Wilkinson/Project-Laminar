@@ -34,6 +34,8 @@ public interface IDotnet
 
     public Task<DotnetResult> Tool(string command, params string[] args);
     
+    public Task<DotnetResult> Run(string command, params string[] args);
+    
     public string GetRepoRoot(string? path = null);
 
     public string? TryGetRepoRoot(string? path = null);

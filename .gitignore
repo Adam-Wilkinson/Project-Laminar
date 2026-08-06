@@ -418,4 +418,4 @@ FodyWeavers.xsd
 dotnet-tools.json
 
 # Project: Laminar plugins
-.lampacker-artifacts/
+.lampacker.local/
