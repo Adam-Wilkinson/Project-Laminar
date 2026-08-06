@@ -1,8 +1,4 @@
-using System.CommandLine.Parsing;
-using System.Diagnostics;
 using System.IO.Compression;
-using System.Text;
-using Corvus.Text.Json;
 using DotnetHelper;
 using JsonWriterOptions = System.Text.Json.JsonWriterOptions;
 
@@ -44,6 +40,11 @@ public static class PackageBuilder
                      new System.Text.Json.Utf8JsonWriter(manifestFile, new JsonWriterOptions { Indented = true }))
         {
             manifest.WriteTo(jsonWriter);
+        }
+
+        if (!Directory.Exists(outputDirectory.FullName))
+        {
+            Directory.CreateDirectory(outputDirectory.FullName);
         }
         
         await ZipFile.CreateFromDirectoryAsync(
