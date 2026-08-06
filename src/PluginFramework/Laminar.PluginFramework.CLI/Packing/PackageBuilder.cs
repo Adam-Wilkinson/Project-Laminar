@@ -18,8 +18,8 @@ public static class PackageBuilder
             throw new InvalidOperationException($"Could not find parent directory for .csproj file '{csProjFile}'");
         }
         
-        outputDirectory ??= new DirectoryInfo(Path.Combine(csProjFile.Directory.FullName, "temp"));
-        await dotnet.Publish(csProjFile.FullName, ct, IDotnet.OutputDirectory(outputDirectory.FullName));
+        var tempDir = Path.Combine(parentDir.FullName, "obj", "Lampacker");
+        await dotnet.Publish(csProjFile.FullName, ct, IDotnet.OutputDirectory(tempDir));
 
         var pluginDir = Path.Combine(parentDir.FullName, "plugin.json");
 
@@ -28,13 +28,12 @@ public static class PackageBuilder
             throw new InvalidOperationException($"Could not find plugin.json file '{pluginDir}'");
         }
         
-        using var workspace = JsonWorkspace.Create();
         await using var pluginDataFile = File.OpenRead(pluginDir);
         var pluginData = PluginData.Parse(pluginDataFile);
 
         var manifest = ManifestData.FromPluginData(pluginData);
         
-        await using var manifestWriter = File.Create(Path.Combine(outputDirectory.FullName, "manifest.json"));
+        await using var manifestWriter = File.Create(Path.Combine(tempDir, "manifest.json"));
         var bytes = Encoding.UTF8.GetBytes(manifest.ToString());
         await manifestWriter.WriteAsync(bytes, ct);
         
