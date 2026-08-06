@@ -21,7 +21,7 @@ public static class PackageBuilder
             throw new InvalidOperationException($"Could not find parent directory for .csproj file '{csProjFile}'");
         }
 
-        outputDirectory ??= parentDir;
+        outputDirectory ??= parentDir.CreateSubdirectory("bin");
         
         var tempDir = Path.Combine(parentDir.FullName, "obj", "Lampacker");
         await dotnet.Publish(csProjFile.FullName, ct, IDotnet.OutputDirectory(tempDir));
@@ -39,10 +39,13 @@ public static class PackageBuilder
         var manifest = ManifestData.FromPluginData(pluginData)
             .WithEntrypoint(Path.GetFileNameWithoutExtension(csProjFile.FullName) + ".dll");
         
-        await using var manifestFile = File.Create(Path.Combine(tempDir, "manifest.json"));
-        await using var jsonWriter = new System.Text.Json.Utf8JsonWriter(manifestFile, new JsonWriterOptions { Indented = true });
-        manifest.WriteTo(jsonWriter);
-
+        await using (var manifestFile = File.Create(Path.Combine(tempDir, "manifest.json")))
+        await using (var jsonWriter =
+                     new System.Text.Json.Utf8JsonWriter(manifestFile, new JsonWriterOptions { Indented = true }))
+        {
+            manifest.WriteTo(jsonWriter);
+        }
+        
         await ZipFile.CreateFromDirectoryAsync(
             sourceDirectoryName: tempDir,
             destinationArchiveFileName: Path.Combine(outputDirectory.FullName, $"{(string)manifest.Id}.{(string)manifest.Version}.plpkg"), 
