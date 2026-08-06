@@ -36,12 +36,12 @@ public static class PackageBuilder
     {
         var pluginFullName = $"{(string)pluginData.Id}.{(int)pluginData.MajorVersion}.{(int)pluginData.MinorVersion}";
         
-        if (pluginData.PatchVersion.AsNumber.HasDotnetBacking)
+        if (pluginData.PatchVersion.IsJsonNumber)
         {
             pluginFullName += $".{(int)pluginData.PatchVersion}";
         }
 
-        if (pluginData.PrereleaseVersion.AsString.HasDotnetBacking)
+        if (pluginData.PrereleaseVersion.AsString.HasJsonElementBacking)
         {
             pluginFullName += "-" + (string)pluginData.PrereleaseVersion;
         }
