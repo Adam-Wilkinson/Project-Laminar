@@ -2,7 +2,6 @@
 using Bootstrapping;
 using DotnetHelper;
 using Laminar.Build;
-using Laminar.PluginFrameworkSetup;
 using Laminar.Runner;
 
 const string targetFrameworkVersion = "net10.0";

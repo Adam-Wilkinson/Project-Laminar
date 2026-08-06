@@ -20,7 +20,7 @@ public static class LaminarBuilder
         // Build plugins
         foreach (var plugin in Plugins)
         {
-            await Dotnet.Build($"src/Plugins/{plugin}/{plugin}.csproj", IDotnet.NoRestore);
+            await Dotnet.Tool("lampacker", "pack", $"src/Plugins/{plugin}/{plugin}.csproj", "-o .lampacker-artifacts");
             await Dotnet.ShutdownBuildServer();
         }
 
