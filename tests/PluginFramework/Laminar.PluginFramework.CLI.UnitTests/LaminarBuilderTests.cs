@@ -18,7 +18,7 @@ public class LaminarBuilderTests
         
         var pluginVersion = PluginData.Parse(pluginUnderTest).GetPluginVersion();
 
-        pluginVersion.Should().Be("example-plugin.1.0");
+        pluginVersion.Should().Be("1.0");
     }
     
     [Fact]
@@ -36,7 +36,7 @@ public class LaminarBuilderTests
         
         var pluginVersion = PluginData.Parse(pluginUnderTest).GetPluginVersion();
 
-        pluginVersion.Should().Be("example-plugin.1.0.10");
+        pluginVersion.Should().Be("1.0.10");
     }
     
     [Fact]
@@ -54,6 +54,6 @@ public class LaminarBuilderTests
         
         var pluginVersion = PluginData.Parse(pluginUnderTest).GetPluginVersion();
 
-        pluginVersion.Should().Be("example-plugin.1.0-beta");
+        pluginVersion.Should().Be("1.0-beta");
     }
 }

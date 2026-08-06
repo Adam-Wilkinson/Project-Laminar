@@ -7,7 +7,7 @@ public readonly partial struct PluginData
 {
     public string GetPluginVersion()
     {
-        var pluginFullName = $"{(string)Id}.{(int)MajorVersion}.{(int)MinorVersion}";
+        var pluginFullName = $"{(int)MajorVersion}.{(int)MinorVersion}";
         
         if (PatchVersion.IsJsonNumber)
         {

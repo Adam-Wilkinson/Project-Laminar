@@ -9,12 +9,17 @@ public partial class Dotnet : IDotnet
 {
     private static readonly Regex PidRegex = GeneratePigRegex();
     
-    public Dotnet()
+    public Dotnet(string buildConfig = "")
     {
 #if DEBUG
         BuildConfig = IDotnet.Debug;
 #endif
 
+        if (!string.IsNullOrWhiteSpace(buildConfig))
+        {
+            BuildConfig = buildConfig;
+        }
+        
         DotNetPath = FindDotnet();
     }
     
