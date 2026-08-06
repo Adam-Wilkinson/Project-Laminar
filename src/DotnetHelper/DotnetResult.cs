@@ -2,7 +2,7 @@ namespace DotnetHelper;
 
 public record DotnetResult(int ExitCode, string StdOut, string StdErr, string Command);
 
-internal static class DotnetResultHelpers
+public static class DotnetResultHelpers
 {
     extension(Task<DotnetResult> resultTask)
     {

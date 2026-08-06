@@ -5,7 +5,7 @@ namespace Laminar.PluginFramework.CLI.UnitTests;
 public class LaminarBuilderTests
 {
     [Fact]
-    public async Task ShouldParseVersion()
+    public void ShouldParseVersion()
     {
         const string pluginUnderTest =
         """
@@ -16,14 +16,13 @@ public class LaminarBuilderTests
         }                    
         """;
         
-        var pluginData = PluginData.Parse(pluginUnderTest);
-        var pluginVersion = PackageBuilder.GetPluginVersion(pluginData);
+        var pluginVersion = PluginData.Parse(pluginUnderTest).GetPluginVersion();
 
         pluginVersion.Should().Be("example-plugin.1.0");
     }
     
     [Fact]
-    public async Task ShouldParseVersionWithPatch()
+    public void ShouldParseVersionWithPatch()
     {
         const string pluginUnderTest =
             """
@@ -35,14 +34,13 @@ public class LaminarBuilderTests
             }                    
             """;
         
-        var pluginData = PluginData.Parse(pluginUnderTest);
-        var pluginVersion = PackageBuilder.GetPluginVersion(pluginData);
+        var pluginVersion = PluginData.Parse(pluginUnderTest).GetPluginVersion();
 
         pluginVersion.Should().Be("example-plugin.1.0.10");
     }
     
     [Fact]
-    public async Task ShouldParseVersionWithPrerelease()
+    public void ShouldParseVersionWithPrerelease()
     {
         const string pluginUnderTest =
             """
@@ -54,8 +52,7 @@ public class LaminarBuilderTests
             }                    
             """;
         
-        var pluginData = PluginData.Parse(pluginUnderTest);
-        var pluginVersion = PackageBuilder.GetPluginVersion(pluginData);
+        var pluginVersion = PluginData.Parse(pluginUnderTest).GetPluginVersion();
 
         pluginVersion.Should().Be("example-plugin.1.0-beta");
     }

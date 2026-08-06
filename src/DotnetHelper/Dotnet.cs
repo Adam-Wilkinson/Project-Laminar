@@ -50,8 +50,8 @@ public partial class Dotnet : IDotnet
         => RunDotnet(path, "pack", $"{path} -c {BuildConfig} {string.Join(" ", args)}")
             .ThrowOnError();
 
-    public Task<DotnetResult> Publish(string path, params string[] args)
-        => RunDotnet(path, "publish", $"{path} -c {BuildConfig} {string.Join(" ", args)}")
+    public Task<DotnetResult> Publish(string path, CancellationToken ct, params string[] args)
+        => RunDotnet(path, "publish", $"{path} -c {BuildConfig} {string.Join(" ", args)}", ct)
             .ThrowOnError(); 
     
     public Task<DotnetResult> Restore(string? path = null, params string[] args)
@@ -66,13 +66,14 @@ public partial class Dotnet : IDotnet
     public Task<DotnetResult> Tool(string command, params string[] args)
         => RunDotnet(null, "tool", $"{command} {string.Join(" ", args)}");
     
-    public static string BuildConfig { get; private set; } = IDotnet.Release;
+    public string BuildConfig { get; private set; } = IDotnet.Release;
     
 
     private async Task<DotnetResult> RunDotnet(
         string? path,
         string command,
-        string args)
+        string args,
+        CancellationToken ct = default)
     {
         Console.WriteLine($"> dotnet {command} {args}");
 
@@ -127,7 +128,7 @@ public partial class Dotnet : IDotnet
         process.BeginOutputReadLine();
         process.BeginErrorReadLine();
 
-        await process.WaitForExitAsync();
+        await process.WaitForExitAsync(ct);
 
         return new DotnetResult(
             process.ExitCode,

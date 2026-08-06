@@ -7,9 +7,11 @@ using Laminar.Runner;
 
 const string targetFrameworkVersion = "net10.0";
 
+var dotnet = new Dotnet();
+
 await LaminarBuilder.Build();
 
-var copiedFilesPath = Path.Combine(Dotnet.GetRepoRoot(), ".runner-output");
+var copiedFilesPath = Path.Combine(dotnet.GetRepoRoot(), ".runner-output");
 
 try
 {
@@ -28,7 +30,7 @@ if (!Directory.Exists(currentBuildOutputPath))
 }
 
 // Load application assembly
-var outputPath = Path.Combine(Dotnet.GetRepoRoot(), "src", "Application", "Laminar.Avalonia", "bin", Dotnet.BuildConfig, targetFrameworkVersion);
+var outputPath = Path.Combine(dotnet.GetRepoRoot(), "src", "Application", "Laminar.Avalonia", "bin", dotnet.BuildConfig, targetFrameworkVersion);
 CopyFilesRecursively(outputPath, currentBuildOutputPath);
 var appPath = Path.Combine(currentBuildOutputPath, "Laminar.Avalonia.dll");
 

@@ -8,6 +8,8 @@ public interface IDotnet
 
     public static string PluginFrameworkVersion(string frameworkVersion) => $"/p:PluginFrameworkVersion={frameworkVersion}";
 
+    public static string OutputDirectory(string outputDirectory) => $"--output \"{outputDirectory}\"";
+    
     public const string DoNotUseSharedCompilation = "/p:UseSharedCompilation=false";
 
     public const string EmitPluginFrameworkVersion = "/p:EmitPluginFrameworkVersion=true";
@@ -22,7 +24,7 @@ public interface IDotnet
 
     public Task<DotnetResult> Pack(string path, params string[] args);
 
-    public Task<DotnetResult> Publish(string path, params string[] args); 
+    public Task<DotnetResult> Publish(string path, CancellationToken ct, params string[] args);
     
     public Task<DotnetResult> Restore(string? path = null, params string[] args);
 
@@ -35,4 +37,13 @@ public interface IDotnet
     public string GetRepoRoot(string? path = null);
 
     public string? TryGetRepoRoot(string? path = null);
+}
+
+public static class DotnetExtensions
+{
+    extension(IDotnet dotnet)
+    {
+        public Task<DotnetResult> Publish(string path, params string[] args) 
+            => dotnet.Publish(path, CancellationToken.None, args);
+    }
 }

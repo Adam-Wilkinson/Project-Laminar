@@ -11,6 +11,7 @@ public static class LaminarBuilder
         "BasicFunctionality.Avalonia",
     ];
     private const string App = "src/Application/Laminar.Avalonia/Laminar.Avalonia.csproj";
+    private static readonly IDotnet Dotnet = new Dotnet();
     
     public static async Task Build()
     {

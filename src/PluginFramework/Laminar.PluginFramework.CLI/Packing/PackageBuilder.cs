@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using System.Text;
+using Corvus.Text.Json;
 using DotnetHelper;
 
 namespace Laminar.PluginFramework.CLI.Packing;
@@ -11,12 +13,13 @@ public static class PackageBuilder
         IDotnet dotnet,
         CancellationToken ct)
     {
-        await dotnet.Publish(csProjFile.FullName);
-
         if (csProjFile.Directory is not { } parentDir)
         {
             throw new InvalidOperationException($"Could not find parent directory for .csproj file '{csProjFile}'");
         }
+        
+        outputDirectory ??= new DirectoryInfo(Path.Combine(csProjFile.Directory.FullName, "temp"));
+        await dotnet.Publish(csProjFile.FullName, ct, IDotnet.OutputDirectory(outputDirectory.FullName));
 
         var pluginDir = Path.Combine(parentDir.FullName, "plugin.json");
 
@@ -25,27 +28,16 @@ public static class PackageBuilder
             throw new InvalidOperationException($"Could not find plugin.json file '{pluginDir}'");
         }
         
+        using var workspace = JsonWorkspace.Create();
         await using var pluginDataFile = File.OpenRead(pluginDir);
         var pluginData = PluginData.Parse(pluginDataFile);
-        var pluginVersion = GetPluginVersion(pluginData);
+
+        var manifest = ManifestData.FromPluginData(pluginData);
         
-        Debug.WriteLine($"Published plugin {pluginVersion}");
-    }
-
-    public static string GetPluginVersion(PluginData pluginData)
-    {
-        var pluginFullName = $"{(string)pluginData.Id}.{(int)pluginData.MajorVersion}.{(int)pluginData.MinorVersion}";
+        await using var manifestWriter = File.Create(Path.Combine(outputDirectory.FullName, "manifest.json"));
+        var bytes = Encoding.UTF8.GetBytes(manifest.ToString());
+        await manifestWriter.WriteAsync(bytes, ct);
         
-        if (pluginData.PatchVersion.IsJsonNumber)
-        {
-            pluginFullName += $".{(int)pluginData.PatchVersion}";
-        }
-
-        if (pluginData.PrereleaseVersion.AsString.HasJsonElementBacking)
-        {
-            pluginFullName += "-" + (string)pluginData.PrereleaseVersion;
-        }
-
-        return pluginFullName;
+        Debug.WriteLine($"Published plugin {(string)manifest.Version}");
     }
 }
