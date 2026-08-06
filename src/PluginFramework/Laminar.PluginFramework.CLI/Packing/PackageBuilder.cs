@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Text;
 using Corvus.Text.Json;
 using DotnetHelper;
+using JsonWriterOptions = System.Text.Json.JsonWriterOptions;
 
 namespace Laminar.PluginFramework.CLI.Packing;
 
@@ -33,9 +34,9 @@ public static class PackageBuilder
 
         var manifest = ManifestData.FromPluginData(pluginData);
         
-        await using var manifestWriter = File.Create(Path.Combine(tempDir, "manifest.json"));
-        var bytes = Encoding.UTF8.GetBytes(manifest.ToString());
-        await manifestWriter.WriteAsync(bytes, ct);
+        await using var manifestFile = File.Create(Path.Combine(tempDir, "manifest.json"));
+        await using var jsonWriter = new System.Text.Json.Utf8JsonWriter(manifestFile, new JsonWriterOptions { Indented = true });
+        manifest.WriteTo(jsonWriter);
         
         Debug.WriteLine($"Published plugin {(string)manifest.Version}");
     }

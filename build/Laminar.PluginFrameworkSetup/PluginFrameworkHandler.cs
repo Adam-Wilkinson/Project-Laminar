@@ -77,6 +77,7 @@ public static class PluginFrameworkHandler
 
             await Dotnet.New("tool-manifest");
             await Dotnet.Tool("update", PluginFrameworkCLI, IDotnet.Prerelease, IDotnet.Local);
+            await Dotnet.Tool("restore");
         }
     }
     
