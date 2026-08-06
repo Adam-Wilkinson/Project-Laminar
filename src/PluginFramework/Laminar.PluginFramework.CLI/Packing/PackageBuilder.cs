@@ -1,4 +1,6 @@
+using System.CommandLine.Parsing;
 using System.Diagnostics;
+using System.IO.Compression;
 using System.Text;
 using Corvus.Text.Json;
 using DotnetHelper;
@@ -18,6 +20,8 @@ public static class PackageBuilder
         {
             throw new InvalidOperationException($"Could not find parent directory for .csproj file '{csProjFile}'");
         }
+
+        outputDirectory ??= parentDir;
         
         var tempDir = Path.Combine(parentDir.FullName, "obj", "Lampacker");
         await dotnet.Publish(csProjFile.FullName, ct, IDotnet.OutputDirectory(tempDir));
@@ -32,12 +36,16 @@ public static class PackageBuilder
         await using var pluginDataFile = File.OpenRead(pluginDir);
         var pluginData = PluginData.Parse(pluginDataFile);
 
-        var manifest = ManifestData.FromPluginData(pluginData);
+        var manifest = ManifestData.FromPluginData(pluginData)
+            .WithEntrypoint(Path.GetFileNameWithoutExtension(csProjFile.FullName) + ".dll");
         
         await using var manifestFile = File.Create(Path.Combine(tempDir, "manifest.json"));
         await using var jsonWriter = new System.Text.Json.Utf8JsonWriter(manifestFile, new JsonWriterOptions { Indented = true });
         manifest.WriteTo(jsonWriter);
-        
-        Debug.WriteLine($"Published plugin {(string)manifest.Version}");
+
+        await ZipFile.CreateFromDirectoryAsync(
+            sourceDirectoryName: tempDir,
+            destinationArchiveFileName: Path.Combine(outputDirectory.FullName, $"{(string)manifest.Id}.{(string)manifest.Version}.plpkg"), 
+            cancellationToken: ct);
     }
 }
