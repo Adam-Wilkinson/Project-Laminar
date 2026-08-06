@@ -47,6 +47,14 @@ public static class PackageBuilder
             Directory.CreateDirectory(outputDirectory.FullName);
         }
         
+        var pluginFile = Path.Combine(outputDirectory.FullName, $"{(string)manifest.Id}.{(string)manifest.Version}.plpkg");
+
+        if (File.Exists(pluginFile))
+        {
+            Console.WriteLine($"The plugin file {pluginFile} already exists. Version increment required to overwrite");
+            return;
+        }
+        
         await ZipFile.CreateFromDirectoryAsync(
             sourceDirectoryName: tempDir,
             destinationArchiveFileName: Path.Combine(outputDirectory.FullName, $"{(string)manifest.Id}.{(string)manifest.Version}.plpkg"), 

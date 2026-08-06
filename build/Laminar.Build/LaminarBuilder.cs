@@ -10,6 +10,28 @@ public static class LaminarBuilder
         "BasicFunctionality",
         "BasicFunctionality.Avalonia",
     ];
+
+    private static readonly string[] CopyDevRepositoryTo =
+    [
+        "src/Application/Laminar.Avalonia/bin/Debug/net10.0",
+        "src/Application/Laminar.Avalonia/bin/Release/net10.0"
+    ];
+    
+    private static readonly byte[] DevPluginRepository =
+    [
+        .. """
+           {
+               "repositories": [
+                   {
+                       "id": "dev",
+                       "path": "../../../../../.lampacker.local"
+                   }
+               ]
+           }
+           """u8
+    ];
+
+    
     private const string App = "src/Application/Laminar.Avalonia/Laminar.Avalonia.csproj";
     private static readonly IDotnet Dotnet = new Dotnet();
     
@@ -25,7 +47,21 @@ public static class LaminarBuilder
                 .ThrowOnError();
             await Dotnet.ShutdownBuildServer();
         }
+        
+        // Establish repositories
+        foreach (var path in CopyDevRepositoryTo)
+        {
+            var absolutePath = Path.Combine(Dotnet.GetRepoRoot(), path);
+            
+            if (!Directory.Exists(absolutePath))
+            {
+                Directory.CreateDirectory(absolutePath);
+            }
 
+            await using var fs = File.Create(Path.Combine(absolutePath, "repositories.json"));
+            await fs.WriteAsync(DevPluginRepository);
+        }
+        
         // Build app
         await Dotnet.Build(App, IDotnet.NoRestore);
         await Dotnet.ShutdownBuildServer();
