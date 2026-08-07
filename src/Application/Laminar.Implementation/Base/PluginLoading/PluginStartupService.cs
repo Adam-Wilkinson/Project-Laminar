@@ -21,18 +21,24 @@ public class PluginStartupService(
     private static readonly DataStoreKey InbuildRepositoriesDataStore
         = new("repositories", PersistentDataType.Json, AppContext.BaseDirectory);
     
-    public void Initialize(FrontendDependency frontend, AssemblyLoadContext? defaultLoadContext)
+    public async Task Initialize(FrontendDependency frontend, AssemblyLoadContext? defaultLoadContext)
     {
         if (fileSystem.Exists(dataManager.GetDataStoreFilePath(InbuildRepositoriesDataStore)))
         {
-            pluginRepositoryStore.AddFromPersistentList(dataManager.GetDataStore(InbuildRepositoriesDataStore)
-                ["repositories"].GetOrCreateCollection<IPersistentList>());
+            foreach (var dataPoint in dataManager.GetDataStore(InbuildRepositoriesDataStore)
+                         ["repositories"].GetOrCreateCollection<IPersistentList>())
+            {
+                pluginRepositoryStore.AddFromPersistentDictionary(dataPoint.GetOrCreateCollection<IPersistentDictionary>());
+            }
         }
 
         var settings = dataManager.GetDataStore(DataStoreKey.Settings);
-        
-        pluginRepositoryStore.AddFromPersistentList(settings["plugin-repositories"]
-                .GetOrCreateCollection<IPersistentList>());
+
+        foreach (var dataPoint in settings["plugin-repositories"]
+                     .GetOrCreateCollection<IPersistentList>())
+        {
+            pluginRepositoryStore.AddFromPersistentDictionary(dataPoint.GetOrCreateCollection<IPersistentDictionary>());
+        }
         
         defaultLoadContext ??= AssemblyLoadContext.Default;
 
@@ -41,11 +47,14 @@ public class PluginStartupService(
             var persistentDictionary = installedPlugin.GetOrCreateCollection<IPersistentDictionary>();
             var id = persistentDictionary["id"].GetValue<string>().Value;
             var version = persistentDictionary["version"].GetValue<SemanticVersion>().Value;
-            if (!pluginRepositoryStore.TryFindVersionedPlugin(id, version, out var pluginInfo))
+            if (!pluginRepositoryStore.TryGetPluginInfoFromId(id, out var pluginInfo) 
+                || !pluginInfo.TryGetVersion(version, out var versionedPluginInfo))
             {
-                exceptionHandler.OnException(new CannotFindPluginException(id, version));
+                await exceptionHandler.OnExceptionAsync(new CannotFindPluginException(id, version));
                 continue;
             }
+            
+            var packageStream = await versionedPluginInfo.Sources[0].StreamPlugin(id, version);
         }
         
         // foreach (var pluginDirectory in fileSystem.EnumerateChildren(PluginPath).Where(fileSystem.IsDirectory))

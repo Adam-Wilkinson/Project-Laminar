@@ -5,5 +5,5 @@ namespace Laminar.Contracts.Base.PluginLoading;
 
 public interface IPluginStartupService
 {
-    public void Initialize(FrontendDependency frontend, AssemblyLoadContext? defaultLoadContext);
+    public Task Initialize(FrontendDependency frontend, AssemblyLoadContext? defaultLoadContext);
 }

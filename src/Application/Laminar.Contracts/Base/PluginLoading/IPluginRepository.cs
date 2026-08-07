@@ -8,5 +8,7 @@ public interface IPluginRepository
     
     public void Refresh();
     
-    public Dictionary<string, PluginInfo> Plugins { get; }
+    public Dictionary<string, IPluginInfo> Plugins { get; }
+    
+    public Task<Stream> StreamPlugin(string id, SemanticVersion version, CancellationToken cancellationToken = default);
 }

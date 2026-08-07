@@ -21,4 +21,16 @@ public static class LaminarInitializer
         serviceProvider.GetRequiredService<ILogger<None>>().LogTrace("Laminar initialized with PluginFramework version {PluginFrameworkVersion}", PluginFrameworkInfo.Version);
         return serviceProvider;
     }
+    
+    public static async Task<IServiceProvider> InitializeLaminarAsync<T>(
+        this IServiceProvider serviceProvider,
+        FrontendDependency frontendDependency,
+        AssemblyLoadContext? defaultPluginLoadContext)
+    {
+        LaminarFactory.ServiceProvider = serviceProvider;
+        await serviceProvider.GetRequiredService<IPluginStartupService>().Initialize(frontendDependency, defaultPluginLoadContext);
+        serviceProvider.GetRequiredService<ISerializer>().EnsureAssemblyInit(typeof(T).Assembly);
+        serviceProvider.GetRequiredService<ILogger<None>>().LogTrace("Laminar initialized with PluginFramework version {PluginFrameworkVersion}", PluginFrameworkInfo.Version);
+        return serviceProvider;
+    }
 }

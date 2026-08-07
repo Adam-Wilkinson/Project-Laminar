@@ -19,5 +19,10 @@ public class LocalPluginRepository(
         }
     }
 
-    public Dictionary<string, PluginInfo> Plugins { get; } = [];
+    public Dictionary<string, IPluginInfo> Plugins { get; } = [];
+    
+    public Task<Stream> StreamPlugin(string id, SemanticVersion version, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
 }
