@@ -35,6 +35,7 @@
     <File Path="src\PluginFramework\plugin.schema.json" />
     <Project Path="src/PluginFramework/Laminar.PluginFramework.CLI/Laminar.PluginFramework.CLI.csproj" />
     <Project Path="src/PluginFramework/Laminar.PluginFramework.Core/Laminar.PluginFramework.Core.csproj" />
+    <Project Path="src/PluginFramework/Laminar.PluginFramework.Json/Laminar.PluginFramework.Json.csproj" />
     <Project Path="src/PluginFramework/Laminar.PluginFramework.SourceGeneration/Laminar.PluginFramework.SourceGeneration.csproj" />
     <Project Path="src/PluginFramework/Laminar.PluginFramework.Version/Laminar.PluginFramework.Version.csproj" />
     <Project Path="src/PluginFramework/Laminar.PluginFramework/Laminar.PluginFramework.csproj" />
@@ -52,7 +53,7 @@
     <Project Path="tests/Application/Laminar.Implementation.UnitTests/Laminar.Implementation.UnitTests.csproj" />
   </Folder>
   <Folder Name="/tests/PluginFramework/">
-    <Project Path="tests/PluginFramework/Laminar.PluginFramework.CLI.UnitTests/Laminar.PluginFramework.CLI.UnitTests.csproj" />
+    <Project Path="tests/PluginFramework/Laminar.PluginFramework.Json.UnitTests/Laminar.PluginFramework.Json.UnitTests.csproj" />
     <Project Path="tests/PluginFramework/Laminar.PluginFramework.UnitTests/Laminar.PluginFramework.UnitTests.csproj" />
   </Folder>
 </Solution>

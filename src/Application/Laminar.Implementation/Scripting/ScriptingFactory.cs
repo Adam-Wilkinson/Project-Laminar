@@ -21,8 +21,8 @@ internal class ScriptingFactory(
     public IScript CreateScript() 
         => new Script(dataFactory.GetEncodableData<IPersistentDictionary>(), scriptExecutionManager, this);
 
-    public IScript FromPersistentData(IPersistentDictionary encodableData) 
-        => new Script(encodableData, scriptExecutionManager, this);
+    public IScript FromPersistentData(IPersistentDictionary persistentDictionary) 
+        => new Script(persistentDictionary, scriptExecutionManager, this);
 
     public INodeTree CreateNodeTree(IEnumerable<IWrappedNode> nodes, IEnumerable<IConnection> connections, INotificationClient<LaminarExecutionContext>? userChangedValueClient = null) 
         => new WritableNodeTree(dataFactory.GetEncodableData<IPersistentDictionary>(), nodeFactory, logger, exceptionHandler, nodes, connections);

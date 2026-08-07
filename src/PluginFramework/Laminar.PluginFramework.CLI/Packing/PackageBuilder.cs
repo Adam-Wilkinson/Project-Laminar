@@ -1,5 +1,6 @@
 using System.IO.Compression;
 using DotnetHelper;
+using Laminar.PluginFramework.Json;
 using JsonWriterOptions = System.Text.Json.JsonWriterOptions;
 
 namespace Laminar.PluginFramework.CLI.Packing;

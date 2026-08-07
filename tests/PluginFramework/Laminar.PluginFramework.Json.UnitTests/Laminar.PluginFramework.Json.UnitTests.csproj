@@ -5,7 +5,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\..\src\PluginFramework\Laminar.PluginFramework.CLI\Laminar.PluginFramework.CLI.csproj" />
+      <ProjectReference Include="..\..\..\src\PluginFramework\Laminar.PluginFramework.Json\Laminar.PluginFramework.Json.csproj" />
     </ItemGroup>
 
 </Project>

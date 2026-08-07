@@ -18,7 +18,7 @@ public static class LaminarInitializer
         LaminarFactory.ServiceProvider = serviceProvider;
         serviceProvider.GetRequiredService<IPluginStartupService>().Initialize(frontendDependency, defaultPluginLoadContext);
         serviceProvider.GetRequiredService<ISerializer>().EnsureAssemblyInit(typeof(T).Assembly);
-        serviceProvider.GetRequiredService<ILogger<None>>().LogTrace("Laminar Initialized with PluginFramework version {PluginFrameworkVersion}", PluginFrameworkInfo.Version);
+        serviceProvider.GetRequiredService<ILogger<None>>().LogTrace("Laminar initialized with PluginFramework version {PluginFrameworkVersion}", PluginFrameworkInfo.Version);
         return serviceProvider;
     }
 }

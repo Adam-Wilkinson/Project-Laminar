@@ -1,20 +1,18 @@
-﻿using Laminar.PluginFramework.CLI.Packing;
+namespace Laminar.PluginFramework.Json.UnitTests;
 
-namespace Laminar.PluginFramework.CLI.UnitTests;
-
-public class LaminarBuilderTests
+public class PluginDataTests
 {
     [Fact]
     public void ShouldParseVersion()
     {
         const string pluginUnderTest =
-        """
-        {
-            "id": "example-plugin",
-            "major-version": 1,
-            "minor-version": 0
-        }                    
-        """;
+            """
+            {
+                "id": "example-plugin",
+                "major-version": 1,
+                "minor-version": 0
+            }                    
+            """;
         
         var pluginVersion = PluginData.Parse(pluginUnderTest).GetPluginVersion();
 

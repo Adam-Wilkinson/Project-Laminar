@@ -15,6 +15,7 @@ internal sealed class PersistentDataManager(
 {
     private readonly Dictionary<DataStoreKey, IDataOnDisk<IPersistentDictionary>> _dataStores = [];
     private readonly List<IDataOnDisk<IEncodableData>> _allResources = [];
+    private readonly JsonPersistentDataTranscoder _jsonTranscoder = new(jsonTranscoderLogger);
     
     public IPersistentDictionary GetDataStore(DataStoreKey dataStoreKey)
     {
@@ -23,23 +24,24 @@ internal sealed class PersistentDataManager(
             return dataStore.Data;
         }
         
-        if (!fileSystem.Exists(dataStoreKey.Location))
+        if (!fileSystem.Exists(dataStoreKey.Folder))
         {
-            fileSystem.CreateDirectory(dataStoreKey.Location);
+            fileSystem.CreateDirectory(dataStoreKey.Folder);
         }
         
-        var transcoder = dataStoreKey.DataType switch
-        {
-            PersistentDataType.Json => new JsonPersistentDataTranscoder(jsonTranscoderLogger),
-            var unknown => throw new UnknownDataTypeException(unknown),
-        };
+        var transcoder = GetTranscoder(dataStoreKey.DataType);
 
-        var filePath = dataStoreKey.Location.ChildPath(dataStoreKey.Name + transcoder.FileExtension);
+        var filePath = dataStoreKey.Folder.ChildPath(dataStoreKey.Name + transcoder.FileExtension);
         var resource = GetDataOnDisk<IPersistentDictionary>(filePath, transcoder);
         _dataStores[dataStoreKey] = resource;
 
         return resource.Data;
     }
+
+    public FileSystemPath GetDataStoreFilePath(DataStoreKey dataStoreKey) =>
+        _dataStores.TryGetValue(dataStoreKey, out var dataOnDisk)
+            ? dataOnDisk.Location
+            : dataStoreKey.Folder.ChildPath(dataStoreKey.Name + GetTranscoder(dataStoreKey.DataType).FileExtension);
 
     public IDataOnDisk<TData> GetDataOnDisk<TData>(
         FileSystemPath filePath, 
@@ -59,6 +61,12 @@ internal sealed class PersistentDataManager(
             returnValue.OnDisposed -= OnResourceDisposed;
         }
     }
+
+    public IPersistentDataTranscoder GetTranscoder(PersistentDataType dataType) => dataType switch
+    {
+        PersistentDataType.Json => _jsonTranscoder,
+        _ => throw new UnknownDataTypeException(dataType),
+    };
 
     public void ForgetDataStore(DataStoreKey dataStoreKey)
     {

@@ -9,6 +9,10 @@ public interface IPersistentDataManager : IDisposable
     
     public void ForgetDataStore(DataStoreKey dataStoreKey);
 
+    public IPersistentDataTranscoder GetTranscoder(PersistentDataType dataType);
+    
+    public FileSystemPath GetDataStoreFilePath(DataStoreKey dataStoreKey);
+    
     public IDataOnDisk<TData> GetDataOnDisk<TData>(
         FileSystemPath filePath, 
         IPersistentDataTranscoder transcoder,

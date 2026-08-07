@@ -2,7 +2,7 @@ using Laminar.Domain.ValueObjects;
 
 namespace Laminar.Domain.DataManagement;
 
-public record DataStoreKey(string Name, PersistentDataType DataType, FileSystemPath Location)
+public record DataStoreKey(string Name, PersistentDataType DataType, FileSystemPath Folder)
 {
     public static DataStoreKey PersistentData { get; } = new("PersistentData", PersistentDataType.Json, DataLocations.RoamingDataFolder);
     public static DataStoreKey Settings { get; } = new("Settings", PersistentDataType.Json, DataLocations.RoamingDataFolder);
@@ -11,5 +11,5 @@ public record DataStoreKey(string Name, PersistentDataType DataType, FileSystemP
 
 public enum PersistentDataType
 {
-    Json = 1,
+    Json
 }

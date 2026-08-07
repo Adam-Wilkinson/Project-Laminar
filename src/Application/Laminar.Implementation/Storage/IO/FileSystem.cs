@@ -37,6 +37,9 @@ internal partial class FileSystem(ILogger<IFileSystem> fileSystemLogger, ILogger
     public IEnumerable<FileSystemPath> EnumerateChildren(FileSystemPath path) 
         => Directory.GetFileSystemEntries(path.ToString()).Select(x => new FileSystemPath(x));
     
+    public IEnumerable<FileSystemPath> EnumerateChildren(FileSystemPath path, string filter) 
+        => Directory.GetFileSystemEntries(path.ToString(), filter).Select(x => new FileSystemPath(x));
+    
     public void Move(FileSystemPath sourcePath, FileSystemPath destPath) 
     {
         LogFileSystemMove(fileSystemLogger, sourcePath, destPath);

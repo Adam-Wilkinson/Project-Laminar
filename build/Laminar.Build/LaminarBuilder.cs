@@ -24,13 +24,13 @@ public static class LaminarBuilder
                "repositories": [
                    {
                        "id": "dev",
+                       "provider": "filesystem",
                        "path": "../../../../../.lampacker.local"
                    }
                ]
            }
            """u8
     ];
-
     
     private const string App = "src/Application/Laminar.Avalonia/Laminar.Avalonia.csproj";
     private static readonly IDotnet Dotnet = new Dotnet();

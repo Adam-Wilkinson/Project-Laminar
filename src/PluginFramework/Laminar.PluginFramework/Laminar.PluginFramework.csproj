@@ -3,7 +3,6 @@
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
         <Title>Project: Laminar Plugin Framework</Title>
-        <RootNamespace>Laminar.PluginFramework</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
