@@ -1,5 +1,5 @@
 ﻿using Laminar.Contracts.Storage.PersistentData;
-using Laminar.Domain.Notification.Value;
+using Laminar.Domain.Observables.Value;
 using Point = Laminar.Domain.ValueObjects.Point;
 
 namespace Laminar.Contracts.Scripting;

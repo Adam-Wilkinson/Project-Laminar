@@ -1,6 +1,6 @@
 using System.ComponentModel;
 
-namespace Laminar.Domain.Notification;
+namespace Laminar.Domain.Observables;
 
 public interface INotificationSource
 {

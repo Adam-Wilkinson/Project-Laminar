@@ -4,7 +4,7 @@ using Laminar.Contracts.Scripting.Connection;
 using Laminar.Contracts.Scripting.Execution;
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Contracts.Storage.PersistentData;
-using Laminar.Domain.Notification;
+using Laminar.Domain.Observables;
 using Laminar.PluginFramework.NodeSystem;
 using Microsoft.Extensions.Logging;
 

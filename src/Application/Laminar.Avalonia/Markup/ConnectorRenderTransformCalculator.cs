@@ -8,7 +8,7 @@ using Avalonia.Markup.Xaml;
 using Avalonia.Markup.Xaml.MarkupExtensions;
 using Avalonia.Media.Transformation;
 using Laminar.Contracts.Scripting.NodeWrapping;
-using Laminar.Domain.Notification.Value;
+using Laminar.Domain.Observables.Value;
 using Laminar.PluginFramework.NodeSystem.Connectors;
 using Microsoft.Extensions.DependencyInjection;
 

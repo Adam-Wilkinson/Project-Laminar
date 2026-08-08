@@ -1,4 +1,4 @@
-using Laminar.Domain.Notification.Value;
+using Laminar.Domain.Observables.Value;
 using Laminar.Domain.ValueObjects;
 
 namespace Laminar.Domain.UnitTests.ValueObjects.UnitTests;

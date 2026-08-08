@@ -1,6 +1,6 @@
 using System.Collections.Specialized;
 using Laminar.Contracts.Storage.PersistentData;
-using Laminar.Domain.Notification.Collections;
+using Laminar.Domain.Observables.Collections;
 
 namespace Laminar.Implementation.Storage.PersistentData;
 

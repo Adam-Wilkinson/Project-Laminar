@@ -7,7 +7,7 @@ using Laminar.Contracts.Scripting.Connection;
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.Exceptions;
-using Laminar.Domain.Notification.Collections;
+using Laminar.Domain.Observables.Collections;
 using Laminar.Implementation.Scripting.Connections;
 using Laminar.PluginFramework.NodeSystem.Connectors;
 using Microsoft.Extensions.Logging;
@@ -94,7 +94,7 @@ internal class WritableNodeTree : IWritableNodeTree
 
     public INodeUpdates GetUpdates(IWrappedNode node) => _nodesInformation[node].Updates;
 
-    public IReadOnlyObservableCollection<IWrappedNode> Nodes => new Domain.Notification.Collections.ReadOnlyObservableCollection<IWrappedNode>(_nodes);
+    public IReadOnlyObservableCollection<IWrappedNode> Nodes => new Domain.Observables.Collections.ReadOnlyObservableCollection<IWrappedNode>(_nodes);
 
     public IReadOnlyObservableCollection<IConnection> Connections => _connections.ObservableMap(IConnection (Connection x) => x);
     

@@ -12,7 +12,8 @@ namespace Laminar.Implementation.Base.PluginLoading;
 
 public class PluginStartupService(
     IFileSystem fileSystem,
-    // IPluginLoader pluginLoader, 
+    IPluginInstaller pluginInstaller, 
+    IPluginInstallContext pluginInstallContext,
     // IWritablePluginRegistry pluginRegistry,
     IPersistentDataManager dataManager,
     IPluginRepositoryStore pluginRepositoryStore,
@@ -23,12 +24,14 @@ public class PluginStartupService(
     
     public async Task Initialize(FrontendDependency frontend, AssemblyLoadContext? defaultLoadContext)
     {
+        pluginInstallContext.Configure(frontend, Platforms.All, defaultLoadContext);
+        
         if (fileSystem.Exists(dataManager.GetDataStoreFilePath(InbuildRepositoriesDataStore)))
         {
             foreach (var dataPoint in dataManager.GetDataStore(InbuildRepositoriesDataStore)
                          ["repositories"].GetOrCreateCollection<IPersistentList>())
             {
-                pluginRepositoryStore.AddFromPersistentDictionary(dataPoint.GetOrCreateCollection<IPersistentDictionary>());
+                _ = pluginRepositoryStore.AddFromPersistentDictionary(dataPoint.GetOrCreateCollection<IPersistentDictionary>());
             }
         }
 
@@ -37,24 +40,22 @@ public class PluginStartupService(
         foreach (var dataPoint in settings["plugin-repositories"]
                      .GetOrCreateCollection<IPersistentList>())
         {
-            pluginRepositoryStore.AddFromPersistentDictionary(dataPoint.GetOrCreateCollection<IPersistentDictionary>());
+            _ = pluginRepositoryStore.AddFromPersistentDictionary(dataPoint.GetOrCreateCollection<IPersistentDictionary>());
         }
         
-        defaultLoadContext ??= AssemblyLoadContext.Default;
-
         foreach (var installedPlugin in settings["installed-plugins"].GetOrCreateCollection<IPersistentList>())
         {
             var persistentDictionary = installedPlugin.GetOrCreateCollection<IPersistentDictionary>();
             var id = persistentDictionary["id"].GetValue<string>().Value;
             var version = persistentDictionary["version"].GetValue<SemanticVersion>().Value;
             if (!pluginRepositoryStore.TryGetPluginInfoFromId(id, out var pluginInfo) 
-                || !pluginInfo.TryGetVersion(version, out var versionedPluginInfo))
+                || !pluginInfo.HasVersion(version))
             {
                 await exceptionHandler.OnExceptionAsync(new CannotFindPluginException(id, version));
                 continue;
             }
-            
-            var packageStream = await versionedPluginInfo.Sources[0].StreamPlugin(id, version);
+
+            await pluginInstaller.TryGetPluginAssembly(pluginInfo, frontend, defaultLoadContext, version);
         }
         
         // foreach (var pluginDirectory in fileSystem.EnumerateChildren(PluginPath).Where(fileSystem.IsDirectory))

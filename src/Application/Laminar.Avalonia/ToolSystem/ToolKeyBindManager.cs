@@ -31,7 +31,7 @@ public class ToolKeyBindManager(TopLevel defaultTopLevel) : IAfterApplicationBui
     
     public void OnApplicationBuilt()
     {
-        defaultTopLevel.Resources.GetResourceObservable(Tool.ToolRootKey).Subscribe(new Domain.Notification.Value.AnonymousObserver<object?>(
+        defaultTopLevel.Resources.GetResourceObservable(Tool.ToolRootKey).Subscribe(new Domain.Observables.Value.AnonymousObserver<object?>(
             toolRoot =>
             {
                 if (toolRoot is Tool rootToolTemplate && rootToolTemplate != _rootTool)

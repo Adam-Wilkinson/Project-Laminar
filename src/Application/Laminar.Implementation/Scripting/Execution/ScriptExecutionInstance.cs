@@ -2,7 +2,7 @@
 using Laminar.Contracts.Scripting.Connection;
 using Laminar.Contracts.Scripting.Execution;
 using Laminar.Contracts.Scripting.NodeWrapping;
-using Laminar.Domain.Notification.Collections;
+using Laminar.Domain.Observables.Collections;
 using Laminar.Domain.ValueObjects;
 using Laminar.PluginFramework.NodeSystem;
 

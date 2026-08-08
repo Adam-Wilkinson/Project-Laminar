@@ -4,12 +4,15 @@ using Laminar.Contracts.Storage.FileExplorer;
 using Laminar.Contracts.Storage.FileExplorer.Graph;
 using Laminar.Contracts.Storage.IO;
 using Laminar.Contracts.Storage.PersistentData;
+using Laminar.Domain;
+using Laminar.Domain.Notifications;
+using Laminar.Domain.Observables.Value;
 using Laminar.Domain.ValueObjects;
 using Laminar.Implementation.Storage.FileExplorer.Graph;
 
 namespace Laminar.Implementation.Storage.FileExplorer;
 
-internal abstract class FileSystemItem : IMutableFileSystemItem
+internal abstract class FileSystemItem : IMutableFileSystemItem, IDisposable
 {
     private readonly IFileSystem _fileSystem;
     private readonly IFileSystemGraph _graph;
@@ -59,10 +62,12 @@ internal abstract class FileSystemItem : IMutableFileSystemItem
 
     public virtual bool IsEffectivelyEnabled => IsEnabled && (ParentFolder is null || ParentFolder.IsEffectivelyEnabled);
     
+    public NotificationManager NotificationManager { get; } = new();
+    
     public event EventHandler? Deleted;
     
     public IFileSystemFolder? ParentFolder { get; private set; }
-
+    
     public void Refresh()
     {
         if (!_fileSystem.Exists(Path))
@@ -87,6 +92,7 @@ internal abstract class FileSystemItem : IMutableFileSystemItem
     public void OnDeleted()
     {
         OnDeletedOverride();
+        Dispose();
         Deleted?.Invoke(this, EventArgs.Empty);
     }
     
@@ -125,5 +131,10 @@ internal abstract class FileSystemItem : IMutableFileSystemItem
         field = value;
         OnPropertyChanged(propertyName);
         return true;
+    }
+
+    public void Dispose()
+    {
+        NotificationManager.Dispose();
     }
 }

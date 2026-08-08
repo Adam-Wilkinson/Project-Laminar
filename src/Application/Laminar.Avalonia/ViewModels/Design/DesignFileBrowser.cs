@@ -2,8 +2,8 @@ using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.Storage.FileExplorer;
-using Laminar.Domain.Notification;
-using Laminar.Domain.Notification.Collections;
+using Laminar.Domain.Observables;
+using Laminar.Domain.Observables.Collections;
 using Laminar.Domain.ValueObjects;
 
 namespace Laminar.Avalonia.ViewModels.Design;

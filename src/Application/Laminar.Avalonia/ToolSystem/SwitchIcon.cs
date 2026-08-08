@@ -3,7 +3,7 @@ using Avalonia;
 using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Templates;
 using Avalonia.Data;
-using Laminar.Domain.Notification;
+using Laminar.Domain.Observables;
 
 namespace Laminar.Avalonia.ToolSystem;
 

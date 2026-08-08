@@ -1,7 +1,7 @@
 using Laminar.Contracts.Storage.FileExplorer;
 using Laminar.Contracts.Storage.FileExplorer.Graph;
 using Laminar.Contracts.Storage.PersistentData;
-using Laminar.Domain.Notification.Collections;
+using Laminar.Domain.Observables.Collections;
 using Laminar.Domain.ValueObjects;
 using Laminar.Implementation.Storage.FileExplorer.Graph;
 

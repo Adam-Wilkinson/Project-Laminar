@@ -2,7 +2,8 @@ using Laminar.Contracts.Storage.FileExplorer;
 using Laminar.Contracts.Storage.FileExplorer.Graph;
 using Laminar.Contracts.Storage.IO;
 using Laminar.Contracts.Storage.PersistentData;
-using Laminar.Domain.Notification.Collections;
+using Laminar.Domain.Notifications;
+using Laminar.Domain.Observables.Collections;
 using Laminar.Implementation.Storage.FileExplorer.Graph;
 
 namespace Laminar.Implementation.Storage.FileExplorer;
@@ -153,6 +154,7 @@ internal class FileSystemFolder : FileSystemItem, IMutableFileSystemFolder
         _contentsInternal = new ObservableCollectionImpl<IFileSystemItem>([]);
         
         // When loading persistent contents from memory, we don't want changes to propagate back to _persistentContents
+        using var _ = NotificationManager.ScopeNotification(FileSystemNotifications.LoadingFolderContents);
         _persistentContents = null;
         var persistentContents = PersistentStorage[nameof(Contents)].GetOrCreateCollection<IPersistentList>();
         foreach (var persistentDictionary in persistentContents

@@ -1,4 +1,4 @@
-namespace Laminar.Domain.Notification.Value;
+namespace Laminar.Domain.Observables.Value;
 
 public readonly struct ObservableValueChangedEventArgs<T>(T oldValue, T newValue)
 {

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Specialized;
 
-namespace Laminar.Domain.Notification.Collections;
+namespace Laminar.Domain.Observables.Collections;
 
 public interface IReadOnlyObservableCollection<T> : IReadOnlyList<T>, INotifyCollectionChanged
 {

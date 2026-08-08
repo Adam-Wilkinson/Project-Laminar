@@ -1,4 +1,4 @@
-using Laminar.Domain.Notification.Value;
+using Laminar.Domain.Observables.Value;
 
 namespace Laminar.Contracts.Storage.PersistentData;
 

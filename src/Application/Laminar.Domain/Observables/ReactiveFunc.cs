@@ -1,8 +1,8 @@
 using System.ComponentModel;
-using Laminar.Domain.Notification.Value;
+using Laminar.Domain.Observables.Value;
 using Laminar.Domain.ValueObjects;
 
-namespace Laminar.Domain.Notification;
+namespace Laminar.Domain.Observables;
 
 /// <summary>
 /// Maps a regular function into one that returns an <see cref="IReadOnlyObservableValue{T}"/> which automatically updates when the appropriate properties are updates in the input

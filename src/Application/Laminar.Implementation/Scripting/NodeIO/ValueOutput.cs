@@ -1,5 +1,5 @@
 ﻿using Laminar.Contracts.Base;
-using Laminar.Domain.Notification;
+using Laminar.Domain.Observables;
 using Laminar.Implementation.Scripting.Connections;
 using Laminar.PluginFramework.NodeSystem;
 using Laminar.PluginFramework.NodeSystem.Connectors;

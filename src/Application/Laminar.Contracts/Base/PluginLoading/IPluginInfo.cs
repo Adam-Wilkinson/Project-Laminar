@@ -1,5 +1,5 @@
-using System.Diagnostics.CodeAnalysis;
 using Laminar.Domain.ValueObjects;
+using Laminar.PluginFramework.Json;
 
 namespace Laminar.Contracts.Base.PluginLoading;
 
@@ -7,20 +7,24 @@ public interface IPluginInfo
 {
     public string Id { get; }
 
-    public IReadOnlyCollection<VersionedPluginInfo> AllVersions { get; }
+    public IReadOnlyCollection<SemanticVersion> AllVersions { get; }
 
-    public VersionedPluginInfo LatestVersion { get; }
+    public SemanticVersion LatestVersion { get; }
+
+    public Task<ManifestData> GetVersionInfo(SemanticVersion version, CancellationToken ct = default);
     
-    public bool TryGetVersion(SemanticVersion version, out VersionedPluginInfo versionedPluginInfo);
+    public Task<Stream> OpenVersionStream(SemanticVersion version, CancellationToken ct = default);
     
-    public void AddVersion(VersionedPluginInfo pluginInfo, IPluginRepository sourceRepository);
+    public bool HasVersion(SemanticVersion version);
     
-    public void RemoveVersion(VersionedPluginInfo pluginInfo, IPluginRepository sourceRepository);
+    public void AddVersion(SemanticVersion version, IPluginRepository sourceRepository);
+    
+    public void RemoveVersion(SemanticVersion version, IPluginRepository sourceRepository);
 }
 
-public readonly struct VersionedPluginInfo(string id, string version)
+public readonly struct VersionedPluginInfo(string id, SemanticVersion version)
 {
-    public SemanticVersion Version { get; } = new(version);
+    public SemanticVersion Version { get; } = version;
 
     public string Id { get; } = id;
 

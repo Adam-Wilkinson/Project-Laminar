@@ -6,7 +6,7 @@ using Laminar.Contracts.Storage.FileExplorer.Graph;
 using Laminar.Contracts.Storage.IO;
 using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.DataManagement;
-using Laminar.Domain.Notification.Collections;
+using Laminar.Domain.Observables.Collections;
 using Laminar.Domain.ValueObjects;
 using Laminar.Implementation.Storage.FileExplorer.UserActions;
 using static Laminar.Domain.DataManagement.DataLocations;

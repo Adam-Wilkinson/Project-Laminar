@@ -1,4 +1,4 @@
-namespace Laminar.Domain.Notification.Value;
+namespace Laminar.Domain.Observables.Value;
 
 public sealed class AnonymousObservable<T>(Func<IObserver<T>, IDisposable> subscribe) : IObservable<T>
 {

@@ -7,7 +7,7 @@ using Laminar.Avalonia.ViewModels.Services;
 using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.Storage.FileExplorer;
 using Laminar.Domain.Extensions;
-using Laminar.Domain.Notification.Collections;
+using Laminar.Domain.Observables.Collections;
 
 namespace Laminar.Avalonia.ViewModels;
 

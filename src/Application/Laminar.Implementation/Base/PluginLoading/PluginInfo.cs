@@ -1,6 +1,6 @@
-using System.Diagnostics.CodeAnalysis;
 using Laminar.Contracts.Base.PluginLoading;
 using Laminar.Domain.ValueObjects;
+using Laminar.PluginFramework.Json;
 
 namespace Laminar.Implementation.Base.PluginLoading;
 
@@ -12,35 +12,42 @@ internal class PluginInfo : IPluginInfo
     {
         _versions = new SortedList<SemanticVersion, VersionedPluginInfo>(
             allVersions.ToDictionary(x => x.Version), SemanticVersionComparer.Instance);
-        AllVersions = _versions.Values.AsReadOnly();
+        AllVersions = _versions.Keys.AsReadOnly();
         Id = id;
-        LatestVersion = _versions.GetValueAtIndex(_versions.Count - 1);
+        LatestVersion = _versions.GetKeyAtIndex(_versions.Count - 1);
     }
 
     public string Id { get; }
 
-    public IReadOnlyCollection<VersionedPluginInfo> AllVersions { get; }
+    public IReadOnlyCollection<SemanticVersion> AllVersions { get; }
 
-    public VersionedPluginInfo LatestVersion { get; private set; }
+    public SemanticVersion LatestVersion { get; private set; }
 
-    public bool TryGetVersion(SemanticVersion version, out VersionedPluginInfo versionedPluginInfo)
-        => _versions.TryGetValue(version, out versionedPluginInfo);
+    public Task<ManifestData> GetVersionInfo(SemanticVersion version, CancellationToken ct = default)
+        => _versions[version].Sources[0].GetManifest(Id, version, ct);
 
-    public void AddVersion(VersionedPluginInfo pluginInfo, IPluginRepository sourceRepository)
+    public Task<Stream> OpenVersionStream(SemanticVersion version, CancellationToken ct = default)
+        => _versions[version].Sources[0].StreamPlugin(Id, version, ct);
+
+    public bool HasVersion(SemanticVersion version) => _versions.ContainsKey(version);
+
+    public void AddVersion(SemanticVersion version, IPluginRepository sourceRepository)
     {
-        if (_versions.TryGetValue(pluginInfo.Version, out var currentVersionInfo))
+        if (_versions.TryGetValue(version, out var currentVersionInfo))
         {
             currentVersionInfo.Sources.Add(sourceRepository);
             return;
         }
 
-        _versions.Add(pluginInfo.Version, pluginInfo);
-        LatestVersion = _versions.GetValueAtIndex(_versions.Count - 1);
+        var newVersionInfo = new VersionedPluginInfo(Id, version);
+        newVersionInfo.Sources.Add(sourceRepository);
+        _versions.Add(version, newVersionInfo);
+        LatestVersion = _versions.GetKeyAtIndex(_versions.Count - 1);
     }
 
-    public void RemoveVersion(VersionedPluginInfo pluginInfo, IPluginRepository sourceRepository)
+    public void RemoveVersion(SemanticVersion version, IPluginRepository sourceRepository)
     {
-        if (!_versions.TryGetValue(pluginInfo.Version, out var currentVersionInfo))
+        if (!_versions.TryGetValue(version, out var currentVersionInfo))
         {
             return;
         }
@@ -48,7 +55,7 @@ internal class PluginInfo : IPluginInfo
         currentVersionInfo.Sources.Remove(sourceRepository);
         if (currentVersionInfo.Sources.Count != 0) return;
         
-        _versions.Remove(pluginInfo.Version);
-        LatestVersion = _versions.GetValueAtIndex(_versions.Count - 1);
+        _versions.Remove(version);
+        LatestVersion = _versions.GetKeyAtIndex(_versions.Count - 1);
     }
 }

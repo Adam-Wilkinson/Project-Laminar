@@ -1,6 +1,6 @@
 using System.ComponentModel;
 using Laminar.Contracts.Storage.PersistentData;
-using Laminar.Domain.Notification.Value;
+using Laminar.Domain.Observables.Value;
 using Laminar.PluginFramework.UserInterface;
 using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 

@@ -1,7 +1,7 @@
 ﻿using Laminar.Contracts.Base.PluginLoading;
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Contracts.Storage.PersistentData;
-using Laminar.Domain.Notification;
+using Laminar.Domain.Observables;
 using Laminar.Implementation.Base.UserInterface;
 using Laminar.PluginFramework;
 using Laminar.PluginFramework.NodeSystem;

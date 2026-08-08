@@ -1,6 +1,6 @@
-﻿using Laminar.Domain.Notification;
-using Laminar.Domain.Notification.Collections;
-using Laminar.Domain.Notification.Value;
+﻿using Laminar.Domain.Observables;
+using Laminar.Domain.Observables.Collections;
+using Laminar.Domain.Observables.Value;
 
 namespace Laminar.Domain.Extensions;
 

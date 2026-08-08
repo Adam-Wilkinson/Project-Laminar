@@ -31,7 +31,7 @@ public static class LaminarServices
             .AddSingleton<ITypeInfoStore, TypeInfoStore>()
             
             .AddSingleton<IPluginStartupService, PluginStartupService>()
-            .AddSingleton<IPluginLoader, PluginLoader>()
+            .AddSingleton<IPluginInstaller, PluginInstaller>()
             .AddSingleton<IPluginHostFactory, PluginHostFactory>()
             .AddSingleton<IWritablePluginRegistry, PluginRegistry>()
             .AddSingleton<IPluginRegistry>(provider => provider.GetRequiredService<IWritablePluginRegistry>())

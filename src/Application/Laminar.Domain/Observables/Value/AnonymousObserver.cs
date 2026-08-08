@@ -1,4 +1,4 @@
-namespace Laminar.Domain.Notification.Value;
+namespace Laminar.Domain.Observables.Value;
 
 public sealed class AnonymousObserver<T>(
     Action<T>? onNext = null,

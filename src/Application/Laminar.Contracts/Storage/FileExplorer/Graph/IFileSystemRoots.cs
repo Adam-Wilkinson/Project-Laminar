@@ -1,4 +1,4 @@
-using Laminar.Domain.Notification.Collections;
+using Laminar.Domain.Observables.Collections;
 using Laminar.Domain.ValueObjects;
 
 namespace Laminar.Contracts.Storage.FileExplorer.Graph;

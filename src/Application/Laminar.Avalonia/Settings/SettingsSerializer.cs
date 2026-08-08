@@ -13,7 +13,7 @@ public class SettingsSerializer(TopLevel topLevel, IPersistentDataManager persis
     
     public void OnApplicationBuilt()
     {
-        topLevel.GetResourceObservable("SettingsRoot").Subscribe(new Domain.Notification.Value.AnonymousObserver<object?>(x =>
+        topLevel.GetResourceObservable("SettingsRoot").Subscribe(new Domain.Observables.Value.AnonymousObserver<object?>(x =>
         {
             if (x is SettingsCategory category && !_initialized)
             {

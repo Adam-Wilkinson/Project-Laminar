@@ -1,8 +1,8 @@
 ﻿using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Contracts.Storage.PersistentData;
-using Laminar.Domain.Notification;
-using Laminar.Domain.Notification.Collections;
-using Laminar.Domain.Notification.Value;
+using Laminar.Domain.Observables;
+using Laminar.Domain.Observables.Collections;
+using Laminar.Domain.Observables.Value;
 using Laminar.Domain.ValueObjects;
 using Laminar.Implementation.Scripting.Execution;
 using Laminar.Implementation.Storage.PersistentData;

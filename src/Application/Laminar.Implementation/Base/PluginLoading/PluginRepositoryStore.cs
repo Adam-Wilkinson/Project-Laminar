@@ -1,35 +1,111 @@
+using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
+using Laminar.Contracts.Base;
 using Laminar.Contracts.Base.PluginLoading;
 using Laminar.Contracts.Storage.PersistentData;
+using Laminar.Domain.Observables.Collections;
+using Laminar.Domain.ValueObjects;
 
 namespace Laminar.Implementation.Base.PluginLoading;
 
-public class PluginRepositoryStore(IPluginRepositoryFactory factory) : IPluginRepositoryStore
+public class PluginRepositoryStore(IPluginRepositoryFactory factory, IExceptionHandler exceptionHandler) : IPluginRepositoryStore
 {
     private readonly List<IPluginRepository> _pluginRepositories = [];
     private readonly Dictionary<string, IPluginInfo> _pluginInfos = [];
+    private readonly Dictionary<(string id, SemanticVersion version), TaskCompletionSource<VersionedPluginInfo?>> _pendingRequests = [];
+    private readonly ObservableCollection<IPluginInfo> _loadedPlugins = [];
+    private readonly ObservableCollection<IPluginRepository> _loadingRepositories = [];
+    private readonly Lock _loadingRepositoriesLock = new();
+    private readonly Lock _pluginInfosLock = new();
     
-    public IPluginRepository AddFromPersistentDictionary(IPersistentDictionary persistentDictionary)
+    private TaskCompletionSource? _loadedCompletionSource;
+    
+    public async Task<IPluginRepository> AddFromPersistentDictionary(IPersistentDictionary persistentDictionary)
     {
         var newRepo = factory.FromPersistentData(persistentDictionary);
         _pluginRepositories.Add(factory.FromPersistentData(persistentDictionary));
-        foreach (var (id, pluginInfo) in newRepo.Plugins)
+        
+        lock (_loadingRepositoriesLock)
         {
-            if (!_pluginInfos.TryGetValue(id, out var masterInfo))
+            if (_loadingRepositories.Count == 0)
             {
-                masterInfo = new PluginInfo(id, []);
-                _pluginInfos.Add(id, masterInfo);
+                _loadedCompletionSource = new TaskCompletionSource();
             }
-
-            foreach (var version in pluginInfo.AllVersions)
-            {
-                masterInfo.AddVersion(version, newRepo);
-            }
+            _loadingRepositories.Add(newRepo);   
         }
 
+        try
+        {
+            await foreach (var pluginInfo in newRepo.Reload())
+            {
+                MergePluginInfo(pluginInfo, newRepo);
+            }
+        }
+        catch (Exception ex)
+        {
+            await exceptionHandler.OnExceptionAsync(ex);
+        }
+        finally
+        {
+            lock (_loadingRepositoriesLock)
+            {
+                _loadingRepositories.Remove(newRepo);
+                if (_loadingRepositories.Count == 0)
+                {
+                    _loadedCompletionSource?.SetResult();
+                    _loadedCompletionSource = null;
+                }  
+            } 
+        }
+
+        
         return newRepo;
     }
-    
+
+    public Task<bool> PluginExists(string id, SemanticVersion version)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<VersionedPluginInfo?> GetPluginOrNull(string pluginId, SemanticVersion version)
+    {
+        if (_pluginInfos.TryGetValue(pluginId, out var pluginInfo) && pluginInfo.HasVersion(version))
+        {
+            return Task.FromResult<VersionedPluginInfo?>(result);
+        }
+
+        if (_pendingRequests.TryGetValue((pluginId, version), out var pendingRequest))
+        {
+            return pendingRequest.Task;
+        }
+        
+        pendingRequest = new TaskCompletionSource<VersionedPluginInfo?>();
+        _pendingRequests.Add((pluginId, version), pendingRequest);
+        return pendingRequest.Task;
+    }
+
+    private void MergePluginInfo(IPluginInfo pluginInfo, IPluginRepository newRepo)
+    {
+        lock (_pluginInfosLock)
+        {
+            if (!_pluginInfos.TryGetValue(pluginInfo.Id, out var masterInfo))
+            {
+                masterInfo = new PluginInfo(pluginInfo.Id, []);
+                _pluginInfos.Add(pluginInfo.Id, masterInfo);
+            }
+
+            foreach (var versionedInfo in pluginInfo.AllVersions)
+            {
+                masterInfo.AddVersion(versionedInfo.Version, newRepo);
+                if (_pendingRequests.TryGetValue((pluginInfo.Id, versionedInfo.Version), out var pendingRequest))
+                {
+                    
+                }
+                
+            }
+        }
+    }
+
     public void ForgetRepository(IPluginRepository repository)
     {
         foreach (var (id, pluginInfo) in repository.Plugins)
@@ -48,10 +124,19 @@ public class PluginRepositoryStore(IPluginRepositoryFactory factory) : IPluginRe
                 }
             }
         }
+        
+        _pluginRepositories.Remove(repository);
     }
 
     public bool TryGetPluginInfoFromId(string id, [NotNullWhen(true)] out IPluginInfo? pluginInfo)
         => _pluginInfos.TryGetValue(id, out pluginInfo);
 
     public IReadOnlyList<IPluginRepository> Repositories => _pluginRepositories;
+
+    public IReadOnlyObservableCollection<IPluginRepository> CurrentlyLoadingRepositories => _loadingRepositories.ToInterfaceImpl();
+    
+    public IReadOnlyObservableCollection<IPluginInfo> LoadedPlugins => _loadedPlugins.ToInterfaceImpl();
+    
+    public Task EnsurePluginsLoaded() => _loadedCompletionSource?.Task ?? Task.CompletedTask;
+
 }

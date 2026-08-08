@@ -1,7 +1,7 @@
 ﻿using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Scripting.Execution;
 using Laminar.Contracts.Storage.PersistentData;
-using Laminar.Domain.Notification.Value;
+using Laminar.Domain.Observables.Value;
 using Laminar.Domain.ValueObjects;
 
 namespace Laminar.Implementation.Scripting;

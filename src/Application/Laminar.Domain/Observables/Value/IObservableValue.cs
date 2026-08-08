@@ -1,6 +1,6 @@
 using Laminar.Domain.ValueObjects;
 
-namespace Laminar.Domain.Notification.Value;
+namespace Laminar.Domain.Observables.Value;
 
 public interface IObservableValue<T> : IReadOnlyObservableValue<T>, IValueSink<T>
 {   

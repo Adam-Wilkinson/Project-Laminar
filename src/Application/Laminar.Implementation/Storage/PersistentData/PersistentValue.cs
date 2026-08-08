@@ -1,6 +1,6 @@
 using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.Exceptions;
-using Laminar.Domain.Notification.Value;
+using Laminar.Domain.Observables.Value;
 using Laminar.PluginFramework.Serialization;
 
 namespace Laminar.Implementation.Storage.PersistentData;

@@ -1,3 +1,4 @@
+using Laminar.Contracts.Base.PluginLoading;
 using Laminar.Contracts.Storage.FileExplorer.Graph;
 using Laminar.Contracts.Storage.FileExplorer.Synchronization;
 using Laminar.Contracts.Storage.IO;
@@ -13,7 +14,7 @@ internal class FileSystemRootFolder : FileSystemFolder, IMutableFileSystemRootFo
     private const string InfoFileName = ".laminar.data";
     private readonly IFileSystem _fileSystem;
     private readonly IFileSystemMonitor _fileSystemMonitor;
-    private readonly IDataOnDisk<IPersistentDictionary> _persistentData;
+    private readonly IDataOnDisk<IPersistentDictionary> _persistentDataOnDisk;
     
     private FileSystemPath _path;
     private IDisposable _currentMonitor;
@@ -25,14 +26,24 @@ internal class FileSystemRootFolder : FileSystemFolder, IMutableFileSystemRootFo
         IFileSystem fileSystem,
         IPersistentDataManager persistentDataManager,
         IFileSystemMonitor monitor,
+        IPluginInstaller pluginInstaller,
         IFileSystemGraph graph) 
         : base(persistentData, fileSystem, graph)
     {
         _path = path;
         _fileSystem = fileSystem;
         _fileSystemMonitor = monitor;
-        _persistentData = persistentDataManager.GetDataOnDisk(path.ChildPath(InfoFileName), new JsonPersistentDataTranscoder(null!), persistentData);
-        _currentMonitor = monitor.StartMonitoring(this, [ _persistentData.Location ]);
+        _persistentDataOnDisk = persistentDataManager.GetDataOnDisk(path.ChildPath(InfoFileName), new JsonPersistentDataTranscoder(null!), persistentData);
+        _currentMonitor = monitor.StartMonitoring(this, [ _persistentDataOnDisk.Location ]);
+
+        foreach (var requiredPlugin in persistentData["required-plugins"].GetOrCreateCollection<IPersistentList>())
+        {
+            var pluginInfo = requiredPlugin.GetOrCreateCollection<IPersistentDictionary>();
+            var pluginId = pluginInfo["id"].GetValue<string>().Value;
+            var version = pluginInfo["version"].GetValue<SemanticVersion>().Value;
+            pluginInstaller.EnsurePluginInstalled(pluginId, version);
+        }
+        
         Refresh();
     }
 
@@ -48,9 +59,9 @@ internal class FileSystemRootFolder : FileSystemFolder, IMutableFileSystemRootFo
         _path = parentPath.ChildPath(newNameWithExtension);
         PersistentStorage[IFileSystemItemFactory.PersistenceNameKey].GetValue<string>().Value = newNameWithExtension;
 
-        _persistentData.Location = _path.ChildPath(InfoFileName);
+        _persistentDataOnDisk.Location = _path.ChildPath(InfoFileName);
         _currentMonitor.Dispose();
-        _currentMonitor = _fileSystemMonitor.StartMonitoring(this, [ _persistentData.Location ]);
+        _currentMonitor = _fileSystemMonitor.StartMonitoring(this, [ _persistentDataOnDisk.Location ]);
         OnPropertyChanged(nameof(Path));
     }
 
@@ -59,11 +70,11 @@ internal class FileSystemRootFolder : FileSystemFolder, IMutableFileSystemRootFo
         if (_isDisposed) return;
         _isDisposed = true;
         _currentMonitor.Dispose();
-        _persistentData.Dispose();
+        _persistentDataOnDisk.Dispose();
         
         if (cleanupInfoFiles)
         {
-            _fileSystem.Delete(_persistentData.Location);
+            _fileSystem.Delete(_persistentDataOnDisk.Location);
         }
         
         OnDeleted();

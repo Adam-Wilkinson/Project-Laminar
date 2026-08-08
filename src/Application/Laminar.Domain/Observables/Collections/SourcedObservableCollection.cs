@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Specialized;
 using System.Runtime.CompilerServices;
 
-namespace Laminar.Domain.Notification.Collections;
+namespace Laminar.Domain.Observables.Collections;
 
 public enum SourcedCollectionMode
 {

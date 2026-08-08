@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Runtime.CompilerServices;
 
-namespace Laminar.Domain.Notification.Collections;
+namespace Laminar.Domain.Observables.Collections;
 
 public interface IObservableCollection<T> : IReadOnlyObservableCollection<T>, IList<T>, IList
 {

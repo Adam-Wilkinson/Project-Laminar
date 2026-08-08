@@ -1,8 +1,8 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using Laminar.Domain.Extensions;
-using Laminar.Domain.Notification;
-using Laminar.Domain.Notification.Collections;
+using Laminar.Domain.Observables;
+using Laminar.Domain.Observables.Collections;
 using static Laminar.Domain.UnitTests.TestUtils;
 
 namespace Laminar.Domain.UnitTests.Notification.UnitTests;

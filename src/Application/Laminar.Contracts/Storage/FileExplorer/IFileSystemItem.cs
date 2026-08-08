@@ -1,4 +1,7 @@
 using System.ComponentModel;
+using Laminar.Domain;
+using Laminar.Domain.Notifications;
+using Laminar.Domain.Observables.Value;
 using Laminar.Domain.ValueObjects;
 
 namespace Laminar.Contracts.Storage.FileExplorer;
@@ -21,6 +24,8 @@ public interface IFileSystemItem : INotifyPropertyChanged
     
     public IFileSystemFolder? ParentFolder { get; }
 
+    public NotificationManager NotificationManager { get; }
+    
     public event EventHandler? Deleted;
     
     public void Refresh();

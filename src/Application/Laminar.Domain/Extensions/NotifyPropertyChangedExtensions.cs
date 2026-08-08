@@ -1,6 +1,6 @@
 using System.ComponentModel;
-using Laminar.Domain.Notification;
-using Laminar.Domain.Notification.Value;
+using Laminar.Domain.Observables;
+using Laminar.Domain.Observables.Value;
 using Laminar.Domain.ValueObjects;
 
 namespace Laminar.Domain.Extensions;

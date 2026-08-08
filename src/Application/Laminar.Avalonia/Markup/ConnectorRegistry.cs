@@ -136,7 +136,7 @@ public sealed class ConnectorRegistry : Interactive, IDisposable
             _element = element;
             
             _subscription = element.GetResourceObservable(Key)
-                .Subscribe(new Domain.Notification.Value.AnonymousObserver<object?>(ConnectorRegistryChanged));
+                .Subscribe(new Domain.Observables.Value.AnonymousObserver<object?>(ConnectorRegistryChanged));
             
             _element.DetachedFromVisualTree += OnDetachedFromElementTree;
             _element.PointerPressed += ElementOnPointerPressed; 

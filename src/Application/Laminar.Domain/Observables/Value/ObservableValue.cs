@@ -1,6 +1,6 @@
 using System.ComponentModel;
 
-namespace Laminar.Domain.Notification.Value;
+namespace Laminar.Domain.Observables.Value;
 
 public class ObservableValue<T>(T value) : ObservableValueBase<T>
 {
