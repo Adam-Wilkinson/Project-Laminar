@@ -15,7 +15,7 @@ public interface IPluginRepositoryStore
     
     public IReadOnlyObservableCollection<IPluginInfo> LoadedPlugins { get; }
     
-    public Task<IPluginRepository> AddFromPersistentDictionary(IPersistentDictionary persistentList);
+    public Task<IPluginRepository?> AddFromPersistentDictionary(IPersistentDictionary persistentList);
     
     public void ForgetRepository(IPluginRepository repository);
     

@@ -64,7 +64,7 @@ internal sealed class PluginInstaller(
             }
             
             fileSystem.CreateDirectory(pluginPath);
-            var stream = await pluginInfo.OpenVersionStream(version);
+            await using var stream = await pluginInfo.OpenVersionStream(version);
             await ZipFile.ExtractToDirectoryAsync(stream, pluginPath);
         }
         

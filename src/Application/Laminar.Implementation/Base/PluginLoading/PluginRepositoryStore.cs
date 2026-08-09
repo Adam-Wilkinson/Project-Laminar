@@ -20,11 +20,27 @@ public class PluginRepositoryStore(IPluginRepositoryFactory factory, IExceptionH
     
     private TaskCompletionSource? _loadedCompletionSource;
     
-    public async Task<IPluginRepository> AddFromPersistentDictionary(IPersistentDictionary persistentDictionary)
+    public IReadOnlyList<IPluginRepository> Repositories => _pluginRepositories;
+
+    public IReadOnlyObservableCollection<IPluginRepository> CurrentlyLoadingRepositories => field ??= _loadingRepositories.ToInterfaceImpl();
+    
+    public IReadOnlyObservableCollection<IPluginInfo> LoadedPlugins => field ??= _loadedPlugins.ToInterfaceImpl();
+    
+    public async Task<IPluginRepository?> AddFromPersistentDictionary(IPersistentDictionary persistentDictionary)
     {
-        var newRepo = factory.FromPersistentData(persistentDictionary);
-        _pluginRepositories.Add(factory.FromPersistentData(persistentDictionary));
+        IPluginRepository? newRepo = null;
+        try
+        {
+            newRepo = factory.FromPersistentData(persistentDictionary);
+        }
+        catch (Exception ex)
+        {
+            await exceptionHandler.OnExceptionAsync(ex);
+        }
+
+        if (newRepo is null) return null;
         
+        _pluginRepositories.Add(newRepo);
         lock (_loadingRepositoriesLock)
         {
             if (_loadingRepositories.Count == 0)
@@ -49,15 +65,9 @@ public class PluginRepositoryStore(IPluginRepositoryFactory factory, IExceptionH
         {
             lock (_loadingRepositoriesLock)
             {
-                _loadingRepositories.Remove(newRepo);
-                if (_loadingRepositories.Count == 0)
-                {
-                    _loadedCompletionSource?.SetResult();
-                    _loadedCompletionSource = null;
-                }  
+                OnRepositoryLoadFinished(newRepo);
             } 
         }
-
         
         return newRepo;
     }
@@ -69,6 +79,11 @@ public class PluginRepositoryStore(IPluginRepositoryFactory factory, IExceptionH
             return Task.FromResult<IPluginInfo?>(pluginInfo);
         }
 
+        if (EnsurePluginsLoaded().IsCompleted)
+        {
+            return Task.FromResult<IPluginInfo?>(null);
+        }
+        
         if (_pendingRequests.TryGetValue((pluginId, version), out var pendingRequest))
         {
             return pendingRequest.Task;
@@ -124,13 +139,21 @@ public class PluginRepositoryStore(IPluginRepositoryFactory factory, IExceptionH
 
     public bool TryGetPluginInfoFromId(string id, [NotNullWhen(true)] out IPluginInfo? pluginInfo)
         => _pluginInfos.TryGetValue(id, out pluginInfo);
-
-    public IReadOnlyList<IPluginRepository> Repositories => _pluginRepositories;
-
-    public IReadOnlyObservableCollection<IPluginRepository> CurrentlyLoadingRepositories => _loadingRepositories.ToInterfaceImpl();
-    
-    public IReadOnlyObservableCollection<IPluginInfo> LoadedPlugins => _loadedPlugins.ToInterfaceImpl();
     
     public Task EnsurePluginsLoaded() => _loadedCompletionSource?.Task ?? Task.CompletedTask;
+    
+    private void OnRepositoryLoadFinished(IPluginRepository newRepo)
+    {
+        _loadingRepositories.Remove(newRepo);
+        if (_loadingRepositories.Count != 0) return;
+        
+        _loadedCompletionSource?.SetResult();
+        _loadedCompletionSource = null;
 
+        foreach (var incompleteRequest in _pendingRequests.Values)
+        {
+            incompleteRequest.SetResult(null);
+        }
+        _pendingRequests.Clear();
+    }
 }
