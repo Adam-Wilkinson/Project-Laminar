@@ -12,7 +12,7 @@ public class PluginRepositoryStore(IPluginRepositoryFactory factory, IExceptionH
 {
     private readonly List<IPluginRepository> _pluginRepositories = [];
     private readonly Dictionary<string, IPluginInfo> _pluginInfos = [];
-    private readonly Dictionary<(string id, SemanticVersion version), TaskCompletionSource<VersionedPluginInfo?>> _pendingRequests = [];
+    private readonly Dictionary<(string id, SemanticVersion version), TaskCompletionSource<IPluginInfo?>> _pendingRequests = [];
     private readonly ObservableCollection<IPluginInfo> _loadedPlugins = [];
     private readonly ObservableCollection<IPluginRepository> _loadingRepositories = [];
     private readonly Lock _loadingRepositoriesLock = new();
@@ -62,16 +62,11 @@ public class PluginRepositoryStore(IPluginRepositoryFactory factory, IExceptionH
         return newRepo;
     }
 
-    public Task<bool> PluginExists(string id, SemanticVersion version)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<VersionedPluginInfo?> GetPluginOrNull(string pluginId, SemanticVersion version)
+    public Task<IPluginInfo?> GetPluginInfoOrNull(string pluginId, SemanticVersion version)
     {
         if (_pluginInfos.TryGetValue(pluginId, out var pluginInfo) && pluginInfo.HasVersion(version))
         {
-            return Task.FromResult<VersionedPluginInfo?>(result);
+            return Task.FromResult<IPluginInfo?>(pluginInfo);
         }
 
         if (_pendingRequests.TryGetValue((pluginId, version), out var pendingRequest))
@@ -79,7 +74,7 @@ public class PluginRepositoryStore(IPluginRepositoryFactory factory, IExceptionH
             return pendingRequest.Task;
         }
         
-        pendingRequest = new TaskCompletionSource<VersionedPluginInfo?>();
+        pendingRequest = new TaskCompletionSource<IPluginInfo?>();
         _pendingRequests.Add((pluginId, version), pendingRequest);
         return pendingRequest.Task;
     }
@@ -94,14 +89,13 @@ public class PluginRepositoryStore(IPluginRepositoryFactory factory, IExceptionH
                 _pluginInfos.Add(pluginInfo.Id, masterInfo);
             }
 
-            foreach (var versionedInfo in pluginInfo.AllVersions)
+            foreach (var version in pluginInfo.AllVersions)
             {
-                masterInfo.AddVersion(versionedInfo.Version, newRepo);
-                if (_pendingRequests.TryGetValue((pluginInfo.Id, versionedInfo.Version), out var pendingRequest))
+                masterInfo.AddVersion(version, newRepo);
+                if (_pendingRequests.TryGetValue((pluginInfo.Id, version), out var pendingRequest))
                 {
-                    
+                    pendingRequest.SetResult(masterInfo);
                 }
-                
             }
         }
     }

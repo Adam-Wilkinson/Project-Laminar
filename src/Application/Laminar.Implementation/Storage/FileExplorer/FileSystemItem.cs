@@ -135,6 +135,5 @@ internal abstract class FileSystemItem : IMutableFileSystemItem, IDisposable
 
     public void Dispose()
     {
-        NotificationManager.Dispose();
     }
 }

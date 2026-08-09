@@ -3,6 +3,7 @@ using Laminar.Contracts.Storage.FileExplorer.Graph;
 using Laminar.Contracts.Storage.FileExplorer.Synchronization;
 using Laminar.Contracts.Storage.IO;
 using Laminar.Contracts.Storage.PersistentData;
+using Laminar.Domain.Notifications;
 using Laminar.Domain.ValueObjects;
 using Laminar.Implementation.Storage.FileExplorer.Graph;
 using Laminar.Implementation.Storage.PersistentData;
@@ -35,14 +36,7 @@ internal class FileSystemRootFolder : FileSystemFolder, IMutableFileSystemRootFo
         _fileSystemMonitor = monitor;
         _persistentDataOnDisk = persistentDataManager.GetDataOnDisk(path.ChildPath(InfoFileName), new JsonPersistentDataTranscoder(null!), persistentData);
         _currentMonitor = monitor.StartMonitoring(this, [ _persistentDataOnDisk.Location ]);
-
-        foreach (var requiredPlugin in persistentData["required-plugins"].GetOrCreateCollection<IPersistentList>())
-        {
-            var pluginInfo = requiredPlugin.GetOrCreateCollection<IPersistentDictionary>();
-            var pluginId = pluginInfo["id"].GetValue<string>().Value;
-            var version = pluginInfo["version"].GetValue<SemanticVersion>().Value;
-            pluginInstaller.EnsurePluginInstalled(pluginId, version);
-        }
+        _ = RunBackgroundStartup(pluginInstaller);
         
         Refresh();
     }
@@ -78,5 +72,23 @@ internal class FileSystemRootFolder : FileSystemFolder, IMutableFileSystemRootFo
         }
         
         OnDeleted();
+    }
+
+    private async Task RunBackgroundStartup(IPluginInstaller pluginInstaller)
+    {
+        foreach (var requiredPlugin in PersistentStorage["required-plugins"].GetOrCreateCollection<IPersistentList>())
+        {
+            var pluginInfo = requiredPlugin.GetOrCreateCollection<IPersistentDictionary>();
+            var pluginId = pluginInfo["id"].GetValue<string>().Value;
+            var version = pluginInfo["version"].GetValue<SemanticVersion>().Value;
+            var loadingNotification = NotificationManager.AddNotification(
+                new FileSystemNotifications.LoadingRequiredPlugin(pluginId, version));
+            var loadedSuccessfully = await pluginInstaller.EnsurePluginInstalled(pluginId, version);
+            loadingNotification.Dispose();
+            if (!loadedSuccessfully)
+            {
+                NotificationManager.AddNotification(new FileSystemNotifications.PluginNotFoundError(pluginId, version));
+            }
+        }
     }
 }

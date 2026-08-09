@@ -154,7 +154,7 @@ internal class FileSystemFolder : FileSystemItem, IMutableFileSystemFolder
         _contentsInternal = new ObservableCollectionImpl<IFileSystemItem>([]);
         
         // When loading persistent contents from memory, we don't want changes to propagate back to _persistentContents
-        using var _ = NotificationManager.ScopeNotification(FileSystemNotifications.LoadingFolderContents);
+        using var _ = NotificationManager.AddNotification(new FileSystemNotifications.LoadingFolderContents());
         _persistentContents = null;
         var persistentContents = PersistentStorage[nameof(Contents)].GetOrCreateCollection<IPersistentList>();
         foreach (var persistentDictionary in persistentContents
