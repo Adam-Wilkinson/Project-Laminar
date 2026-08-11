@@ -9,7 +9,7 @@ public interface IPluginInfo
 
     public IReadOnlyCollection<SemanticVersion> AllVersions { get; }
 
-    public SemanticVersion LatestVersion { get; }
+    public SemanticVersion? LatestVersion { get; }
 
     public Task<ManifestData> GetVersionInfo(SemanticVersion version, CancellationToken ct = default);
     

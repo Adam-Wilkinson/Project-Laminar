@@ -103,6 +103,7 @@ public class PluginRepositoryStore(
             if (!_pluginInfos.TryGetValue(pluginId.Name, out var masterInfo))
             {
                 masterInfo = new PluginInfo(pluginId.Name);
+                _loadedPlugins.Add(masterInfo);
                 _pluginInfos.Add(pluginId.Name, masterInfo);
             }
 

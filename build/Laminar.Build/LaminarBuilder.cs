@@ -25,7 +25,7 @@ public static class LaminarBuilder
                    {
                        "id": "dev",
                        "provider": "filesystem",
-                       "path": "../../../../../.lampacker.local"
+                       "path": "../../../../../../.lampacker.local"
                    }
                ]
            }

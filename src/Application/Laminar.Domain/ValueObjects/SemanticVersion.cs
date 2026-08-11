@@ -26,17 +26,23 @@ public readonly struct SemanticVersion : IEquatable<SemanticVersion>, IComparabl
         int firstDot = version.IndexOf('.');
         if (firstDot < 0)
             throw new FormatException();
-
+        
+        MajorVersion = int.Parse(version[..firstDot]);
+        
         int secondDotOffset = version[(firstDot + 1)..].IndexOf('.');
         if (secondDotOffset < 0)
-            throw new FormatException();
+        {
+            MinorVersion = int.Parse(version[(firstDot + 1)..]);
+            PatchVersion = 0;
+            _toString = $"{MajorVersion}.{MinorVersion}";
+            return;
+        }
 
         int secondDot = firstDot + 1 + secondDotOffset;
 
         ReadOnlySpan<char> patchAndPrerelease = version[(secondDot + 1)..];
         int hyphen = patchAndPrerelease.IndexOf('-');
 
-        MajorVersion = int.Parse(version[..firstDot]);
         MinorVersion = int.Parse(version[(firstDot + 1)..secondDot]);
 
         if (hyphen < 0)

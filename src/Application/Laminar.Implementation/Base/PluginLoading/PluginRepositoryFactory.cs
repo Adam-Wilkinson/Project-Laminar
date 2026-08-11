@@ -13,15 +13,15 @@ public class PluginRepositoryFactory(
 {
     private const string IdKey = "id";
     private const string PathKey = "path";
-    private const string TypeKey = "type";
+    private const string ProviderKey = "provider";
     
     public IPluginRepository FromPersistentData(IPersistentDictionary persistentDictionary)
     {
         var id = persistentDictionary[IdKey].GetValue<string>().Value;
         var path = persistentDictionary[PathKey].GetValue<FileSystemPath>().Value;
-        return persistentDictionary[TypeKey].GetValue<string>().Value switch
+        return persistentDictionary[ProviderKey].GetValue<string>().Value switch
         {
-            "filesystem" => new LocalPluginRepository(id, path, fileSystem, exceptionHandler),
+            "filesystem" or "local" => new LocalPluginRepository(id, path, fileSystem, exceptionHandler),
             var unknown => throw new InvalidOperationException($"Cannot create plugin repository for type {unknown}")
         };
     }

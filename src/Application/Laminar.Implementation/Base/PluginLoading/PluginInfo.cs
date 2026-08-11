@@ -12,14 +12,13 @@ internal class PluginInfo : IPluginInfo
     {
         AllVersions = _versions.Keys.AsReadOnly();
         Id = id;
-        LatestVersion = _versions.GetKeyAtIndex(_versions.Count - 1);
     }
 
     public string Id { get; }
 
     public IReadOnlyCollection<SemanticVersion> AllVersions { get; }
 
-    public SemanticVersion LatestVersion { get; private set; }
+    public SemanticVersion? LatestVersion { get; private set; }
 
     public Task<ManifestData> GetVersionInfo(SemanticVersion version, CancellationToken ct = default)
         => _versions[version].sources[0].GetManifest(new VersionedPluginId(Id, version), ct);
