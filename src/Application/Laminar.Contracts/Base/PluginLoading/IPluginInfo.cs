@@ -1,3 +1,5 @@
+using Laminar.Domain.Observables.Collections;
+using Laminar.Domain.Observables.Value;
 using Laminar.Domain.ValueObjects;
 using Laminar.PluginFramework.Json;
 
@@ -7,9 +9,9 @@ public interface IPluginInfo
 {
     public string Id { get; }
 
-    public IReadOnlyCollection<SemanticVersion> AllVersions { get; }
+    public IReadOnlyObservableCollection<SemanticVersion> AllVersions { get; }
 
-    public SemanticVersion? LatestVersion { get; }
+    public IReadOnlyObservableValue<SemanticVersion?> LatestVersion { get; }
 
     public Task<ManifestData> GetVersionInfo(SemanticVersion version, CancellationToken ct = default);
     

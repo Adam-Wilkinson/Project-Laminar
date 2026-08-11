@@ -91,7 +91,45 @@
 		</TabItem>
 		
 		<TabItem Header="Plugins">
-			<ItemsControl ItemsSource="{Binding Plugins}"/>
+			<ScrollViewer>
+				<GroupBox Header="Available" VerticalAlignment="Top">
+						<ItemsControl ItemsSource="{Binding AvailablePlugins}"
+						              Grid.IsSharedSizeScope="True">
+							<ItemsControl.ItemTemplate>
+								<DataTemplate DataType="vm:PluginInfoViewModel">
+									<Border Classes="UiLayer"
+									        Padding="10,5">
+										<Grid RowDefinitions="Auto,Auto"
+										      ColumnDefinitions="*,*"
+										      HorizontalAlignment="Stretch">
+											
+											<TextBlock Grid.Row="0" Grid.Column="0" 
+											           Text="{Binding Name}"
+											           VerticalAlignment="Center"
+											           Classes="h2"/>
+											
+											<ComboBox Grid.Row="0" Grid.Column="1" 
+											          ItemsSource="{Binding AvailableVersions}"
+											          SelectedItem="{Binding SelectedVersion, Mode=TwoWay}"
+											          HorizontalAlignment="Stretch"/>
+											
+											<TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+											           Margin="4,4,0,0"
+											           Text="{Binding Description}"
+											           Classes="b2"/>
+										</Grid>
+									</Border>
+								</DataTemplate>
+							</ItemsControl.ItemTemplate>
+							
+							<ItemsControl.ItemsPanel>
+								<ItemsPanelTemplate>
+									<StackPanel Spacing="4"/>
+								</ItemsPanelTemplate>
+							</ItemsControl.ItemsPanel>
+						</ItemsControl>
+				</GroupBox>
+			</ScrollViewer>
 		</TabItem>
 	</TabControl>
 </UserControl>

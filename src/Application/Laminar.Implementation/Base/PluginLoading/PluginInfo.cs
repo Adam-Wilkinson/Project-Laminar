@@ -1,24 +1,23 @@
+using System.Collections.ObjectModel;
 using Laminar.Contracts.Base.PluginLoading;
+using Laminar.Domain.Observables.Collections;
+using Laminar.Domain.Observables.Value;
 using Laminar.Domain.ValueObjects;
 using Laminar.PluginFramework.Json;
 
 namespace Laminar.Implementation.Base.PluginLoading;
 
-internal class PluginInfo : IPluginInfo
+internal class PluginInfo(string id) : IPluginInfo
 {
     private readonly SortedList<SemanticVersion, (VersionedPluginId id, List<IPluginRepository> sources)> _versions = [];
+    private readonly ObservableCollection<SemanticVersion> _allVersions = [];
+    private readonly ObservableValue<SemanticVersion?> _latestVersion = new(null);
     
-    public PluginInfo(string id)
-    {
-        AllVersions = _versions.Keys.AsReadOnly();
-        Id = id;
-    }
+    public string Id { get; } = id;
 
-    public string Id { get; }
+    public IReadOnlyObservableCollection<SemanticVersion> AllVersions => field ??= _allVersions.ToInterfaceImpl();
 
-    public IReadOnlyCollection<SemanticVersion> AllVersions { get; }
-
-    public SemanticVersion? LatestVersion { get; private set; }
+    public IReadOnlyObservableValue<SemanticVersion?> LatestVersion => _latestVersion;
 
     public Task<ManifestData> GetVersionInfo(SemanticVersion version, CancellationToken ct = default)
         => _versions[version].sources[0].GetManifest(new VersionedPluginId(Id, version), ct);
@@ -38,7 +37,8 @@ internal class PluginInfo : IPluginInfo
 
         var newVersionInfo = new VersionedPluginId(Id, version);
         _versions.Add(version, (newVersionInfo, [sourceRepository]));
-        LatestVersion = _versions.GetKeyAtIndex(_versions.Count - 1);
+        _allVersions.Insert(_versions.IndexOfKey(version), version);
+        _latestVersion.Value = _versions.GetKeyAtIndex(_versions.Count - 1);
     }
 
     public void RemoveVersion(SemanticVersion version, IPluginRepository sourceRepository)
@@ -51,7 +51,9 @@ internal class PluginInfo : IPluginInfo
         currentVersionInfo.sources.Remove(sourceRepository);
         if (currentVersionInfo.sources.Count != 0) return;
         
+        var versionIndex = _versions.IndexOfKey(version);
         _versions.Remove(version);
-        LatestVersion = _versions.GetKeyAtIndex(_versions.Count - 1);
+        _allVersions.RemoveAt(versionIndex);
+        _latestVersion.Value = _versions.GetKeyAtIndex(_versions.Count - 1);
     }
 }
