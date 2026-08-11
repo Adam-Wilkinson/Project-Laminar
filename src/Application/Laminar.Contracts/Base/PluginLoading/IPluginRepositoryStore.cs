@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.Observables.Collections;
 using Laminar.Domain.ValueObjects;
@@ -19,7 +18,5 @@ public interface IPluginRepositoryStore
     
     public void ForgetRepository(IPluginRepository repository);
     
-    public Task<IPluginInfo?> GetPluginInfoOrNull(string id, SemanticVersion version);
-    
-    public bool TryGetPluginInfoFromId(string id, [NotNullWhen(true)] out IPluginInfo? pluginInfo);
+    public Task<IPluginInfo?> GetPluginInfoOrNull(VersionedPluginId pluginId);
 }

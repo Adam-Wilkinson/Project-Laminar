@@ -9,6 +9,11 @@ internal sealed class PluginLoadContext(string pluginPath, AssemblyLoadContext? 
 
     protected override Assembly? Load(AssemblyName assemblyName)
     {
+        if (assemblyName.Name is "Laminar.PluginFramework.Core")
+        {
+            return defaultLoadContext?.LoadFromAssemblyName(assemblyName);
+        }
+        
         var assemblyPath = _resolver.ResolveAssemblyToPath(assemblyName);
         return assemblyPath is not null ? LoadFromAssemblyPath(assemblyPath) : defaultLoadContext?.LoadFromAssemblyName(assemblyName);
     }

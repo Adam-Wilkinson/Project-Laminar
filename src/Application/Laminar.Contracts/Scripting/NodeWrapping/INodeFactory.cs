@@ -1,12 +1,10 @@
 ﻿using Laminar.Contracts.Storage.PersistentData;
-using Laminar.Domain.Observables;
-using Laminar.PluginFramework.NodeSystem;
 
 namespace Laminar.Contracts.Scripting.NodeWrapping;
 
 public interface INodeFactory
 {
-    IWrappedNode FromPersistentData(IPersistentDictionary persistentDictionary);
+    IWrappedNode FromPersistentData(IPersistentDictionary persistentDictionary, ILoadedNodeManager loadedNodeManage);
 
-    IWrappedNode FromNodeInfo(ILoadedNodeInfo nodeInfo);
+    IWrappedNode FromNodeInfo(ILoadedNodeInfo nodeInfo, ILoadedNodeManager loadedNodeManager);
 }

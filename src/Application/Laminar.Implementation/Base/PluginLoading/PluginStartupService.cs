@@ -29,10 +29,8 @@ public class PluginStartupService(
             }
         }
 
-        var settings = dataManager.GetDataStore(DataStoreKey.Settings);
-
-        foreach (var dataPoint in settings["plugin-repositories"]
-                     .GetOrCreateCollection<IPersistentList>())
+        foreach (var dataPoint in dataManager.GetDataStore(DataStoreKey.Settings)
+                     ["plugin-repositories"].GetOrCreateCollection<IPersistentList>())
         {
             _ = pluginRepositoryStore.AddFromPersistentDictionary(dataPoint.GetOrCreateCollection<IPersistentDictionary>());
         }

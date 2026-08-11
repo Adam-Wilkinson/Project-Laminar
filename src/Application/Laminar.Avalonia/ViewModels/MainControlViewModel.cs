@@ -13,16 +13,15 @@ public partial class MainControlViewModel : ViewModelBase, IOpenFileService, IDi
     private readonly ScopedViewModel<FileNavigatorViewModel> _scopedFileNavigator;
     
     public MainControlViewModel(
-        IServiceProvider serviceProvider,
+        IServiceProvider serviceProvider, 
         ILoadedNodeManager loadedNodeManager,
-        INodeFactory nodeFactory,
         FileViewModel centralFileEditor)
     {
         _scopedFileNavigator = new ScopedViewModel<FileNavigatorViewModel>(serviceProvider, this);
         CentralFileEditor = centralFileEditor;
         CentralFileEditor.PropertyChanged += CentralFileEditorOnPropertyChanged;
         OnExpandedSidebarWidthChanged(ExpandedSidebarWidth);
-        LoadedNodes = loadedNodeManager.LoadedNodes.RecursiveMap(nodeInfo => nodeFactory.FromNodeInfo(nodeInfo));
+        LoadedNodes = loadedNodeManager.LoadedNodes.RecursiveMap(loadedNodeManager.CreateNode);
     }
 
     public IReadOnlyItemCategory<object> LoadedNodes { get; }

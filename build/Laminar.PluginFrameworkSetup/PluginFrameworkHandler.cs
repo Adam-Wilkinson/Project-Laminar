@@ -22,7 +22,7 @@ public static class PluginFrameworkHandler
     {
         Dotnet = new Dotnet();
         LocalNuget = Path.Combine(Dotnet.GetRepoRoot(), ".nuget.local");
-        PluginFrameworkVersionFile = Path.Combine(LocalNuget, "Laminar.PluginFramework.Version");
+        PluginFrameworkVersionFile = Path.Combine(LocalNuget, "Laminar.PluginFramework.Version.props");
     }
     
     public static async Task Setup()

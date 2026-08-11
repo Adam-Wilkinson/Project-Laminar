@@ -24,6 +24,8 @@ public class PluginInstallContext : IPluginInstallContext
     }
 
     public AssemblyLoadContext DefaultLoadContext => _assemblyLoadContext ?? throw new InvalidOperationException("Plugin install context is not configured");
+    
     public FrontendDependency FrontendDependency =>  _frontendDependency ?? throw new InvalidOperationException("Plugin install context is not configured");
+    
     public Platforms CurrentPlatform =>  _platforms ?? throw new InvalidOperationException("Plugin install context is not configured");
 }

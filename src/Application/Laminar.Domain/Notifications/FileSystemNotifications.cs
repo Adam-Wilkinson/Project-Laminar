@@ -6,18 +6,18 @@ public static class FileSystemNotifications
 {
     public class LoadingFolderContents() : NotificationTemplate(NotificationSeverity.Loading, "Loading folder contents");
     
-    public class LoadingRequiredPlugin(string pluginId, SemanticVersion pluginVersion) 
-        : NotificationTemplate(NotificationSeverity.Loading, $"Loading plugin: {pluginId} (Version {pluginVersion})");
+    public class LoadingRequiredPlugin(VersionedPluginId pluginId) 
+        : NotificationTemplate(NotificationSeverity.Loading, $"Loading plugin: {pluginId.Name} (Version {pluginId.Version})");
 
-    public class PluginOnlyLocalWarning(string pluginId, SemanticVersion version) : NotificationTemplate(NotificationSeverity.Warning,
-        $"The plugin {pluginId} (Version {version}) cannot be found on any repositories, but exists offline")
+    public class PluginOnlyLocalWarning(VersionedPluginId pluginId) : NotificationTemplate(NotificationSeverity.Warning,
+        $"The plugin {pluginId.Name} (Version {pluginId.Version}) cannot be found on any repositories, but exists offline")
     {
-        public string PluginId { get; init; } = pluginId;
+        public VersionedPluginId PluginId { get; init; } = pluginId;
     }
 
-    public class PluginNotFoundError(string pluginId, SemanticVersion version) : NotificationTemplate(NotificationSeverity.Error, 
-        $"The plugin {pluginId} (Version {version}) could not be loaded")
+    public class PluginNotFoundError(VersionedPluginId pluginId) : NotificationTemplate(NotificationSeverity.Error, 
+        $"The plugin {pluginId.Name} (Version {pluginId.Version}) could not be loaded")
     {
-        public string PluginId { get; init; } = pluginId;
+        public VersionedPluginId PluginId { get; init; } = pluginId;
     }
 }

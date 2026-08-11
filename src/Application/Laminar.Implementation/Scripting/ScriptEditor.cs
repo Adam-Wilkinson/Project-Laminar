@@ -11,7 +11,6 @@ namespace Laminar.Implementation.Scripting;
 
 internal class ScriptEditor(
     IUserActionManager userActionManager,
-    INodeFactory nodeFactory,
     IEnumerable<IConnectionBridger> connectionBridgers)
     : IScriptEditor
 {
@@ -19,7 +18,7 @@ internal class ScriptEditor(
     
     public IUserAction AddMatchingNodeAction(IScript script, IWrappedNode node, Point location)
     {
-        IWrappedNode newNode = nodeFactory.FromNodeInfo(node.Info);
+        var newNode = script.Host.NodeManager.CreateNode(node.Info);
         newNode.Location.Value = location;
         return new AddNodeAction(newNode, (IWritableNodeTree)script.NodeTree);
     }
@@ -47,15 +46,18 @@ internal class ScriptEditor(
 
     public IUserAction AddSubTree(IScript script, INodeTree subTree)
     {
-        List<IUserAction> actions = [];
-        actions.AddRange(subTree.Nodes
-            .Select(node => new AddNodeAction(node, (IWritableNodeTree)script.NodeTree))
-            .Cast<IUserAction>());
+        List<IUserAction> actions =
+        [
+            .. subTree.Nodes
+                .Select(node => new AddNodeAction(node, (IWritableNodeTree)script.NodeTree))
+                .Cast<IUserAction>(),
 
-        actions.AddRange(subTree.Connections
-            .Select(connection => new EstablishConnectionAction(connection.OutputConnector, connection.InputConnector, 
-                (IWritableNodeTree)script.NodeTree))
-            .Cast<IUserAction>());
+            .. subTree.Connections
+                .Select(connection => new EstablishConnectionAction(connection.OutputConnector,
+                    connection.InputConnector,
+                    (IWritableNodeTree)script.NodeTree))
+                .Cast<IUserAction>()
+        ];
 
         return new CompoundAction(actions);
     }

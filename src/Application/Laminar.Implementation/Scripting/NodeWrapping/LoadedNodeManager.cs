@@ -1,24 +1,27 @@
-﻿using Laminar.Contracts.Base.PluginLoading;
-using Laminar.Contracts.Scripting.NodeWrapping;
+﻿using Laminar.Contracts.Scripting.NodeWrapping;
+using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain;
-using Laminar.PluginFramework.NodeSystem;
 
 namespace Laminar.Implementation.Scripting.NodeWrapping;
 
-public class LoadedNodeManager : ILoadedNodeManager
+public class LoadedNodeManager(INodeFactory nodeFactory) : ILoadedNodeManager
 {
     private readonly ItemCategory<ILoadedNodeInfo> _writableLoadedNodes = new ("root");
-    private readonly Dictionary<Type, ILoadedNodeInfo> _loadedNodes = [];
+    private readonly Dictionary<NodeId, ILoadedNodeInfo> _loadedNodeInfos = [];
     
     public IReadOnlyItemCategory<ILoadedNodeInfo> LoadedNodes => _writableLoadedNodes;
+    
+    public ILoadedNodeInfo? GetInfoFrom(NodeId nodeId) => _loadedNodeInfos.TryGetValue(nodeId, out var info) ? info : null;
 
-    public ILoadedNodeInfo? GetInfoFrom(Type nodeType) => _loadedNodes.GetValueOrDefault(nodeType);
-
-    public void AddNodeToCategory<TNode>(string categoryPath, IRegisteredPlugin pluginHost)
-        where TNode : INode, new()
+    public void AddNodeToCategory(string categoryPath, ILoadedNodeInfo newNodeInfo)
     {
-        var newNodeInfo = new LoadedNodeInfo<TNode>(pluginHost);
-        _loadedNodes.Add(typeof(TNode), newNodeInfo);
+        _loadedNodeInfos.Add(new NodeId(newNodeInfo.PluginId, newNodeInfo.Id), newNodeInfo);
         _writableLoadedNodes.AddItem(newNodeInfo, categoryPath);
     }
+
+    public IWrappedNode CreateNode(IPersistentDictionary persistentDictionary)
+        => nodeFactory.FromPersistentData(persistentDictionary, this);
+
+    public IWrappedNode CreateNode(ILoadedNodeInfo loadedNodeInfo)
+        => nodeFactory.FromNodeInfo(loadedNodeInfo, this);
 }

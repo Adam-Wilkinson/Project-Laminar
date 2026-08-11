@@ -50,7 +50,9 @@ public sealed class NotificationManager : INotifyPropertyChanged
     {
         if (severity == MaximumSeverity)
         {
-            MaximumSeverity = (NotificationSeverity)AllNotifications.Max(x => (int)x.Template.Severity);
+            MaximumSeverity = AllNotifications.Count == 0
+                ? NotificationSeverity.None
+                : (NotificationSeverity)AllNotifications.Max(x => (int)x.Template.Severity);
         }
     }
     

@@ -28,7 +28,7 @@ internal class WritableNodeTree : IWritableNodeTree
     
     public WritableNodeTree(
         IPersistentDictionary persistentDictionary, 
-        INodeFactory nodeFactory,
+        ILoadedNodeManager nodeManager,
         ILogger<WritableNodeTree> logger,
         IExceptionHandler exceptionHandler,
         IEnumerable<IWrappedNode>? nodes = null, 
@@ -40,7 +40,7 @@ internal class WritableNodeTree : IWritableNodeTree
         _persistentNodes = persistentDictionary["Nodes"].GetOrCreateCollection<IPersistentDictionary>();
         foreach (var (key, dataPoint) in _persistentNodes)
         {
-            AddNode(nodeFactory.FromPersistentData(dataPoint.GetOrCreateCollection<IPersistentDictionary>()), key);
+            AddNode(nodeManager.CreateNode(dataPoint.GetOrCreateCollection<IPersistentDictionary>()), key);
         }
 
         if (nodes is not null)

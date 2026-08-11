@@ -21,12 +21,3 @@ public interface IPluginInfo
     
     public void RemoveVersion(SemanticVersion version, IPluginRepository sourceRepository);
 }
-
-public readonly struct VersionedPluginInfo(string id, SemanticVersion version)
-{
-    public SemanticVersion Version { get; } = version;
-
-    public string Id { get; } = id;
-
-    public List<IPluginRepository> Sources { get; } = [];
-}

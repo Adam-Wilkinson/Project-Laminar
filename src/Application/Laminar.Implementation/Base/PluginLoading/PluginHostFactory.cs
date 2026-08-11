@@ -9,13 +9,12 @@ namespace Laminar.Implementation.Base.PluginLoading;
 
 internal sealed class PluginHostFactory(
     ITypeInfoStore typeInfoStore,
-    ILoadedNodeManager loadedNodeManager,
     IDataInterfaceFactory dataInterfaceFactory,
     ISerializer serializer)
     : IPluginHostFactory
 {
-    public IPluginHost GetPluginHost(IRegisteredPlugin registeredPlugin)
+    public IPluginHost GetPluginHost(IInstalledPlugin plugin, ILoadedNodeManager loadedNodeManager)
     {
-        return new PluginHost((RegisteredPlugin)registeredPlugin, typeInfoStore, loadedNodeManager, dataInterfaceFactory, serializer);
+        return new PluginHost((InstalledPlugin)plugin, loadedNodeManager, typeInfoStore, dataInterfaceFactory, serializer);
     }
 }

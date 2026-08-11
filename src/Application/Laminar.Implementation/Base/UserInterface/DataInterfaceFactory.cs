@@ -67,7 +67,7 @@ public partial class DataInterfaceFactory(ITypeInfoStore typeInfoStore, ILogger<
             return enumResult;
         }
 
-        var defaultViewerData = new InterfaceDataGenericWrapper<DefaultViewer, None>(interfaceData, new DefaultViewer());
+        var defaultViewerData = new InterfaceDataGenericWrapper<DefaultViewer, object>(interfaceData, new DefaultViewer());
         if (GetFrontendFromData<TFrontend>(defaultViewerData) is { } defaultResult)
         {
             return (defaultResult, interfaceData);

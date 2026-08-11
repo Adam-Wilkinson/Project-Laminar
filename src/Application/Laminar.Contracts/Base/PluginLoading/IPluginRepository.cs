@@ -7,11 +7,11 @@ public interface IPluginRepository
 {
     public string Id { get; }
     
-    public IAsyncEnumerable<IPluginInfo> Reload();
+    public IAsyncEnumerable<VersionedPluginId> Reload();
     
-    public Dictionary<string, IPluginInfo> Plugins { get; }
+    public IReadOnlyList<VersionedPluginId> Plugins { get; }
     
-    public Task<Stream> StreamPlugin(string id, SemanticVersion version, CancellationToken cancellationToken = default);
+    public Task<Stream> StreamPlugin(VersionedPluginId plugin, CancellationToken cancellationToken = default);
 
-    public Task<ManifestData> GetManifest(string id, SemanticVersion version, CancellationToken cancellationToken = default);
+    public Task<ManifestData> GetManifest(VersionedPluginId plugin, CancellationToken cancellationToken = default);
 }

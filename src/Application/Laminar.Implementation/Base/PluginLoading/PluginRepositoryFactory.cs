@@ -1,3 +1,4 @@
+using Laminar.Contracts.Base;
 using Laminar.Contracts.Base.PluginLoading;
 using Laminar.Contracts.Storage.IO;
 using Laminar.Contracts.Storage.PersistentData;
@@ -6,7 +7,9 @@ using Laminar.Implementation.Base.PluginLoading.Repositories;
 
 namespace Laminar.Implementation.Base.PluginLoading;
 
-public class PluginRepositoryFactory(IFileSystem fileSystem) : IPluginRepositoryFactory
+public class PluginRepositoryFactory(
+    IFileSystem fileSystem,
+    IExceptionHandler exceptionHandler) : IPluginRepositoryFactory
 {
     private const string IdKey = "id";
     private const string PathKey = "path";
@@ -16,13 +19,10 @@ public class PluginRepositoryFactory(IFileSystem fileSystem) : IPluginRepository
     {
         var id = persistentDictionary[IdKey].GetValue<string>().Value;
         var path = persistentDictionary[PathKey].GetValue<FileSystemPath>().Value;
-        var newRepository = persistentDictionary[TypeKey].GetValue<string>().Value switch
+        return persistentDictionary[TypeKey].GetValue<string>().Value switch
         {
-            "filesystem" => new LocalPluginRepository(id, path, fileSystem),
+            "filesystem" => new LocalPluginRepository(id, path, fileSystem, exceptionHandler),
             var unknown => throw new InvalidOperationException($"Cannot create plugin repository for type {unknown}")
         };
-        
-        newRepository.Refresh();
-        return newRepository;
     }
 }

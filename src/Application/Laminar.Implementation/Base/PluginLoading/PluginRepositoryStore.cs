@@ -8,11 +8,13 @@ using Laminar.Domain.ValueObjects;
 
 namespace Laminar.Implementation.Base.PluginLoading;
 
-public class PluginRepositoryStore(IPluginRepositoryFactory factory, IExceptionHandler exceptionHandler) : IPluginRepositoryStore
+public class PluginRepositoryStore(
+    IPluginRepositoryFactory factory, 
+    IExceptionHandler exceptionHandler) : IPluginRepositoryStore
 {
     private readonly List<IPluginRepository> _pluginRepositories = [];
     private readonly Dictionary<string, IPluginInfo> _pluginInfos = [];
-    private readonly Dictionary<(string id, SemanticVersion version), TaskCompletionSource<IPluginInfo?>> _pendingRequests = [];
+    private readonly Dictionary<VersionedPluginId, TaskCompletionSource<IPluginInfo?>> _pendingRequests = [];
     private readonly ObservableCollection<IPluginInfo> _loadedPlugins = [];
     private readonly ObservableCollection<IPluginRepository> _loadingRepositories = [];
     private readonly Lock _loadingRepositoriesLock = new();
@@ -72,9 +74,9 @@ public class PluginRepositoryStore(IPluginRepositoryFactory factory, IExceptionH
         return newRepo;
     }
 
-    public Task<IPluginInfo?> GetPluginInfoOrNull(string pluginId, SemanticVersion version)
+    public Task<IPluginInfo?> GetPluginInfoOrNull(VersionedPluginId pluginId)
     {
-        if (_pluginInfos.TryGetValue(pluginId, out var pluginInfo) && pluginInfo.HasVersion(version))
+        if (_pluginInfos.TryGetValue(pluginId.Name, out var pluginInfo) && pluginInfo.HasVersion(pluginId.Version))
         {
             return Task.FromResult<IPluginInfo?>(pluginInfo);
         }
@@ -84,53 +86,47 @@ public class PluginRepositoryStore(IPluginRepositoryFactory factory, IExceptionH
             return Task.FromResult<IPluginInfo?>(null);
         }
         
-        if (_pendingRequests.TryGetValue((pluginId, version), out var pendingRequest))
+        if (_pendingRequests.TryGetValue(pluginId, out var pendingRequest))
         {
             return pendingRequest.Task;
         }
         
         pendingRequest = new TaskCompletionSource<IPluginInfo?>();
-        _pendingRequests.Add((pluginId, version), pendingRequest);
+        _pendingRequests.Add(pluginId, pendingRequest);
         return pendingRequest.Task;
     }
 
-    private void MergePluginInfo(IPluginInfo pluginInfo, IPluginRepository newRepo)
+    private void MergePluginInfo(VersionedPluginId pluginId, IPluginRepository newRepo)
     {
         lock (_pluginInfosLock)
         {
-            if (!_pluginInfos.TryGetValue(pluginInfo.Id, out var masterInfo))
+            if (!_pluginInfos.TryGetValue(pluginId.Name, out var masterInfo))
             {
-                masterInfo = new PluginInfo(pluginInfo.Id, []);
-                _pluginInfos.Add(pluginInfo.Id, masterInfo);
+                masterInfo = new PluginInfo(pluginId.Name);
+                _pluginInfos.Add(pluginId.Name, masterInfo);
             }
 
-            foreach (var version in pluginInfo.AllVersions)
+            masterInfo.AddVersion(pluginId.Version, newRepo);
+            if (_pendingRequests.TryGetValue(pluginId, out var pendingRequest))
             {
-                masterInfo.AddVersion(version, newRepo);
-                if (_pendingRequests.TryGetValue((pluginInfo.Id, version), out var pendingRequest))
-                {
-                    pendingRequest.SetResult(masterInfo);
-                }
+                pendingRequest.SetResult(masterInfo);
             }
         }
     }
 
     public void ForgetRepository(IPluginRepository repository)
     {
-        foreach (var (id, pluginInfo) in repository.Plugins)
+        foreach (var (id, version) in repository.Plugins)
         {
             if (!_pluginInfos.TryGetValue(id, out var masterInfo))
             {
                 continue;
             }
 
-            foreach (var version in pluginInfo.AllVersions)
+            masterInfo.RemoveVersion(version, repository);
+            if (masterInfo.AllVersions.Count == 0)
             {
-                masterInfo.RemoveVersion(version, repository);
-                if (masterInfo.AllVersions.Count == 0)
-                {
-                    _pluginInfos.Remove(id);
-                }
+                _pluginInfos.Remove(id);
             }
         }
         

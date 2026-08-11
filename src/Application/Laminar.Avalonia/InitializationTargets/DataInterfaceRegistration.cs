@@ -1,7 +1,10 @@
+using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Data.Converters;
 using Avalonia.Input;
 using Avalonia.Layout;
+using Laminar.Avalonia.Converters;
 using Laminar.Contracts.Base;
 using Laminar.Contracts.Base.UserInterface;
 using Laminar.Domain;
@@ -35,6 +38,26 @@ public class DataInterfaceRegistration(IDataInterfaceFactory interfaceFactory, I
             [!AvaloniaEditableLabel.DisplayStringFormatProperty] = CompiledBinding.Create<IInterfaceData<string>, string>(x => x.Name, converter: NameToFormatStringConverter),
             [!AvaloniaEditableLabel.TextProperty] = CompiledBinding.Create<IInterfaceData<string>, string>(x => x.Value, mode: BindingMode.TwoWay),
             HorizontalAlignment = HorizontalAlignment.Center
+        });
+        
+        interfaceFactory.RegisterInterfaceFactory<DefaultViewer, object, Grid>(() => new Grid
+        {
+            ColumnDefinitions = ColumnDefinitions.Parse("*,*"),
+            VerticalAlignment = VerticalAlignment.Stretch,
+            Children = {
+                new TextBlock
+                {
+                    [!TextBlock.TextProperty] = CompiledBinding.Create<IInterfaceData, string>(x => x.Name),
+                    [!Grid.ColumnProperty] = 0.AsStaticBinding(),
+                    VerticalAlignment = VerticalAlignment.Center
+                },
+                new ContentControl
+                {
+                    [!ContentControl.ContentProperty] = CompiledBinding.Create<IInterfaceData, object>(x => x.Value, targetNullValue: "Null"),
+                    [!Grid.ColumnProperty] = 1.AsStaticBinding(),
+                    VerticalAlignment = VerticalAlignment.Center
+                }
+            }
         });
     }
 }

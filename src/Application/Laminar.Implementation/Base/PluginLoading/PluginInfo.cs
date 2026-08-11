@@ -6,12 +6,10 @@ namespace Laminar.Implementation.Base.PluginLoading;
 
 internal class PluginInfo : IPluginInfo
 {
-    private readonly SortedList<SemanticVersion, VersionedPluginInfo> _versions;
+    private readonly SortedList<SemanticVersion, (VersionedPluginId id, List<IPluginRepository> sources)> _versions = [];
     
-    public PluginInfo(string id, List<VersionedPluginInfo> allVersions)
+    public PluginInfo(string id)
     {
-        _versions = new SortedList<SemanticVersion, VersionedPluginInfo>(
-            allVersions.ToDictionary(x => x.Version), SemanticVersionComparer.Instance);
         AllVersions = _versions.Keys.AsReadOnly();
         Id = id;
         LatestVersion = _versions.GetKeyAtIndex(_versions.Count - 1);
@@ -24,10 +22,10 @@ internal class PluginInfo : IPluginInfo
     public SemanticVersion LatestVersion { get; private set; }
 
     public Task<ManifestData> GetVersionInfo(SemanticVersion version, CancellationToken ct = default)
-        => _versions[version].Sources[0].GetManifest(Id, version, ct);
+        => _versions[version].sources[0].GetManifest(new VersionedPluginId(Id, version), ct);
 
     public Task<Stream> OpenVersionStream(SemanticVersion version, CancellationToken ct = default)
-        => _versions[version].Sources[0].StreamPlugin(Id, version, ct);
+        => _versions[version].sources[0].StreamPlugin(new VersionedPluginId(Id, version), ct);
 
     public bool HasVersion(SemanticVersion version) => _versions.ContainsKey(version);
 
@@ -35,13 +33,12 @@ internal class PluginInfo : IPluginInfo
     {
         if (_versions.TryGetValue(version, out var currentVersionInfo))
         {
-            currentVersionInfo.Sources.Add(sourceRepository);
+            currentVersionInfo.sources.Add(sourceRepository);
             return;
         }
 
-        var newVersionInfo = new VersionedPluginInfo(Id, version);
-        newVersionInfo.Sources.Add(sourceRepository);
-        _versions.Add(version, newVersionInfo);
+        var newVersionInfo = new VersionedPluginId(Id, version);
+        _versions.Add(version, (newVersionInfo, [sourceRepository]));
         LatestVersion = _versions.GetKeyAtIndex(_versions.Count - 1);
     }
 
@@ -52,8 +49,8 @@ internal class PluginInfo : IPluginInfo
             return;
         }
         
-        currentVersionInfo.Sources.Remove(sourceRepository);
-        if (currentVersionInfo.Sources.Count != 0) return;
+        currentVersionInfo.sources.Remove(sourceRepository);
+        if (currentVersionInfo.sources.Count != 0) return;
         
         _versions.Remove(version);
         LatestVersion = _versions.GetKeyAtIndex(_versions.Count - 1);

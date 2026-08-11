@@ -1,4 +1,5 @@
-﻿using Laminar.Contracts.Scripting;
+﻿using Laminar.Contracts.Base.PluginLoading;
+using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Scripting.Execution;
 using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.Observables.Value;
@@ -12,7 +13,11 @@ internal class Script : IScript, IDisposable
     
     private readonly IScriptExecutionInstance _executionInstance;
     
-    public Script(IPersistentDictionary persistentData, IScriptExecutionManager executionManager, IScriptingFactory scriptingFactory)
+    public Script(
+        IRuntimeHost host,
+        IPersistentDictionary persistentData, 
+        IScriptExecutionManager executionManager, 
+        IScriptingFactory scriptingFactory)
     {
         NodeTree = scriptingFactory.NodeTreeFromPersistentData(persistentData[NodeTreeKey]
             .GetOrCreateCollection<IPersistentDictionary>());
@@ -22,7 +27,10 @@ internal class Script : IScript, IDisposable
         Pan = persistentData[nameof(Pan)].GetValueOrInitialize(new Point { X = 0, Y = 0 });
         Zoom = persistentData[nameof(Zoom)].GetValueOrInitialize(1.0);
         Data = persistentData;
+        Host = host;
     }
+
+    public IRuntimeHost Host { get; }
     
     public INodeTree NodeTree { get; }
     

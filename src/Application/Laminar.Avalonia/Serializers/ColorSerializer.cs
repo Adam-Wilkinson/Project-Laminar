@@ -1,9 +1,9 @@
 using Avalonia.Media;
 using Laminar.PluginFramework.Serialization;
 
-namespace BasicFunctionality.Avalonia;
+namespace Laminar.Avalonia.Serializers;
 
-public class AvaloniaColorSerializer : TypeSerializer<Color, string>
+public class ColorSerializer : TypeSerializer<Color, string>
 {
     protected override string SerializeTyped(Color toSerialize) => toSerialize.ToString();
 

@@ -31,10 +31,11 @@ public static class LaminarServices
             .AddSingleton<ITypeInfoStore, TypeInfoStore>()
             
             .AddSingleton<IPluginStartupService, PluginStartupService>()
-            .AddSingleton<IPluginInstaller, PluginInstaller>()
             .AddSingleton<IPluginHostFactory, PluginHostFactory>()
-            .AddSingleton<IWritablePluginRegistry, PluginRegistry>()
-            .AddSingleton<IPluginRegistry>(provider => provider.GetRequiredService<IWritablePluginRegistry>())
+            .AddSingleton<IPluginInstallContext, PluginInstallContext>()
+            .AddSingleton<IPluginRepositoryStore, PluginRepositoryStore>()
+            .AddSingleton<IPluginRepositoryFactory, PluginRepositoryFactory>()
+            .AddTransient<IRuntimeHost, RuntimeHost>()
         
             .AddSingleton<IExceptionHandler, ExceptionHandler>()
             

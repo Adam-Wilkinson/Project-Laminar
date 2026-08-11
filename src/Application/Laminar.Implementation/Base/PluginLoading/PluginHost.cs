@@ -2,6 +2,7 @@
 using Laminar.Contracts.Base.UserInterface;
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Domain;
+using Laminar.Implementation.Scripting.NodeWrapping;
 using Laminar.PluginFramework.NodeSystem;
 using Laminar.PluginFramework.Registration;
 using Laminar.PluginFramework.Serialization;
@@ -10,21 +11,21 @@ using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 namespace Laminar.Implementation.Base.PluginLoading;
 
 internal sealed class PluginHost(
-    RegisteredPlugin registeredPlugin,
-    ITypeInfoStore typeInfoStore,
+    InstalledPlugin plugin,
     ILoadedNodeManager loadedNodeManager,
+    ITypeInfoStore typeInfoStore,
     IDataInterfaceFactory dataInterfaceFactory,
     ISerializer serializer)
     : IPluginHost
 {
     public void AddNodeToMenu<TNode>(string menuItemName, string? subItemName = null) where TNode : INode, new()
     {
-        registeredPlugin.RegisterNode<TNode>();
-        loadedNodeManager.AddNodeToCategory<TNode>(
+        ILoadedNodeInfo newNodeInfo = new LoadedNodeInfo<TNode>(plugin);
+        loadedNodeManager.AddNodeToCategory(
             subItemName is null
                 ? menuItemName
                 : $"{menuItemName}{ItemCategory<IWrappedNode>.SeparationChar}{subItemName}", 
-            registeredPlugin);
+            newNodeInfo);
     }
 
     public bool RegisterDataInterfaceFactory<TInterfaceDefinition, TData, TInterface>(Func<TInterface> factory)

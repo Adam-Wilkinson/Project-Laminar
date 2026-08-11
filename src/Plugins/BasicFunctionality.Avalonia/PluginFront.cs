@@ -25,7 +25,7 @@ public class PluginFront : IPlugin
 
     public void Register(IPluginHost host)
     {
-        host.RegisterType("#FFFF00", "Color", Colors.White, new ColorEditor(), new ColorViewer(), new AvaloniaColorSerializer());
+        host.RegisterType("#FFFF00", "Color", Colors.White, new ColorEditor(), new ColorViewer(), null);
         
         host.RegisterDataInterface<NumberEntry, double, NumberEditor>();
         host.RegisterDataInterface<DefaultViewer, object, DefaultDisplay>();

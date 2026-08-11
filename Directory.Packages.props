@@ -1,5 +1,5 @@
 <Project>
-  <Import Project=".nuget.local/PluginFramework.Version.props" Condition="Exists('.nuget.local/PluginFramework.Version.props')" />
+  <Import Project=".nuget.local/Laminar.PluginFramework.Version.props" Condition="Exists('.nuget.local/Laminar.PluginFramework.Version.props')" />
   <PropertyGroup>
     <PluginFrameworkVersion Condition="'$(PluginFrameworkVersion)' == ''">
       0.1.9-alpha.gb754ee1e62
