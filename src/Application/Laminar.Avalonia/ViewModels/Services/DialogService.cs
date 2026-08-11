@@ -8,18 +8,22 @@ using HanumanInstitute.MvvmDialogs.Avalonia;
 using HanumanInstitute.MvvmDialogs.FileSystem;
 using HanumanInstitute.MvvmDialogs.FrameworkDialogs;
 using Laminar.Domain.ValueObjects;
+using Microsoft.Extensions.Logging;
 
 namespace Laminar.Avalonia.ViewModels.Services;
 
-public class DialogService(TopLevel topLevel, IDialogService dialogService)
+public class DialogService(TopLevel topLevel, IDialogService dialogService, ILogger<DialogService> logger)
 {
-    private INotifyPropertyChanged? TopLevelViewModel => field ??= topLevel.DataContext as INotifyPropertyChanged;
-
     public async Task<DialogOption> PromptUserResponse(LaminarDialogViewModel viewModel, CancellationToken cancellationToken = default)
     {
-        ArgumentNullException.ThrowIfNull(TopLevelViewModel);
+        if (topLevel.DataContext is not INotifyPropertyChanged topLevelViewModel)
+        {
+            logger.LogError("Unable to create user prompt: {title}", viewModel.Title);
+            return DialogOption.Ok;
+        }
+        
         cancellationToken.Register(() => viewModel.CloseTarget?.Close());
-        await dialogService.ShowDialogAsync(TopLevelViewModel, viewModel);
+        await dialogService.ShowDialogAsync(topLevelViewModel, viewModel);
         return viewModel.SelectedOption;
     }
 
@@ -52,7 +56,13 @@ public class DialogService(TopLevel topLevel, IDialogService dialogService)
 
     public async Task<FileSystemPath?> PromptForFolder(WellKnownFolder? startingLocation = null)
     {
-        var selected = await dialogService.ShowOpenFolderDialogAsync(TopLevelViewModel, new OpenFolderDialogSettings
+        if (topLevel.DataContext is not INotifyPropertyChanged topLevelViewModel)
+        {
+            logger.LogError("Unable to create folder prompt");
+            return null;
+        }
+        
+        var selected = await dialogService.ShowOpenFolderDialogAsync(topLevelViewModel, new OpenFolderDialogSettings
         {
             SuggestedStartLocation = await GetWellKnownFolder(startingLocation)
         });

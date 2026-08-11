@@ -89,5 +89,9 @@
 				</DataTemplate>
 			</TabItem.DataTemplates>
 		</TabItem>
+		
+		<TabItem Header="Plugins">
+			<ItemsControl ItemsSource="{Binding Plugins}"/>
+		</TabItem>
 	</TabControl>
 </UserControl>
