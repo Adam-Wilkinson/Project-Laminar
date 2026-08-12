@@ -4,19 +4,19 @@ using Laminar.Domain.ValueObjects;
 
 namespace Laminar.Contracts.Base.PluginLoading;
 
-public interface IPluginRepositoryStore
+public interface IPluginLibrary
 {
-    public IReadOnlyList<IPluginRepository> Repositories { get; }
+    public IReadOnlyList<IPluginSource> Sources { get; }
     
-    public IReadOnlyObservableCollection<IPluginRepository> CurrentlyLoadingRepositories { get; }
+    public IReadOnlyObservableCollection<IPluginSource> CurrentlyLoadingSources { get; }
     
     public Task EnsurePluginsLoaded();
     
     public IReadOnlyObservableCollection<IPluginInfo> LoadedPlugins { get; }
     
-    public Task<IPluginRepository?> AddFromPersistentDictionary(IPersistentDictionary persistentList);
+    public Task AddSource(IPluginSource source);
     
-    public void ForgetRepository(IPluginRepository repository);
+    public void ForgetSource(IPluginSource source);
     
     public Task<IPluginInfo?> GetPluginInfoOrNull(VersionedPluginId pluginId);
 }

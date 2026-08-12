@@ -7,17 +7,26 @@ namespace Laminar.Implementation.Base.PluginLoading;
 
 public class InstalledPlugin : IInstalledPlugin
 {
-    private readonly IPluginHost _host;
+    private readonly IPluginHost _pluginHost;
 
-    public InstalledPlugin(IPluginHostFactory hostFactory, ILoadedNodeManager nodeManager)
+    public InstalledPlugin(
+        IPluginHostFactory pluginHostFactory, 
+        IRuntimeHost host,
+        IPluginInfo pluginInfo,
+        SemanticVersion version)
     {
-        _host = hostFactory.GetPluginHost(this, nodeManager);
+        _pluginHost = pluginHostFactory.GetPluginHost(this, host.NodeManager);
+        Host = host;
+        PluginInfo = pluginInfo;
+        Version = version;
     }
 
-    public VersionedPluginId Id { get; init; }
-    
     public void AddPluginImplementation(IPlugin plugin)
     {
-        plugin.Register(_host);
+        plugin.Register(_pluginHost);
     }
+
+    public IPluginInfo PluginInfo { get; }
+    public SemanticVersion Version { get; }
+    public IRuntimeHost Host { get; }
 }

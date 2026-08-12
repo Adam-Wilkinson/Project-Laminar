@@ -14,8 +14,8 @@ namespace Laminar.Implementation.Base.PluginLoading;
 public class PluginManager(
     IRuntimeHost host,
     IPluginHostFactory hostFactory, 
-    IPluginInstallContext installContext,
-    IPluginRepositoryStore repositoryStore,
+    ISharedPluginContext context,
+    IPluginLibrary library,
     IFileSystem fileSystem) 
     : IPluginManager
 {
@@ -35,7 +35,7 @@ public class PluginManager(
         var pluginPath = OfflinePluginCache.ChildPath(pluginId.Name).ChildPath(pluginId.Version.ToString());
         if (!fileSystem.Exists(pluginPath))
         {
-            if (await repositoryStore.GetPluginInfoOrNull(pluginId) is not { } pluginInfo)
+            if (await library.GetPluginInfoOrNull(pluginId) is not { } pluginInfo)
             {
                 return null;
             }
@@ -50,10 +50,10 @@ public class PluginManager(
         await using var manifestFile = File.OpenRead(manifestPath);
         var manifest = ManifestData.Parse(manifestFile);
         var entrypointPath = pluginPath.ChildPath((string)manifest.Entrypoint);
-        var pluginLoadContext = new PluginLoadContext(entrypointPath, installContext.DefaultLoadContext);
+        var pluginLoadContext = new PluginLoadContext(entrypointPath, context.DefaultLoadContext);
         var pluginAssembly = pluginLoadContext.LoadFromAssemblyPath(entrypointPath);
 
-        var newPlugin = new InstalledPlugin(hostFactory, host.NodeManager);
+        var newPlugin = new InstalledPlugin(hostFactory, host, );
         foreach (var type in pluginAssembly.GetTypes())
         {
             if (typeof(IPlugin).IsAssignableFrom(type) && !type.IsInterface &&
@@ -66,6 +66,7 @@ public class PluginManager(
 
         _plugins.Add(newPlugin);
         _installedPlugins.Add(pluginId, newPlugin);
+        context.RegisterInstallation(newPlugin);
         return newPlugin;
     }
 }

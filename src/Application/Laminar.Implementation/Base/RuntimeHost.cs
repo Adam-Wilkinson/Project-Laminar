@@ -1,3 +1,5 @@
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using Laminar.Contracts.Base.PluginLoading;
 using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Scripting.NodeWrapping;
@@ -8,7 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Laminar.Implementation.Base;
 
-public class RuntimeHost : IRuntimeHost
+public class RuntimeHost : IRuntimeHost, INotifyPropertyChanged
 {
     public RuntimeHost(IServiceProvider serviceProvider)
     {
@@ -17,9 +19,19 @@ public class RuntimeHost : IRuntimeHost
         ScriptingFactory = ActivatorUtilities.CreateInstance<ScriptingFactory>(serviceProvider, this);
     }
 
+    public required string Name { get; set => SetField(ref field, value); }
+    
     public IPluginManager PluginManager { get; }
     
     public IScriptingFactory ScriptingFactory { get; }
     
     public ILoadedNodeManager NodeManager { get; }
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    private void SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
+    {
+        if (EqualityComparer<T>.Default.Equals(field, value)) return;
+        field = value;
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
 }

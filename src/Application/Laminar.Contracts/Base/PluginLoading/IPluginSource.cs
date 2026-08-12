@@ -3,15 +3,19 @@ using Laminar.PluginFramework.Json;
 
 namespace Laminar.Contracts.Base.PluginLoading;
 
-public interface IPluginRepository
+public interface IPluginSource
 {
-    public string Id { get; }
+    public string Name { get; }
     
     public IAsyncEnumerable<VersionedPluginId> Reload();
     
     public IReadOnlyList<VersionedPluginId> Plugins { get; }
     
-    public Task<Stream> StreamPlugin(VersionedPluginId plugin, CancellationToken cancellationToken = default);
-
+    public Task<IInstalledPlugin> InstallPlugin(
+        IPluginInfo plugin, 
+        SemanticVersion version, 
+        IRuntimeHost runtimeHost,
+        CancellationToken cancellationToken = default);
+    
     public Task<ManifestData> GetManifest(VersionedPluginId plugin, CancellationToken cancellationToken = default);
 }

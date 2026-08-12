@@ -152,6 +152,87 @@ public readonly struct SemanticVersion : IEquatable<SemanticVersion>, IComparabl
     public static bool operator <(SemanticVersion left, SemanticVersion right) => left.CompareTo(right) < 0;
 
     public static bool operator >(SemanticVersion left, SemanticVersion right) => left.CompareTo(right) > 0;
+
+    public static bool TryParse(string version, out SemanticVersion semanticVersion)
+    {
+        semanticVersion = default;
+
+        if (string.IsNullOrEmpty(version))
+            return false;
+
+        ReadOnlySpan<char> span = version.AsSpan();
+
+        int firstDot = span.IndexOf('.');
+        if (firstDot < 1)
+            return false;
+
+        if (!int.TryParse(span[..firstDot], out int majorVersion))
+            return false;
+
+        ReadOnlySpan<char> afterMajor = span[(firstDot + 1)..];
+
+        int secondDotOffset = afterMajor.IndexOf('.');
+
+        // "1.2" — patch defaults to 0.
+        if (secondDotOffset < 0)
+        {
+            if (!int.TryParse(afterMajor, out int minorVersion))
+                return false;
+
+            semanticVersion = new SemanticVersion(majorVersion, minorVersion, 0);
+            return true;
+        }
+
+        if (secondDotOffset == 0)
+            return false;
+
+        int secondDot = firstDot + 1 + secondDotOffset;
+
+        ReadOnlySpan<char> minorSpan = span[(firstDot + 1)..secondDot];
+
+        if (!int.TryParse(minorSpan, out int minor))
+            return false;
+
+        ReadOnlySpan<char> patchAndPrerelease = span[(secondDot + 1)..];
+
+        if (patchAndPrerelease.IsEmpty)
+            return false;
+
+        int hyphen = patchAndPrerelease.IndexOf('-');
+
+        if (hyphen < 0)
+        {
+            if (!int.TryParse(patchAndPrerelease, out int patch))
+                return false;
+
+            semanticVersion = new SemanticVersion(
+                majorVersion,
+                minor,
+                patch);
+
+            return true;
+        }
+
+        if (hyphen == 0)
+            return false;
+
+        ReadOnlySpan<char> patchSpan = patchAndPrerelease[..hyphen];
+        ReadOnlySpan<char> prereleaseSpan = patchAndPrerelease[(hyphen + 1)..];
+
+        if (!int.TryParse(patchSpan, out int patchVersion))
+            return false;
+
+        if (prereleaseSpan.IsEmpty)
+            return false;
+
+        semanticVersion = new SemanticVersion(
+            majorVersion,
+            minor,
+            patchVersion,
+            prereleaseSpan.ToString());
+
+        return true;
+    }
 }
 
 public sealed class SemanticVersionComparer : IComparer<SemanticVersion>

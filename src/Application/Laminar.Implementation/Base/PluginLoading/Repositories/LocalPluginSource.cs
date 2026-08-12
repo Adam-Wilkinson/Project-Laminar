@@ -8,16 +8,17 @@ using Laminar.PluginFramework.Json;
 
 namespace Laminar.Implementation.Base.PluginLoading.Repositories;
 
-public class LocalPluginRepository(
+public class LocalPluginSource(
     string id, 
     FileSystemPath path, 
     IFileSystem fileSystem,
-    IExceptionHandler handler) : IPluginRepository
+    IExceptionHandler handler,
+    IPluginInstaller installer) : IPluginSource
 {
     private readonly List<VersionedPluginId> _plugins = [];
     private readonly Dictionary<VersionedPluginId, RepositoryPluginDetails> _pluginDetails = new();
     
-    public string Id { get; } = id;
+    public string Name { get; } = id;
 
     public IReadOnlyList<VersionedPluginId> Plugins => _plugins;
     
@@ -44,6 +45,16 @@ public class LocalPluginRepository(
 
     public Task<Stream> StreamPlugin(VersionedPluginId plugin, CancellationToken cancellationToken = default)
         => Task.FromResult<Stream>(File.OpenRead(_pluginDetails[plugin].PackagePath));
+
+    public Task<IInstalledPlugin> InstallPlugin(
+        IPluginInfo plugin, 
+        SemanticVersion version,
+        IRuntimeHost runtimeHost,
+        CancellationToken cancellationToken = default)
+    {
+        var pluginId = new VersionedPluginId(plugin.Id, version);
+        return installer.InstallFromArchive(File.OpenRead(_pluginDetails[pluginId].PackagePath), plugin, version, runtimeHost);
+    }
 
     public Task<ManifestData> GetManifest(VersionedPluginId plugin, CancellationToken cancellationToken = default)
         => Task.FromResult(_pluginDetails[plugin].Manifest);

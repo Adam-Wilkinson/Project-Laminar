@@ -5,6 +5,8 @@ namespace Laminar.Contracts.Base.PluginLoading;
 
 public interface IRuntimeHost
 {
+    public string Name { get; set; }
+
     public IPluginManager PluginManager { get; }
     
     public IScriptingFactory ScriptingFactory { get; }

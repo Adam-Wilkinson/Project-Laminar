@@ -13,13 +13,9 @@ public interface IPluginInfo
 
     public IReadOnlyObservableValue<SemanticVersion?> LatestVersion { get; }
 
-    public Task<ManifestData> GetVersionInfo(SemanticVersion version, CancellationToken ct = default);
-    
-    public Task<Stream> OpenVersionStream(SemanticVersion version, CancellationToken ct = default);
-    
     public bool HasVersion(SemanticVersion version);
     
-    public void AddVersion(SemanticVersion version, IPluginRepository sourceRepository);
+    public void AddVersion(SemanticVersion version, IPluginSource sourceSource);
     
-    public void RemoveVersion(SemanticVersion version, IPluginRepository sourceRepository);
+    public void RemoveVersion(SemanticVersion version, IPluginSource sourceSource);
 }

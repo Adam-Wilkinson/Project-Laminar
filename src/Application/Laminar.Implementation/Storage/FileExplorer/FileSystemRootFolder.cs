@@ -29,7 +29,7 @@ internal class FileSystemRootFolder : FileSystemFolder, IMutableFileSystemRootFo
         IFileSystem fileSystem,
         IPersistentDataManager persistentDataManager,
         IFileSystemMonitor monitor,
-        IRuntimeHost runtimeHost,
+        IRuntimeHostManager runtimeHostManager,
         IExceptionHandler exceptionHandler,
         IFileSystemGraph graph) 
         : base(persistentData, fileSystem, graph)
@@ -40,7 +40,7 @@ internal class FileSystemRootFolder : FileSystemFolder, IMutableFileSystemRootFo
         _persistentDataOnDisk = persistentDataManager.GetDataOnDisk(path.ChildPath(InfoFileName), new JsonPersistentDataTranscoder(null!), persistentData);
         _currentMonitor = monitor.StartMonitoring(this, [ _persistentDataOnDisk.Location ]);
         _exceptionHandler = exceptionHandler;
-        RuntimeHost = runtimeHost;
+        RuntimeHost = runtimeHostManager.CreateRuntimeHost(UserFriendlyName);
         _ = RunBackgroundStartup();
         
         Refresh();
@@ -63,6 +63,7 @@ internal class FileSystemRootFolder : FileSystemFolder, IMutableFileSystemRootFo
         _persistentDataOnDisk.Location = _path.ChildPath(InfoFileName);
         _currentMonitor.Dispose();
         _currentMonitor = _fileSystemMonitor.StartMonitoring(this, [ _persistentDataOnDisk.Location ]);
+        RuntimeHost.Name = UserFriendlyName;
         OnPropertyChanged(nameof(Path));
     }
 

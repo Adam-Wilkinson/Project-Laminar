@@ -32,10 +32,10 @@ public static class LaminarServices
             
             .AddSingleton<IPluginStartupService, PluginStartupService>()
             .AddSingleton<IPluginHostFactory, PluginHostFactory>()
-            .AddSingleton<IPluginInstallContext, PluginInstallContext>()
-            .AddSingleton<IPluginRepositoryStore, PluginRepositoryStore>()
-            .AddSingleton<IPluginRepositoryFactory, PluginRepositoryFactory>()
-            .AddTransient<IRuntimeHost, RuntimeHost>()
+            .AddSingleton<ISharedPluginContext, SharedPluginContext>()
+            .AddSingleton<IPluginLibrary, PluginLibrary>()
+            .AddSingleton<IPluginSourceFactory, PluginSourceFactory>()
+            .AddSingleton<IRuntimeHostManager, RuntimeHostManager>()
         
             .AddSingleton<IExceptionHandler, ExceptionHandler>()
             

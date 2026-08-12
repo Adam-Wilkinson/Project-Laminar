@@ -8,55 +8,41 @@ using Laminar.Domain.ValueObjects;
 
 namespace Laminar.Implementation.Base.PluginLoading;
 
-public class PluginRepositoryStore(
-    IPluginRepositoryFactory factory, 
-    IExceptionHandler exceptionHandler) : IPluginRepositoryStore
+public class PluginLibrary(IExceptionHandler exceptionHandler) : IPluginLibrary
 {
-    private readonly List<IPluginRepository> _pluginRepositories = [];
+    private readonly List<IPluginSource> _pluginRepositories = [];
     private readonly Dictionary<string, IPluginInfo> _pluginInfos = [];
     private readonly Dictionary<VersionedPluginId, TaskCompletionSource<IPluginInfo?>> _pendingRequests = [];
     private readonly ObservableCollection<IPluginInfo> _loadedPlugins = [];
-    private readonly ObservableCollection<IPluginRepository> _loadingRepositories = [];
+    private readonly ObservableCollection<IPluginSource> _loadingRepositories = [];
     private readonly Lock _loadingRepositoriesLock = new();
     private readonly Lock _pluginInfosLock = new();
     
     private TaskCompletionSource? _loadedCompletionSource;
     
-    public IReadOnlyList<IPluginRepository> Repositories => _pluginRepositories;
+    public IReadOnlyList<IPluginSource> Sources => _pluginRepositories;
 
-    public IReadOnlyObservableCollection<IPluginRepository> CurrentlyLoadingRepositories => field ??= _loadingRepositories.ToInterfaceImpl();
+    public IReadOnlyObservableCollection<IPluginSource> CurrentlyLoadingSources => field ??= _loadingRepositories.ToInterfaceImpl();
     
     public IReadOnlyObservableCollection<IPluginInfo> LoadedPlugins => field ??= _loadedPlugins.ToInterfaceImpl();
     
-    public async Task<IPluginRepository?> AddFromPersistentDictionary(IPersistentDictionary persistentDictionary)
+    public async Task AddSource(IPluginSource source)
     {
-        IPluginRepository? newRepo = null;
-        try
-        {
-            newRepo = factory.FromPersistentData(persistentDictionary);
-        }
-        catch (Exception ex)
-        {
-            await exceptionHandler.OnExceptionAsync(ex);
-        }
-
-        if (newRepo is null) return null;
-        
-        _pluginRepositories.Add(newRepo);
+        _pluginRepositories.Add(source);
         lock (_loadingRepositoriesLock)
         {
             if (_loadingRepositories.Count == 0)
             {
                 _loadedCompletionSource = new TaskCompletionSource();
             }
-            _loadingRepositories.Add(newRepo);   
+            _loadingRepositories.Add(source);   
         }
 
         try
         {
-            await foreach (var pluginInfo in newRepo.Reload())
+            await foreach (var pluginInfo in source.Reload())
             {
-                MergePluginInfo(pluginInfo, newRepo);
+                MergePluginInfo(pluginInfo, source);
             }
         }
         catch (Exception ex)
@@ -67,11 +53,9 @@ public class PluginRepositoryStore(
         {
             lock (_loadingRepositoriesLock)
             {
-                OnRepositoryLoadFinished(newRepo);
+                OnRepositoryLoadFinished(source);
             } 
         }
-        
-        return newRepo;
     }
 
     public Task<IPluginInfo?> GetPluginInfoOrNull(VersionedPluginId pluginId)
@@ -96,7 +80,7 @@ public class PluginRepositoryStore(
         return pendingRequest.Task;
     }
 
-    private void MergePluginInfo(VersionedPluginId pluginId, IPluginRepository newRepo)
+    private void MergePluginInfo(VersionedPluginId pluginId, IPluginSource newRepo)
     {
         lock (_pluginInfosLock)
         {
@@ -115,23 +99,23 @@ public class PluginRepositoryStore(
         }
     }
 
-    public void ForgetRepository(IPluginRepository repository)
+    public void ForgetSource(IPluginSource source)
     {
-        foreach (var (id, version) in repository.Plugins)
+        foreach (var (id, version) in source.Plugins)
         {
             if (!_pluginInfos.TryGetValue(id, out var masterInfo))
             {
                 continue;
             }
 
-            masterInfo.RemoveVersion(version, repository);
+            masterInfo.RemoveVersion(version, source);
             if (masterInfo.AllVersions.Count == 0)
             {
                 _pluginInfos.Remove(id);
             }
         }
         
-        _pluginRepositories.Remove(repository);
+        _pluginRepositories.Remove(source);
     }
 
     public bool TryGetPluginInfoFromId(string id, [NotNullWhen(true)] out IPluginInfo? pluginInfo)
@@ -139,7 +123,7 @@ public class PluginRepositoryStore(
     
     public Task EnsurePluginsLoaded() => _loadedCompletionSource?.Task ?? Task.CompletedTask;
     
-    private void OnRepositoryLoadFinished(IPluginRepository newRepo)
+    private void OnRepositoryLoadFinished(IPluginSource newRepo)
     {
         _loadingRepositories.Remove(newRepo);
         if (_loadingRepositories.Count != 0) return;
