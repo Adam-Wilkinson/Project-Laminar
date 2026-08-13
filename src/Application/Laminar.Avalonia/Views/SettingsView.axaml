@@ -8,6 +8,7 @@
              xmlns:c="using:Laminar.Avalonia.Controls"
              xmlns:shapes="using:Laminar.Avalonia.Shapes"
              xmlns:s="using:Laminar.Avalonia.Settings"
+             xmlns:p="using:Laminar.Contracts.Base.PluginLoading"
              mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="450" d:DataContext="{x:Static dvm:DesignViewModel.Settings}"
              x:Class="Laminar.Avalonia.Views.SettingsView"	
              x:DataType="vm:SettingsViewModel"
@@ -92,43 +93,89 @@
 		
 		<TabItem Header="Plugins">
 			<ScrollViewer>
-				<GroupBox Header="Available" VerticalAlignment="Top">
-						<ItemsControl ItemsSource="{Binding AvailablePlugins}"
-						              Grid.IsSharedSizeScope="True">
+				<StackPanel Spacing="10">
+					<GroupBox Header="Plugin Sources">
+						<ItemsControl ItemsSource="{Binding PluginSources}">
 							<ItemsControl.ItemTemplate>
-								<DataTemplate DataType="vm:PluginInfoViewModel">
-									<Border Classes="UiLayer"
-									        Padding="10,5">
-										<Grid RowDefinitions="Auto,Auto"
-										      ColumnDefinitions="*,*"
-										      HorizontalAlignment="Stretch">
-											
-											<TextBlock Grid.Row="0" Grid.Column="0" 
-											           Text="{Binding Name}"
-											           VerticalAlignment="Center"
-											           Classes="h2"/>
-											
-											<ComboBox Grid.Row="0" Grid.Column="1" 
-											          ItemsSource="{Binding AvailableVersions}"
-											          SelectedItem="{Binding SelectedVersion, Mode=TwoWay}"
-											          HorizontalAlignment="Stretch"/>
-											
-											<TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
-											           Margin="4,4,0,0"
-											           Text="{Binding Description}"
-											           Classes="b2"/>
-										</Grid>
-									</Border>
+								<DataTemplate DataType="p:IPluginSource">
+									<TextBlock Text="{Binding Name}" 
+									           Background="{DynamicResource UiLayer}"
+									           Margin="5"
+									           Padding="5"/>
 								</DataTemplate>
 							</ItemsControl.ItemTemplate>
-							
-							<ItemsControl.ItemsPanel>
-								<ItemsPanelTemplate>
-									<StackPanel Spacing="4"/>
-								</ItemsPanelTemplate>
-							</ItemsControl.ItemsPanel>
 						</ItemsControl>
-				</GroupBox>
+					</GroupBox>
+					
+					<GroupBox Header="Runtime Host Folders">
+						<ItemsControl ItemsSource="{Binding Runtimes}">
+							<ItemsControl.ItemTemplate>
+								<DataTemplate DataType="p:IRuntimeHost">
+									<TextBlock Text="{Binding Name}"
+									           Background="{DynamicResource UiLayer}"
+									           Margin="5"
+									           Padding="5"/>
+								</DataTemplate>
+							</ItemsControl.ItemTemplate>
+						</ItemsControl>
+					</GroupBox>
+				
+					<GroupBox Header="Installed">
+						<ItemsControl ItemsSource="{Binding InstalledPlugins}">
+							<ItemsControl.ItemTemplate>
+								<DataTemplate DataType="p:IInstalledPlugin">
+									<TextBlock>
+										<TextBlock.Text>
+											<MultiBinding StringFormat="{}{0} (Version {1}): Installed in {2}">
+												<Binding Path="PluginId.Name"/>
+												<Binding Path="PluginId.Version"/>
+												<Binding Path="Host.Name"/>
+											</MultiBinding>
+										</TextBlock.Text>
+									</TextBlock>
+								</DataTemplate>
+							</ItemsControl.ItemTemplate>
+						</ItemsControl>
+					</GroupBox>
+					
+					<GroupBox Header="Available" VerticalAlignment="Top">
+							<ItemsControl ItemsSource="{Binding AvailablePlugins}"
+							              Grid.IsSharedSizeScope="True">
+								<ItemsControl.ItemTemplate>
+									<DataTemplate DataType="vm:PluginInfoViewModel">
+										<Border Classes="UiLayer"
+										        Padding="10,5">
+											<Grid RowDefinitions="Auto,Auto"
+											      ColumnDefinitions="*,*"
+											      HorizontalAlignment="Stretch">
+												
+												<TextBlock Grid.Row="0" Grid.Column="0" 
+												           Text="{Binding Name}"
+												           VerticalAlignment="Center"
+												           Classes="h2"/>
+												
+												<ComboBox Grid.Row="0" Grid.Column="1" 
+												          ItemsSource="{Binding AvailableVersions}"
+												          SelectedItem="{Binding SelectedVersion, Mode=TwoWay}"
+												          HorizontalAlignment="Stretch"/>
+												
+												<TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+												           Margin="4,4,0,0"
+												           Text="{Binding Description}"
+												           Classes="b2"/>
+											</Grid>
+										</Border>
+									</DataTemplate>
+								</ItemsControl.ItemTemplate>
+								
+								<ItemsControl.ItemsPanel>
+									<ItemsPanelTemplate>
+										<StackPanel Spacing="4"/>
+									</ItemsPanelTemplate>
+								</ItemsControl.ItemsPanel>
+							</ItemsControl>
+					</GroupBox>
+				</StackPanel>
 			</ScrollViewer>
 		</TabItem>
 	</TabControl>

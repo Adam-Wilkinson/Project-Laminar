@@ -41,9 +41,6 @@ public class LocalPluginSource(
         }
     }
 
-    public Task<Stream> StreamPlugin(VersionedPluginId plugin, CancellationToken cancellationToken = default)
-        => Task.FromResult<Stream>(File.OpenRead(_pluginDetails[plugin].PackagePath));
-
     public bool HasPlugin(VersionedPluginId plugin) => _pluginDetails.ContainsKey(plugin);
 
     public Task<IInstalledPlugin> InstallPlugin(
