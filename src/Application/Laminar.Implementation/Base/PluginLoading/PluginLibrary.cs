@@ -2,9 +2,9 @@ using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using Laminar.Contracts.Base;
 using Laminar.Contracts.Base.PluginLoading;
-using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.Observables.Collections;
 using Laminar.Domain.ValueObjects;
+using Microsoft.CodeAnalysis;
 
 namespace Laminar.Implementation.Base.PluginLoading;
 
@@ -12,7 +12,7 @@ public class PluginLibrary(IExceptionHandler exceptionHandler) : IPluginLibrary
 {
     private readonly List<IPluginSource> _pluginRepositories = [];
     private readonly Dictionary<string, IPluginInfo> _pluginInfos = [];
-    private readonly Dictionary<VersionedPluginId, TaskCompletionSource<IPluginInfo?>> _pendingRequests = [];
+    private readonly Dictionary<VersionedPluginId, TaskCompletionSource<IPluginSource?>> _pendingRequests = [];
     private readonly ObservableCollection<IPluginInfo> _loadedPlugins = [];
     private readonly ObservableCollection<IPluginSource> _loadingRepositories = [];
     private readonly Lock _loadingRepositoriesLock = new();
@@ -42,7 +42,7 @@ public class PluginLibrary(IExceptionHandler exceptionHandler) : IPluginLibrary
         {
             await foreach (var pluginInfo in source.Reload())
             {
-                MergePluginInfo(pluginInfo, source);
+                RegisterPluginVersionSource(pluginInfo, source);
             }
         }
         catch (Exception ex)
@@ -58,16 +58,18 @@ public class PluginLibrary(IExceptionHandler exceptionHandler) : IPluginLibrary
         }
     }
 
-    public Task<IPluginInfo?> GetPluginInfoOrNull(VersionedPluginId pluginId)
+    public Task<IPluginSource?> GetPluginSourceOrNull(VersionedPluginId pluginId)
     {
-        if (_pluginInfos.TryGetValue(pluginId.Name, out var pluginInfo) && pluginInfo.HasVersion(pluginId.Version))
+        if (_pluginInfos.TryGetValue(pluginId.Name, out var pluginInfo) 
+            && pluginInfo.HasVersion(pluginId.Version, out var sources)
+            && sources.Count > 0)
         {
-            return Task.FromResult<IPluginInfo?>(pluginInfo);
+            return Task.FromResult<IPluginSource?>(sources[0]);
         }
 
         if (EnsurePluginsLoaded().IsCompleted)
         {
-            return Task.FromResult<IPluginInfo?>(null);
+            return Task.FromResult<IPluginSource?>(null);
         }
         
         if (_pendingRequests.TryGetValue(pluginId, out var pendingRequest))
@@ -75,26 +77,26 @@ public class PluginLibrary(IExceptionHandler exceptionHandler) : IPluginLibrary
             return pendingRequest.Task;
         }
         
-        pendingRequest = new TaskCompletionSource<IPluginInfo?>();
+        pendingRequest = new TaskCompletionSource<IPluginSource?>();
         _pendingRequests.Add(pluginId, pendingRequest);
         return pendingRequest.Task;
     }
 
-    private void MergePluginInfo(VersionedPluginId pluginId, IPluginSource newRepo)
+    private void RegisterPluginVersionSource(VersionedPluginId pluginId, IPluginSource source)
     {
         lock (_pluginInfosLock)
         {
-            if (!_pluginInfos.TryGetValue(pluginId.Name, out var masterInfo))
+            if (!_pluginInfos.TryGetValue(pluginId.Name, out var pluginInfo))
             {
-                masterInfo = new PluginInfo(pluginId.Name);
-                _loadedPlugins.Add(masterInfo);
-                _pluginInfos.Add(pluginId.Name, masterInfo);
+                pluginInfo = new PluginInfo(pluginId.Name);
+                _loadedPlugins.Add(pluginInfo);
+                _pluginInfos.Add(pluginId.Name, pluginInfo);
             }
 
-            masterInfo.AddVersion(pluginId.Version, newRepo);
+            pluginInfo.AddVersion(pluginId.Version, source);
             if (_pendingRequests.TryGetValue(pluginId, out var pendingRequest))
             {
-                pendingRequest.SetResult(masterInfo);
+                pendingRequest.SetResult(source);
             }
         }
     }
@@ -117,9 +119,6 @@ public class PluginLibrary(IExceptionHandler exceptionHandler) : IPluginLibrary
         
         _pluginRepositories.Remove(source);
     }
-
-    public bool TryGetPluginInfoFromId(string id, [NotNullWhen(true)] out IPluginInfo? pluginInfo)
-        => _pluginInfos.TryGetValue(id, out pluginInfo);
     
     public Task EnsurePluginsLoaded() => _loadedCompletionSource?.Task ?? Task.CompletedTask;
     

@@ -2,7 +2,6 @@ using System.IO.Compression;
 using System.Reflection;
 using Laminar.Contracts.Base.PluginLoading;
 using Laminar.Contracts.Storage.IO;
-using Laminar.Domain.DataManagement;
 using Laminar.Domain.ValueObjects;
 using Laminar.PluginFramework.Json;
 using Laminar.PluginFramework.Registration;
@@ -16,8 +15,7 @@ public class PluginInstaller(
 {
     public async Task<IInstalledPlugin> InstallFromFolder(
         FileSystemPath pluginPath, 
-        IPluginInfo pluginInfo, 
-        SemanticVersion version,
+        VersionedPluginId pluginId,
         IRuntimeHost host)
     {
         var manifestPath = pluginPath.ChildPath("manifest.json");
@@ -28,7 +26,7 @@ public class PluginInstaller(
         var pluginLoadContext = new PluginLoadContext(entrypointPath, context.DefaultLoadContext);
         var pluginAssembly = pluginLoadContext.LoadFromAssemblyPath(entrypointPath);
 
-        var newPlugin = new InstalledPlugin(pluginHostFactory, host, pluginInfo, version);
+        var newPlugin = new InstalledPlugin(pluginHostFactory, host, pluginId);
         foreach (var type in pluginAssembly.GetTypes())
         {
             if (typeof(IPlugin).IsAssignableFrom(type) && !type.IsInterface &&
@@ -44,12 +42,11 @@ public class PluginInstaller(
 
     public async Task<IInstalledPlugin> InstallFromArchive(
         Stream archiveStream, 
-        IPluginInfo pluginInfo, 
-        SemanticVersion version,
+        VersionedPluginId pluginId,
         IRuntimeHost runtimeHost)
     {
-        var pluginPath = context.OfflineCacheLocation.ChildPath(pluginInfo.Id).ChildPath(version.ToString());
+        var pluginPath = context.OfflineCacheLocation.ChildPath(pluginId.Name).ChildPath(pluginId.Version.ToString());
         await ZipFile.ExtractToDirectoryAsync(archiveStream, pluginPath);
-        return await InstallFromFolder(pluginPath, pluginInfo, version, runtimeHost);
+        return await InstallFromFolder(pluginPath, pluginId, runtimeHost);
     }
 }

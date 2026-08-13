@@ -15,12 +15,11 @@ public class LocalPluginSource(
     IExceptionHandler handler,
     IPluginInstaller installer) : IPluginSource
 {
-    private readonly List<VersionedPluginId> _plugins = [];
     private readonly Dictionary<VersionedPluginId, RepositoryPluginDetails> _pluginDetails = new();
     
     public string Name { get; } = id;
 
-    public IReadOnlyList<VersionedPluginId> Plugins => _plugins;
+    public IReadOnlyCollection<VersionedPluginId> Plugins => _pluginDetails.Keys;
     
     public async IAsyncEnumerable<VersionedPluginId> Reload()
     {
@@ -37,7 +36,6 @@ public class LocalPluginSource(
             var manifestStream = await manifestEntry.OpenAsync();
             var manifest = ManifestData.Parse(manifestStream);
             var pluginId = new VersionedPluginId((string)manifest.Id, new SemanticVersion((string)manifest.Version));
-            _plugins.Add(pluginId);
             _pluginDetails.Add(pluginId, new RepositoryPluginDetails(manifest, pluginFile));
             yield return pluginId;
         }
@@ -46,14 +44,14 @@ public class LocalPluginSource(
     public Task<Stream> StreamPlugin(VersionedPluginId plugin, CancellationToken cancellationToken = default)
         => Task.FromResult<Stream>(File.OpenRead(_pluginDetails[plugin].PackagePath));
 
+    public bool HasPlugin(VersionedPluginId plugin) => _pluginDetails.ContainsKey(plugin);
+
     public Task<IInstalledPlugin> InstallPlugin(
-        IPluginInfo plugin, 
-        SemanticVersion version,
+        VersionedPluginId pluginId,
         IRuntimeHost runtimeHost,
         CancellationToken cancellationToken = default)
     {
-        var pluginId = new VersionedPluginId(plugin.Id, version);
-        return installer.InstallFromArchive(File.OpenRead(_pluginDetails[pluginId].PackagePath), plugin, version, runtimeHost);
+        return installer.InstallFromArchive(File.OpenRead(_pluginDetails[pluginId].PackagePath), pluginId, runtimeHost);
     }
 
     public Task<ManifestData> GetManifest(VersionedPluginId plugin, CancellationToken cancellationToken = default)

@@ -4,9 +4,7 @@ namespace Laminar.Contracts.Base.PluginLoading;
 
 public interface IInstalledPlugin
 {
-    public IPluginInfo PluginInfo { get; }
-    
-    public SemanticVersion Version { get; }
+    VersionedPluginId PluginId { get; }
 
     public IRuntimeHost Host { get; }
 }

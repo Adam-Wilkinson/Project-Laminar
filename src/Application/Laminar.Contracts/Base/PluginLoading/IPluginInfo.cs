@@ -1,7 +1,7 @@
+using System.Diagnostics.CodeAnalysis;
 using Laminar.Domain.Observables.Collections;
 using Laminar.Domain.Observables.Value;
 using Laminar.Domain.ValueObjects;
-using Laminar.PluginFramework.Json;
 
 namespace Laminar.Contracts.Base.PluginLoading;
 
@@ -13,9 +13,9 @@ public interface IPluginInfo
 
     public IReadOnlyObservableValue<SemanticVersion?> LatestVersion { get; }
 
-    public bool HasVersion(SemanticVersion version);
+    public bool HasVersion(SemanticVersion version, [NotNullWhen(true)] out IList<IPluginSource>? sources);
     
-    public void AddVersion(SemanticVersion version, IPluginSource sourceSource);
+    public void AddVersion(SemanticVersion version, IPluginSource source);
     
     public void RemoveVersion(SemanticVersion version, IPluginSource sourceSource);
 }

@@ -9,13 +9,11 @@ public interface IPluginSource
     
     public IAsyncEnumerable<VersionedPluginId> Reload();
     
-    public IReadOnlyList<VersionedPluginId> Plugins { get; }
+    public IReadOnlyCollection<VersionedPluginId> Plugins { get; }
     
-    public Task<IInstalledPlugin> InstallPlugin(
-        IPluginInfo plugin, 
-        SemanticVersion version, 
-        IRuntimeHost runtimeHost,
-        CancellationToken cancellationToken = default);
+    public bool HasPlugin(VersionedPluginId plugin);
+    
+    public Task<IInstalledPlugin> InstallPlugin(VersionedPluginId pluginId, IRuntimeHost runtimeHost, CancellationToken cancellationToken = default);
     
     public Task<ManifestData> GetManifest(VersionedPluginId plugin, CancellationToken cancellationToken = default);
 }

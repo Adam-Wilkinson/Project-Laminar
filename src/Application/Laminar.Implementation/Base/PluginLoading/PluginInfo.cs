@@ -1,4 +1,6 @@
 using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using Laminar.Contracts.Base.PluginLoading;
 using Laminar.Domain.Observables.Collections;
 using Laminar.Domain.Observables.Value;
@@ -8,7 +10,7 @@ namespace Laminar.Implementation.Base.PluginLoading;
 
 internal class PluginInfo(string id) : IPluginInfo
 {
-    private readonly SortedList<SemanticVersion, (VersionedPluginId id, List<IPluginSource> sources)> _versions = [];
+    private readonly SortedList<SemanticVersion, IList<IPluginSource>> _versions = [];
     private readonly ObservableCollection<SemanticVersion> _allVersions = [];
     private readonly ObservableValue<SemanticVersion?> _latestVersion = new(null);
     
@@ -18,31 +20,31 @@ internal class PluginInfo(string id) : IPluginInfo
 
     public IReadOnlyObservableValue<SemanticVersion?> LatestVersion => _latestVersion;
 
-    public bool HasVersion(SemanticVersion version) => _versions.ContainsKey(version);
+    public bool HasVersion(SemanticVersion version, [NotNullWhen(true)] out IList<IPluginSource>? sources) 
+        => _versions.TryGetValue(version, out sources);
 
-    public void AddVersion(SemanticVersion version, IPluginSource sourceSource)
+    public void AddVersion(SemanticVersion version, IPluginSource source)
     {
-        if (_versions.TryGetValue(version, out var currentVersionInfo))
+        if (_versions.TryGetValue(version, out var sources))
         {
-            currentVersionInfo.sources.Add(sourceSource);
+            sources.Add(source);
             return;
         }
 
-        var newVersionInfo = new VersionedPluginId(Id, version);
-        _versions.Add(version, (newVersionInfo, [sourceSource]));
+        _versions.Add(version, [source]);
         _allVersions.Insert(_versions.IndexOfKey(version), version);
         _latestVersion.Value = _versions.GetKeyAtIndex(_versions.Count - 1);
     }
 
     public void RemoveVersion(SemanticVersion version, IPluginSource sourceSource)
     {
-        if (!_versions.TryGetValue(version, out var currentVersionInfo))
+        if (!_versions.TryGetValue(version, out var sources))
         {
             return;
         }
         
-        currentVersionInfo.sources.Remove(sourceSource);
-        if (currentVersionInfo.sources.Count != 0) return;
+        sources.Remove(sourceSource);
+        if (sources.Count != 0) return;
         
         var versionIndex = _versions.IndexOfKey(version);
         _versions.Remove(version);

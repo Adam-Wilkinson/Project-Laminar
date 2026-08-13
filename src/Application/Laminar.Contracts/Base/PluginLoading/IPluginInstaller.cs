@@ -6,13 +6,11 @@ public interface IPluginInstaller
 {
     public Task<IInstalledPlugin> InstallFromArchive(
         Stream archiveStream, 
-        IPluginInfo pluginInfo,
-        SemanticVersion version,
+        VersionedPluginId pluginId,
         IRuntimeHost runtimeHost);
     
     public Task<IInstalledPlugin> InstallFromFolder(
         FileSystemPath directory, 
-        IPluginInfo pluginInfo, 
-        SemanticVersion version,
+        VersionedPluginId pluginId,
         IRuntimeHost runtimeHost);
 }

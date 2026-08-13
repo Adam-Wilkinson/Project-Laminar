@@ -26,7 +26,6 @@ public partial class ScriptEditorViewModel(
     IScriptEditor editor, 
     IUserActionManager userActionManager,
     IEncodableDataFactory dataFactory,
-    IScriptingFactory scriptingFactory,
     Option<IClipboard> optionalClipboard)
     : DropTargetViewModel, IConnectionInteractionHandler, IClipboardProvider
 {
@@ -185,7 +184,7 @@ public partial class ScriptEditorViewModel(
             }
         }
         
-        var encodedNodeTree = scriptingFactory
+        var encodedNodeTree = script.Host.ScriptingFactory
             .CreateNodeTree(selectedNodes, selectedConnections)
             .PersistentData
             .Encode(DefaultClipboardTranscoder);
@@ -220,7 +219,7 @@ public partial class ScriptEditorViewModel(
             if (stringResult is null) continue;
             var dictionary = dataFactory.GetEncodableData<IPersistentDictionary>();
             dictionary.Decode(DefaultClipboardTranscoder, DefaultClipboardTranscoder.BytesToElement(Encoding.UTF8.GetBytes(stringResult))!);
-            var deserializedNodeTree = scriptingFactory.NodeTreeFromPersistentData(dictionary);
+            var deserializedNodeTree = script.Host.ScriptingFactory.NodeTreeFromPersistentData(dictionary);
             var pasteAction = editor.AddSubTree(script, deserializedNodeTree);
             await userActionManager.ExecuteAction(pasteAction);
         }

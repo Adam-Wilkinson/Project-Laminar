@@ -1,10 +1,10 @@
 using Laminar.Contracts.Base;
-using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Storage.FileExplorer;
 using Laminar.Contracts.Storage.FileExplorer.Graph;
 using Laminar.Contracts.Storage.IO;
 using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.ValueObjects;
+using Laminar.Implementation.Storage.FileExplorer;
 using Laminar.Implementation.Storage.PersistentData;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -52,25 +52,36 @@ public sealed class OpenFile : IDisposable
 
 public class FileViewModelFactory
 {
-    private readonly Dictionary<string, FileFormatInfo> _allFactories;
+    private readonly Dictionary<string, OpenFileFactory> _allFactories;
     private readonly IFileSystem _fileSystem;
     private readonly IExceptionHandler _exceptionHandler;
     private readonly IFileSystemGraph _fileSystemGraph;
     private readonly IServiceProvider _serviceProvider;
     
-    public FileViewModelFactory(IFileSystem fileSystem,
+    private delegate OpenFile OpenFileFactory(IFileSystemFile file, IServiceProvider serviceProvider);
+    
+    public FileViewModelFactory(
+        IFileSystem fileSystem,
         IExceptionHandler exceptionHandler,
         IFileSystemGraph fileSystemGraph,
-        IServiceProvider serviceProvider,
-        IScriptingFactory scriptingFactory)
+        IServiceProvider serviceProvider)
     {
         _fileSystem = fileSystem;
         _exceptionHandler = exceptionHandler;
         _fileSystemGraph = fileSystemGraph;
         _serviceProvider = serviceProvider;
-        _allFactories = new Dictionary<string, FileFormatInfo>
+        _allFactories = new Dictionary<string, OpenFileFactory>
         {
-            [FileSystemItemType.Script.Extension] = FileFormatInfo.Create(new JsonPersistentDataTranscoder(null!), scriptingFactory, (provider, script) => ActivatorUtilities.CreateInstance<ScriptEditorViewModel>(provider, script))
+            [FileSystemItemType.Script.Extension] = (file, sp) =>
+            {
+                var scriptingFactory = file.GetRootFolder().RuntimeHost.ScriptingFactory;
+                var transcoder = new JsonPersistentDataTranscoder(null!);
+                var scriptResource = file.GetContentsAsResource(transcoder, scriptingFactory);
+                var scope = new ScopedViewModel<ScriptEditorViewModel>(sp,
+                    scopedSp => ActivatorUtilities.CreateInstance<ScriptEditorViewModel>(scopedSp, scriptResource.Value));
+                var viewModel = scope.ViewModel;
+                return new OpenFile(scriptResource, viewModel, scope);
+            }
         };
     }
 
@@ -90,7 +101,7 @@ public class FileViewModelFactory
 
         var extension = _fileSystem.GetExtension(file);
         
-        if (!_allFactories.TryGetValue(extension, out var factory))
+        if (!_allFactories.TryGetValue(extension, out var openFileFactory))
         {
             await _exceptionHandler.OnExceptionAsync(new InvalidOperationException($"Unknown file format: {extension}"), cancellationToken);
             return null;
@@ -102,26 +113,6 @@ public class FileViewModelFactory
             return null;
         }
 
-        return factory.OpenFileFactory(fileSystemFile, _serviceProvider);
-    }
-
-    private record FileFormatInfo(Func<IFileSystemFile, IServiceProvider, OpenFile> OpenFileFactory)
-    {
-        public static FileFormatInfo Create<TValue, TData, TViewModel>(
-            IPersistentDataTranscoder dataTranscoder,
-            IDecodingFactory<TValue, TData> decodingFactory,
-            Func<IServiceProvider, TValue, TViewModel> viewModelFactory)
-            where TData : class, IEncodableData
-            where TValue : class, IEncodableDataOwner<TData>
-            where TViewModel : ViewModelBase
-        {
-            return new FileFormatInfo((file, serviceProvider) =>
-            {
-                var scriptResource = file.GetContentsAsResource(dataTranscoder, decodingFactory);
-                var scope = new ScopedViewModel<TViewModel>(serviceProvider, sp => viewModelFactory(sp, scriptResource.Value));
-                var viewModel = scope.ViewModel;
-                return new OpenFile(scriptResource, viewModel, scope);
-            });
-        }
+        return openFileFactory(fileSystemFile, _serviceProvider);
     }
 }

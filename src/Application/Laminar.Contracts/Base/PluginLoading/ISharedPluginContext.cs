@@ -16,7 +16,7 @@ public interface ISharedPluginContext
 
     public void Configure(FrontendDependency frontendDependency, Platforms currentPlatform, AssemblyLoadContext? assemblyLoadContext);
     
-    public IReadOnlyList<IInstalledPlugin> GetInstallations(IPluginInfo pluginInfo);
+    public IReadOnlyList<IInstalledPlugin> GetInstallations(string pluginId);
     
     public void RegisterInstallation(IInstalledPlugin installedPlugin); 
 }

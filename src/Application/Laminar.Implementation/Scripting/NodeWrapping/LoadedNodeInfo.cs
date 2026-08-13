@@ -13,5 +13,5 @@ public class LoadedNodeInfo<T>(IInstalledPlugin hostPlugin) : ILoadedNodeInfo wh
     
     public string Id => typeof(T).FullName ?? throw new InvalidOperationException("Node type must have a type name");
 
-    public VersionedPluginId PluginId { get; } = new(hostPlugin.PluginInfo.Id, hostPlugin.Version);
+    public VersionedPluginId PluginId { get; } = hostPlugin.PluginId;
 }

@@ -1,5 +1,4 @@
 using Laminar.Contracts.Base.PluginLoading;
-using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Domain.ValueObjects;
 using Laminar.PluginFramework.Registration;
 
@@ -12,13 +11,11 @@ public class InstalledPlugin : IInstalledPlugin
     public InstalledPlugin(
         IPluginHostFactory pluginHostFactory, 
         IRuntimeHost host,
-        IPluginInfo pluginInfo,
-        SemanticVersion version)
+        VersionedPluginId pluginId)
     {
         _pluginHost = pluginHostFactory.GetPluginHost(this, host.NodeManager);
         Host = host;
-        PluginInfo = pluginInfo;
-        Version = version;
+        PluginId = pluginId;
     }
 
     public void AddPluginImplementation(IPlugin plugin)
@@ -26,7 +23,6 @@ public class InstalledPlugin : IInstalledPlugin
         plugin.Register(_pluginHost);
     }
 
-    public IPluginInfo PluginInfo { get; }
-    public SemanticVersion Version { get; }
+    public VersionedPluginId PluginId { get; }
     public IRuntimeHost Host { get; }
 }

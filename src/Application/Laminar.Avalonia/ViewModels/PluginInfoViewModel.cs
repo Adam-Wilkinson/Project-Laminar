@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text.Json;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -23,7 +22,7 @@ public partial class PluginInfoViewModel : ViewModelBase
         AvailableVersions = info.AllVersions;
         Name = info.Id;
         SelectedVersion = info.LatestVersion.Value;
-        if (SelectedVersion != null)
+        if (SelectedVersion is not null)
         {
             _ = SetNewVersion(SelectedVersion.Value);
         }
@@ -56,7 +55,13 @@ public partial class PluginInfoViewModel : ViewModelBase
     {
         try
         {
-            var newVersionMetadata = await _pluginInfo.GetVersionInfo(newVersion);
+            if (!_pluginInfo.HasVersion(newVersion, out var sources)
+                || sources.Count == 0)
+            {
+                throw new InvalidOperationException("Unable to find plugin version");
+            }
+            
+            var newVersionMetadata = await sources[0].GetManifest(new VersionedPluginId(_pluginInfo.Id, newVersion));
             Name = ExtractStringFrom(newVersionMetadata.UserFriendlyName) ?? _pluginInfo.Id;
             Description = ExtractStringFrom(newVersionMetadata.Description) ?? "";
         }

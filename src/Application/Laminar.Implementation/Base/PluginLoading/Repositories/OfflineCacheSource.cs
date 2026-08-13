@@ -10,13 +10,23 @@ public class OfflineCacheSource(
     ISharedPluginContext context,
     IPluginInstaller pluginInstaller) : IPluginSource
 {
-    private readonly List<VersionedPluginId> _plugins = [];
+    private readonly HashSet<VersionedPluginId> _plugins = [];
     
     public string Name => "Offline Cache";
 
     public async IAsyncEnumerable<VersionedPluginId> Reload()
     {
         await Task.CompletedTask;
+        
+        if (!fileSystem.Exists(context.OfflineCacheLocation))
+        {
+            fileSystem.CreateDirectory(context.OfflineCacheLocation);
+        }
+        else if (!fileSystem.IsDirectory(context.OfflineCacheLocation))
+        {
+            throw new DirectoryNotFoundException(
+                $"Could not create offline cache '{context.OfflineCacheLocation}' due to an existing file");
+        }
         
         foreach (var pluginFolder in fileSystem.EnumerateChildren(context.OfflineCacheLocation))
         {
@@ -35,13 +45,15 @@ public class OfflineCacheSource(
         }
     }
 
-    public IReadOnlyList<VersionedPluginId> Plugins => _plugins;
+    public IReadOnlyCollection<VersionedPluginId> Plugins => _plugins;
 
-    public Task<IInstalledPlugin> InstallPlugin(IPluginInfo plugin, SemanticVersion version, IRuntimeHost runtimeHost,
+    public bool HasPlugin(VersionedPluginId plugin) => _plugins.Contains(plugin);
+
+    public Task<IInstalledPlugin> InstallPlugin(VersionedPluginId pluginId, IRuntimeHost runtimeHost,
         CancellationToken cancellationToken = default)
     {
-        var pluginPath = context.OfflineCacheLocation.ChildPath(plugin.Id).ChildPath(version.ToString());
-        return pluginInstaller.InstallFromFolder(pluginPath, plugin, version, runtimeHost);
+        var pluginPath = context.OfflineCacheLocation.ChildPath(pluginId.Name).ChildPath(pluginId.Version.ToString());
+        return pluginInstaller.InstallFromFolder(pluginPath, pluginId, runtimeHost);
     }
 
     public async Task<ManifestData> GetManifest(VersionedPluginId plugin, CancellationToken cancellationToken = default)
