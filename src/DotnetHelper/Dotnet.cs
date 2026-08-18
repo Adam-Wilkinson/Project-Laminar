@@ -48,19 +48,19 @@ public partial class Dotnet : IDotnet
     }
     
     public Task<DotnetResult> Build(string path, params string[] args) 
-        => RunDotnet(path, "build", $"{path} -c {BuildConfig} {string.Join(" ", args)}")
+        => RunDotnet(path, "build", $"\"{path}\" -c {BuildConfig} {string.Join(" ", args)}")
             .ThrowOnError();
 
     public Task<DotnetResult> Pack(string path, params string[] args)
-        => RunDotnet(path, "pack", $"{path} -c {BuildConfig} {string.Join(" ", args)}")
+        => RunDotnet(path, "pack", $"\"{path}\" -c {BuildConfig} {string.Join(" ", args)}")
             .ThrowOnError();
 
     public Task<DotnetResult> Publish(string path, CancellationToken ct, params string[] args)
-        => RunDotnet(path, "publish", $"{path} -c {BuildConfig} {string.Join(" ", args)}", ct)
+        => RunDotnet(path, "publish", $"\"{path}\" -c {BuildConfig} {string.Join(" ", args)}", ct)
             .ThrowOnError(); 
     
     public Task<DotnetResult> Restore(string? path = null, params string[] args)
-        => RunDotnet(path, "restore",  $"{path} {string.Join(" ", args)}");
+        => RunDotnet(path, "restore",  $"\"{path}\" {string.Join(" ", args)}");
 
     public Task<DotnetResult> ShutdownBuildServer(params string[] args)
         => RunDotnet(null, "build-server", "shutdown");
