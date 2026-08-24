@@ -1,3 +1,4 @@
+using System.Text;
 using DotnetHelper;
 using Laminar.PluginFrameworkSetup;
 
@@ -14,22 +15,9 @@ public static class LaminarBuilder
     private static readonly string[] CopyDevRepositoryTo =
     [
         "src/Application/Laminar.Avalonia/bin/Debug/net10.0",
-        "src/Application/Laminar.Avalonia/bin/Release/net10.0"
-    ];
-    
-    private static readonly byte[] DevPluginRepository =
-    [
-        .. """
-           {
-               "repositories": [
-                   {
-                       "id": "dev",
-                       "provider": "filesystem",
-                       "path": "../../../../../../.lampacker.local"
-                   }
-               ]
-           }
-           """u8
+        "src/Application/Laminar.Avalonia/bin/Release/net10.0",
+        "build/Laminar.Run/bin/Debug/net10.0",
+        "build/Laminar.Run/bin/Release/net10.0"
     ];
     
     private const string App = "src/Application/Laminar.Avalonia/Laminar.Avalonia.csproj";
@@ -38,16 +26,17 @@ public static class LaminarBuilder
     public static async Task Build()
     {
         await PluginFrameworkHandler.Setup();
+
+        var lampackerLocal = Path.Combine(Dotnet.GetRepoRoot(), ".lampacker.local");
         
         // Build plugins
         foreach (var plugin in Plugins)
         {
             await Dotnet
-                .Run("lampacker", "pack", $"src/Plugins/{plugin}/{plugin}.csproj", "-o .lampacker.local")
+                .Run("lampacker", "pack", $"\"src/Plugins/{plugin}/{plugin}.csproj\"", $"-o \"{lampackerLocal}\"")
                 .ThrowOnError();
-            await Dotnet.ShutdownBuildServer();
         }
-        
+
         // Establish repositories
         foreach (var path in CopyDevRepositoryTo)
         {
@@ -58,12 +47,25 @@ public static class LaminarBuilder
                 Directory.CreateDirectory(absolutePath);
             }
 
+            var relativeLaminarPath = Path.GetRelativePath(absolutePath, lampackerLocal).Replace('\\', '/');
+            var devPluginRepositories = Encoding.UTF8.GetBytes(
+                $$"""
+                  {
+                      "repositories": [
+                          {
+                              "id": "dev",
+                              "provider": "filesystem",
+                              "path": "{{relativeLaminarPath}}"
+                          }
+                      ]
+                  }
+                  """);
+                
             await using var fs = File.Create(Path.Combine(absolutePath, "repositories.json"));
-            await fs.WriteAsync(DevPluginRepository);
+            await fs.WriteAsync(devPluginRepositories);
         }
         
         // Build app
         await Dotnet.Build(App, IDotnet.NoRestore);
-        await Dotnet.ShutdownBuildServer();
     }
 }

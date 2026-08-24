@@ -59,26 +59,29 @@ public static class PluginFrameworkHandler
             }
         }
 
-        if (!currentPluginVersionValid)
+        if (currentPluginVersionValid)
         {
-            Console.WriteLine("Rebuilding and restoring...");
-
-            foreach (var pluginFramework in PluginFrameworkPackages)
-            {
-                await Dotnet.Pack($"src/PluginFramework/{pluginFramework}/{pluginFramework}.csproj",
-                    IDotnet.PluginFrameworkVersion(pluginVersion), IDotnet.DoNotUseSharedCompilation);
-            }
-
-            await SetPersistentPluginFrameworkVersion(pluginVersion);
-            
-            // Repo should be stable, restore to check:
-            await Dotnet.Restore();
-            await Dotnet.ShutdownBuildServer();
-
-            await Dotnet.New("tool-manifest");
-            await Dotnet.Tool("update", PluginFrameworkCLI, IDotnet.Prerelease, IDotnet.Local);
-            await Dotnet.Tool("restore");
+            Console.WriteLine("Plugin framework version unchanged. Rebuild skipped");
+            return;
         }
+        
+        Console.WriteLine("Rebuilding and restoring...");
+
+        foreach (var pluginFramework in PluginFrameworkPackages)
+        {
+            await Dotnet.Pack($"src/PluginFramework/{pluginFramework}/{pluginFramework}.csproj",
+                IDotnet.PluginFrameworkVersion(pluginVersion), IDotnet.DoNotUseSharedCompilation);
+        }
+
+        await SetPersistentPluginFrameworkVersion(pluginVersion);
+        
+        // Repo should be stable, restore to check:
+        await Dotnet.Restore();
+        await Dotnet.ShutdownBuildServer();
+
+        await Dotnet.New("tool-manifest");
+        await Dotnet.Tool("update", PluginFrameworkCLI, IDotnet.Prerelease, IDotnet.Local);
+        await Dotnet.Tool("restore");
     }
     
     private static string ExtractPluginFrameworkVersion(string buildOutput)

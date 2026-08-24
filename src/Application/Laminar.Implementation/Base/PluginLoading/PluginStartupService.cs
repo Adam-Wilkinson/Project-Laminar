@@ -15,7 +15,7 @@ public class PluginStartupService(
     IPluginSourceFactory pluginSourceFactory) : IPluginStartupService
 {
     private static readonly DataStoreKey InbuildRepositoriesDataStore
-        = new("repositories", PersistentDataType.Json, AppContext.BaseDirectory);
+        = new("repositories", PersistentDataType.Json, Environment.CurrentDirectory);
     
     public Task Initialize(FrontendDependency frontend, AssemblyLoadContext? defaultLoadContext)
     {
