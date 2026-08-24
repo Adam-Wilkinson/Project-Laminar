@@ -4,7 +4,7 @@ using Laminar.PluginFramework.UserInterface;
 
 namespace Laminar.Implementation.Base.UserInterface;
 
-public class DataInterface<TFrontend> : IDataInterface<TFrontend>
+public class DataInterface<TFrontend> : IDataInterface<TFrontend>, IRefreshable
     where TFrontend : class, new()
 {
     private readonly IInterfaceData _interfaceData;
@@ -28,13 +28,13 @@ public class DataInterface<TFrontend> : IDataInterface<TFrontend>
     {
         if (args.PropertyName is nameof(IInterfaceData.Definition) or nameof(IInterfaceData.IsUserEditable))
         {
-            Update();
+            Refresh();
         }
 
         if (args.PropertyName == nameof(IInterfaceData.Value) && _valueTypeIsMutable && _interfaceData.Value.GetType() != _valueType)
         {
             _valueType = _interfaceData.Value.GetType();
-            Update();
+            Refresh();
         }
     }
 
@@ -44,7 +44,7 @@ public class DataInterface<TFrontend> : IDataInterface<TFrontend>
     
     public TFrontend InterfaceFrontend { get; private set; }
     
-    private void Update()
+    public void Refresh()
     {
         (InterfaceData as IDisposable)?.Dispose();
         InterfaceData = null;

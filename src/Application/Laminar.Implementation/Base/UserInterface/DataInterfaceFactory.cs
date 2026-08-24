@@ -14,7 +14,8 @@ public partial class DataInterfaceFactory(ITypeInfoStore typeInfoStore, ILogger<
     
     private readonly Dictionary<Type, List<(Type valueType, GenericDataFactory factory)>> _interfaceFactories = [];
     private readonly Dictionary<Type, List<FrontendInfo>> _frontendImplementations = [];
-
+    private readonly List<IRefreshable> _interfaceInstances = [];
+    
     public void RegisterInterfaceFactory<TInterfaceDefinition, TValue, TInterface>(Func<TInterface> factory)
         where TInterfaceDefinition : IUserInterfaceDefinition, new()
         where TValue : notnull
@@ -32,6 +33,11 @@ public partial class DataInterfaceFactory(ITypeInfoStore typeInfoStore, ILogger<
         }
         
         _frontendImplementations[typeof(TInterfaceDefinition)].Add(new FrontendInfo(typeof(TInterface), factory));
+        
+        foreach (var instance in _interfaceInstances)
+        {
+            instance.Refresh();
+        }
     }
     
     public void RegisterInterface<TInterfaceDefinition, TValue, TInterface>()
@@ -41,7 +47,12 @@ public partial class DataInterfaceFactory(ITypeInfoStore typeInfoStore, ILogger<
         => RegisterInterfaceFactory<TInterfaceDefinition, TValue, TInterface>(() => new TInterface());
 
     public IDataInterface<TFrontend> GetDataInterface<TFrontend>(IInterfaceData interfaceData)
-        where TFrontend : class, new() => new DataInterface<TFrontend>(interfaceData, this);
+        where TFrontend : class, new()
+    {
+        var newInterface = new DataInterface<TFrontend>(interfaceData, this);
+        _interfaceInstances.Add(newInterface);
+        return newInterface;
+    }
 
     public (TFrontend, IInterfaceData) GetFrontendAndData<TFrontend>(IInterfaceData interfaceData)
         where TFrontend : class, new()
@@ -62,7 +73,8 @@ public partial class DataInterfaceFactory(ITypeInfoStore typeInfoStore, ILogger<
             }
         }
 
-        if (interfaceData.Value.GetType().IsEnum && TryGetFrontendAndData<TFrontend>(interfaceData, new EnumDropdown()) is { } enumResult)
+        if (interfaceData.Value.GetType().IsEnum 
+            && TryGetFrontendAndData<TFrontend>(interfaceData, new EnumDropdown()) is { } enumResult)
         {
             return enumResult;
         }
