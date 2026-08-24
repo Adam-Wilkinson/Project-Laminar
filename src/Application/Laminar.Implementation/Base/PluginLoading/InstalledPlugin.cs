@@ -7,6 +7,7 @@ namespace Laminar.Implementation.Base.PluginLoading;
 public class InstalledPlugin : IInstalledPlugin
 {
     private readonly IPluginHost _pluginHost;
+    private readonly List<IPlugin> _implementingTypes = [];
 
     public InstalledPlugin(
         IPluginHostFactory pluginHostFactory, 
@@ -21,8 +22,12 @@ public class InstalledPlugin : IInstalledPlugin
     public void AddPluginImplementation(IPlugin plugin)
     {
         plugin.Register(_pluginHost);
+        _implementingTypes.Add(plugin);
     }
 
     public VersionedPluginId PluginId { get; }
+    
     public IRuntimeHost Host { get; }
+
+    public IReadOnlyList<IPlugin> ImplementingTypes => _implementingTypes;
 }

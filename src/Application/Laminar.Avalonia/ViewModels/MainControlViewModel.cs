@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Laminar.Avalonia.ViewModels.Services;
+using Laminar.Contracts.Base;
 using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Contracts.Storage.FileExplorer;
@@ -15,6 +16,7 @@ public partial class MainControlViewModel : ViewModelBase, IOpenFileService, IDi
     public MainControlViewModel(
         IServiceProvider serviceProvider, 
         ILoadedNodeManager loadedNodeManager,
+        IRuntimeHostManager runtimeHostManager,
         FileViewModel centralFileEditor)
     {
         _scopedFileNavigator = new ScopedViewModel<FileNavigatorViewModel>(serviceProvider, this);
@@ -22,9 +24,12 @@ public partial class MainControlViewModel : ViewModelBase, IOpenFileService, IDi
         CentralFileEditor.PropertyChanged += CentralFileEditorOnPropertyChanged;
         OnExpandedSidebarWidthChanged(ExpandedSidebarWidth);
         LoadedNodes = loadedNodeManager.LoadedNodes.RecursiveMap(loadedNodeManager.CreateNode);
+        runtimeHostManager.PluginsChanged += (_, _) 
+            => LoadedNodes = loadedNodeManager.LoadedNodes.RecursiveMap(loadedNodeManager.CreateNode);;
     }
 
-    public IReadOnlyItemCategory<object> LoadedNodes { get; }
+    [ObservableProperty]
+    public partial IReadOnlyItemCategory<object> LoadedNodes { get; private set; }
 
     [Persistent, ObservableProperty] 
     public partial double NodePickerHeight { get; set; } = 250;

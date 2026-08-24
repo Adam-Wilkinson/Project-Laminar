@@ -1,3 +1,4 @@
+using Laminar.Domain;
 using Laminar.Domain.ValueObjects;
 using Laminar.PluginFramework.Json;
 
@@ -13,7 +14,7 @@ public interface IPluginSource
     
     public bool HasPlugin(VersionedPluginId plugin);
     
-    public Task<IInstalledPlugin> InstallPlugin(VersionedPluginId pluginId, IRuntimeHost runtimeHost, CancellationToken cancellationToken = default);
+    public Task<MayError<IInstalledPlugin>> InstallPlugin(VersionedPluginId pluginId, IRuntimeHost runtimeHost, CancellationToken cancellationToken = default);
     
     public Task<ManifestData> GetManifest(VersionedPluginId plugin, CancellationToken cancellationToken = default);
 }

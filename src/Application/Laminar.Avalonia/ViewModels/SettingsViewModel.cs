@@ -4,22 +4,36 @@ using Laminar.Domain.Observables.Collections;
 using Laminar.PluginFramework;
 
 namespace Laminar.Avalonia.ViewModels;
-public partial class SettingsViewModel(
-    IPluginLibrary pluginLibrary,
-    IRuntimeHostManager runtimeHostManager,
-    IExceptionHandler exceptionHandler) : ViewModelBase
+
+public class SettingsViewModel : ViewModelBase
 {
+    private readonly IRuntimeHostManager _runtimeHostManager;
+
+    public SettingsViewModel(IPluginLibrary pluginLibrary,
+        IRuntimeHostManager runtimeHostManager,
+        IExceptionHandler exceptionHandler)
+    {
+        _runtimeHostManager = runtimeHostManager;
+        AvailablePlugins = pluginLibrary.LoadedPlugins
+            .ObservableMap(plugin => new PluginInfoViewModel(plugin, exceptionHandler, runtimeHostManager));
+        PluginSources = pluginLibrary.Sources;
+        Runtimes = runtimeHostManager.AllHosts;
+        runtimeHostManager.PluginsChanged += OnPluginsChanged;
+    }
+
+    private void OnPluginsChanged(object? sender, PluginsChangedEventArgs e)
+    {
+        OnPropertyChanged(nameof(InstalledPlugins));
+    }
+
     public string PluginFrameworkVersion => PluginFrameworkInfo.Version;
 
     public IReadOnlyObservableCollection<PluginInfoViewModel> AvailablePlugins { get; }
-        = pluginLibrary.LoadedPlugins.ObservableMap(plugin => new PluginInfoViewModel(plugin, exceptionHandler));
 
     public IReadOnlyList<IPluginSource> PluginSources { get; }
-        = pluginLibrary.Sources;
 
     public IReadOnlyCollection<IRuntimeHost> Runtimes { get; }
-        = runtimeHostManager.AllHosts;
 
     public IEnumerable<IInstalledPlugin> InstalledPlugins =>
-        runtimeHostManager.AllHosts.SelectMany(x => x.PluginManager.Plugins);
+        _runtimeHostManager.AllHosts.SelectMany(x => x.PluginManager.Plugins);
 }

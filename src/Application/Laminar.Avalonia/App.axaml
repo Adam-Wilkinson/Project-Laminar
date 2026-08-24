@@ -12,6 +12,7 @@
 				<ResourceInclude Source="XamlAssets/DataTemplates/SettingDataTemplate.axaml"/>
 				<ResourceInclude Source="XamlAssets/DataTemplates/WrappedNodeDataTemplate.axaml"/>
 				<ResourceInclude Source="XamlAssets/DataTemplates/ConnectionDataTemplate.axaml"/>
+				<ResourceInclude Source="XamlAssets/DataTemplates/PluginInfoDataTemplate.axaml"/>
 				<ResourceInclude Source="XamlAssets/Resources/LaminarColorResources.axaml"/>
 				<ResourceInclude Source="XamlAssets/Resources/ToolResources.axaml"/>
 				<ResourceInclude Source="XamlAssets/Resources/SettingsResources.axaml"/>

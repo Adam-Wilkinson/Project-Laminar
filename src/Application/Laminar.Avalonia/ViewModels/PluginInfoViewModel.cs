@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text.Json;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Laminar.Contracts.Base;
 using Laminar.Contracts.Base.PluginLoading;
 using Laminar.Domain.Observables.Collections;
@@ -13,12 +14,17 @@ public partial class PluginInfoViewModel : ViewModelBase
 {
     private readonly IPluginInfo _pluginInfo;
     private readonly IExceptionHandler _exceptionHandler;
-    
-    public PluginInfoViewModel(IPluginInfo info, IExceptionHandler exceptionHandler)
+    private readonly IRuntimeHostManager _runtimeHostManager;
+
+    public PluginInfoViewModel(
+        IPluginInfo info, 
+        IExceptionHandler exceptionHandler,
+        IRuntimeHostManager runtimeHostManager)
     {
         _pluginInfo = info;
         _exceptionHandler = exceptionHandler;
-        
+        _runtimeHostManager = runtimeHostManager;
+
         AvailableVersions = info.AllVersions;
         Name = info.Id;
         SelectedVersion = info.LatestVersion.Value;
@@ -49,6 +55,36 @@ public partial class PluginInfoViewModel : ViewModelBase
         if (value is not { } newVersion) return;
 
         _ = SetNewVersion(newVersion); 
+    }
+
+    [RelayCommand]
+    private async Task Install(IRuntimeHost target)
+    {
+        if (SelectedVersion is null)
+        {
+            await _exceptionHandler.OnExceptionAsync(new InvalidOperationException("Cannot install plugin without version"));
+            return;
+        }
+
+        try
+        {
+            await target.PluginManager.EnsurePluginInstalled(new VersionedPluginId(_pluginInfo.Id,
+                SelectedVersion.Value));
+        }
+        catch (Exception ex)
+        {
+            await _exceptionHandler.OnExceptionAsync(ex);
+            
+        }
+    }
+
+    [RelayCommand]
+    private async Task InstallToAll()
+    {
+        foreach (var runtime in _runtimeHostManager.AllHosts)
+        {
+            await Install(runtime);
+        }
     }
 
     private async Task SetNewVersion(SemanticVersion newVersion)

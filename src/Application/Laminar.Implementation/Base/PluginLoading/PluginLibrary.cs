@@ -1,17 +1,15 @@
 using System.Collections.ObjectModel;
-using System.Diagnostics.CodeAnalysis;
 using Laminar.Contracts.Base;
 using Laminar.Contracts.Base.PluginLoading;
 using Laminar.Domain.Observables.Collections;
 using Laminar.Domain.ValueObjects;
-using Microsoft.CodeAnalysis;
 
 namespace Laminar.Implementation.Base.PluginLoading;
 
 public class PluginLibrary(IExceptionHandler exceptionHandler) : IPluginLibrary
 {
     private readonly List<IPluginSource> _pluginRepositories = [];
-    private readonly Dictionary<string, IPluginInfo> _pluginInfos = [];
+    private readonly Dictionary<string, PluginInfo> _pluginInfos = [];
     private readonly Dictionary<VersionedPluginId, TaskCompletionSource<IPluginSource?>> _pendingRequests = [];
     private readonly ObservableCollection<IPluginInfo> _loadedPlugins = [];
     private readonly ObservableCollection<IPluginSource> _loadingRepositories = [];
@@ -127,6 +125,7 @@ public class PluginLibrary(IExceptionHandler exceptionHandler) : IPluginLibrary
         _loadingRepositories.Remove(newRepo);
         if (_loadingRepositories.Count != 0) return;
         
+        // All repositories have finished loading. Cleanup
         _loadedCompletionSource?.SetResult();
         _loadedCompletionSource = null;
 
@@ -134,6 +133,7 @@ public class PluginLibrary(IExceptionHandler exceptionHandler) : IPluginLibrary
         {
             incompleteRequest.SetResult(null);
         }
+        
         _pendingRequests.Clear();
     }
 }

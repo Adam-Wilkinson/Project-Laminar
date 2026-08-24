@@ -2,18 +2,21 @@ using System.IO.Compression;
 using System.Reflection;
 using Laminar.Contracts.Base.PluginLoading;
 using Laminar.Contracts.Storage.IO;
+using Laminar.Domain;
 using Laminar.Domain.ValueObjects;
 using Laminar.PluginFramework.Json;
 using Laminar.PluginFramework.Registration;
+using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.Base.PluginLoading;
 
 public class PluginInstaller(
     IFileSystem fileSystem, 
     ISharedPluginContext context,
-    IPluginHostFactory pluginHostFactory) : IPluginInstaller
+    IPluginHostFactory pluginHostFactory,
+    ILogger<PluginInstaller> logger) : IPluginInstaller
 {
-    public async Task<IInstalledPlugin> InstallFromFolder(
+    public async Task<MayError<IInstalledPlugin>> InstallFromFolder(
         FileSystemPath pluginPath, 
         VersionedPluginId pluginId,
         IRuntimeHost host)
@@ -29,18 +32,33 @@ public class PluginInstaller(
         var newPlugin = new InstalledPlugin(pluginHostFactory, host, pluginId);
         foreach (var type in pluginAssembly.GetTypes())
         {
-            if (typeof(IPlugin).IsAssignableFrom(type) && !type.IsInterface &&
-                type.GetConstructor(BindingFlags.Public, []) is not null
-                && Activator.CreateInstance(type) is IPlugin pluginFront)
+            if (!typeof(IPlugin).IsAssignableFrom(type) || type.IsInterface) continue;
+
+            if (type.GetConstructor(BindingFlags.Public | BindingFlags.Instance, []) is null)
             {
-                newPlugin.AddPluginImplementation(pluginFront);
+                logger.LogWarning("The type {type} implements IPlugin but has no public parameterless constructor, so cannot be instantiated", type);
+                continue;
             }
+
+            if (Activator.CreateInstance(type) is not IPlugin implementation)
+            {
+                logger.LogWarning("Unknown error creating type {type}", type);
+                continue;
+            }
+            
+            newPlugin.AddPluginImplementation(implementation);
         }
 
-        return newPlugin;
+        if (newPlugin.ImplementingTypes.Count == 0)
+        {
+            return new MayError<IInstalledPlugin>(
+                new InvalidOperationException($"The plugin at path '{pluginPath}' has no implementation"));
+        }
+
+        return new MayError<IInstalledPlugin>(newPlugin);
     }
 
-    public async Task<IInstalledPlugin> InstallFromArchive(
+    public async Task<MayError<IInstalledPlugin>> InstallFromArchive(
         Stream archiveStream, 
         VersionedPluginId pluginId,
         IRuntimeHost runtimeHost)

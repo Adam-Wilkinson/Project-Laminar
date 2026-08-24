@@ -1,3 +1,4 @@
+using System.Collections.Specialized;
 using Laminar.Contracts.Base;
 using Laminar.Contracts.Base.PluginLoading;
 
@@ -17,6 +18,13 @@ public class RuntimeHostManager(IServiceProvider serviceProvider) : IRuntimeHost
         };
         
         _hosts.Add(newHost);
+        newHost.PluginManager.Plugins.CollectionChanged += (_, _) => PluginsChanged?.Invoke(this,
+            new PluginsChangedEventArgs
+            {
+                ChangedRuntime = newHost,
+            });
         return newHost;
     }
+
+    public event EventHandler<PluginsChangedEventArgs>? PluginsChanged;
 }

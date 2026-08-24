@@ -15,7 +15,5 @@ public interface IPluginInfo
 
     public bool HasVersion(SemanticVersion version, [NotNullWhen(true)] out IList<IPluginSource>? sources);
     
-    public void AddVersion(SemanticVersion version, IPluginSource source);
-    
-    public void RemoveVersion(SemanticVersion version, IPluginSource sourceSource);
+    public Task InstallVersion(SemanticVersion version, IRuntimeHost host);
 }

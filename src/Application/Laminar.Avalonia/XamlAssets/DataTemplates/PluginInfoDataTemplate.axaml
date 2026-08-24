@@ -1,0 +1,33 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:vm="using:Laminar.Avalonia.ViewModels">
+    <DataTemplate x:Key="PluginInfoDataTemplate" DataType="vm:PluginInfoViewModel">
+        <Border Classes="UiLayer"
+                Padding="10,5">
+            <Grid RowDefinitions="Auto,Auto"
+                  ColumnDefinitions="*,*,Auto"
+                  HorizontalAlignment="Stretch">
+												
+                <TextBlock Grid.Row="0" Grid.Column="0" 
+                           Text="{Binding Name}"
+                           VerticalAlignment="Center"
+                           Classes="h2"/>
+												
+                <ComboBox Grid.Row="0" Grid.Column="1" 
+                          ItemsSource="{Binding AvailableVersions}"
+                          SelectedItem="{Binding SelectedVersion, Mode=TwoWay}"
+                          HorizontalAlignment="Stretch"/>
+												
+                <Button Grid.Row="0" Grid.Column="2" Theme="{StaticResource ToolButton}"
+                        DataContext="{Binding 
+                        Converter={StaticResource ToolInstancer},
+                        ConverterParameter={StaticResource Tools.Settings.PluginTools.InstallAll}}"/>
+                
+                <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3"
+                           Margin="4,4,0,0"
+                           Text="{Binding Description}"
+                           Classes="b2"/>
+            </Grid>
+        </Border>
+    </DataTemplate>
+</ResourceDictionary>

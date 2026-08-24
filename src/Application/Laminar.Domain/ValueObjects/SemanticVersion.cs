@@ -4,16 +4,20 @@ public readonly struct SemanticVersion : IEquatable<SemanticVersion>, IComparabl
 {
     private readonly string _toString;
 
-    public SemanticVersion(int majorVersion, int minorVersion, int patchVersion, string? prereleaseVersion = null)
+    public SemanticVersion(int majorVersion, int minorVersion, int? patchVersion, string? prereleaseVersion = null)
     {
         MajorVersion = majorVersion;
         MinorVersion = minorVersion;
-        PatchVersion = patchVersion;
+        PatchVersion = patchVersion ?? 0;
         PrereleaseVersion = string.IsNullOrEmpty(prereleaseVersion) ? null : prereleaseVersion;
 
-        _toString = PrereleaseVersion is null
-            ? $"{MajorVersion}.{MinorVersion}.{PatchVersion}"
-            : $"{MajorVersion}.{MinorVersion}.{PatchVersion}-{PrereleaseVersion}";
+        _toString = (patchVersion, prereleaseVersion) switch
+        {
+            (null, null) => $"{MajorVersion}.{MinorVersion}",
+            (var onlyPatch, null) => $"{MajorVersion}.{MinorVersion}.{onlyPatch.Value}",
+            (null, var onlyPrerelease) => $"{MajorVersion}.{MinorVersion}-{onlyPrerelease}",
+            var (patch, prerelease) => $"{MajorVersion}.{MinorVersion}.{patch.Value}-{prerelease}"
+        };
     }
 
     public SemanticVersion(string version)
@@ -173,13 +177,12 @@ public readonly struct SemanticVersion : IEquatable<SemanticVersion>, IComparabl
 
         int secondDotOffset = afterMajor.IndexOf('.');
 
-        // "1.2" — patch defaults to 0.
         if (secondDotOffset < 0)
         {
             if (!int.TryParse(afterMajor, out int minorVersion))
                 return false;
 
-            semanticVersion = new SemanticVersion(majorVersion, minorVersion, 0);
+            semanticVersion = new SemanticVersion(majorVersion, minorVersion, null);
             return true;
         }
 

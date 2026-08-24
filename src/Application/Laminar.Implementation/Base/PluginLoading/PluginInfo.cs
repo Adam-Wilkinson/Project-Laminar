@@ -23,6 +23,9 @@ internal class PluginInfo(string id) : IPluginInfo
     public bool HasVersion(SemanticVersion version, [NotNullWhen(true)] out IList<IPluginSource>? sources) 
         => _versions.TryGetValue(version, out sources);
 
+    public Task InstallVersion(SemanticVersion version, IRuntimeHost host) 
+        => host.PluginManager.EnsurePluginInstalled(new VersionedPluginId(Id, version));
+
     public void AddVersion(SemanticVersion version, IPluginSource source)
     {
         if (_versions.TryGetValue(version, out var sources))

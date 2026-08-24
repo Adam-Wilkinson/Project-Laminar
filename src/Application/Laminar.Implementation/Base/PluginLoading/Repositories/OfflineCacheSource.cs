@@ -1,5 +1,6 @@
 using Laminar.Contracts.Base.PluginLoading;
 using Laminar.Contracts.Storage.IO;
+using Laminar.Domain;
 using Laminar.Domain.ValueObjects;
 using Laminar.PluginFramework.Json;
 
@@ -49,7 +50,7 @@ public class OfflineCacheSource(
 
     public bool HasPlugin(VersionedPluginId plugin) => _plugins.Contains(plugin);
 
-    public Task<IInstalledPlugin> InstallPlugin(VersionedPluginId pluginId, IRuntimeHost runtimeHost,
+    public Task<MayError<IInstalledPlugin>> InstallPlugin(VersionedPluginId pluginId, IRuntimeHost runtimeHost,
         CancellationToken cancellationToken = default)
     {
         var pluginPath = context.OfflineCacheLocation.ChildPath(pluginId.Name).ChildPath(pluginId.Version.ToString());

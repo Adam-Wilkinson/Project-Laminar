@@ -2,6 +2,7 @@ using System.IO.Compression;
 using Laminar.Contracts.Base;
 using Laminar.Contracts.Base.PluginLoading;
 using Laminar.Contracts.Storage.IO;
+using Laminar.Domain;
 using Laminar.Domain.Exceptions;
 using Laminar.Domain.ValueObjects;
 using Laminar.PluginFramework.Json;
@@ -43,7 +44,7 @@ public class LocalPluginSource(
 
     public bool HasPlugin(VersionedPluginId plugin) => _pluginDetails.ContainsKey(plugin);
 
-    public Task<IInstalledPlugin> InstallPlugin(
+    public Task<MayError<IInstalledPlugin>> InstallPlugin(
         VersionedPluginId pluginId,
         IRuntimeHost runtimeHost,
         CancellationToken cancellationToken = default)
