@@ -71,7 +71,8 @@ public partial class App : Application
                 .AddSingleton<IDialogService, HanumanInstitute.MvvmDialogs.Avalonia.DialogService>()
                 .AddSingleton<Contracts.Base.IDispatcher, AvaloniaDispatcher>()
                 .BuildServiceProvider();
-            
+
+            MainWindow.Resources[FocusedRuntimeManager.ResourceKey] = services.GetRequiredService<FocusedRuntimeManager>();
             services.InitializeLaminar<App>(FrontendDependency.Avalonia, DefaultLoadContext);
             services.GetServices<IBeforeApplicationBuiltTarget>().Initialize();
             desktop.MainWindow.DataContext = services.GetRequiredService<MainWindowViewModel>();

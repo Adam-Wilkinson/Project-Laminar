@@ -27,9 +27,7 @@ internal static class ScriptingServices
         serviceCollection.AddSingleton<IExecutionOrderFinder, ExecutionOrderFinder>();
 
         serviceCollection.AddSingleton<IConnectionBridger, DefaultConnectionBridger>();
-
-        serviceCollection.AddSingleton<ILoadedNodeManager, LoadedNodeManager>();
-
+        
         return serviceCollection;
     }
 }

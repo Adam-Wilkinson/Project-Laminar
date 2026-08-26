@@ -7,6 +7,7 @@ using CommunityToolkit.Mvvm.Input;
 using Laminar.Avalonia.SelectAndMove;
 using Laminar.Avalonia.ViewModels.Services;
 using Laminar.Contracts.Base.ActionSystem;
+using Laminar.Contracts.Base.PluginLoading;
 using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Scripting.Connection;
 using Laminar.Contracts.Scripting.NodeWrapping;
@@ -44,6 +45,8 @@ public partial class ScriptEditorViewModel(
     
     public IObservableValue<double> Zoom { get; } = script.Zoom;
 
+    public IRuntimeHost RuntimeHost => script.Host;
+    
     public IReadOnlyObservableCollection<ScriptEditorItemModel> VisualElements 
         => _models ??= new FlattenedObservableTree<ScriptEditorItemModel>(
                 script.NodeTree.Nodes.ObservableMap(CreateItemModel),

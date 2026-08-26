@@ -1,9 +1,10 @@
 using System.ComponentModel;
+using Avalonia.Controls;
+using Avalonia.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Laminar.Avalonia.ViewModels.Services;
 using Laminar.Contracts.Base;
 using Laminar.Contracts.Scripting;
-using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Contracts.Storage.FileExplorer;
 using Laminar.Domain;
 
@@ -12,24 +13,37 @@ namespace Laminar.Avalonia.ViewModels;
 public partial class MainControlViewModel : ViewModelBase, IOpenFileService, IDisposable
 {
     private readonly ScopedViewModel<FileNavigatorViewModel> _scopedFileNavigator;
+    private readonly FocusedRuntimeManager _focusedRuntimeManager;
     
     public MainControlViewModel(
         IServiceProvider serviceProvider, 
-        ILoadedNodeManager loadedNodeManager,
         IRuntimeHostManager runtimeHostManager,
+        FocusedRuntimeManager focusedFocusedRuntimeManager,
         FileViewModel centralFileEditor)
     {
         _scopedFileNavigator = new ScopedViewModel<FileNavigatorViewModel>(serviceProvider, this);
+        _focusedRuntimeManager = focusedFocusedRuntimeManager;
         CentralFileEditor = centralFileEditor;
+        
         CentralFileEditor.PropertyChanged += CentralFileEditorOnPropertyChanged;
         OnExpandedSidebarWidthChanged(ExpandedSidebarWidth);
-        LoadedNodes = loadedNodeManager.LoadedNodes.RecursiveMap(loadedNodeManager.CreateNode);
-        runtimeHostManager.PluginsChanged += (_, _) 
-            => LoadedNodes = loadedNodeManager.LoadedNodes.RecursiveMap(loadedNodeManager.CreateNode);;
+        runtimeHostManager.PluginsChanged += (_, _) => RefreshLoadedNodes();
+        focusedFocusedRuntimeManager.FocusedRuntimeChanged += (_, _) => RefreshLoadedNodes();
+    }
+
+    private void RefreshLoadedNodes()
+    {
+        if (_focusedRuntimeManager.FocusedRuntime?.NodeManager is not { } nodeManager)
+        {
+            LoadedNodes = null;
+            return;
+        }
+        
+        LoadedNodes = nodeManager.LoadedNodes.RecursiveMap(nodeManager.CreateNode);
     }
 
     [ObservableProperty]
-    public partial IReadOnlyItemCategory<object> LoadedNodes { get; private set; }
+    public partial IReadOnlyItemCategory<object>? LoadedNodes { get; private set; }
 
     [Persistent, ObservableProperty] 
     public partial double NodePickerHeight { get; set; } = 250;

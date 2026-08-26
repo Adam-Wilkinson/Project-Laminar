@@ -3,6 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:Laminar.Avalonia.ViewModels"
+             xmlns:vms="using:Laminar.Avalonia.ViewModels.Services"
              xmlns:c="using:Laminar.Avalonia.Controls"
              xmlns:t="using:Laminar.Avalonia.ToolSystem"
              xmlns:fe="using:Laminar.Contracts.Storage.FileExplorer"
@@ -10,7 +11,8 @@
              x:Class="Laminar.Avalonia.Views.FileNavigatorItemView"
              x:DataType="vm:FileNavigatorItemViewModel"
              t:ToolMenu.QuickAccessKey="{Binding Type.ItemTypeName, 
-             Converter={StaticResource ToStringConverter}}">
+             Converter={StaticResource ToStringConverter}}"
+             vms:FocusedRuntimeManager.FocusRuntime="{Binding RuntimeHost}">
     
     <UserControl.Resources>
         <ResourceDictionary>

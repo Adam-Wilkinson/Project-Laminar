@@ -65,6 +65,7 @@ public sealed partial class FileViewModel(
         }
         catch (Exception ex)
         {
+            OpenFilePath = null;
             await exceptionHandler.OnExceptionAsync(ex, cancellationToken);
         }
     }

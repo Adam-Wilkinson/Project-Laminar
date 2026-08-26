@@ -3,6 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:Laminar.Avalonia.ViewModels"
+             xmlns:vms="using:Laminar.Avalonia.ViewModels.Services"
              xmlns:dvm="using:Laminar.Avalonia.ViewModels.Design"
              xmlns:t="using:Laminar.Avalonia.ToolSystem"
              xmlns:dd="using:Laminar.Avalonia.DragDrop"
@@ -43,6 +44,12 @@
                     <ContentControl Content="{Binding}"/>
                 </TreeDataTemplate>
             </TreeView.ItemTemplate>
+            
+            <TreeView.Styles>
+                <Style Selector="TreeViewItem" x:DataType="vm:FileNavigatorItemViewModel">
+                    <Setter Property="vms:FocusedRuntimeManager.FocusRuntime" Value="{Binding RuntimeHost}"/>
+                </Style>
+            </TreeView.Styles>
         </TreeView>
     </DockPanel>
 </UserControl>

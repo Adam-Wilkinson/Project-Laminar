@@ -5,9 +5,11 @@ using CommunityToolkit.Mvvm.Input;
 using Laminar.Avalonia.Shapes;
 using Laminar.Avalonia.ViewModels.Services;
 using Laminar.Contracts.Base.ActionSystem;
+using Laminar.Contracts.Base.PluginLoading;
 using Laminar.Contracts.Storage.FileExplorer;
 using Laminar.Domain.Extensions;
 using Laminar.Domain.Observables.Collections;
+using Laminar.Implementation.Storage.FileExplorer;
 
 namespace Laminar.Avalonia.ViewModels;
 
@@ -199,15 +201,19 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
             OnPropertyChanged(nameof(IsEnabled));
             OpenCommand.NotifyCanExecuteChanged();
             AddItemCommand.NotifyCanExecuteChanged();
-
+            
             if (IsExpanded)
             {
                 EnsureChildrenLoaded();
             }
+
+            RuntimeHost = field.GetRootFolder().RuntimeHost;
         }
     }
 
     public bool HasCoreItem => CoreItem is not null;
+
+    [ObservableProperty] public partial IRuntimeHost? RuntimeHost { get; private set; }
 
     public FileSystemItemType Type { get; }
 

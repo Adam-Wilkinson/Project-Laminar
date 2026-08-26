@@ -3,6 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:Laminar.Avalonia.ViewModels"
+             xmlns:vms="using:Laminar.Avalonia.ViewModels.Services"
              xmlns:sam="using:Laminar.Avalonia.SelectAndMove"
              xmlns:m="using:Laminar.Avalonia.Markup"
              xmlns:dd="using:Laminar.Avalonia.DragDrop"
@@ -12,6 +13,7 @@
              x:DataType="vm:ScriptEditorViewModel"
              Background="Transparent"
              m:ConnectorRegistry.ConnectionInteractionHandler="{Binding}"
+             vms:FocusedRuntimeManager.FocusRuntime="{Binding RuntimeHost}"
              IsHitTestVisible="True">
     <UserControl.Resources>
         <m:ConnectorRegistry x:Key="{x:Static m:ConnectorRegistry.Key}"/>

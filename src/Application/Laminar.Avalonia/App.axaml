@@ -4,7 +4,8 @@
              xmlns:t="using:Laminar.Avalonia.ToolSystem"
              xmlns:s="using:Laminar.Avalonia.Settings"
              xmlns:dd="using:Laminar.Avalonia.DragDrop"
-             xmlns:conv="using:Laminar.Avalonia.Converters">
+             xmlns:conv="using:Laminar.Avalonia.Converters"
+             xmlns:vms="using:Laminar.Avalonia.ViewModels.Services">
 
 	<Application.Resources>
 		<ResourceDictionary>
