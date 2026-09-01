@@ -70,10 +70,7 @@
     
     <DataTemplate DataType="scr:INodeContainer" x:Key="WrappedNodeDataTemplate">
         <Panel Name="NodeRoot" ClipToBounds="False"
-               Background="{DynamicResource {x:Static init:ColorInitialization.LaminarNonForegroundKey}}"
-               Classes.IsError="{Binding Notifications.MaximumSeverity, 
-                    Converter={x:Static ObjectConverters.Equal}, 
-                    ConverterParameter={x:Static n:NotificationSeverity.Error}}">
+               Background="{DynamicResource {x:Static init:ColorInitialization.LaminarNonForegroundKey}}">
             
             <t:ToolMenu.ContextToolbox>
                 <t:Toolbox NameKey="Node" x:DataType="scr:INodeContainer">
@@ -85,6 +82,7 @@
                     Background="{DynamicResource {x:Static init:ColorInitialization.LaminarNonForegroundKey}}"
                     VerticalAlignment="Top"
                     Classes.IsSelected="{Binding $parent[sam:SelectAndMoveItem].IsSelected, TargetNullValue={x:False}}"
+                    Classes.IsError="{Binding Notifications.MaximumSeverity, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static n:NotificationSeverity.Error}}"
                     ClipToBounds="False"
                     BorderThickness="3">
                 <DockPanel Name="ConnectorOffsetTarget" 
@@ -161,10 +159,6 @@
                        Fill="Gray"/>
             
             <Panel.Styles>
-                <Style Selector="Panel#NodeRoot.IsError Border#MainPanelBorder">
-                    <Setter Property="BorderBrush" Value="Red"/>
-                </Style>
-                
                 <Style Selector="Panel#NodeRoot Rectangle#HoverHighlight">
                     <Setter Property="Opacity" Value="0"/>
                 </Style>
@@ -178,6 +172,10 @@
                     
                     <Style Selector="^.IsSelected">
                         <Setter Property="BorderBrush" Value="Gray"/>
+                    </Style>
+                    
+                    <Style Selector="^.IsError">
+                        <Setter Property="BorderBrush" Value="Red"/>
                     </Style>
                 </Style>
             </Panel.Styles>

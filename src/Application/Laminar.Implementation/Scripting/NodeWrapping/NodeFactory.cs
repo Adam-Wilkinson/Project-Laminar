@@ -21,7 +21,7 @@ public class NodeFactory(IEncodableDataFactory dataFactory) : INodeFactory
         var nodeName = persistentDictionary[NodeNameKey].GetValue<string>().Value;
         var nodeDescriptor = new NodeDescriptor(new VersionedPluginId(pluginName, pluginVersion), nodeName);
         
-        var nameRow = LaminarFactory.Component.CreateSingleRow(null, new ObservableValueInterfaceData<EditableLabel, string>(persistentDictionary["Name"].GetValueOrInitialize(nodeName))
+        var nameRow = LaminarFactory.Component.CreateSingleRow(null, new ObservableValueInterfaceData<EditableLabel, string>(persistentDictionary["Name"].GetValueOrInitialize("???"))
         {
             Name = "",
             Definition = new EditableLabel()

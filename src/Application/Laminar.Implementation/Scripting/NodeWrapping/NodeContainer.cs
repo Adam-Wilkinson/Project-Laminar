@@ -52,6 +52,7 @@ internal sealed class NodeContainer : INodeContainer
         }
 
         var newNode = nodeInfo.CreateInstance();
+        NameRow.CentralDisplay.Value = newNode.NodeName;
         _rows.BindTo(new FlattenedObservableTree<INodeRow>(newNode.Components));
             
         _persistentRowsSynchronizer = persistentDictionary[nameof(Rows)]
