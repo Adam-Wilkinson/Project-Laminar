@@ -1,0 +1,64 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:c="using:Laminar.Avalonia.Controls">
+    <ControlTheme TargetType="c:NotificationDisplay" x:Key="{x:Type c:NotificationDisplay}">
+        <Setter Property="Height" Value="30"/>
+        <Setter Property="Width" Value="30"/>
+        
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Button Name="MainButton" 
+                        HorizontalAlignment="Stretch" 
+                        VerticalAlignment="Stretch"
+                        VerticalContentAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                        Cursor="Hand"
+                        Command="{Binding AutoResolveAll, RelativeSource={RelativeSource TemplatedParent}}">
+                    <ToolTip.Tip>
+                        <ItemsControl ItemsSource="{Binding Notifications, RelativeSource={RelativeSource TemplatedParent}}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="c:NotificationDisplayItem">
+                                    <TextBlock Text="{Binding Message}"/>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ToolTip.Tip>
+                </Button>
+            </ControlTemplate>
+        </Setter>
+        
+        <Style Selector="^ /template/ Button#MainButton">
+            <Setter Property="IsEnabled" Value="False"/>
+        </Style>
+        
+        <Style Selector="^:error /template/ Button#MainButton">
+            <Setter Property="IsEnabled" Value="True"/>
+            <Setter Property="Content">
+                <Template>
+                    <Panel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                        <Ellipse Margin="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stroke="Red" StrokeThickness="3"/>
+                        <TextBlock Foreground="Red" HorizontalAlignment="Center" VerticalAlignment="Center">!</TextBlock>
+                    </Panel>
+                </Template>
+            </Setter>
+        </Style>
+        
+        <Style Selector="^:warning /template/ Button#MainButton">
+            <Setter Property="IsEnabled" Value="True"/>
+            <Setter Property="Content">
+                <Template>
+                    <TextBlock Foreground="Orange">?</TextBlock>
+                </Template>
+            </Setter>
+        </Style>
+        
+        <Style Selector="^:info /template/ Button#MainButton">
+            <Setter Property="IsEnabled" Value="True"/>
+            <Setter Property="Content">
+                <Template>
+                    <TextBlock Foreground="LightBlue">i</TextBlock>
+                </Template>
+            </Setter>
+        </Style>
+    </ControlTheme>
+</ResourceDictionary>

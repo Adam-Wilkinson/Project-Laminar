@@ -4,7 +4,7 @@ namespace Laminar.Domain.Observables.Collections;
 
 public sealed class BoundObservableCollection<T> : ReadOnlyObservableCollectionBase<T>, IDisposable
 {
-    private IReadOnlyObservableCollection<T> _source;
+    private IReadOnlyObservableCollection<T>? _source;
 
     public BoundObservableCollection()
     {
@@ -22,14 +22,14 @@ public sealed class BoundObservableCollection<T> : ReadOnlyObservableCollectionB
         _source.CollectionChanged += CurrentBindingOnCollectionChanged;
     }
 
-    public void BindTo(IReadOnlyObservableCollection<T> source)
+    public void BindTo(IReadOnlyObservableCollection<T>? source)
     {
-        _source.CollectionChanged -= CurrentBindingOnCollectionChanged;
+        _source?.CollectionChanged -= CurrentBindingOnCollectionChanged;
         _source = source;
         
         InvokeCollectionChanged(this,  new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
 
-        _source.CollectionChanged += CurrentBindingOnCollectionChanged;
+        _source?.CollectionChanged += CurrentBindingOnCollectionChanged;
     }
 
     private void CurrentBindingOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
@@ -37,18 +37,18 @@ public sealed class BoundObservableCollection<T> : ReadOnlyObservableCollectionB
         InvokeCollectionChanged(this, e);
     }
 
-    public override bool Contains(T value) => _source.Contains(value);
+    public override bool Contains(T value) => _source?.Contains(value) ?? false;
 
-    public override int IndexOf(T value) => _source.IndexOf(value);
+    public override int IndexOf(T value) => _source?.IndexOf(value) ?? -1;
 
-    public override IEnumerator<T> GetEnumerator() => _source.GetEnumerator();
+    public override IEnumerator<T> GetEnumerator() => _source?.GetEnumerator() ?? Enumerable.Empty<T>().GetEnumerator();
 
-    public override int Count  => _source.Count;
+    public override int Count  => _source?.Count ?? 0;
 
-    public override T this[int index] => _source[index];
+    public override T this[int index] => _source is not null ? _source[index] : throw new IndexOutOfRangeException();
 
     public void Dispose()
     {
-        _source.CollectionChanged -= CurrentBindingOnCollectionChanged;
+        _source?.CollectionChanged -= CurrentBindingOnCollectionChanged;
     }
 }
