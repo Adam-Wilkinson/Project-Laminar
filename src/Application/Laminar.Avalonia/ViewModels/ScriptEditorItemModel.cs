@@ -15,16 +15,16 @@ public partial class ScriptEditorItemModel : ObservableObject
         LayerIndex = 0;
     }
 
-    public ScriptEditorItemModel(IWrappedNode nodeModel)
+    public ScriptEditorItemModel(INodeContainer nodeContainerModel)
     {
-        CoreElement = nodeModel;
+        CoreElement = nodeContainerModel;
         IsSelectable = true;
         IsMovable = true;
         LayerIndex = 10;
-        Left = nodeModel.Location.Value.X;
-        Top = nodeModel.Location.Value.Y;
+        Left = nodeContainerModel.Location.Value.X;
+        Top = nodeContainerModel.Location.Value.Y;
         
-        nodeModel.Location.OnChanged += (_, changedArgs) =>
+        nodeContainerModel.Location.OnChanged += (_, changedArgs) =>
         {
             Left = changedArgs.NewValue.X;
             Top = changedArgs.NewValue.Y;
@@ -34,7 +34,7 @@ public partial class ScriptEditorItemModel : ObservableObject
         {
             if (args.PropertyName is nameof(Left) or nameof(Top))
             {
-                nodeModel.Location.Value = new LaminarPoint { X = Left, Y = Top };
+                nodeContainerModel.Location.Value = new LaminarPoint { X = Left, Y = Top };
             }
         };
     }

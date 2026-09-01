@@ -7,7 +7,6 @@ namespace Laminar.Implementation.Scripting.NodeComponents;
 /// <summary>
 /// The node row serializer simply redirects to serializing the central display 
 /// </summary>
-/// <param name="serializer"></param>
 public class NodeRowSerializer(ISerializer serializer) : INotifyingConditionalSerializer
 {
     public Type? SerializedTypeOrNull(Type typeToSerialize)

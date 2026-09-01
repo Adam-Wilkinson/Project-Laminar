@@ -1,27 +1,28 @@
-﻿using Laminar.Contracts.Scripting.NodeWrapping;
+﻿using Laminar.Contracts.Base.PluginLoading;
+using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain;
 
 namespace Laminar.Implementation.Scripting.NodeWrapping;
 
-public class LoadedNodeManager(INodeFactory nodeFactory) : ILoadedNodeManager
+public class LoadedNodeManager(IRuntimeHost host, INodeFactory nodeFactory) : ILoadedNodeManager
 {
-    private readonly ItemCategory<ILoadedNodeInfo> _writableLoadedNodes = new ("root");
-    private readonly Dictionary<NodeId, ILoadedNodeInfo> _loadedNodeInfos = [];
+    private readonly ItemCategory<NodeDescriptor> _writableLoadedNodes = new ("root");
+    private readonly Dictionary<NodeDescriptor, ILoadedNodeInfo> _loadedNodeInfos = [];
     
-    public IReadOnlyItemCategory<ILoadedNodeInfo> LoadedNodes => _writableLoadedNodes;
+    public IReadOnlyItemCategory<NodeDescriptor> LoadedNodes => _writableLoadedNodes;
     
-    public ILoadedNodeInfo? GetInfoFrom(NodeId nodeId) => _loadedNodeInfos.TryGetValue(nodeId, out var info) ? info : null;
+    public ILoadedNodeInfo? GetInfoFrom(NodeDescriptor nodeDescriptor) => _loadedNodeInfos.TryGetValue(nodeDescriptor, out var info) ? info : null;
 
     public void AddNodeToCategory(string categoryPath, ILoadedNodeInfo newNodeInfo)
     {
-        _loadedNodeInfos.Add(new NodeId(newNodeInfo.PluginId, newNodeInfo.Id), newNodeInfo);
-        _writableLoadedNodes.AddItem(newNodeInfo, categoryPath);
+        _loadedNodeInfos.Add(newNodeInfo.NodeDescriptor, newNodeInfo);
+        _writableLoadedNodes.AddItem(newNodeInfo.NodeDescriptor, categoryPath);
     }
 
-    public IWrappedNode CreateNode(IPersistentDictionary persistentDictionary)
-        => nodeFactory.FromPersistentData(persistentDictionary, this);
+    public INodeContainer CreateNode(IPersistentDictionary persistentDictionary)
+        => nodeFactory.FromPersistentData(persistentDictionary, host);
 
-    public IWrappedNode CreateNode(ILoadedNodeInfo loadedNodeInfo)
-        => nodeFactory.FromNodeInfo(loadedNodeInfo, this);
+    public INodeContainer CreateNode(NodeDescriptor nodeDescriptor)
+        => nodeFactory.FromDescriptor(nodeDescriptor, host);
 }

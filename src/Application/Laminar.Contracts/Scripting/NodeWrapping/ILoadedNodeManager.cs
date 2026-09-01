@@ -6,15 +6,15 @@ namespace Laminar.Contracts.Scripting.NodeWrapping;
 
 public interface ILoadedNodeManager
 {
-    public IReadOnlyItemCategory<ILoadedNodeInfo> LoadedNodes { get; }
+    public IReadOnlyItemCategory<NodeDescriptor> LoadedNodes { get; }
     
-    public ILoadedNodeInfo? GetInfoFrom(NodeId nodeId);
+    public ILoadedNodeInfo? GetInfoFrom(NodeDescriptor nodeDescriptor);
 
     public void AddNodeToCategory(string categoryPath, ILoadedNodeInfo newNodeInfo);
     
-    public IWrappedNode CreateNode(IPersistentDictionary persistentDictionary);
+    public INodeContainer CreateNode(IPersistentDictionary persistentDictionary);
     
-    public IWrappedNode CreateNode(ILoadedNodeInfo loadedNodeInfo);
+    public INodeContainer CreateNode(NodeDescriptor nodeDescriptor);
 }
 
-public record struct NodeId(VersionedPluginId Plugin, string NodeName);
+public record struct NodeDescriptor(VersionedPluginId Plugin, string NodeName);

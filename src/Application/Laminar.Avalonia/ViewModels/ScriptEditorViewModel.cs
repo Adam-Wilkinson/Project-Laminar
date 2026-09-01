@@ -54,7 +54,7 @@ public partial class ScriptEditorViewModel(
     
     public override bool Drop(object? payload, AvaloniaPoint location, object? receptacleTag)
     {
-        if (payload is not IWrappedNode wrapped) return false;
+        if (payload is not INodeContainer wrapped) return false;
 
         var addNodeAction =
             editor.AddMatchingNodeAction(script, wrapped, new LaminarPoint { X = location.X, Y = location.Y });
@@ -116,7 +116,7 @@ public partial class ScriptEditorViewModel(
         foreach (var connection in SelectionModel.SelectedItems
                      .Cast<ScriptEditorItemModel>()
                      .Select(x => x.CoreElement)
-                     .OfType<IWrappedNode>()
+                     .OfType<INodeContainer>()
                      .ToList())
         {
             session.ExecuteAction(editor.DeleteNodeAction(script, connection));
@@ -171,14 +171,14 @@ public partial class ScriptEditorViewModel(
     {
         if (!CanCopyToClipboard || optionalClipboard.Value is not { } clipboard) return;
 
-        List<IWrappedNode> selectedNodes = [];
+        List<INodeContainer> selectedNodes = [];
         List<IConnection> selectedConnections = [];
         
         foreach (var selected in SelectionModel?.SelectedItems.Cast<ScriptEditorItemModel>() ?? [])
         {
             switch (selected.CoreElement)
             {
-                case IWrappedNode wrappedNode:
+                case INodeContainer wrappedNode:
                     selectedNodes.Add(wrappedNode);
                     break;
                 case IConnection connection:
@@ -242,7 +242,7 @@ public partial class ScriptEditorViewModel(
         }
     }
 
-    public bool CanCopyToClipboard => SelectionModel is not null && SelectionModel.SelectedItems.Cast<ScriptEditorItemModel>().Any(x => x.CoreElement is IWrappedNode);
+    public bool CanCopyToClipboard => SelectionModel is not null && SelectionModel.SelectedItems.Cast<ScriptEditorItemModel>().Any(x => x.CoreElement is INodeContainer);
 
     partial void OnPanXChanged(double value)
     {
@@ -259,7 +259,7 @@ public partial class ScriptEditorViewModel(
         var output = target switch
         {
             IConnection connection => new ScriptEditorItemModel(connection),
-            IWrappedNode node => new ScriptEditorItemModel(node),
+            INodeContainer node => new ScriptEditorItemModel(node),
             not null => throw new InvalidOperationException($"Unknown script editor item model {target}"),
             null => throw new ArgumentNullException(nameof(target))
         };

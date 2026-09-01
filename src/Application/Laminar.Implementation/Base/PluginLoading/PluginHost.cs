@@ -18,13 +18,16 @@ internal sealed class PluginHost(
     ISerializer serializer)
     : IPluginHost
 {
+    private readonly Dictionary<string, ILoadedNodeInfo> _loadedNodesByName = [];
+    
     public void AddNodeToMenu<TNode>(string menuItemName, string? subItemName = null) where TNode : INode, new()
     {
-        ILoadedNodeInfo newNodeInfo = new LoadedNodeInfo<TNode>(plugin);
+        LoadedNodeInfo<TNode> newNodeInfo = new(plugin);
+        plugin.AddNode(newNodeInfo.NodeDescriptor.NodeName, newNodeInfo);
         loadedNodeManager.AddNodeToCategory(
             subItemName is null
                 ? menuItemName
-                : $"{menuItemName}{ItemCategory<IWrappedNode>.SeparationChar}{subItemName}", 
+                : $"{menuItemName}{ItemCategory<INodeContainer>.SeparationChar}{subItemName}", 
             newNodeInfo);
     }
 

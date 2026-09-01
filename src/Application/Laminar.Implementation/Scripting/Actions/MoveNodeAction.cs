@@ -4,19 +4,19 @@ using Laminar.Domain.ValueObjects;
 
 namespace Laminar.Implementation.Scripting.Actions;
 
-internal readonly struct MoveNodeAction(IWrappedNode node, Point locationDelta) : IUserAction
+internal readonly struct MoveNodeAction(INodeContainer nodeContainer, Point locationDelta) : IUserAction
 {
     public Point LocationDelta { get; } = locationDelta;
 
-    public IWrappedNode Node => node;
+    public INodeContainer NodeContainer => nodeContainer;
     
     public bool CanExecute => true;
 
     public Task<IUserActionResult> Execute()
     {
-        node.Location.Value += LocationDelta;
-        return Task.FromResult(IUserActionResult.Success(new MoveNodeAction(node, -LocationDelta)));
+        nodeContainer.Location.Value += LocationDelta;
+        return Task.FromResult(IUserActionResult.Success(new MoveNodeAction(nodeContainer, -LocationDelta)));
     }
 
-    public override string ToString() => $"Move Node {Node}";
+    public override string ToString() => $"Move Node {NodeContainer}";
 }

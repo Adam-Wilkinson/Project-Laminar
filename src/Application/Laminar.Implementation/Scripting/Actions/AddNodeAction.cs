@@ -5,26 +5,26 @@ using Laminar.Domain.Exceptions;
 
 namespace Laminar.Implementation.Scripting.Actions;
 
-internal readonly struct AddNodeAction(IWrappedNode node, IWritableNodeTree writableNodeTree)
+internal readonly struct AddNodeAction(INodeContainer nodeContainer, IWritableNodeTree writableNodeTree)
     : IUserAction
 {
-    public IWrappedNode Node { get; } = node;
+    public INodeContainer NodeContainer { get; } = nodeContainer;
     
-    public bool CanExecute => !writableNodeTree.Nodes.Contains(Node);
+    public bool CanExecute => !writableNodeTree.Nodes.Contains(NodeContainer);
 
     public Task<IUserActionResult> Execute()
     {
-        if (writableNodeTree.Nodes.Contains(Node))
+        if (writableNodeTree.Nodes.Contains(NodeContainer))
         {
-            return Task.FromResult(IUserActionResult.Error(new NodeTreeContainsNodeException(Node)));
+            return Task.FromResult(IUserActionResult.Error(new NodeTreeContainsNodeException(NodeContainer)));
         }
         
-        writableNodeTree.AddNode(Node);
-        return Task.FromResult(IUserActionResult.Success(new DeleteNodeAction(Node, writableNodeTree)));
+        writableNodeTree.AddNode(NodeContainer);
+        return Task.FromResult(IUserActionResult.Success(new DeleteNodeAction(NodeContainer, writableNodeTree)));
     }
 
     public override string ToString()
     {
-        return $"Add Node: {Node}";
+        return $"Add Node: {NodeContainer}";
     }
 }

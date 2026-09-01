@@ -8,9 +8,9 @@ namespace Laminar.Implementation.Scripting;
 
 public interface IWritableNodeTree : INodeTree
 {
-    public void AddNode(IWrappedNode node);
+    public void AddNode(INodeContainer nodeContainer);
 
-    public bool DeleteNode(IWrappedNode node);
+    public bool DeleteNode(INodeContainer nodeContainer);
     
     public bool TryConnect(IOutputConnector outputConnector, IInputConnector inputConnector, [NotNullWhen(true)] out IConnection? connection);
     

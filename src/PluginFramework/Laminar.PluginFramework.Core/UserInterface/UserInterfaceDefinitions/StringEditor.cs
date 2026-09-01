@@ -2,7 +2,7 @@
 
 public class StringEditor : IUserInterfaceDefinition
 {
-    public static readonly InterfaceData<StringEditor, string> DesignInstance = new() { Name = "Default String", Value = "Default Value" };
+    public static readonly InterfaceData<StringEditor, string> DesignInstance = new("Default Value") { Name = "Default String" };
     
     public interface IXamlTarget : IInterfaceData<StringEditor, string>;
 }

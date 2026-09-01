@@ -4,7 +4,7 @@ namespace Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
 public class EditableLabel : IUserInterfaceDefinition, INotifyPropertyChanged
 {
-    public static readonly InterfaceData<EditableLabel, string> DesignInstance = new() { Name = "Default Name", Value = "Default Value" };
+    public static readonly InterfaceData<EditableLabel, string> DesignInstance = new("Default Value") { Name = "Default Name" };
     
     public interface IXamlTarget : IInterfaceData<EditableLabel, string>;
 

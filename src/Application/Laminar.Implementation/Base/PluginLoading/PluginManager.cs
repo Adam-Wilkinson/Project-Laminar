@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using Laminar.Contracts.Base;
 using Laminar.Contracts.Base.PluginLoading;
 using Laminar.Domain.Observables.Collections;
@@ -41,4 +42,7 @@ public class PluginManager(
         context.RegisterInstallation(newPlugin);
         return newPlugin;
     }
+
+    public bool TryGetInstalledPlugin(VersionedPluginId pluginId, [NotNullWhen(true)] out IInstalledPlugin? plugin)
+        => _installedPlugins.TryGetValue(pluginId, out plugin);
 }

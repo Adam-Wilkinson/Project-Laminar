@@ -13,15 +13,15 @@ public interface INodeTree : IDisposable
 
     public IReadOnlyCollection<ConnectorConnectionInfo> GetConnectionsTo(IConnector connector);
 
-    public IWrappedNode GetParentNode(IConnector connector);
+    public INodeContainer GetParentNode(IConnector connector);
 
-    public bool TryGetNodeByKey(string key, [NotNullWhen(true)] out IWrappedNode? node);
+    public bool TryGetNodeByKey(string key, [NotNullWhen(true)] out INodeContainer? node);
 
-    public string GetNodeKey(IWrappedNode node);
+    public string GetNodeKey(INodeContainer nodeContainer);
     
-    public INodeUpdates GetUpdates(IWrappedNode node);
+    public INodeUpdates GetUpdates(INodeContainer nodeContainer);
     
-    public IReadOnlyObservableCollection<IWrappedNode> Nodes { get; }
+    public IReadOnlyObservableCollection<INodeContainer> Nodes { get; }
 
     public IReadOnlyObservableCollection<IConnection> Connections { get; }
     
@@ -30,7 +30,7 @@ public interface INodeTree : IDisposable
     public IEncodableData PersistentData { get; }
 }
 
-public record ConnectorConnectionInfo(IConnection Connection, IConnector OppositeConnector, IWrappedNode ConnectedNode);
+public record ConnectorConnectionInfo(IConnection Connection, IConnector OppositeConnector, INodeContainer ConnectedNodeContainer);
 
 public interface INodeUpdates
 {

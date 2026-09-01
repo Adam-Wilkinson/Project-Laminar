@@ -10,7 +10,7 @@ public interface IScriptingFactory : IDecodingFactory<IScript, IPersistentDictio
 {
     IScript CreateScript();
 
-    INodeTree CreateNodeTree(IEnumerable<IWrappedNode> nodes, IEnumerable<IConnection> connections, INotificationClient<LaminarExecutionContext>? userChangedValueClient = null);
+    INodeTree CreateNodeTree(IEnumerable<INodeContainer> nodes, IEnumerable<IConnection> connections, INotificationClient<LaminarExecutionContext>? userChangedValueClient = null);
         
     INodeTree NodeTreeFromPersistentData(IPersistentDictionary persistentDictionary, INotificationClient<LaminarExecutionContext>? userChangedValueClient = null);
 }

@@ -425,11 +425,11 @@
                    CommandBinding="{Binding DeleteSelectionCommand}"
                    DefaultIconGeometry="{x:Static shapes:PathData.DeleteIcon}"/>
     
-    <t:PropertySetterTool x:Key="Tools.ScriptEditor.NodeTools.ToggleExpanded" x:DataType="nw:IWrappedNode"
+    <t:PropertySetterTool x:Key="Tools.ScriptEditor.NodeTools.ToggleExpanded" x:DataType="nw:INodeContainer"
                           NameKey="Toggle Expanded"
                           PropertyBinding="{Binding IsCollapsed.Value}">
 	    <t:PropertySetterTool.IconTemplate>
-		    <DataTemplate x:DataType="nw:IWrappedNode">
+		    <DataTemplate x:DataType="nw:INodeContainer">
 			    <c:ExpandCollapseChevron IsExpanded="{Binding !IsCollapsed.Value}"/>
 		    </DataTemplate>
 	    </t:PropertySetterTool.IconTemplate>

@@ -4,12 +4,13 @@ using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
 namespace Laminar.PluginFramework.UserInterface;
 
-public sealed class InterfaceData<TInterfaceDefinition, TValue> : IInterfaceData<TInterfaceDefinition, TValue>, IPersistenceOverrideInterfaceData<TValue>
+public sealed class InterfaceData<TInterfaceDefinition, TValue>(TValue value)
+    : IInterfaceData<TInterfaceDefinition, TValue>, IPersistenceOverrideInterfaceData<TValue>
     where TInterfaceDefinition : IUserInterfaceDefinition, new()
     where TValue : notnull
 {
-    private TValue _value = default!;
-    
+    private TValue _value = value;
+
     public TValue Value
     {
         get => _value;

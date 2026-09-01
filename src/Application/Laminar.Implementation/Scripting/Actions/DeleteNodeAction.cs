@@ -5,21 +5,21 @@ using Laminar.Domain.Exceptions;
 
 namespace Laminar.Implementation.Scripting.Actions;
 
-internal readonly struct DeleteNodeAction(IWrappedNode node, IWritableNodeTree writableNodeTree) : IUserAction
+internal readonly struct DeleteNodeAction(INodeContainer nodeContainer, IWritableNodeTree writableNodeTree) : IUserAction
 {
-    public IWrappedNode Node { get; } = node;
+    public INodeContainer NodeContainer { get; } = nodeContainer;
     
-    public bool CanExecute { get; } = writableNodeTree.Nodes.Contains(node);
+    public bool CanExecute { get; } = writableNodeTree.Nodes.Contains(nodeContainer);
 
     public Task<IUserActionResult> Execute()
     {
-        if (!writableNodeTree.DeleteNode(Node))
+        if (!writableNodeTree.DeleteNode(NodeContainer))
         {
-            return Task.FromResult(IUserActionResult.Error(new NodeTreeDoesNotContainNodeException(Node)));
+            return Task.FromResult(IUserActionResult.Error(new NodeTreeDoesNotContainNodeException(NodeContainer)));
         }
         
-        return Task.FromResult(IUserActionResult.Success(new AddNodeAction(Node, writableNodeTree)));
+        return Task.FromResult(IUserActionResult.Success(new AddNodeAction(NodeContainer, writableNodeTree)));
     }
     
-    public override string ToString() => $"Delete Node: {Node}";
+    public override string ToString() => $"Delete Node: {NodeContainer}";
 }

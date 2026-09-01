@@ -1,4 +1,5 @@
-﻿using Laminar.Contracts.Scripting;
+﻿using Laminar.Contracts.Base;
+using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Scripting.Connection;
 using Laminar.Contracts.Scripting.Execution;
 using Laminar.Contracts.Scripting.NodeWrapping;
@@ -12,14 +13,16 @@ internal class ScriptExecutionInstance : IScriptExecutionInstance
 {
     private readonly INodeTree _nodeTree;
     private readonly IExecutionOrderFinder _orderFinder;
+    private readonly IExceptionHandler _exceptionHandler;
     private readonly CompositeDisposable _nodeTreeSubscriptions;
     
     private bool _isDisposed;
 
-    public ScriptExecutionInstance(INodeTree nodeTree, IExecutionOrderFinder orderFinder)
+    public ScriptExecutionInstance(INodeTree nodeTree, IExecutionOrderFinder orderFinder, IExceptionHandler exceptionHandler)
     {
         _nodeTree = nodeTree;
         _orderFinder = orderFinder;
+        _exceptionHandler = exceptionHandler;
 
         _nodeTreeSubscriptions =
             new CompositeDisposable(
@@ -46,14 +49,17 @@ internal class ScriptExecutionInstance : IScriptExecutionInstance
 
         if (iter.Length == 1)
         {
-            iter[0].Execute(context);
+            if (iter[0].Execute(context).Exception is not { } exception) return;
+            _exceptionHandler.OnException(exception);
+            return;
         }
-        else
+        
+        // ReSharper disable once ForCanBeConvertedToForeach
+        for (int i = 0; i < iter.Length; i++)
         {
-            for (int i = 0; i < iter.Length; i++)
-            {
-                iter[i].Execute(context);
-            }
+            if (iter[i].Execute(context).Exception is not { } exception) continue;
+            _exceptionHandler.OnException(exception);
+            break;
         }
     }
 
@@ -64,16 +70,16 @@ internal class ScriptExecutionInstance : IScriptExecutionInstance
         _nodeTreeSubscriptions.Dispose();
     }
 
-    private static void OnNodeRemoved(IWrappedNode node) => node.UserChangedValueNotificationClient = null;
+    private static void OnNodeRemoved(INodeContainer nodeContainer) => nodeContainer.RuntimeNode?.UserChangedValueNotificationClient = null;
 
-    private void OnNodeAdded(IWrappedNode node)
+    private void OnNodeAdded(INodeContainer nodeContainer)
     {
-        if (node.UserChangedValueNotificationClient is not null)
+        if (nodeContainer.RuntimeNode?.UserChangedValueNotificationClient is not null)
         {
-            throw new InvalidOperationException($"The node {node} appears to already have an execution instance. Changing the instance without proper disposable will likely result in an error");
+            throw new InvalidOperationException($"The node {nodeContainer} appears to already have an execution instance. Changing the instance without proper disposable will likely result in an error");
         }
         
-        node.UserChangedValueNotificationClient = this;
+        nodeContainer.RuntimeNode?.UserChangedValueNotificationClient = this;
     }
 
     private static void OnConnectionRemoved(IConnection connection)

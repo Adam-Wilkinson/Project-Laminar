@@ -1,4 +1,5 @@
-﻿using Laminar.Contracts.Scripting.NodeWrapping;
+﻿using Laminar.Contracts.Base.PluginLoading;
+using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.ValueObjects;
 using Laminar.Implementation.Base.UserInterface;
@@ -13,40 +14,28 @@ public class NodeFactory(IEncodableDataFactory dataFactory) : INodeFactory
     private const string PluginVersionKey = "plugin-version";
     private const string NodeNameKey = "type";
 
-    public IWrappedNode FromPersistentData(IPersistentDictionary persistentDictionary, ILoadedNodeManager loadedNodeManager)
+    public INodeContainer FromPersistentData(IPersistentDictionary persistentDictionary, IRuntimeHost host)
     {
         var pluginName = persistentDictionary[PluginKey].GetValue<string>().Value;
-        
         var pluginVersion = persistentDictionary[PluginVersionKey].GetValue<SemanticVersion>().Value;
         var nodeName = persistentDictionary[NodeNameKey].GetValue<string>().Value;
-        VersionedPluginId pluginId = new VersionedPluginId(pluginName, pluginVersion);
-        if (loadedNodeManager.GetInfoFrom(new NodeId(pluginId, nodeName)) is not { } loadedNodeInfo)
-        {
-            throw new InvalidOperationException($"Unable to get node '{nodeName}' from plugin '{pluginName}'");
-        }
+        var nodeDescriptor = new NodeDescriptor(new VersionedPluginId(pluginName, pluginVersion), nodeName);
         
-        var node = loadedNodeInfo.CreateInstance();
-        
-        var nameRow = LaminarFactory.Component.CreateSingleRow(null, new ObservableValueInterfaceData<EditableLabel, string>(persistentDictionary["Name"].GetValueOrInitialize(node.NodeName))
+        var nameRow = LaminarFactory.Component.CreateSingleRow(null, new ObservableValueInterfaceData<EditableLabel, string>(persistentDictionary["Name"].GetValueOrInitialize(nodeName))
         {
             Name = "",
             Definition = new EditableLabel()
         }, null);
-        
-        return new WrappedNode(node, persistentDictionary)
-        {
-            NameRow = nameRow,
-            Info = loadedNodeInfo
-        };
+
+        return new NodeContainer(nodeDescriptor, nameRow, persistentDictionary, host.PluginManager);
     }
 
-    public IWrappedNode FromNodeInfo(ILoadedNodeInfo loadedNode, ILoadedNodeManager loadedNodeManager)
+    public INodeContainer FromDescriptor(NodeDescriptor descriptor, IRuntimeHost host)
     {
-        ArgumentNullException.ThrowIfNull(loadedNode.NodeType.FullName);
         var persistentDictionary = dataFactory.GetEncodableData<IPersistentDictionary>();
-        persistentDictionary[PluginKey].GetValueOrInitialize(loadedNode.PluginId.Name);
-        persistentDictionary[PluginVersionKey].GetValueOrInitialize(loadedNode.PluginId.Version);
-        persistentDictionary[NodeNameKey].GetValueOrInitialize(loadedNode.NodeType.FullName);
-        return FromPersistentData(persistentDictionary, loadedNodeManager);
+        persistentDictionary[PluginKey].GetValueOrInitialize(descriptor.Plugin.Name);
+        persistentDictionary[PluginVersionKey].GetValueOrInitialize(descriptor.Plugin.Version);
+        persistentDictionary[NodeNameKey].GetValueOrInitialize(descriptor.NodeName);
+        return FromPersistentData(persistentDictionary, host);
     }
 }

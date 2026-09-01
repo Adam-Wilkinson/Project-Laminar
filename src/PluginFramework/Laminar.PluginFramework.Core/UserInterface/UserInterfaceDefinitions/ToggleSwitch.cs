@@ -2,7 +2,7 @@
 
 public class ToggleSwitch : IUserInterfaceDefinition
 {
-    public static readonly InterfaceData<ToggleSwitch, bool> DesignInstance = new() { Name = "Default Name", Value = true };
+    public static readonly InterfaceData<ToggleSwitch, bool> DesignInstance = new(true) { Name = "Default Name" };
     
     public interface IXamlTarget : IInterfaceData<ToggleSwitch, bool>;
 }

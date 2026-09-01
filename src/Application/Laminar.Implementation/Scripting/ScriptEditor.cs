@@ -16,9 +16,9 @@ internal class ScriptEditor(
 {
     private readonly IUserActionManager _ = userActionManager.RegisterSimplifier(new ScriptActionSimplifier());
     
-    public IUserAction AddMatchingNodeAction(IScript script, IWrappedNode node, Point location)
+    public IUserAction AddMatchingNodeAction(IScript script, INodeContainer nodeContainer, Point location)
     {
-        var newNode = script.Host.NodeManager.CreateNode(node.Info);
+        var newNode = script.Host.NodeManager.CreateNode(nodeContainer.Descriptor);
         newNode.Location.Value = location;
         return new AddNodeAction(newNode, (IWritableNodeTree)script.NodeTree);
     }
@@ -41,8 +41,8 @@ internal class ScriptEditor(
     public IUserAction DeleteConnectionAction(IScript script, IConnection connection)
         => new SeverConnectionAction(connection.OutputConnector, connection.InputConnector, (IWritableNodeTree)script.NodeTree);
 
-    public IUserAction DeleteNodeAction(IScript script, IWrappedNode node)
-        => new DeleteNodeAction(node, (IWritableNodeTree)script.NodeTree);
+    public IUserAction DeleteNodeAction(IScript script, INodeContainer nodeContainer)
+        => new DeleteNodeAction(nodeContainer, (IWritableNodeTree)script.NodeTree);
 
     public IUserAction AddSubTree(IScript script, INodeTree subTree)
     {

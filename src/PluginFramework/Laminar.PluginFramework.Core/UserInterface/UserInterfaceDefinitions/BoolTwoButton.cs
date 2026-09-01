@@ -2,7 +2,7 @@ namespace Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
 public class BoolTwoButton : IUserInterfaceDefinition
 {
-    public static readonly InterfaceData<BoolTwoButton, bool> DesignInstance = new() { Name = "Default boolean", Value = true };
+    public static readonly InterfaceData<BoolTwoButton, bool> DesignInstance = new(true) { Name = "Default boolean" };
 
     public interface IXamlTarget : IInterfaceData<BoolTwoButton, bool>;
 

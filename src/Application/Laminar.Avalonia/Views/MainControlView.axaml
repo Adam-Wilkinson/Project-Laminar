@@ -49,7 +49,7 @@
                                     </Setter>
                                 </Style>
                                 
-                                <Style Selector="c|ItemPickerItem" x:DataType="nw:IWrappedNode">
+                                <Style Selector="c|ItemPickerItem" x:DataType="nw:INodeContainer">
                                     <Setter Property="IsHoveredOrDragging" Value="{Binding !IsCollapsed.Value}"/>
                                 </Style>
                             </c:ItemPicker.Styles>

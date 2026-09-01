@@ -16,7 +16,7 @@ namespace Laminar.Avalonia.Markup;
 
 public class ConnectorRenderTransformCalculator(object headerHeight) : MarkupExtension
 {
-    private static readonly ConditionalWeakTable<IWrappedNode, NodeModel> NodeModels = [];
+    private static readonly ConditionalWeakTable<INodeContainer, NodeModel> NodeModels = [];
     
     public override object ProvideValue(IServiceProvider serviceProvider)
     {
@@ -85,25 +85,25 @@ public class ConnectorRenderTransformCalculator(object headerHeight) : MarkupExt
         throw new InvalidOperationException($"Unable to find connector for object {target}");
     }
 
-    private static IWrappedNode FindNodeFrom(StyledElement target)
+    private static INodeContainer FindNodeFrom(StyledElement target)
     {
-        while (target.DataContext is not IWrappedNode)
+        while (target.DataContext is not INodeContainer)
         {
             target = target.Parent ?? throw new InvalidCastException("Unable to find target node");
         }
 
-        return (IWrappedNode)target.DataContext!;
+        return (INodeContainer)target.DataContext!;
     }
 
     private class NodeModel
     {
         private readonly Dictionary<IConnector, ObservableValue<double>> _connectorOffsetObservables = [];
-        private readonly IWrappedNode _node;
+        private readonly INodeContainer _nodeContainer;
 
-        public NodeModel(IWrappedNode node)
+        public NodeModel(INodeContainer nodeContainer)
         {
-            _node = node;
-            _node.IsCollapsed.CovariantOnChanged += NodeIsCollapsedChanged;
+            _nodeContainer = nodeContainer;
+            _nodeContainer.IsCollapsed.CovariantOnChanged += NodeIsCollapsedChanged;
         }
         
         public IObservableValue<double> GetFractionalOffsetObservable(IConnector connector)
@@ -125,13 +125,13 @@ public class ConnectorRenderTransformCalculator(object headerHeight) : MarkupExt
 
         private void ConnectorPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName != nameof(IConnector.Flags) || !_node.IsCollapsed.Value) return;
+            if (e.PropertyName != nameof(IConnector.Flags) || !_nodeContainer.IsCollapsed.Value) return;
             UpdateConnectorOffsets();
         }
 
         private void UpdateConnectorOffsets()
         {
-            if (!_node.IsCollapsed.Value)
+            if (!_nodeContainer.IsCollapsed.Value)
             {
                 foreach (var observable in _connectorOffsetObservables.Values)
                 {
@@ -144,7 +144,7 @@ public class ConnectorRenderTransformCalculator(object headerHeight) : MarkupExt
             
             int activeInputConnectors = 0;
             int activeOutputConnectors = 0;
-            foreach (var row in _node.Rows)
+            foreach (var row in _nodeContainer.Rows)
             {
                 if (ActiveConnector(row.InputConnector) is not null)
                 {
@@ -161,7 +161,7 @@ public class ConnectorRenderTransformCalculator(object headerHeight) : MarkupExt
 
             int currentActiveInputConnector = 0;
             int currentActiveOutputConnector = 0;
-            foreach (var row in _node.Rows)
+            foreach (var row in _nodeContainer.Rows)
             {
                 if (ActiveConnector(row.InputConnector) is { } inputConnector &&
                     _connectorOffsetObservables.TryGetValue(inputConnector, out var inputOffset))

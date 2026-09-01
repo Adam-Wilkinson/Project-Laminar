@@ -8,13 +8,13 @@ namespace Laminar.Contracts.Scripting;
 
 public interface IScriptEditor
 {
-    public IUserAction AddMatchingNodeAction(IScript script, IWrappedNode node, Point location);
+    public IUserAction AddMatchingNodeAction(IScript script, INodeContainer nodeContainer, Point location);
     
     public IUserAction? FindBridgeConnectorsAction(IScript script, IConnector connectorOne, IConnector connectorTwo);
     
     public IUserAction DeleteConnectionAction(IScript script, IConnection connection);
     
-    public IUserAction DeleteNodeAction(IScript script, IWrappedNode node);
+    public IUserAction DeleteNodeAction(IScript script, INodeContainer nodeContainer);
     
     public IUserAction AddSubTree(IScript script, INodeTree subTree);
 }

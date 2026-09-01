@@ -41,7 +41,7 @@ internal class ExecutionOrderFinder : IExecutionOrderFinder
 
         private IConditionalExecutionBranch[]? _lastCalculation;
         private List<IOutputConnector>? _remainingBranchStarters;
-        private List<IWrappedNode>? _currentBranchOrder;
+        private List<INodeContainer>? _currentBranchOrder;
 
         public OrderFinderInstance(LaminarExecutionContext context, INodeTree tree)
         {
@@ -65,7 +65,7 @@ internal class ExecutionOrderFinder : IExecutionOrderFinder
             {
                 return source switch
                 {
-                    IWrappedNode nodeSource => FindExecutionPathFromNode(nodeSource, flags),
+                    INodeContainer nodeSource => FindExecutionPathFromNode(nodeSource, flags),
                     IOutputConnector outputConnector => FindExecutionPathFromOutput(outputConnector, flags),
                     _ => throw new Exception($"Could not make execution path from source {source}")
                 };
@@ -89,11 +89,11 @@ internal class ExecutionOrderFinder : IExecutionOrderFinder
             return completedBranches.ToArray();
         }
 
-        private IConditionalExecutionBranch[] FindExecutionPathFromNode(IWrappedNode firstNode, ExecutionFlags flags)
+        private IConditionalExecutionBranch[] FindExecutionPathFromNode(INodeContainer firstNodeContainer, ExecutionFlags flags)
         {
             _remainingBranchStarters = [];
-            _currentBranchOrder = [firstNode];
-            foreach (INodeRow row in firstNode.Rows)
+            _currentBranchOrder = [firstNodeContainer];
+            foreach (INodeRow row in firstNodeContainer.Rows)
             {
                 if (GetConnectionsIfBranchContinues(row, flags) is not null)
                 {
@@ -125,7 +125,7 @@ internal class ExecutionOrderFinder : IExecutionOrderFinder
             {
                 foreach (var currentConnections in currentConnectionsLevel)
                 {
-                    var currentNode = currentConnections.ConnectedNode;
+                    var currentNode = currentConnections.ConnectedNodeContainer;
                     _currentBranchOrder!.Remove(currentNode);
                     _currentBranchOrder.Add(currentNode);
                     nextConnectionsLevel.AddRange(GetDependentNodes(currentNode, executionFlags));
@@ -136,9 +136,9 @@ internal class ExecutionOrderFinder : IExecutionOrderFinder
             }
         }
 
-        private IEnumerable<ConnectorConnectionInfo> GetDependentNodes(IWrappedNode node, ExecutionFlags executionFlags)
+        private IEnumerable<ConnectorConnectionInfo> GetDependentNodes(INodeContainer nodeContainer, ExecutionFlags executionFlags)
         {
-            foreach (INodeRow row in node.Rows)
+            foreach (INodeRow row in nodeContainer.Rows)
             {
                 if (GetConnectionsIfBranchContinues(row, executionFlags) is not { } connectedNodes) continue;
                 

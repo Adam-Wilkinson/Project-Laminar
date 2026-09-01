@@ -14,7 +14,7 @@ public class RuntimeHost : IRuntimeHost, INotifyPropertyChanged
 {
     public RuntimeHost(IServiceProvider serviceProvider)
     {
-        NodeManager = ActivatorUtilities.CreateInstance<LoadedNodeManager>(serviceProvider);
+        NodeManager = ActivatorUtilities.CreateInstance<LoadedNodeManager>(serviceProvider, this);
         PluginManager = ActivatorUtilities.CreateInstance<PluginManager>(serviceProvider, this);
         ScriptingFactory = ActivatorUtilities.CreateInstance<ScriptingFactory>(serviceProvider, this);
     }

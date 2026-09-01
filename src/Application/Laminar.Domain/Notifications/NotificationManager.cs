@@ -74,7 +74,7 @@ public sealed class NotificationManager : INotifyPropertyChanged
             ResolveMethod.Invoke(parameter);
             Dispose();
         }
-    } 
+    }
     
     private class Notification : INotification
     {

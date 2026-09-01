@@ -19,10 +19,10 @@ internal class WritableNodeTree : IWritableNodeTree
     private readonly ILogger<WritableNodeTree> _logger;
     
     private readonly Dictionary<IConnector, ConnectorInformation> _connectorsInformation = [];
-    private readonly Dictionary<IWrappedNode, NodeInformation> _nodesInformation = [];
-    private readonly Dictionary<string, IWrappedNode> _nodesDictionary = [];
+    private readonly Dictionary<INodeContainer, NodeInformation> _nodesInformation = [];
+    private readonly Dictionary<string, INodeContainer> _nodesDictionary = [];
     private readonly ObservableCollection<Connection> _connections = [];
-    private readonly ObservableCollection<IWrappedNode> _nodes = [];
+    private readonly ObservableCollection<INodeContainer> _nodes = [];
     private readonly IPersistentDictionary _persistentNodes;
     private readonly IPersistentList _persistentConnections;
     
@@ -31,7 +31,7 @@ internal class WritableNodeTree : IWritableNodeTree
         ILoadedNodeManager nodeManager,
         ILogger<WritableNodeTree> logger,
         IExceptionHandler exceptionHandler,
-        IEnumerable<IWrappedNode>? nodes = null, 
+        IEnumerable<INodeContainer>? nodes = null, 
         IEnumerable<IConnection>? connections = null)
     {
         PersistentData = persistentDictionary;
@@ -86,34 +86,34 @@ internal class WritableNodeTree : IWritableNodeTree
     
     public IReadOnlyCollection<ConnectorConnectionInfo> GetConnectionsTo(IConnector connector) => GetConnectorInformation(connector).Connections.Values;
 
-    public IWrappedNode GetParentNode(IConnector connector) => GetConnectorInformation(connector).Owner;
+    public INodeContainer GetParentNode(IConnector connector) => GetConnectorInformation(connector).Owner;
     
-    public bool TryGetNodeByKey(string key, [NotNullWhen(true)] out IWrappedNode? node) => _nodesDictionary.TryGetValue(key, out node);
+    public bool TryGetNodeByKey(string key, [NotNullWhen(true)] out INodeContainer? node) => _nodesDictionary.TryGetValue(key, out node);
     
-    public string GetNodeKey(IWrappedNode node) => _nodesInformation[node].DictionaryKey;
+    public string GetNodeKey(INodeContainer nodeContainer) => _nodesInformation[nodeContainer].DictionaryKey;
 
-    public INodeUpdates GetUpdates(IWrappedNode node) => _nodesInformation[node].Updates;
+    public INodeUpdates GetUpdates(INodeContainer nodeContainer) => _nodesInformation[nodeContainer].Updates;
 
-    public IReadOnlyObservableCollection<IWrappedNode> Nodes => new Domain.Observables.Collections.ReadOnlyObservableCollection<IWrappedNode>(_nodes);
+    public IReadOnlyObservableCollection<INodeContainer> Nodes => new Domain.Observables.Collections.ReadOnlyObservableCollection<INodeContainer>(_nodes);
 
     public IReadOnlyObservableCollection<IConnection> Connections => _connections.ObservableMap(IConnection (Connection x) => x);
     
     public IEncodableData PersistentData { get; }
 
-    public void AddNode(IWrappedNode node) => AddNode(node, null);
+    public void AddNode(INodeContainer nodeContainer) => AddNode(nodeContainer, null);
 
-    private void AddNode(IWrappedNode node, string? dictionaryKey)
+    private void AddNode(INodeContainer nodeContainer, string? dictionaryKey)
     {
-        if (_nodes.Contains(node)) return;
+        if (_nodes.Contains(nodeContainer)) return;
         
-        var rowsChangedSubscription = node.Rows.SubscribeForEach(
+        var rowsChangedSubscription = nodeContainer.Rows.SubscribeForEach(
             addedRow =>
             {
                 if (addedRow.InputConnector is not null) 
-                    _connectorsInformation.Add(addedRow.InputConnector, new ConnectorInformation(node, []));
+                    _connectorsInformation.Add(addedRow.InputConnector, new ConnectorInformation(nodeContainer, []));
 
                 if (addedRow.OutputConnector is not null) 
-                    _connectorsInformation.Add(addedRow.OutputConnector, new ConnectorInformation(node, []));
+                    _connectorsInformation.Add(addedRow.OutputConnector, new ConnectorInformation(nodeContainer, []));
             }, 
             removedRow =>
             {
@@ -126,25 +126,25 @@ internal class WritableNodeTree : IWritableNodeTree
         
         dictionaryKey ??= Guid.NewGuid().ToString();
         
-        _nodes.Add(node);
-        _nodesDictionary.Add(dictionaryKey, node);
-        _nodesInformation[node] = new NodeInformation(rowsChangedSubscription, new NodeUpdates(), dictionaryKey);
-        _persistentNodes[dictionaryKey].GetOrCreateCollection(node.PersistentData);
+        _nodes.Add(nodeContainer);
+        _nodesDictionary.Add(dictionaryKey, nodeContainer);
+        _nodesInformation[nodeContainer] = new NodeInformation(rowsChangedSubscription, new NodeUpdates(), dictionaryKey);
+        _persistentNodes[dictionaryKey].GetOrCreateCollection(nodeContainer.PersistentData);
         
         Changed?.Invoke(this, EventArgs.Empty);
     }
 
-    public bool DeleteNode(IWrappedNode node)
+    public bool DeleteNode(INodeContainer nodeContainer)
     {
-        if (_nodesInformation.Remove(node, out var info))
+        if (_nodesInformation.Remove(nodeContainer, out var info))
         {
             info.RowsChangedSubscription.Dispose();
             _nodesDictionary.Remove(info.DictionaryKey);
             _persistentNodes.Remove(info.DictionaryKey);
         }
         
-        if (!_nodes.Contains(node)) return false;
-        _nodes.Remove(node);
+        if (!_nodes.Contains(nodeContainer)) return false;
+        _nodes.Remove(nodeContainer);
         Changed?.Invoke(this, EventArgs.Empty);
         return true;
     }
@@ -260,7 +260,7 @@ internal class WritableNodeTree : IWritableNodeTree
 
     private ConnectorInformation GetConnectorInformation(IConnector connector) => _connectorsInformation[connector];
     
-    private record ConnectorInformation(IWrappedNode Owner, Dictionary<IConnector, ConnectorConnectionInfo> Connections);
+    private record ConnectorInformation(INodeContainer Owner, Dictionary<IConnector, ConnectorConnectionInfo> Connections);
 
     private record NodeInformation(IDisposable RowsChangedSubscription, NodeUpdates Updates, string DictionaryKey);
     

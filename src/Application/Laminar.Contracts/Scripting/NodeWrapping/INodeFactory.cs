@@ -1,10 +1,11 @@
-﻿using Laminar.Contracts.Storage.PersistentData;
+﻿using Laminar.Contracts.Base.PluginLoading;
+using Laminar.Contracts.Storage.PersistentData;
 
 namespace Laminar.Contracts.Scripting.NodeWrapping;
 
 public interface INodeFactory
 {
-    IWrappedNode FromPersistentData(IPersistentDictionary persistentDictionary, ILoadedNodeManager loadedNodeManage);
+    INodeContainer FromPersistentData(IPersistentDictionary persistentDictionary, IRuntimeHost host);
 
-    IWrappedNode FromNodeInfo(ILoadedNodeInfo nodeInfo, ILoadedNodeManager loadedNodeManager);
+    INodeContainer FromDescriptor(NodeDescriptor nodeInfo, IRuntimeHost host);
 }

@@ -2,7 +2,7 @@
 
 public class StringViewer : IUserInterfaceDefinition
 {
-    public static readonly InterfaceData<StringViewer, object> DesignInstance = new() { Name = "Default Name", Value = "Default Value" };
+    public static readonly InterfaceData<StringViewer, object> DesignInstance = new("Default Value") { Name = "Default Name" };
     
     public interface IXamlTarget : IInterfaceData<StringViewer, object>;
 
