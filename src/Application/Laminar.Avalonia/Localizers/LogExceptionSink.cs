@@ -1,7 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
-using Laminar.Contracts.Base;
+﻿using Laminar.Contracts.Base;
+using Microsoft.Extensions.Logging;
 
-namespace Laminar.Avalonia.UserActionHandlers;
+namespace Laminar.Avalonia.Localizers;
 
 internal class LogExceptionSink(ILogger<LogExceptionSink> logger) : IExceptionSink
 {

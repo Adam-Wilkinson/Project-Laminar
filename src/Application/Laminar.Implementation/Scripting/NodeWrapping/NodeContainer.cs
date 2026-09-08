@@ -33,7 +33,22 @@ internal sealed class NodeContainer : INodeContainer
 
         if (!pluginManager.TryGetInstalledPlugin(Descriptor.Plugin, out var plugin))
         {
-            Notifications.AddNotification(new INodeContainer.PluginMissingNotificationTemplate(Descriptor.Plugin));
+            Notifications.AddNotification(
+                new NodeNotifications.PluginNotInstalled(Descriptor.Plugin),
+                res =>
+                {
+                    switch (res)
+                    {
+                        case NodeNotifications.PluginNotInstalledResolution.InstallPlugin:
+                            Console.WriteLine($"Installing plugin {Descriptor.Plugin}");
+                            break;
+                        case NodeNotifications.PluginNotInstalledResolution.DeleteNode:
+                        default:
+                            Console.WriteLine($"Deleting node {nameRow.CentralDisplay.Value}");
+                            break;
+                    };
+                });
+            
             _rows.BindTo(new ObservableCollectionImpl<INodeRow>([
                 .. persistentDictionary[nameof(Rows)].GetOrCreateCollection<IPersistentList>()
                     .Select(_ => new StubNodeRow())
@@ -43,7 +58,10 @@ internal sealed class NodeContainer : INodeContainer
 
         if (!plugin.TryGetNodeInfo(Descriptor.NodeName, out var nodeInfo))
         {
-            Notifications.AddNotification(new INodeContainer.PluginDoesNotContainNodeNotificationTemplate(Descriptor.Plugin, Descriptor.NodeName));
+            Notifications.AddNotification(
+                new NodeNotifications.PluginDoesNotContainNode(Descriptor.Plugin, Descriptor.NodeName),
+                _ => Console.WriteLine($"Deleting node {nameRow.CentralDisplay.Value}"));
+            
             _rows.BindTo(new ObservableCollectionImpl<INodeRow>([
                 .. persistentDictionary[nameof(Rows)].GetOrCreateCollection<IPersistentList>()
                     .Select(_ => new StubNodeRow())

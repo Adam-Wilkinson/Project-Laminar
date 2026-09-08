@@ -11,12 +11,6 @@ namespace Laminar.Contracts.Scripting.NodeWrapping;
 
 public interface INodeContainer : IDisposable
 {
-    public class PluginMissingNotificationTemplate(VersionedPluginId plugin)
-        : NotificationTemplate(NotificationSeverity.Error, $"This node is from the plugin '{plugin.Name}' (Version {plugin.Version}), which is not installed");
-
-    public class PluginDoesNotContainNodeNotificationTemplate(VersionedPluginId plugin, string nodeName)
-        : NotificationTemplate(NotificationSeverity.Error, $"Unable to find node '{nodeName}' in plugin {plugin.Name}' (Version {plugin.Version})");
-    
     public INodeRow<IInterfaceData<EditableLabel, string>> NameRow { get; }
 
     public IReadOnlyObservableCollection<INodeRow> Rows { get; }

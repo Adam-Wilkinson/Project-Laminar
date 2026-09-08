@@ -6,7 +6,6 @@ using Avalonia.Threading;
 using HanumanInstitute.MvvmDialogs;
 using HanumanInstitute.MvvmDialogs.Avalonia;
 using Laminar.Avalonia.InitializationTargets;
-using Laminar.Avalonia.UserActionHandlers;
 using Laminar.Avalonia.ViewModels;
 using Laminar.Avalonia.ViewModels.Services;
 using Laminar.Avalonia.Views;
@@ -20,9 +19,11 @@ using System.Runtime.InteropServices;
 using System.Runtime.Loader;
 using Avalonia.Input.Platform;
 using CommunityToolkit.Mvvm.Input;
+using Laminar.Avalonia.Localizers;
 using Laminar.Domain.ValueObjects;
 
 namespace Laminar.Avalonia;
+
 public partial class App : Application
 {
     public static readonly OSPlatform Platform = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? OSPlatform.Linux :
@@ -51,7 +52,7 @@ public partial class App : Application
             var services = new ServiceCollection()
                 .AddLaminarServices()
                 .AddViewModels()
-                .AddUserActionHandlers()
+                .AddLocalizers()
                 .AddDescendantsSingleton<IBeforeApplicationBuiltTarget>()
                 .AddDescendantsSingleton<IAfterApplicationBuiltTarget>()
                 .AddDescendantsSingleton<IPlugin>()

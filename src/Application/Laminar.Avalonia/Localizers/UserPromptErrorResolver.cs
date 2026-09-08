@@ -4,7 +4,7 @@ using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Domain.Enums.ActionResolutions;
 using Laminar.Domain.Exceptions;
 
-namespace Laminar.Avalonia.UserActionHandlers;
+namespace Laminar.Avalonia.Localizers;
 
 public class UserPromptErrorResolver(DialogService dialogService) : IUserActionErrorResolver
 {

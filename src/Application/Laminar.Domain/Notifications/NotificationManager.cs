@@ -30,7 +30,7 @@ public sealed class NotificationManager : INotifyPropertyChanged
         return ret;
     }
 
-    public INotification<T> AddNotification<T>(INotificationTemplate<T> notificationTemplate, Action<T> resolveAction)
+    public INotification<T> AddNotification<T>(NotificationTemplate<T> notificationTemplate, Action<T> resolveAction)
     {
         var ret = new Notification<T>(this)
         {
@@ -109,9 +109,10 @@ public interface INotification : IDisposable
     public INotificationTemplate Template { get; }
 }
 
-public abstract class INotificationTemplate<T>(NotificationSeverity severity, string message) : INotificationTemplate
+public abstract class NotificationTemplate<T>(NotificationSeverity severity, string message) : INotificationTemplate
 {
     public NotificationSeverity Severity { get; } = severity;
+    
     public string Message { get; } = message;
 }
 
