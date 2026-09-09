@@ -7,6 +7,7 @@
              xmlns:dvm="using:Laminar.Avalonia.ViewModels.Design"
              xmlns:t="using:Laminar.Avalonia.ToolSystem"
              xmlns:dd="using:Laminar.Avalonia.DragDrop"
+             xmlns:conv="using:Laminar.Avalonia.Converters"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450" d:DataContext="{x:Static dvm:DesignViewModel.FileNavigator}"
              x:DataType="vm:FileNavigatorViewModel"
              x:Class="Laminar.Avalonia.Views.FileNavigatorView"
@@ -33,8 +34,7 @@
         
         <TreeView ItemContainerTheme="{StaticResource DragDropTreeViewItemTheme}"
                   ItemsSource="{Binding RootFiles}" 
-                  SelectionMode="Multiple" 
-                  Margin="3,0"
+                  SelectionMode="Multiple"
                   dd:DropTargetHandler.DropAcceptor="{StaticResource TreeViewDropAcceptor}"
                   dd:DropTargetHandler.DropTarget="{Binding}"
                   VerticalAlignment="Stretch">
@@ -48,6 +48,31 @@
             <TreeView.Styles>
                 <Style Selector="TreeViewItem" x:DataType="vm:FileNavigatorItemViewModel">
                     <Setter Property="vms:FocusedRuntimeManager.FocusRuntime" Value="{Binding RuntimeHost}"/>
+                    
+                    <Style Selector="^:empty /template/ Button#PART_ExpandCollapseChevron">
+                        <Setter Property="Opacity" Value="1"/>
+                    </Style>
+                    
+                    <Style Selector="^ /template/ Button#PART_ExpandCollapseChevron">
+                        <Setter Property="Content">
+                            <Template>
+                                <PathIcon DataContext="{Binding $parent[TreeViewItem].((vm:FileNavigatorItemViewModel)DataContext)}">
+                                    <PathIcon.Data>
+                                        <MultiBinding Converter="{StaticResource SwitchConverter}" ConverterParameter="{StaticResource Icon.ExclamationMark}">
+                                            <MultiBinding StringFormat="Expanded: {0}, Type: {1}">
+                                                <Binding Path="IsExpanded"/>
+                                                <Binding Path="Type.ItemTypeName" Converter="{StaticResource ToStringConverter}"/>
+                                            </MultiBinding>
+                                            <conv:SwitchItemBinding SwitchKey="Expanded: False, Type: Folder" Source="{StaticResource Icon.ClosedFolder}"/>
+                                            <conv:SwitchItemBinding SwitchKey="Expanded: True, Type: Folder" Source="{StaticResource Icon.OpenFolder}"/>
+                                            <conv:SwitchItemBinding SwitchKey="Expanded: False, Type: Script" Source="{StaticResource Icon.Script}"/>
+                                            <conv:SwitchItemBinding SwitchKey="Expanded: True, Type: Script" Source="{StaticResource Icon.Script}"/>
+                                        </MultiBinding>
+                                    </PathIcon.Data>
+                                </PathIcon>
+                            </Template>
+                        </Setter>
+                    </Style>
                 </Style>
             </TreeView.Styles>
         </TreeView>

@@ -1,8 +1,6 @@
-using Avalonia.Media;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Laminar.Avalonia.Shapes;
 using Laminar.Avalonia.ViewModels.Services;
 using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.Base.PluginLoading;
@@ -96,20 +94,19 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
     {
         _loadingQueue.Queue(this);
     }
-
-
-    public Geometry? IconGeometry
-    {
-        get
-        {
-            if (Type.IsFolder)
-            {
-                return IsExpanded ? PathData.FolderOpenIcon : PathData.FolderIcon;
-            }
-
-            return Type == FileSystemItemType.Script ? PathData.ScriptIcon : PathData.ExclamationMark;
-        }
-    }
+    //
+    // public Geometry? IconGeometry
+    // {
+    //     get
+    //     {
+    //         if (Type.IsFolder)
+    //         {
+    //             return IsExpanded ? PathData.FolderOpenIcon : PathData.FolderIcon;
+    //         }
+    //
+    //         return Type == FileSystemItemType.Script ? PathData.ScriptIcon : PathData.ExclamationMark;
+    //     }
+    // }
 
     public FileNavigatorItemViewModel? Parent { get; private set; }
 
@@ -184,7 +181,7 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
                 (_, _) =>
                 {
                     OnPropertyChanged(nameof(IsExpanded));
-                    OnPropertyChanged(nameof(IconGeometry));
+                    // OnPropertyChanged(nameof(IconGeometry));
                 };
             
             field.FilterPropertyChanged(nameof(IFileSystemItem.IsEnabled)).OnNotification +=

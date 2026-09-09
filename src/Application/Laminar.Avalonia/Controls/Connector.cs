@@ -4,7 +4,6 @@ using Avalonia.Controls.Shapes;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Laminar.Avalonia.Markup;
-using Laminar.Avalonia.Shapes;
 
 namespace Laminar.Avalonia.Controls;
 

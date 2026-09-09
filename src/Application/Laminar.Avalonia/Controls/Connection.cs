@@ -1,10 +1,8 @@
-using System;
-using System.Collections.Generic;
 using Avalonia;
 using Avalonia.Controls.Shapes;
 using Avalonia.Media;
 
-namespace Laminar.Avalonia.Shapes;
+namespace Laminar.Avalonia.Controls;
 
 public class Connection : Shape
 {

@@ -2,15 +2,14 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:c="using:Laminar.Avalonia.Controls"
                     xmlns:init="using:Laminar.Avalonia.InitializationTargets"
-                    xmlns:s="using:Laminar.Avalonia.Settings"
-                    xmlns:shapes="using:Laminar.Avalonia.Shapes">
+                    xmlns:s="using:Laminar.Avalonia.Settings">
     <ControlTheme TargetType="c:ExpandCollapseChevron" x:Key="{x:Type c:ExpandCollapseChevron}">
         <Setter Property="Template">
             <ControlTemplate>
                 <Path Stroke="{DynamicResource {x:Static init:ColorInitialization.LaminarForegroundKey}}"
                       StrokeThickness="2"
                       Margin="5"
-                      Data="{x:Static shapes:PathData.RightFacingArrow}"
+                      Data="{StaticResource Icon.RightFacingArrow}"
                       Classes.IsExpanded="{TemplateBinding IsExpanded}">
                     <Path.Styles>
                         <Style Selector="Path:not(.IsExpanded)">

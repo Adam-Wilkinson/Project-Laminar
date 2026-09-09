@@ -1,10 +1,10 @@
-﻿using System;
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Controls.Shapes;
 using Avalonia.Media;
 using Avalonia.Visuals.Platform;
 
-namespace Laminar.Avalonia.Shapes;
+namespace Laminar.Avalonia.Controls;
+
 internal class SettingsCog : Shape
 {
     public static readonly StyledProperty<double> SpokeDepthProperty = AvaloniaProperty.Register<SettingsCog, double>(nameof(SpokeDepth), 10);

@@ -6,7 +6,6 @@
                     xmlns:s="using:Laminar.Avalonia.Settings"
                     xmlns:c="using:Laminar.Avalonia.Controls"
                     xmlns:lang="using:Laminar.Avalonia.Assets.Lang"
-                    xmlns:shapes="using:Laminar.Avalonia.Shapes"
                     xmlns:conv="using:Laminar.Avalonia.Converters"
                     xmlns:fe="using:Laminar.Contracts.Storage.FileExplorer"
                     xmlns:nw="using:Laminar.Contracts.Scripting.NodeWrapping"
@@ -15,30 +14,30 @@
     <!-- Edit Menu Tool -->
     <t:CommandTool NameKey="Copy" x:Key="Tools.Edit.Copy" x:DataType="vms:IClipboardProvider"
                    Gesture="Ctrl+c"
-                   DefaultIconGeometry="{x:Static shapes:PathData.Copy}"
+                   DefaultIconGeometry="{StaticResource Icon.Copy}"
                    CommandBinding="{Binding CopyToClipboardCommand}"/>
     
     <t:CommandTool NameKey="Paste" x:Key="Tools.Edit.Paste" x:DataType="vms:IClipboardProvider"
                    Gesture="Ctrl+v"
-                   DefaultIconGeometry="{x:Static shapes:PathData.Paste}"
+                   DefaultIconGeometry="{StaticResource Icon.Paste}"
                    CommandBinding="{Binding PasteFromClipboardCommand}"/>
     
     <t:CommandTool NameKey="Cut" x:Key="Tools.Edit.Cut" x:DataType="vms:IClipboardProvider"
                    Gesture="Ctrl+x"
-                   DefaultIconGeometry="{x:Static shapes:PathData.Cut}"
+                   DefaultIconGeometry="{StaticResource Icon.Cut}"
                    CommandBinding="{Binding CutCommand}"/>
     
     <t:Toolbox NameKey="{x:Static lang:Resources.Edit}" 
                x:Key="Tools.Edit" x:DataType="vm:ViewModelBase" 
-               DefaultIconGeometry="{x:Static shapes:PathData.EditIcon}"
+               DefaultIconGeometry="{StaticResource Icon.Edit}"
                Gesture="Ctrl+e">
         <t:CommandTool NameKey="{x:Static lang:Resources.Undo}" x:DataType="vm:ViewModelBase" 
 					   Gesture="Ctrl+z"
-                       DefaultIconGeometry="{x:Static shapes:PathData.UndoIcon}"
+                       DefaultIconGeometry="{StaticResource Icon.Undo}"
 					   CommandBinding="{Binding UndoCommand}"/>
         <t:CommandTool NameKey="{x:Static lang:Resources.Redo}" x:DataType="vm:ViewModelBase"
 					   Gesture="Ctrl+y" 
-					   DefaultIconGeometry="{x:Static shapes:PathData.RedoIcon}"
+					   DefaultIconGeometry="{StaticResource Icon.Redo}"
 					   CommandBinding="{Binding RedoCommand}"/>
         <StaticResource ResourceKey="Tools.Edit.Copy"/>
         <StaticResource ResourceKey="Tools.Edit.Paste"/>
@@ -52,38 +51,33 @@
                           PropertyBinding="{Binding IsExpanded}">
 	    <t:Tool.IconTemplate>
 		    <DataTemplate DataType="vm:ITreeViewItemViewModel">
-			    <Panel>
-				    <t:GeometryIcon Data="{Binding IconGeometry}"
-				                    IsVisible="{Binding IconGeometry, Converter={x:Static ObjectConverters.IsNotNull}}"/>
-				    <c:ExpandCollapseChevron IsExpanded="{Binding IsExpanded}"
-				                             IsVisible="{Binding IconGeometry, Converter={x:Static ObjectConverters.IsNull}}"/>
-			    </Panel>
+			    <c:ExpandCollapseChevron IsExpanded="{Binding IsExpanded}"/>
 		    </DataTemplate>
 	    </t:Tool.IconTemplate>
     </t:PropertySetterTool>
     
     <t:CommandTool x:Key="Tools.FileSystem.StorageItem.Rename" x:DataType="vm:FileNavigatorItemViewModel" 
                    NameKey="{x:Static lang:Resources.Rename}" 
-                   DefaultIconGeometry="{x:Static shapes:PathData.RenameIcon}"
+                   DefaultIconGeometry="{StaticResource Icon.Rename}"
                    CommandBinding="{Binding RenameCommand}"/>
     
     <t:Toolbox x:Key="Tools.FileSystem.StorageItem.AddChild" x:DataType="vm:FileNavigatorItemViewModel" 
                NameKey="{x:Static lang:Resources.AddStorageItem}"
-               DefaultIconGeometry="{x:Static shapes:PathData.AddIcon}"
+               DefaultIconGeometry="{StaticResource Icon.Add}"
                QuickAccess="Folder">
 	    <t:CommandTool NameKey="{x:Static lang:Resources.AddFolder}" 
-	                   DefaultIconGeometry="{x:Static shapes:PathData.FolderIcon}"
+	                   DefaultIconGeometry="{StaticResource Icon.ClosedFolder}"
 	                   CommandBinding="{Binding AddItemCommand}"
 	                   CommandParameter="{x:Static fe:FileSystemItemType.Folder}"/>
 	    <t:CommandTool NameKey="{x:Static lang:Resources.AddScript}" 
-	                   DefaultIconGeometry="{x:Static shapes:PathData.ScriptIcon}"
+	                   DefaultIconGeometry="{StaticResource Icon.Script}"
 	                   CommandBinding="{Binding AddItemCommand}"
 	                   CommandParameter="{x:Static fe:FileSystemItemType.Script}"/>
     </t:Toolbox>
     
     <t:CommandTool x:Key="Tools.FileSystem.StorageItem.Delete" x:DataType="vm:FileNavigatorItemViewModel" 
                    NameKey="{x:Static lang:Resources.Delete}"
-                   DefaultIconGeometry="{x:Static shapes:PathData.DeleteIcon}"
+                   DefaultIconGeometry="{StaticResource Icon.Delete}"
                    CommandBinding="{Binding DeleteCommand}">
 	    <t:Tool.DescriptionBinding>
 		    <MultiBinding Converter="{StaticResource SwitchConverter}">
@@ -122,13 +116,13 @@
     <t:CommandTool x:Key="Tools.FileSystem.StorageItem.OpenInFileBrowser" x:DataType="vm:FileNavigatorItemViewModel" 
                    NameKey="OpenInFileBrowser"
                    CommandBinding="{Binding OpenInSystemFileBrowserCommand}"
-                   DefaultIconGeometry="{x:Static shapes:PathData.OpenExternalIcon}"
+                   DefaultIconGeometry="{StaticResource Icon.OpenExternal}"
                    QuickAccess="Folder"/>
     
     <t:CommandTool x:Key="Tools.FileSystem.StorageItem.Open" x:DataType="vm:FileNavigatorItemViewModel"
                    NameKey="Open"
                    CommandBinding="{Binding OpenCommand}"
-                   DefaultIconGeometry="{x:Static shapes:PathData.RightFacingArrow}"
+                   DefaultIconGeometry="{StaticResource Icon.RightFacingArrow}"
                    QuickAccess="Script"/>
     
     <!-- File Navigator Tool -->
@@ -148,8 +142,8 @@
 	                <PathIcon.Data>
 		                <MultiBinding Converter="{StaticResource SwitchConverter}">
 			                <Binding Path="Type"/>
-			                <Binding Source="{x:Static shapes:PathData.FolderIcon}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static fe:FileSystemItemType.Folder}"/>
-			                <Binding Source="{x:Static shapes:PathData.ScriptIcon}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static fe:FileSystemItemType.Script}"/>
+			                <Binding Source="{StaticResource Icon.ClosedFolder}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static fe:FileSystemItemType.Folder}"/>
+			                <Binding Source="{StaticResource Icon.Script}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static fe:FileSystemItemType.Script}"/>
 		                </MultiBinding>
 	                </PathIcon.Data>
                 </PathIcon>
@@ -166,14 +160,14 @@
     
     <t:CommandTool x:Key="Tools.FileSystem.Browser.Refresh" x:DataType="vm:FileNavigatorViewModel" NameKey="Refresh" 
                    CommandBinding="{Binding RefreshCommand}"
-                   DefaultIconGeometry="{x:Static shapes:PathData.RefreshIcon}"/>
+                   DefaultIconGeometry="{StaticResource Icon.Refresh}"/>
     
     <t:CommandTool x:Key="Tools.FileSystem.Browser.AddRootFolder" x:DataType="vm:FileNavigatorViewModel" 
                    NameKey="Add root folder" 
                    CommandBinding="{Binding AddRootFolderCommand}"
-                   DefaultIconGeometry="{x:Static shapes:PathData.AddIcon}"/>
+                   DefaultIconGeometry="{StaticResource Icon.Add}"/>
     
-    <t:Toolbox NameKey="Browser" DefaultIconGeometry="{x:Static shapes:PathData.FileNavigatorIcon}"
+    <t:Toolbox NameKey="Browser" DefaultIconGeometry="{StaticResource Icon.FileNavigator}"
                x:Key="Tools.FileSystem.Browser" 
                x:DataType="vm:FileNavigatorViewModel">
 	    <StaticResource ResourceKey="Tools.FileSystem.Browser.Refresh"/>
@@ -181,7 +175,7 @@
     </t:Toolbox>
     
     <t:Toolbox NameKey="{x:Static lang:Resources.FileNavigatorTools}" x:Key="Tools.FileSystem"
-               DefaultIconGeometry="{x:Static shapes:PathData.FileNavigatorIcon}">
+               DefaultIconGeometry="{StaticResource Icon.FileNavigator}">
         <StaticResource ResourceKey="Tools.FileSystem.StorageItem"/>
         <StaticResource ResourceKey="Tools.FileSystem.Browser"/>
     </t:Toolbox>
@@ -286,7 +280,7 @@
 				<Panel Classes.SettingsOpen="{Binding SettingsOpen}"
 				       VerticalAlignment="Stretch"
 				       Classes="TagIsPointerOver">
-					<shapes:SettingsCog Classes="SettingsCog" Width="19" Height="19" 
+					<c:SettingsCog Classes="SettingsCog" Width="19" Height="19" 
 					                    SpokeDepth="4.5" SpokeCount="8" 
 					                    Stroke="{DynamicResource {x:Static init:ColorInitialization.LaminarForegroundKey}}" StrokeThickness="1.5"/>
 					<Border Classes="SettingsArrowRotater">
@@ -373,7 +367,7 @@
     
     <t:CommandTool x:Key="Tools.ToolTools.ToggleQuickAccess" NameKey="Toggle quick access" x:DataType="t:Tool" 
                    CommandBinding="{Binding ToggleQuickAccessKeyCommand}" 
-                   DefaultIconGeometry="{x:Static shapes:PathData.AddIcon}"/>
+                   DefaultIconGeometry="{StaticResource Icon.Add}"/>
     
     <t:Toolbox x:Key="Tools.ToolTools">
 	    <StaticResource ResourceKey="Tools.ToolTools.ChangeKeybinding"/>
@@ -389,7 +383,7 @@
                    NameKey="Install all"
                    DescriptionBinding="{Binding Name, StringFormat='Install {0} to all runtimes'}"
                    CommandBinding="{Binding InstallToAllCommand}"
-                   DefaultIconGeometry="{x:Static shapes:PathData.ExclamationMark}"
+                   DefaultIconGeometry="{StaticResource Icon.ExclamationMark}"
                    x:DataType="vm:PluginInfoViewModel"/>
     
     <t:Toolbox x:Key="Tools.Settings.PluginTools">
@@ -401,7 +395,7 @@
             Gesture="r"
             NameKey="Reset Setting" 
             CommandBinding="{Binding ResetCommand}"
-            DefaultIconGeometry="{x:Static shapes:PathData.ResetIcon}"/>
+            DefaultIconGeometry="{StaticResource Icon.Reset}"/>
     
     <t:PropertySetterTool x:Key="Tools.Settings.ChangeSettingTool" 
                           x:DataType="s:Setting" 
@@ -423,7 +417,7 @@
                    Gesture="Delete"
                    NameKey="Delete"
                    CommandBinding="{Binding DeleteSelectionCommand}"
-                   DefaultIconGeometry="{x:Static shapes:PathData.DeleteIcon}"/>
+                   DefaultIconGeometry="{StaticResource Icon.Delete}"/>
     
     <t:PropertySetterTool x:Key="Tools.ScriptEditor.NodeTools.ToggleExpanded" x:DataType="nw:INodeContainer"
                           NameKey="Toggle Expanded"

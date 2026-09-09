@@ -1,6 +1,5 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-					xmlns:e="using:Laminar.Domain.Enums"
                     xmlns:d="using:Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions"
                     xmlns:r="using:System.Runtime.InteropServices"
                     xmlns:local="using:Laminar.Avalonia"

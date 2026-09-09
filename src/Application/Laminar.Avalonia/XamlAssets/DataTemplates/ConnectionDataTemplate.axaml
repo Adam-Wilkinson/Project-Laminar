@@ -1,26 +1,26 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:conn="using:Laminar.Contracts.Scripting.Connection"
-                    xmlns:shapes="using:Laminar.Avalonia.Shapes"
                     xmlns:sam="using:Laminar.Avalonia.SelectAndMove"
                     xmlns:init="using:Laminar.Avalonia.InitializationTargets"
-                    xmlns:m="using:Laminar.Avalonia.Markup">
+                    xmlns:m="using:Laminar.Avalonia.Markup"
+                    xmlns:controls="clr-namespace:Laminar.Avalonia.Controls">
     <DataTemplate DataType="conn:IConnection" x:Key="ConnectionDataTemplate">
-        <shapes:Connection Startpoint="{m:ConnectorLocation {CompiledBinding OutputConnector}}"
+        <controls:Connection Startpoint="{m:ConnectorLocation {CompiledBinding OutputConnector}}"
                            Endpoint="{m:ConnectorLocation {CompiledBinding InputConnector}}"
                            Fill="{Binding OutputConnector.ColorHex, Converter={StaticResource ParseBrushConverter}}"
                            Classes.IsSelected="{Binding $parent[sam:SelectAndMoveItem].IsSelected, FallbackValue={x:False}}"
                            StrokeThickness="2"
                            ConnectionWidth="10">
-            <shapes:Connection.Styles>
-                <Style Selector="shapes|Connection">
+            <controls:Connection.Styles>
+                <Style Selector="controls|Connection">
                     <Setter Property="Stroke" Value="Gray"/>
                         
                     <Style Selector="^.IsSelected">
                         <Setter Property="Stroke" Value="{DynamicResource {x:Static init:ColorInitialization.LaminarForegroundKey}}"/>
                     </Style>
                 </Style>
-            </shapes:Connection.Styles>
-        </shapes:Connection>
+            </controls:Connection.Styles>
+        </controls:Connection>
     </DataTemplate>
 </ResourceDictionary>

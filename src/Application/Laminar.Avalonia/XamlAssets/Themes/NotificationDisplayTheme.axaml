@@ -18,39 +18,52 @@
                     <Button.Flyout>
                         <Flyout ShowMode="Standard" OverlayInputPassThroughElement="{Binding #MainButton}"
                                 IsOpen="{TemplateBinding FlyoutOpen}">
-                            <StackPanel Width="500">
-                            <TextBlock>Notifications:</TextBlock>
-                            <ItemsControl ItemsSource="{Binding Notifications, RelativeSource={RelativeSource TemplatedParent}}"
-                                          Grid.IsSharedSizeScope="True">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate x:DataType="c:NotificationDisplayItem">
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*" SharedSizeGroup="NameColumn"/>
-                                                <ColumnDefinition Width="Auto" SharedSizeGroup="Resolutions"/>
-                                            </Grid.ColumnDefinitions>
-                                            
-                                            <TextBlock Grid.Column="0" Grid.Row="0" 
-                                                       Text="{Binding Message}"/>
-                                            
-                                            <ItemsControl Grid.Column="1" Grid.Row="0" ItemsSource="{Binding Resolutions}">
-                                                <ItemsControl.ItemTemplate>
-                                                    <DataTemplate DataType="c:NotificationResolution">
-                                                        <Button Content="{Binding Message}" Command="{Binding Resolve}"/>
-                                                    </DataTemplate>
-                                                </ItemsControl.ItemTemplate>
+                            <StackPanel>
+                                <ItemsControl ItemsSource="{Binding Notifications, RelativeSource={RelativeSource TemplatedParent}}"
+                                              Grid.IsSharedSizeScope="True">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="c:NotificationDisplayItem">
+                                            <Grid ColumnSpacing="2">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" SharedSizeGroup="NameColumn"/>
+                                                    <ColumnDefinition Width="Auto" SharedSizeGroup="Resolutions"/>
+                                                </Grid.ColumnDefinitions>
                                                 
-                                                <ItemsControl.ItemsPanel>
-                                                    <ItemsPanelTemplate>
-                                                        <StackPanel Orientation="Horizontal"></StackPanel>
-                                                    </ItemsPanelTemplate>
-                                                </ItemsControl.ItemsPanel>
-                                            </ItemsControl>
-                                        </Grid>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                            <TextBlock Classes="b2">Click again to auto-resolve</TextBlock>
+                                                <TextBlock Grid.Column="0" Grid.Row="0" 
+                                                           Text="{Binding Message}"
+                                                           VerticalAlignment="Center"/>
+                                                
+                                                <ItemsControl Grid.Column="1" Grid.Row="0" 
+                                                              ItemsSource="{Binding Resolutions}"
+                                                              VerticalAlignment="Center">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate DataType="c:NotificationResolution">
+                                                            <Button Content="{Binding Message}" 
+                                                                    Command="{Binding Resolve}"
+                                                                    Background="{DynamicResource UiLayer}"
+                                                                    BorderThickness="2"
+                                                                    CornerRadius="2"
+                                                                    Classes.IsHovered="{Binding IsHovered}">
+                                                                <Button.Styles>
+                                                                    <Style Selector="Button.IsHovered">
+                                                                        <Setter Property="BorderBrush" Value="{DynamicResource UiLayerHighlight}"/>
+                                                                    </Style>
+                                                                </Button.Styles>
+                                                            </Button>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                    
+                                                    <ItemsControl.ItemsPanel>
+                                                        <ItemsPanelTemplate>
+                                                            <StackPanel Orientation="Horizontal" Spacing="4"/>
+                                                        </ItemsPanelTemplate>
+                                                    </ItemsControl.ItemsPanel>
+                                                </ItemsControl>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <TextBlock Classes="b2">Click again to auto-resolve</TextBlock>
                         </StackPanel>
                         </Flyout>
                     </Button.Flyout>

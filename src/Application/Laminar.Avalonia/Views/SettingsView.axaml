@@ -6,7 +6,6 @@
              xmlns:dvm="using:Laminar.Avalonia.ViewModels.Design"
              xmlns:toolSystem="clr-namespace:Laminar.Avalonia.ToolSystem"
              xmlns:c="using:Laminar.Avalonia.Controls"
-             xmlns:shapes="using:Laminar.Avalonia.Shapes"
              xmlns:s="using:Laminar.Avalonia.Settings"
              xmlns:p="using:Laminar.Contracts.Base.PluginLoading"
              mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="450" d:DataContext="{x:Static dvm:DesignViewModel.Settings}"
@@ -68,12 +67,12 @@
 						<Button Grid.Column="3" ToolTip.Tip="Remove" Classes="KeyBindingAction" 
 						        Command="{Binding SetGestureToNone}">
 							<PathIcon Margin="{s:UiScaled 12}" Width="{s:UiScaled 20}" Height="{s:UiScaled 20}"
-							          Data="{x:Static shapes:PathData.CrossWithCircle}"/>
+							          Data="{StaticResource Icon.CrossWithCircle}"/>
 						</Button>
 						<Button Grid.Column="4" ToolTip.Tip="Reset" Classes="KeyBindingAction"
 						        Command="{Binding ResetGesture}">
 							<PathIcon Margin="{s:UiScaled 12}" Width="{s:UiScaled 20}" Height="{s:UiScaled 20}"
-							          Data="{x:Static shapes:PathData.ResetIcon}"/>
+							          Data="{StaticResource Icon.Reset}"/>
 						</Button>
 						
 						<Grid.Styles>

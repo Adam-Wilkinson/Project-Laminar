@@ -4,8 +4,7 @@
              xmlns:t="using:Laminar.Avalonia.ToolSystem"
              xmlns:s="using:Laminar.Avalonia.Settings"
              xmlns:dd="using:Laminar.Avalonia.DragDrop"
-             xmlns:conv="using:Laminar.Avalonia.Converters"
-             xmlns:vms="using:Laminar.Avalonia.ViewModels.Services">
+             xmlns:conv="using:Laminar.Avalonia.Converters">
 
 	<Application.Resources>
 		<ResourceDictionary>
@@ -17,6 +16,7 @@
 				<ResourceInclude Source="XamlAssets/Resources/LaminarColorResources.axaml"/>
 				<ResourceInclude Source="XamlAssets/Resources/ToolResources.axaml"/>
 				<ResourceInclude Source="XamlAssets/Resources/SettingsResources.axaml"/>
+				<ResourceInclude Source="XamlAssets/Resources/Icons.axaml"/>
 				<ResourceInclude Source="XamlAssets/Themes/ToolButtonTheme.axaml"/>
 				<ResourceInclude Source="XamlAssets/Themes/ToolMenuItemTheme.axaml"/>
 				<ResourceInclude Source="XamlAssets/Themes/GeometryIconTheme.axaml"/>

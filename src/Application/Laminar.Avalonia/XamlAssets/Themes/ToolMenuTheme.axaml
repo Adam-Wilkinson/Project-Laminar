@@ -1,7 +1,6 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:t="using:Laminar.Avalonia.ToolSystem"
-                    xmlns:shapes="using:Laminar.Avalonia.Shapes">
+                    xmlns:t="using:Laminar.Avalonia.ToolSystem">
     <Design.PreviewWith>
         <Border Padding="5">
             <t:ToolMenu>
@@ -64,11 +63,11 @@
                         </Border>
                         <Button.Styles>
                             <Style Selector="t|GeometryIcon#Icon.IsQuickAccess">
-                                <Setter Property="Data" Value="{x:Static shapes:PathData.Eye}"/>
+                                <Setter Property="Data" Value="{StaticResource Icon.OpenEye}"/>
                             </Style>
                     
                             <Style Selector="t|GeometryIcon#Icon">
-                                <Setter Property="Data" Value="{x:Static shapes:PathData.EyeOff}"/>
+                                <Setter Property="Data" Value="{StaticResource Icon.ClosedEye}"/>
                             </Style>
                         </Button.Styles>
                     </Button>

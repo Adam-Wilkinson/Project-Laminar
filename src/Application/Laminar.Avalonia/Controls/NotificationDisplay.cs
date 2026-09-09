@@ -46,7 +46,6 @@ public class NotificationDisplay : TemplatedControl
 
     public void AutoResolveAll()
     {
-        Debug.WriteLine($"Button pressed. Flyout: {_mainButton?.Flyout?.IsOpen}");
         if (_mainButton?.Flyout?.IsOpen is true) return;
         
         while (Notifications.Count > 0)
@@ -112,13 +111,37 @@ public class NotificationDisplay : TemplatedControl
     }
 }
 
-public record NotificationDisplayItem(
-    NotificationSeverity Severity,
-    string Message,
-    List<NotificationResolution> Resolutions,
-    int AutoResolveIndex);
+public record NotificationDisplayItem
+{
+    public NotificationDisplayItem(NotificationSeverity Severity,
+        string Message,
+        List<NotificationResolution> Resolutions,
+        int AutoResolveIndex)
+    {
+        this.Severity = Severity;
+        this.Message = Message;
+        this.Resolutions = Resolutions;
+        this.AutoResolveIndex = AutoResolveIndex;
+        Resolutions[AutoResolveIndex].IsHovered = true;
+    }
+
+    public NotificationSeverity Severity { get; init; }
+    public string Message { get; init; }
+    public List<NotificationResolution> Resolutions { get; init; }
+    public int AutoResolveIndex { get; init; }
+
+    public void Deconstruct(out NotificationSeverity Severity, out string Message, out List<NotificationResolution> Resolutions, out int AutoResolveIndex)
+    {
+        Severity = this.Severity;
+        Message = this.Message;
+        Resolutions = this.Resolutions;
+        AutoResolveIndex = this.AutoResolveIndex;
+    }
+}
 
 public record NotificationResolution(string Message, Action Resolution)
 {
     public void Resolve() => Resolution();
+
+    public bool IsHovered { get; set; } = false;
 }
