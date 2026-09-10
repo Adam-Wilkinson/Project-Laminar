@@ -5,7 +5,8 @@
                     xmlns:t="using:Laminar.Avalonia.ToolSystem"
                     xmlns:s="using:Laminar.Avalonia.Settings"
                     xmlns:c="using:Laminar.Avalonia.Controls"
-                    xmlns:lang="using:Laminar.Avalonia.Assets.Lang"
+                    xmlns:lang="using:Laminar.Avalonia.Translations"
+                    xmlns:echo="using:Echoes"
                     xmlns:conv="using:Laminar.Avalonia.Converters"
                     xmlns:fe="using:Laminar.Contracts.Storage.FileExplorer"
                     xmlns:nw="using:Laminar.Contracts.Scripting.NodeWrapping"
@@ -13,29 +14,34 @@
     
     <!-- Edit Menu Tool -->
     <t:CommandTool NameKey="Copy" x:Key="Tools.Edit.Copy" x:DataType="vms:IClipboardProvider"
+                   UserFriendlyName="{echo:Translate {x:Static lang:Strings.Copy}}"
                    Gesture="Ctrl+c"
                    DefaultIconGeometry="{StaticResource Icon.Copy}"
                    CommandBinding="{Binding CopyToClipboardCommand}"/>
     
     <t:CommandTool NameKey="Paste" x:Key="Tools.Edit.Paste" x:DataType="vms:IClipboardProvider"
+                   UserFriendlyName="{echo:Translate {x:Static lang:Strings.Paste}}"
                    Gesture="Ctrl+v"
                    DefaultIconGeometry="{StaticResource Icon.Paste}"
                    CommandBinding="{Binding PasteFromClipboardCommand}"/>
     
     <t:CommandTool NameKey="Cut" x:Key="Tools.Edit.Cut" x:DataType="vms:IClipboardProvider"
+                   UserFriendlyName="{echo:Translate {x:Static lang:Strings.Cut}}"
                    Gesture="Ctrl+x"
                    DefaultIconGeometry="{StaticResource Icon.Cut}"
                    CommandBinding="{Binding CutCommand}"/>
     
-    <t:Toolbox NameKey="{x:Static lang:Resources.Edit}" 
-               x:Key="Tools.Edit" x:DataType="vm:ViewModelBase" 
+    <t:Toolbox NameKey="Edit" x:Key="Tools.Edit" x:DataType="vm:ViewModelBase"
+               UserFriendlyName="{echo:Translate {x:Static lang:Strings.Edit}}"
                DefaultIconGeometry="{StaticResource Icon.Edit}"
                Gesture="Ctrl+e">
-        <t:CommandTool NameKey="{x:Static lang:Resources.Undo}" x:DataType="vm:ViewModelBase" 
+        <t:CommandTool NameKey="Undo" x:DataType="vm:ViewModelBase"
+                       UserFriendlyName="{echo:Translate {x:Static lang:Strings.Undo}}"
 					   Gesture="Ctrl+z"
                        DefaultIconGeometry="{StaticResource Icon.Undo}"
 					   CommandBinding="{Binding UndoCommand}"/>
-        <t:CommandTool NameKey="{x:Static lang:Resources.Redo}" x:DataType="vm:ViewModelBase"
+        <t:CommandTool NameKey="Redo" x:DataType="vm:ViewModelBase"
+                       UserFriendlyName="{echo:Translate {x:Static lang:Strings.Redo}}"
 					   Gesture="Ctrl+y" 
 					   DefaultIconGeometry="{StaticResource Icon.Redo}"
 					   CommandBinding="{Binding RedoCommand}"/>
@@ -45,7 +51,8 @@
     </t:Toolbox>
     
     <!-- Tool that toggles whether a TreeViewItem is expanded -->
-    <t:PropertySetterTool NameKey="Toggle Expanded" 
+    <t:PropertySetterTool NameKey="Toggle Expanded"
+                          UserFriendlyName="{echo:Translate {x:Static lang:Strings.ToggleEnabled}}"
                           x:DataType="vm:ITreeViewItemViewModel" 
                           x:Key="Tools.ExpandCollapseTreeViewTool"
                           PropertyBinding="{Binding IsExpanded}">
@@ -56,40 +63,42 @@
 	    </t:Tool.IconTemplate>
     </t:PropertySetterTool>
     
-    <t:CommandTool x:Key="Tools.FileSystem.StorageItem.Rename" x:DataType="vm:FileNavigatorItemViewModel" 
-                   NameKey="{x:Static lang:Resources.Rename}" 
+    <t:CommandTool NameKey="Rename" x:Key="Tools.FileSystem.StorageItem.Rename" x:DataType="vm:FileNavigatorItemViewModel" 
+                   UserFriendlyName="{echo:Translate {x:Static lang:Strings.Rename}}"
                    DefaultIconGeometry="{StaticResource Icon.Rename}"
                    CommandBinding="{Binding RenameCommand}"/>
     
-    <t:Toolbox x:Key="Tools.FileSystem.StorageItem.AddChild" x:DataType="vm:FileNavigatorItemViewModel" 
-               NameKey="{x:Static lang:Resources.AddStorageItem}"
+    <t:Toolbox NameKey="AddChild" x:Key="Tools.FileSystem.StorageItem.AddChild" x:DataType="vm:FileNavigatorItemViewModel" 
+               UserFriendlyName="{echo:Translate {x:Static lang:Strings.AddStorageItem}}"
                DefaultIconGeometry="{StaticResource Icon.Add}"
                QuickAccess="Folder">
-	    <t:CommandTool NameKey="{x:Static lang:Resources.AddFolder}" 
+	    <t:CommandTool UserFriendlyName="{echo:Translate {x:Static lang:Strings.AddFolder}}"
+	                   NameKey="AddFolder"
 	                   DefaultIconGeometry="{StaticResource Icon.ClosedFolder}"
 	                   CommandBinding="{Binding AddItemCommand}"
 	                   CommandParameter="{x:Static fe:FileSystemItemType.Folder}"/>
-	    <t:CommandTool NameKey="{x:Static lang:Resources.AddScript}" 
+	    <t:CommandTool UserFriendlyName="{echo:Translate {x:Static lang:Strings.AddScript}}"
+	                   NameKey="AddScript"
 	                   DefaultIconGeometry="{StaticResource Icon.Script}"
 	                   CommandBinding="{Binding AddItemCommand}"
 	                   CommandParameter="{x:Static fe:FileSystemItemType.Script}"/>
     </t:Toolbox>
     
-    <t:CommandTool x:Key="Tools.FileSystem.StorageItem.Delete" x:DataType="vm:FileNavigatorItemViewModel" 
-                   NameKey="{x:Static lang:Resources.Delete}"
+    <t:CommandTool NameKey="DeleteStorageItem" x:Key="Tools.FileSystem.StorageItem.Delete" x:DataType="vm:FileNavigatorItemViewModel" 
+                   UserFriendlyName="{echo:Translate {x:Static lang:Strings.DeleteItem}}"
                    DefaultIconGeometry="{StaticResource Icon.Delete}"
                    CommandBinding="{Binding DeleteCommand}">
 	    <t:Tool.DescriptionBinding>
 		    <MultiBinding Converter="{StaticResource SwitchConverter}">
 			    <Binding Path="Type"/>
-			    <Binding Source="{x:Static lang:Resources.DeleteFolder}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static fe:FileSystemItemType.Folder}"/>
-			    <Binding Source="{x:Static lang:Resources.DeleteScript}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static fe:FileSystemItemType.Script}"/>
+			    <Binding Path="Value^" Source="{x:Static lang:Strings.DeleteFolder}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static fe:FileSystemItemType.Folder}"/>
+			    <Binding Path="Value^" Source="{x:Static lang:Strings.DeleteScript}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static fe:FileSystemItemType.Script}"/>
 		    </MultiBinding>
 	    </t:Tool.DescriptionBinding>
     </t:CommandTool>
     
-    <t:PropertySetterTool x:Key="Tools.FileSystem.StorageItem.ToggleEnabled" x:DataType="vm:FileNavigatorItemViewModel" 
-                          NameKey="{x:Static lang:Resources.ToggleEnabled}"
+    <t:PropertySetterTool NameKey="ToggleEnabled" x:Key="Tools.FileSystem.StorageItem.ToggleEnabled" x:DataType="vm:FileNavigatorItemViewModel" 
+                          UserFriendlyName="{echo:Translate {x:Static lang:Strings.ToggleEnabled}}"
                           Gesture="Alt+E"
                           PropertyBinding="{Binding IsEnabled}"
                           CanChangeValueBinding="{Binding CanChangeIsEnabled}"
@@ -100,10 +109,10 @@
 				    <Binding Path="CoreItem?.IsEnabled"/>
 				    <Binding Path="Type" Converter="{StaticResource ToStringConverter}"/>
 			    </MultiBinding>
-			    <conv:SwitchItemBinding SwitchKey="Is Enabled: True, Item Type: Folder" Source="{x:Static lang:Resources.DisableFolder}"/>
-			    <conv:SwitchItemBinding SwitchKey="Is Enabled: True, Item Type: Script" Source="{x:Static lang:Resources.DisableScript}"/>
-			    <conv:SwitchItemBinding SwitchKey="Is Enabled: False, Item Type: Folder" Source="{x:Static lang:Resources.EnableFolder}"/>
-			    <conv:SwitchItemBinding SwitchKey="Is Enabled: False, Item Type: Script" Source="{x:Static lang:Resources.EnableScript}"/>
+			    <conv:SwitchItemBinding Path="Value^" SwitchKey="Is Enabled: True, Item Type: Folder" Source="{x:Static lang:Strings.DisableFolder}"/>
+			    <conv:SwitchItemBinding Path="Value^" SwitchKey="Is Enabled: True, Item Type: Script" Source="{x:Static lang:Strings.DisableScript}"/>
+			    <conv:SwitchItemBinding Path="Value^" SwitchKey="Is Enabled: False, Item Type: Folder" Source="{x:Static lang:Strings.EnableFolder}"/>
+			    <conv:SwitchItemBinding Path="Value^" SwitchKey="Is Enabled: False, Item Type: Script" Source="{x:Static lang:Strings.EnableScript}"/>
 		    </MultiBinding>
 	    </t:Tool.DescriptionBinding>
 	    <t:Tool.IconTemplate>
@@ -113,27 +122,28 @@
 	    </t:Tool.IconTemplate>
     </t:PropertySetterTool>
     
-    <t:CommandTool x:Key="Tools.FileSystem.StorageItem.OpenInFileBrowser" x:DataType="vm:FileNavigatorItemViewModel" 
-                   NameKey="OpenInFileBrowser"
+    <t:CommandTool NameKey="OpenInFileBrowser" x:Key="Tools.FileSystem.StorageItem.OpenInFileBrowser" x:DataType="vm:FileNavigatorItemViewModel" 
+                   UserFriendlyName="{echo:Translate {x:Static lang:Strings.OpenInFileBrowser}}"
                    CommandBinding="{Binding OpenInSystemFileBrowserCommand}"
                    DefaultIconGeometry="{StaticResource Icon.OpenExternal}"
                    QuickAccess="Folder"/>
     
-    <t:CommandTool x:Key="Tools.FileSystem.StorageItem.Open" x:DataType="vm:FileNavigatorItemViewModel"
-                   NameKey="Open"
+    <t:CommandTool NameKey="Open" x:Key="Tools.FileSystem.StorageItem.Open" x:DataType="vm:FileNavigatorItemViewModel"
+                   UserFriendlyName="{echo:Translate {x:Static lang:Strings.OpenFile}}"
                    CommandBinding="{Binding OpenCommand}"
                    DefaultIconGeometry="{StaticResource Icon.RightFacingArrow}"
                    QuickAccess="Script"/>
     
     <!-- File Navigator Tool -->
     <t:Toolbox x:Key="Tools.FileSystem.StorageItem" 
-               NameKey="{x:Static lang:Resources.StorageItemTools}" 
+               NameKey="StorageItemTools"
+               UserFriendlyName="{echo:Translate {x:Static lang:Strings.StorageItemTools}}"
                x:DataType="vm:FileNavigatorItemViewModel">
 	    <t:Tool.DescriptionBinding>
 		    <MultiBinding Converter="{StaticResource SwitchConverter}">
 			    <Binding Path="Type"/>
-			    <Binding Source="{x:Static lang:Resources.FolderTools}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static fe:FileSystemItemType.Folder}"/>
-			    <Binding Source="{x:Static lang:Resources.ScriptTools}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static fe:FileSystemItemType.Script}"/>
+			    <Binding Path="Value^" Source="{x:Static lang:Strings.FolderTools}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static fe:FileSystemItemType.Folder}"/>
+			    <Binding Path="Value^" Source="{x:Static lang:Strings.ScriptTools}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static fe:FileSystemItemType.Script}"/>
 		    </MultiBinding>
 	    </t:Tool.DescriptionBinding>
 	    <t:Tool.IconTemplate>
@@ -158,39 +168,41 @@
 		<StaticResource ResourceKey="Tools.FileSystem.StorageItem.Open"/>
     </t:Toolbox>
     
-    <t:CommandTool x:Key="Tools.FileSystem.Browser.Refresh" x:DataType="vm:FileNavigatorViewModel" NameKey="Refresh" 
+    <t:CommandTool NameKey="Refresh" x:Key="Tools.FileSystem.Browser.Refresh" x:DataType="vm:FileNavigatorViewModel"
+                   UserFriendlyName="{echo:Translate {x:Static lang:Strings.Refresh}}"
                    CommandBinding="{Binding RefreshCommand}"
                    DefaultIconGeometry="{StaticResource Icon.Refresh}"/>
     
-    <t:CommandTool x:Key="Tools.FileSystem.Browser.AddRootFolder" x:DataType="vm:FileNavigatorViewModel" 
-                   NameKey="Add root folder" 
+    <t:CommandTool NameKey="AddRootFolder" x:Key="Tools.FileSystem.Browser.AddRootFolder" x:DataType="vm:FileNavigatorViewModel" 
+                   UserFriendlyName="{echo:Translate {x:Static lang:Strings.AddRootFolder}}"
                    CommandBinding="{Binding AddRootFolderCommand}"
                    DefaultIconGeometry="{StaticResource Icon.Add}"/>
     
-    <t:Toolbox NameKey="Browser" DefaultIconGeometry="{StaticResource Icon.FileNavigator}"
-               x:Key="Tools.FileSystem.Browser" 
-               x:DataType="vm:FileNavigatorViewModel">
+    <t:Toolbox NameKey="Browser" x:Key="Tools.FileSystem.Browser" x:DataType="vm:FileNavigatorViewModel"
+               UserFriendlyName="{echo:Translate {x:Static lang:Strings.BrowserTools}}"
+               DefaultIconGeometry="{StaticResource Icon.FileNavigator}">
 	    <StaticResource ResourceKey="Tools.FileSystem.Browser.Refresh"/>
 	    <StaticResource ResourceKey="Tools.FileSystem.Browser.AddRootFolder"/>
     </t:Toolbox>
     
-    <t:Toolbox NameKey="{x:Static lang:Resources.FileNavigatorTools}" x:Key="Tools.FileSystem"
+    <t:Toolbox NameKey="FileNavigator" x:Key="Tools.FileSystem"
+               UserFriendlyName="{echo:Translate {x:Static lang:Strings.FileNavigatorTools}}"
                DefaultIconGeometry="{StaticResource Icon.FileNavigator}">
         <StaticResource ResourceKey="Tools.FileSystem.StorageItem"/>
         <StaticResource ResourceKey="Tools.FileSystem.Browser"/>
     </t:Toolbox>
     
     <!-- Window Tools -->
-    <t:PropertySetterTool NameKey="{x:Static lang:Resources.ToggleSidebar}" x:Key="Tools.Window.ToggleSidebar" 
-                          x:DataType="vm:MainWindowViewModel"
+    <t:PropertySetterTool NameKey="ToggleSidebar" x:Key="Tools.Window.ToggleSidebar" x:DataType="vm:MainWindowViewModel"
+                          UserFriendlyName="{echo:Translate {x:Static lang:Strings.ToggleSidebar}}"
                           Gesture="Ctrl+B"
                           PropertyBinding="{Binding SidebarExpanded}"
                           CanChangeValueBinding="{Binding !SettingsOpen}">
 	    <t:Tool.DescriptionBinding>
 		    <MultiBinding Converter="{StaticResource SwitchConverter}">
 			    <Binding Path="SidebarExpanded"/>
-			    <Binding Source="{x:Static lang:Resources.CloseSidebar}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:True}"/>
-			    <Binding Source="{x:Static lang:Resources.ExpandSidebar}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:False}"/>
+			    <Binding Path="Value^" Source="{x:Static lang:Strings.CloseSidebar}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:True}"/>
+			    <Binding Path="Value^" Source="{x:Static lang:Strings.ExpandSidebar}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:False}"/>
 		    </MultiBinding>
 	    </t:Tool.DescriptionBinding>
 	    <t:Tool.IconTemplate>
@@ -264,15 +276,15 @@
         </t:Tool.IconTemplate>
     </t:PropertySetterTool>
     
-    <t:PropertySetterTool NameKey="{x:Static lang:Resources.ToggleSettingsMenu}" x:Key="Tools.Window.ToggleSettings"
-                          x:DataType="vm:MainWindowViewModel"
+    <t:PropertySetterTool NameKey="ToggleSettings" x:Key="Tools.Window.ToggleSettings" x:DataType="vm:MainWindowViewModel"
+                          UserFriendlyName="{echo:Translate {x:Static lang:Strings.ToggleSettingsMenu}}"
                           Gesture="Ctrl+Alt+S"
                           PropertyBinding="{Binding SettingsOpen}">
 	    <t:Tool.DescriptionBinding>
-		    <MultiBinding Converter="{StaticResource SwitchConverter}" ConverterParameter="{Binding SettingsOpen}">
+		    <MultiBinding Converter="{StaticResource SwitchConverter}">
 			    <Binding Path="SettingsOpen"/>
-			    <Binding Source="{x:Static lang:Resources.CloseSettingsMenu}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:True}"/>
-			    <Binding Source="{x:Static lang:Resources.OpenSettingsMenu}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:False}"/>
+			    <conv:SwitchItemBinding SwitchKey="{x:True}" Path="Value^" Source="{x:Static lang:Strings.CloseSettingsMenu}"/>
+			    <conv:SwitchItemBinding SwitchKey="{x:False}" Path="Value^" Source="{x:Static lang:Strings.OpenSettingsMenu}"/>
 		    </MultiBinding>
 	    </t:Tool.DescriptionBinding>
 	    <t:Tool.IconTemplate>
@@ -359,13 +371,13 @@
 	    <StaticResource ResourceKey="Tools.Window.ToggleSidebar"/>
     </t:Toolbox>
     
-    
-    <t:PropertySetterTool x:Key="Tools.ToolTools.ChangeKeybinding" NameKey="Change Keybinding"
-                          x:DataType="t:ToolInstance"
+    <t:PropertySetterTool NameKey="ChangeKeybinding" x:Key="Tools.ToolTools.ChangeKeybinding" x:DataType="t:ToolInstance"
+                          UserFriendlyName="{echo:Translate {x:Static lang:Strings.ChangeKeybinding}}"
                           Gesture="Ctrl+Shift+B"
                           PropertyBinding="{Binding Tool.Gesture}"/>
     
-    <t:CommandTool x:Key="Tools.ToolTools.ToggleQuickAccess" NameKey="Toggle quick access" x:DataType="t:Tool" 
+    <t:CommandTool NameKey="ToggleQuickAccess" x:Key="Tools.ToolTools.ToggleQuickAccess" x:DataType="t:Tool"
+                   UserFriendlyName="{echo:Translate {x:Static lang:Strings.ToggleQuickAccess}}"
                    CommandBinding="{Binding ToggleQuickAccessKeyCommand}" 
                    DefaultIconGeometry="{StaticResource Icon.Add}"/>
     
@@ -379,28 +391,31 @@
     <!-- SETTINGS TOOLS -->
     <!-- ============== -->
     
-    <t:CommandTool x:Key="Tools.Settings.PluginTools.InstallAll" 
-                   NameKey="Install all"
-                   DescriptionBinding="{Binding Name, StringFormat='Install {0} to all runtimes'}"
+    <t:CommandTool NameKey="Install all" x:Key="Tools.Settings.PluginTools.InstallAll" x:DataType="vm:PluginInfoViewModel"
+                   UserFriendlyName="{echo:Translate {x:Static lang:Strings.InstallAllPlugins}}"
                    CommandBinding="{Binding InstallToAllCommand}"
-                   DefaultIconGeometry="{StaticResource Icon.ExclamationMark}"
-                   x:DataType="vm:PluginInfoViewModel"/>
+                   DefaultIconGeometry="{StaticResource Icon.ExclamationMark}">
+	    <t:CommandTool.DescriptionBinding>
+		    <MultiBinding Converter="{StaticResource FormatStringConverter}">
+			    <Binding Path="Value^" Source="{x:Static lang:Strings.InstallAllPluginsDescription}"/>
+			    <Binding Path="Name"/>
+		    </MultiBinding>
+	    </t:CommandTool.DescriptionBinding>
+    </t:CommandTool>
     
     <t:Toolbox x:Key="Tools.Settings.PluginTools">
 	    <StaticResource ResourceKey="Tools.Settings.PluginTools.InstallAll"/>
     </t:Toolbox>
     
-    <t:CommandTool x:Key="Tools.Settings.ResetSettingTool" 
-            x:DataType="s:Setting" 
-            Gesture="r"
-            NameKey="Reset Setting" 
-            CommandBinding="{Binding ResetCommand}"
-            DefaultIconGeometry="{StaticResource Icon.Reset}"/>
+    <t:CommandTool NameKey="ResetSetting" x:Key="Tools.Settings.ResetSettingTool" x:DataType="s:Setting"
+                   UserFriendlyName="{echo:Translate {x:Static lang:Strings.ResetSetting}}"
+                   Gesture="r"
+                   CommandBinding="{Binding ResetCommand}"
+                   DefaultIconGeometry="{StaticResource Icon.Reset}"/>
     
-    <t:PropertySetterTool x:Key="Tools.Settings.ChangeSettingTool" 
-                          x:DataType="s:Setting" 
+    <t:PropertySetterTool NameKey="SetSetting" x:Key="Tools.Settings.ChangeSettingTool" x:DataType="s:Setting"
+                          UserFriendlyName="{echo:Translate {x:Static lang:Strings.SetSetting}}"
                           Gesture="Ctrl+Shift+S" 
-                          NameKey="Set Setting Value" 
                           PropertyBinding="{Binding}"/>
     
     <t:Toolbox x:Key="Tools.Settings" NameKey="Settings Tools">
@@ -413,14 +428,14 @@
     <!-- SCRIPTING TOOLS -->
     <!-- =============== -->
     
-    <t:CommandTool x:Key="Tools.ScriptEditor.DeleteSelection" x:DataType="vm:ScriptEditorViewModel"
+    <t:CommandTool NameKey="Delete" x:Key="Tools.ScriptEditor.DeleteSelection" x:DataType="vm:ScriptEditorViewModel"
+                   UserFriendlyName="{echo:Translate {x:Static lang:Strings.DeleteNode}}"
                    Gesture="Delete"
-                   NameKey="Delete"
                    CommandBinding="{Binding DeleteSelectionCommand}"
                    DefaultIconGeometry="{StaticResource Icon.Delete}"/>
     
-    <t:PropertySetterTool x:Key="Tools.ScriptEditor.NodeTools.ToggleExpanded" x:DataType="nw:INodeContainer"
-                          NameKey="Toggle Expanded"
+    <t:PropertySetterTool NameKey="ToggleNodeExpanded" x:Key="Tools.ScriptEditor.NodeTools.ToggleExpanded" x:DataType="nw:INodeContainer"
+                          UserFriendlyName="{echo:Translate {x:Static lang:Strings.ToggleNodeExpanded}}"
                           PropertyBinding="{Binding IsCollapsed.Value}">
 	    <t:PropertySetterTool.IconTemplate>
 		    <DataTemplate x:DataType="nw:INodeContainer">
@@ -429,11 +444,11 @@
 	    </t:PropertySetterTool.IconTemplate>
     </t:PropertySetterTool>
     
-	<t:Toolbox x:Key="Tools.ScriptEditor.NodeTools" NameKey="Node Tools">
+	<t:Toolbox NameKey="NodeTools" x:Key="Tools.ScriptEditor.NodeTools">
 		<StaticResource ResourceKey="Tools.ScriptEditor.NodeTools.ToggleExpanded"/>
 	</t:Toolbox>
     
-    <t:Toolbox x:Key="Tools.ScriptEditor" x:DataType="vm:ScriptEditorViewModel" NameKey="Script Editor Tools">
+    <t:Toolbox NameKey="ScriptEditorTools" x:Key="Tools.ScriptEditor" x:DataType="vm:ScriptEditorViewModel">
 	    <StaticResource ResourceKey="Tools.ScriptEditor.DeleteSelection"/>
 	    <StaticResource ResourceKey="Tools.ScriptEditor.NodeTools"/>
     </t:Toolbox>

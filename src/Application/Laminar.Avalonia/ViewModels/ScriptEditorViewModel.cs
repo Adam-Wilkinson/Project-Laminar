@@ -219,7 +219,7 @@ public partial class ScriptEditorViewModel(
         foreach (var transferItem in result.Items)
         {
             var stringResult = await transferItem.TryGetTextAsync();
-            if (stringResult is null) continue;
+            if (string.IsNullOrWhiteSpace(stringResult)) continue;
             var dictionary = dataFactory.GetEncodableData<IPersistentDictionary>();
             dictionary.Decode(DefaultClipboardTranscoder, DefaultClipboardTranscoder.BytesToElement(Encoding.UTF8.GetBytes(stringResult))!);
             var deserializedNodeTree = script.Host.ScriptingFactory.NodeTreeFromPersistentData(dictionary);

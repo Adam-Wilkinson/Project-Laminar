@@ -22,6 +22,7 @@
   </Folder>
   <Folder Name="/src/Application/">
     <File Path="src/Application/Laminar.Avalonia/Lang/Resources.resx" />
+    <Project Path="src/Application/Laminar.Avalonia.Translations/Laminar.Avalonia.Translations.csproj" />
     <Project Path="src/Application/Laminar.Avalonia/Laminar.Avalonia.csproj" />
     <Project Path="src/Application/Laminar.Contracts/Laminar.Contracts.csproj" />
     <Project Path="src/Application/Laminar.Domain/Laminar.Domain.csproj" />

@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+    
+    <ItemGroup>
+        <EmbeddedResource Include="**\*.toml" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <AdditionalFiles Include="Translations\Strings.toml" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <Folder Include="Translations\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Echoes.Avalonia" />
+      <PackageReference Include="Echoes.Generator" />
+    </ItemGroup>
+
+</Project>

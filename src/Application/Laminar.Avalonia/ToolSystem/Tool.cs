@@ -87,6 +87,8 @@ public partial class Tool : StyledElement, ITemplate<object?, ToolInstance?>, IE
     public static readonly StyledProperty<Type?> DataTypeProperty = AvaloniaProperty.Register<Tool, Type?>(nameof(DataType), inherits: true);
 
     public static readonly DirectProperty<Tool, Classes> QuickAccessProperty = AvaloniaProperty.RegisterDirect<Tool, Classes>(nameof(QuickAccess), tool => tool.QuickAccess);
+
+    public static readonly StyledProperty<string> UserFriendlyNameProperty = AvaloniaProperty.Register<Tool, string>(nameof(UserFriendlyName), defaultValue: string.Empty);
     
     public string NameKey { get; set; } = string.Empty;
 
@@ -120,6 +122,12 @@ public partial class Tool : StyledElement, ITemplate<object?, ToolInstance?>, IE
     {
         get => GetValue(DataTypeProperty);
         set => SetValue(DataTypeProperty, value);
+    }
+
+    public string UserFriendlyName
+    {
+        get => GetValue(UserFriendlyNameProperty);
+        set => SetValue(UserFriendlyNameProperty, value);
     }
     
     public Geometry? DefaultIconGeometry
