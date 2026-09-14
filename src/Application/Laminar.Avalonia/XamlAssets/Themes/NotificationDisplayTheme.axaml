@@ -1,10 +1,51 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:c="using:Laminar.Avalonia.Controls">
+                    xmlns:c="using:Laminar.Avalonia.Controls"
+                    xmlns:n="using:Laminar.Domain.Notifications"
+                    xmlns:init="using:Laminar.Avalonia.InitializationTargets">
+    <ControlTheme TargetType="PathIcon" 
+                  BasedOn="{StaticResource {x:Type PathIcon}}" 
+                  x:Key="SeverityDisplay"
+                  x:DataType="n:NotificationSeverity">
+        <Setter Property="Classes.Error" Value="{Binding Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static n:NotificationSeverity.Error}}"/>
+        <Setter Property="Classes.Warning" Value="{Binding Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static n:NotificationSeverity.Warning}}"/>
+        <Setter Property="Classes.Loading" Value="{Binding Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static n:NotificationSeverity.Loading}}"/>
+        <Setter Property="Classes.Info" Value="{Binding Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static n:NotificationSeverity.Information}}"/>
+        
+        <Style Selector="^.Info">
+            <Setter Property="Data" Value="{StaticResource Icon.Info}"/>
+            <Setter Property="Foreground" Value="{DynamicResource {x:Static init:ColorInitialization.LaminarAccentForegroundKey}}"/>
+        </Style>
+        
+        <Style Selector="^.Loading">
+            <Setter Property="Data" Value="{StaticResource Icon.Loading}"/>
+            <Setter Property="Foreground" Value="{DynamicResource {x:Static init:ColorInitialization.LaminarAccentForegroundKey}}"/>
+            <Style.Animations>
+                <Animation Duration="0:0:1.5" IterationCount="INFINITE">
+                    <KeyFrame Cue="0%">
+                        <Setter Property="RotateTransform.Angle" Value="0.0"/>
+                    </KeyFrame>
+                    <KeyFrame Cue="100%">
+                        <Setter Property="RotateTransform.Angle" Value="360.0"/>
+                    </KeyFrame>
+                </Animation>
+            </Style.Animations>
+        </Style>
+        
+        <Style Selector="^.Warning">
+            <Setter Property="Data" Value="{StaticResource Icon.Warning}"/>
+            <Setter Property="Foreground" Value="{DynamicResource LaminarWarning}"/>
+        </Style>
+        
+        <Style Selector="^.Error">
+            <Setter Property="Data" Value="{StaticResource Icon.Error}"/>
+            <Setter Property="Foreground" Value="{DynamicResource LaminarError}"/>
+        </Style>
+    </ControlTheme>
+    
     <ControlTheme TargetType="c:NotificationDisplay" x:Key="{x:Type c:NotificationDisplay}">
         <Setter Property="Height" Value="30"/>
         <Setter Property="Width" Value="30"/>
-        
         <Setter Property="Template">
             <ControlTemplate>
                 <Button Name="MainButton" 
@@ -12,28 +53,47 @@
                         VerticalAlignment="Stretch"
                         VerticalContentAlignment="Stretch"
                         HorizontalContentAlignment="Stretch"
+                        Padding="{TemplateBinding Padding}"
                         Cursor="Hand"
-                        ToolTip.Tip="Click to resolve notifications"
-                        Command="{Binding AutoResolveAll, RelativeSource={RelativeSource TemplatedParent}}">
+                        Command="{Binding AutoResolveAll, RelativeSource={RelativeSource TemplatedParent}}"
+                        IsEnabled="{Binding Manager?.MaximumSeverity, RelativeSource={RelativeSource TemplatedParent}, Converter={x:Static ObjectConverters.IsNotNull}, ConverterParameter={x:Static n:NotificationSeverity.None}}">
+                    <PathIcon Theme="{StaticResource SeverityDisplay}" 
+                              DataContext="{Binding Manager?.MaximumSeverity, RelativeSource={RelativeSource TemplatedParent}}"/>
+                    
                     <Button.Flyout>
-                        <Flyout ShowMode="Standard" OverlayInputPassThroughElement="{Binding #MainButton}"
-                                IsOpen="{TemplateBinding FlyoutOpen}">
+                        <Flyout ShowMode="Standard" OverlayInputPassThroughElement="{Binding #MainButton}">
                             <StackPanel>
-                                <ItemsControl ItemsSource="{Binding Notifications, RelativeSource={RelativeSource TemplatedParent}}"
-                                              Grid.IsSharedSizeScope="True">
+                                <ItemsControl ItemsSource="{Binding Notifications, RelativeSource={RelativeSource TemplatedParent}}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate x:DataType="c:NotificationDisplayItem">
-                                            <Grid ColumnSpacing="2">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*" SharedSizeGroup="NameColumn"/>
-                                                    <ColumnDefinition Width="Auto" SharedSizeGroup="Resolutions"/>
-                                                </Grid.ColumnDefinitions>
+                                            <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="5" RowSpacing="5">
+                                                <PathIcon Grid.Row="0" Grid.Column="0"
+                                                          Theme="{StaticResource SeverityDisplay}"
+                                                          Width="18"
+                                                          Height="18"
+                                                          DataContext="{Binding Severity}"/>
                                                 
-                                                <TextBlock Grid.Column="0" Grid.Row="0" 
+                                                <TextBlock Grid.Column="1" Grid.Row="0" 
                                                            Text="{Binding Message}"
                                                            VerticalAlignment="Center"/>
                                                 
-                                                <ItemsControl Grid.Column="1" Grid.Row="0" 
+                                                <Button Grid.Column="2" Grid.Row="0" 
+                                                        IsVisible="{Binding Dismiss, Converter={StaticResource HasValueConverter}}"
+                                                        VerticalAlignment="Stretch"
+                                                        HorizontalAlignment="Stretch"
+                                                        VerticalContentAlignment="Center"
+                                                        HorizontalContentAlignment="Center"
+                                                        Command="{Binding Dismiss}">
+                                                    <PathIcon Width="12" 
+                                                              Height="12"
+                                                              VerticalAlignment="Center"
+                                                              HorizontalAlignment="Center"
+                                                              Foreground="{DynamicResource LaminarThemeForeground}"
+                                                              Opacity="0.8"
+                                                              Data="{StaticResource Icon.Cross}"/>
+                                                </Button>
+                                                
+                                                <ItemsControl Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3" 
                                                               ItemsSource="{Binding Resolutions}"
                                                               VerticalAlignment="Center">
                                                     <ItemsControl.ItemTemplate>
@@ -41,6 +101,9 @@
                                                             <Button Content="{Binding Message}" 
                                                                     Command="{Binding Resolve}"
                                                                     Background="{DynamicResource UiLayer}"
+                                                                    HorizontalAlignment="Stretch"
+                                                                    HorizontalContentAlignment="Center"
+                                                                    Padding="2"
                                                                     BorderThickness="2"
                                                                     CornerRadius="2"
                                                                     Classes.IsHovered="{Binding IsHovered}">
@@ -55,15 +118,22 @@
                                                     
                                                     <ItemsControl.ItemsPanel>
                                                         <ItemsPanelTemplate>
-                                                            <StackPanel Orientation="Horizontal" Spacing="4"/>
+                                                            <UniformGrid Rows="1" ColumnSpacing="2"/>
                                                         </ItemsPanelTemplate>
                                                     </ItemsControl.ItemsPanel>
                                                 </ItemsControl>
                                             </Grid>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
+                                    
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel Spacing="3"/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    
                                 </ItemsControl>
-                                <TextBlock Classes="b2">Click again to auto-resolve</TextBlock>
+                                <TextBlock Margin="5" HorizontalAlignment="Center" Classes="b2">Click again to auto-resolve</TextBlock>
                         </StackPanel>
                         </Flyout>
                     </Button.Flyout>
@@ -72,37 +142,11 @@
         </Setter>
         
         <Style Selector="^ /template/ Button#MainButton">
-            <Setter Property="IsEnabled" Value="False"/>
+            <Setter Property="ToolTip.Tip" Value="Click to view notifications"/>
         </Style>
         
-        <Style Selector="^:error /template/ Button#MainButton">
-            <Setter Property="IsEnabled" Value="True"/>
-            <Setter Property="Content">
-                <Template>
-                    <Panel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                        <Ellipse Margin="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stroke="Red" StrokeThickness="3"/>
-                        <TextBlock Foreground="Red" HorizontalAlignment="Center" VerticalAlignment="Center">!</TextBlock>
-                    </Panel>
-                </Template>
-            </Setter>
-        </Style>
-        
-        <Style Selector="^:warning /template/ Button#MainButton">
-            <Setter Property="IsEnabled" Value="True"/>
-            <Setter Property="Content">
-                <Template>
-                    <TextBlock Foreground="Orange">?</TextBlock>
-                </Template>
-            </Setter>
-        </Style>
-        
-        <Style Selector="^:info /template/ Button#MainButton">
-            <Setter Property="IsEnabled" Value="True"/>
-            <Setter Property="Content">
-                <Template>
-                    <TextBlock Foreground="LightBlue">i</TextBlock>
-                </Template>
-            </Setter>
+        <Style Selector="^ /template/ Button#MainButton:flyout-open">
+            <Setter Property="ToolTip.Tip" Value="Auto-resolve"/>
         </Style>
     </ControlTheme>
 </ResourceDictionary>

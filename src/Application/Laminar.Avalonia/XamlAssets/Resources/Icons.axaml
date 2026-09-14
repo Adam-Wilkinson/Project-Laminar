@@ -17,6 +17,7 @@
             <PathIcon Data="{StaticResource Icon.Script}"/>
             <PathIcon Data="{StaticResource Icon.Reset}"/>
             <PathIcon Data="{StaticResource Icon.CrossWithCircle}"/>
+            <PathIcon Data="{StaticResource Icon.Cross}"/>
             <PathIcon Data="{StaticResource Icon.Backspace}"/>
             <PathIcon Data="{StaticResource Icon.Rename}"/>
             <PathIcon Data="{StaticResource Icon.Refresh}"/>
@@ -26,6 +27,10 @@
             <PathIcon Data="{StaticResource Icon.ExclamationMark}"/>
             <PathIcon Data="{StaticResource Icon.RightFacingArrow}"/>
             <PathIcon Data="{StaticResource Icon.Library}"/>
+            <PathIcon Data="{StaticResource Icon.Error}"/>
+            <PathIcon Data="{StaticResource Icon.Warning}"/>
+            <PathIcon Data="{StaticResource Icon.Info}"/>
+            <PathIcon Data="{StaticResource Icon.Loading}"/>
         </UniformGrid>
     </Design.PreviewWith>
     
@@ -43,6 +48,7 @@
     <StreamGeometry x:Key="Icon.OpenFolder">M6.1,10  L4,18  V8  H21  A2,2 0 0 0 19,6  H12  L10,4  H4  A2,2 0 0 0 2,6  V18  A2,2 0 0 0 4,20  H19  C19.9,20 20.7,19.4 20.9,18.5  L23.2,10  H6.1  M19,18  H6  L7.6,12  H20.6  L19,18  Z</StreamGeometry>
     <StreamGeometry x:Key="Icon.Script">M17.8,20  C17.4,21.2 16.3,22 15,22  H5  C3.3,22 2,20.7 2,19  V18  H5  L14.2,18  C14.6,19.2 15.7,20 17,20  H17.8  M19,2  C20.7,2 22,3.3 22,5  V6  H20  V5  C20,4.4 19.6,4 19,4  C18.4,4 18,4.4 18,5  V18  H17  C16.4,18 16,17.6 16,17  V16  H5  V5  C5,3.3 6.3,2 8,2  H19  M8,6  V8  H15  V6  H8  M8,10  V12  H14  V10  H8  Z</StreamGeometry>
     <StreamGeometry x:Key="Icon.Reset">M13.5,7  A6.5,6.5 0 0 1 20,13.5  A6.5,6.5 0 0 1 13.5,20  H10  V18  H13.5  C16,18 18,16 18,13.5  C18,11 16,9 13.5,9  H7.83  L10.91,12.09  L9.5,13.5  L4,8  L9.5,2.5  L10.92,3.91  L7.83,7  H13.5  M6,18  H8  V20  H6  V18  Z</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Cross">M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708</StreamGeometry>
     <StreamGeometry x:Key="Icon.CrossWithCircle">M12,20  C7.59,20 4,16.41 4,12  C4,7.59 7.59,4 12,4  C16.41,4 20,7.59 20,12  C20,16.41 16.41,20 12,20  M12,2  C6.47,2 2,6.47 2,12  C2,17.53 6.47,22 12,22  C17.53,22 22,17.53 22,12  C22,6.47 17.53,2 12,2  M14.59,8  L12,10.59  L9.41,8  L8,9.41  L10.59,12  L8,14.59  L9.41,16  L12,13.41  L14.59,16  L16,14.59  L13.41,12  L16,9.41  L14.59,8  Z</StreamGeometry>
     <StreamGeometry x:Key="Icon.Backspace">M19,15.59  L17.59,17  L14,13.41  L10.41,17  L9,15.59  L12.59,12  L9,8.41  L10.41,7  L14,10.59  L17.59,7  L19,8.41  L15.41,12  L19,15.59  M22,3  A2,2 0 0,1 24,5  V19  A2,2 0 0,1 22,21  H7  C6.31,21 5.77,20.64 5.41,20.11  L0,12  L5.41,3.88  C5.77,3.35 6.31,3 7,3  H22  M22,5  H7  L2.28,12  L7,19  H22  V5  Z</StreamGeometry>
     <StreamGeometry x:Key="Icon.Rename">M15,16  L11,20  H21  V16  H15  M12.06,7.19  L3,16.25  V20  H6.75  L15.81,10.94  L12.06,7.19  M18.71,8.04  C19.1,7.65 19.1,7 18.71,6.63  L16.37,4.29  C16.17,4.09 15.92,4 15.66,4  C15.41,4 15.15,4.1 14.96,4.29  L13.13,6.12  L16.88,9.87  L18.71,8.04  Z</StreamGeometry>
@@ -53,4 +59,8 @@
     <StreamGeometry x:Key="Icon.ExclamationMark">M10,3  H14  V14  H10  V3  M10,21  V17  H14  V21  H10  Z</StreamGeometry>
     <StreamGeometry x:Key="Icon.RightFacingArrow">M1,0 10,10 l-9,10 -1,-1 L8,10 -0,1  Z</StreamGeometry>
     <StreamGeometry x:Key="Icon.Library">M2.5,3.5  a0.5,0.5 0 0 1 0,-1  h11  a0.5,0.5 0 0 1 0,1  z  m2,-2  a0.5,0.5 0 0 1 0,-1  h7  a0.5,0.5 0 0 1 0,1  z  M0,13  a1.5,1.5 0 0 0 1.5,1.5  h13  A1.5,1.5 0 0 0 16,13  V6  a1.5,1.5 0 0 0 -1.5,-1.5  h-13  A1.5,1.5 0 0 0 0,6  z  m1.5,0.5  A0.5,0.5 0 0 1 1,13  V6  a0.5,0.5 0 0 1 0.5,-0.5  h13  a0.5,0.5 0 0 1 0.5,0.5  v7  a0.5,0.5 0 0 1 -0.5,0.5  z</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Error">M12,20  C7.59,20 4,16.41 4,12  C4,7.59 7.59,4 12,4  C16.41,4 20,7.59 20,12  C20,16.41 16.41,20 12,20  M12,2  C6.47,2 2,6.47 2,12  C2,17.53 6.47,22 12,22  C17.53,22 22,17.53 22,12  C22,6.47 17.53,2 12,2  M11,6.5  v7  h2  v-7  h-2  M12,15  a1,1 1 1 1 0,3  a1,1 1 1 1 0,-3  Z</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Warning">M7.938,2.016  A0.13,0.13 0 0 1 8.002,2  a0.13,0.13 0 0 1 0.063,0.016  a0.15,0.15 0 0 1 0.054,0.057 l6.857,11.667  c0.036,0.06 0.035,0.124 0.002,0.183  a0.2,0.2 0 0 1 -0.054,0.06  a0.1,0.1 0 0 1 -0.066,0.017  H1.146  a0.1,0.1 0 0 1 -0.066,-0.017  a0.2,0.2 0 0 1 -0.054,-0.06  a0.18,0.18 0 0 1 0.002,-0.183  L7.884,2.073  a0.15,0.15 0 0 1 0.054,-0.057  m1.044,-1.75  a1.13,1.13 0 0 0 -1.96,0  L-0.765,13.833  c-0.457,0.778 0.091,1.767 0.98,1.767  h15.613  c0.889,0 1.438,-0.99.98,-1.767  M7.002 12  a1,1 0 1 1 2,0  a1,1 0 0 1 -2,0  M7.1,5.995  a0.905,0.905 0 1 1 1.8,0  l-0.35,3.507  a0.552,0.552 0 0 1 -1.1,0  z</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Info">M8,15  A7,7 0 1 1 8,1  a7,7 0 0 1 0,14  m0,1.5  A8,8 0 1 0 8,-0.5  a8,8 0 0 0 0,17  M8.93,6.588  l-2.29,0.287  l-0.082,0.38  l0.45,0.083  c0.294,0.07 0.352,0.176 0.288,0.469  l-0.738,3.468  c-0.194,0.897 0.105,1.319 0.808,1.319  c0.545,0 1.178,-0.252 1.465,-0.598  l0.088,-0.416  c-0.2,0.176 -0.492,0.246 -0.686,0.246  c-0.275,0 -0.375,-0.193 -0.304,-0.533  M9,4.5  a1,1 0 1 1 -2,0  a1,1 0 0 1 2,0</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Loading">M11.534,7  h3.932  a0.25,0.25 0 0 1 0.192,0.41  l-1.966,2.36  a0.25,0.25 0 0 1 -0.384,0  l-1.966,-2.36  a0.25,0.25 0 0 1 0.192,-0.41  m-11,2  h3.932  a0.25,0.25 0 0 0 0.192,-0.41  L2.692,6.23  a0.25,0.25 0 0 0 -0.384,0  L0.342,8.59  A0.25,0.25 0 0 0 0.534,9  M8,3  c-1.552,0 -2.94,0.707 -3.857,1.818  a0.5,0.5 0 1 1 -0.771,-0.636  A6.002,6.002 0 0 1 13.917,7  H12.9  A5,5 0 0 0 8,3  M3.1,9  a5.002,5.002 0 0 0 8.757,2.182  a0.5,0.5 0 1 1 0.771,0.636  A6.002,6.002 0 0 1 2.083,9  z</StreamGeometry>
 </ResourceDictionary>

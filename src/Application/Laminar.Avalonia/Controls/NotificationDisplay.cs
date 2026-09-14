@@ -1,9 +1,11 @@
+using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Diagnostics;
+using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Primitives;
+using CommunityToolkit.Mvvm.Input;
 using Laminar.Avalonia.Localizers;
 using Laminar.Domain.Notifications;
 using Laminar.Domain.Observables.Collections;
@@ -20,8 +22,6 @@ public class NotificationDisplay : TemplatedControl
     private readonly BoundObservableCollection<NotificationDisplayItem> _notifications = [];
     
     public static readonly StyledProperty<NotificationManager?> ManagerProperty = AvaloniaProperty.Register<NotificationDisplay, NotificationManager?>(nameof(Manager));
-
-    public static readonly StyledProperty<bool> FlyoutOpenProperty = AvaloniaProperty.Register<NotificationDisplay, bool>(nameof(FlyoutOpen));
     
     static NotificationDisplay()
     {
@@ -29,17 +29,24 @@ public class NotificationDisplay : TemplatedControl
     }
 
     private Button? _mainButton;
-    
+
+    public NotificationDisplay()
+    {
+        _notifications.CollectionChanged += NotificationsOnCollectionChanged;
+    }
+
+    private void NotificationsOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        if (_notifications.Count == 0 && _mainButton?.Flyout?.IsOpen is true)
+        {
+            _mainButton.Flyout.IsOpen = false;
+        }
+    }
+
     public NotificationManager? Manager
     {
         get => GetValue(ManagerProperty);
         set => SetValue(ManagerProperty, value);
-    }
-
-    public bool FlyoutOpen
-    {
-        get => GetValue(FlyoutOpenProperty);
-        set => SetValue(FlyoutOpenProperty, value);
     }
 
     public IReadOnlyObservableCollection<NotificationDisplayItem> Notifications => _notifications;
@@ -116,27 +123,25 @@ public record NotificationDisplayItem
     public NotificationDisplayItem(NotificationSeverity Severity,
         string Message,
         List<NotificationResolution> Resolutions,
-        int AutoResolveIndex)
+        Action? Dismiss = null,
+        int AutoResolveIndex = -1)
     {
         this.Severity = Severity;
         this.Message = Message;
         this.Resolutions = Resolutions;
         this.AutoResolveIndex = AutoResolveIndex;
-        Resolutions[AutoResolveIndex].IsHovered = true;
+        this.Dismiss = Dismiss is not null ? new RelayCommand(Dismiss) : null;
+        if (Resolutions.Count > 0 && AutoResolveIndex >= 0)
+        {
+            Resolutions[AutoResolveIndex].IsHovered = true;
+        }
     }
 
     public NotificationSeverity Severity { get; init; }
     public string Message { get; init; }
     public List<NotificationResolution> Resolutions { get; init; }
     public int AutoResolveIndex { get; init; }
-
-    public void Deconstruct(out NotificationSeverity Severity, out string Message, out List<NotificationResolution> Resolutions, out int AutoResolveIndex)
-    {
-        Severity = this.Severity;
-        Message = this.Message;
-        Resolutions = this.Resolutions;
-        AutoResolveIndex = this.AutoResolveIndex;
-    }
+    public ICommand? Dismiss { get; init; }
 }
 
 public record NotificationResolution(string Message, Action Resolution)

@@ -175,12 +175,12 @@
                 <Style Selector="Border#MainPanelBorder">
                     <Setter Property="BorderBrush" Value="{DynamicResource {x:Static init:ColorInitialization.LaminarNonForegroundKey}}"/>
                     
-                    <Style Selector="^.IsSelected">
-                        <Setter Property="BorderBrush" Value="Gray"/>
+                    <Style Selector="^.IsError">
+                        <Setter Property="BorderBrush" Value="{DynamicResource LaminarError}"/>
                     </Style>
                     
-                    <Style Selector="^.IsError">
-                        <Setter Property="BorderBrush" Value="Red"/>
+                    <Style Selector="^.IsSelected">
+                        <Setter Property="BorderBrush" Value="Gray"/>
                     </Style>
                 </Style>
             </Panel.Styles>

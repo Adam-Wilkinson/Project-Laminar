@@ -5,7 +5,7 @@ namespace Laminar.Implementation.Storage.FileExplorer.Notifications;
 
 public class PluginNotFoundNotification(VersionedPluginId pluginId) : DismissableNotification<VersionedPluginId>
 {
-    public override NotificationSeverity Severity => NotificationSeverity.Error;
+    public override NotificationSeverity Severity => NotificationSeverity.Warning;
     
     public override NotificationType Type => NotificationType.RuntimePluginNotFound;
     

@@ -4,11 +4,10 @@ using Laminar.Contracts.Storage.FileExplorer;
 using Laminar.Contracts.Storage.FileExplorer.Graph;
 using Laminar.Contracts.Storage.IO;
 using Laminar.Contracts.Storage.PersistentData;
-using Laminar.Domain;
 using Laminar.Domain.Notifications;
-using Laminar.Domain.Observables.Value;
 using Laminar.Domain.ValueObjects;
 using Laminar.Implementation.Storage.FileExplorer.Graph;
+using Laminar.Implementation.Storage.FileExplorer.Notifications;
 
 namespace Laminar.Implementation.Storage.FileExplorer;
 
@@ -26,7 +25,9 @@ internal abstract class FileSystemItem : IMutableFileSystemItem, IDisposable
         PersistentStorage = persistentData;
 
         _name = PersistentStorage[IFileSystemItemFactory.PersistenceNameKey].GetValue<string>();
-        _isEnabled = PersistentStorage[nameof(IsEnabled)].GetValueOrInitialize(true); 
+        _isEnabled = PersistentStorage[nameof(IsEnabled)].GetValueOrInitialize(true);
+        NotificationManager.AddNotification(new PluginNotFoundNotification(new VersionedPluginId("Test plugin", new SemanticVersion(1, 0, 0))));
+        _ = NotificationManager.AddNotification(new LoadingFolderContentsNotification());
     }
 
     internal IPersistentDictionary PersistentStorage { get; }

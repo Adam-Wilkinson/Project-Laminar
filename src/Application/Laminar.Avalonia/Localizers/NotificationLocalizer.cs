@@ -21,7 +21,7 @@ public static class NotificationLocalizer
             => n.Localize(string.Format(Strings.RuntimeLoadingPlugin.CurrentValue, n.Data.Localize())),
         NotificationType.RuntimePluginNotFound when notification is DismissableNotification<VersionedPluginId> n 
             => n.Localize(string.Format(Strings.RuntimePluginNotFound.CurrentValue, n.Data.Localize())),
-        NotificationType.LoadingFolderContents when notification is LifetimeControlledNotification<VersionedPluginId> n
+        NotificationType.LoadingFolderContents when notification is LifetimeControlledNotification n
             => n.Localize(Strings.LoadingFolderContents.CurrentValue),
         _ => throw new ArgumentOutOfRangeException()
     };
@@ -34,14 +34,16 @@ public static class NotificationLocalizer
             notificationResolutions.Add(new NotificationResolution(text, () => resolvable.Resolve(parameter)));
         }
 
-        return new NotificationDisplayItem(resolvable.Severity, message, notificationResolutions, autoResolveIndex);
+        return new NotificationDisplayItem(resolvable.Severity, message, notificationResolutions, null, autoResolveIndex);
     }
 
-    private static NotificationDisplayItem Localize(this DismissableNotification dismissable, string message, string? dismissMessage = null)
-        => new(dismissable.Severity, message, [new NotificationResolution(dismissMessage ?? Strings.DismissNotification.CurrentValue, dismissable.Dismiss)], 0);
+    private static NotificationDisplayItem Localize(this DismissableNotification dismissable, string message, string? dismissMessage = null) 
+        => dismissMessage is null 
+            ? new(dismissable.Severity, message, [], dismissable.Dismiss)
+            : new(dismissable.Severity, message, [new NotificationResolution(dismissMessage, dismissable.Dismiss)], null, 0);
 
     private static NotificationDisplayItem Localize(this LifetimeControlledNotification lifetimeControlled, string message)
-        => new(lifetimeControlled.Severity, message, [], 0);
+        => new(lifetimeControlled.Severity, message, []);
 
     private static string Localize(this VersionedPluginId plugin) 
         => string.Format(Strings.PluginVersion.CurrentValue, plugin.Name, plugin.Version);

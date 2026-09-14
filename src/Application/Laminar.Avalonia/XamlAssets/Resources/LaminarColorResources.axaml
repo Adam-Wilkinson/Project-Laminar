@@ -6,11 +6,15 @@
             <Color x:Key='LaminarThemeAccent'>#143ed0</Color>
             <Color x:Key='LaminarThemeForeground'>#dbe5ff</Color>
             <Color x:Key="LaminarThemeBackground">#000002</Color>
+            <Color x:Key="LaminarError">IndianRed</Color>
+            <Color x:Key="LaminarWarning">Orange</Color>
         </ResourceDictionary>
         <ResourceDictionary x:Key="Light">
             <Color x:Key='LaminarThemeAccent'>#3f49eb</Color>
             <Color x:Key='LaminarThemeForeground'>#000a24</Color>
             <Color x:Key="LaminarThemeBackground">#eee</Color>
+            <Color x:Key="LaminarError">DarkRed</Color>
+            <Color x:Key="LaminarWarning">#f60</Color>
         </ResourceDictionary>
     </ResourceDictionary.ThemeDictionaries>
     
