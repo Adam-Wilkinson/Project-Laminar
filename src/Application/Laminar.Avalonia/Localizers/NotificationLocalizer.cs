@@ -1,22 +1,48 @@
 using Laminar.Avalonia.Controls;
 using Laminar.Avalonia.Translations;
 using Laminar.Domain.Notifications;
-using static Laminar.Domain.Notifications.NodeNotifications;
+using Laminar.Domain.Notifications.Resolutions;
+using Laminar.Domain.ValueObjects;
 
 namespace Laminar.Avalonia.Localizers;
 
-public class NotificationLocalizer
+public static class NotificationLocalizer
 {
-    public static NotificationDisplayItem Localize(INotification notification) => notification switch
+    public static NotificationDisplayItem Localize(NotificationBase notification) => notification.Type switch
     {
-        INotification<PluginNotInstalledResolution> {Template: PluginNotInstalled {Plugin: var plugin}} pni 
-            => new NotificationDisplayItem(pni.Template.Severity, string.Format(Strings.MissingPlugin.CurrentValue, plugin.Name, plugin.Version), [
-                new NotificationResolution(Strings.InstallPlugin.CurrentValue, () => pni.ResolveWithParameter(PluginNotInstalledResolution.InstallPlugin)),
-                new NotificationResolution(Strings.DeleteNode.CurrentValue, () => pni.ResolveWithParameter(PluginNotInstalledResolution.DeleteNode))
-            ], 0), 
-        
-        var unknown => new NotificationDisplayItem(notification.Template.Severity, notification.Template.Message, [
-            new NotificationResolution(Strings.DismissNotification.CurrentValue, notification.Dispose)
-        ], 0)
+        NotificationType.NodeSourcePluginMissing when notification is ResolvableNotification<VersionedPluginId, NodePluginNotInstalledResolution> n 
+            => n.Localize(string.Format(Strings.MissingPlugin.CurrentValue, n.Data.Localize()), 
+            0, 
+            (Strings.InstallPlugin.CurrentValue, NodePluginNotInstalledResolution.InstallPlugin), 
+            (Strings.DeleteNode.CurrentValue, NodePluginNotInstalledResolution.DeleteNode)),
+        NotificationType.PluginDoesNotContainNode when notification is DismissableNotification<VersionedPluginId> n 
+            => n.Localize(string.Format(Strings.PluginDoesNotContainNode.CurrentValue, n.Data.Localize()), Strings.DeleteNode.CurrentValue),
+        NotificationType.RuntimeLoadingPlugin when notification is LifetimeControlledNotification<VersionedPluginId> n 
+            => n.Localize(string.Format(Strings.RuntimeLoadingPlugin.CurrentValue, n.Data.Localize())),
+        NotificationType.RuntimePluginNotFound when notification is DismissableNotification<VersionedPluginId> n 
+            => n.Localize(string.Format(Strings.RuntimePluginNotFound.CurrentValue, n.Data.Localize())),
+        NotificationType.LoadingFolderContents when notification is LifetimeControlledNotification<VersionedPluginId> n
+            => n.Localize(Strings.LoadingFolderContents.CurrentValue),
+        _ => throw new ArgumentOutOfRangeException()
     };
+
+    private static NotificationDisplayItem Localize<T>(this ResolvableNotification<T> resolvable, string message, int autoResolveIndex, params ReadOnlySpan<(string, T)> resolutions)
+    {
+        List<NotificationResolution> notificationResolutions = new(resolutions.Length);
+        foreach (var (text, parameter) in resolutions)
+        {
+            notificationResolutions.Add(new NotificationResolution(text, () => resolvable.Resolve(parameter)));
+        }
+
+        return new NotificationDisplayItem(resolvable.Severity, message, notificationResolutions, autoResolveIndex);
+    }
+
+    private static NotificationDisplayItem Localize(this DismissableNotification dismissable, string message, string? dismissMessage = null)
+        => new(dismissable.Severity, message, [new NotificationResolution(dismissMessage ?? Strings.DismissNotification.CurrentValue, dismissable.Dismiss)], 0);
+
+    private static NotificationDisplayItem Localize(this LifetimeControlledNotification lifetimeControlled, string message)
+        => new(lifetimeControlled.Severity, message, [], 0);
+
+    private static string Localize(this VersionedPluginId plugin) 
+        => string.Format(Strings.PluginVersion.CurrentValue, plugin.Name, plugin.Version);
 }

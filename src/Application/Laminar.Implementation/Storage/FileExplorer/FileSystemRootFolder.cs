@@ -7,6 +7,7 @@ using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.Notifications;
 using Laminar.Domain.ValueObjects;
 using Laminar.Implementation.Storage.FileExplorer.Graph;
+using Laminar.Implementation.Storage.FileExplorer.Notifications;
 using Laminar.Implementation.Storage.PersistentData;
 
 namespace Laminar.Implementation.Storage.FileExplorer;
@@ -104,15 +105,14 @@ internal class FileSystemRootFolder : FileSystemFolder, IMutableFileSystemRootFo
         var version = pluginInfo["version"].GetValue<SemanticVersion>().Value;
         var versionedPluginId = new VersionedPluginId(pluginId, version); 
         IInstalledPlugin? loadedPlugin;
-        using (var _ = NotificationManager.AddNotification(
-                   new FileSystemNotifications.LoadingRequiredPlugin(versionedPluginId)))
+        using (var _ = NotificationManager.AddNotification(new LoadingRequiredPluginNotification(versionedPluginId)))
         {
             loadedPlugin = await RuntimeHost.PluginManager.EnsurePluginInstalled(versionedPluginId);
         }
-            
+        
         if (loadedPlugin is null)
         {
-            NotificationManager.AddNotification(new FileSystemNotifications.PluginNotFoundError(versionedPluginId));
+            NotificationManager.AddNotification(new PluginNotFoundNotification(versionedPluginId));
         }
     }
 }

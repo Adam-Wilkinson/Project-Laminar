@@ -20,7 +20,7 @@
 
     <ItemGroup>
       <PackageReference Include="Echoes.Avalonia" />
-      <PackageReference Include="Echoes.Generator" />
+      <PackageReference Include="Echoes.Generator"/>
     </ItemGroup>
-
+    
 </Project>

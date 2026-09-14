@@ -7,7 +7,7 @@ namespace Laminar.Domain.Notifications;
 
 public sealed class NotificationManager : INotifyPropertyChanged
 {
-    private readonly ObservableCollection<INotification> _allNotifications = [];
+    private readonly ObservableCollection<NotificationBase> _allNotifications = [];
     
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -17,28 +17,36 @@ public sealed class NotificationManager : INotifyPropertyChanged
         private set => SetField(ref field, value);
     } = NotificationSeverity.None;
     
-    public IReadOnlyObservableCollection<INotification> AllNotifications => _allNotifications.ToInterfaceImpl();
+    public IReadOnlyObservableCollection<NotificationBase> AllNotifications => field ??= _allNotifications.ToInterfaceImpl();
 
-    public INotification AddNotification(NotificationTemplate notificationTemplate, Action? onDisposed = null)
+    public IDisposable AddNotification(LifetimeControlledNotification notification)
     {
-        var ret = new Notification(this)
-        {
-            Template = notificationTemplate,
-            OnDisposed = onDisposed
-        };
-        OnSeverityAdded(notificationTemplate.Severity);
-        return ret;
+        AddNotification((NotificationBase)notification);
+        return notification;
+    }
+    
+    public void AddNotification(NotificationBase notification)
+    {
+        _allNotifications.Add(notification);
+        OnSeverityAdded(notification.Severity);
+        notification.Dismissed += NotificationOnDismissed;
     }
 
-    public INotification<T> AddNotification<T>(NotificationTemplate<T> notificationTemplate, Action<T> resolveAction)
+    private void NotificationOnDismissed(object? sender, EventArgs e)
     {
-        var ret = new Notification<T>(this)
+        if (sender is not NotificationBase notification)
         {
-            Template = notificationTemplate,
-            ResolveMethod = resolveAction,
-        };
-        OnSeverityAdded(notificationTemplate.Severity);
-        return ret;
+            throw new InvalidOperationException("Dismissal must come from a NotificationBase");
+        }
+        
+        RemoveNotification(notification);
+    }
+
+    private void RemoveNotification(NotificationBase notification)
+    {
+        _allNotifications.Remove(notification);
+        OnSeverityRemoved(notification.Severity);
+        notification.Dismissed -= NotificationOnDismissed;
     }
     
     private void OnSeverityAdded(NotificationSeverity severity)
@@ -52,7 +60,7 @@ public sealed class NotificationManager : INotifyPropertyChanged
         {
             MaximumSeverity = AllNotifications.Count == 0
                 ? NotificationSeverity.None
-                : (NotificationSeverity)AllNotifications.Max(x => (int)x.Template.Severity);
+                : (NotificationSeverity)AllNotifications.Max(x => (int)x.Severity);
         }
     }
     
@@ -63,77 +71,4 @@ public sealed class NotificationManager : INotifyPropertyChanged
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         return true;
     }
-
-    private sealed class Notification<T>(NotificationManager manager)
-        : Notification(manager), INotification<T>
-    {
-        public required Action<T> ResolveMethod { get; init; }
-
-        public void ResolveWithParameter(T parameter)
-        {
-            ResolveMethod.Invoke(parameter);
-            Dispose();
-        }
-    }
-    
-    private class Notification : INotification
-    {
-        private readonly NotificationManager _manager;
-        
-        public required INotificationTemplate Template { get; init; }
-
-        public Action? OnDisposed { get; init; }
-        
-        public Notification(NotificationManager manager)
-        {
-            _manager = manager;
-            manager._allNotifications.Add(this);
-        }
-
-        public void Dispose()
-        {
-            OnDisposed?.Invoke();
-            _manager._allNotifications.Remove(this);
-            _manager.OnSeverityRemoved(Template.Severity);
-        }
-    }
-}
-
-public interface INotification<in T> : INotification
-{
-    public void ResolveWithParameter(T parameter);
-}
-
-public interface INotification : IDisposable
-{
-    public INotificationTemplate Template { get; }
-}
-
-public abstract class NotificationTemplate<T>(NotificationSeverity severity, string message) : INotificationTemplate
-{
-    public NotificationSeverity Severity { get; } = severity;
-    
-    public string Message { get; } = message;
-}
-
-public abstract class NotificationTemplate(NotificationSeverity severity, string message) : INotificationTemplate
-{
-    public NotificationSeverity Severity { get; } = severity;
-    public string Message { get; } = message;
-}
-
-public interface INotificationTemplate
-{
-    public NotificationSeverity Severity { get; }
-    
-    public string Message { get; }
-}
-
-public enum NotificationSeverity
-{
-    None = 0,
-    Information = 1,
-    Loading = 2,
-    Warning = 3,
-    Error = 4,
 }

@@ -5,6 +5,7 @@ using Laminar.Domain.Notifications;
 using Laminar.Domain.Observables.Collections;
 using Laminar.Domain.Observables.Value;
 using Laminar.Domain.ValueObjects;
+using Laminar.Implementation.Scripting.Notifications;
 using Laminar.Implementation.Storage.PersistentData;
 using Laminar.PluginFramework.NodeSystem.Components;
 using Laminar.PluginFramework.UserInterface;
@@ -33,21 +34,7 @@ internal sealed class NodeContainer : INodeContainer
 
         if (!pluginManager.TryGetInstalledPlugin(Descriptor.Plugin, out var plugin))
         {
-            Notifications.AddNotification(
-                new NodeNotifications.PluginNotInstalled(Descriptor.Plugin),
-                res =>
-                {
-                    switch (res)
-                    {
-                        case NodeNotifications.PluginNotInstalledResolution.InstallPlugin:
-                            Console.WriteLine($"Installing plugin {Descriptor.Plugin}");
-                            break;
-                        case NodeNotifications.PluginNotInstalledResolution.DeleteNode:
-                        default:
-                            Console.WriteLine($"Deleting node {nameRow.CentralDisplay.Value}");
-                            break;
-                    };
-                });
+            Notifications.AddNotification(new PluginNotInstalledNotification(Descriptor.Plugin));
             
             _rows.BindTo(new ObservableCollectionImpl<INodeRow>([
                 .. persistentDictionary[nameof(Rows)].GetOrCreateCollection<IPersistentList>()
@@ -58,9 +45,7 @@ internal sealed class NodeContainer : INodeContainer
 
         if (!plugin.TryGetNodeInfo(Descriptor.NodeName, out var nodeInfo))
         {
-            Notifications.AddNotification(
-                new NodeNotifications.PluginDoesNotContainNode(Descriptor.Plugin, Descriptor.NodeName),
-                _ => Console.WriteLine($"Deleting node {nameRow.CentralDisplay.Value}"));
+            Notifications.AddNotification(new PluginDoesNotContainNodeNotification(Descriptor.Plugin));
             
             _rows.BindTo(new ObservableCollectionImpl<INodeRow>([
                 .. persistentDictionary[nameof(Rows)].GetOrCreateCollection<IPersistentList>()

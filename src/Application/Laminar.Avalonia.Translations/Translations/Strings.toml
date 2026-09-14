@@ -45,7 +45,15 @@ ResetSetting = "Reset"
 SetSetting = "Set setting value"
 ToggleNodeExpanded = "Toggle expanded"
 
-MissingPlugin = "Missing Plugin: {0} (v{1})"
+PluginVersion = "{0} (v{1})"
+
+MissingPlugin = "Missing Plugin: {0}"
+PluginDoesNotContainNode = "The plugin {0} does not contain a node of this type"
 InstallPlugin = "Install"
 DeleteNode = "Delete"
+
+RuntimeLoadingPlugin = "Loading plugin {0}"
+RuntimePluginNotFound = "Plugin not found: {0}"
+LoadingFolderContents = "Loading folder contents..."
+
 DismissNotification = "Dismiss"
