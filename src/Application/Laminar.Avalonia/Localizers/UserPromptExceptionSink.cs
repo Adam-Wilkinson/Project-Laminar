@@ -17,6 +17,7 @@ internal class UserPromptExceptionSink(DialogService dialogService) : IException
             DirectoryNotFoundException {Message: var message} => ("Directory not found", message),
             CouldNotConnectException {OutputConnector: var output, InputConnector: var input} => ("Connection creation exception", $"The connectors '{output}' and '{input}' cannot be connected"),
             DeserializationError {TargetType: var type, InnerException: var deserializationInner} => ($"Error deserializing '{type}'", deserializationInner?.Message ?? "Unknown error"),
+            ErrorCreatingNodeException {NodeName: var nodeName} => ("Could not create node", $"An unknown error occured creating node {nodeName}"),
             _ => ("Unexpected error", exception.Message)
         };
 

@@ -49,6 +49,7 @@ PluginVersion = "{0} (v{1})"
 
 MissingPlugin = "Missing Plugin: {0}"
 PluginDoesNotContainNode = "The plugin {0} does not contain a node of this type"
+ErrorCreatingNode = "Unknown error creating node {0}"
 InstallPlugin = "Install"
 DeleteNode = "Delete"
 

@@ -18,6 +18,8 @@ internal class Script : IScript, INodeHost, IDisposable
     
     private readonly IScriptExecutionInstance _executionInstance;
     private readonly IWritableNodeTree _nodeTree;
+
+    private readonly CompositeDisposable _subscriptions;
     
     public Script(
         IRuntimeHost runtime,
@@ -32,12 +34,25 @@ internal class Script : IScript, INodeHost, IDisposable
             .GetOrCreateCollection<IPersistentDictionary>());
 
         _executionInstance = executionManager.CreateExecutionInstance(_nodeTree);
-
-        _nodeTree.Nodes.SubscribeForEach(OnNodeAdded, OnNodeRemoved);
         
         Pan = persistentData[nameof(Pan)].GetValueOrInitialize(new Point { X = 0, Y = 0 });
         Zoom = persistentData[nameof(Zoom)].GetValueOrInitialize(1.0);
         Data = persistentData;
+
+        _subscriptions = new(
+                _nodeTree.Nodes.SubscribeForEach(OnNodeAdded, OnNodeRemoved), 
+                Runtime.PluginManager.Plugins.SubscribeForEach(OnPluginInstalled));
+    }
+
+    private void OnPluginInstalled(IInstalledPlugin newPlugin)
+    {
+        foreach (var node in _nodeTree.Nodes)
+        {
+            if (node.Descriptor.Plugin != newPlugin.PluginId ||
+                !newPlugin.TryGetNodeInfo(node.Descriptor.NodeName, out var nodeInfo)) continue;
+            
+            ((NodeContainer)node).OnNodeInfoLoaded(nodeInfo);
+        }
     }
 
     private void OnNodeAdded(INodeContainer obj) => ((NodeContainer)obj).AttachTo(this);
@@ -62,5 +77,6 @@ internal class Script : IScript, INodeHost, IDisposable
     {
         NodeTree.Dispose();
         _executionInstance.Dispose();
+        _subscriptions.Dispose();
     }
 }

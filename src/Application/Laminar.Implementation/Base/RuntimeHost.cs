@@ -26,6 +26,7 @@ public class RuntimeHost : IRuntimeHost, INotifyPropertyChanged
     public IScriptingFactory ScriptingFactory { get; }
     
     public ILoadedNodeManager NodeManager { get; }
+    
     public event PropertyChangedEventHandler? PropertyChanged;
 
     private void SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)

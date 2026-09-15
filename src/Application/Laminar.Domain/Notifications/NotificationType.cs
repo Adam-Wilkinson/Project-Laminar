@@ -4,6 +4,7 @@ public enum NotificationType
 {
     NodeSourcePluginMissing,
     PluginDoesNotContainNode,
+    ErrorCreatingNode,
     RuntimeLoadingPlugin,
     RuntimePluginNotFound,
     LoadingFolderContents,

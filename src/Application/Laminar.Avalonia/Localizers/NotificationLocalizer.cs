@@ -23,6 +23,8 @@ public static class NotificationLocalizer
             => n.Localize(string.Format(Strings.RuntimePluginNotFound.CurrentValue, n.Data.Localize())),
         NotificationType.LoadingFolderContents when notification is LifetimeControlledNotification n
             => n.Localize(Strings.LoadingFolderContents.CurrentValue),
+        NotificationType.ErrorCreatingNode when notification is LifetimeControlledNotification<string> n
+            => n.Localize(string.Format(Strings.ErrorCreatingNode.CurrentValue, n.Data)),
         _ => throw new ArgumentOutOfRangeException()
     };
 

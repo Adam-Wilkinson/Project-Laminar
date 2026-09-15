@@ -1,4 +1,5 @@
-﻿using Laminar.Contracts.Base.PluginLoading;
+﻿using Laminar.Contracts.Base;
+using Laminar.Contracts.Base.PluginLoading;
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.ValueObjects;
@@ -9,7 +10,7 @@ using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
 namespace Laminar.Implementation.Scripting.NodeWrapping;
 
-public class NodeFactory(IEncodableDataFactory dataFactory) : INodeFactory
+public class NodeFactory(IEncodableDataFactory dataFactory, IExceptionHandler exceptionHandler) : INodeFactory
 {
     private const string PluginKey = "plugin";
     private const string PluginVersionKey = "plugin-version";
@@ -24,13 +25,13 @@ public class NodeFactory(IEncodableDataFactory dataFactory) : INodeFactory
         var nodeName = persistentDictionary[NodeNameKey].GetValue<string>().Value;
         var nodeDescriptor = new NodeDescriptor(new VersionedPluginId(pluginName, pluginVersion), nodeName);
         
-        var nameRow = LaminarFactory.Component.CreateSingleRow(null, new ObservableValueInterfaceData<EditableLabel, string>(persistentDictionary["Name"].GetValueOrInitialize("???"))
+        var nameRow = LaminarFactory.Component.CreateSingleRow(null, new ObservableValueInterfaceData<EditableLabel, string>(persistentDictionary["Name"].GetValueOrInitialize(""))
         {
             Name = "",
             Definition = new EditableLabel()
         }, null);
 
-        return new NodeContainer(nodeDescriptor, nameRow, persistentDictionary, _notificationFactory, host.PluginManager);
+        return new NodeContainer(nodeDescriptor, nameRow, persistentDictionary, _notificationFactory, host.PluginManager, exceptionHandler);
     }
 
     public INodeContainer FromDescriptor(NodeDescriptor descriptor, IRuntimeHost host)

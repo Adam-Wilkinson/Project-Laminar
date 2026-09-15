@@ -37,8 +37,8 @@ public class PluginManager(
             return null;
         }
         
-        _plugins.Add(newPlugin);
         _installedPlugins.Add(pluginId, newPlugin);
+        _plugins.Add(newPlugin);
         context.RegisterInstallation(newPlugin);
         return newPlugin;
     }
