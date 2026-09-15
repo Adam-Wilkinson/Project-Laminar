@@ -9,16 +9,11 @@ using Laminar.PluginFramework.NodeSystem.Connectors;
 
 namespace Laminar.Implementation.Scripting;
 
-internal class ScriptEditor(
-    IUserActionManager userActionManager,
-    IEnumerable<IConnectionBridger> connectionBridgers)
-    : IScriptEditor
+internal class ScriptEditor(IEnumerable<IConnectionBridger> connectionBridgers) : IScriptEditor
 {
-    private readonly IUserActionManager _ = userActionManager.RegisterSimplifier(new ScriptActionSimplifier());
-    
     public IUserAction AddMatchingNodeAction(IScript script, INodeContainer nodeContainer, Point location)
     {
-        var newNode = script.Host.NodeManager.CreateNode(nodeContainer.Descriptor);
+        var newNode = script.Runtime.NodeManager.CreateNode(nodeContainer.Descriptor);
         newNode.Location.Value = location;
         return new AddNodeAction(newNode, (IWritableNodeTree)script.NodeTree);
     }

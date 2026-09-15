@@ -2,13 +2,5 @@
 
 public interface IUserActionManager
 {
-    public IUserActionSession BeginSession();
-    
-    public Task<IUserActionResult> ExecuteAction(IUserAction action);
-    
-    public Task<IUserActionResult> Undo();
-
-    public Task<IUserActionResult> Redo();
-
-    public IUserActionManager RegisterSimplifier(IUserActionSimplifier simplifier);
+    public IUserActionScope CreateScope(params IUserActionSimplifier[] simplifiers);
 }

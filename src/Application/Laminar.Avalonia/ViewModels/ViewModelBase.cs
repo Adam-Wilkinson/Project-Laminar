@@ -6,22 +6,4 @@ namespace Laminar.Avalonia.ViewModels;
 
 public abstract partial class ViewModelBase : ObservableObject
 {
-    public IUserActionManager? UserActionManager
-    {
-        get;
-        set
-        {
-            field = value;
-            UndoCommand.NotifyCanExecuteChanged();
-            RedoCommand.NotifyCanExecuteChanged();
-        }
-    }
-
-    [RelayCommand(CanExecute = nameof(HasUserActionManager))]
-    private Task Undo() => UserActionManager?.Undo() ?? Task.CompletedTask;
-
-    [RelayCommand(CanExecute = nameof(HasUserActionManager))]
-    private Task Redo() => UserActionManager?.Redo() ?? Task.CompletedTask;
-
-    public bool HasUserActionManager() => UserActionManager is not null;
 }

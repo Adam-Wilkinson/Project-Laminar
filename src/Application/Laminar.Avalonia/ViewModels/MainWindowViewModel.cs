@@ -7,12 +7,10 @@ public partial class MainWindowViewModel : ViewModelBase
 {
     public MainWindowViewModel(
         MainControlViewModel mainControl, 
-        SettingsViewModel settings,
-        IUserActionManager rootActionManager)
+        SettingsViewModel settings)
     {
         MainControl = mainControl;
         Settings = settings;
-        UserActionManager = rootActionManager;
         SidebarExpanded = MainControl.SidebarExpanded;
         MainControl.PropertyChanged += (_, args) =>
         {

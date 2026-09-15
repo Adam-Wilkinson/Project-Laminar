@@ -24,7 +24,7 @@ public static class LaminarServices
             .AddSingleton<IEncodableDataFactory, EncodableDataFactory>()
             .AddSingleton<ISerializer, Serializer>()
             
-            .AddScoped<IUserActionManager, UserActionManager>()
+            .AddSingleton<IUserActionManager, UserActionManager>()
             .AddSingleton<IUserActionChainSimplifier, UserActionChainSimplifier>()
             
             .AddSingleton<IDataInterfaceFactory, DataInterfaceFactory>()

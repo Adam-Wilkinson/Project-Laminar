@@ -13,7 +13,6 @@ public class ScopedViewModel<T> : IDisposable where T : ViewModelBase
     {
         _scope = provider.CreateScope();
         ViewModel = viewModelFactory(_scope.ServiceProvider);
-        ViewModel.UserActionManager = _scope.ServiceProvider.GetRequiredService<IUserActionManager>();
     }
     
     public ScopedViewModel(IServiceProvider provider, params object[] constructorArgs) :

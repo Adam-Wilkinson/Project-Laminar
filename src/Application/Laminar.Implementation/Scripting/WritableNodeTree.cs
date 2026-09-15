@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Laminar.Contracts.Base;
+using Laminar.Contracts.Base.PluginLoading;
 using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Scripting.Connection;
 using Laminar.Contracts.Scripting.NodeWrapping;
@@ -28,7 +29,7 @@ internal class WritableNodeTree : IWritableNodeTree
     
     public WritableNodeTree(
         IPersistentDictionary persistentDictionary, 
-        ILoadedNodeManager nodeManager,
+        IRuntimeHost runtime,
         ILogger<WritableNodeTree> logger,
         IExceptionHandler exceptionHandler,
         IEnumerable<INodeContainer>? nodes = null, 
@@ -36,11 +37,12 @@ internal class WritableNodeTree : IWritableNodeTree
     {
         PersistentData = persistentDictionary;
         _logger = logger;
+        Runtime = runtime;
 
         _persistentNodes = persistentDictionary["Nodes"].GetOrCreateCollection<IPersistentDictionary>();
         foreach (var (key, dataPoint) in _persistentNodes)
         {
-            AddNode(nodeManager.CreateNode(dataPoint.GetOrCreateCollection<IPersistentDictionary>()), key);
+            AddNode(runtime.NodeManager.CreateNode(dataPoint.GetOrCreateCollection<IPersistentDictionary>()), key);
         }
 
         if (nodes is not null)
@@ -100,6 +102,7 @@ internal class WritableNodeTree : IWritableNodeTree
     
     public IEncodableData PersistentData { get; }
 
+    public IRuntimeHost Runtime { get; }
     public void AddNode(INodeContainer nodeContainer) => AddNode(nodeContainer, null);
 
     private void AddNode(INodeContainer nodeContainer, string? dictionaryKey)
@@ -148,6 +151,8 @@ internal class WritableNodeTree : IWritableNodeTree
         Changed?.Invoke(this, EventArgs.Empty);
         return true;
     }
+
+    public bool ContainsNode(INodeContainer nodeContainer) => _nodesInformation.ContainsKey(nodeContainer);
 
     public bool TryConnect(IOutputConnector outputConnector, IInputConnector inputConnector, [NotNullWhen(true)] out IConnection? connection)
     {

@@ -16,8 +16,7 @@ namespace Laminar.Implementation.Storage.FileExplorer;
 internal class FileBrowser : IFileBrowser, IDisposable
 {
     private static readonly FileSystemPath DefaultRootFolder = RoamingDataFolder.ChildPath("Default");
-    
-    private readonly IUserActionManager _actionManager;
+
     private readonly IFileSystem _fileSystem;
     private readonly FileBrowserActionDependencies _actionDependencies;
     private readonly IPersistentValue<List<FileSystemPath>> _rootFolderPaths;
@@ -30,7 +29,6 @@ internal class FileBrowser : IFileBrowser, IDisposable
         IFileSystem fileSystem,
         IExceptionHandler exceptionHandler)
     {
-        _actionManager = actionManager;
         _fileSystem = fileSystem;
 
         _rootFolderPaths = dataManager
@@ -59,28 +57,30 @@ internal class FileBrowser : IFileBrowser, IDisposable
             CommandService = commandService,
         };
         
-        actionManager.RegisterSimplifier(new StorageActionSimplifier(_actionDependencies));
+        ActionScope = actionManager.CreateScope(new StorageActionSimplifier(_actionDependencies));
     }
 
     public IReadOnlyObservableCollection<IFileSystemRootFolder> RootFolders { get; }
+    
+    public IUserActionScope ActionScope { get; }
 
     public Task<IUserActionResult> RemoveRootFolder(FileSystemPath rootFolderPath) 
-        => _actionManager.ExecuteAction(new RemoveRootFolderAction(rootFolderPath, false, _actionDependencies));
+        => ActionScope.ExecuteAction(new RemoveRootFolderAction(rootFolderPath, false, _actionDependencies));
 
     public Task<IUserActionResult> AddRootFolder(FileSystemPath newRootFolderPath) 
-        => _actionManager.ExecuteAction(new AddRootFolderAction(newRootFolderPath, _actionDependencies));
+        => ActionScope.ExecuteAction(new AddRootFolderAction(newRootFolderPath, _actionDependencies));
 
     public Task<IUserActionResult> Add(string itemName, IFileSystemFolder parent, int indexInParent, FileSystemItemType type)
-        => _actionManager.ExecuteAction(new AddStorageItemAction(itemName, parent, indexInParent, type, _actionDependencies));
+        => ActionScope.ExecuteAction(new AddStorageItemAction(itemName, parent, indexInParent, type, _actionDependencies));
 
     public Task<IUserActionResult> Move(IFileSystemItem itemToMove, IFileSystemFolder destinationFolder, int destinationIndex) 
-        => _actionManager.ExecuteAction(new MoveStorageItemAction(itemToMove, destinationFolder, destinationIndex, _actionDependencies));
+        => ActionScope.ExecuteAction(new MoveStorageItemAction(itemToMove, destinationFolder, destinationIndex, _actionDependencies));
 
     public Task<IUserActionResult> Delete(IFileSystemItem itemToDelete) 
-        => _actionManager.ExecuteAction(new DeleteStorageItemAction(itemToDelete, _actionDependencies));
+        => ActionScope.ExecuteAction(new DeleteStorageItemAction(itemToDelete, _actionDependencies));
 
     public Task<IUserActionResult> Rename(IFileSystemItem itemToRename, string newName) 
-        => _actionManager.ExecuteAction(new RenameStorageItemAction(newName, itemToRename, _actionDependencies));
+        => ActionScope.ExecuteAction(new RenameStorageItemAction(newName, itemToRename, _actionDependencies));
 
     public bool OpenInSystemFileBrowser(IFileSystemItem item) => _fileSystem.OpenInSystemFileBrowser(item.Path);
     

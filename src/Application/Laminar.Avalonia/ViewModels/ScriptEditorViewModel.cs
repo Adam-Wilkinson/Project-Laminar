@@ -24,11 +24,10 @@ namespace Laminar.Avalonia.ViewModels;
 
 public partial class ScriptEditorViewModel(
     IScript script, 
-    IScriptEditor editor, 
-    IUserActionManager userActionManager,
+    IScriptEditor editor,
     IEncodableDataFactory dataFactory,
     Option<IClipboard> optionalClipboard)
-    : DropTargetViewModel, IConnectionInteractionHandler, IClipboardProvider
+    : DropTargetViewModel, IUndoRedoScope, IConnectionInteractionHandler, IClipboardProvider
 {
     private static readonly IPersistentDataTranscoder DefaultClipboardTranscoder = new JsonPersistentDataTranscoder(null!); 
     
@@ -45,7 +44,9 @@ public partial class ScriptEditorViewModel(
     
     public IObservableValue<double> Zoom { get; } = script.Zoom;
 
-    public IRuntimeHost RuntimeHost => script.Host;
+    public IRuntimeHost RuntimeHost => script.Runtime;
+
+    public UndoRedoHandler UndoRedo { get; } = new(script.ActionScope);
     
     public IReadOnlyObservableCollection<ScriptEditorItemModel> VisualElements 
         => _models ??= new FlattenedObservableTree<ScriptEditorItemModel>(
@@ -58,7 +59,7 @@ public partial class ScriptEditorViewModel(
 
         var addNodeAction =
             editor.AddMatchingNodeAction(script, wrapped, new LaminarPoint { X = location.X, Y = location.Y });
-        userActionManager.ExecuteAction(addNodeAction);
+        script.ActionScope.ExecuteAction(addNodeAction);
         return true;
     }
 
@@ -66,7 +67,7 @@ public partial class ScriptEditorViewModel(
     {
         if (connector.Flags.HasFlag(ConnectorFlags.AcceptsConnections))
         {
-            _userActionSession = userActionManager.BeginSession();
+            _userActionSession = script.ActionScope.BeginSession();
             return connector;            
         }
 
@@ -76,7 +77,7 @@ public partial class ScriptEditorViewModel(
             if (connections.Count == 0) return null;
             var connectionInfo = connections.First();
 
-            _userActionSession ??= userActionManager.BeginSession();
+            _userActionSession ??= script.ActionScope.BeginSession();
             _userActionSession.ExecuteAction(editor.DeleteConnectionAction(script, connectionInfo.Connection));
             
             return connectionInfo.OppositeConnector;
@@ -87,7 +88,7 @@ public partial class ScriptEditorViewModel(
 
     public bool HoverConnection(IConnector first, IConnector second)
     {
-        _userActionSession ??= userActionManager.BeginSession();
+        _userActionSession ??= script.ActionScope.BeginSession();
 
         if (script.NodeTree.ConnectionExists(first, second, out _)) return false;
         
@@ -103,7 +104,7 @@ public partial class ScriptEditorViewModel(
     {
         if (SelectionModel is null || SelectionModel.SelectedItems.Count == 0) return;
 
-        using var session = userActionManager.BeginSession();
+        using var session = script.ActionScope.BeginSession();
         foreach (var connection in SelectionModel.SelectedItems
                      .Cast<ScriptEditorItemModel>()
                      .Select(x => x.CoreElement)
@@ -187,7 +188,7 @@ public partial class ScriptEditorViewModel(
             }
         }
         
-        var encodedNodeTree = script.Host.ScriptingFactory
+        var encodedNodeTree = script.Runtime.ScriptingFactory
             .CreateNodeTree(selectedNodes, selectedConnections)
             .PersistentData
             .Encode(DefaultClipboardTranscoder);
@@ -222,9 +223,9 @@ public partial class ScriptEditorViewModel(
             if (string.IsNullOrWhiteSpace(stringResult)) continue;
             var dictionary = dataFactory.GetEncodableData<IPersistentDictionary>();
             dictionary.Decode(DefaultClipboardTranscoder, DefaultClipboardTranscoder.BytesToElement(Encoding.UTF8.GetBytes(stringResult))!);
-            var deserializedNodeTree = script.Host.ScriptingFactory.NodeTreeFromPersistentData(dictionary);
+            var deserializedNodeTree = script.Runtime.ScriptingFactory.NodeTreeFromPersistentData(dictionary);
             var pasteAction = editor.AddSubTree(script, deserializedNodeTree);
-            await userActionManager.ExecuteAction(pasteAction);
+            await script.ActionScope.ExecuteAction(pasteAction);
         }
         
         VisualElements.CollectionChanged -= SelectNewItems;

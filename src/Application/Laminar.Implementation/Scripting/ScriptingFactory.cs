@@ -1,4 +1,5 @@
 ﻿using Laminar.Contracts.Base;
+using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.Base.PluginLoading;
 using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Scripting.Connection;
@@ -13,25 +14,26 @@ namespace Laminar.Implementation.Scripting;
 
 internal class ScriptingFactory(
     IRuntimeHost host,
-    IScriptExecutionManager scriptExecutionManager, 
+    IScriptExecutionManager scriptExecutionManager,
+    IUserActionManager userActionManager,
     IEncodableDataFactory dataFactory,
     IExceptionHandler exceptionHandler,
     ILogger<WritableNodeTree> logger)
     : IScriptingFactory
 {
     public IScript CreateScript() 
-        => new Script(host, dataFactory.GetEncodableData<IPersistentDictionary>(), scriptExecutionManager, this);
+        => new Script(host, userActionManager, dataFactory.GetEncodableData<IPersistentDictionary>(), scriptExecutionManager, this);
 
     public IScript FromPersistentData(IPersistentDictionary persistentDictionary) 
-        => new Script(host, persistentDictionary, scriptExecutionManager, this);
+        => new Script(host, userActionManager, persistentDictionary, scriptExecutionManager, this);
 
     public INodeTree CreateNodeTree(IEnumerable<INodeContainer> nodes, IEnumerable<IConnection> connections,
         INotificationClient<LaminarExecutionContext>? userChangedValueClient = null)
-        => new WritableNodeTree(dataFactory.GetEncodableData<IPersistentDictionary>(), host.NodeManager, logger,
+        => new WritableNodeTree(dataFactory.GetEncodableData<IPersistentDictionary>(), host, logger,
             exceptionHandler, nodes, connections);
 
     public INodeTree NodeTreeFromPersistentData(
         IPersistentDictionary persistentDictionary,
         INotificationClient<LaminarExecutionContext>? userChangedValueClient = null) 
-        => new WritableNodeTree(persistentDictionary, host.NodeManager, logger, exceptionHandler);
+        => new WritableNodeTree(persistentDictionary, host, logger, exceptionHandler);
 }

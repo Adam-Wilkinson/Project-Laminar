@@ -35,16 +35,16 @@
                UserFriendlyName="{echo:Translate {x:Static lang:Strings.Edit}}"
                DefaultIconGeometry="{StaticResource Icon.Edit}"
                Gesture="Ctrl+e">
-        <t:CommandTool NameKey="Undo" x:DataType="vm:ViewModelBase"
+        <t:CommandTool NameKey="Undo" x:DataType="vms:IUndoRedoScope"
                        UserFriendlyName="{echo:Translate {x:Static lang:Strings.Undo}}"
 					   Gesture="Ctrl+z"
                        DefaultIconGeometry="{StaticResource Icon.Undo}"
-					   CommandBinding="{Binding UndoCommand}"/>
-        <t:CommandTool NameKey="Redo" x:DataType="vm:ViewModelBase"
+					   CommandBinding="{Binding UndoRedo.UndoCommand}"/>
+        <t:CommandTool NameKey="Redo" x:DataType="vms:IUndoRedoScope"
                        UserFriendlyName="{echo:Translate {x:Static lang:Strings.Redo}}"
 					   Gesture="Ctrl+y" 
 					   DefaultIconGeometry="{StaticResource Icon.Redo}"
-					   CommandBinding="{Binding RedoCommand}"/>
+					   CommandBinding="{Binding UndoRedo.RedoCommand}"/>
         <StaticResource ResourceKey="Tools.Edit.Copy"/>
         <StaticResource ResourceKey="Tools.Edit.Paste"/>
         <StaticResource ResourceKey="Tools.Edit.Cut"/>

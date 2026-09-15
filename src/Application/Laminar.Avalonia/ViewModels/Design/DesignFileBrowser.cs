@@ -13,6 +13,8 @@ public class DesignFileBrowser : IFileBrowser
     public IReadOnlyObservableCollection<IFileSystemRootFolder> RootFolders { get; } 
         = new ObservableCollection<IFileSystemRootFolder>().ToInterfaceImpl();
 
+    public IUserActionScope ActionScope => throw new InvalidOperationException();
+
     public async Task<IUserActionResult> Add(string itemName, IFileSystemFolder parentFolder, int indexInParent, FileSystemItemType type)
         => IUserActionResult.Ineffectual();
 

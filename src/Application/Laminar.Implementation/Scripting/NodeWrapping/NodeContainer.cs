@@ -1,4 +1,5 @@
 ﻿using Laminar.Contracts.Base.PluginLoading;
+using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.Notifications;
@@ -23,6 +24,7 @@ internal sealed class NodeContainer : INodeContainer
         NodeDescriptor descriptor,
         INodeRow<IInterfaceData<EditableLabel, string>> nameRow, 
         IPersistentDictionary persistentDictionary,
+        NodeNotificationFactory notificationFactory,
         IPluginManager pluginManager)
     {
         _persistentDictionary = persistentDictionary;
@@ -34,7 +36,7 @@ internal sealed class NodeContainer : INodeContainer
 
         if (!pluginManager.TryGetInstalledPlugin(Descriptor.Plugin, out var plugin))
         {
-            Notifications.AddNotification(new PluginNotInstalledNotification(Descriptor.Plugin));
+            Notifications.AddNotification(notificationFactory.PluginNotInstalled(Descriptor.Plugin, this));
             
             _rows.BindTo(new ObservableCollectionImpl<INodeRow>([
                 .. persistentDictionary[nameof(Rows)].GetOrCreateCollection<IPersistentList>()
@@ -45,7 +47,7 @@ internal sealed class NodeContainer : INodeContainer
 
         if (!plugin.TryGetNodeInfo(Descriptor.NodeName, out var nodeInfo))
         {
-            Notifications.AddNotification(new PluginDoesNotContainNodeNotification(Descriptor.Plugin));
+            Notifications.AddNotification(notificationFactory.PluginDoesNotContainNode(Descriptor.Plugin, this));
             
             _rows.BindTo(new ObservableCollectionImpl<INodeRow>([
                 .. persistentDictionary[nameof(Rows)].GetOrCreateCollection<IPersistentList>()
@@ -57,7 +59,7 @@ internal sealed class NodeContainer : INodeContainer
         var newNode = nodeInfo.CreateInstance();
         NameRow.CentralDisplay.Value = newNode.NodeName;
         _rows.BindTo(new FlattenedObservableTree<INodeRow>(newNode.Components));
-            
+        
         _persistentRowsSynchronizer = persistentDictionary[nameof(Rows)]
             .GetOrCreateCollection<IPersistentList>()
             .InitializeAndSyncTo(Rows, new PersistentValueAdapter<INodeRow>(row => row?.GetType() ?? typeof(INodeRow))
@@ -66,6 +68,17 @@ internal sealed class NodeContainer : INodeContainer
             });
             
         RuntimeNode = new RuntimeNodeInstance(newNode, nameRow, Rows, null);
+    }
+
+    public void AttachTo(INodeHost host)
+    {
+        if (Host is not null) throw new InvalidOperationException("This node is already attached to a host");
+        Host = host;
+    }
+
+    public void DetachFromHost()
+    {
+        Host = null;
     }
     
     public INodeRow<IInterfaceData<EditableLabel, string>> NameRow { get; }
@@ -83,6 +96,8 @@ internal sealed class NodeContainer : INodeContainer
     public NotificationManager Notifications { get; } = new();
     
     public IRuntimeNodeInstance? RuntimeNode { get; }
+    
+    internal INodeHost? Host { get; private set; }
 
     public override string ToString() => $"{NameRow.CentralDisplay.Value} ({RuntimeNode?.CoreNode})";
 

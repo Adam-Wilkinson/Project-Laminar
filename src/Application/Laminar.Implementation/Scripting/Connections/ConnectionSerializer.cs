@@ -1,3 +1,4 @@
+using Laminar.Contracts.Scripting;
 using Laminar.Domain.Exceptions;
 using Laminar.PluginFramework.Serialization;
 
@@ -24,7 +25,7 @@ internal class ConnectionSerializer : TypeSerializer<Connection, string>
 
     protected override Connection DeSerializeTyped(DeserializationRequest<Connection, string> request)
     {
-        if (request.Context is not IWritableNodeTree writableNodeTree)
+        if (request.Context is not INodeTree writableNodeTree)
             throw new InvalidOperationException("Deserializing a connection requires a node tree");
 
         var sides = request.Serialized.Split(" >< ");

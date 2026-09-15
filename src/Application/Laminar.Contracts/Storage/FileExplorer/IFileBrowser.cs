@@ -11,7 +11,9 @@ namespace Laminar.Contracts.Storage.FileExplorer;
 public interface IFileBrowser
 {
     public IReadOnlyObservableCollection<IFileSystemRootFolder> RootFolders { get; }
-    
+
+    public IUserActionScope ActionScope { get; }
+
     public Task<IUserActionResult> Add(string itemName, IFileSystemFolder parent, int indexInParent, FileSystemItemType type);
     
     public Task<IUserActionResult> Move(IFileSystemItem itemToMove, IFileSystemFolder destinationFolder, int destinationIndex);
@@ -21,6 +23,8 @@ public interface IFileBrowser
     public Task<IUserActionResult> Rename(IFileSystemItem itemToRename, string newName);
     
     public bool OpenInSystemFileBrowser(IFileSystemItem item);
+    
     Task<IUserActionResult> RemoveRootFolder(FileSystemPath rootFolderPath);
+    
     Task<IUserActionResult> AddRootFolder(FileSystemPath newRootFolderPath);
 }

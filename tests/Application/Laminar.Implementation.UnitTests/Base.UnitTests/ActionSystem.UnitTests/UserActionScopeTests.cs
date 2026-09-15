@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.UnitTests.Base.UnitTests.ActionSystem.UnitTests;
 
-public class UserActionManagerTests
+public class UserActionScopeTests
 {
     public class ExecuteAction
     {
@@ -17,7 +17,7 @@ public class UserActionManagerTests
             action.CanExecute.Returns(true);
             action.Execute().Returns(IUserActionResult.Success(inverse));
 
-            var sut = CreateManager();
+            var sut = CreateScope();
             await sut.ExecuteAction(action);
 
             await action.Received(1).Execute();
@@ -32,7 +32,7 @@ public class UserActionManagerTests
             action.Execute().Returns(IUserActionResult.Success(inverse));
             inverse.CanExecute.Returns(true);
             inverse.Execute().Returns(IUserActionResult.Success(action));
-            var sut = CreateManager();
+            var sut = CreateScope();
 
             await sut.ExecuteAction(action);
             await sut.Undo();
@@ -46,7 +46,7 @@ public class UserActionManagerTests
             var action = Substitute.For<IUserAction>();
             action.CanExecute.Returns(true);
             action.Execute().Returns(IUserActionResult.Ineffectual());
-            var sut = CreateManager();
+            var sut = CreateScope();
             
             await sut.ExecuteAction(action);
             var result = await sut.Undo();
@@ -60,7 +60,7 @@ public class UserActionManagerTests
         [Fact]
         public async Task ShouldReturnInvalidWhenUndoListEmpty()
         {
-            var sut = CreateManager();
+            var sut = CreateScope();
 
             var result = await sut.Undo();
 
@@ -74,7 +74,7 @@ public class UserActionManagerTests
             var inverse = Substitute.For<IUserAction>();
             undoAction.CanExecute.Returns(true);
             undoAction.Execute().Returns(IUserActionResult.Success(inverse));
-            var sut = CreateManager();
+            var sut = CreateScope();
 
             sut.RegisterUndoAction(undoAction);
             await sut.Undo();
@@ -91,7 +91,7 @@ public class UserActionManagerTests
             undoAction.Execute().Returns(IUserActionResult.Success(redoAction));
             redoAction.CanExecute.Returns(true);
             redoAction.Execute().Returns(IUserActionResult.Success(undoAction));
-            var sut = CreateManager();
+            var sut = CreateScope();
 
             sut.RegisterUndoAction(undoAction);
             await sut.Undo();
@@ -106,7 +106,7 @@ public class UserActionManagerTests
         [Fact]
         public async Task ShouldReturnInvalidWhenRedoListEmpty()
         {
-            var sut = CreateManager();
+            var sut = CreateScope();
 
             var result = await sut.Redo();
 
@@ -122,7 +122,7 @@ public class UserActionManagerTests
             undo.Execute().Returns(IUserActionResult.Success(redo));
             redo.CanExecute.Returns(true);
             redo.Execute().Returns(IUserActionResult.Success(undo));
-            var sut = CreateManager();
+            var sut = CreateScope();
             sut.RegisterUndoAction(undo);
 
             await sut.Undo();
@@ -140,7 +140,7 @@ public class UserActionManagerTests
         {
             var action = Substitute.For<IUserAction>();
             action.CanExecute.Returns(false);
-            var sut = CreateManager();
+            var sut = CreateScope();
 
             var result = await sut.ResolveExecutionAsync(action);
 
@@ -159,7 +159,7 @@ public class UserActionManagerTests
             action.CanExecute.Returns(true);
             action.Execute().Returns(success);
 
-            var sut = CreateManager();
+            var sut = CreateScope();
 
             var result = await sut.ResolveExecutionAsync(action);
             result.Should().BeSameAs(success);
@@ -181,7 +181,7 @@ public class UserActionManagerTests
             action.CanExecute.Returns(true);
             action.Execute().Returns(resolvableError);
             
-            var sut = CreateManager(errorResolvers: [resolver]);
+            var sut = CreateScope(errorResolvers: [resolver]);
 
             var result = await sut.ResolveExecutionAsync(action);
             result.Should().BeOfType<UserActionCancelled>();
@@ -207,7 +207,7 @@ public class UserActionManagerTests
             alternative.Execute().Returns(alternativeResult);
             resolver.TryResolve(resolvableError).Returns(resolvableError.Resolve(true));
 
-            var sut = CreateManager(errorResolvers: [resolver]);
+            var sut = CreateScope(errorResolvers: [resolver]);
 
             var resolved = await sut.ResolveExecutionAsync(original);
             await alternative.Received(1).Execute();
@@ -231,7 +231,7 @@ public class UserActionManagerTests
             original.Execute().Returns(resolvableError);
             resolver.TryResolve(Arg.Any<IUserActionResult>()).Returns(new AlternativeActionFound(alternative));
 
-            var sut = CreateManager(errorResolvers: [resolver]);
+            var sut = CreateScope(errorResolvers: [resolver]);
             var result = await sut.ResolveExecutionAsync(original);
 
             result.Should().BeOfType<UserActionError>().Which.Exception.Should().BeSameAs(exception);
@@ -245,7 +245,7 @@ public class UserActionManagerTests
             action.CanExecute.Returns(true);
             action.Execute().Returns(IUserActionResult.Error(exception));
             var exceptionHandler = Substitute.For<IExceptionHandler>();
-            var sut = CreateManager(exceptionHandler: exceptionHandler);
+            var sut = CreateScope(exceptionHandler: exceptionHandler);
 
             await sut.ResolveExecutionAsync(action);
             
@@ -264,7 +264,7 @@ public class UserActionManagerTests
                 Resolve = _ => throw new InvalidOperationException("There should not be any action resolvers here")
             });
             var exceptionHandler = Substitute.For<IExceptionHandler>();
-            var sut = CreateManager(exceptionHandler: exceptionHandler);
+            var sut = CreateScope(exceptionHandler: exceptionHandler);
 
             await sut.ResolveExecutionAsync(action);
             
@@ -279,7 +279,7 @@ public class UserActionManagerTests
         {
             var chainSimplifier = Substitute.For<IUserActionChainSimplifier>();
             var actions = new List<IUserAction>();
-            var sut = CreateManager(chainSimplifier: chainSimplifier);
+            var sut = CreateScope(chainSimplifier: chainSimplifier);
 
             sut.Simplify(actions);
 
@@ -291,8 +291,7 @@ public class UserActionManagerTests
         {
             var simplifier = Substitute.For<IUserActionSimplifier>();
             var chainSimplifier = Substitute.For<IUserActionChainSimplifier>();
-            var sut = CreateManager(chainSimplifier: chainSimplifier);
-            sut.RegisterSimplifier(simplifier);
+            var sut = CreateScope(chainSimplifier: chainSimplifier, simplifiers: [simplifier]);
 
             sut.Simplify([]);
 
@@ -303,15 +302,17 @@ public class UserActionManagerTests
         }
     }
 
-    private static UserActionManager CreateManager(
+    private static UserActionScope CreateScope(
+        IUserActionSimplifier[]? simplifiers = null,
         IEnumerable<IUserActionErrorResolver>? errorResolvers = null,
         IExceptionHandler? exceptionHandler = null,
         IUserActionChainSimplifier? chainSimplifier = null)
     {
-        return new UserActionManager(
+        return new UserActionScope(
+            simplifiers ?? [],
             errorResolvers ?? [],
             exceptionHandler ?? Substitute.For<IExceptionHandler>(),
             chainSimplifier ?? Substitute.For<IUserActionChainSimplifier>(),
-            Substitute.For<ILogger<UserActionManager>>());
+            Substitute.For<ILogger<UserActionScope>>());
     }
 }

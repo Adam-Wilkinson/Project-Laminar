@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using Avalonia;
 
 namespace Laminar.Avalonia.DragDrop;

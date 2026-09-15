@@ -15,7 +15,7 @@ public partial class FileNavigatorViewModel(
     IFileBrowser fileBrowser,
     DialogService dialogService,
     Func<IFileSystemItem, FileNavigatorItemViewModel> fileNavigatorItemViewModelFactory)
-    : DropTargetViewModel
+    : ViewModelBase, IUndoRedoScope, IDropTarget
 {
     private static readonly TimeSpan ExpandHoveredOverFolderDelay = new(0, 0, 0, 0, 500);
 
@@ -30,7 +30,9 @@ public partial class FileNavigatorViewModel(
             result.IsExpanded = true;
             return result;
         });
-    
+
+    public UndoRedoHandler UndoRedo { get; } = new(fileBrowser.ActionScope);
+
     [RelayCommand]
     private void Refresh()
     {
@@ -48,7 +50,7 @@ public partial class FileNavigatorViewModel(
         await fileBrowser.AddRootFolder(selectedFolder);
     }
 
-    public override bool HoverEnter(object? payload, Point location, object? receptacleTag)
+    public bool HoverEnter(object? payload, Point location, object? receptacleTag)
     {
         if (payload is not FileNavigatorItemViewModel draggedItem) return false;
         if (receptacleTag is not TreeViewDropAcceptor.TreeViewItemReceptacleInfo
@@ -85,7 +87,9 @@ public partial class FileNavigatorViewModel(
         return true;
     }
 
-    public override bool Drop(object? payload, Point location, object? receptacleTag)
+    public bool HoverLeave(object? payload, Point location, object? receptacleTag) => false;
+
+    public bool Drop(object? payload, Point location, object? receptacleTag)
     {
         if (_currentHoverMove is not var (targetItem, targetIndex) ||
             targetItem.CoreItem is not IFileSystemFolder targetFolder) return false;

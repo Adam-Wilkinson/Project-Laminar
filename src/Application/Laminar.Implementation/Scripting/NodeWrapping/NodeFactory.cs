@@ -3,6 +3,7 @@ using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.ValueObjects;
 using Laminar.Implementation.Base.UserInterface;
+using Laminar.Implementation.Scripting.Notifications;
 using Laminar.PluginFramework;
 using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
@@ -13,7 +14,9 @@ public class NodeFactory(IEncodableDataFactory dataFactory) : INodeFactory
     private const string PluginKey = "plugin";
     private const string PluginVersionKey = "plugin-version";
     private const string NodeNameKey = "type";
-
+    
+    private readonly NodeNotificationFactory _notificationFactory = new();
+    
     public INodeContainer FromPersistentData(IPersistentDictionary persistentDictionary, IRuntimeHost host)
     {
         var pluginName = persistentDictionary[PluginKey].GetValue<string>().Value;
@@ -27,7 +30,7 @@ public class NodeFactory(IEncodableDataFactory dataFactory) : INodeFactory
             Definition = new EditableLabel()
         }, null);
 
-        return new NodeContainer(nodeDescriptor, nameRow, persistentDictionary, host.PluginManager);
+        return new NodeContainer(nodeDescriptor, nameRow, persistentDictionary, _notificationFactory, host.PluginManager);
     }
 
     public INodeContainer FromDescriptor(NodeDescriptor descriptor, IRuntimeHost host)
