@@ -1,5 +1,4 @@
 ﻿using Laminar.Contracts.Base.ActionSystem;
-using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Domain.Exceptions;
 
@@ -13,7 +12,7 @@ internal readonly struct AddNodeAction(INodeContainer nodeContainer, INodeCollec
 
     public Task<IUserActionResult> Execute()
     {
-        if (!nodes.ContainsNode(NodeContainer))
+        if (nodes.ContainsNode(NodeContainer))
         {
             return Task.FromResult(IUserActionResult.Error(new NodeTreeContainsNodeException(NodeContainer)));
         }

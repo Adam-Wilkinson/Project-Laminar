@@ -30,6 +30,8 @@ public static class SubscribeForEachExtensions
         private readonly Action<T>? _onRemoved;
         private readonly Action? _onReset;
         
+        private bool _isDisposed;
+        
         public NotifyingForEachInstance(INotifyCollectionChanged notifyCollectionChanged, Action<T>? onAdded,
             Action<T>? onRemoved, Action? onReset)
         {
@@ -55,8 +57,8 @@ public static class SubscribeForEachExtensions
                     ItemsRemoved(e.OldItems!.Cast<T>());
                     break;
                 case NotifyCollectionChangedAction.Replace:
-                    ItemsAdded(e.NewItems!.Cast<T>());
                     ItemsRemoved(e.OldItems!.Cast<T>());
+                    ItemsAdded(e.NewItems!.Cast<T>());
                     break;
                 case NotifyCollectionChangedAction.Reset:
                     _onReset?.Invoke();
@@ -87,6 +89,8 @@ public static class SubscribeForEachExtensions
 
         public void Dispose()
         {
+            if (_isDisposed) return;
+            _isDisposed = true;
             if (_notifyCollection is IEnumerable<T> currentCollection)
             {
                 ItemsRemoved(currentCollection);
