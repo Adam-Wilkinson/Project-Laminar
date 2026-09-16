@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 
 namespace Laminar.Domain.Observables.Collections;
 
@@ -11,6 +12,12 @@ public class ReadOnlyObservableCollection<T>(ObservableCollection<T> core) : Rea
 
     public static implicit operator ObservableCollection<T>(ReadOnlyObservableCollection<T> wrapper)
         => [.. wrapper.BaseCollection];
+
+    public override event NotifyCollectionChangedEventHandler? CollectionChanged
+    {
+        add => core.CollectionChanged += value;
+        remove => core.CollectionChanged -= value;
+    }
 
     public override bool Contains(T value) => core.Contains(value);
 

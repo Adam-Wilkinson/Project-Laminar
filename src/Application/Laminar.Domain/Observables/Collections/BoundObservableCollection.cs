@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Specialized;
 
 namespace Laminar.Domain.Observables.Collections;
@@ -25,7 +26,23 @@ public sealed class BoundObservableCollection<T> : ReadOnlyObservableCollectionB
     public void BindTo(IReadOnlyObservableCollection<T>? source)
     {
         _source?.CollectionChanged -= CurrentBindingOnCollectionChanged;
+        var oldSource = _source;
         _source = source;
+
+        switch (GetAsList(oldSource), GetAsList(source))
+        {
+            case ({ } oldItems, { } newItems):
+                InvokeCollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, newItems, oldItems, 0));
+                break;
+            case (null, { } newItems):
+                InvokeCollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, newItems, 0));
+                break;
+            case ({ } oldItems, null):
+                InvokeCollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, oldItems, 0));
+                break;
+            case (null, null):
+                break;
+        }
         
         InvokeCollectionChanged(this,  new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
 
@@ -51,4 +68,12 @@ public sealed class BoundObservableCollection<T> : ReadOnlyObservableCollectionB
     {
         _source?.CollectionChanged -= CurrentBindingOnCollectionChanged;
     }
+
+    private static IList? GetAsList(INotifyCollectionChanged? source) => source switch
+    {
+        IList direct => direct,
+        IEnumerable<T> enumerable => enumerable.ToList(),
+        null => null,
+        not null => throw new InvalidOperationException($"Unable to get list from type {source.GetType()}")
+    };
 }

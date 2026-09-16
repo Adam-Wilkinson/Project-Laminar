@@ -18,13 +18,19 @@ public abstract class ReadOnlyObservableCollectionBase<T> : IReadOnlyObservableC
     public abstract int Count { get; }
 
     public abstract T this[int index] { get; }
+    
+    /// <summary>
+    /// Raised when the collection changes.
+    ///
+    /// Implementations may forward event subscriptions directly to an
+    /// underlying collection rather than maintaining their own event backing field.
+    /// </summary>
+    public virtual event NotifyCollectionChangedEventHandler? CollectionChanged;
 
     protected void InvokeCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         CollectionChanged?.Invoke(sender, e);
     }
-    
-    public event NotifyCollectionChangedEventHandler? CollectionChanged;
     
     object? IList.this[int index]
     {
