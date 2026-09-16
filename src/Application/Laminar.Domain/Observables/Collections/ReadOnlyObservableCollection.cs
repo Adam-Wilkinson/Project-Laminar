@@ -1,36 +1,26 @@
-using System.Collections;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 
 namespace Laminar.Domain.Observables.Collections;
 
-public class ReadOnlyObservableCollection<T>(ObservableCollection<T> core) : IReadOnlyObservableCollection<T>
+public class ReadOnlyObservableCollection<T>(ObservableCollection<T> core) : ReadOnlyObservableCollectionBase<T>
 {
     private ObservableCollection<T> BaseCollection => core;
-    
-    public IEnumerator<T> GetEnumerator() => core.GetEnumerator();
-
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-    public int Count => core.Count;
-
-    public T this[int index] => core[index];
-
-    public event NotifyCollectionChangedEventHandler? CollectionChanged
-    {
-        add => core.CollectionChanged += value;
-        remove => core.CollectionChanged -= value;
-    }
-    
-    public bool Contains(T value) => core.Contains(value);
-
-    public int IndexOf(T value) => core.IndexOf(value);
     
     public static implicit operator ReadOnlyObservableCollection<T>(ObservableCollection<T> baseCollection) 
         => new(baseCollection);
 
     public static implicit operator ObservableCollection<T>(ReadOnlyObservableCollection<T> wrapper)
-        => new(wrapper.BaseCollection);
+        => [.. wrapper.BaseCollection];
+
+    public override bool Contains(T value) => core.Contains(value);
+
+    public override int IndexOf(T value) => core.IndexOf(value);
+
+    public override IEnumerator<T> GetEnumerator() => core.GetEnumerator();
+
+    public override int Count => core.Count;
+
+    public override T this[int index] => core[index];
 }
 
 public static class ReadOnlyObservableCollectionExtensions

@@ -37,7 +37,6 @@ internal class WritableNodeTree : IWritableNodeTree
     {
         PersistentData = persistentDictionary;
         _logger = logger;
-        Runtime = runtime;
 
         _persistentNodes = persistentDictionary["Nodes"].GetOrCreateCollection<IPersistentDictionary>();
         foreach (var (key, dataPoint) in _persistentNodes)
@@ -96,13 +95,12 @@ internal class WritableNodeTree : IWritableNodeTree
 
     public INodeUpdates GetUpdates(INodeContainer nodeContainer) => _nodesInformation[nodeContainer].Updates;
 
-    public IReadOnlyObservableCollection<INodeContainer> Nodes => new Domain.Observables.Collections.ReadOnlyObservableCollection<INodeContainer>(_nodes);
+    public IReadOnlyObservableCollection<INodeContainer> Nodes => field ??= _nodes.ToReadonly();
 
-    public IReadOnlyObservableCollection<IConnection> Connections => _connections.ObservableMap(IConnection (Connection x) => x);
+    public IReadOnlyObservableCollection<IConnection> Connections => field ??= _connections.ObservableMap(IConnection (Connection x) => x);
     
     public IEncodableData PersistentData { get; }
-
-    public IRuntimeHost Runtime { get; }
+    
     public void AddNode(INodeContainer nodeContainer) => AddNode(nodeContainer, null);
 
     private void AddNode(INodeContainer nodeContainer, string? dictionaryKey)
