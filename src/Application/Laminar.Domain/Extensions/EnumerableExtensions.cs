@@ -32,19 +32,22 @@ public static class EnumerableExtensions
                 yield return newElement;
                 yield return enumerator.Current;
             }
+            
+            enumerator.Dispose();
         }
 
-        public IEnumerable<T> InsertInBetween(Func<T> newElementFactory)
+        public int FindIndex(Predicate<T> predicate)
         {
-            var enumerator = enumerable.GetEnumerator();
-            enumerator.MoveNext();
-            yield return enumerator.Current;
+            if (enumerable is List<T> list) return list.FindIndex(predicate);
 
-            while (enumerator.MoveNext())
+            var index = 0;
+            foreach (var item in enumerable)
             {
-                yield return newElementFactory();
-                yield return enumerator.Current;
+                if (predicate(item)) return index;
+                index++;
             }
+
+            return -1;
         }
     }
 

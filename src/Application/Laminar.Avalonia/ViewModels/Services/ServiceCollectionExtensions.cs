@@ -1,4 +1,5 @@
 using HanumanInstitute.MvvmDialogs;
+using Laminar.Avalonia.InitializationTargets;
 using Laminar.Contracts.Storage.FileExplorer;
 using Laminar.Implementation.Extensions.ServiceInitializers;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,11 +12,11 @@ public static class ServiceCollectionExtensions
     {
         public IServiceCollection AddViewModels() => serviceCollection
             .AddDescendantsTransient<ViewModelBase>()
-            .AddTransient<Func<IFileSystemItem, FileNavigatorItemViewModel>>(sp =>
+            .AddSingleton<Func<IFileSystemItem, FileNavigatorItemViewModel>>(sp =>
                 item => ActivatorUtilities.CreateInstance<FileNavigatorItemViewModel>(sp, item))
-            .AddTransient<Func<FileSystemItemType, FileNavigatorItemViewModel>>(sp =>
+            .AddSingleton<Func<FileSystemItemType, FileNavigatorItemViewModel>>(sp =>
                 itemType => ActivatorUtilities.CreateInstance<FileNavigatorItemViewModel>(sp, itemType))
-            .AddDescendantsScoped<IViewModelInitializer>()
+            .AddDescendantsSingleton<IViewModelInitializer>()
             .AddSingleton<IViewLocator, ViewLocator>()
             .AddSingleton<FileExplorerLoadingQueue>()
             .AddSingleton<DialogService>()

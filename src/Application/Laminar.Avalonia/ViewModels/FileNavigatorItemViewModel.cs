@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -5,7 +6,6 @@ using Laminar.Avalonia.ViewModels.Services;
 using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.Base.PluginLoading;
 using Laminar.Contracts.Storage.FileExplorer;
-using Laminar.Domain.Extensions;
 using Laminar.Domain.Observables.Collections;
 using Laminar.Implementation.Storage.FileExplorer;
 
@@ -94,19 +94,6 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
     {
         _loadingQueue.Queue(this);
     }
-    //
-    // public Geometry? IconGeometry
-    // {
-    //     get
-    //     {
-    //         if (Type.IsFolder)
-    //         {
-    //             return IsExpanded ? PathData.FolderOpenIcon : PathData.FolderIcon;
-    //         }
-    //
-    //         return Type == FileSystemItemType.Script ? PathData.ScriptIcon : PathData.ExclamationMark;
-    //     }
-    // }
 
     public FileNavigatorItemViewModel? Parent { get; private set; }
 
@@ -173,25 +160,8 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
                 ofs.OpenFilesChanged += OpenFilesChanged;
                 ofs.OpenFilesChanged += OpenFilesChanged;
             }
-        
-            field.FilterPropertyChanged(nameof(IFileSystemItem.Path)).OnNotification += 
-                (_, _) => Name = field.UserFriendlyName;
-            
-            field.FilterPropertyChanged(nameof(IFileSystemFolder.IsExpanded)).OnNotification +=
-                (_, _) =>
-                {
-                    OnPropertyChanged(nameof(IsExpanded));
-                    // OnPropertyChanged(nameof(IconGeometry));
-                };
-            
-            field.FilterPropertyChanged(nameof(IFileSystemItem.IsEnabled)).OnNotification +=
-                (_, _) => OnPropertyChanged(nameof(IsEnabled));
-            
-            field.FilterPropertyChanged(nameof(IFileSystemItem.IsEffectivelyEnabled)).OnNotification +=
-                (_, _) => OnPropertyChanged(nameof(IsEffectivelyEnabled));
-            
-            field.GetDependentValue(x => x.ParentFolder?.IsEffectivelyEnabled ?? false).OnChanged +=
-                (_, _) => OnPropertyChanged(nameof(CanChangeIsEnabled));
+
+            field.PropertyChanged += OnCoreItemPropertyChanged;
             
             OnPropertyChanged(nameof(CanChangeIsEnabled));
             OnPropertyChanged(nameof(IsEffectivelyEnabled));
@@ -210,7 +180,8 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
 
     public bool HasCoreItem => CoreItem is not null;
 
-    [ObservableProperty] public partial IRuntimeHost? RuntimeHost { get; private set; }
+    [ObservableProperty] 
+    public partial IRuntimeHost? RuntimeHost { get; private set; }
 
     public FileSystemItemType Type { get; }
 
@@ -354,6 +325,37 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
         return ofs;
     }
 
+    private void OnCoreItemPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        switch (e.PropertyName)
+        {
+            case nameof(IFileSystemItem.Path) when CoreItem is not null:
+                Name = CoreItem.UserFriendlyName;
+                break;
+            case nameof(IFileSystemFolder.IsExpanded):
+                OnPropertyChanged(nameof(IsExpanded));
+                break;
+            case nameof(IFileSystemItem.IsEnabled):
+                OnPropertyChanged(nameof(IsEnabled));
+                break;
+            case nameof(IFileSystemItem.IsEffectivelyEnabled):
+                OnPropertyChanged(nameof(IsEffectivelyEnabled));
+                OnPropertyChanged(nameof(CanChangeIsEnabled));
+                UpdateChildrenCanChangeIsEnabled();
+                break;
+        }
+    }
+
+    private void UpdateChildrenCanChangeIsEnabled()
+    {
+        if (Children is null) return;
+        
+        foreach (var child in Children)
+        {
+            child.OnPropertyChanged(nameof(CanChangeIsEnabled));
+        }
+    }
+    
     private void OpenFilesChanged(object? sender, EventArgs _) 
         => IsOpen = CoreItem is IFileSystemFile coreFile && (GetOpenFileService()?.FileIsOpen(coreFile) ?? false);
 }

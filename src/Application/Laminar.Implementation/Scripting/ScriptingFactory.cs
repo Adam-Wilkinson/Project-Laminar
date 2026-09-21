@@ -22,10 +22,10 @@ internal class ScriptingFactory(
     : IScriptingFactory
 {
     public IScript CreateScript() 
-        => new Script(host, userActionManager, dataFactory.GetEncodableData<IPersistentDictionary>(), scriptExecutionManager, this);
+        => new Script(host, userActionManager, dataFactory.GetEncodableData<IPersistentDictionary>(), scriptExecutionManager, exceptionHandler, this);
 
     public IScript FromPersistentData(IPersistentDictionary persistentDictionary) 
-        => new Script(host, userActionManager, persistentDictionary, scriptExecutionManager, this);
+        => new Script(host, userActionManager, persistentDictionary, scriptExecutionManager, exceptionHandler, this);
 
     public INodeTree CreateNodeTree(IEnumerable<INodeContainer> nodes, IEnumerable<IConnection> connections,
         INotificationClient<LaminarExecutionContext>? userChangedValueClient = null)

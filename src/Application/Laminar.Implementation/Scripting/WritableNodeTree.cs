@@ -59,7 +59,12 @@ internal class WritableNodeTree : IWritableNodeTree
         {
             try
             {
-                var connection = _persistentConnections[i].GetValue<Connection>(deserializationContext: this).Value;
+                var connectionData = _persistentConnections[i].GetValue<ConnectionData>().Value;
+                if (!Connection.TryCreateFromData(connectionData, this, out var connection))
+                {
+                    throw new InvalidOperationException("Unable to create connection");
+                }
+                
                 if (!TryConnectWithoutSerializing(connection.OutputConnector, connection.InputConnector, out _))
                 {
                     throw new CouldNotConnectException(connection.OutputConnector, connection.InputConnector);
@@ -154,13 +159,13 @@ internal class WritableNodeTree : IWritableNodeTree
 
     public bool TryConnect(IOutputConnector outputConnector, IInputConnector inputConnector, [NotNullWhen(true)] out IConnection? connection)
     {
-        if (!TryConnectWithoutSerializing(outputConnector, inputConnector, out Connection? connectionInternal))
+        if (!TryConnectWithoutSerializing(outputConnector, inputConnector, out var connectionInternal))
         {
             connection = null;
             return false;
         }
 
-        _persistentConnections.AddNext().GetValueOrInitialize<Connection>(connectionInternal, deserializationContext: this);
+        _persistentConnections.AddNext().GetValueOrInitialize(connectionInternal.Data, deserializationContext: this);
         connection = connectionInternal;
         return true;
     }
@@ -179,13 +184,8 @@ internal class WritableNodeTree : IWritableNodeTree
             connection = null;
             return false;
         }
-        
-        Connection newConnection = new(this)
-        {
-            OutputConnector = outputConnector,
-            InputConnector = inputConnector,
-        };
-        
+
+        Connection newConnection = new(outputConnector, inputConnector, this);
         var inputInfo = GetConnectorInformation(inputConnector);
         var outputInfo = GetConnectorInformation(outputConnector);
         

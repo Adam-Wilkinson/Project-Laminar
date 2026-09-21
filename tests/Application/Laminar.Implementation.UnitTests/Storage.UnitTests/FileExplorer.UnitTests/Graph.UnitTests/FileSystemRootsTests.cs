@@ -17,7 +17,7 @@ public class FileSystemRootsTests
             itemFactory.CreateRootFolder(root.Path).Returns(root);
             var sut = CreateRoots(itemFactory: itemFactory);
 
-            sut.AddRoot(root.Path);
+            sut.EnsureRootRegistered(root.Path);
 
             itemFactory.Received(1).CreateRootFolder(root.Path);
         }
@@ -31,7 +31,7 @@ public class FileSystemRootsTests
 
             var sut = CreateRoots(itemFactory: itemFactory);
 
-            sut.AddRoot(root.Path);
+            sut.EnsureRootRegistered(root.Path);
             
             sut.Contains(root).Should().BeTrue();
         }
@@ -46,7 +46,7 @@ public class FileSystemRootsTests
 
             var sut = CreateRoots(repository: repository, itemFactory: itemFactory);
 
-            sut.AddRoot(root.Path);
+            sut.EnsureRootRegistered(root.Path);
 
             repository.Received(1).Add(FileSystemGraph.GetTestingToken(), root);
         }
@@ -60,7 +60,7 @@ public class FileSystemRootsTests
 
             var sut = CreateRoots(itemFactory: itemFactory);
 
-            var result = sut.AddRoot(root.Path);
+            var result = sut.EnsureRootRegistered(root.Path);
 
             result.Should().BeSameAs(root);
         }
@@ -97,7 +97,7 @@ public class FileSystemRootsTests
             });
 
             var sut = CreateRoots(repository: repository);
-            sut.AddRoot(path);
+            sut.EnsureRootRegistered(path);
 
             sut.RemoveRootAt(path, false);
 
@@ -118,7 +118,7 @@ public class FileSystemRootsTests
             });
 
             var sut = CreateRoots(repository: repository);
-            sut.AddRoot(path);
+            sut.EnsureRootRegistered(path);
 
             sut.RemoveRootAt(path, false);
 
@@ -139,7 +139,7 @@ public class FileSystemRootsTests
             });
 
             var sut = CreateRoots(repository: repository);
-            sut.AddRoot(path);
+            sut.EnsureRootRegistered(path);
 
             sut.RemoveRootAt(path, false);
 
@@ -160,7 +160,7 @@ public class FileSystemRootsTests
             });
 
             var sut = CreateRoots(repository: repository);
-            sut.AddRoot(path);
+            sut.EnsureRootRegistered(path);
 
             var result = sut.RemoveRootAt(path, false, out var removedRoot);
 
@@ -182,7 +182,7 @@ public class FileSystemRootsTests
             });
 
             var sut = CreateRoots(repository: repository);
-            sut.AddRoot(path);
+            sut.EnsureRootRegistered(path);
 
             sut.RemoveRootAt(path, true);
 

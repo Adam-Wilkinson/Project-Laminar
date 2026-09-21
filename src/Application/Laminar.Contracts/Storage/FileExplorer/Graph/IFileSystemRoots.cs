@@ -5,7 +5,7 @@ namespace Laminar.Contracts.Storage.FileExplorer.Graph;
 
 public interface IFileSystemRoots : IReadOnlyObservableCollection<IFileSystemRootFolder>
 {
-    public IFileSystemRootFolder AddRoot(FileSystemPath path);
+    public IFileSystemRootFolder EnsureRootRegistered(FileSystemPath path);
 
     public bool RemoveRootAt(FileSystemPath path, bool deleteInfoFiles);
 

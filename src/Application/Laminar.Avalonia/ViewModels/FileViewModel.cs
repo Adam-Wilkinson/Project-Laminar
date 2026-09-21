@@ -9,7 +9,7 @@ namespace Laminar.Avalonia.ViewModels;
 
 public sealed partial class FileViewModel(
     FileViewModelFactory fileViewModelFactory,
-    IExceptionHandler exceptionHandler) : ViewModelBase, IDisposable
+    IExceptionHandler exceptionHandler) : ViewModelBase
 {
     private OpenFile? _openFile;
     private CancellationTokenSource? _openFileCts;
@@ -23,7 +23,7 @@ public sealed partial class FileViewModel(
     [ObservableProperty]
     public partial ViewModelBase? CurrentFileViewModel { get; private set; }
 
-    public void Dispose()
+    protected override void OnDisposed()
     {
         OpenFilePath = null;
     }

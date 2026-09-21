@@ -1,9 +1,11 @@
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Text;
 using Avalonia.Input;
 using Avalonia.Input.Platform;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Laminar.Avalonia.DragDrop;
 using Laminar.Avalonia.SelectAndMove;
 using Laminar.Avalonia.ViewModels.Services;
 using Laminar.Contracts.Base.ActionSystem;
@@ -12,6 +14,7 @@ using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Scripting.Connection;
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Contracts.Storage.PersistentData;
+using Laminar.Domain.Extensions;
 using Laminar.Domain.Observables.Collections;
 using Laminar.Domain.Observables.Value;
 using Laminar.Domain.ValueObjects;
@@ -27,20 +30,22 @@ public partial class ScriptEditorViewModel(
     IScriptEditor editor,
     IEncodableDataFactory dataFactory,
     Option<IClipboard> optionalClipboard)
-    : DropTargetViewModel, IUndoRedoScope, IConnectionInteractionHandler, IClipboardProvider
+    : ViewModelBase(script), IDropTarget, IUndoRedoScope, IConnectionInteractionHandler, IClipboardProvider
 {
     private static readonly IPersistentDataTranscoder DefaultClipboardTranscoder = new JsonPersistentDataTranscoder(null!); 
     
     private readonly Dictionary<object, ScriptEditorItemModel> _itemModels = [];
-    private FlattenedObservableTree<ScriptEditorItemModel>? _models;
     
+    private BoundObservableCollection<ScriptEditorItemModel>? _models;
     private IUserActionSession? _userActionSession;
 
     [ObservableProperty]
     public partial CanvasSelectionModel? SelectionModel { get; set; }
 
-    [ObservableProperty] public partial double PanX { get; set; } = script.Pan.Value.X;
-    [ObservableProperty] public partial double PanY { get; set; } = script.Pan.Value.Y;
+    [ObservableProperty] 
+    public partial double PanX { get; set; } = script.Pan.Value.X;
+    [ObservableProperty] 
+    public partial double PanY { get; set; } = script.Pan.Value.Y;
     
     public IObservableValue<double> Zoom { get; } = script.Zoom;
 
@@ -49,11 +54,21 @@ public partial class ScriptEditorViewModel(
     public UndoRedoHandler UndoRedo { get; } = new(script.ActionScope);
     
     public IReadOnlyObservableCollection<ScriptEditorItemModel> VisualElements 
-        => _models ??= new FlattenedObservableTree<ScriptEditorItemModel>(
-                script.NodeTree.Nodes.ObservableMap(CreateItemModel),
-                script.NodeTree.Connections.ObservableMap(CreateItemModel));
-    
-    public override bool Drop(object? payload, AvaloniaPoint location, object? receptacleTag)
+        => _models ??= new BoundObservableCollection<ScriptEditorItemModel>(GetVisualElements());
+
+    protected override void OnTargetPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(IScript.NodeTree))
+        {
+            _models?.BindTo(GetVisualElements());
+        }
+    }
+
+    public bool HoverEnter(object? payload, AvaloniaPoint location, object? receptacleTag) => false;
+
+    public bool HoverLeave(object? payload, AvaloniaPoint location, object? receptacleTag) => false;
+
+    public bool Drop(object? payload, AvaloniaPoint location, object? receptacleTag)
     {
         if (payload is not INodeContainer wrapped) return false;
 
@@ -255,6 +270,11 @@ public partial class ScriptEditorViewModel(
         script.Pan.Value = new LaminarPoint { X = PanX, Y = PanY };
     }
 
+    private IReadOnlyObservableCollection<ScriptEditorItemModel> GetVisualElements()
+        => new FlattenedObservableTree<ScriptEditorItemModel>(
+            script.NodeTree.Nodes.ObservableMap(CreateItemModel),
+            script.NodeTree.Connections.ObservableMap(CreateItemModel));
+    
     private ScriptEditorItemModel CreateItemModel(object target)
     {
         var output = target switch

@@ -2,31 +2,35 @@ using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Laminar.Avalonia.ViewModels.Services;
 using Laminar.Contracts.Base;
+using Laminar.Contracts.Base.PluginLoading;
 using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Storage.FileExplorer;
 using Laminar.Domain;
 
 namespace Laminar.Avalonia.ViewModels;
 
-public partial class MainControlViewModel : ViewModelBase, IOpenFileService, IDisposable
+public partial class MainControlViewModel : ViewModelBase, IOpenFileService
 {
     private readonly ScopedViewModel<FileNavigatorViewModel> _scopedFileNavigator;
     private readonly FocusedRuntimeManager _focusedRuntimeManager;
+    private readonly IRuntimeHostManager _runtimeHostManager; 
     
     public MainControlViewModel(
-        IServiceProvider serviceProvider, 
+        IServiceProvider serviceProvider,
         IRuntimeHostManager runtimeHostManager,
-        FocusedRuntimeManager focusedFocusedRuntimeManager,
+        FocusedRuntimeManager focusedRuntimeManager,
         FileViewModel centralFileEditor)
     {
-        _scopedFileNavigator = new ScopedViewModel<FileNavigatorViewModel>(serviceProvider, this);
-        _focusedRuntimeManager = focusedFocusedRuntimeManager;
-        CentralFileEditor = centralFileEditor;
+        _runtimeHostManager = runtimeHostManager;
+        _scopedFileNavigator = RegisterSubscription(new ScopedViewModel<FileNavigatorViewModel>(serviceProvider, this));
+        CentralFileEditor = RegisterSubscription(centralFileEditor);
+        _focusedRuntimeManager = focusedRuntimeManager;
         
         CentralFileEditor.PropertyChanged += CentralFileEditorOnPropertyChanged;
+        _focusedRuntimeManager.FocusedRuntimeChanged += OnFocusedRuntimeChanged;
+        _runtimeHostManager.PluginsChanged += OnPluginsChanged;
+        
         OnExpandedSidebarWidthChanged(ExpandedSidebarWidth);
-        runtimeHostManager.PluginsChanged += (_, _) => RefreshLoadedNodes();
-        focusedFocusedRuntimeManager.FocusedRuntimeChanged += (_, _) => RefreshLoadedNodes();
     }
 
     private void RefreshLoadedNodes()
@@ -74,11 +78,11 @@ public partial class MainControlViewModel : ViewModelBase, IOpenFileService, IDi
         if (SidebarExpanded) ExpandedSidebarWidth = value;
     }
 
-    public void Dispose()
+    protected override void OnDisposed()
     {
-        _scopedFileNavigator.Dispose();
-        CentralFileEditor.Dispose();
-        GC.SuppressFinalize(this);
+        CentralFileEditor.PropertyChanged -= CentralFileEditorOnPropertyChanged;
+        _runtimeHostManager.PluginsChanged -= OnPluginsChanged;
+        _focusedRuntimeManager.FocusedRuntimeChanged -= OnFocusedRuntimeChanged;
     }
 
     public Task RequestOpenFile(IFileSystemFile newFile)
@@ -101,4 +105,8 @@ public partial class MainControlViewModel : ViewModelBase, IOpenFileService, IDi
             OpenFilesChanged?.Invoke(this, EventArgs.Empty);
         }
     }
+
+    private void OnFocusedRuntimeChanged(object? sender, EventArgs e) => RefreshLoadedNodes();
+
+    private void OnPluginsChanged(object? sender, PluginsChangedEventArgs e) => RefreshLoadedNodes();
 }

@@ -13,7 +13,7 @@ internal readonly struct AddRootFolderAction(
     
     public Task<IUserActionResult> Execute()
     {
-        dependencies.Graph.Roots.AddRoot(RootFolderPath);
+        dependencies.Graph.Roots.EnsureRootRegistered(RootFolderPath);
         return Task.FromResult(IUserActionResult.Success(new RemoveRootFolderAction(folderPath, true, dependencies)));
     }
 }

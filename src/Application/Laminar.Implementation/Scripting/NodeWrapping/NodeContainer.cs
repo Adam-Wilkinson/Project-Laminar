@@ -75,7 +75,7 @@ internal sealed class NodeContainer : INodeContainer
         Host = null;
     }
 
-    internal void OnNodeInfoLoaded(ILoadedNodeInfo nodeInfo)
+    private void OnNodeInfoLoaded(ILoadedNodeInfo nodeInfo)
     {
         if (RuntimeNode is not null) throw new InvalidOperationException("This node already has a runtime implementation");
 

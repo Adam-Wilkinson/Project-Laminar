@@ -21,8 +21,10 @@ internal sealed class FileSystemRoots(
 
     public int Count => _internal.Count;
     
-    public IFileSystemRootFolder AddRoot(FileSystemPath path)
+    public IFileSystemRootFolder EnsureRootRegistered(FileSystemPath path)
     {
+        if (_internal.FirstOrDefault(x => x.Path == path) is { } folder) return folder;
+        
         var newRoot = CreateDetachedRoot(path);
         _internal.Add(newRoot);
         return newRoot;

@@ -44,7 +44,7 @@ internal class FileBrowser : IFileBrowser, IDisposable
                 continue;
             }
             
-            graph.Roots.AddRoot(path);
+            graph.Roots.EnsureRootRegistered(path);
         }
 
         RootFolders = graph.Roots;
