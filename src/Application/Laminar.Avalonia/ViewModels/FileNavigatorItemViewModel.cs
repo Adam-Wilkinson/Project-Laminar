@@ -23,23 +23,39 @@ public partial class FileNavigatorItemViewModel(
     public static readonly char[] InvalidFileNameChars = Path.GetInvalidFileNameChars();
     private static readonly NamesEqualComparer NamesEqual = new();
     
-    private readonly SourcedObservableCollection<FileNavigatorItemViewModel>? _children = itemType.IsFolder
-        ? new SourcedObservableCollection<FileNavigatorItemViewModel>([], NamesEqual)
-        : null;
-    
-    private readonly Func<IFileSystemItem, FileNavigatorItemViewModel> _fromCoreItemFactory = coreItem =>
-    {
-        var result = factory(coreItem.Info);
-        result.CoreItem = coreItem;
-        return result;
-    };
-    
     private readonly Lock _stateLock = new();
 
     public TreeViewInitializationState InitializationState { get; private set; } = TreeViewInitializationState.Uninitialized;
 
+    public FileNavigatorItemViewModel? Parent { get; private set; }
+    
     public IOpenFileService? OpenFileService { get; set; }
 
+    public bool CanChangeIsEnabled => CoreItem?.ParentFolder is { IsEffectivelyEnabled: true };
+
+    public bool IsEffectivelyEnabled => CoreItem?.IsEffectivelyEnabled ?? false;
+    
+    public bool HasCoreItem => CoreItem is not null;
+
+    public bool IsFolder => CoreItem is IFileSystemFolder;
+    
+    public bool CanExecuteOpenCommand => CoreItem is IFileSystemFile && !IsOpen;
+    
+    public FileSystemItemType Type => itemType;
+    
+    [ObservableProperty] 
+    public partial bool NameBeingSet { get; set; } = true;
+
+    [ObservableProperty]
+    public partial IObservableCollection<FileNavigatorItemViewModel>? Children { get; private set; }
+
+    [ObservableProperty] 
+    public partial IRuntimeHost? RuntimeHost { get; private set; }
+
+    [ObservableProperty] 
+    [NotifyCanExecuteChangedFor(nameof(OpenCommand))]
+    public partial bool IsOpen { get; private set; }
+    
     public bool IsExpanded
     {
         get => (CoreItem as IFileSystemFolder)?.IsExpanded ?? false;
@@ -59,35 +75,11 @@ public partial class FileNavigatorItemViewModel(
         }
     }
 
-    private void EnsureChildrenLoaded()
-    {
-        loadingQueue.Queue(this);
-    }
-
-    public FileNavigatorItemViewModel? Parent { get; private set; }
-
-    [ObservableProperty] 
-    public partial bool NameBeingSet { get; set; } = true;
-    
-    public bool CanChangeIsEnabled
-    {
-        get
-        {
-            if (CoreItem is null) return false;
-            if (CoreItem.ParentFolder is null) return true;
-            return CoreItem.ParentFolder.IsEffectivelyEnabled;
-        }
-    }
-
     public bool IsEnabled
     {
         get => CoreItem?.IsEnabled ?? false;
         set => CoreItem?.IsEnabled = value;
     }
-
-    public bool IsEffectivelyEnabled => CoreItem?.IsEffectivelyEnabled ?? false;
-
-    public IObservableCollection<FileNavigatorItemViewModel>? Children => _children;
 
     public string Name
     {
@@ -147,13 +139,6 @@ public partial class FileNavigatorItemViewModel(
         }
     }
 
-    public bool HasCoreItem => CoreItem is not null;
-
-    [ObservableProperty] 
-    public partial IRuntimeHost? RuntimeHost { get; private set; }
-
-    public FileSystemItemType Type => itemType;
-
     [RelayCommand(CanExecute = nameof(IsFolder))]
     private void AddItem(FileSystemItemType newItemType)
     {
@@ -169,14 +154,6 @@ public partial class FileNavigatorItemViewModel(
             await ofs.RequestOpenFile(coreFile);
         }
     }
-
-    public bool IsFolder => CoreItem is IFileSystemFolder;
-    
-    public bool CanExecuteOpenCommand => CoreItem is IFileSystemFile && !IsOpen;
-
-    [ObservableProperty] 
-    [NotifyCanExecuteChangedFor(nameof(OpenCommand))]
-    public partial bool IsOpen { get; private set; }
     
     [RelayCommand]
     private void Rename() => NameBeingSet = true;
@@ -194,8 +171,7 @@ public partial class FileNavigatorItemViewModel(
     public void Refresh()
     {
         CoreItem?.Refresh();
-        _children?.SyncFromSource();
-        foreach (var child in _children ?? Enumerable.Empty<FileNavigatorItemViewModel>())
+        foreach (var child in Children ?? Enumerable.Empty<FileNavigatorItemViewModel>())
         {
             child.Refresh();
         }
@@ -231,18 +207,22 @@ public partial class FileNavigatorItemViewModel(
             folder = coreFolder;
             InitializationState = TreeViewInitializationState.ChildrenLoading;
         }
+
+        var mapped = (await folder.GetOrLoadContentsAsync()).ObservableMap(x =>
+        {
+            var result = factory(x.Info);
+            result.CoreItem = x;
+            return result;
+        });
+
+        var children = new SourcedObservableCollection<FileNavigatorItemViewModel>(mapped, NamesEqual);
+        RegisterSubscription(children.SubscribeForEach(child => child.Parent = this));
         
-        var mapped = (await folder.GetOrLoadContentsAsync()).ObservableMap(_fromCoreItemFactory);
-        await Dispatcher.UIThread.InvokeAsync(() => _children?.ChangeSourceTo(mapped), DispatcherPriority.ContextIdle);
+        await Dispatcher.UIThread.InvokeAsync(() => Children = children, DispatcherPriority.ContextIdle);
 
         lock (_stateLock)
         {
             InitializationState = TreeViewInitializationState.ChildrenContentsUnloaded;
-        }
-
-        if (_children is not null)
-        {
-            RegisterSubscription(_children.SubscribeForEach(item => item.Parent = this));
         }
     }
     
@@ -278,7 +258,12 @@ public partial class FileNavigatorItemViewModel(
             InitializationState = TreeViewInitializationState.Uninitialized;
         }
     }
-
+    
+    private void EnsureChildrenLoaded()
+    {
+        loadingQueue.Queue(this);
+    }
+    
     private IOpenFileService? GetOpenFileService()
     {
         FileNavigatorItemViewModel? currentTarget = this;
