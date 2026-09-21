@@ -40,7 +40,7 @@ public class FileExplorerLoadingQueue : IDisposable
                 {
                     if (request.ViewModel.InitializationState is TreeViewInitializationState.Uninitialized)
                     {
-                        await request.ViewModel.LoadContentsAsync();
+                        await request.ViewModel.EnsureChildrenLoadedAsync();
                     }
 
                     if (request.ViewModel.InitializationState is TreeViewInitializationState.ChildrenContentsUnloaded)

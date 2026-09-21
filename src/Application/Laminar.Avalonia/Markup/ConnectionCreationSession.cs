@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.VisualTree;
+using Laminar.Avalonia.ViewModels.Contracts;
 using Laminar.Avalonia.ViewModels.Services;
 using Laminar.PluginFramework.NodeSystem.Connectors;
 

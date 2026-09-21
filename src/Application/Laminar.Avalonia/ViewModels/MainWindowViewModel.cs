@@ -1,32 +1,26 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using Laminar.Contracts.Base.ActionSystem;
+﻿using System.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
+using Laminar.Avalonia.ViewModels.Primitives;
 
 namespace Laminar.Avalonia.ViewModels;
 
-public partial class MainWindowViewModel : ViewModelBase
+public partial class MainWindowViewModel(MainControlViewModel mainControl, SettingsViewModel settings) 
+    : ViewModelBase(mainControl)
 {
-    public MainWindowViewModel(
-        MainControlViewModel mainControl, 
-        SettingsViewModel settings)
-    {
-        MainControl = mainControl;
-        Settings = settings;
-        SidebarExpanded = MainControl.SidebarExpanded;
-        MainControl.PropertyChanged += (_, args) =>
-        {
-            if (args.PropertyName == nameof(MainControl.SidebarExpanded))
-                SidebarExpanded = MainControl.SidebarExpanded;
-        };
-    }
-    public SettingsViewModel Settings { get; }
+    public SettingsViewModel Settings { get; } = settings;
 
-    public MainControlViewModel MainControl { get; }
+    public MainControlViewModel MainControl { get; } = mainControl;
     
     [ObservableProperty]
     public partial bool SettingsOpen { get; set; }
 
-    [ObservableProperty]
-    public partial bool SidebarExpanded { get; set; }
+    [ObservableProperty] public partial bool SidebarExpanded { get; set; } = mainControl.SidebarExpanded;
+
+    protected override void OnTargetPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(MainControl.SidebarExpanded)) 
+            SidebarExpanded = MainControl.SidebarExpanded;
+    }
 
     partial void OnSidebarExpandedChanged(bool value)
     {

@@ -1,7 +1,6 @@
-using Laminar.Contracts.Base.ActionSystem;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Laminar.Avalonia.ViewModels.Services;
+namespace Laminar.Avalonia.ViewModels.Primitives;
 
 public class ScopedViewModel<T> : IDisposable where T : ViewModelBase
 {

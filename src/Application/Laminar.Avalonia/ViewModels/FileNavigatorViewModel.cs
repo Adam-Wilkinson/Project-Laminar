@@ -2,11 +2,14 @@ using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
 using Laminar.Avalonia.DragDrop;
+using Laminar.Avalonia.ViewModels.Contracts;
+using Laminar.Avalonia.ViewModels.Primitives;
 using Laminar.Avalonia.ViewModels.Services;
 using Laminar.Contracts.Storage.FileExplorer;
 using Laminar.Domain.Observables.Collections;
 using Laminar.Domain.ValueObjects;
 using Point = Avalonia.Point;
+using UndoRedoHandler = Laminar.Avalonia.ViewModels.Contracts.UndoRedoHandler;
 
 namespace Laminar.Avalonia.ViewModels;
 
@@ -14,7 +17,7 @@ public partial class FileNavigatorViewModel(
     IOpenFileService openFileService,
     IFileBrowser fileBrowser,
     DialogService dialogService,
-    Func<IFileSystemItem, FileNavigatorItemViewModel> fileNavigatorItemViewModelFactory)
+    Func<FileSystemItemType, FileNavigatorItemViewModel> fileNavigatorItemViewModelFactory)
     : ViewModelBase, IUndoRedoScope, IDropTarget
 {
     private static readonly TimeSpan ExpandHoveredOverFolderDelay = new(0, 0, 0, 0, 500);
@@ -25,7 +28,8 @@ public partial class FileNavigatorViewModel(
     public IReadOnlyObservableCollection<FileNavigatorItemViewModel> RootFiles { get; set; } = 
         fileBrowser.RootFolders.ObservableMap(x =>
         {
-            var result = fileNavigatorItemViewModelFactory(x);
+            var result = fileNavigatorItemViewModelFactory(FileSystemItemType.Folder);
+            result.CoreItem = x;
             result.OpenFileService = openFileService;
             result.IsExpanded = true;
             return result;

@@ -52,31 +52,7 @@ internal class Script : IScript, INodeHost, IDisposable
             NodeTree.Nodes.SubscribeForEach(OnNodeAdded, OnNodeRemoved), 
                 Runtime.PluginManager.Plugins.SubscribeForEach(OnPluginInstalled, OnPluginRemoved));
     }
-
-    private void OnPluginRemoved(IInstalledPlugin obj) => RefreshNodeTree();
-
-    private void OnPluginInstalled(IInstalledPlugin newPlugin) => RefreshNodeTree();
-
-    private void RefreshNodeTree()
-    {
-        _nodeTree?.Dispose();
-        try
-        {
-            _nodeTree = (IWritableNodeTree)_scriptingFactory.NodeTreeFromPersistentData(Data[NodeTreeKey]
-                .GetOrCreateCollection<IPersistentDictionary>());
-            OnPropertyChanged(nameof(NodeTree));
-        }
-        catch (Exception ex)
-        {
-            _exceptionHandler.OnException(ex);
-        }
-        
-    }
-
-    private void OnNodeAdded(INodeContainer obj) => ((NodeContainer)obj).AttachTo(this);
-
-    private void OnNodeRemoved(INodeContainer obj) => ((NodeContainer)obj).DetachFromHost();
-
+    
     public IRuntimeHost Runtime { get; }
     
     public IUserActionScope ActionScope { get; }
@@ -90,6 +66,8 @@ internal class Script : IScript, INodeHost, IDisposable
     public IObservableValue<double> Zoom { get; }
 
     public IPersistentDictionary Data { get; }
+    
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     public void Dispose()
     {
@@ -97,19 +75,27 @@ internal class Script : IScript, INodeHost, IDisposable
         _executionInstance.Dispose();
         _subscriptions.Dispose();
     }
+    
+    private void OnPluginRemoved(IInstalledPlugin obj) => RefreshNodeTree();
 
-    public event PropertyChangedEventHandler? PropertyChanged;
+    private void OnPluginInstalled(IInstalledPlugin newPlugin) => RefreshNodeTree();
 
-    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    private void RefreshNodeTree()
     {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        _nodeTree?.Dispose();
+        try
+        {
+            _nodeTree = (IWritableNodeTree)_scriptingFactory.NodeTreeFromPersistentData(Data[NodeTreeKey]
+                .GetOrCreateCollection<IPersistentDictionary>());
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(NodeTree)));
+        }
+        catch (Exception ex)
+        {
+            _exceptionHandler.OnException(ex);
+        }
     }
 
-    protected bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
-    {
-        if (EqualityComparer<T>.Default.Equals(field, value)) return false;
-        field = value;
-        OnPropertyChanged(propertyName);
-        return true;
-    }
+    private void OnNodeAdded(INodeContainer obj) => ((NodeContainer)obj).AttachTo(this);
+
+    private void OnNodeRemoved(INodeContainer obj) => ((NodeContainer)obj).DetachFromHost();
 }

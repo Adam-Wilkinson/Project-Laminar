@@ -2,7 +2,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Laminar.Domain.ValueObjects;
 
-namespace Laminar.Avalonia.ViewModels;
+namespace Laminar.Avalonia.ViewModels.Primitives;
 
 public abstract class ViewModelBase : ObservableObject, IDisposable
 {

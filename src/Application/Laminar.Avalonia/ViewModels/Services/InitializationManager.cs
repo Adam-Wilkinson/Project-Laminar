@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using Avalonia.Controls;
 using Laminar.Avalonia.InitializationTargets;
+using Laminar.Avalonia.ViewModels.Contracts;
+using Laminar.Avalonia.ViewModels.Primitives;
 
 namespace Laminar.Avalonia.ViewModels.Services;
 

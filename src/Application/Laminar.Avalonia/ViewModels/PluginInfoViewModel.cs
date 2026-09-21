@@ -2,9 +2,11 @@ using System.Globalization;
 using System.Text.Json;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Laminar.Avalonia.ViewModels.Primitives;
 using Laminar.Contracts.Base;
 using Laminar.Contracts.Base.PluginLoading;
 using Laminar.Domain.Observables.Collections;
+using Laminar.Domain.Observables.Value;
 using Laminar.Domain.ValueObjects;
 using Laminar.PluginFramework.Json;
 
@@ -33,13 +35,15 @@ public partial class PluginInfoViewModel : ViewModelBase
             _ = SetNewVersion(SelectedVersion.Value);
         }
 
-        info.LatestVersion.OnChanged += (o, changedArgs) =>
+        _pluginInfo.LatestVersion.OnChanged += OnLatestVersionChanged;
+    }
+
+    private void OnLatestVersionChanged(object? sender, ObservableValueChangedEventArgs<SemanticVersion?> changedArgs)
+    {
+        if (Equals(changedArgs.OldValue, SelectedVersion))
         {
-            if (Equals(changedArgs.OldValue, SelectedVersion))
-            {
-                SelectedVersion = changedArgs.NewValue;
-            }
-        };
+            SelectedVersion = changedArgs.NewValue;
+        }
     }
 
     public IReadOnlyObservableCollection<SemanticVersion> AvailableVersions { get; }
@@ -55,6 +59,11 @@ public partial class PluginInfoViewModel : ViewModelBase
         if (value is not { } newVersion) return;
 
         _ = SetNewVersion(newVersion); 
+    }
+
+    protected override void OnDisposed()
+    {
+        _pluginInfo.LatestVersion.OnChanged -= OnLatestVersionChanged;
     }
 
     [RelayCommand]

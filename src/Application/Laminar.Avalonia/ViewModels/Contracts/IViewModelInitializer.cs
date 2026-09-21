@@ -1,4 +1,6 @@
-namespace Laminar.Avalonia.ViewModels.Services;
+using Laminar.Avalonia.ViewModels.Primitives;
+
+namespace Laminar.Avalonia.ViewModels.Contracts;
 
 public interface IViewModelInitializer
 {

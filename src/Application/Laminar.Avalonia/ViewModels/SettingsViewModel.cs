@@ -1,3 +1,4 @@
+using Laminar.Avalonia.ViewModels.Primitives;
 using Laminar.Contracts.Base;
 using Laminar.Contracts.Base.PluginLoading;
 using Laminar.Domain.Observables.Collections;
@@ -36,4 +37,9 @@ public class SettingsViewModel : ViewModelBase
 
     public IEnumerable<IInstalledPlugin> InstalledPlugins =>
         _runtimeHostManager.AllHosts.SelectMany(x => x.PluginManager.Plugins);
+
+    protected override void OnDisposed()
+    {
+        _runtimeHostManager.PluginsChanged -= OnPluginsChanged;
+    }
 }

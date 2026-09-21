@@ -1,6 +1,6 @@
 using Laminar.Contracts.Storage.FileExplorer;
 
-namespace Laminar.Avalonia.ViewModels.Services;
+namespace Laminar.Avalonia.ViewModels.Contracts;
 
 public interface IOpenFileService
 {

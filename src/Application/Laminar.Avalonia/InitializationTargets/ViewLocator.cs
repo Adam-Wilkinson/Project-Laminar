@@ -2,6 +2,7 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using HanumanInstitute.MvvmDialogs.Avalonia;
 using Laminar.Avalonia.ViewModels;
+using Laminar.Avalonia.ViewModels.Primitives;
 
 namespace Laminar.Avalonia.InitializationTargets;
 

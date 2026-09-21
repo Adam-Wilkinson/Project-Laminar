@@ -1,6 +1,6 @@
 using CommunityToolkit.Mvvm.Input;
 
-namespace Laminar.Avalonia.ViewModels.Services;
+namespace Laminar.Avalonia.ViewModels.Contracts;
 
 public interface IClipboardProvider
 {

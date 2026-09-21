@@ -3,6 +3,7 @@ using Avalonia.Controls.Presenters;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Laminar.Avalonia.ViewModels;
+using Laminar.Avalonia.ViewModels.Contracts;
 using Laminar.Avalonia.ViewModels.Services;
 
 namespace Laminar.Avalonia.Views;

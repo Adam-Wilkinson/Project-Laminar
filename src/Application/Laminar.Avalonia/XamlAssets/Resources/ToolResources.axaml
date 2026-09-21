@@ -10,37 +10,39 @@
                     xmlns:conv="using:Laminar.Avalonia.Converters"
                     xmlns:fe="using:Laminar.Contracts.Storage.FileExplorer"
                     xmlns:nw="using:Laminar.Contracts.Scripting.NodeWrapping"
-                    xmlns:init="using:Laminar.Avalonia.InitializationTargets">
+                    xmlns:init="using:Laminar.Avalonia.InitializationTargets"
+                    xmlns:primitives="clr-namespace:Laminar.Avalonia.ViewModels.Primitives"
+                    xmlns:contracts="clr-namespace:Laminar.Avalonia.ViewModels.Contracts">
     
     <!-- Edit Menu Tool -->
-    <t:CommandTool NameKey="Copy" x:Key="Tools.Edit.Copy" x:DataType="vms:IClipboardProvider"
+    <t:CommandTool NameKey="Copy" x:Key="Tools.Edit.Copy" x:DataType="contracts:IClipboardProvider"
                    UserFriendlyName="{echo:Translate {x:Static lang:Strings.Copy}}"
                    Gesture="Ctrl+c"
                    DefaultIconGeometry="{StaticResource Icon.Copy}"
                    CommandBinding="{Binding CopyToClipboardCommand}"/>
     
-    <t:CommandTool NameKey="Paste" x:Key="Tools.Edit.Paste" x:DataType="vms:IClipboardProvider"
+    <t:CommandTool NameKey="Paste" x:Key="Tools.Edit.Paste" x:DataType="contracts:IClipboardProvider"
                    UserFriendlyName="{echo:Translate {x:Static lang:Strings.Paste}}"
                    Gesture="Ctrl+v"
                    DefaultIconGeometry="{StaticResource Icon.Paste}"
                    CommandBinding="{Binding PasteFromClipboardCommand}"/>
     
-    <t:CommandTool NameKey="Cut" x:Key="Tools.Edit.Cut" x:DataType="vms:IClipboardProvider"
+    <t:CommandTool NameKey="Cut" x:Key="Tools.Edit.Cut" x:DataType="contracts:IClipboardProvider"
                    UserFriendlyName="{echo:Translate {x:Static lang:Strings.Cut}}"
                    Gesture="Ctrl+x"
                    DefaultIconGeometry="{StaticResource Icon.Cut}"
                    CommandBinding="{Binding CutCommand}"/>
     
-    <t:Toolbox NameKey="Edit" x:Key="Tools.Edit" x:DataType="vm:ViewModelBase"
+    <t:Toolbox NameKey="Edit" x:Key="Tools.Edit" x:DataType="primitives:ViewModelBase"
                UserFriendlyName="{echo:Translate {x:Static lang:Strings.Edit}}"
                DefaultIconGeometry="{StaticResource Icon.Edit}"
                Gesture="Ctrl+e">
-        <t:CommandTool NameKey="Undo" x:DataType="vms:IUndoRedoScope"
+        <t:CommandTool NameKey="Undo" x:DataType="contracts:IUndoRedoScope"
                        UserFriendlyName="{echo:Translate {x:Static lang:Strings.Undo}}"
 					   Gesture="Ctrl+z"
                        DefaultIconGeometry="{StaticResource Icon.Undo}"
 					   CommandBinding="{Binding UndoRedo.UndoCommand}"/>
-        <t:CommandTool NameKey="Redo" x:DataType="vms:IUndoRedoScope"
+        <t:CommandTool NameKey="Redo" x:DataType="contracts:IUndoRedoScope"
                        UserFriendlyName="{echo:Translate {x:Static lang:Strings.Redo}}"
 					   Gesture="Ctrl+y" 
 					   DefaultIconGeometry="{StaticResource Icon.Redo}"
@@ -53,11 +55,11 @@
     <!-- Tool that toggles whether a TreeViewItem is expanded -->
     <t:PropertySetterTool NameKey="Toggle Expanded"
                           UserFriendlyName="{echo:Translate {x:Static lang:Strings.ToggleEnabled}}"
-                          x:DataType="vm:ITreeViewItemViewModel" 
+                          x:DataType="contracts:ITreeViewItemViewModel" 
                           x:Key="Tools.ExpandCollapseTreeViewTool"
                           PropertyBinding="{Binding IsExpanded}">
 	    <t:Tool.IconTemplate>
-		    <DataTemplate DataType="vm:ITreeViewItemViewModel">
+		    <DataTemplate DataType="contracts:ITreeViewItemViewModel">
 			    <c:ExpandCollapseChevron IsExpanded="{Binding IsExpanded}"/>
 		    </DataTemplate>
 	    </t:Tool.IconTemplate>

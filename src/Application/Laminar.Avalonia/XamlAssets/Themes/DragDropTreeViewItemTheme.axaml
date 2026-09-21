@@ -5,10 +5,12 @@
                     xmlns:s="using:Laminar.Avalonia.Settings"
                     xmlns:c="using:Laminar.Avalonia.Controls"
                     xmlns:init="using:Laminar.Avalonia.InitializationTargets"
-                    xmlns:vm="using:Laminar.Avalonia.ViewModels">
+                    xmlns:vm="using:Laminar.Avalonia.ViewModels"
+                    xmlns:services="clr-namespace:Laminar.Avalonia.ViewModels.Services"
+                    xmlns:contracts="clr-namespace:Laminar.Avalonia.ViewModels.Contracts">
     <StaticResource x:Key="TreeViewItemBackgroundPointerOver" ResourceKey="UiLayerHighlight"/>
     
-    <ControlTheme x:Key="DragDropTreeViewItemTheme" x:DataType="vm:ITreeViewItemViewModel" TargetType="TreeViewItem" 
+    <ControlTheme x:Key="DragDropTreeViewItemTheme" x:DataType="contracts:ITreeViewItemViewModel" TargetType="TreeViewItem" 
                   BasedOn="{StaticResource {x:Type TreeViewItem}}">
         <Setter Property="CornerRadius" Value="10"/>
         <Setter Property="Background" Value="Transparent"/>

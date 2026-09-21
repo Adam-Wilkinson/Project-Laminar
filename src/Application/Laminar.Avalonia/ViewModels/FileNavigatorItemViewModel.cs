@@ -2,6 +2,8 @@ using System.ComponentModel;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Laminar.Avalonia.ViewModels.Contracts;
+using Laminar.Avalonia.ViewModels.Primitives;
 using Laminar.Avalonia.ViewModels.Services;
 using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.Base.PluginLoading;
@@ -11,61 +13,28 @@ using Laminar.Implementation.Storage.FileExplorer;
 
 namespace Laminar.Avalonia.ViewModels;
 
-public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemViewModel
+public partial class FileNavigatorItemViewModel(
+    FileSystemItemType itemType, 
+    IFileBrowser fileBrowser, 
+    FileExplorerLoadingQueue loadingQueue, 
+    Func<FileSystemItemType, FileNavigatorItemViewModel> factory) 
+    : ViewModelBase, ITreeViewItemViewModel
 {
     public static readonly char[] InvalidFileNameChars = Path.GetInvalidFileNameChars();
     private static readonly NamesEqualComparer NamesEqual = new();
     
-    private readonly IFileBrowser _fileBrowser;
-    private readonly SourcedObservableCollection<FileNavigatorItemViewModel>? _children;
-    private readonly Func<IFileSystemItem, FileNavigatorItemViewModel> _fromCoreItemFactory;
-    private readonly Func<FileSystemItemType, FileNavigatorItemViewModel> _fromItemTypeFactory;
+    private readonly SourcedObservableCollection<FileNavigatorItemViewModel>? _children = itemType.IsFolder
+        ? new SourcedObservableCollection<FileNavigatorItemViewModel>([], NamesEqual)
+        : null;
+    
+    private readonly Func<IFileSystemItem, FileNavigatorItemViewModel> _fromCoreItemFactory = coreItem =>
+    {
+        var result = factory(coreItem.Info);
+        result.CoreItem = coreItem;
+        return result;
+    };
+    
     private readonly Lock _stateLock = new();
-    private readonly FileExplorerLoadingQueue _loadingQueue;
-    
-    private string _name;
-
-    public FileNavigatorItemViewModel(
-        FileSystemItemType itemType,
-        IFileBrowser fileBrowser,
-        FileExplorerLoadingQueue loadingQueue,
-        Func<FileSystemItemType, FileNavigatorItemViewModel> factory)
-    {
-        Type = itemType;
-        NameBeingSet = true;
-        _fileBrowser = fileBrowser;
-        _loadingQueue = loadingQueue;
-        _fromItemTypeFactory = type =>
-        {
-            var result = factory(type);
-            result.Parent = this;
-            return result;
-        };
-        
-        _fromCoreItemFactory = coreItem =>
-        {
-            var result = _fromItemTypeFactory(coreItem.Info);
-            result.CoreItem = coreItem;
-            return result;
-        };
-
-        _name = itemType.DefaultItemName;
-        
-        if (Type.IsFolder)
-        {
-            _children = new SourcedObservableCollection<FileNavigatorItemViewModel>([], NamesEqual);
-            _children.SubscribeForEach(item => item.Parent = this);
-        }
-    }
-    
-    public FileNavigatorItemViewModel(
-        IFileSystemItem coreItem, 
-        IFileBrowser fileBrowser, 
-        FileExplorerLoadingQueue loadingQueue,
-        Func<FileSystemItemType, FileNavigatorItemViewModel> factory) : this(coreItem.Info, fileBrowser, loadingQueue, factory)
-    {
-        CoreItem = coreItem;
-    }
 
     public TreeViewInitializationState InitializationState { get; private set; } = TreeViewInitializationState.Uninitialized;
 
@@ -92,13 +61,13 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
 
     private void EnsureChildrenLoaded()
     {
-        _loadingQueue.Queue(this);
+        loadingQueue.Queue(this);
     }
 
     public FileNavigatorItemViewModel? Parent { get; private set; }
 
-    [ObservableProperty]
-    public partial bool NameBeingSet { get; set; }
+    [ObservableProperty] 
+    public partial bool NameBeingSet { get; set; } = true;
     
     public bool CanChangeIsEnabled
     {
@@ -119,32 +88,32 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
     public bool IsEffectivelyEnabled => CoreItem?.IsEffectivelyEnabled ?? false;
 
     public IObservableCollection<FileNavigatorItemViewModel>? Children => _children;
-    
+
     public string Name
     {
-        get => _name;
+        get;
         set
         {
-            if (value == _name) return;
-            _name = value;
+            if (value == field) return;
+            field = value;
             OnPropertyChanged();
             if (CoreItem is null)
             {
                 Dispatcher.UIThread.InvokeAsync(async () => await InitializeFromName(Name));
                 return;
             }
-                
+
             if (value != CoreItem.UserFriendlyName)
             {
-                Dispatcher.UIThread.InvokeAsync(async () => await _fileBrowser.Rename(CoreItem, Name));
+                Dispatcher.UIThread.InvokeAsync(async () => await fileBrowser.Rename(CoreItem, Name));
             }
         }
-    }
-    
+    } = itemType.DefaultItemName;
+
     public IFileSystemItem? CoreItem
     {
         get;
-        private set
+        set
         {
             if (field is not null)
                 throw new InvalidOperationException("Cannot initialize an item view model that already has core item");
@@ -183,13 +152,13 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
     [ObservableProperty] 
     public partial IRuntimeHost? RuntimeHost { get; private set; }
 
-    public FileSystemItemType Type { get; }
+    public FileSystemItemType Type => itemType;
 
     [RelayCommand(CanExecute = nameof(IsFolder))]
-    private void AddItem(FileSystemItemType itemType)
+    private void AddItem(FileSystemItemType newItemType)
     {
         IsExpanded = true;
-        Children?.Add(_fromItemTypeFactory(itemType));
+        Children?.Add(factory(newItemType));
     }
 
     [RelayCommand(CanExecute = nameof(CanExecuteOpenCommand))]
@@ -214,12 +183,12 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
 
     [RelayCommand]
     private Task<IUserActionResult> Delete() =>
-        CoreItem is null ? Task.FromResult(IUserActionResult.Ineffectual()) : _fileBrowser.Delete(CoreItem);
+        CoreItem is null ? Task.FromResult(IUserActionResult.Ineffectual()) : fileBrowser.Delete(CoreItem);
 
     [RelayCommand(CanExecute = nameof(HasCoreItem))]
     private void OpenInSystemFileBrowser()
     {
-        if (CoreItem is not null) _fileBrowser.OpenInSystemFileBrowser(CoreItem);
+        if (CoreItem is not null) fileBrowser.OpenInSystemFileBrowser(CoreItem);
     }
 
     public void Refresh()
@@ -239,22 +208,15 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
         {
             throw new InvalidOperationException();
         }
-        var actionResult = await _fileBrowser.Add(name, parentFolder, indexInParent, Type);
+        
+        var actionResult = await fileBrowser.Add(name, parentFolder, indexInParent, Type);
         if (actionResult is not UserActionSuccess<IFileSystemItem> successfulAction)
             throw new InvalidOperationException();
         
         CoreItem = successfulAction.ReturnValue;
     }
-
-    private class NamesEqualComparer : IEqualityComparer<FileNavigatorItemViewModel>
-    {
-        public bool Equals(FileNavigatorItemViewModel? x, FileNavigatorItemViewModel? y) 
-            => Equals(x?.Name, y?.Name);
-
-        public int GetHashCode(FileNavigatorItemViewModel obj) => obj.Name.GetHashCode();
-    }
-
-    public async Task LoadContentsAsync()
+    
+    public async Task EnsureChildrenLoadedAsync()
     {
         IFileSystemFolder folder;
         lock (_stateLock)
@@ -277,6 +239,11 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
         {
             InitializationState = TreeViewInitializationState.ChildrenContentsUnloaded;
         }
+
+        if (_children is not null)
+        {
+            RegisterSubscription(_children.SubscribeForEach(item => item.Parent = this));
+        }
     }
     
     public async Task LoadChildrenContentsAsync()
@@ -295,7 +262,7 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
         
         foreach (var child in Children)
         {
-            await child.LoadContentsAsync();
+            await child.EnsureChildrenLoadedAsync();
         }
 
         lock (_stateLock)
@@ -358,6 +325,14 @@ public partial class FileNavigatorItemViewModel : ViewModelBase, ITreeViewItemVi
     
     private void OpenFilesChanged(object? sender, EventArgs _) 
         => IsOpen = CoreItem is IFileSystemFile coreFile && (GetOpenFileService()?.FileIsOpen(coreFile) ?? false);
+
+    private class NamesEqualComparer : IEqualityComparer<FileNavigatorItemViewModel>
+    {
+        public bool Equals(FileNavigatorItemViewModel? x, FileNavigatorItemViewModel? y) 
+            => Equals(x?.Name, y?.Name);
+
+        public int GetHashCode(FileNavigatorItemViewModel obj) => obj.Name.GetHashCode();
+    }
 }
 
 public enum TreeViewInitializationState
