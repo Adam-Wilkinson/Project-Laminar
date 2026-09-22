@@ -28,14 +28,14 @@ internal class PluginNotInstalledNotification : ResolvableNotification<Versioned
 
     protected override void ResolveOverride(NodePluginNotInstalledResolution parameter)
     {
-        if (_nodeContainer.Host is not { } nodeHost) throw new InvalidOperationException("Cannot delete node without a host");
+        if (_nodeContainer.Host is not { } context) throw new InvalidOperationException("Cannot delete node without a host");
         switch (parameter)
         {
             case NodePluginNotInstalledResolution.DeleteNode:
-                nodeHost.ActionScope.ExecuteAction(new DeleteNodeAction(_nodeContainer, nodeHost.Nodes));
+                context.HostScript.ActionScope.ExecuteAction(new DeleteNodeAction(_nodeContainer, context.Nodes));
                 break;
             case NodePluginNotInstalledResolution.InstallPlugin:
-                nodeHost.Runtime.PluginManager.EnsurePluginInstalled(Data);
+                context.HostScript.Runtime.PluginManager.EnsurePluginInstalled(Data);
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(parameter), parameter, null);

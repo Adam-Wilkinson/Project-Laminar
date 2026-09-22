@@ -7,7 +7,7 @@ using Laminar.PluginFramework.NodeSystem.Connectors;
 
 namespace Laminar.Contracts.Scripting;
 
-public interface INodeTree : IDisposable
+public interface INodeGraph : IDisposable
 {
     public event EventHandler? Changed;
 

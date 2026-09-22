@@ -6,5 +6,5 @@ namespace Laminar.Contracts.Scripting.Connection;
 
 public interface IConnectionBridger
 {
-    public IUserAction? TryGetBridgeAction(IOutputConnector outputConnector, IInputConnector inputConnector, INodeTree nodeTree);
+    public IUserAction? TryGetBridgeAction(IOutputConnector outputConnector, IInputConnector inputConnector, INodeGraph nodeGraph);
 }

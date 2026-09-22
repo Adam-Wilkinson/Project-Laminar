@@ -16,5 +16,5 @@ public interface IScriptEditor
     
     public IUserAction DeleteNodeAction(IScript script, INodeContainer nodeContainer);
     
-    public IUserAction AddSubTree(IScript script, INodeTree subTree);
+    public IUserAction AddSubTree(IScript script, INodeGraph subGraph);
 }

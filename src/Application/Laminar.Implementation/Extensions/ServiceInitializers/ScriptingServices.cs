@@ -23,7 +23,7 @@ internal static class ScriptingServices
         serviceCollection.AddSingleton<INodeIOFactory, NodeIOFactory>();
 
         serviceCollection.AddScoped<IScriptEditor, ScriptEditor>();
-        serviceCollection.AddSingleton<IScriptExecutionManager, ScriptExecutionManager>();
+        serviceCollection.AddSingleton<IExecutionManager, ExecutionManager>();
         serviceCollection.AddSingleton<IExecutionOrderFinder, ExecutionOrderFinder>();
 
         serviceCollection.AddSingleton<IConnectionBridger, DefaultConnectionBridger>();

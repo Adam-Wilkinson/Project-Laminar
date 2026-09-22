@@ -18,8 +18,8 @@ internal class PluginDoesNotContainNodeNotification(
 
     protected override void OnDismissed()
     {
-        if (nodeContainer.Host is not { } nodeHost) return;
+        if (nodeContainer.Host is not { } context) return;
 
-        nodeHost.ActionScope.ExecuteAction(new DeleteNodeAction(nodeContainer, nodeHost.Nodes));
+        context.HostScript.ActionScope.ExecuteAction(new DeleteNodeAction(nodeContainer, context.Nodes));
     }
 }

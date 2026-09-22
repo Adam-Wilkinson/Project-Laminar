@@ -1,5 +1,6 @@
 ﻿using Laminar.Contracts.Base;
 using Laminar.Contracts.Base.PluginLoading;
+using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.Exceptions;
@@ -19,9 +20,8 @@ internal sealed class NodeContainer : INodeContainer
 {
     private readonly IPersistentDictionary _persistentDictionary;
     private readonly BoundObservableCollection<INodeRow> _rows = new();
-    private readonly IExceptionHandler _exceptionHandler;
-    
-    private IDisposable? _persistentRowsSynchronizer;
+    private readonly RuntimeNodeInstance? _runtimeNode;
+    private readonly IDisposable? _persistentRowsSynchronizer;
     
     public NodeContainer(
         NodeDescriptor descriptor,
@@ -32,8 +32,7 @@ internal sealed class NodeContainer : INodeContainer
         IExceptionHandler exceptionHandler)
     {
         _persistentDictionary = persistentDictionary;
-        _exceptionHandler = exceptionHandler;
-        
+
         Descriptor = descriptor;
         IsCollapsed = persistentDictionary[nameof(IsCollapsed)].GetValueOrInitialize(false);
         Location = persistentDictionary[nameof(Location)].GetValueOrInitialize(new Point { X = 0, Y = 0 });
@@ -61,24 +60,6 @@ internal sealed class NodeContainer : INodeContainer
             return;
         }
 
-        OnNodeInfoLoaded(nodeInfo);
-    }
-
-    internal void AttachTo(INodeHost host)
-    {
-        if (Host is not null) throw new InvalidOperationException("This node is already attached to a host");
-        Host = host;
-    }
-
-    internal void DetachFromHost()
-    {
-        Host = null;
-    }
-
-    private void OnNodeInfoLoaded(ILoadedNodeInfo nodeInfo)
-    {
-        if (RuntimeNode is not null) throw new InvalidOperationException("This node already has a runtime implementation");
-
         try
         {
             var node = nodeInfo.CreateInstance();
@@ -97,13 +78,24 @@ internal sealed class NodeContainer : INodeContainer
                         Mode = PersistenceAdapterMode.Hydrate
                     });
 
-            RuntimeNode = new RuntimeNodeInstance(node, NameRow, Rows, null);
+            _runtimeNode = new RuntimeNodeInstance(this, node, NameRow, Rows);
         }
         catch (Exception ex)
         {
-            _exceptionHandler.OnException(new ErrorCreatingNodeException(nodeInfo.NodeType.ToString(), ex));
+            exceptionHandler.OnException(new ErrorCreatingNodeException(nodeInfo.NodeType.ToString(), ex));
             Notifications.AddNotification(new ErrorCreatingNodeNotification(nodeInfo.NodeType.ToString()));
         }
+    }
+
+    internal void AttachTo(IScriptingContext host)
+    {
+        if (Host is not null) throw new InvalidOperationException("This node is already attached to a host");
+        Host = host;
+    }
+
+    internal void DetachFromHost()
+    {
+        Host = null;
     }
     
     public INodeRow<IInterfaceData<EditableLabel, string>> NameRow { get; }
@@ -119,16 +111,16 @@ internal sealed class NodeContainer : INodeContainer
     public IEncodableData PersistentData => _persistentDictionary;
 
     public NotificationManager Notifications { get; } = new();
-    
-    public IRuntimeNodeInstance? RuntimeNode { get; private set; }
-    
-    internal INodeHost? Host { get; private set; }
 
-    public override string ToString() => $"{NameRow.CentralDisplay.Value} ({RuntimeNode?.CoreNode})";
+    public IRuntimeNodeInstance? RuntimeNode => _runtimeNode;
+    
+    internal IScriptingContext? Host { get; private set; }
+
+    public override string ToString() => $"{NameRow.CentralDisplay.Value} ({_runtimeNode?.CoreNode})";
 
     public void Dispose()
     {
         _persistentRowsSynchronizer?.Dispose();
-        RuntimeNode?.Dispose();
+        _runtimeNode?.Dispose();
     }
 }

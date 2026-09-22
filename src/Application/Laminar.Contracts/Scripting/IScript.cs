@@ -13,7 +13,7 @@ public interface IScript : IEncodableDataOwner<IPersistentDictionary>, INotifyPr
     
     public IUserActionScope ActionScope { get; }
     
-    public INodeTree NodeTree { get; }
+    public INodeGraph NodeGraph { get; }
 
     IObservableValue<Point> Pan { get; }
     

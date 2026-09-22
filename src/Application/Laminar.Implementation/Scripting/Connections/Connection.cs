@@ -6,14 +6,14 @@ using Laminar.PluginFramework.NodeSystem.Connectors;
 
 namespace Laminar.Implementation.Scripting.Connections;
 
-internal class Connection(IOutputConnector outputConnector, IInputConnector inputConnector, INodeTree nodeTree)
+internal class Connection(IOutputConnector outputConnector, IInputConnector inputConnector, INodeGraph nodeGraph)
     : IConnection, IEqualityComparer<IConnection>
 {
     public IInputConnector InputConnector { get; } = inputConnector;
 
     public IOutputConnector OutputConnector { get; } = outputConnector;
 
-    public INodeTree OwningNodeTree { get; } = nodeTree;
+    public INodeGraph OwningNodeGraph { get; } = nodeGraph;
 
     public ConnectionData Data => field ??= ComputeData();
 
@@ -31,10 +31,10 @@ internal class Connection(IOutputConnector outputConnector, IInputConnector inpu
         return HashCode.Combine(obj.InputConnector, obj.OutputConnector);
     }
 
-    public static bool TryCreateFromData(ConnectionData data, INodeTree nodeTree, [NotNullWhen(true)] out Connection? connection)
+    public static bool TryCreateFromData(ConnectionData data, INodeGraph nodeGraph, [NotNullWhen(true)] out Connection? connection)
     {
-        if (!nodeTree.TryGetNodeByKey(data.OutputNodeId, out var outputNode) ||
-            !nodeTree.TryGetNodeByKey(data.InputNodeId, out var inputNode)
+        if (!nodeGraph.TryGetNodeByKey(data.OutputNodeId, out var outputNode) ||
+            !nodeGraph.TryGetNodeByKey(data.InputNodeId, out var inputNode)
             || outputNode.Rows[data.OutputNodeRow].OutputConnector is not { } outputConnector
             || inputNode.Rows[data.InputNodeRow].InputConnector is not { } inputConnector)
         
@@ -43,18 +43,18 @@ internal class Connection(IOutputConnector outputConnector, IInputConnector inpu
             return false;
         }
 
-        connection = new Connection(outputConnector, inputConnector, nodeTree);
+        connection = new Connection(outputConnector, inputConnector, nodeGraph);
         return true;
     }
 
     private ConnectionData ComputeData()
     {
-        var outputNode = OwningNodeTree.GetParentNode(OutputConnector);
-        var outputNodeKey = OwningNodeTree.GetNodeKey(outputNode);
+        var outputNode = OwningNodeGraph.GetParentNode(OutputConnector);
+        var outputNodeKey = OwningNodeGraph.GetNodeKey(outputNode);
         var outputNodeRow = outputNode.Rows.FindIndex(x => x.OutputConnector == OutputConnector);
         
-        var inputNode = OwningNodeTree.GetParentNode(InputConnector);
-        var inputNodeKey = OwningNodeTree.GetNodeKey(inputNode);
+        var inputNode = OwningNodeGraph.GetParentNode(InputConnector);
+        var inputNodeKey = OwningNodeGraph.GetNodeKey(inputNode);
         var inputNodeRow = inputNode.Rows.FindIndex(x => x.InputConnector == InputConnector);
 
         if (outputNodeRow == -1 || inputNodeRow == -1)

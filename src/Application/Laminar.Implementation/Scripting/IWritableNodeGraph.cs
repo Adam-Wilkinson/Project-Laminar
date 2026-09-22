@@ -5,7 +5,7 @@ using Laminar.PluginFramework.NodeSystem.Connectors;
 
 namespace Laminar.Implementation.Scripting;
 
-public interface IWritableNodeTree : INodeTree, INodeCollection
+public interface IWritableNodeGraph : INodeGraph, INodeCollection
 {
     public bool TryConnect(IOutputConnector outputConnector, IInputConnector inputConnector, [NotNullWhen(true)] out IConnection? connection);
     

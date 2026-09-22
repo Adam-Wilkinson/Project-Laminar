@@ -14,7 +14,8 @@ public partial class MainWindowViewModel(MainControlViewModel mainControl, Setti
     [ObservableProperty]
     public partial bool SettingsOpen { get; set; }
 
-    [ObservableProperty] public partial bool SidebarExpanded { get; set; } = mainControl.SidebarExpanded;
+    [ObservableProperty] 
+    public partial bool SidebarExpanded { get; set; } = mainControl.SidebarExpanded;
 
     protected override void OnTargetPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {

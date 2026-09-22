@@ -14,26 +14,26 @@ namespace Laminar.Implementation.Scripting;
 
 internal class ScriptingFactory(
     IRuntimeHost host,
-    IScriptExecutionManager scriptExecutionManager,
+    IExecutionManager executionManager,
     IUserActionManager userActionManager,
     IEncodableDataFactory dataFactory,
     IExceptionHandler exceptionHandler,
-    ILogger<WritableNodeTree> logger)
+    ILogger<WritableNodeGraph> logger)
     : IScriptingFactory
 {
     public IScript CreateScript() 
-        => new Script(host, userActionManager, dataFactory.GetEncodableData<IPersistentDictionary>(), scriptExecutionManager, exceptionHandler, this);
+        => new Script(host, userActionManager, dataFactory.GetEncodableData<IPersistentDictionary>(), executionManager, exceptionHandler, this);
 
     public IScript FromPersistentData(IPersistentDictionary persistentDictionary) 
-        => new Script(host, userActionManager, persistentDictionary, scriptExecutionManager, exceptionHandler, this);
+        => new Script(host, userActionManager, persistentDictionary, executionManager, exceptionHandler, this);
 
-    public INodeTree CreateNodeTree(IEnumerable<INodeContainer> nodes, IEnumerable<IConnection> connections,
+    public INodeGraph CreateNodeTree(IEnumerable<INodeContainer> nodes, IEnumerable<IConnection> connections,
         INotificationClient<LaminarExecutionContext>? userChangedValueClient = null)
-        => new WritableNodeTree(dataFactory.GetEncodableData<IPersistentDictionary>(), host, logger,
+        => new WritableNodeGraph(dataFactory.GetEncodableData<IPersistentDictionary>(), host, logger,
             exceptionHandler, nodes, connections);
 
-    public INodeTree NodeTreeFromPersistentData(
+    public INodeGraph NodeTreeFromPersistentData(
         IPersistentDictionary persistentDictionary,
         INotificationClient<LaminarExecutionContext>? userChangedValueClient = null) 
-        => new WritableNodeTree(persistentDictionary, host, logger, exceptionHandler);
+        => new WritableNodeGraph(persistentDictionary, host, logger, exceptionHandler);
 }

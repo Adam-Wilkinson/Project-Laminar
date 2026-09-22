@@ -11,24 +11,24 @@ internal class ExecutionOrderFinder : IExecutionOrderFinder
 {
     private readonly Dictionary<(object, int), OrderFinderInstance> _calculatedBranches = new();
 
-    public IConditionalExecutionBranch[] GetExecutionBranchesFrom(LaminarExecutionContext context, INodeTree tree)
+    public IConditionalExecutionBranch[] GetExecutionBranchesFrom(LaminarExecutionContext context, INodeGraph graph)
     {
         ArgumentNullException.ThrowIfNull(context.ExecutionSource);
 
         if (_calculatedBranches.TryGetValue((context.ExecutionSource, context.ExecutionFlags.AsNumber), out var instance))
         {
-            if (instance.Tree == tree)
+            if (instance.Graph == graph)
             {
                 return instance.Branches();
             }
             
             instance.Dispose();
-            OrderFinderInstance replacement = new(context, tree);
+            OrderFinderInstance replacement = new(context, graph);
             _calculatedBranches[(context.ExecutionSource, context.ExecutionFlags.AsNumber)] = replacement;
             return replacement.Branches();
         }
 
-        OrderFinderInstance newFinder = new(context, tree);
+        OrderFinderInstance newFinder = new(context, graph);
         _calculatedBranches.Add((context.ExecutionSource, context.ExecutionFlags.AsNumber), newFinder);
         return newFinder.Branches();
     }
@@ -43,16 +43,16 @@ internal class ExecutionOrderFinder : IExecutionOrderFinder
         private List<IOutputConnector>? _remainingBranchStarters;
         private List<INodeContainer>? _currentBranchOrder;
 
-        public OrderFinderInstance(LaminarExecutionContext context, INodeTree tree)
+        public OrderFinderInstance(LaminarExecutionContext context, INodeGraph graph)
         {
-            Tree = tree;
+            Graph = graph;
             _flags = context.ExecutionFlags;
             _source = context.ExecutionSource!;
 
-            Tree.Changed += OnTreeChanged;
+            Graph.Changed += OnGraphChanged;
         }
 
-        public INodeTree Tree { get; }
+        public INodeGraph Graph { get; }
         
         public IConditionalExecutionBranch[] Branches()
         {
@@ -118,7 +118,7 @@ internal class ExecutionOrderFinder : IExecutionOrderFinder
 
         private void FindPathFromOutputConnector(IOutputConnector currentBranchStarter, ExecutionFlags executionFlags)
         {
-            var currentConnectionsLevel = Tree.GetConnectionsTo(currentBranchStarter);
+            var currentConnectionsLevel = Graph.GetConnectionsTo(currentBranchStarter);
             List<ConnectorConnectionInfo> nextConnectionsLevel = [];
 
             while (currentConnectionsLevel.Count > 0)
@@ -152,7 +152,7 @@ internal class ExecutionOrderFinder : IExecutionOrderFinder
         private IReadOnlyCollection<ConnectorConnectionInfo>? GetConnectionsIfBranchContinues(INodeRow row, ExecutionFlags flags)
         {
             if (row.OutputConnector is not { } outputConnector
-                || Tree.GetConnectionsTo(outputConnector) is not { } connections)
+                || Graph.GetConnectionsTo(outputConnector) is not { } connections)
                 return null;
             
             switch (outputConnector.PassUpdate(flags))
@@ -169,14 +169,14 @@ internal class ExecutionOrderFinder : IExecutionOrderFinder
             }
         }
 
-        private void OnTreeChanged(object? sender, EventArgs e)
+        private void OnGraphChanged(object? sender, EventArgs e)
         {
             _lastCalculation = null;
         }
 
         public void Dispose()
         {
-            Tree.Changed -= OnTreeChanged;
+            Graph.Changed -= OnGraphChanged;
         }
     }
 }

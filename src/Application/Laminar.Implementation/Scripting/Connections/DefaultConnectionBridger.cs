@@ -8,8 +8,8 @@ namespace Laminar.Implementation.Scripting.Connections;
 
 internal class DefaultConnectionBridger : IConnectionBridger
 {
-    public IUserAction TryGetBridgeAction(IOutputConnector outputConnector, IInputConnector inputConnector, INodeTree writableNodeTree)
+    public IUserAction TryGetBridgeAction(IOutputConnector outputConnector, IInputConnector inputConnector, INodeGraph writableNodeGraph)
     {
-        return new EstablishConnectionAction(outputConnector, inputConnector, (IWritableNodeTree)writableNodeTree);
+        return new EstablishConnectionAction(outputConnector, inputConnector, (IWritableNodeGraph)writableNodeGraph);
     }
 }

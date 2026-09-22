@@ -1,4 +1,5 @@
 ﻿using Laminar.Contracts.Base.ActionSystem;
+using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Domain.Exceptions;
 

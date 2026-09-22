@@ -4,7 +4,8 @@ using Laminar.Contracts.Scripting.Execution;
 
 namespace Laminar.Implementation.Scripting.Execution;
 
-internal class ScriptExecutionManager(IExecutionOrderFinder executionOrderFinder, IExceptionHandler exceptionHandler) : IScriptExecutionManager
+internal class ExecutionManager(IExecutionOrderFinder executionOrderFinder, IExceptionHandler exceptionHandler) 
+    : IExecutionManager
 {
     private readonly List<IScriptExecutionInstance> _instances = [];
 
@@ -12,9 +13,9 @@ internal class ScriptExecutionManager(IExecutionOrderFinder executionOrderFinder
 
     public bool DestroyExecutionInstance(IScriptExecutionInstance executionInstance) => _instances.Remove(executionInstance);
 
-    public IScriptExecutionInstance CreateExecutionInstance(INodeTree nodeTree)
+    public IScriptExecutionInstance CreateExecutionInstance(INodeGraph nodeGraph)
     {
-        IScriptExecutionInstance newInstance = new ScriptExecutionInstance(nodeTree, executionOrderFinder, exceptionHandler);
+        var newInstance = new ScriptExecutionInstance(nodeGraph, executionOrderFinder, exceptionHandler);
         _instances.Add(newInstance);
         return newInstance;
     }

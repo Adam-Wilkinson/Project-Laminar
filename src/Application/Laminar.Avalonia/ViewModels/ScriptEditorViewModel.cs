@@ -60,7 +60,7 @@ public partial class ScriptEditorViewModel(
 
     protected override void OnTargetPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(IScript.NodeTree))
+        if (e.PropertyName == nameof(IScript.NodeGraph))
         {
             _models?.BindTo(GetVisualElements());
         }
@@ -90,7 +90,7 @@ public partial class ScriptEditorViewModel(
 
         if (connector.Flags == (ConnectorFlags.HasConnections | ConnectorFlags.ConnectionsSaturated))
         {
-            var connections = script.NodeTree.GetConnectionsTo(connector);
+            var connections = script.NodeGraph.GetConnectionsTo(connector);
             if (connections.Count == 0) return null;
             var connectionInfo = connections.First();
 
@@ -107,7 +107,7 @@ public partial class ScriptEditorViewModel(
     {
         _userActionSession ??= script.ActionScope.BeginSession();
 
-        if (script.NodeTree.ConnectionExists(first, second, out _)) return false;
+        if (script.NodeGraph.ConnectionExists(first, second, out _)) return false;
         
         if (editor.FindBridgeConnectorsAction(script, first, second) is not { } bridgeAction) return false;
 
@@ -274,8 +274,8 @@ public partial class ScriptEditorViewModel(
 
     private IReadOnlyObservableCollection<ScriptEditorItemModel> GetVisualElements()
         => new FlattenedObservableTree<ScriptEditorItemModel>(
-            script.NodeTree.Nodes.ObservableMap(CreateItemModel),
-            script.NodeTree.Connections.ObservableMap(CreateItemModel));
+            script.NodeGraph.Nodes.ObservableMap(CreateItemModel),
+            script.NodeGraph.Connections.ObservableMap(CreateItemModel));
     
     private ScriptEditorItemModel CreateItemModel(object target)
     {

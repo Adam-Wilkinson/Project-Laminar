@@ -8,7 +8,7 @@ namespace Laminar.Implementation.Scripting.Actions;
 internal readonly struct EstablishConnectionAction(
     IOutputConnector outputConnector,
     IInputConnector inputConnector,
-    IWritableNodeTree writableNodeTree)
+    IWritableNodeGraph writableNodeGraph)
     : IUserAction
 {
     public IOutputConnector OutputConnector { get; } = outputConnector;
@@ -26,23 +26,23 @@ internal readonly struct EstablishConnectionAction(
         
         List<IUserAction> totalRequiredActions = [];
         if (InputConnector.Flags.HasFlag(ConnectorFlags.ConnectionsSaturated)
-            && writableNodeTree.GetConnectionsTo(InputConnector).FirstOrDefault()?.OppositeConnector is IOutputConnector
+            && writableNodeGraph.GetConnectionsTo(InputConnector).FirstOrDefault()?.OppositeConnector is IOutputConnector
                 problemOutputConnector)
         {
-            totalRequiredActions.Add(new SeverConnectionAction(problemOutputConnector, InputConnector, writableNodeTree));
+            totalRequiredActions.Add(new SeverConnectionAction(problemOutputConnector, InputConnector, writableNodeGraph));
         }
 
         if (OutputConnector.Flags.HasFlag(ConnectorFlags.ConnectionsSaturated)
-            && writableNodeTree.GetConnectionsTo(OutputConnector).FirstOrDefault()?.OppositeConnector is IInputConnector
+            && writableNodeGraph.GetConnectionsTo(OutputConnector).FirstOrDefault()?.OppositeConnector is IInputConnector
                 problemInputConnector)
         {
-            totalRequiredActions.Add(new SeverConnectionAction(OutputConnector, problemInputConnector, writableNodeTree));
+            totalRequiredActions.Add(new SeverConnectionAction(OutputConnector, problemInputConnector, writableNodeGraph));
         }
 
         if (totalRequiredActions.Count == 0)
         {
-            return Task.FromResult(writableNodeTree.TryConnect(OutputConnector, InputConnector, out _)
-                ? IUserActionResult.Success(new SeverConnectionAction(OutputConnector, InputConnector, writableNodeTree))
+            return Task.FromResult(writableNodeGraph.TryConnect(OutputConnector, InputConnector, out _)
+                ? IUserActionResult.Success(new SeverConnectionAction(OutputConnector, InputConnector, writableNodeGraph))
                 : IUserActionResult.Error(new CouldNotConnectException(OutputConnector, InputConnector)));
         }
         

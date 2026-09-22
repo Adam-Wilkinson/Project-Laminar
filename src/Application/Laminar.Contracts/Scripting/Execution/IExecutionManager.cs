@@ -1,10 +1,10 @@
 ﻿namespace Laminar.Contracts.Scripting.Execution;
 
-public interface IScriptExecutionManager
+public interface IExecutionManager
 {
     public IEnumerable<IScriptExecutionInstance> AllInstances { get; }
 
-    public IScriptExecutionInstance CreateExecutionInstance(INodeTree nodeTree);
+    public IScriptExecutionInstance CreateExecutionInstance(INodeGraph nodeGraph);
 
     public bool DestroyExecutionInstance(IScriptExecutionInstance executionInstance);
 }

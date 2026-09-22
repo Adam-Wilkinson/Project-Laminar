@@ -1,65 +1,57 @@
 ﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using Laminar.Contracts.Base;
 using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.Base.PluginLoading;
 using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Scripting.Execution;
-using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.Observables.Collections;
 using Laminar.Domain.Observables.Value;
 using Laminar.Domain.ValueObjects;
 using Laminar.Implementation.Scripting.Actions;
-using Laminar.Implementation.Scripting.NodeWrapping;
 
 namespace Laminar.Implementation.Scripting;
 
-internal class Script : IScript, INodeHost, IDisposable
+internal sealed class Script : IScript
 {
     private const string NodeTreeKey = "NodeTree";
     
-    private readonly CompositeDisposable _subscriptions;
-    private readonly IScriptExecutionInstance _executionInstance;
+    private readonly IDisposable _subscriptions;
     private readonly IScriptingFactory _scriptingFactory;
     private readonly IExceptionHandler _exceptionHandler;
-    
-    private IWritableNodeTree _nodeTree;
+    private readonly IExecutionManager _executionManager;
+
+    private ScriptingContext _context;
     
     public Script(
         IRuntimeHost runtime,
         IUserActionManager userActionManager,
         IPersistentDictionary persistentData,
-        IScriptExecutionManager executionManager, 
+        IExecutionManager executionManager, 
         IExceptionHandler exceptionHandler,
         IScriptingFactory scriptingFactory)
     {
         _scriptingFactory = scriptingFactory;
         _exceptionHandler = exceptionHandler;
+        _executionManager = executionManager;
         
         Runtime = runtime;
         Data = persistentData;
         ActionScope = userActionManager.CreateScope(new ScriptActionSimplifier());
-        RefreshNodeTree();
-        if (_nodeTree is null) throw new InvalidOperationException("NodeTree should not be null here");
-
-        _executionInstance = executionManager.CreateExecutionInstance(NodeTree);
+        ReloadContext();
+        if (_context is null) throw new InvalidOperationException("NodeTree should not be null here");
         
         Pan = persistentData[nameof(Pan)].GetValueOrInitialize(new Point { X = 0, Y = 0 });
         Zoom = persistentData[nameof(Zoom)].GetValueOrInitialize(1.0);
 
-        _subscriptions = new(
-            NodeTree.Nodes.SubscribeForEach(OnNodeAdded, OnNodeRemoved), 
-                Runtime.PluginManager.Plugins.SubscribeForEach(OnPluginInstalled, OnPluginRemoved));
+        _subscriptions = Runtime.PluginManager.Plugins.SubscribeForEach(OnPluginInstalled, OnPluginRemoved);
     }
     
     public IRuntimeHost Runtime { get; }
     
     public IUserActionScope ActionScope { get; }
-    
-    public INodeCollection Nodes => _nodeTree;
 
-    public INodeTree NodeTree => _nodeTree;
+    public INodeGraph NodeGraph => _context.NodeGraph;
     
     public IObservableValue<Point> Pan { get; }
 
@@ -71,31 +63,33 @@ internal class Script : IScript, INodeHost, IDisposable
 
     public void Dispose()
     {
-        NodeTree.Dispose();
-        _executionInstance.Dispose();
+        NodeGraph.Dispose();
+        _context.Dispose();
         _subscriptions.Dispose();
     }
     
-    private void OnPluginRemoved(IInstalledPlugin obj) => RefreshNodeTree();
+    private void OnPluginRemoved(IInstalledPlugin _) => ReloadContext();
 
-    private void OnPluginInstalled(IInstalledPlugin newPlugin) => RefreshNodeTree();
+    private void OnPluginInstalled(IInstalledPlugin _) => ReloadContext();
 
-    private void RefreshNodeTree()
+    private void ReloadContext()
     {
-        _nodeTree?.Dispose();
+        _context?.Dispose();
         try
         {
-            _nodeTree = (IWritableNodeTree)_scriptingFactory.NodeTreeFromPersistentData(Data[NodeTreeKey]
+            var nodeGraph = (IWritableNodeGraph)_scriptingFactory.NodeTreeFromPersistentData(Data[NodeTreeKey]
                 .GetOrCreateCollection<IPersistentDictionary>());
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(NodeTree)));
+            
+            _context = new ScriptingContext(nodeGraph, _executionManager)
+            {
+                HostScript = this
+            };
+            
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(NodeGraph)));
         }
         catch (Exception ex)
         {
             _exceptionHandler.OnException(ex);
         }
     }
-
-    private void OnNodeAdded(INodeContainer obj) => ((NodeContainer)obj).AttachTo(this);
-
-    private void OnNodeRemoved(INodeContainer obj) => ((NodeContainer)obj).DetachFromHost();
 }

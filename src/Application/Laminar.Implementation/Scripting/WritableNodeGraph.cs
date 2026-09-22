@@ -15,9 +15,9 @@ using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.Scripting;
 
-internal class WritableNodeTree : IWritableNodeTree
+internal class WritableNodeGraph : IWritableNodeGraph
 {
-    private readonly ILogger<WritableNodeTree> _logger;
+    private readonly ILogger<WritableNodeGraph> _logger;
     
     private readonly Dictionary<IConnector, ConnectorInformation> _connectorsInformation = [];
     private readonly Dictionary<INodeContainer, NodeInformation> _nodesInformation = [];
@@ -27,10 +27,10 @@ internal class WritableNodeTree : IWritableNodeTree
     private readonly IPersistentDictionary _persistentNodes;
     private readonly IPersistentList _persistentConnections;
     
-    public WritableNodeTree(
+    public WritableNodeGraph(
         IPersistentDictionary persistentDictionary, 
         IRuntimeHost runtime,
-        ILogger<WritableNodeTree> logger,
+        ILogger<WritableNodeGraph> logger,
         IExceptionHandler exceptionHandler,
         IEnumerable<INodeContainer>? nodes = null, 
         IEnumerable<IConnection>? connections = null)

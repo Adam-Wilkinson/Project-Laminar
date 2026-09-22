@@ -1,5 +1,4 @@
 using Laminar.Contracts.Scripting.NodeWrapping;
-using Laminar.Domain.Observables;
 using Laminar.Domain.Observables.Collections;
 using Laminar.Implementation.Scripting.Execution;
 using Laminar.PluginFramework.NodeSystem;
@@ -8,29 +7,28 @@ using Laminar.PluginFramework.UserInterface;
 
 namespace Laminar.Implementation.Scripting.NodeWrapping;
 
-internal sealed class RuntimeNodeInstance : IRuntimeNodeInstance
+internal sealed class RuntimeNodeInstance : IRuntimeNodeInstance, IDisposable
 {
     private readonly IDisposable _rowsChangedSubscription;
     private readonly INodeRow _headerRow;
     private readonly IReadOnlyObservableCollection<INodeRow> _rows;
+    private readonly NodeContainer _container;
     private Action? _preEvaluateAction;
     
     public RuntimeNodeInstance(
+        NodeContainer container,
         INode node,
         INodeRow header,
-        IReadOnlyObservableCollection<INodeRow> rows,
-        INotificationClient<LaminarExecutionContext>? userChangedValueNotificationClient)
+        IReadOnlyObservableCollection<INodeRow> rows)
     {
+        _container = container;
         CoreNode = node;
-        UserChangedValueNotificationClient = userChangedValueNotificationClient;
         _headerRow = header;
         _rows = rows;
         RowAdded(header);
         _rowsChangedSubscription = rows.SubscribeForEach(RowAdded, RowRemoved);
     }
-
-    public INotificationClient<LaminarExecutionContext>? UserChangedValueNotificationClient { get; set; }
-
+    
     public INode CoreNode { get; }
     
     private void RowAdded(INodeRow row)
@@ -72,16 +70,16 @@ internal sealed class RuntimeNodeInstance : IRuntimeNodeInstance
     {
         if (context.ExecutionSource is null)
         {
-            context = context with { ExecutionSource = this };
+            context = context with { ExecutionSource = _container };
         }
 
-        if (UserChangedValueNotificationClient is null)
+        if (_container.Host?.UserChangedValueNotificationClient is not { } notificationClient)
         {
             Update(context);
         }
         else
         {
-            UserChangedValueNotificationClient.TriggerNotification(context);
+            notificationClient.TriggerNotification(context);
         }
     }
 

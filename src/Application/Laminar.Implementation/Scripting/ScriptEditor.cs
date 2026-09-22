@@ -15,53 +15,53 @@ internal class ScriptEditor(IEnumerable<IConnectionBridger> connectionBridgers) 
     {
         var newNode = script.Runtime.NodeManager.CreateNode(nodeContainer.Descriptor);
         newNode.Location.Value = location;
-        return new AddNodeAction(newNode, (IWritableNodeTree)script.NodeTree);
+        return new AddNodeAction(newNode, (IWritableNodeGraph)script.NodeGraph);
     }
 
     public IUserAction? FindBridgeConnectorsAction(IScript script, IConnector connectorOne, IConnector connectorTwo)
     {
         if (connectorOne is IInputConnector inputConnectorOne && connectorTwo is IOutputConnector outputConnectorTwo)
         {
-            return FindBridgeActionOrdered((IWritableNodeTree)script.NodeTree, inputConnectorOne, outputConnectorTwo);
+            return FindBridgeActionOrdered((IWritableNodeGraph)script.NodeGraph, inputConnectorOne, outputConnectorTwo);
         }
 
         if (connectorOne is IOutputConnector outputConnectorOne && connectorTwo is IInputConnector inputConnectorTwo)
         {
-            return FindBridgeActionOrdered((IWritableNodeTree)script.NodeTree, inputConnectorTwo, outputConnectorOne);
+            return FindBridgeActionOrdered((IWritableNodeGraph)script.NodeGraph, inputConnectorTwo, outputConnectorOne);
         }
 
         return null;
     }
 
     public IUserAction DeleteConnectionAction(IScript script, IConnection connection)
-        => new SeverConnectionAction(connection.OutputConnector, connection.InputConnector, (IWritableNodeTree)script.NodeTree);
+        => new SeverConnectionAction(connection.OutputConnector, connection.InputConnector, (IWritableNodeGraph)script.NodeGraph);
 
     public IUserAction DeleteNodeAction(IScript script, INodeContainer nodeContainer)
-        => new DeleteNodeAction(nodeContainer, (IWritableNodeTree)script.NodeTree);
+        => new DeleteNodeAction(nodeContainer, (IWritableNodeGraph)script.NodeGraph);
 
-    public IUserAction AddSubTree(IScript script, INodeTree subTree)
+    public IUserAction AddSubTree(IScript script, INodeGraph subGraph)
     {
         List<IUserAction> actions =
         [
-            .. subTree.Nodes
-                .Select(node => new AddNodeAction(node, (IWritableNodeTree)script.NodeTree))
+            .. subGraph.Nodes
+                .Select(node => new AddNodeAction(node, (IWritableNodeGraph)script.NodeGraph))
                 .Cast<IUserAction>(),
 
-            .. subTree.Connections
+            .. subGraph.Connections
                 .Select(connection => new EstablishConnectionAction(connection.OutputConnector,
                     connection.InputConnector,
-                    (IWritableNodeTree)script.NodeTree))
+                    (IWritableNodeGraph)script.NodeGraph))
                 .Cast<IUserAction>()
         ];
 
         return new CompoundAction(actions);
     }
 
-    private IUserAction? FindBridgeActionOrdered(IWritableNodeTree writableNodeTree, IInputConnector inputConnector, IOutputConnector outputConnector)
+    private IUserAction? FindBridgeActionOrdered(IWritableNodeGraph writableNodeGraph, IInputConnector inputConnector, IOutputConnector outputConnector)
     {
         foreach (var bridger in connectionBridgers)
         {
-            if (bridger.TryGetBridgeAction(outputConnector, inputConnector, writableNodeTree) is not
+            if (bridger.TryGetBridgeAction(outputConnector, inputConnector, writableNodeGraph) is not
                 { } action) continue;
 
             return action;

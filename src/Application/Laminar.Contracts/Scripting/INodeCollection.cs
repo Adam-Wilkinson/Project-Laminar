@@ -1,6 +1,6 @@
 using Laminar.Contracts.Scripting.NodeWrapping;
 
-namespace Laminar.Implementation.Scripting;
+namespace Laminar.Contracts.Scripting;
 
 public interface INodeCollection
 {
