@@ -36,7 +36,6 @@ internal sealed class ScriptingContext : IScriptingContext
     public void Dispose()
     {
         _connectionsSubscription.Dispose();
-        _executionInstance.Dispose();
         _nodeGraph.Dispose();
     }
     

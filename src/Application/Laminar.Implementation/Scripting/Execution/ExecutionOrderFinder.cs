@@ -7,93 +7,47 @@ using Laminar.PluginFramework.NodeSystem.Connectors;
 
 namespace Laminar.Implementation.Scripting.Execution;
 
-internal class ExecutionOrderFinder : IExecutionOrderFinder
+internal sealed class ExecutionOrderFinder : IExecutionOrderFinder
 {
-    private readonly Dictionary<(object, int), OrderFinderInstance> _calculatedBranches = new();
-
-    public IConditionalExecutionBranch[] GetExecutionBranchesFrom(LaminarExecutionContext context, INodeGraph graph)
+    public IConditionalExecutionBranch[] ComputeExecutionBranchesFrom(LaminarExecutionContext context, INodeGraph graph)
     {
-        ArgumentNullException.ThrowIfNull(context.ExecutionSource);
-
-        if (_calculatedBranches.TryGetValue((context.ExecutionSource, context.ExecutionFlags.AsNumber), out var instance))
-        {
-            if (instance.Graph == graph)
-            {
-                return instance.Branches();
-            }
-            
-            instance.Dispose();
-            OrderFinderInstance replacement = new(context, graph);
-            _calculatedBranches[(context.ExecutionSource, context.ExecutionFlags.AsNumber)] = replacement;
-            return replacement.Branches();
-        }
-
-        OrderFinderInstance newFinder = new(context, graph);
-        _calculatedBranches.Add((context.ExecutionSource, context.ExecutionFlags.AsNumber), newFinder);
-        return newFinder.Branches();
-    }
-
-    private class OrderFinderInstance : IDisposable
-    {
-        private readonly object _source;
-        private readonly ExecutionFlags _flags;
-        private readonly Lock _lockObject = new();
-
-        private IConditionalExecutionBranch[]? _lastCalculation;
-        private List<IOutputConnector>? _remainingBranchStarters;
-        private List<INodeContainer>? _currentBranchOrder;
-
-        public OrderFinderInstance(LaminarExecutionContext context, INodeGraph graph)
-        {
-            Graph = graph;
-            _flags = context.ExecutionFlags;
-            _source = context.ExecutionSource!;
-
-            Graph.Changed += OnGraphChanged;
-        }
-
-        public INodeGraph Graph { get; }
+        if (context.ExecutionSource is null)
+            throw new InvalidOperationException("Source cannot be null");
         
-        public IConditionalExecutionBranch[] Branches()
-        {
-            return _lastCalculation ??= FindExecutionPath(_source, _flags);
-        }
+        List<IOutputConnector> remainingBranchStarters;
+        List<INodeContainer> currentBranchOrder;
+        
+        return FindExecutionPath(context.ExecutionSource, context.ExecutionFlags);
 
-        private IConditionalExecutionBranch[] FindExecutionPath(object source, ExecutionFlags flags)
+        IConditionalExecutionBranch[] FindExecutionPath(object source, ExecutionFlags flags) => source switch
         {
-            lock (_lockObject)
-            {
-                return source switch
-                {
-                    INodeContainer nodeSource => FindExecutionPathFromNode(nodeSource, flags),
-                    IOutputConnector outputConnector => FindExecutionPathFromOutput(outputConnector, flags),
-                    _ => throw new Exception($"Could not make execution path from source {source}")
-                };
-            }
-        }
-
-        private IConditionalExecutionBranch[] FindExecutionPathFromOutput(IOutputConnector firstConnector, ExecutionFlags flags)
+            INodeContainer nodeSource => FindExecutionPathFromNode(nodeSource, flags),
+            IOutputConnector outputConnector => FindExecutionPathFromOutput(outputConnector, flags),
+            _ => throw new Exception($"Could not make execution path from source {source}")
+        };
+        
+        IConditionalExecutionBranch[] FindExecutionPathFromOutput(IOutputConnector firstConnector, ExecutionFlags flags)
         {
             List<IConditionalExecutionBranch> completedBranches = [];
-            _remainingBranchStarters = [firstConnector];
-            while (_remainingBranchStarters.Count > 0)
+            remainingBranchStarters = [firstConnector];
+            while (remainingBranchStarters.Count > 0)
             {
-                IOutputConnector currentBranchStarter = _remainingBranchStarters[0];
-                _currentBranchOrder = [];
+                var currentBranchStarter = remainingBranchStarters[0];
+                currentBranchOrder = [];
                 FindPathFromOutputConnector(currentBranchStarter, flags);
-                ConditionalExecutionBranch recentlyFoundBranch = new(_currentBranchOrder.ToArray(), currentBranchStarter);
+                ConditionalExecutionBranch recentlyFoundBranch = new([.. currentBranchOrder], currentBranchStarter);
                 completedBranches.Add(recentlyFoundBranch);
-                _remainingBranchStarters.RemoveAt(0);
+                remainingBranchStarters.RemoveAt(0);
             }
 
-            return completedBranches.ToArray();
+            return [.. completedBranches];
         }
 
-        private IConditionalExecutionBranch[] FindExecutionPathFromNode(INodeContainer firstNodeContainer, ExecutionFlags flags)
+        IConditionalExecutionBranch[] FindExecutionPathFromNode(INodeContainer firstNodeContainer, ExecutionFlags flags)
         {
-            _remainingBranchStarters = [];
-            _currentBranchOrder = [firstNodeContainer];
-            foreach (INodeRow row in firstNodeContainer.Rows)
+            remainingBranchStarters = [];
+            currentBranchOrder = [firstNodeContainer];
+            foreach (var row in firstNodeContainer.Rows)
             {
                 if (GetConnectionsIfBranchContinues(row, flags) is not null)
                 {
@@ -102,23 +56,23 @@ internal class ExecutionOrderFinder : IExecutionOrderFinder
             }
 
             List<IConditionalExecutionBranch> completedBranches = 
-                [new ConditionalExecutionBranch(_currentBranchOrder.ToArray())];
+                [new ConditionalExecutionBranch([.. currentBranchOrder])];
 
-            while (_remainingBranchStarters.Count > 0)
+            while (remainingBranchStarters.Count > 0)
             {
-                IOutputConnector currentBranchStarter = _remainingBranchStarters[0];
-                _currentBranchOrder = [];
+                var currentBranchStarter = remainingBranchStarters[0];
+                currentBranchOrder = [];
                 FindPathFromOutputConnector(currentBranchStarter, flags);
-                ConditionalExecutionBranch recentlyFoundBranch = new(_currentBranchOrder.ToArray(), currentBranchStarter);
+                ConditionalExecutionBranch recentlyFoundBranch = new([.. currentBranchOrder], currentBranchStarter);
                 completedBranches.Add(recentlyFoundBranch);
-                _remainingBranchStarters.RemoveAt(0);
+                remainingBranchStarters.RemoveAt(0);
             }
-            return completedBranches.ToArray();
+            return [.. completedBranches];
         }
 
-        private void FindPathFromOutputConnector(IOutputConnector currentBranchStarter, ExecutionFlags executionFlags)
+        void FindPathFromOutputConnector(IOutputConnector currentBranchStarter, ExecutionFlags executionFlags)
         {
-            var currentConnectionsLevel = Graph.GetConnectionsTo(currentBranchStarter);
+            var currentConnectionsLevel = graph.GetConnectionsTo(currentBranchStarter);
             List<ConnectorConnectionInfo> nextConnectionsLevel = [];
 
             while (currentConnectionsLevel.Count > 0)
@@ -126,8 +80,8 @@ internal class ExecutionOrderFinder : IExecutionOrderFinder
                 foreach (var currentConnections in currentConnectionsLevel)
                 {
                     var currentNode = currentConnections.ConnectedNodeContainer;
-                    _currentBranchOrder!.Remove(currentNode);
-                    _currentBranchOrder.Add(currentNode);
+                    currentBranchOrder.Remove(currentNode);
+                    currentBranchOrder.Add(currentNode);
                     nextConnectionsLevel.AddRange(GetDependentNodes(currentNode, executionFlags));
                 }
                 
@@ -136,9 +90,9 @@ internal class ExecutionOrderFinder : IExecutionOrderFinder
             }
         }
 
-        private IEnumerable<ConnectorConnectionInfo> GetDependentNodes(INodeContainer nodeContainer, ExecutionFlags executionFlags)
+        IEnumerable<ConnectorConnectionInfo> GetDependentNodes(INodeContainer nodeContainer, ExecutionFlags executionFlags)
         {
-            foreach (INodeRow row in nodeContainer.Rows)
+            foreach (var row in nodeContainer.Rows)
             {
                 if (GetConnectionsIfBranchContinues(row, executionFlags) is not { } connectedNodes) continue;
                 
@@ -149,10 +103,10 @@ internal class ExecutionOrderFinder : IExecutionOrderFinder
             }
         }
 
-        private IReadOnlyCollection<ConnectorConnectionInfo>? GetConnectionsIfBranchContinues(INodeRow row, ExecutionFlags flags)
+        IReadOnlyCollection<ConnectorConnectionInfo>? GetConnectionsIfBranchContinues(INodeRow row, ExecutionFlags flags)
         {
             if (row.OutputConnector is not { } outputConnector
-                || Graph.GetConnectionsTo(outputConnector) is not { } connections)
+                || graph.GetConnectionsTo(outputConnector) is not { } connections)
                 return null;
             
             switch (outputConnector.PassUpdate(flags))
@@ -161,22 +115,12 @@ internal class ExecutionOrderFinder : IExecutionOrderFinder
                     return connections;
                 case PassUpdateOption.CurrentlyPasses:
                 case PassUpdateOption.CurrentlyDoesNotPass:
-                    _remainingBranchStarters!.Add(outputConnector);
+                    remainingBranchStarters!.Add(outputConnector);
                     return null;
                 case PassUpdateOption.NeverPasses:
                 default:
                     return null;
             }
-        }
-
-        private void OnGraphChanged(object? sender, EventArgs e)
-        {
-            _lastCalculation = null;
-        }
-
-        public void Dispose()
-        {
-            Graph.Changed -= OnGraphChanged;
         }
     }
 }

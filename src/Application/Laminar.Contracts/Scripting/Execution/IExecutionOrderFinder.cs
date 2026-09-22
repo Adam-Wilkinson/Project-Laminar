@@ -4,5 +4,5 @@ namespace Laminar.Contracts.Scripting.Execution;
 
 public interface IExecutionOrderFinder
 {
-    public IConditionalExecutionBranch[] GetExecutionBranchesFrom(LaminarExecutionContext context, INodeGraph graph);
+    public IConditionalExecutionBranch[] ComputeExecutionBranchesFrom(LaminarExecutionContext context, INodeGraph graph);
 }

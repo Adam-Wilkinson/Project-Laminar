@@ -71,15 +71,24 @@ public partial class UserActionScope(
     public async Task<IUserActionResult> ResolveExecutionAsync(IUserAction action)
     {
         LogResolvingAction(_id, action);
-        if (!action.CanExecute) return IUserActionResult.Ineffectual();
-        var result = await action.Execute();
+        IUserActionResult result;
+        try
+        {
+            if (!action.CanExecute) return IUserActionResult.Ineffectual();
+            result = await action.Execute();
+        }
+        catch (Exception ex)
+        {
+            result = IUserActionResult.Error(ex);
+        }
+        
         if (result is UserActionSuccess success) return success;
 
         if (result is UserActionAlternative { AlternativeAction: { } alternative })
         {
             return await ResolveExecutionAsync(alternative);
         }
-
+        
         foreach (var errorResolver in errorResolvers)
         {
             var resolution = await errorResolver.TryResolve(result);

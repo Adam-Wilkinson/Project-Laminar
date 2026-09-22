@@ -62,7 +62,7 @@ internal class WritableNodeGraph : IWritableNodeGraph
                 var connectionData = _persistentConnections[i].GetValue<ConnectionData>().Value;
                 if (!Connection.TryCreateFromData(connectionData, this, out var connection))
                 {
-                    throw new InvalidOperationException("Unable to create connection");
+                    throw new DeserializationError(new InvalidOperationException("Unable to create connection"), typeof(Connection));
                 }
                 
                 if (!TryConnectWithoutSerializing(connection.OutputConnector, connection.InputConnector, out _))
@@ -73,6 +73,11 @@ internal class WritableNodeGraph : IWritableNodeGraph
                 i++;
             }
             catch (DeserializationError ex) 
+            {
+                exceptionHandler.OnException(ex);
+                _persistentConnections.RemoveAt(i);
+            }
+            catch (CouldNotConnectException ex) 
             {
                 exceptionHandler.OnException(ex);
                 _persistentConnections.RemoveAt(i);
@@ -231,7 +236,7 @@ internal class WritableNodeGraph : IWritableNodeGraph
         var outputInfo = GetConnectorInformation(outputConnector);
         
         Debug.Assert(Equals(inputInfo.Connections[outputConnector].Connection, outputInfo.Connections[inputConnector].Connection));
-        IConnection brokenConnector = inputInfo.Connections[outputConnector].Connection;
+        var brokenConnector = inputInfo.Connections[outputConnector].Connection;
 
         inputInfo.Connections.Remove(outputConnector);
         outputInfo.Connections.Remove(inputConnector);
@@ -240,7 +245,8 @@ internal class WritableNodeGraph : IWritableNodeGraph
         _nodesInformation[outputInfo.Owner].Updates.OnConnectionsChanged();
 
         var persistentValueIndex = _persistentConnections.FirstIndexWhere(x =>
-            x.MaterializedValue is IPersistentValue<Connection> { Value: var foundConnection } &&
+            x.MaterializedValue is IPersistentValue<ConnectionData> { Value: var foundConnectionData } &&
+            Connection.TryCreateFromData(foundConnectionData, this, out var foundConnection) &&
             Equals(foundConnection.InputConnector, inputConnector) &&
             Equals(foundConnection.OutputConnector, outputConnector));
         
