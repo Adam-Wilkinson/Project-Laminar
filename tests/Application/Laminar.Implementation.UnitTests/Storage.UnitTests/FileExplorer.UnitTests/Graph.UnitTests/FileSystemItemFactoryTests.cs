@@ -1,3 +1,4 @@
+using Laminar.Contracts.Base;
 using Laminar.Contracts.Storage.FileExplorer.Graph;
 using Laminar.Contracts.Storage.FileExplorer.Synchronization;
 using Laminar.Contracts.Storage.IO;
@@ -159,6 +160,8 @@ public class FileSystemItemFactoryTests
             .AddSingleton(Substitute.For<IFileSystemGraph>())
             .AddSingleton(Substitute.For<IPersistentDataManager>())
             .AddSingleton(Substitute.For<IFileSystemMonitor>())
+            .AddSingleton(Substitute.For<IRuntimeHostManager>())
+            .AddSingleton(Substitute.For<IExceptionHandler>())
             .BuildServiceProvider();
 
         return provider;
