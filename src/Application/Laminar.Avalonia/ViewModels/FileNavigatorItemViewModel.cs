@@ -47,7 +47,7 @@ public partial class FileNavigatorItemViewModel(
     public partial bool NameBeingSet { get; set; } = true;
 
     [ObservableProperty]
-    public partial IObservableCollection<FileNavigatorItemViewModel>? Children { get; private set; }
+    public partial IObservableList<FileNavigatorItemViewModel>? Children { get; private set; }
 
     [ObservableProperty] 
     public partial IRuntimeHost? RuntimeHost { get; private set; }
@@ -215,7 +215,7 @@ public partial class FileNavigatorItemViewModel(
             return result;
         });
 
-        var children = new SourcedObservableCollection<FileNavigatorItemViewModel>(mapped, NamesEqual);
+        var children = new SourcedObservableList<FileNavigatorItemViewModel>(mapped, NamesEqual);
         RegisterSubscription(children.SubscribeForEach(child => child.Parent = this));
         
         await Dispatcher.UIThread.InvokeAsync(() => Children = children, DispatcherPriority.ContextIdle);

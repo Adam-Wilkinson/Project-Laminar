@@ -5,7 +5,7 @@ using TreeIndex = System.Int32;
 
 namespace Laminar.Domain.Observables.Collections;
 
-public class FlattenedObservableTree<T> : ReadOnlyObservableCollectionBase<T>
+public class FlattenedObservableTree<T> : ReadOnlyObservableListBase<T>
 {
     private readonly List<T> _flattenedItems = [];
     private readonly List<object> _childNodes = [];

@@ -46,7 +46,4 @@ public static class NotificationLocalizer
 
     private static NotificationDisplayItem Localize(this LifetimeControlledNotification lifetimeControlled, string message)
         => new(lifetimeControlled.Severity, message, []);
-
-    private static string Localize(this VersionedPluginId plugin) 
-        => string.Format(Strings.PluginVersion.CurrentValue, plugin.Name, plugin.Version);
 }

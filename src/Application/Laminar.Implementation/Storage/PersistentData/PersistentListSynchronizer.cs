@@ -12,7 +12,7 @@ internal sealed class PersistentListSynchronizer<T> : IDisposable
     
     public PersistentListSynchronizer(
         IPersistentList targetList,
-        IReadOnlyObservableCollection<T> changedNotifier,
+        IReadOnlyObservableList<T> changedNotifier,
         IPersistenceAdapter<T> adapter)
     {
         _notifyCollectionChanged = changedNotifier;
@@ -45,18 +45,18 @@ internal sealed class PersistentListSynchronizer<T> : IDisposable
         }
     }
 
-    private void HydrateReadOnly(IReadOnlyObservableCollection<T> readOnlyCollection)
+    private void HydrateReadOnly(IReadOnlyObservableList<T> readOnlyList)
     {
         int indexInSource = 0;
         foreach (var persistentRow in _persistentList)
         {
-            _persistenceAdapter.Hydrate(readOnlyCollection[indexInSource], persistentRow);
+            _persistenceAdapter.Hydrate(readOnlyList[indexInSource], persistentRow);
             indexInSource++;
         }
 
-        while (indexInSource < readOnlyCollection.Count)
+        while (indexInSource < readOnlyList.Count)
         {
-            _persistenceAdapter.Hydrate(readOnlyCollection[indexInSource], _persistentList.AddNext());
+            _persistenceAdapter.Hydrate(readOnlyList[indexInSource], _persistentList.AddNext());
             indexInSource++;
         }
     }

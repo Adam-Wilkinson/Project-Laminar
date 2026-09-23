@@ -19,7 +19,7 @@ namespace Laminar.Implementation.Scripting.NodeWrapping;
 internal sealed class NodeContainer : INodeContainer
 {
     private readonly IPersistentDictionary _persistentDictionary;
-    private readonly BoundObservableCollection<INodeRow> _rows = new();
+    private readonly BoundObservableList<INodeRow> _rows = new();
     private readonly RuntimeNodeInstance? _runtimeNode;
     private readonly IDisposable? _persistentRowsSynchronizer;
     
@@ -41,22 +41,20 @@ internal sealed class NodeContainer : INodeContainer
         if (!pluginManager.TryGetInstalledPlugin(Descriptor.Plugin, out var plugin))
         {
             Notifications.AddNotification(notificationFactory.PluginNotInstalled(Descriptor.Plugin, this, pluginManager));
-            
-            _rows.BindTo(new ObservableCollectionImpl<INodeRow>([
-                .. persistentDictionary[nameof(Rows)].GetOrCreateCollection<IPersistentList>()
-                    .Select(_ => new StubNodeRow())
-            ]));
+
+            _rows.BindTo(new ObservableList<INodeRow>(persistentDictionary[nameof(Rows)]
+                .GetOrCreateCollection<IPersistentList>()
+                .Select(_ => new StubNodeRow())));
             return;
         }
 
         if (!plugin.TryGetNodeInfo(Descriptor.NodeName, out var nodeInfo))
         {
             Notifications.AddNotification(notificationFactory.PluginDoesNotContainNode(Descriptor.Plugin, this));
-            
-            _rows.BindTo(new ObservableCollectionImpl<INodeRow>([
-                .. persistentDictionary[nameof(Rows)].GetOrCreateCollection<IPersistentList>()
-                    .Select(_ => new StubNodeRow())
-            ]));
+
+            _rows.BindTo(new ObservableList<INodeRow>(persistentDictionary[nameof(Rows)]
+                .GetOrCreateCollection<IPersistentList>()
+                .Select(_ => new StubNodeRow())));
             return;
         }
 
@@ -100,7 +98,7 @@ internal sealed class NodeContainer : INodeContainer
     
     public INodeRow<IInterfaceData<EditableLabel, string>> NameRow { get; }
 
-    public IReadOnlyObservableCollection<INodeRow> Rows => _rows;
+    public IReadOnlyObservableList<INodeRow> Rows => _rows;
 
     public IObservableValue<bool> IsCollapsed { get; }
 

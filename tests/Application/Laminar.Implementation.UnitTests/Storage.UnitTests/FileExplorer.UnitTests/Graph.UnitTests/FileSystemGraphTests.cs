@@ -524,7 +524,7 @@ public class FileSystemGraphTests
                     x[1] = child;
                     return true;
                 });
-                return Task.FromResult<IReadOnlyObservableCollection<IFileSystemItem>>(new ObservableCollectionImpl<IFileSystemItem>([child]));
+                return Task.FromResult<IReadOnlyObservableList<IFileSystemItem>>(new ObservableList<IFileSystemItem>([child]));
             });
 
             var sut = CreateGraph(repository: repository);

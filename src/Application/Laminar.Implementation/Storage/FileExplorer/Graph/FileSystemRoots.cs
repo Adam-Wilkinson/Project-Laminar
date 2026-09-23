@@ -27,6 +27,7 @@ internal sealed class FileSystemRoots(
         
         var newRoot = CreateDetachedRoot(path);
         _internal.Add(newRoot);
+        ItemAdded?.Invoke(this, newRoot);
         return newRoot;
     }
 
@@ -50,6 +51,7 @@ internal sealed class FileSystemRoots(
         ToMutable(oldRoot).OnRemoved(token, removeInfoFiles);
         repository.Remove(token, folder);
         _internal.Remove(folder);
+        ItemRemoved?.Invoke(this, folder);
         return true;
     }
 
@@ -60,6 +62,10 @@ internal sealed class FileSystemRoots(
         add => _internal.CollectionChanged += value;
         remove => _internal.CollectionChanged -= value;
     }
+
+    public event EventHandler<IFileSystemRootFolder>? ItemAdded;
+    
+    public event EventHandler<IFileSystemRootFolder>? ItemRemoved;
     
     public bool Contains(IFileSystemRootFolder value) => _internal.Contains(value);
 

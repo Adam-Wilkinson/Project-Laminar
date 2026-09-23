@@ -20,9 +20,9 @@ public class PluginLibrary(IExceptionHandler exceptionHandler) : IPluginLibrary
     
     public IReadOnlyList<IPluginSource> Sources => _pluginRepositories;
 
-    public IReadOnlyObservableCollection<IPluginSource> CurrentlyLoadingSources => field ??= _loadingRepositories.ToInterfaceImpl();
+    public IReadOnlyObservableList<IPluginSource> CurrentlyLoadingSources => field ??= _loadingRepositories.ToObservableList();
     
-    public IReadOnlyObservableCollection<IPluginInfo> LoadedPlugins => field ??= _loadedPlugins.ToInterfaceImpl();
+    public IReadOnlyObservableList<IPluginInfo> LoadedPlugins => field ??= _loadedPlugins.ToObservableList();
     
     public async Task AddSource(IPluginSource source)
     {

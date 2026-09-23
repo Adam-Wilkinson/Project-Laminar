@@ -9,7 +9,7 @@ public interface IPluginInfo
 {
     public string Id { get; }
 
-    public IReadOnlyObservableCollection<SemanticVersion> AllVersions { get; }
+    public IReadOnlyObservableList<SemanticVersion> AllVersions { get; }
 
     public IReadOnlyObservableValue<SemanticVersion?> LatestVersion { get; }
 

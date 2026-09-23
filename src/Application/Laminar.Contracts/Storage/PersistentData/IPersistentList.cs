@@ -16,5 +16,5 @@ public interface IPersistentList : IEncodableData, IReadOnlyList<IPersistentData
     
     public void Clear();
 
-    public IDisposable InitializeAndSyncTo<T>(IReadOnlyObservableCollection<T> target, IPersistenceAdapter<T> adapter);
+    public IDisposable InitializeAndSyncTo<T>(IReadOnlyObservableList<T> target, IPersistenceAdapter<T> adapter);
 }

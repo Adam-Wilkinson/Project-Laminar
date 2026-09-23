@@ -25,7 +25,7 @@ public partial class FileNavigatorViewModel(
     private FileNavigatorItemViewModel? _proposedHoveredItem;
     private (FileNavigatorItemViewModel moveItem, int moveIndex)? _currentHoverMove;
 
-    public IReadOnlyObservableCollection<FileNavigatorItemViewModel> RootFiles { get; set; } = 
+    public IReadOnlyObservableList<FileNavigatorItemViewModel> RootFiles { get; set; } = 
         fileBrowser.RootFolders.ObservableMap(x =>
         {
             var result = fileNavigatorItemViewModelFactory(FileSystemItemType.Folder);

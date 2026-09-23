@@ -7,9 +7,9 @@ public interface IPluginLibrary
 {
     public IReadOnlyList<IPluginSource> Sources { get; }
     
-    public IReadOnlyObservableCollection<IPluginSource> CurrentlyLoadingSources { get; }
+    public IReadOnlyObservableList<IPluginSource> CurrentlyLoadingSources { get; }
     
-    public IReadOnlyObservableCollection<IPluginInfo> LoadedPlugins { get; }
+    public IReadOnlyObservableList<IPluginInfo> LoadedPlugins { get; }
     
     public Task AddSource(IPluginSource source);
     

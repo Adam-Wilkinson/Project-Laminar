@@ -56,7 +56,7 @@ internal class PersistentList(IEncodableDataFactory dataFactory) : IPersistentLi
         Invalidated?.Invoke(this, EventArgs.Empty);
     }
 
-    public IDisposable InitializeAndSyncTo<T>(IReadOnlyObservableCollection<T> target, IPersistenceAdapter<T> adapter)
+    public IDisposable InitializeAndSyncTo<T>(IReadOnlyObservableList<T> target, IPersistenceAdapter<T> adapter)
         => new PersistentListSynchronizer<T>(this, target, adapter);
 
     private void OnChildInvalidated(object? sender, EventArgs e)

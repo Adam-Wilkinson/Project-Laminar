@@ -6,6 +6,29 @@
   "definitions": {
     "lang-supported-string": {
       "type": ["string", "object"]
+    },
+    "frontend": {
+      "type": "string",
+      "enum": ["Avalonia"]
+    },
+    "dependency": {
+      "type": "object",
+      "properties": {
+        "plugin_name": {
+          "type": "string",
+          "description": "The unique identifying name of the plugin"
+        },
+        "plugin_version": {
+          "type": "string",
+          "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+          "description": "The version of the plugin"
+        },
+        "frontend_condition": {
+          "$ref": "#/definitions/frontend",
+          "description": "The frontend that must be in use for this dependency to be considered necessary"
+        }
+      },
+      "required": ["plugin_name", "plugin_version"]
     }
   },
 
@@ -68,10 +91,10 @@
         ]
       }
     },
-    "plugin-dependencies": {
+    "plugin_dependencies": {
       "type": "array",
       "title": "List of plugins that this plugin depends on",
-      "items": { "type": "string" }
+      "items": { "$ref": "#/definitions/dependency" }
     },
     "output-path": {
       "type": "string",

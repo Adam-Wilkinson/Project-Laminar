@@ -17,7 +17,7 @@ public sealed class NotificationManager : INotifyPropertyChanged
         private set => SetField(ref field, value);
     } = NotificationSeverity.None;
     
-    public IReadOnlyObservableCollection<NotificationBase> AllNotifications => field ??= _allNotifications.ToInterfaceImpl();
+    public IReadOnlyObservableList<NotificationBase> AllNotifications => field ??= _allNotifications.ToObservableList();
 
     public IDisposable AddNotification(LifetimeControlledNotification notification)
     {

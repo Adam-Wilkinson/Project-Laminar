@@ -38,7 +38,7 @@ public partial class ScriptEditorViewModel(
     
     private readonly Dictionary<object, ScriptEditorItemModel> _itemModels = [];
     
-    private BoundObservableCollection<ScriptEditorItemModel>? _models;
+    private BoundObservableList<ScriptEditorItemModel>? _models;
     private IUserActionSession? _userActionSession;
 
     [ObservableProperty]
@@ -55,8 +55,8 @@ public partial class ScriptEditorViewModel(
 
     public UndoRedoHandler UndoRedo { get; } = new(script.ActionScope);
     
-    public IReadOnlyObservableCollection<ScriptEditorItemModel> VisualElements 
-        => _models ??= new BoundObservableCollection<ScriptEditorItemModel>(GetVisualElements());
+    public IReadOnlyObservableList<ScriptEditorItemModel> VisualElements 
+        => _models ??= new BoundObservableList<ScriptEditorItemModel>(GetVisualElements());
 
     protected override void OnTargetPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
@@ -272,7 +272,7 @@ public partial class ScriptEditorViewModel(
         script.Pan.Value = new LaminarPoint { X = PanX, Y = PanY };
     }
 
-    private IReadOnlyObservableCollection<ScriptEditorItemModel> GetVisualElements()
+    private IReadOnlyObservableList<ScriptEditorItemModel> GetVisualElements()
         => new FlattenedObservableTree<ScriptEditorItemModel>(
             script.NodeGraph.Nodes.ObservableMap(CreateItemModel),
             script.NodeGraph.Connections.ObservableMap(CreateItemModel));

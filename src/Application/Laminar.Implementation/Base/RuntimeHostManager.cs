@@ -18,12 +18,17 @@ public class RuntimeHostManager(IServiceProvider serviceProvider) : IRuntimeHost
         };
         
         _hosts.Add(newHost);
-        newHost.PluginManager.Plugins.CollectionChanged += (_, _) => PluginsChanged?.Invoke(this,
-            new PluginsChangedEventArgs
+        newHost.PluginManager.UserInstalledPlugins.ItemAdded += HostPluginChanged;
+        newHost.PluginManager.UserInstalledPlugins.ItemRemoved += HostPluginChanged;
+        return newHost;
+
+        void HostPluginChanged(object? sender, IInstalledPlugin plugin)
+        {
+            PluginsChanged?.Invoke(this, new PluginsChangedEventArgs
             {
                 ChangedRuntime = newHost,
             });
-        return newHost;
+        }
     }
 
     public event EventHandler<PluginsChangedEventArgs>? PluginsChanged;

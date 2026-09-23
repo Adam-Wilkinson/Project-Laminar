@@ -5,11 +5,11 @@ namespace Laminar.Domain.Observables.Collections;
 
 public static class SubscribeForEachExtensions
 {
-    public static IDisposable SubscribeForEach<T>(this IReadOnlyObservableCollection<T> collection,
+    public static IDisposable SubscribeForEach<T>(this IReadOnlyObservableList<T> list,
         Action<T>? onAdded = null,
         Action<T>? onRemoved = null,
         Action? onReset = null)
-        => ((INotifyCollectionChanged)collection).SubscribeForEach(onAdded, onRemoved, onReset);
+        => ((INotifyCollectionChanged)list).SubscribeForEach(onAdded, onRemoved, onReset);
 
     public static IDisposable SubscribeForEach<T>(this ObservableCollection<T> collection,
         Action<T>? onAdded = null,

@@ -5,7 +5,6 @@ using Laminar.Contracts.Base.PluginLoading;
 using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Scripting.Execution;
 using Laminar.Contracts.Storage.PersistentData;
-using Laminar.Domain.Observables.Collections;
 using Laminar.Domain.Observables.Value;
 using Laminar.Domain.ValueObjects;
 using Laminar.Implementation.Scripting.Actions;
@@ -16,7 +15,6 @@ internal sealed class Script : IScript
 {
     private const string NodeTreeKey = "NodeTree";
     
-    private readonly IDisposable _subscriptions;
     private readonly IScriptingFactory _scriptingFactory;
     private readonly IExceptionHandler _exceptionHandler;
     private readonly IExecutionManager _executionManager;
@@ -44,7 +42,8 @@ internal sealed class Script : IScript
         Pan = persistentData[nameof(Pan)].GetValueOrInitialize(new Point { X = 0, Y = 0 });
         Zoom = persistentData[nameof(Zoom)].GetValueOrInitialize(1.0);
 
-        _subscriptions = Runtime.PluginManager.Plugins.SubscribeForEach(OnPluginsChanged, OnPluginsChanged);
+        Runtime.PluginManager.UserInstalledPlugins.ItemAdded += OnPluginsChanged;
+        Runtime.PluginManager.UserInstalledPlugins.ItemRemoved += OnPluginsChanged;
     }
     
     public IRuntimeHost Runtime { get; }
@@ -65,10 +64,11 @@ internal sealed class Script : IScript
     {
         NodeGraph.Dispose();
         _context.Dispose();
-        _subscriptions.Dispose();
+        Runtime.PluginManager.UserInstalledPlugins.ItemAdded -= OnPluginsChanged;
+        Runtime.PluginManager.UserInstalledPlugins.ItemRemoved -= OnPluginsChanged;
     }
     
-    private void OnPluginsChanged(IInstalledPlugin _) => ReloadContext();
+    private void OnPluginsChanged(object? sender, IInstalledPlugin? _) => ReloadContext();
     
     private void ReloadContext()
     {

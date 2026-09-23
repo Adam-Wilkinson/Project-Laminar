@@ -21,9 +21,9 @@ public interface INodeGraph : IDisposable
     
     public INodeUpdates GetUpdates(INodeContainer nodeContainer);
     
-    public IReadOnlyObservableCollection<INodeContainer> Nodes { get; }
+    public IReadOnlyObservableList<INodeContainer> Nodes { get; }
 
-    public IReadOnlyObservableCollection<IConnection> Connections { get; }
+    public IReadOnlyObservableList<IConnection> Connections { get; }
     
     public bool ConnectionExists(IConnector firstConnector, IConnector secondConnector, [NotNullWhen(true)] out IConnection? existingConnection);
     

@@ -3,9 +3,10 @@ using System.Collections.Specialized;
 
 namespace Laminar.Domain.Observables.Collections;
 
-public abstract class ReadOnlyObservableCollectionBase<T> : IReadOnlyObservableCollection<T>, IList
+public abstract class ReadOnlyObservableListBase<T> : IReadOnlyObservableList<T>, IList
 {
     public abstract bool Contains(T value);
+    
     public abstract int IndexOf(T value);
 
     public abstract IEnumerator<T> GetEnumerator();
@@ -19,17 +20,30 @@ public abstract class ReadOnlyObservableCollectionBase<T> : IReadOnlyObservableC
 
     public abstract T this[int index] { get; }
     
-    /// <summary>
-    /// Raised when the collection changes.
-    ///
-    /// Implementations may forward event subscriptions directly to an
-    /// underlying collection rather than maintaining their own event backing field.
-    /// </summary>
-    public virtual event NotifyCollectionChangedEventHandler? CollectionChanged;
+    public event NotifyCollectionChangedEventHandler? CollectionChanged;
 
+    public event EventHandler<T>? ItemAdded;
+    
+    public event EventHandler<T>? ItemRemoved;
+    
     protected void InvokeCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         CollectionChanged?.Invoke(sender, e);
+        if (e.Action is NotifyCollectionChangedAction.Remove or NotifyCollectionChangedAction.Replace && ItemRemoved is not null)
+        {
+            foreach (var item in e.OldItems!.Cast<T>())
+            {
+                ItemRemoved.Invoke(sender, item);
+            }
+        }
+
+        if (e.Action is NotifyCollectionChangedAction.Add or NotifyCollectionChangedAction.Replace && ItemAdded is not null)
+        {
+            foreach (var item in e.NewItems!.Cast<T>())
+            {
+                ItemAdded.Invoke(sender, item);
+            }
+        }
     }
     
     object? IList.this[int index]

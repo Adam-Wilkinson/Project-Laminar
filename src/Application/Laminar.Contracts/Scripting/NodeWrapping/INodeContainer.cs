@@ -13,7 +13,7 @@ public interface INodeContainer : IDisposable
 {
     public INodeRow<IInterfaceData<EditableLabel, string>> NameRow { get; }
 
-    public IReadOnlyObservableCollection<INodeRow> Rows { get; }
+    public IReadOnlyObservableList<INodeRow> Rows { get; }
     
     public IObservableValue<bool> IsCollapsed { get; }
     

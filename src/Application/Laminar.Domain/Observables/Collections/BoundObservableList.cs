@@ -3,27 +3,21 @@ using System.Collections.Specialized;
 
 namespace Laminar.Domain.Observables.Collections;
 
-public sealed class BoundObservableCollection<T> : ReadOnlyObservableCollectionBase<T>, IDisposable
+public sealed class BoundObservableList<T> : ReadOnlyObservableListBase<T>, IDisposable
 {
-    private IReadOnlyObservableCollection<T>? _source;
+    private IReadOnlyObservableList<T>? _source;
 
-    public BoundObservableCollection()
+    public BoundObservableList()
     {
-        _source = new ObservableCollectionImpl<T>([]);
     }
-
-    public BoundObservableCollection(IEnumerable<T> source)
-    {
-        _source = new ObservableCollectionImpl<T>(source);
-    }
-
-    public BoundObservableCollection(IReadOnlyObservableCollection<T> source)
+    
+    public BoundObservableList(IReadOnlyObservableList<T> source)
     {
         _source = source;
         _source.CollectionChanged += CurrentBindingOnCollectionChanged;
     }
 
-    public void BindTo(IReadOnlyObservableCollection<T>? source)
+    public void BindTo(IReadOnlyObservableList<T>? source)
     {
         _source?.CollectionChanged -= CurrentBindingOnCollectionChanged;
         var oldSource = _source;

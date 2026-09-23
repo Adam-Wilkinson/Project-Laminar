@@ -6,7 +6,7 @@ using static Laminar.Domain.UnitTests.TestUtils;
 
 namespace Laminar.Domain.UnitTests.Notification.UnitTests;
 
-public class MappedObservableCollectionTests
+public class MappedObservableListTests
 {
     private readonly ObservableCollection<int> _source = [1, 2, 3, 4, 5, 6];
     private static readonly string[] SingleItemAddedList = ["10"];
@@ -14,7 +14,7 @@ public class MappedObservableCollectionTests
     [Fact]
     public void MOC_ShouldMapCorrectly()
     {
-        var sut = new MappedObservableCollection<int, string>(_source, number => number.ToString());
+        var sut = new MappedObservableList<int, string>(_source, number => number.ToString());
         
         sut.Should().Equal("1", "2", "3", "4", "5", "6");
     }
@@ -22,7 +22,7 @@ public class MappedObservableCollectionTests
     [Fact]
     public void MOC_ShouldRaiseCorrectEvent_WhenItemAdded()
     {
-        var sut = new MappedObservableCollection<int, string>(_source, number => number.ToString());
+        var sut = new MappedObservableList<int, string>(_source, number => number.ToString());
 
         using var mon = sut.Monitor();
         _source.Insert(3, 10);
@@ -38,7 +38,7 @@ public class MappedObservableCollectionTests
     [Fact]
     public void MOC_ShouldBeCorrect_WhenItemAdded()
     {
-        var sut = new MappedObservableCollection<int, string>(_source, number => number.ToString());
+        var sut = new MappedObservableList<int, string>(_source, number => number.ToString());
         _source.Insert(3, 10);
         sut.Should().Equal("1", "2", "3", "10", "4", "5", "6");
     }
@@ -46,11 +46,11 @@ public class MappedObservableCollectionTests
     [Fact]
     public void MOC_ShouldRaiseCorrectEvent_WhenItemsAdded()
     {
-        var mock = Substitute.For<IReadOnlyObservableCollection<int>>();
+        var mock = Substitute.For<IReadOnlyObservableList<int>>();
         using var sourceEnumerator = _source.GetEnumerator();
         using var mockEnumerator = mock.GetEnumerator();
         mockEnumerator.Returns(sourceEnumerator);
-        var sut = new MappedObservableCollection<int, string>(mock, number => number.ToString());
+        var sut = new MappedObservableList<int, string>(mock, number => number.ToString());
         
         using var monitor = sut.Monitor();
         mock.CollectionChanged +=
@@ -68,11 +68,11 @@ public class MappedObservableCollectionTests
     [Fact]
     public void MOC_ShouldBeCorrect_WhenItemsAdded()
     {
-        var mock = Substitute.For<IReadOnlyObservableCollection<int>>();
+        var mock = Substitute.For<IReadOnlyObservableList<int>>();
         using var sourceEnumerator = _source.GetEnumerator();
         using var mockEnumerator = mock.GetEnumerator();
         mockEnumerator.Returns(sourceEnumerator);
-        var sut = new MappedObservableCollection<int, string>(mock, number => number.ToString());
+        var sut = new MappedObservableList<int, string>(mock, number => number.ToString());
         
         mock.CollectionChanged +=
             Raise.Event<NotifyCollectionChangedEventHandler>(mock,
@@ -84,7 +84,7 @@ public class MappedObservableCollectionTests
     [Fact]
     public void MOC_ShouldRaiseCorrectEvent_WhenItemRemoved()
     {
-        var sut = new MappedObservableCollection<int, string>(_source, number => number.ToString());
+        var sut = new MappedObservableList<int, string>(_source, number => number.ToString());
         
         using var mon = sut.Monitor();
         _source.RemoveAt(3);
@@ -100,7 +100,7 @@ public class MappedObservableCollectionTests
     [Fact]
     public void MOC_ShouldBeCorrect_WhenItemRemoved()
     {
-        var sut = new MappedObservableCollection<int, string>(_source, number => number.ToString());
+        var sut = new MappedObservableList<int, string>(_source, number => number.ToString());
         _source.RemoveAt(3);
         sut.Should().Equal("1", "2", "3", "5", "6");
     }
@@ -108,11 +108,11 @@ public class MappedObservableCollectionTests
     [Fact]
     public void MOC_ShouldRaiseCorrectEvent_WhenItemsRemoved()
     {
-        var mock = Substitute.For<IReadOnlyObservableCollection<int>>();
+        var mock = Substitute.For<IReadOnlyObservableList<int>>();
         using var sourceEnumerator = _source.GetEnumerator();
         using var mockEnumerator = mock.GetEnumerator();
         mockEnumerator.Returns(sourceEnumerator);
-        var sut = new MappedObservableCollection<int, string>(mock, number => number.ToString());
+        var sut = new MappedObservableList<int, string>(mock, number => number.ToString());
         
         using var monitor = sut.Monitor();
         
@@ -131,11 +131,11 @@ public class MappedObservableCollectionTests
     [Fact]
     public void MOC_ShouldBeCorrect_WhenItemsRemoved()
     {
-        var mock = Substitute.For<IReadOnlyObservableCollection<int>>();
+        var mock = Substitute.For<IReadOnlyObservableList<int>>();
         using var sourceEnumerator = _source.GetEnumerator();
         using var mockEnumerator = mock.GetEnumerator();
         mockEnumerator.Returns(sourceEnumerator);
-        var sut = new MappedObservableCollection<int, string>(mock, number => number.ToString());
+        var sut = new MappedObservableList<int, string>(mock, number => number.ToString());
         
         mock.CollectionChanged +=
             Raise.Event<NotifyCollectionChangedEventHandler>(mock,
@@ -151,11 +151,11 @@ public class MappedObservableCollectionTests
         const int newItem = 10;
         int replacedItem = _source[replaceIndex];
         
-        var mock = Substitute.For<IReadOnlyObservableCollection<int>>();
+        var mock = Substitute.For<IReadOnlyObservableList<int>>();
         using var sourceEnumerator = _source.GetEnumerator();
         using var mockEnumerator = mock.GetEnumerator();
         mockEnumerator.Returns(sourceEnumerator);
-        var sut = new MappedObservableCollection<int, string>(mock, number => number.ToString());
+        var sut = new MappedObservableList<int, string>(mock, number => number.ToString());
         using var mon = sut.Monitor();
         
         var oldItemReference = sut[replaceIndex];
@@ -179,12 +179,12 @@ public class MappedObservableCollectionTests
         const int newItem = 10;
         int replacedItem = _source[replaceIndex];
         
-        var mock = Substitute.For<IReadOnlyObservableCollection<int>>();
+        var mock = Substitute.For<IReadOnlyObservableList<int>>();
         using var sourceEnumerator = _source.GetEnumerator();
         using var mockEnumerator = mock.GetEnumerator();
         mockEnumerator.Returns(sourceEnumerator);
         mock.Count.Returns(_source.Count);
-        var sut = new MappedObservableCollection<int, string>(mock, number => number.ToString());
+        var sut = new MappedObservableList<int, string>(mock, number => number.ToString());
 
         var collectionChangedArgs = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, newItem, (object)replacedItem, replaceIndex);
         mock.CollectionChanged += Raise.Event<NotifyCollectionChangedEventHandler>(mock, collectionChangedArgs);
@@ -199,11 +199,11 @@ public class MappedObservableCollectionTests
         int[] newItems = [10, 11, 12, 13, 14];
         int[] replacedItems = [_source[replaceIndex], _source[replaceIndex + 1], _source[replaceIndex + 2], _source[replaceIndex + 3]];
         
-        var mock = Substitute.For<IReadOnlyObservableCollection<int>>();
+        var mock = Substitute.For<IReadOnlyObservableList<int>>();
         using var sourceEnumerator = _source.GetEnumerator();
         using var mockEnumerator = mock.GetEnumerator();
         mockEnumerator.Returns(sourceEnumerator);
-        var sut = new MappedObservableCollection<int, string>(mock, number => number.ToString());
+        var sut = new MappedObservableList<int, string>(mock, number => number.ToString());
         using var mon = sut.Monitor();
         
         string[] oldItems = [sut[replaceIndex], sut[replaceIndex + 1], sut[replaceIndex + 2], sut[replaceIndex + 3]];
@@ -227,11 +227,11 @@ public class MappedObservableCollectionTests
         int[] newItems = [10, 11, 12, 13, 14];
         int[] replacedItems = [_source[replaceIndex], _source[replaceIndex + 1], _source[replaceIndex + 2]];
         
-        var mock = Substitute.For<IReadOnlyObservableCollection<int>>();
+        var mock = Substitute.For<IReadOnlyObservableList<int>>();
         using var sourceEnumerator = _source.GetEnumerator();
         using var mockEnumerator = mock.GetEnumerator();
         mockEnumerator.Returns(sourceEnumerator);
-        var sut = new MappedObservableCollection<int, string>(mock, number => number.ToString());
+        var sut = new MappedObservableList<int, string>(mock, number => number.ToString());
 
         var collectionChangedArgs = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, newItems, replacedItems, replaceIndex);
         mock.CollectionChanged += Raise.Event<NotifyCollectionChangedEventHandler>(mock, collectionChangedArgs);
@@ -245,7 +245,7 @@ public class MappedObservableCollectionTests
         const int moveFromIndex = 2;
         const int moveToIndex = 4;
         
-        var sut = new MappedObservableCollection<int, string>(_source, number => number.ToString());
+        var sut = new MappedObservableList<int, string>(_source, number => number.ToString());
         var movedItem = sut[moveFromIndex];
         using var mon = sut.Monitor();
         
@@ -265,7 +265,7 @@ public class MappedObservableCollectionTests
         const int moveFromIndex = 2;
         const int moveToIndex = 4;
         
-        var sut = new MappedObservableCollection<int, string>(_source, number => number.ToString());
+        var sut = new MappedObservableList<int, string>(_source, number => number.ToString());
         var movedItem = sut[moveFromIndex];
         using var mon = sut.Monitor();
         
@@ -280,11 +280,11 @@ public class MappedObservableCollectionTests
         const int moveFromIndex = 2;
         const int moveToIndex = 3;
         
-        var mock = Substitute.For<IReadOnlyObservableCollection<int>>();
+        var mock = Substitute.For<IReadOnlyObservableList<int>>();
         using var sourceEnumerator = _source.GetEnumerator();
         using var mockEnumerator = mock.GetEnumerator();
         mockEnumerator.Returns(sourceEnumerator);
-        var sut = new MappedObservableCollection<int, string>(mock, number => number.ToString());
+        var sut = new MappedObservableList<int, string>(mock, number => number.ToString());
         using var mon = sut.Monitor();
         
         string[] sutOldItems = [sut[moveFromIndex], sut[moveFromIndex + 1]];
@@ -308,11 +308,11 @@ public class MappedObservableCollectionTests
         const int moveFromIndex = 2;
         const int moveToIndex = 3;
         
-        var mock = Substitute.For<IReadOnlyObservableCollection<int>>();
+        var mock = Substitute.For<IReadOnlyObservableList<int>>();
         using var sourceEnumerator = _source.GetEnumerator();
         using var mockEnumerator = mock.GetEnumerator();
         mockEnumerator.Returns(sourceEnumerator);
-        var sut = new MappedObservableCollection<int, string>(mock, number => number.ToString());
+        var sut = new MappedObservableList<int, string>(mock, number => number.ToString());
         using var mon = sut.Monitor();
         
         string[] sutOldItems = [sut[moveFromIndex], sut[moveFromIndex + 1]];
@@ -326,7 +326,7 @@ public class MappedObservableCollectionTests
     [Fact]
     public void MOC_ShouldRaiseCorrectEvent_OnReset()
     {
-        var sut = new MappedObservableCollection<int, string>(_source, number => number.ToString());
+        var sut = new MappedObservableList<int, string>(_source, number => number.ToString());
         using var mon = sut.Monitor();
         
         _source.Clear();
@@ -340,7 +340,7 @@ public class MappedObservableCollectionTests
     [Fact]
     public void MOC_ShouldBeCorrect_OnReset()
     {
-        var sut = new MappedObservableCollection<int, string>(_source, number => number.ToString());
+        var sut = new MappedObservableList<int, string>(_source, number => number.ToString());
         
         _source.Clear();
 

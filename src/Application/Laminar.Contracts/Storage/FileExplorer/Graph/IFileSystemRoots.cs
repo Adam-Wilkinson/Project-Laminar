@@ -3,7 +3,7 @@ using Laminar.Domain.ValueObjects;
 
 namespace Laminar.Contracts.Storage.FileExplorer.Graph;
 
-public interface IFileSystemRoots : IReadOnlyObservableCollection<IFileSystemRootFolder>
+public interface IFileSystemRoots : IReadOnlyObservableList<IFileSystemRootFolder>
 {
     public IFileSystemRootFolder EnsureRootRegistered(FileSystemPath path);
 

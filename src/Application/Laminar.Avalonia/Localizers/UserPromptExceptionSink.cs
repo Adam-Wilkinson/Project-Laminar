@@ -18,6 +18,7 @@ internal class UserPromptExceptionSink(DialogService dialogService) : IException
             CouldNotConnectException {OutputConnector: var output, InputConnector: var input} => ("Connection creation exception", $"The connectors '{output}' and '{input}' cannot be connected"),
             DeserializationError {TargetType: var type, InnerException: var deserializationInner} => ($"Error deserializing '{type}'", deserializationInner?.Message ?? "Unknown error"),
             ErrorCreatingNodeException {NodeName: var nodeName} => ("Could not create node", $"An unknown error occured creating node {nodeName}"),
+            DependentPluginNotFoundException {Plugin: var plugin, Dependency: var depId} => ("Could not install plugin", $"The plugin {plugin.Localize()} could not be installed because a dependency ({depId.Localize()}) could not be found"), 
             _ => ("Unexpected error", exception.Message)
         };
 

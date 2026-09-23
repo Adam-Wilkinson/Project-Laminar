@@ -60,7 +60,7 @@ internal class FileBrowser : IFileBrowser, IDisposable
         ActionScope = actionManager.CreateScope(new StorageActionSimplifier(_actionDependencies));
     }
 
-    public IReadOnlyObservableCollection<IFileSystemRootFolder> RootFolders { get; }
+    public IReadOnlyObservableList<IFileSystemRootFolder> RootFolders { get; }
     
     public IUserActionScope ActionScope { get; }
 

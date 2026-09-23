@@ -75,7 +75,7 @@ public class FileSystemItemHasherTests
         public void ShouldNotHashUnloadedFolder()
         {
             var folder = MockFactory.CreateFolder();
-            folder.Contents.Returns((IReadOnlyObservableCollection<IFileSystemItem>?)null);
+            folder.Contents.Returns((IReadOnlyObservableList<IFileSystemItem>?)null);
 
             var sut = CreateHasher();
 

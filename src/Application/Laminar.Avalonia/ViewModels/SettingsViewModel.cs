@@ -29,14 +29,14 @@ public class SettingsViewModel : ViewModelBase
 
     public string PluginFrameworkVersion => PluginFrameworkInfo.Version;
 
-    public IReadOnlyObservableCollection<PluginInfoViewModel> AvailablePlugins { get; }
+    public IReadOnlyObservableList<PluginInfoViewModel> AvailablePlugins { get; }
 
     public IReadOnlyList<IPluginSource> PluginSources { get; }
 
     public IReadOnlyCollection<IRuntimeHost> Runtimes { get; }
 
     public IEnumerable<IInstalledPlugin> InstalledPlugins =>
-        _runtimeHostManager.AllHosts.SelectMany(x => x.PluginManager.Plugins);
+        _runtimeHostManager.AllHosts.SelectMany(x => x.PluginManager.UserInstalledPlugins);
 
     protected override void OnDisposed()
     {

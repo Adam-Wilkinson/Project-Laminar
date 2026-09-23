@@ -4,11 +4,11 @@ namespace Laminar.Contracts.Storage.FileExplorer;
 
 public interface IFileSystemFolder : IFileSystemItem
 {
-    public IReadOnlyObservableCollection<IFileSystemItem>? Contents { get; }
+    public IReadOnlyObservableList<IFileSystemItem>? Contents { get; }
 
-    public IReadOnlyObservableCollection<IFileSystemItem> GetOrLoadContents();
+    public IReadOnlyObservableList<IFileSystemItem> GetOrLoadContents();
 
-    public Task<IReadOnlyObservableCollection<IFileSystemItem>> GetOrLoadContentsAsync();
+    public Task<IReadOnlyObservableList<IFileSystemItem>> GetOrLoadContentsAsync();
     
     public bool IsExpanded { get; set; }
 }

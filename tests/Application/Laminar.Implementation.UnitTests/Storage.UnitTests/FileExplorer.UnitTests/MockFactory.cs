@@ -19,7 +19,7 @@ public static class MockFactory
         path ??= CreatePath();
         contents ??= [];
         
-        IReadOnlyObservableCollection<IFileSystemItem> contentsObservable = new ObservableCollectionImpl<IFileSystemItem>(contents);
+        IReadOnlyObservableList<IFileSystemItem> contentsObservable = new ObservableList<IFileSystemItem>(contents);
 
         folder.Path.Returns(path.Value);
         folder.ParentFolder.Returns(parent);

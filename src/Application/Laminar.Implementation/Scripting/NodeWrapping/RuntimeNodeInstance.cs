@@ -11,7 +11,7 @@ internal sealed class RuntimeNodeInstance : IRuntimeNodeInstance, IDisposable
 {
     private readonly IDisposable _rowsChangedSubscription;
     private readonly INodeRow _headerRow;
-    private readonly IReadOnlyObservableCollection<INodeRow> _rows;
+    private readonly IReadOnlyObservableList<INodeRow> _rows;
     private readonly NodeContainer _container;
     private Action? _preEvaluateAction;
     
@@ -19,7 +19,7 @@ internal sealed class RuntimeNodeInstance : IRuntimeNodeInstance, IDisposable
         NodeContainer container,
         INode node,
         INodeRow header,
-        IReadOnlyObservableCollection<INodeRow> rows)
+        IReadOnlyObservableList<INodeRow> rows)
     {
         _container = container;
         CoreNode = node;

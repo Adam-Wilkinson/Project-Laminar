@@ -19,7 +19,7 @@ public class NotificationDisplay : TemplatedControl
     private const string IsWarning = ":warning";
     private const string IsInfo = ":info";
     
-    private readonly BoundObservableCollection<NotificationDisplayItem> _notifications = [];
+    private readonly BoundObservableList<NotificationDisplayItem> _notifications = [];
     
     public static readonly StyledProperty<NotificationManager?> ManagerProperty = AvaloniaProperty.Register<NotificationDisplay, NotificationManager?>(nameof(Manager));
     
@@ -49,7 +49,7 @@ public class NotificationDisplay : TemplatedControl
         set => SetValue(ManagerProperty, value);
     }
 
-    public IReadOnlyObservableCollection<NotificationDisplayItem> Notifications => _notifications;
+    public IReadOnlyObservableList<NotificationDisplayItem> Notifications => _notifications;
 
     public void AutoResolveAll()
     {

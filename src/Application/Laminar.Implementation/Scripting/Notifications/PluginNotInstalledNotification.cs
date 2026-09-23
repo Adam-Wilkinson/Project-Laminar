@@ -11,13 +11,14 @@ namespace Laminar.Implementation.Scripting.Notifications;
 internal class PluginNotInstalledNotification : ResolvableNotification<VersionedPluginId, NodePluginNotInstalledResolution>
 {
     private readonly NodeContainer _nodeContainer;
-    private readonly IDisposable _pluginAddedSubscription;
+    private readonly IPluginManager _pluginManager;
 
     public PluginNotInstalledNotification(NodeContainer nodeContainer, VersionedPluginId plugin, IPluginManager pluginManager)
     {
         _nodeContainer = nodeContainer;
         Data = plugin;
-        _pluginAddedSubscription = pluginManager.Plugins.SubscribeForEach(OnPluginAdded);
+        _pluginManager = pluginManager;
+        _pluginManager.UserInstalledPlugins.ItemAdded += OnPluginAdded;
     }
 
     public override NotificationSeverity Severity => NotificationSeverity.Error;
@@ -44,10 +45,10 @@ internal class PluginNotInstalledNotification : ResolvableNotification<Versioned
 
     protected override void OnDismissed()
     {
-        _pluginAddedSubscription.Dispose();
+        _pluginManager.UserInstalledPlugins.ItemAdded -= OnPluginAdded;
     }
 
-    private void OnPluginAdded(IInstalledPlugin plugin)
+    private void OnPluginAdded(object? sender, IInstalledPlugin plugin)
     {
         if (plugin.PluginId == Data)
         {

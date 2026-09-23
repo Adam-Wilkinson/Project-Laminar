@@ -46,7 +46,7 @@ public partial class PluginInfoViewModel : ViewModelBase
         }
     }
 
-    public IReadOnlyObservableCollection<SemanticVersion> AvailableVersions { get; }
+    public IReadOnlyObservableList<SemanticVersion> AvailableVersions { get; }
     
     [ObservableProperty] public partial SemanticVersion? SelectedVersion { get; set; }
 

@@ -16,7 +16,7 @@ internal class PluginInfo(string id) : IPluginInfo
     
     public string Id { get; } = id;
 
-    public IReadOnlyObservableCollection<SemanticVersion> AllVersions => field ??= _allVersions.ToInterfaceImpl();
+    public IReadOnlyObservableList<SemanticVersion> AllVersions => field ??= _allVersions.ToObservableList();
 
     public IReadOnlyObservableValue<SemanticVersion?> LatestVersion => _latestVersion;
 

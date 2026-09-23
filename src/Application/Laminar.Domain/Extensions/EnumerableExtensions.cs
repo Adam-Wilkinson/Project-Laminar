@@ -60,13 +60,13 @@ public static class EnumerableExtensions
     {
         /// <summary>
         /// Converts an ObservableValue that contains a list to an INotifyCollectionChanged list,
-        /// using a <see cref="SourcedObservableCollection{T}"/> to compute a minimal set of collection change actions
+        /// using a <see cref="SourcedObservableList{T}"/> to compute a minimal set of collection change actions
         /// </summary>
         /// <param name="comparer">The equality comparer used to compute collection changed actions</param>
         /// <returns></returns>
-        public IReadOnlyObservableCollection<T> ToObservableCollection(IEqualityComparer<T>? comparer = null)
+        public IReadOnlyObservableList<T> ToObservableCollection(IEqualityComparer<T>? comparer = null)
         {
-            SourcedObservableCollection<T> output = new(observableEnumerable.Value, comparer);
+            SourcedObservableList<T> output = new(observableEnumerable.Value, comparer);
 
             observableEnumerable.CovariantOnChanged += (_, _) =>
             {

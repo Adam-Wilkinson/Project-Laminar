@@ -5,33 +5,33 @@ namespace Laminar.Domain.Observables.Collections;
 
 public static class MappedObservableCollectionExtensions
 {
-    public static MappedObservableCollection<TIn, TOut> ObservableMap<TCollection, TIn, TOut>(
+    public static MappedObservableList<TIn, TOut> ObservableMap<TCollection, TIn, TOut>(
         this TCollection collection, Func<TIn, TOut> map) where TCollection : IEnumerable<TIn>, INotifyCollectionChanged
-        => MappedObservableCollection<TIn, TOut>.New(collection, map);
+        => MappedObservableList<TIn, TOut>.New(collection, map);
 
-    public static MappedObservableCollection<TIn, TOut> ObservableMap<TIn, TOut>(
-        this IReadOnlyObservableCollection<TIn> collection, Func<TIn, TOut> map) =>
-        MappedObservableCollection<TIn, TOut>.New(collection, map);
+    public static MappedObservableList<TIn, TOut> ObservableMap<TIn, TOut>(
+        this IReadOnlyObservableList<TIn> list, Func<TIn, TOut> map) =>
+        MappedObservableList<TIn, TOut>.New(list, map);
 }
 
-public class MappedObservableCollection<TIn, TOut> : ReadOnlyObservableCollectionBase<TOut>
+public class MappedObservableList<TIn, TOut> : ReadOnlyObservableListBase<TOut>
 {
     private readonly List<TOut> _outputItems;
 
-    public static MappedObservableCollection<TIn, TOut> New<TCollection>(TCollection collection, Func<TIn, TOut> map)
+    public static MappedObservableList<TIn, TOut> New<TCollection>(TCollection collection, Func<TIn, TOut> map)
         where TCollection : INotifyCollectionChanged, IEnumerable<TIn>
         => new(collection, map);
 
-    public MappedObservableCollection(IReadOnlyObservableCollection<TIn> collection, Func<TIn, TOut> map) : this(
-        (INotifyCollectionChanged)collection, map)
+    public MappedObservableList(IReadOnlyObservableList<TIn> list, Func<TIn, TOut> map) : this(
+        (INotifyCollectionChanged)list, map)
     {
     }
     
-    public MappedObservableCollection(ObservableCollection<TIn> collection, Func<TIn, TOut> map) : this((INotifyCollectionChanged)collection, map)
+    public MappedObservableList(ObservableCollection<TIn> collection, Func<TIn, TOut> map) : this((INotifyCollectionChanged)collection, map)
     {
     }
     
-    private MappedObservableCollection(INotifyCollectionChanged collection, Func<TIn, TOut> map)
+    private MappedObservableList(INotifyCollectionChanged collection, Func<TIn, TOut> map)
     {
         if (collection is not IEnumerable<TIn> inputEnumerable)
         {

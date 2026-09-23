@@ -7,14 +7,14 @@ using static Laminar.Domain.UnitTests.TestUtils;
 
 namespace Laminar.Domain.UnitTests.Notification.UnitTests;
 
-public class SourcedObservableCollectionTests
+public class SourcedObservableListTests
 {
     private readonly ObservableCollection<int> _source = [1, 2, 3, 4, 5, 6];
     
     [Fact]
     public void ShouldInitializeCorrectly()
     {
-        SourcedObservableCollection<int> sut = new(_source);
+        SourcedObservableList<int> sut = new(_source);
         sut.Should().Equal(1, 2, 3, 4, 5, 6);
     }
     
@@ -25,7 +25,7 @@ public class SourcedObservableCollectionTests
         [Fact]
         public void ShouldUpdateList()
         {
-            SourcedObservableCollection<int> sut = new(_source) { 7 };
+            SourcedObservableList<int> sut = new(_source) { 7 };
 
             sut.Should().Equal(1, 2, 3, 4, 5, 6, 7);
         }
@@ -33,7 +33,7 @@ public class SourcedObservableCollectionTests
         [Fact]
         public void ShouldRaiseEvent()
         {
-            SourcedObservableCollection<int> sut = new(_source);
+            SourcedObservableList<int> sut = new(_source);
 
             using var mon = sut.Monitor();
             
@@ -55,7 +55,7 @@ public class SourcedObservableCollectionTests
         [Fact]
         public void ShouldUpdateList()
         {
-            SourcedObservableCollection<int> sut = new(_source);
+            SourcedObservableList<int> sut = new(_source);
             
             sut.Remove(4);
             
@@ -65,7 +65,7 @@ public class SourcedObservableCollectionTests
         [Fact]
         public void ShouldRaiseEvent()
         {
-            SourcedObservableCollection<int> sut = new(_source);
+            SourcedObservableList<int> sut = new(_source);
             
             using var mon = sut.Monitor();
             
@@ -87,7 +87,7 @@ public class SourcedObservableCollectionTests
         [Fact]
         public void ShouldUpdateList()
         {
-            SourcedObservableCollection<int> sut = new(_source);
+            SourcedObservableList<int> sut = new(_source);
             
             sut.RemoveRange(2, 3);
             
@@ -97,7 +97,7 @@ public class SourcedObservableCollectionTests
         [Fact]
         public void ShouldRaiseEvent()
         {
-            SourcedObservableCollection<int> sut = new(_source);
+            SourcedObservableList<int> sut = new(_source);
             using var mon = sut.Monitor();
             
             sut.RemoveRange(2, 3);
@@ -118,7 +118,7 @@ public class SourcedObservableCollectionTests
         [Fact]
         public void ShouldUpdateList()
         {
-            SourcedObservableCollection<int> sut = new(_source);
+            SourcedObservableList<int> sut = new(_source);
             
             sut.InsertRange(4, [10, 11, 12]);
 
@@ -128,7 +128,7 @@ public class SourcedObservableCollectionTests
         [Fact]
         public void ShouldRaiseEvent()
         {
-            SourcedObservableCollection<int> sut = new(_source);
+            SourcedObservableList<int> sut = new(_source);
             using var mon = sut.Monitor();
             
             sut.InsertRange(4, [10, 11, 12]);
@@ -149,7 +149,7 @@ public class SourcedObservableCollectionTests
         [Fact]
         public void ShouldUpdateOnAdd()
         {
-            SourcedObservableCollection<int> sut = new(_source);
+            SourcedObservableList<int> sut = new(_source);
         }
     }
     
@@ -183,7 +183,7 @@ public class SourcedObservableCollectionTests
         [Theory, MemberData(nameof(SourceUpdateTestCases))]
         public void ShouldGiveSetEquality(int[] testCase)
         {
-            SourcedObservableCollection<int> sut = new(_source);
+            SourcedObservableList<int> sut = new(_source);
             
             _source.Clear();
             _source.AddRange(testCase);
@@ -195,7 +195,7 @@ public class SourcedObservableCollectionTests
         [Theory, MemberData(nameof(SourceUpdateTestCases))]
         public void ShouldGiveSequenceEquality(int[] testCase)
         {
-            SourcedObservableCollection<int> sut = new(_source);
+            SourcedObservableList<int> sut = new(_source);
             
             _source.Clear();
             _source.AddRange(testCase);
@@ -207,7 +207,7 @@ public class SourcedObservableCollectionTests
         [Fact]
         public void ShouldRespondToItemAdded()
         {
-            SourcedObservableCollection<int> sut = new(_source);
+            SourcedObservableList<int> sut = new(_source);
             
             _source.Insert(3, 10);
             sut.SyncFromSource();
@@ -218,7 +218,7 @@ public class SourcedObservableCollectionTests
         [Fact]
         public void ShouldRespondToItemRemoved()
         {
-            SourcedObservableCollection<int> sut = new(_source);
+            SourcedObservableList<int> sut = new(_source);
             
             _source.RemoveAt(3);
             sut.SyncFromSource();
@@ -234,7 +234,7 @@ public class SourcedObservableCollectionTests
             for (int i = 0; i < permutationCount; i++)
             {
                 int[] source = [0, 1, 2, 3];
-                SourcedObservableCollection<int> sut = new(source);
+                SourcedObservableList<int> sut = new(source);
                 
                 source[0] = (permutationCount / 4) % 4;
                 source[1] = (permutationCount / 3) % 4;

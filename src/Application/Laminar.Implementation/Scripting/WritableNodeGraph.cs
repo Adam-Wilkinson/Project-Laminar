@@ -22,8 +22,8 @@ internal class WritableNodeGraph : IWritableNodeGraph
     private readonly Dictionary<IConnector, ConnectorInformation> _connectorsInformation = [];
     private readonly Dictionary<INodeContainer, NodeInformation> _nodesInformation = [];
     private readonly Dictionary<string, INodeContainer> _nodesDictionary = [];
-    private readonly ObservableCollection<Connection> _connections = [];
-    private readonly ObservableCollection<INodeContainer> _nodes = [];
+    private readonly ObservableList<Connection> _connections = [];
+    private readonly ObservableList<INodeContainer> _nodes = [];
     private readonly IPersistentDictionary _persistentNodes;
     private readonly IPersistentList _persistentConnections;
     
@@ -105,9 +105,9 @@ internal class WritableNodeGraph : IWritableNodeGraph
 
     public INodeUpdates GetUpdates(INodeContainer nodeContainer) => _nodesInformation[nodeContainer].Updates;
 
-    public IReadOnlyObservableCollection<INodeContainer> Nodes => field ??= _nodes.ToReadonly();
+    public IReadOnlyObservableList<INodeContainer> Nodes => _nodes;
 
-    public IReadOnlyObservableCollection<IConnection> Connections => field ??= _connections.ObservableMap(IConnection (Connection x) => x);
+    public IReadOnlyObservableList<IConnection> Connections => field ??= _connections.ObservableMap(IConnection (Connection x) => x);
     
     public IEncodableData PersistentData { get; }
     

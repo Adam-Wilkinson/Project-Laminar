@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 
 namespace Laminar.Domain.Observables.Collections;
 
-public interface IObservableCollection<T> : IReadOnlyObservableCollection<T>, IList<T>, IList
+public interface IObservableList<T> : IObservableBag<T>, IReadOnlyObservableList<T>, IList<T>, IList
 {
     public new T this[int index] { get; set; }
 
@@ -47,7 +47,7 @@ public interface IObservableCollection<T> : IReadOnlyObservableCollection<T>, IL
     
     bool ICollection<T>.Contains(T item) => Contains(item);
     
-    bool IReadOnlyObservableCollection<T>.Contains(T value) => Contains(value);
+    bool IReadOnlyObservableBag<T>.Contains(T value) => Contains(value);
     
     void IList.Clear() => Clear();
     
@@ -61,7 +61,7 @@ public interface IObservableCollection<T> : IReadOnlyObservableCollection<T>, IL
 
     int IList.IndexOf(object? value) => value is T typedValue ? IndexOf(typedValue) : -1;
     
-    int IReadOnlyObservableCollection<T>.IndexOf(T value) => IndexOf(value);
+    int IReadOnlyObservableList<T>.IndexOf(T value) => IndexOf(value);
     
     int IList<T>.IndexOf(T value) => IndexOf(value);
 

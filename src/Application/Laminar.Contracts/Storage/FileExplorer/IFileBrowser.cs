@@ -10,7 +10,7 @@ namespace Laminar.Contracts.Storage.FileExplorer;
 /// </summary>
 public interface IFileBrowser
 {
-    public IReadOnlyObservableCollection<IFileSystemRootFolder> RootFolders { get; }
+    public IReadOnlyObservableList<IFileSystemRootFolder> RootFolders { get; }
 
     public IUserActionScope ActionScope { get; }
 

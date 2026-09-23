@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Specialized;
 using System.Runtime.CompilerServices;
+using Laminar.Domain.Extensions;
 
 namespace Laminar.Domain.Observables.Collections;
 
@@ -17,7 +18,7 @@ public enum SourcedCollectionMode
     SetEquality = 1,
 }
 
-public class SourcedObservableCollection<T> : IObservableCollection<T> where T : notnull
+public class SourcedObservableList<T> : IObservableList<T> where T : notnull
 {
     private readonly List<T> _internalList = [];
     private readonly IEqualityComparer<T> _equalityComparer;
@@ -26,7 +27,7 @@ public class SourcedObservableCollection<T> : IObservableCollection<T> where T :
     private bool _matchesSource = true;
     private SourcedCollectionMode _mode = SourcedCollectionMode.SequenceEquality;
     
-    public SourcedObservableCollection(
+    public SourcedObservableList(
         IEnumerable<T> source, 
         IEqualityComparer<T>? equalityCheck = null,
         SourcedCollectionMode mode = SourcedCollectionMode.SequenceEquality)
@@ -43,7 +44,7 @@ public class SourcedObservableCollection<T> : IObservableCollection<T> where T :
         
         if (source is INotifyCollectionChanged notifyingSource)
         {
-            notifyingSource.CollectionChanged += NotifyingSourceChanged;
+            notifyingSource.CollectionChanged += NotifyingSourceCollectionChanged;
         }
 
         SyncFromSource();
@@ -53,7 +54,7 @@ public class SourcedObservableCollection<T> : IObservableCollection<T> where T :
     [SkipLocalsInit]
     public void SyncFromSource()
     {
-        IList<T> sourceList = _source as IList<T> ?? [.._source];
+        var sourceList = _source as IList<T> ?? [.._source];
         
         // Lives in the old index space, either the index things need moving to, or -1 for removals
         Span<int> targetIndices = stackalloc int[_internalList.Count];
@@ -231,15 +232,11 @@ public class SourcedObservableCollection<T> : IObservableCollection<T> where T :
     {
         _internalList.Add(item);
         _matchesSource = false;
-        CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, Count - 1));
+        CollectionChanged?.Invoke(this, NotifyCollectionChangedEventArgs.Insert(item, _internalList.Count - 1));
+        ItemAdded?.Invoke(this, item);
     }
 
-    public void Clear()
-    {
-        _internalList.Clear();
-        _matchesSource = false;
-        CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-    }
+    public void Clear() => RemoveRange(0, _internalList.Count);
 
     public bool Contains(T value) => _internalList.Contains(value);
 
@@ -249,23 +246,30 @@ public class SourcedObservableCollection<T> : IObservableCollection<T> where T :
     {
         _internalList.Insert(index, item);
         _matchesSource = false;
-        CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index));
+        CollectionChanged?.Invoke(this, NotifyCollectionChangedEventArgs.Insert(item, index));
+        ItemAdded?.Invoke(this, item);
     }
 
     public void InsertRange(int index, IEnumerable<T> items)
     {
-        IList<T> itemsList = items is IList<T> and IList ? (IList<T>)items : [.. items];
+        var itemsList = items is IList<T> and IList ? (IList<T>)items : [.. items];
         _internalList.InsertRange(index, itemsList);
         _matchesSource = false;
-        CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, (IList)itemsList, index));
+        CollectionChanged?.Invoke(this, NotifyCollectionChangedEventArgs.InsertRange((IList)itemsList, index));
+        if (ItemAdded is null) return;
+        foreach (var item in itemsList)
+        {
+            ItemAdded?.Invoke(this, item);
+        }
     }
 
     public void RemoveAt(int index)
     {
-        T oldItem = _internalList[index];
+        var oldItem = _internalList[index];
         _internalList.RemoveAt(index);
         _matchesSource = false;
-        CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, oldItem, index));
+        CollectionChanged?.Invoke(this, NotifyCollectionChangedEventArgs.Remove(oldItem, index));
+        ItemRemoved?.Invoke(this, oldItem);
     }
 
     public void RemoveRange(int index, int count)
@@ -273,32 +277,41 @@ public class SourcedObservableCollection<T> : IObservableCollection<T> where T :
         T[] oldItems = [.. _internalList.Skip(index).Take(count)];
         _internalList.RemoveRange(index, count);
         _matchesSource = false;
-        CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, oldItems, index));
+        CollectionChanged?.Invoke(this, NotifyCollectionChangedEventArgs.RemoveRange(oldItems, index));
+        if (ItemRemoved is null) return;
+        foreach (var item in oldItems)
+        {
+            ItemRemoved.Invoke(this, item);
+        }
     }
 
     public void Move(int oldIndex, int newIndex)
     {
-        T item = _internalList[oldIndex];
+        var item = _internalList[oldIndex];
         _internalList.RemoveAt(oldIndex);
         _internalList.Insert(newIndex, item);
         _matchesSource = false;
-        CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, item, newIndex, oldIndex));
+        CollectionChanged?.Invoke(this, NotifyCollectionChangedEventArgs.Move(item, newIndex, oldIndex));
     }
 
     public void Replace(int index, T newItem)
     {
-        T removedItem = _internalList[index];
+        var oldItem = _internalList[index];
         _internalList[index] = newItem;
         _matchesSource = false;
-        CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace,  newItem, removedItem, index));
+        CollectionChanged?.Invoke(this, NotifyCollectionChangedEventArgs.Replace(newItem, oldItem, index));
+        ItemRemoved?.Invoke(this, oldItem);
+        ItemAdded?.Invoke(this, newItem);
     }
 
     public void Replace(T oldItem, T newItem)
     {
-        int index = _internalList.IndexOf(oldItem);
+        var index = _internalList.IndexOf(oldItem);
         _internalList[index] = newItem;
         _matchesSource = false;
-        CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, newItem, oldItem, index));
+        CollectionChanged?.Invoke(this, NotifyCollectionChangedEventArgs.Replace(newItem, oldItem, index));
+        ItemRemoved?.Invoke(this, oldItem);
+        ItemAdded?.Invoke(this, newItem);
     }
     
     public bool IsReadOnly => false;
@@ -306,13 +319,7 @@ public class SourcedObservableCollection<T> : IObservableCollection<T> where T :
     public T this[int index]
     {
         get => _internalList[index];
-        set
-        {
-            T oldItem = _internalList[index];
-            _internalList[index] = value;
-            _matchesSource = false;
-            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, value, oldItem, index));
-        }
+        set => Replace(index, value);
     }
 
     public IEnumerator<T> GetEnumerator() => _internalList.GetEnumerator();
@@ -323,18 +330,19 @@ public class SourcedObservableCollection<T> : IObservableCollection<T> where T :
 
     public bool Remove(T item)
     {
-        int removeIndex = _internalList.IndexOf(item);
+        var removeIndex = _internalList.IndexOf(item);
         if (!_internalList.Remove(item)) return false;
         _matchesSource = false;
-        CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item, removeIndex));
+        CollectionChanged?.Invoke(this, NotifyCollectionChangedEventArgs.Remove(item, removeIndex));
+        ItemRemoved?.Invoke(this, item);
         return true;
     }
 
     public event NotifyCollectionChangedEventHandler? CollectionChanged;
+    public event EventHandler<T>? ItemAdded;
+    public event EventHandler<T>? ItemRemoved;
     
-    
-    
-    private void NotifyingSourceChanged(object? _, NotifyCollectionChangedEventArgs args)
+    private void NotifyingSourceCollectionChanged(object? _, NotifyCollectionChangedEventArgs args)
     {
         if (!_matchesSource)
         {
@@ -361,6 +369,22 @@ public class SourcedObservableCollection<T> : IObservableCollection<T> where T :
         }
 
         CollectionChanged?.Invoke(this, args);
+        
+        if (args.Action is NotifyCollectionChangedAction.Remove or NotifyCollectionChangedAction.Replace && ItemRemoved is not null)
+        {
+            foreach (var item in args.OldItems!.Cast<T>())
+            {
+                ItemRemoved.Invoke(this, item);
+            }
+        }
+
+        if (args.Action is NotifyCollectionChangedAction.Add or NotifyCollectionChangedAction.Replace && ItemAdded is not null)
+        {
+            foreach (var item in args.NewItems!.Cast<T>())
+            {
+                ItemAdded.Invoke(this, item);
+            }
+        }
     }
     
     private int GetIndexInOutput(T sourceItem)
