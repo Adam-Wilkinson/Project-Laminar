@@ -3,7 +3,7 @@ using System.Collections.Specialized;
 
 namespace Laminar.Domain.Observables.Collections;
 
-public static class MappedObservableCollectionExtensions
+public static class MappedObservableListExtensions
 {
     public static MappedObservableList<TIn, TOut> ObservableMap<TCollection, TIn, TOut>(
         this TCollection collection, Func<TIn, TOut> map) where TCollection : IEnumerable<TIn>, INotifyCollectionChanged

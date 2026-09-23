@@ -88,11 +88,3 @@ public class ObservableList<T> : IObservableList<T>
 
     public void CopyTo(T[] array, int arrayIndex) => _baseCollection.CopyTo(array, arrayIndex);
 }
-
-public static class ObservableCollectionExtensions
-{
-    extension<T>(ObservableCollection<T> observableCollection)
-    {
-        public ObservableList<T> ToObservableList() => [.. observableCollection];
-    }
-}

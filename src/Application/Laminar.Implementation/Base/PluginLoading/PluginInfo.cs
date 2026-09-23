@@ -1,5 +1,3 @@
-using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Laminar.Contracts.Base.PluginLoading;
 using Laminar.Domain.Observables.Collections;
@@ -11,12 +9,12 @@ namespace Laminar.Implementation.Base.PluginLoading;
 internal class PluginInfo(string id) : IPluginInfo
 {
     private readonly SortedList<SemanticVersion, IList<IPluginSource>> _versions = [];
-    private readonly ObservableCollection<SemanticVersion> _allVersions = [];
+    private readonly ObservableList<SemanticVersion> _allVersions = [];
     private readonly ObservableValue<SemanticVersion?> _latestVersion = new(null);
     
     public string Id { get; } = id;
 
-    public IReadOnlyObservableList<SemanticVersion> AllVersions => field ??= _allVersions.ToObservableList();
+    public IReadOnlyObservableList<SemanticVersion> AllVersions => _allVersions;
 
     public IReadOnlyObservableValue<SemanticVersion?> LatestVersion => _latestVersion;
 

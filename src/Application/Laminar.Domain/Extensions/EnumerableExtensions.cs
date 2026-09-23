@@ -64,7 +64,7 @@ public static class EnumerableExtensions
         /// </summary>
         /// <param name="comparer">The equality comparer used to compute collection changed actions</param>
         /// <returns></returns>
-        public IReadOnlyObservableList<T> ToObservableCollection(IEqualityComparer<T>? comparer = null)
+        public IReadOnlyObservableList<T> ToObservableList(IEqualityComparer<T>? comparer = null)
         {
             SourcedObservableList<T> output = new(observableEnumerable.Value, comparer);
 

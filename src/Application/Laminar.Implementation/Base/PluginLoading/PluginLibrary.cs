@@ -1,4 +1,3 @@
-using System.Collections.ObjectModel;
 using Laminar.Contracts.Base;
 using Laminar.Contracts.Base.PluginLoading;
 using Laminar.Domain.Observables.Collections;
@@ -11,8 +10,8 @@ public class PluginLibrary(IExceptionHandler exceptionHandler) : IPluginLibrary
     private readonly List<IPluginSource> _pluginRepositories = [];
     private readonly Dictionary<string, PluginInfo> _pluginInfos = [];
     private readonly Dictionary<VersionedPluginId, TaskCompletionSource<IPluginSource?>> _pendingRequests = [];
-    private readonly ObservableCollection<IPluginInfo> _loadedPlugins = [];
-    private readonly ObservableCollection<IPluginSource> _loadingRepositories = [];
+    private readonly ObservableList<IPluginInfo> _loadedPlugins = [];
+    private readonly ObservableList<IPluginSource> _loadingRepositories = [];
     private readonly Lock _loadingRepositoriesLock = new();
     private readonly Lock _pluginInfosLock = new();
     
@@ -20,9 +19,9 @@ public class PluginLibrary(IExceptionHandler exceptionHandler) : IPluginLibrary
     
     public IReadOnlyList<IPluginSource> Sources => _pluginRepositories;
 
-    public IReadOnlyObservableList<IPluginSource> CurrentlyLoadingSources => field ??= _loadingRepositories.ToObservableList();
+    public IReadOnlyObservableList<IPluginSource> CurrentlyLoadingSources => _loadingRepositories;
     
-    public IReadOnlyObservableList<IPluginInfo> LoadedPlugins => field ??= _loadedPlugins.ToObservableList();
+    public IReadOnlyObservableList<IPluginInfo> LoadedPlugins => _loadedPlugins;
     
     public async Task AddSource(IPluginSource source)
     {

@@ -11,7 +11,7 @@ namespace Laminar.Avalonia.ViewModels.Design;
 public class DesignFileBrowser : IFileBrowser
 {
     public IReadOnlyObservableList<IFileSystemRootFolder> RootFolders { get; } 
-        = new ObservableCollection<IFileSystemRootFolder>().ToObservableList();
+        = new ObservableList<IFileSystemRootFolder>();
 
     public IUserActionScope ActionScope => throw new InvalidOperationException();
 

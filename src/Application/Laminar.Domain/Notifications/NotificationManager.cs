@@ -1,4 +1,3 @@
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Laminar.Domain.Observables.Collections;
@@ -7,7 +6,7 @@ namespace Laminar.Domain.Notifications;
 
 public sealed class NotificationManager : INotifyPropertyChanged
 {
-    private readonly ObservableCollection<NotificationBase> _allNotifications = [];
+    private readonly ObservableList<NotificationBase> _allNotifications = [];
     
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -17,7 +16,7 @@ public sealed class NotificationManager : INotifyPropertyChanged
         private set => SetField(ref field, value);
     } = NotificationSeverity.None;
     
-    public IReadOnlyObservableList<NotificationBase> AllNotifications => field ??= _allNotifications.ToObservableList();
+    public IReadOnlyObservableList<NotificationBase> AllNotifications => _allNotifications;
 
     public IDisposable AddNotification(LifetimeControlledNotification notification)
     {

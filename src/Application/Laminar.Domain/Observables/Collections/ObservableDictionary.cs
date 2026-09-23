@@ -72,8 +72,8 @@ public class ObservableDictionary<TKey, TValue> : IDictionary<TKey, TValue> wher
     public bool Contains(KeyValuePair<TKey, TValue> item) => ContainsKey(item.Key);
     public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex) => _internal.ToList().CopyTo(array, arrayIndex);
     public bool Remove(KeyValuePair<TKey, TValue> item) => _internal.Remove(item.Key);
-    ICollection<TKey> IDictionary<TKey, TValue>.Keys => Keys.ToWritable();
-    ICollection<TValue> IDictionary<TKey, TValue>.Values => Values.ToWritable();
+    ICollection<TKey> IDictionary<TKey, TValue>.Keys => _internal.Keys;
+    ICollection<TValue> IDictionary<TKey, TValue>.Values => _internal.Values;
     
     private class ManualObservableBag<T>(ICollection<T> collection) : IReadOnlyObservableBag<T>
     {
