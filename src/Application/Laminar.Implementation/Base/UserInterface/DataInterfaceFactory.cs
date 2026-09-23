@@ -1,7 +1,5 @@
-using System.ComponentModel;
 using Laminar.Contracts.Base;
 using Laminar.Contracts.Base.UserInterface;
-using Laminar.PluginFramework;
 using Laminar.PluginFramework.UserInterface;
 using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 using Microsoft.Extensions.Logging;
@@ -15,6 +13,8 @@ public partial class DataInterfaceFactory(ITypeInfoStore typeInfoStore, ILogger<
     private readonly Dictionary<Type, List<(Type valueType, GenericDataFactory factory)>> _interfaceFactories = [];
     private readonly Dictionary<Type, List<FrontendInfo>> _frontendImplementations = [];
     private readonly List<IRefreshable> _interfaceInstances = [];
+    
+    private RegistrationScope? _registrationScope;
     
     public void RegisterInterfaceFactory<TInterfaceDefinition, TValue, TInterface>(Func<TInterface> factory)
         where TInterfaceDefinition : IUserInterfaceDefinition, new()
@@ -33,10 +33,10 @@ public partial class DataInterfaceFactory(ITypeInfoStore typeInfoStore, ILogger<
         }
         
         _frontendImplementations[typeof(TInterfaceDefinition)].Add(new FrontendInfo(typeof(TInterface), factory));
-        
-        foreach (var instance in _interfaceInstances)
+
+        if (_registrationScope is { Depth: 0 })
         {
-            instance.Refresh();
+            RefreshInterfaces();
         }
     }
     
@@ -53,6 +53,8 @@ public partial class DataInterfaceFactory(ITypeInfoStore typeInfoStore, ILogger<
         _interfaceInstances.Add(newInterface);
         return newInterface;
     }
+
+    public IDisposable CreateRegistrationScope() => (_registrationScope ??= new RegistrationScope(this)).Increment();
 
     public (TFrontend, IInterfaceData) GetFrontendAndData<TFrontend>(IInterfaceData interfaceData)
         where TFrontend : class, new()
@@ -155,6 +157,14 @@ public partial class DataInterfaceFactory(ITypeInfoStore typeInfoStore, ILogger<
             not null => new InterfaceDataGenericWrapper<TInterfaceDefinition, TValue>(interfaceData, (TInterfaceDefinition)interfaceDefinition),
             _ => null,
         };
+
+    private void RefreshInterfaces()
+    {
+        foreach (var instance in _interfaceInstances)
+        {
+            instance.Refresh();
+        }
+    }
     
     [LoggerMessage(LogLevel.Error, "The requested data interface {definitionType} has implementations, but none of them are for the correct frontend type {frontendType}. System will fall back along default interfaces")]
     static partial void LogRequestedDataInterfaceNoFrontend(ILogger<DataInterfaceFactory> logger, Type definitionType, Type frontendType);
@@ -163,72 +173,24 @@ public partial class DataInterfaceFactory(ITypeInfoStore typeInfoStore, ILogger<
     static partial void LogRequestedDataInterfaceNoImplementations(ILogger<DataInterfaceFactory> logger, Type definitionType);
     
     private record struct FrontendInfo(Type FrontendType, Func<object> Factory);
-}
 
-public class InterfaceDataGenericWrapper<TInterfaceDefinition, TValue> : IInterfaceData<TInterfaceDefinition, TValue>, IDisposable
-    where TInterfaceDefinition : IUserInterfaceDefinition where TValue : notnull
-{
-    private readonly IInterfaceData _internal;
-    private readonly IInterfaceData<TValue>? _genericDataInternal;
-    
-    public InterfaceDataGenericWrapper(IInterfaceData<TValue> interfaceData, TInterfaceDefinition interfaceDefinition) : this((IInterfaceData)interfaceData, interfaceDefinition)
+    private class RegistrationScope(DataInterfaceFactory owner) : IDisposable
     {
-        _genericDataInternal = interfaceData;
-    }
-
-    public InterfaceDataGenericWrapper(IInterfaceData interfaceData, TInterfaceDefinition interfaceDefinition)
-    {
-        _internal = interfaceData;
-        _internal.PropertyChanged += InterfaceData_PropertyChanged;
-        Definition = interfaceDefinition;
-    }
-
-    public event PropertyChangedEventHandler? PropertyChanged;
-    
-    public bool IsUserEditable => _internal.IsUserEditable;
-
-    public TValue Value
-    {
-        get => _genericDataInternal is not null ? _genericDataInternal.Value : (TValue)_internal.Value;
-        set
+        public int Depth { get; private set; }
+        
+        public RegistrationScope Increment()
         {
-            if (!IsUserEditable) throw new InvalidOperationException();
-            if (_genericDataInternal is not null)
+            Depth++;
+            return this;
+        }
+        
+        public void Dispose()
+        {
+            Depth--;
+            if (Depth == 0)
             {
-                _genericDataInternal.Value = value;
-            }
-            else
-            {
-                _internal.Value = value;
+                owner.RefreshInterfaces();
             }
         }
-    }
-
-    public string Name => _internal.Name;
-
-    private void InterfaceData_PropertyChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        if (e.PropertyName == nameof(IInterfaceData.Definition)) return;
-        PropertyChanged?.Invoke(this, e);
-    }
-
-    public TInterfaceDefinition Definition { get; }
-    
-    public void SetValue(TValue value)
-    {
-        if (_genericDataInternal is not null)
-        {
-            _genericDataInternal.SetValue(value);
-        }
-        else
-        {
-            _internal.SetValue(value);
-        }
-    }
-
-    public void Dispose()
-    {
-        _internal.PropertyChanged -= InterfaceData_PropertyChanged;
-        GC.SuppressFinalize(this);
     }
 }

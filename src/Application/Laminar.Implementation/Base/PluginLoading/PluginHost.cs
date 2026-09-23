@@ -18,8 +18,6 @@ internal sealed class PluginHost(
     ISerializer serializer)
     : IPluginHost
 {
-    private readonly Dictionary<string, ILoadedNodeInfo> _loadedNodesByName = [];
-    
     public void AddNodeToMenu<TNode>(string menuItemName, string? subItemName = null) where TNode : INode, new()
     {
         LoadedNodeInfo<TNode> newNodeInfo = new(plugin);

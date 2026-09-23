@@ -30,6 +30,7 @@ public class PluginInstaller(
         var pluginAssembly = pluginLoadContext.LoadFromAssemblyPath(entrypointPath);
 
         var newPlugin = new InstalledPlugin(pluginHostFactory, host, pluginId);
+        using var _ = pluginHostFactory.CreatePluginRegistrationScope();
         foreach (var type in pluginAssembly.GetTypes())
         {
             if (!typeof(IPlugin).IsAssignableFrom(type) || type.IsInterface) continue;

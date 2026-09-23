@@ -9,12 +9,14 @@ public interface IDataInterfaceFactory
         where TInterfaceDefinition : IUserInterfaceDefinition, new()
         where TValue : notnull
         where TInterface : class, new();
+    
+    public void RegisterInterfaceFactory<TInterfaceDefinition, TValue, TInterface>(Func<TInterface> factory)
+        where TInterfaceDefinition : IUserInterfaceDefinition, new()
+        where TValue : notnull
+        where TInterface : class;
 
     public IDataInterface<TFrontend> GetDataInterface<TFrontend>(IInterfaceData interfaceData)
         where TFrontend : class, new();
 
-    void RegisterInterfaceFactory<TInterfaceDefinition, TValue, TInterface>(Func<TInterface> factory)
-        where TInterfaceDefinition : IUserInterfaceDefinition, new()
-        where TValue : notnull
-        where TInterface : class;
+    public IDisposable CreateRegistrationScope();
 }

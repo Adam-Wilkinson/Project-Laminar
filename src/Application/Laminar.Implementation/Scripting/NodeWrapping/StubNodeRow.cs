@@ -13,7 +13,7 @@ public class StubNodeRow : INodeRow
     private readonly StubInputConnector _inputConnector = new();
     private readonly StubOutputConnector _outputConnector = new();
     
-    private static readonly InterfaceData<StringViewer, string> BlankInterfaceData = new("")
+    private static readonly InterfaceData<DefaultViewer, string> BlankInterfaceData = new("")
     {
         Name = "",
     };

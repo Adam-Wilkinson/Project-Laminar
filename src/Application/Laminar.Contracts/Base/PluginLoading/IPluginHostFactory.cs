@@ -6,4 +6,6 @@ namespace Laminar.Contracts.Base.PluginLoading;
 public interface IPluginHostFactory
 {
     public IPluginHost GetPluginHost(IInstalledPlugin plugin, ILoadedNodeManager loadedNodeManager);
+
+    public IDisposable CreatePluginRegistrationScope();
 }

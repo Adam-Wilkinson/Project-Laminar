@@ -17,4 +17,6 @@ internal sealed class PluginHostFactory(
     {
         return new PluginHost((InstalledPlugin)plugin, loadedNodeManager, typeInfoStore, dataInterfaceFactory, serializer);
     }
+
+    public IDisposable CreatePluginRegistrationScope() => dataInterfaceFactory.CreateRegistrationScope();
 }

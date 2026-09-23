@@ -44,7 +44,7 @@ internal sealed class Script : IScript
         Pan = persistentData[nameof(Pan)].GetValueOrInitialize(new Point { X = 0, Y = 0 });
         Zoom = persistentData[nameof(Zoom)].GetValueOrInitialize(1.0);
 
-        _subscriptions = Runtime.PluginManager.Plugins.SubscribeForEach(OnPluginInstalled, OnPluginRemoved);
+        _subscriptions = Runtime.PluginManager.Plugins.SubscribeForEach(OnPluginsChanged, OnPluginsChanged);
     }
     
     public IRuntimeHost Runtime { get; }
@@ -68,10 +68,8 @@ internal sealed class Script : IScript
         _subscriptions.Dispose();
     }
     
-    private void OnPluginRemoved(IInstalledPlugin _) => ReloadContext();
-
-    private void OnPluginInstalled(IInstalledPlugin _) => ReloadContext();
-
+    private void OnPluginsChanged(IInstalledPlugin _) => ReloadContext();
+    
     private void ReloadContext()
     {
         _context?.Dispose();
