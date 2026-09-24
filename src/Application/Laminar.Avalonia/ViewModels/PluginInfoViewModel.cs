@@ -118,6 +118,11 @@ public partial class PluginInfoViewModel : ViewModelBase
 
     private static string? ExtractStringFrom(ManifestData.LangSupportedString langSupportedString)
     {
+        if (langSupportedString.ValueKind == JsonValueKind.Undefined)
+        {
+            return null;
+        }
+        
         if (langSupportedString.TryGetProperty(CultureInfo.CurrentUICulture.TwoLetterISOLanguageName, out var lang)
             && lang.ValueKind == JsonValueKind.String)
         {

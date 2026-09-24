@@ -59,8 +59,8 @@ public partial class Dotnet : IDotnet
         => RunDotnet(path, "publish", $"\"{path}\" -c {BuildConfig} {string.Join(" ", args)}", ct)
             .ThrowOnError(); 
     
-    public Task<DotnetResult> Restore(string? path = null, params string[] args)
-        => RunDotnet(path, "restore",  $"\"{path}\" {string.Join(" ", args)}");
+    public Task<DotnetResult> Restore(string? path = null)
+        => RunDotnet(path, "restore", "");
 
     public Task<DotnetResult> ShutdownBuildServer(params string[] args)
         => RunDotnet(null, "build-server", "shutdown");

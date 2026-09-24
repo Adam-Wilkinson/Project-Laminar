@@ -11,12 +11,15 @@ internal class PersistentDataPoint(IEncodableDataFactory valueFactory) : IPersis
     
     public IEncodableData? MaterializedValue { get; private set; }
     
-    public void Reset()
+    public void Reset(bool clearEncodedValue = true)
     {
         MaterializedValue?.Invalidated -= ChildInvalidated;
         MaterializedValue = null;
-        _encodedValue = null;
-        Invalidated?.Invoke(this, EventArgs.Empty);
+        if (clearEncodedValue)
+        {
+            _encodedValue = null;
+            Invalidated?.Invoke(this, EventArgs.Empty);   
+        }
     }
     
     public T GetOrCreateCollection<T>(T? knownValue) where T : class, IEncodableData

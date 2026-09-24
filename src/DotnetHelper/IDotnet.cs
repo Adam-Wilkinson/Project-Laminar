@@ -26,7 +26,7 @@ public interface IDotnet
 
     public Task<DotnetResult> Publish(string path, CancellationToken ct, params string[] args);
     
-    public Task<DotnetResult> Restore(string? path = null, params string[] args);
+    public Task<DotnetResult> Restore(string? path = null);
 
     public Task<DotnetResult> ShutdownBuildServer(params string[] args);
 

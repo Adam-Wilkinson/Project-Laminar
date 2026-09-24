@@ -39,7 +39,21 @@ public class SourcedInterfaceDataSerializerFactory(ISerializer serializer) : ICo
 
 public class InterfaceDataSerializer<T>(ISerializer serializer) : TypeSerializer<IInterfaceData<T>> where T : notnull
 {
-    public override Type SerializedType => serializer.GetSerializedType(typeof(T?));
+    public override Type SerializedType
+    {
+        get
+        {
+            var serializedNotNullableType = serializer.GetSerializedType(typeof(T));
+
+            if (serializedNotNullableType.IsClass || serializedNotNullableType.IsAbstract ||
+                serializedNotNullableType.IsInterface)
+            {
+                return serializedNotNullableType;
+            }
+            
+            return typeof(Nullable<>).MakeGenericType(serializedNotNullableType);
+        }
+    }
     
     protected override object? SerializeOverride(IInterfaceData<T> toSerialize)
     {

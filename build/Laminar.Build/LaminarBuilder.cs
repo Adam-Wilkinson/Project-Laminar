@@ -29,6 +29,8 @@ public static class LaminarBuilder
 
         var lampackerLocal = Path.Combine(Dotnet.GetRepoRoot(), ".lampacker.local");
         
+        await Dotnet.Tool("restore");
+        
         // Build plugins
         foreach (var plugin in Plugins)
         {

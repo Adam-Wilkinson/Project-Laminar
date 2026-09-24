@@ -119,7 +119,6 @@ public partial class FileNavigatorItemViewModel(
             {
                 IsOpen = ofs.FileIsOpen(fileCoreItem);
                 ofs.OpenFilesChanged += OpenFilesChanged;
-                ofs.OpenFilesChanged += OpenFilesChanged;
             }
 
             field.PropertyChanged += OnCoreItemPropertyChanged;

@@ -67,10 +67,15 @@ internal sealed class NodeContainer : INodeContainer
             }
 
             _rows.BindTo(new FlattenedObservableTree<INodeRow>(node.Components));
+            
+            var persistentRows = persistentDictionary[nameof(Rows)].GetOrCreateCollection<IPersistentList>();
 
-            _persistentRowsSynchronizer = _persistentDictionary[nameof(Rows)]
-                .GetOrCreateCollection<IPersistentList>()
-                .InitializeAndSyncTo(Rows,
+            foreach (var row in persistentRows)
+            {
+                row.Reset(clearEncodedValue: false);
+            }
+            
+            _persistentRowsSynchronizer = persistentRows.InitializeAndSyncTo(Rows,
                     new PersistentValueAdapter<INodeRow>(row => row?.GetType() ?? typeof(INodeRow))
                     {
                         Mode = PersistenceAdapterMode.Hydrate

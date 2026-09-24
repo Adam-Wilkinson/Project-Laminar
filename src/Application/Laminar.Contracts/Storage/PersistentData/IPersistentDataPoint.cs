@@ -6,7 +6,7 @@ namespace Laminar.Contracts.Storage.PersistentData;
 /// </summary>
 public interface IPersistentDataPoint : IEncodableData
 {
-    public void Reset();
+    public void Reset(bool clearEncodedValue = true);
     
     public T GetOrCreateCollection<T>(T? knownValue = null) where T : class, IEncodableData;
     
