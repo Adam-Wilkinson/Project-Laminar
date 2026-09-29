@@ -8,8 +8,6 @@ internal readonly struct RemoveRootFolderAction(
     bool fullyCleanup,
     FileBrowserActionDependencies dependencies) : IUserAction
 {
-    public bool CanExecute => true;
-    
     public FileSystemPath RootFolderPath => rootFolderPath;
 
     public Task<IUserActionResult> Execute()

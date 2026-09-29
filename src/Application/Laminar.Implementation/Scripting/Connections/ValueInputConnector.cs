@@ -35,8 +35,7 @@ internal class ValueInputConnector<T>(ITypeInfoStore typeInfoStore) : IInputConn
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Flags)));
     }
 
-    public bool CanConnectTo(IOutputConnector connector)
-        => connector is IOutputConnector<IValueOutput<T>>;
+    public bool CanConnectTo(IOutputConnector connector) => connector is IOutputConnector<IValueOutput<T>>;
 
     public override string ToString() => $"Value Input '{Input.InterfaceData.Name}' (Value: {Input.Value})";
 }

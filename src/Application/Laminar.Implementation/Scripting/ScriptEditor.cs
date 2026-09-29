@@ -4,7 +4,7 @@ using Laminar.Contracts.Scripting.Connection;
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Domain.ValueObjects;
 using Laminar.Implementation.Base.ActionSystem;
-using Laminar.Implementation.Scripting.Actions;
+using Laminar.Implementation.Scripting.UserActions;
 using Laminar.PluginFramework.NodeSystem.Connectors;
 
 namespace Laminar.Implementation.Scripting;

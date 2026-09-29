@@ -2,7 +2,7 @@
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Domain.ValueObjects;
 
-namespace Laminar.Implementation.Scripting.Actions;
+namespace Laminar.Implementation.Scripting.UserActions;
 
 internal readonly struct MoveNodeAction(INodeContainer nodeContainer, Point locationDelta) : IUserAction
 {
@@ -10,8 +10,6 @@ internal readonly struct MoveNodeAction(INodeContainer nodeContainer, Point loca
 
     public INodeContainer NodeContainer => nodeContainer;
     
-    public bool CanExecute => true;
-
     public Task<IUserActionResult> Execute()
     {
         nodeContainer.Location.Value += LocationDelta;

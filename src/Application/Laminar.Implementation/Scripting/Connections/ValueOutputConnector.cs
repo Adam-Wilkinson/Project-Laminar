@@ -43,8 +43,7 @@ internal class ValueOutputConnector<T>(ITypeInfoStore typeInfoStore, IValueOutpu
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Flags)));
     }
 
-    public bool CanConnectTo(IInputConnector connector)
-        => connector is IInputConnector<IValueInput<T>>;
+    public bool CanConnectTo(IInputConnector connector) => connector is IInputConnector<IValueInput<T>>;
 
     public PassUpdateOption PassUpdate(ExecutionFlags executionFlags)
     {

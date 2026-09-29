@@ -1,10 +1,8 @@
 ﻿using Laminar.Contracts.Base.ActionSystem;
-using Laminar.Contracts.Scripting.Execution;
 using Laminar.Domain.Exceptions;
-using Laminar.Implementation.Scripting.Execution;
 using Laminar.PluginFramework.NodeSystem.Connectors;
 
-namespace Laminar.Implementation.Scripting.Actions;
+namespace Laminar.Implementation.Scripting.UserActions;
 
 internal readonly struct SeverConnectionAction(
     IOutputConnector outputConnector,
@@ -15,9 +13,7 @@ internal readonly struct SeverConnectionAction(
     public IOutputConnector OutputConnector { get; } = outputConnector;
     
     public IInputConnector InputConnector { get; } = inputConnector;
-
-    public bool CanExecute => writableNodeGraph.ConnectionExists(OutputConnector, InputConnector, out _);
-
+    
     public Task<IUserActionResult> Execute()
     {
         if (!writableNodeGraph.ConnectionExists(OutputConnector, InputConnector, out _))

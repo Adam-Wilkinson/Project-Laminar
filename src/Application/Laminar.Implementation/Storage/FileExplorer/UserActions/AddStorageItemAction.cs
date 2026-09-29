@@ -17,8 +17,6 @@ internal readonly struct AddStorageItemAction(
     
     public int IndexInParent => indexInParent;
     
-    public bool CanExecute => true;
-        
     public Task<IUserActionResult> Execute()
     {
         IFileSystemItem newItem = itemType.IsFolder

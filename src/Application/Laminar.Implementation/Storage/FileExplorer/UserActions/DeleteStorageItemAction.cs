@@ -16,16 +16,14 @@ internal readonly struct DeleteStorageItemAction(IFileSystemItem item, FileBrows
 
     public IFileSystemItem Target => item;
     
-    public bool CanExecute => _internalAction.CanExecute;
-
     public Task<IUserActionResult> Execute()
     {
         item.Refresh();
         
         if (item is IFileSystemRootFolder rootFolder)
         {
-            CompoundAction? action = _internalAction;
-            FileBrowserActionDependencies actionDependencies = dependencies;
+            var action = _internalAction;
+            var actionDependencies = dependencies;
             return Task.FromResult<IUserActionResult>(new ResolvableError<DeleteRootFolderConfirmation>
             {
                 Exception = new DeleteRootFolderException(rootFolder.Path),

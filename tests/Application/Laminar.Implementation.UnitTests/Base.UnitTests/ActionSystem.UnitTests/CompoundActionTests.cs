@@ -5,58 +5,8 @@ namespace Laminar.Implementation.UnitTests.Base.UnitTests.ActionSystem.UnitTests
 
 public class CompoundActionTests
 {
-    public class CanExecute
-    {
-        [Fact]
-        public void ShouldBeTrueWhenAllActionsCanExecute()
-        {
-            var action1 = Substitute.For<IUserAction>();
-            var action2 = Substitute.For<IUserAction>();
-
-            action1.CanExecute.Returns(true);
-            action2.CanExecute.Returns(true);
-
-            var sut = new CompoundAction(action1, action2);
-
-            sut.CanExecute.Should().BeTrue();
-        }
-
-        [Fact]
-        public void ShouldBeFalseWhenAnyActionCannotExecute()
-        {
-            var action1 = Substitute.For<IUserAction>();
-            var action2 = Substitute.For<IUserAction>();
-
-            action1.CanExecute.Returns(true);
-            action2.CanExecute.Returns(false);
-
-            var sut = new CompoundAction(action1, action2);
-
-            sut.CanExecute.Should().BeFalse();
-        }
-    }
-
     public class Execute
     {
-        [Fact]
-        public async Task ShouldReturnInvalidWhenActionCannotExecute()
-        {
-            var action1 = Substitute.For<IUserAction>();
-            var action2 = Substitute.For<IUserAction>();
-
-            action1.CanExecute.Returns(true);
-            action2.CanExecute.Returns(false);
-
-            var sut = new CompoundAction(action1, action2);
-
-            var result = await sut.Execute();
-
-            result.Should().BeOfType<UserActionIneffectual>();
-
-            await action1.DidNotReceive().Execute();
-            await action2.DidNotReceive().Execute();
-        }
-
         [Fact]
         public async Task ShouldExecuteAllActions()
         {
@@ -64,8 +14,6 @@ public class CompoundActionTests
             var inverse2 = Substitute.For<IUserAction>();
             var action1 = Substitute.For<IUserAction>();
             var action2 = Substitute.For<IUserAction>();
-            action1.CanExecute.Returns(true);
-            action2.CanExecute.Returns(true);
             action1.Execute().Returns(Task.FromResult(IUserActionResult.Success(inverse1)));
             action2.Execute().Returns(Task.FromResult(IUserActionResult.Success(inverse2)));
 
@@ -83,8 +31,6 @@ public class CompoundActionTests
             var inverse2 = Substitute.For<IUserAction>();
             var action1 = Substitute.For<IUserAction>();
             var action2 = Substitute.For<IUserAction>();
-            action1.CanExecute.Returns(true);
-            action2.CanExecute.Returns(true);
             action1.Execute().Returns(Task.FromResult(IUserActionResult.Success(inverse1)));
             action2.Execute().Returns(Task.FromResult(IUserActionResult.Success(inverse2)));
 
@@ -104,8 +50,6 @@ public class CompoundActionTests
             inverse1.Execute().Returns(Task.FromResult(IUserActionResult.Success(Substitute.For<IUserAction>())));
             var action1 = Substitute.For<IUserAction>();
             var action2 = Substitute.For<IUserAction>();
-            action1.CanExecute.Returns(true);
-            action2.CanExecute.Returns(true);
             action1.Execute().Returns(Task.FromResult(IUserActionResult.Success(inverse1)));
             var failure = IUserActionResult.Ineffectual();
 
@@ -138,9 +82,6 @@ public class CompoundActionTests
             var action1 = Substitute.For<IUserAction>();
             var action2 = Substitute.For<IUserAction>();
             var action3 = Substitute.For<IUserAction>();
-            action1.CanExecute.Returns(true);
-            action2.CanExecute.Returns(true);
-            action3.CanExecute.Returns(true);
             action1.Execute().Returns(Task.FromResult(IUserActionResult.Success(inverse1)));
             action2.Execute().Returns(Task.FromResult(IUserActionResult.Success(inverse2)));
             action3.Execute().Returns(Task.FromResult(IUserActionResult.Ineffectual()));

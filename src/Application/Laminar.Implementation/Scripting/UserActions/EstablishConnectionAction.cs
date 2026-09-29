@@ -3,7 +3,7 @@ using Laminar.Domain.Exceptions;
 using Laminar.Implementation.Base.ActionSystem;
 using Laminar.PluginFramework.NodeSystem.Connectors;
 
-namespace Laminar.Implementation.Scripting.Actions;
+namespace Laminar.Implementation.Scripting.UserActions;
 
 internal readonly struct EstablishConnectionAction(
     IOutputConnector outputConnector,
@@ -15,11 +15,9 @@ internal readonly struct EstablishConnectionAction(
 
     public IInputConnector InputConnector { get; } = inputConnector;
     
-    public bool CanExecute { get; } = outputConnector.CanConnectTo(inputConnector) || inputConnector.CanConnectTo(outputConnector);
-
     public Task<IUserActionResult> Execute()
     {
-        if (!CanExecute)
+        if (!OutputConnector.CanConnectTo(InputConnector) && !InputConnector.CanConnectTo(OutputConnector))
         {
             return Task.FromResult(IUserActionResult.Error(new CouldNotConnectException(OutputConnector, InputConnector)));
         }

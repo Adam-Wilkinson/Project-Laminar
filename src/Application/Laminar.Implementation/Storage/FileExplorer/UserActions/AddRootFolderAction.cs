@@ -7,8 +7,6 @@ internal readonly struct AddRootFolderAction(
     FileSystemPath folderPath, 
     FileBrowserActionDependencies dependencies) : IUserAction
 {
-    public bool CanExecute => true;
-    
     public FileSystemPath RootFolderPath => folderPath;
     
     public Task<IUserActionResult> Execute()

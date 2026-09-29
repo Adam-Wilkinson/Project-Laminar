@@ -7,7 +7,7 @@ using Laminar.Contracts.Scripting.Execution;
 using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.Observables.Value;
 using Laminar.Domain.ValueObjects;
-using Laminar.Implementation.Scripting.Actions;
+using Laminar.Implementation.Scripting.UserActions;
 
 namespace Laminar.Implementation.Scripting;
 

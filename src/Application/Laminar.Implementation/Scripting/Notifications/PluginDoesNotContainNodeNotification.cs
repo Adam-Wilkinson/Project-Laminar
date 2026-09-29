@@ -1,7 +1,7 @@
 using Laminar.Domain.Notifications;
 using Laminar.Domain.ValueObjects;
-using Laminar.Implementation.Scripting.Actions;
 using Laminar.Implementation.Scripting.NodeWrapping;
+using Laminar.Implementation.Scripting.UserActions;
 
 namespace Laminar.Implementation.Scripting.Notifications;
 

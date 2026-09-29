@@ -3,14 +3,12 @@ using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Domain.Exceptions;
 
-namespace Laminar.Implementation.Scripting.Actions;
+namespace Laminar.Implementation.Scripting.UserActions;
 
 internal readonly struct AddNodeAction(INodeContainer nodeContainer, INodeCollection nodes) : IUserAction
 {
     public INodeContainer NodeContainer { get; } = nodeContainer;
     
-    public bool CanExecute => !nodes.ContainsNode(NodeContainer);
-
     public Task<IUserActionResult> Execute()
     {
         if (nodes.ContainsNode(NodeContainer))

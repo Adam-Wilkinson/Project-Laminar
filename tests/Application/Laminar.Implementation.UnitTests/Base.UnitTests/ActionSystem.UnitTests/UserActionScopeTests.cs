@@ -14,7 +14,6 @@ public class UserActionScopeTests
         {
             var action = Substitute.For<IUserAction>();
             var inverse = Substitute.For<IUserAction>();
-            action.CanExecute.Returns(true);
             action.Execute().Returns(IUserActionResult.Success(inverse));
 
             var sut = CreateScope();
@@ -28,9 +27,7 @@ public class UserActionScopeTests
         {
             var inverse = Substitute.For<IUserAction>();
             var action = Substitute.For<IUserAction>();
-            action.CanExecute.Returns(true);
             action.Execute().Returns(IUserActionResult.Success(inverse));
-            inverse.CanExecute.Returns(true);
             inverse.Execute().Returns(IUserActionResult.Success(action));
             var sut = CreateScope();
 
@@ -44,7 +41,6 @@ public class UserActionScopeTests
         public async Task ShouldNotRegisterUndoActionWhenExecutionFails()
         {
             var action = Substitute.For<IUserAction>();
-            action.CanExecute.Returns(true);
             action.Execute().Returns(IUserActionResult.Ineffectual());
             var sut = CreateScope();
             
@@ -72,7 +68,6 @@ public class UserActionScopeTests
         {
             var undoAction = Substitute.For<IUserAction>();
             var inverse = Substitute.For<IUserAction>();
-            undoAction.CanExecute.Returns(true);
             undoAction.Execute().Returns(IUserActionResult.Success(inverse));
             var sut = CreateScope();
 
@@ -87,9 +82,7 @@ public class UserActionScopeTests
         {
             var redoAction = Substitute.For<IUserAction>();
             var undoAction = Substitute.For<IUserAction>();
-            undoAction.CanExecute.Returns(true);
             undoAction.Execute().Returns(IUserActionResult.Success(redoAction));
-            redoAction.CanExecute.Returns(true);
             redoAction.Execute().Returns(IUserActionResult.Success(undoAction));
             var sut = CreateScope();
 
@@ -118,9 +111,7 @@ public class UserActionScopeTests
         {
             var undo = Substitute.For<IUserAction>();
             var redo = Substitute.For<IUserAction>();
-            undo.CanExecute.Returns(true);
             undo.Execute().Returns(IUserActionResult.Success(redo));
-            redo.CanExecute.Returns(true);
             redo.Execute().Returns(IUserActionResult.Success(undo));
             var sut = CreateScope();
             sut.RegisterUndoAction(undo);
@@ -139,7 +130,6 @@ public class UserActionScopeTests
         public async Task ShouldReturnInvalidWhenActionCannotExecute()
         {
             var action = Substitute.For<IUserAction>();
-            action.CanExecute.Returns(false);
             var sut = CreateScope();
 
             var result = await sut.ResolveExecutionAsync(action);
@@ -156,7 +146,6 @@ public class UserActionScopeTests
             var inverse = Substitute.For<IUserAction>();
             var success = IUserActionResult.Success(inverse);
 
-            action.CanExecute.Returns(true);
             action.Execute().Returns(success);
 
             var sut = CreateScope();
@@ -178,7 +167,6 @@ public class UserActionScopeTests
                 Resolve = _ => throw new InvalidOperationException("A cancelled operations should not go via resolve"),
                 OnCancelled = onCancelled,
             };
-            action.CanExecute.Returns(true);
             action.Execute().Returns(resolvableError);
             
             var sut = CreateScope(errorResolvers: [resolver]);
@@ -201,9 +189,7 @@ public class UserActionScopeTests
                 Exception = new Exception(),
                 Resolve = _ => new AlternativeActionFound(alternative),
             };
-            original.CanExecute.Returns(true);
             original.Execute().Returns(resolvableError);
-            alternative.CanExecute.Returns(true);
             alternative.Execute().Returns(alternativeResult);
             resolver.TryResolve(resolvableError).Returns(resolvableError.Resolve(true));
 
@@ -219,7 +205,6 @@ public class UserActionScopeTests
         {
             var original = Substitute.For<IUserAction>();
             var alternative = Substitute.For<IUserAction>();
-            alternative.CanExecute.Returns(false);
             var resolver = Substitute.For<IUserActionErrorResolver>();
             var exception = new InvalidOperationException();
             var resolvableError = new ResolvableError<bool>
@@ -227,7 +212,6 @@ public class UserActionScopeTests
                 Exception = exception,
                 Resolve = _ => new AlternativeActionFound(alternative),
             };
-            original.CanExecute.Returns(true);
             original.Execute().Returns(resolvableError);
             resolver.TryResolve(Arg.Any<IUserActionResult>()).Returns(new AlternativeActionFound(alternative));
 
@@ -242,7 +226,6 @@ public class UserActionScopeTests
         {
             var exception = new InvalidOperationException();
             var action = Substitute.For<IUserAction>();
-            action.CanExecute.Returns(true);
             action.Execute().Returns(IUserActionResult.Error(exception));
             var exceptionHandler = Substitute.For<IExceptionHandler>();
             var sut = CreateScope(exceptionHandler: exceptionHandler);
@@ -257,7 +240,6 @@ public class UserActionScopeTests
         {
             var exception = new InvalidOperationException();
             var action = Substitute.For<IUserAction>();
-            action.CanExecute.Returns(true);
             action.Execute().Returns(new ResolvableError<bool>
             {
                 Exception = exception,

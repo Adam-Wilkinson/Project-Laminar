@@ -14,8 +14,6 @@ internal readonly struct RenameStorageItemAction(
 {
     public IFileSystemItem Target => item;
     
-    public bool CanExecute { get; } = !dependencies.FileSystem.GetNameWithoutExtension(item.Path).Equals(newName);
-
     public Task<IUserActionResult> Execute()
     {
         var oldName = dependencies.FileSystem.GetNameWithoutExtension(item.Path);
@@ -36,8 +34,8 @@ internal readonly struct RenameStorageItemAction(
             return Task.FromResult(IUserActionResult.Error(new InvalidStorageItemNameException(newName)));
         }
 
-        string name = newName;
-        FileBrowserActionDependencies actionDependencies = dependencies;
+        var name = newName;
+        var actionDependencies = dependencies;
         
         if (parentFolder.GetOrLoadContents().FirstOrDefault(sibling => name.Equals(
                 actionDependencies.FileSystem.GetNameWithoutExtension(sibling.Path), FileSystemPath.RuntimeStringComparison)) 

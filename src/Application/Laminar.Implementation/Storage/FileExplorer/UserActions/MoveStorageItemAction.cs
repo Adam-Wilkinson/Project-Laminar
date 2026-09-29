@@ -14,8 +14,6 @@ internal readonly struct MoveStorageItemAction(
      FileBrowserActionDependencies dependencies)
      : IUserAction
 {
-    public bool CanExecute => true;
-     
     public IFileSystemItem Target => item;
     
     public Task<IUserActionResult> Execute()

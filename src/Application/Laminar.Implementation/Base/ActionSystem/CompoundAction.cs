@@ -11,16 +11,9 @@ public class CompoundAction(IEnumerable<IUserAction> actions) : IUserAction
     }
 
     public IReadOnlyList<IUserAction> Actions => _actions;
-
-    public bool CanExecute => _actions.All(x => x.CanExecute);
-
+    
     public async Task<IUserActionResult> Execute()
-    {
-        if (_actions.Any(userAction => !userAction.CanExecute))
-        {
-            return IUserActionResult.Ineffectual();
-        }
-        
+    {        
         var executedUndoActions = new Stack<IUserAction>();
 
         foreach (var userAction in _actions)

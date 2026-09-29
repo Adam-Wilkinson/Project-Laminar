@@ -1,6 +1,6 @@
 using Laminar.Contracts.Base.ActionSystem;
 
-namespace Laminar.Implementation.Scripting.Actions;
+namespace Laminar.Implementation.Scripting.UserActions;
 
 internal class ScriptActionSimplifier : IUserActionSimplifier
 {

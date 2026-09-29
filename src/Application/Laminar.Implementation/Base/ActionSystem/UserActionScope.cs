@@ -74,7 +74,6 @@ public partial class UserActionScope(
         IUserActionResult result;
         try
         {
-            if (!action.CanExecute) return IUserActionResult.Ineffectual();
             result = await action.Execute();
         }
         catch (Exception ex)
@@ -98,12 +97,7 @@ public partial class UserActionScope(
                     (result as IResolvableError)?.OnCancelled?.Invoke();
                     return IUserActionResult.Cancelled();
                 case AlternativeActionFound { AlternativeAction: { } alternativeAction }:
-                    if (alternativeAction.CanExecute)
-                    {
-                        return await ResolveExecutionAsync(alternativeAction);
-                    }
-
-                    continue;
+                    return await ResolveExecutionAsync(alternativeAction);
                 default:
                     continue;
             }
