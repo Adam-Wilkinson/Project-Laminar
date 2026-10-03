@@ -15,23 +15,23 @@ public class DesignFileBrowser : IFileBrowser
 
     public IUserActionScope ActionScope => throw new InvalidOperationException();
 
-    public async Task<IUserActionResult> Add(string itemName, IFileSystemFolder parentFolder, int indexInParent, FileSystemItemType type)
-        => IUserActionResult.Ineffectual();
+    public async Task<UserActionResult> Add(string itemName, IFileSystemFolder parentFolder, int indexInParent, FileSystemItemType type)
+        => UserActionResult.Success();
 
-    public async Task<IUserActionResult> Move(IFileSystemItem itemToMove, IFileSystemFolder destinationFolder, int destinationIndex) 
-        => IUserActionResult.Ineffectual();
+    public async Task<UserActionResult> Move(IFileSystemItem itemToMove, IFileSystemFolder destinationFolder, int destinationIndex) 
+        => UserActionResult.Success();
 
-    public async Task<IUserActionResult> Delete(IFileSystemItem itemToDelete) 
-        => IUserActionResult.Ineffectual();
+    public async Task<UserActionResult> Delete(IFileSystemItem itemToDelete) 
+        => UserActionResult.Success();
 
-    public async Task<IUserActionResult> Rename(IFileSystemItem itemToRename, string newName) 
-        => IUserActionResult.Ineffectual();
+    public async Task<UserActionResult> Rename(IFileSystemItem itemToRename, string newName) 
+        => UserActionResult.Success();
 
     public bool OpenInSystemFileBrowser(IFileSystemItem item) => false;
 
-    public async Task<IUserActionResult> RemoveRootFolder(FileSystemPath rootFolderPath)
-        => IUserActionResult.Ineffectual();
+    public async Task<UserActionResult> RemoveRootFolder(FileSystemPath rootFolderPath)
+        => UserActionResult.Success();
 
-    public async Task<IUserActionResult> AddRootFolder(FileSystemPath newRootFolderPath)
-        => IUserActionResult.Ineffectual();
+    public async Task<UserActionResult> AddRootFolder(FileSystemPath newRootFolderPath)
+        => UserActionResult.Success();
 }

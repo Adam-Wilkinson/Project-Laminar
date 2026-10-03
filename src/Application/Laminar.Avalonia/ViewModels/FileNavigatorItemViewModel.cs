@@ -158,8 +158,8 @@ public partial class FileNavigatorItemViewModel(
     private void Rename() => NameBeingSet = true;
 
     [RelayCommand]
-    private Task<IUserActionResult> Delete() =>
-        CoreItem is null ? Task.FromResult(IUserActionResult.Ineffectual()) : fileBrowser.Delete(CoreItem);
+    private Task<UserActionResult> Delete() =>
+        CoreItem is null ? Task.FromResult(UserActionResult.Success()) : fileBrowser.Delete(CoreItem);
 
     [RelayCommand(CanExecute = nameof(HasCoreItem))]
     private void OpenInSystemFileBrowser()
@@ -170,6 +170,7 @@ public partial class FileNavigatorItemViewModel(
     public void Refresh()
     {
         CoreItem?.Refresh();
+        
         foreach (var child in Children ?? Enumerable.Empty<FileNavigatorItemViewModel>())
         {
             child.Refresh();
@@ -185,10 +186,10 @@ public partial class FileNavigatorItemViewModel(
         }
         
         var actionResult = await fileBrowser.Add(name, parentFolder, indexInParent, Type);
-        if (actionResult is not UserActionSuccess<IFileSystemItem> successfulAction)
+        if (actionResult is not UserActionValueResult<IFileSystemItem> successfulAction)
             throw new InvalidOperationException();
         
-        CoreItem = successfulAction.ReturnValue;
+        CoreItem = successfulAction.Value;
     }
     
     public async Task EnsureChildrenLoadedAsync()

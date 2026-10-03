@@ -9,15 +9,15 @@ internal readonly struct AddNodeAction(INodeContainer nodeContainer, INodeCollec
 {
     public INodeContainer NodeContainer { get; } = nodeContainer;
     
-    public Task<IUserActionResult> Execute()
+    public Task<IUserActionExecutionOutcome> Execute()
     {
         if (nodes.ContainsNode(NodeContainer))
         {
-            return Task.FromResult(IUserActionResult.Error(new NodeTreeContainsNodeException(NodeContainer)));
+            return Task.FromResult(IUserActionExecutionOutcome.Error(new NodeTreeContainsNodeException(NodeContainer)));
         }
         
         nodes.AddNode(NodeContainer);
-        return Task.FromResult(IUserActionResult.Success(new DeleteNodeAction(NodeContainer, nodes)));
+        return Task.FromResult(IUserActionExecutionOutcome.Success(new DeleteNodeAction(NodeContainer, nodes)));
     }
 
     public override string ToString()

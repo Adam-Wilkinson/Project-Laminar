@@ -10,9 +10,9 @@ internal readonly struct RemoveRootFolderAction(
 {
     public FileSystemPath RootFolderPath => rootFolderPath;
 
-    public Task<IUserActionResult> Execute()
+    public Task<IUserActionExecutionOutcome> Execute()
     {
         dependencies.Graph.Roots.RemoveRootAt(rootFolderPath, fullyCleanup);
-        return Task.FromResult(IUserActionResult.Success(new AddRootFolderAction(rootFolderPath, dependencies)));
+        return Task.FromResult(IUserActionExecutionOutcome.Success(new AddRootFolderAction(rootFolderPath, dependencies)));
     }
 }

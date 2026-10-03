@@ -11,7 +11,7 @@ public class UserPromptErrorResolver(DialogService dialogService) : IUserActionE
     private static readonly ValueDialogOption<NamingConflictResolution> ReplaceExistingFile = new(NamingConflictResolution.ReplaceItem, "Replace file");
     private static readonly ValueDialogOption<NamingConflictResolution> IncrementFileName = new(NamingConflictResolution.IncrementName, "Increment name");
 
-    public Task<IUserActionErrorResolution?> TryResolve(IUserActionResult result) => result switch
+    public Task<IUserActionErrorResolution?> TryResolve(IUserActionExecutionOutcome executionOutcome) => executionOutcome switch
     {
         ResolvableError<NamingConflictResolution> 
         { 
@@ -55,7 +55,7 @@ public class UserPromptErrorResolver(DialogService dialogService) : IUserActionE
             (DeleteRootFolderConfirmation.DeleteRootFolder, _) => DeleteRootFolderConfirmation.DeleteRootFolder,
             (DeleteRootFolderConfirmation.RemoveRootFolder, true) => DeleteRootFolderConfirmation.RemoveRootFolderAndCleanup,
             (DeleteRootFolderConfirmation.RemoveRootFolder, false) => DeleteRootFolderConfirmation.RemoveRootFolder,
-            _ => throw new NotImplementedException()
+            _ => throw new ArgumentOutOfRangeException(nameof(answer))
         }),
         _ => Task.FromResult<IUserActionErrorResolution?>(null),
     };

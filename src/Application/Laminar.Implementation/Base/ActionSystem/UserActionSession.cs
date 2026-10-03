@@ -2,18 +2,18 @@ using Laminar.Contracts.Base.ActionSystem;
 
 namespace Laminar.Implementation.Base.ActionSystem;
 
-internal class UserActionSession(IUserActionSessionHost owner) : IUserActionSession
+internal class UserActionSession(IUserActionSessionHost owner, IUserActionResolver resolver) : IUserActionSession
 {
     private readonly Stack<IUserAction> _undoStack = [];
 
     public async Task Pop()
     {
-        await owner.ResolveExecutionAsync(_undoStack.Pop());
+        await resolver.Resolve(_undoStack.Pop());
     }
 
-    public async Task<IUserActionResult> ExecuteAction(IUserAction action)
+    public async Task<IUserActionExecutionOutcome> ExecuteAction(IUserAction action)
     {
-        var result = await owner.ResolveExecutionAsync(action);
+        var result = await resolver.Resolve(action);
 
         if (result is UserActionSuccess { InverseAction: { } inverse })
         {

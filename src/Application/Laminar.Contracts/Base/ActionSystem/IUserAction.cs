@@ -2,5 +2,5 @@
 
 public interface IUserAction
 {
-    public Task<IUserActionResult> Execute();
+    public Task<IUserActionExecutionOutcome> Execute();
 }

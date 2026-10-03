@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.Base.PluginLoading;
 using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Scripting.NodeWrapping;
@@ -12,11 +13,12 @@ namespace Laminar.Implementation.Base;
 
 public class RuntimeHost : IRuntimeHost, INotifyPropertyChanged
 {
-    public RuntimeHost(IServiceProvider serviceProvider)
+    public RuntimeHost(IServiceProvider serviceProvider, IUserActionManager actionManager)
     {
         NodeManager = ActivatorUtilities.CreateInstance<LoadedNodeManager>(serviceProvider, this);
         PluginManager = ActivatorUtilities.CreateInstance<PluginManager>(serviceProvider, this);
         ScriptingFactory = ActivatorUtilities.CreateInstance<ScriptingFactory>(serviceProvider, this);
+        ActionScope = actionManager.CreateScope();
     }
 
     public required string Name { get; set => SetField(ref field, value); }
@@ -27,6 +29,8 @@ public class RuntimeHost : IRuntimeHost, INotifyPropertyChanged
     
     public ILoadedNodeManager NodeManager { get; }
     
+    public IUserActionScope ActionScope { get; }
+
     public event PropertyChangedEventHandler? PropertyChanged;
 
     private void SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)

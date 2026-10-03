@@ -14,8 +14,8 @@ public class CompoundActionTests
             var inverse2 = Substitute.For<IUserAction>();
             var action1 = Substitute.For<IUserAction>();
             var action2 = Substitute.For<IUserAction>();
-            action1.Execute().Returns(Task.FromResult(IUserActionResult.Success(inverse1)));
-            action2.Execute().Returns(Task.FromResult(IUserActionResult.Success(inverse2)));
+            action1.Execute().Returns(Task.FromResult(IUserActionExecutionOutcome.Success(inverse1)));
+            action2.Execute().Returns(Task.FromResult(IUserActionExecutionOutcome.Success(inverse2)));
 
             var sut = new CompoundAction(action1, action2);
 
@@ -31,8 +31,8 @@ public class CompoundActionTests
             var inverse2 = Substitute.For<IUserAction>();
             var action1 = Substitute.For<IUserAction>();
             var action2 = Substitute.For<IUserAction>();
-            action1.Execute().Returns(Task.FromResult(IUserActionResult.Success(inverse1)));
-            action2.Execute().Returns(Task.FromResult(IUserActionResult.Success(inverse2)));
+            action1.Execute().Returns(Task.FromResult(IUserActionExecutionOutcome.Success(inverse1)));
+            action2.Execute().Returns(Task.FromResult(IUserActionExecutionOutcome.Success(inverse2)));
 
             var sut = new CompoundAction(action1, action2);
             var result = await sut.Execute();
@@ -47,11 +47,11 @@ public class CompoundActionTests
         public async Task ShouldUndoPreviouslyExecutedActionsWhenActionFails()
         {
             var inverse1 = Substitute.For<IUserAction>();
-            inverse1.Execute().Returns(Task.FromResult(IUserActionResult.Success(Substitute.For<IUserAction>())));
+            inverse1.Execute().Returns(Task.FromResult(IUserActionExecutionOutcome.Success(Substitute.For<IUserAction>())));
             var action1 = Substitute.For<IUserAction>();
             var action2 = Substitute.For<IUserAction>();
-            action1.Execute().Returns(Task.FromResult(IUserActionResult.Success(inverse1)));
-            var failure = IUserActionResult.Ineffectual();
+            action1.Execute().Returns(Task.FromResult(IUserActionExecutionOutcome.Success(inverse1)));
+            var failure = IUserActionExecutionOutcome.Ineffectual();
 
             action2.Execute().Returns(Task.FromResult(failure));
             var sut = new CompoundAction(action1, action2);
@@ -71,20 +71,20 @@ public class CompoundActionTests
             inverse1.Execute().Returns(_ =>
             {
                 undoOrder.Add(1);
-                return Task.FromResult(IUserActionResult.Success(Substitute.For<IUserAction>()));
+                return Task.FromResult(IUserActionExecutionOutcome.Success(Substitute.For<IUserAction>()));
             });
             inverse2.Execute().Returns(_ =>
             {
                 undoOrder.Add(2);
-                return Task.FromResult(IUserActionResult.Success(Substitute.For<IUserAction>()));
+                return Task.FromResult(IUserActionExecutionOutcome.Success(Substitute.For<IUserAction>()));
             });
 
             var action1 = Substitute.For<IUserAction>();
             var action2 = Substitute.For<IUserAction>();
             var action3 = Substitute.For<IUserAction>();
-            action1.Execute().Returns(Task.FromResult(IUserActionResult.Success(inverse1)));
-            action2.Execute().Returns(Task.FromResult(IUserActionResult.Success(inverse2)));
-            action3.Execute().Returns(Task.FromResult(IUserActionResult.Ineffectual()));
+            action1.Execute().Returns(Task.FromResult(IUserActionExecutionOutcome.Success(inverse1)));
+            action2.Execute().Returns(Task.FromResult(IUserActionExecutionOutcome.Success(inverse2)));
+            action3.Execute().Returns(Task.FromResult(IUserActionExecutionOutcome.Ineffectual()));
 
             var sut = new CompoundAction(action1, action2, action3);
 

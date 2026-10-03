@@ -6,5 +6,5 @@ public interface IUserActionSession : IDisposable
 
     public Task Pop();
     
-    public Task<IUserActionResult> ExecuteAction(IUserAction action);
+    public Task<IUserActionExecutionOutcome> ExecuteAction(IUserAction action);
 }

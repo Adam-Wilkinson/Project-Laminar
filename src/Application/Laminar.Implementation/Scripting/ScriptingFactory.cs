@@ -15,17 +15,16 @@ namespace Laminar.Implementation.Scripting;
 internal class ScriptingFactory(
     IRuntimeHost host,
     IExecutionManager executionManager,
-    IUserActionManager userActionManager,
     IEncodableDataFactory dataFactory,
     IExceptionHandler exceptionHandler,
     ILogger<WritableNodeGraph> logger)
     : IScriptingFactory
 {
     public IScript CreateScript() 
-        => new Script(host, userActionManager, dataFactory.GetEncodableData<IPersistentDictionary>(), executionManager, exceptionHandler, this);
+        => new Script(host, dataFactory.GetEncodableData<IPersistentDictionary>(), executionManager, exceptionHandler, this);
 
     public IScript FromPersistentData(IPersistentDictionary persistentDictionary) 
-        => new Script(host, userActionManager, persistentDictionary, executionManager, exceptionHandler, this);
+        => new Script(host, persistentDictionary, executionManager, exceptionHandler, this);
 
     public INodeGraph CreateNodeTree(IEnumerable<INodeContainer> nodes, IEnumerable<IConnection> connections,
         INotificationClient<LaminarExecutionContext>? userChangedValueClient = null)

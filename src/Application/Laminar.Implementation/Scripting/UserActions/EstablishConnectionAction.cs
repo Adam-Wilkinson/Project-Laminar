@@ -15,11 +15,11 @@ internal readonly struct EstablishConnectionAction(
 
     public IInputConnector InputConnector { get; } = inputConnector;
     
-    public Task<IUserActionResult> Execute()
+    public Task<IUserActionExecutionOutcome> Execute()
     {
         if (!OutputConnector.CanConnectTo(InputConnector) && !InputConnector.CanConnectTo(OutputConnector))
         {
-            return Task.FromResult(IUserActionResult.Error(new CouldNotConnectException(OutputConnector, InputConnector)));
+            return Task.FromResult(IUserActionExecutionOutcome.Error(new CouldNotConnectException(OutputConnector, InputConnector)));
         }
         
         List<IUserAction> totalRequiredActions = [];
@@ -40,12 +40,12 @@ internal readonly struct EstablishConnectionAction(
         if (totalRequiredActions.Count == 0)
         {
             return Task.FromResult(writableNodeGraph.TryConnect(OutputConnector, InputConnector, out _)
-                ? IUserActionResult.Success(new SeverConnectionAction(OutputConnector, InputConnector, writableNodeGraph))
-                : IUserActionResult.Error(new CouldNotConnectException(OutputConnector, InputConnector)));
+                ? IUserActionExecutionOutcome.Success(new SeverConnectionAction(OutputConnector, InputConnector, writableNodeGraph))
+                : IUserActionExecutionOutcome.Error(new CouldNotConnectException(OutputConnector, InputConnector)));
         }
         
         totalRequiredActions.Add(this);
-        return Task.FromResult(IUserActionResult.Alternative(new CompoundAction(totalRequiredActions)));
+        return Task.FromResult(IUserActionExecutionOutcome.Alternative(new CompoundAction(totalRequiredActions)));
     }
 
     public override string ToString() => $"Establish Connection: {OutputConnector} -> {InputConnector}";

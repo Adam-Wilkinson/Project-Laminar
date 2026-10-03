@@ -23,7 +23,6 @@ internal sealed class Script : IScript
     
     public Script(
         IRuntimeHost runtime,
-        IUserActionManager userActionManager,
         IPersistentDictionary persistentData,
         IExecutionManager executionManager, 
         IExceptionHandler exceptionHandler,
@@ -35,7 +34,7 @@ internal sealed class Script : IScript
         
         Runtime = runtime;
         Data = persistentData;
-        ActionScope = userActionManager.CreateScope(new ScriptActionSimplifier());
+        ActionScope = runtime.ActionScope.CreateChild(new ScriptActionSimplifier());
         ReloadContext();
         if (_context is null) throw new InvalidOperationException("NodeTree should not be null here");
         

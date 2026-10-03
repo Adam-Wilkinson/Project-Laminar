@@ -14,17 +14,17 @@ public interface IFileBrowser
 
     public IUserActionScope ActionScope { get; }
 
-    public Task<IUserActionResult> Add(string itemName, IFileSystemFolder parent, int indexInParent, FileSystemItemType type);
+    public Task<UserActionResult> Add(string itemName, IFileSystemFolder parent, int indexInParent, FileSystemItemType type);
     
-    public Task<IUserActionResult> Move(IFileSystemItem itemToMove, IFileSystemFolder destinationFolder, int destinationIndex);
+    public Task<UserActionResult> Move(IFileSystemItem itemToMove, IFileSystemFolder destinationFolder, int destinationIndex);
 
-    public Task<IUserActionResult> Delete(IFileSystemItem itemToDelete);
+    public Task<UserActionResult> Delete(IFileSystemItem itemToDelete);
 
-    public Task<IUserActionResult> Rename(IFileSystemItem itemToRename, string newName);
+    public Task<UserActionResult> Rename(IFileSystemItem itemToRename, string newName);
     
     public bool OpenInSystemFileBrowser(IFileSystemItem item);
     
-    Task<IUserActionResult> RemoveRootFolder(FileSystemPath rootFolderPath);
+    Task<UserActionResult> RemoveRootFolder(FileSystemPath rootFolderPath);
     
-    Task<IUserActionResult> AddRootFolder(FileSystemPath newRootFolderPath);
+    Task<UserActionResult> AddRootFolder(FileSystemPath newRootFolderPath);
 }

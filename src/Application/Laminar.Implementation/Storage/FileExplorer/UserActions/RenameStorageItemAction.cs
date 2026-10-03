@@ -14,24 +14,24 @@ internal readonly struct RenameStorageItemAction(
 {
     public IFileSystemItem Target => item;
     
-    public Task<IUserActionResult> Execute()
+    public Task<IUserActionExecutionOutcome> Execute()
     {
         var oldName = dependencies.FileSystem.GetNameWithoutExtension(item.Path);
         var itemExtension = dependencies.FileSystem.GetExtension(item.Path);
 
         if (Equals(oldName, newName))
         {
-            return Task.FromResult(IUserActionResult.Ineffectual());
+            return Task.FromResult(IUserActionExecutionOutcome.Ineffectual());
         }
         
         if (item.ParentFolder is not { } parentFolder)
         {
-            return Task.FromResult(IUserActionResult.Error(new InvalidOperationException("The storage item does not have a parent")));
+            return Task.FromResult(IUserActionExecutionOutcome.Error(new InvalidOperationException("The storage item does not have a parent")));
         }
 
         if (newName.ContainsAny(Path.GetInvalidFileNameChars()))
         {
-            return Task.FromResult(IUserActionResult.Error(new InvalidStorageItemNameException(newName)));
+            return Task.FromResult(IUserActionExecutionOutcome.Error(new InvalidStorageItemNameException(newName)));
         }
 
         var name = newName;
@@ -44,7 +44,7 @@ internal readonly struct RenameStorageItemAction(
             RenameStorageItemAction renameAction = this;
             IFileSystemItem targetItem = item;
             
-            return Task.FromResult<IUserActionResult>(new ResolvableError<NamingConflictResolution>
+            return Task.FromResult<IUserActionExecutionOutcome>(new ResolvableError<NamingConflictResolution>
             {
                 Exception = new FileWithNameExistsException(newName),
                 Resolve = resolution => resolution switch
@@ -63,9 +63,9 @@ internal readonly struct RenameStorageItemAction(
         }
         catch (IOException exception)
         {
-            return Task.FromResult(IUserActionResult.Error(exception));
+            return Task.FromResult(IUserActionExecutionOutcome.Error(exception));
         }
         
-        return Task.FromResult(IUserActionResult.Success(new RenameStorageItemAction(oldName, item, dependencies)));
+        return Task.FromResult(IUserActionExecutionOutcome.Success(new RenameStorageItemAction(oldName, item, dependencies)));
     }
 }

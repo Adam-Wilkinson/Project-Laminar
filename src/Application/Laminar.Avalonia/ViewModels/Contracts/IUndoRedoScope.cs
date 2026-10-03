@@ -7,10 +7,10 @@ namespace Laminar.Avalonia.ViewModels.Contracts;
 public partial class UndoRedoHandler(IUserActionScope scope) : ObservableObject
 {
     [RelayCommand]
-    private Task<IUserActionResult> Redo() => scope.Redo();
+    private Task<UserActionResult> Redo() => scope.Redo();
 
     [RelayCommand]
-    private Task<IUserActionResult> Undo() => scope.Undo();
+    private Task<UserActionResult> Undo() => scope.Undo();
 }
 
 public interface IUndoRedoScope

@@ -1,3 +1,4 @@
+using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Scripting.NodeWrapping;
 
@@ -12,4 +13,6 @@ public interface IRuntimeHost
     public IScriptingFactory ScriptingFactory { get; }
     
     public ILoadedNodeManager NodeManager { get; }
+
+    public IUserActionScope ActionScope { get; }
 }

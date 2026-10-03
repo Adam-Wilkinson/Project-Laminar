@@ -14,15 +14,15 @@ internal readonly struct SeverConnectionAction(
     
     public IInputConnector InputConnector { get; } = inputConnector;
     
-    public Task<IUserActionResult> Execute()
+    public Task<IUserActionExecutionOutcome> Execute()
     {
         if (!writableNodeGraph.ConnectionExists(OutputConnector, InputConnector, out _))
         {
-            return Task.FromResult(IUserActionResult.Error(new ConnectionDoesNotExistException(OutputConnector, InputConnector)));
+            return Task.FromResult(IUserActionExecutionOutcome.Error(new ConnectionDoesNotExistException(OutputConnector, InputConnector)));
         }
         
         writableNodeGraph.SeverConnection(OutputConnector, InputConnector);
-        return Task.FromResult(IUserActionResult.Success(new EstablishConnectionAction(OutputConnector, InputConnector, writableNodeGraph)));
+        return Task.FromResult(IUserActionExecutionOutcome.Success(new EstablishConnectionAction(OutputConnector, InputConnector, writableNodeGraph)));
     }
 
     public override string ToString() => $"Sever connection between {OutputConnector} and {InputConnector}";

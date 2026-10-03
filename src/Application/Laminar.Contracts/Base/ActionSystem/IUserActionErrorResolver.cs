@@ -2,5 +2,5 @@
 
 public interface IUserActionErrorResolver
 {
-    public Task<IUserActionErrorResolution?> TryResolve(IUserActionResult result);
+    public Task<IUserActionErrorResolution?> TryResolve(IUserActionExecutionOutcome executionOutcome);
 }

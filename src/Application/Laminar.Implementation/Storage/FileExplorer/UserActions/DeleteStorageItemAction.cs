@@ -16,7 +16,7 @@ internal readonly struct DeleteStorageItemAction(IFileSystemItem item, FileBrows
 
     public IFileSystemItem Target => item;
     
-    public Task<IUserActionResult> Execute()
+    public Task<IUserActionExecutionOutcome> Execute()
     {
         item.Refresh();
         
@@ -24,7 +24,7 @@ internal readonly struct DeleteStorageItemAction(IFileSystemItem item, FileBrows
         {
             var action = _internalAction;
             var actionDependencies = dependencies;
-            return Task.FromResult<IUserActionResult>(new ResolvableError<DeleteRootFolderConfirmation>
+            return Task.FromResult<IUserActionExecutionOutcome>(new ResolvableError<DeleteRootFolderConfirmation>
             {
                 Exception = new DeleteRootFolderException(rootFolder.Path),
                 Resolve = confirmation => confirmation switch

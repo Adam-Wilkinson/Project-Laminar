@@ -12,8 +12,8 @@ public class CompoundAction(IEnumerable<IUserAction> actions) : IUserAction
 
     public IReadOnlyList<IUserAction> Actions => _actions;
     
-    public async Task<IUserActionResult> Execute()
-    {        
+    public async Task<IUserActionExecutionOutcome> Execute()
+    {
         var executedUndoActions = new Stack<IUserAction>();
 
         foreach (var userAction in _actions)
@@ -33,6 +33,6 @@ public class CompoundAction(IEnumerable<IUserAction> actions) : IUserAction
             executedUndoActions.Push(success.InverseAction);
         }
 
-        return IUserActionResult.Success(new CompoundAction(executedUndoActions));
+        return IUserActionExecutionOutcome.Success(new CompoundAction(executedUndoActions));
     }
 }

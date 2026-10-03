@@ -25,6 +25,7 @@ public static class LaminarServices
             .AddSingleton<ISerializer, Serializer>()
             
             .AddSingleton<IUserActionManager, UserActionManager>()
+            .AddSingleton<IUserActionResolver, UserActionResolver>()
             .AddSingleton<IUserActionChainSimplifier, UserActionChainSimplifier>()
             
             .AddSingleton<IDataInterfaceFactory, DataInterfaceFactory>()

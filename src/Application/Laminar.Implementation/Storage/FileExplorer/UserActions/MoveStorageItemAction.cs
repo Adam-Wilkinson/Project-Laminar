@@ -16,13 +16,13 @@ internal readonly struct MoveStorageItemAction(
 {
     public IFileSystemItem Target => item;
     
-    public Task<IUserActionResult> Execute()
+    public Task<IUserActionExecutionOutcome> Execute()
     {
         if (item is IFileSystemRootFolder)
-            return Task.FromResult(IUserActionResult.Error(new CannotMoveRootFolderException(item.UserFriendlyName)));
+            return Task.FromResult(IUserActionExecutionOutcome.Error(new CannotMoveRootFolderException(item.UserFriendlyName)));
         
         if (item.ParentFolder is not { } oldFolder) 
-            return Task.FromResult(IUserActionResult.Error(new InvalidOperationException("Cannot move storage item without parent")));
+            return Task.FromResult(IUserActionExecutionOutcome.Error(new InvalidOperationException("Cannot move storage item without parent")));
         
         var indexInOldFolder = oldFolder.GetOrLoadContents().IndexOf(item);
         var indexInDestinationFolder = targetIndex ?? destinationFolder.GetOrLoadContents().Count;
@@ -34,7 +34,7 @@ internal readonly struct MoveStorageItemAction(
             IFileSystemItem targetItem = item;
             IFileSystemFolder destination = destinationFolder;
             
-            return Task.FromResult<IUserActionResult>(new ResolvableError<NamingConflictResolution> 
+            return Task.FromResult<IUserActionExecutionOutcome>(new ResolvableError<NamingConflictResolution> 
             {
                 Exception = new DestinationContainsItemOfThatNameException(destinationFolder.UserFriendlyName, item.UserFriendlyName),
                 Resolve = resolution => resolution switch
@@ -60,10 +60,10 @@ internal readonly struct MoveStorageItemAction(
         {
             oldFolder.Refresh();
             destinationFolder.Refresh();
-            return Task.FromResult(IUserActionResult.Error(exception));
+            return Task.FromResult(IUserActionExecutionOutcome.Error(exception));
         }
 
-        return Task.FromResult(IUserActionResult.Success(new MoveStorageItemAction(item, oldFolder, indexInOldFolder, dependencies)));
+        return Task.FromResult(IUserActionExecutionOutcome.Success(new MoveStorageItemAction(item, oldFolder, indexInOldFolder, dependencies)));
     }
     
     private bool NameEqualsItemName(IFileSystemItem comparisonItem)

@@ -17,12 +17,12 @@ internal readonly struct AddStorageItemAction(
     
     public int IndexInParent => indexInParent;
     
-    public Task<IUserActionResult> Execute()
+    public Task<IUserActionExecutionOutcome> Execute()
     {
         IFileSystemItem newItem = itemType.IsFolder
             ? dependencies.CommandService.AddFolder(Parent, indexInParent, ItemNameAndExtension)
             : dependencies.CommandService.AddFile(Parent, indexInParent, ItemNameAndExtension);
         
-        return Task.FromResult(IUserActionResult.Success(newItem, new DeleteStorageItemAction(newItem, dependencies)));
+        return Task.FromResult(IUserActionExecutionOutcome.Success(newItem, new DeleteStorageItemAction(newItem, dependencies)));
     }
 }

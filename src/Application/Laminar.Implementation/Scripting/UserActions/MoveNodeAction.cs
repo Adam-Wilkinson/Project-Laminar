@@ -10,10 +10,10 @@ internal readonly struct MoveNodeAction(INodeContainer nodeContainer, Point loca
 
     public INodeContainer NodeContainer => nodeContainer;
     
-    public Task<IUserActionResult> Execute()
+    public Task<IUserActionExecutionOutcome> Execute()
     {
         nodeContainer.Location.Value += LocationDelta;
-        return Task.FromResult(IUserActionResult.Success(new MoveNodeAction(nodeContainer, -LocationDelta)));
+        return Task.FromResult(IUserActionExecutionOutcome.Success(new MoveNodeAction(nodeContainer, -LocationDelta)));
     }
 
     public override string ToString() => $"Move Node {NodeContainer}";

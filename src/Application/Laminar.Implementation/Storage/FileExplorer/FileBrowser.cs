@@ -64,22 +64,22 @@ internal class FileBrowser : IFileBrowser, IDisposable
     
     public IUserActionScope ActionScope { get; }
 
-    public Task<IUserActionResult> RemoveRootFolder(FileSystemPath rootFolderPath) 
+    public Task<UserActionResult> RemoveRootFolder(FileSystemPath rootFolderPath) 
         => ActionScope.ExecuteAction(new RemoveRootFolderAction(rootFolderPath, false, _actionDependencies));
 
-    public Task<IUserActionResult> AddRootFolder(FileSystemPath newRootFolderPath) 
+    public Task<UserActionResult> AddRootFolder(FileSystemPath newRootFolderPath) 
         => ActionScope.ExecuteAction(new AddRootFolderAction(newRootFolderPath, _actionDependencies));
 
-    public Task<IUserActionResult> Add(string itemName, IFileSystemFolder parent, int indexInParent, FileSystemItemType type)
+    public Task<UserActionResult> Add(string itemName, IFileSystemFolder parent, int indexInParent, FileSystemItemType type)
         => ActionScope.ExecuteAction(new AddStorageItemAction(itemName, parent, indexInParent, type, _actionDependencies));
 
-    public Task<IUserActionResult> Move(IFileSystemItem itemToMove, IFileSystemFolder destinationFolder, int destinationIndex) 
+    public Task<UserActionResult> Move(IFileSystemItem itemToMove, IFileSystemFolder destinationFolder, int destinationIndex) 
         => ActionScope.ExecuteAction(new MoveStorageItemAction(itemToMove, destinationFolder, destinationIndex, _actionDependencies));
 
-    public Task<IUserActionResult> Delete(IFileSystemItem itemToDelete) 
+    public Task<UserActionResult> Delete(IFileSystemItem itemToDelete) 
         => ActionScope.ExecuteAction(new DeleteStorageItemAction(itemToDelete, _actionDependencies));
 
-    public Task<IUserActionResult> Rename(IFileSystemItem itemToRename, string newName) 
+    public Task<UserActionResult> Rename(IFileSystemItem itemToRename, string newName) 
         => ActionScope.ExecuteAction(new RenameStorageItemAction(newName, itemToRename, _actionDependencies));
 
     public bool OpenInSystemFileBrowser(IFileSystemItem item) => _fileSystem.OpenInSystemFileBrowser(item.Path);

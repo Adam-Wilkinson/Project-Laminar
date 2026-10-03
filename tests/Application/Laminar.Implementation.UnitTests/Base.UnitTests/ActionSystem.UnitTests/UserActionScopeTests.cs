@@ -14,7 +14,7 @@ public class UserActionScopeTests
         {
             var action = Substitute.For<IUserAction>();
             var inverse = Substitute.For<IUserAction>();
-            action.Execute().Returns(IUserActionResult.Success(inverse));
+            action.Execute().Returns(IUserActionExecutionOutcome.Success(inverse));
 
             var sut = CreateScope();
             await sut.ExecuteAction(action);
@@ -27,8 +27,8 @@ public class UserActionScopeTests
         {
             var inverse = Substitute.For<IUserAction>();
             var action = Substitute.For<IUserAction>();
-            action.Execute().Returns(IUserActionResult.Success(inverse));
-            inverse.Execute().Returns(IUserActionResult.Success(action));
+            action.Execute().Returns(IUserActionExecutionOutcome.Success(inverse));
+            inverse.Execute().Returns(IUserActionExecutionOutcome.Success(action));
             var sut = CreateScope();
 
             await sut.ExecuteAction(action);
@@ -41,7 +41,7 @@ public class UserActionScopeTests
         public async Task ShouldNotRegisterUndoActionWhenExecutionFails()
         {
             var action = Substitute.For<IUserAction>();
-            action.Execute().Returns(IUserActionResult.Ineffectual());
+            action.Execute().Returns(IUserActionExecutionOutcome.Ineffectual());
             var sut = CreateScope();
             
             await sut.ExecuteAction(action);
@@ -68,7 +68,7 @@ public class UserActionScopeTests
         {
             var undoAction = Substitute.For<IUserAction>();
             var inverse = Substitute.For<IUserAction>();
-            undoAction.Execute().Returns(IUserActionResult.Success(inverse));
+            undoAction.Execute().Returns(IUserActionExecutionOutcome.Success(inverse));
             var sut = CreateScope();
 
             sut.RegisterUndoAction(undoAction);
@@ -82,8 +82,8 @@ public class UserActionScopeTests
         {
             var redoAction = Substitute.For<IUserAction>();
             var undoAction = Substitute.For<IUserAction>();
-            undoAction.Execute().Returns(IUserActionResult.Success(redoAction));
-            redoAction.Execute().Returns(IUserActionResult.Success(undoAction));
+            undoAction.Execute().Returns(IUserActionExecutionOutcome.Success(redoAction));
+            redoAction.Execute().Returns(IUserActionExecutionOutcome.Success(undoAction));
             var sut = CreateScope();
 
             sut.RegisterUndoAction(undoAction);
@@ -111,8 +111,8 @@ public class UserActionScopeTests
         {
             var undo = Substitute.For<IUserAction>();
             var redo = Substitute.For<IUserAction>();
-            undo.Execute().Returns(IUserActionResult.Success(redo));
-            redo.Execute().Returns(IUserActionResult.Success(undo));
+            undo.Execute().Returns(IUserActionExecutionOutcome.Success(redo));
+            redo.Execute().Returns(IUserActionExecutionOutcome.Success(undo));
             var sut = CreateScope();
             sut.RegisterUndoAction(undo);
 
@@ -144,7 +144,7 @@ public class UserActionScopeTests
         {
             var action = Substitute.For<IUserAction>();
             var inverse = Substitute.For<IUserAction>();
-            var success = IUserActionResult.Success(inverse);
+            var success = IUserActionExecutionOutcome.Success(inverse);
 
             action.Execute().Returns(success);
 
@@ -159,7 +159,7 @@ public class UserActionScopeTests
         {
             var action = Substitute.For<IUserAction>();
             var resolver = Substitute.For<IUserActionErrorResolver>();
-            resolver.TryResolve(Arg.Any<IUserActionResult>()).Returns(new UserActionCancelledResolution());
+            resolver.TryResolve(Arg.Any<IUserActionExecutionOutcome>()).Returns(new UserActionCancelledResolution());
             Action onCancelled = Substitute.For<Action>();
             var resolvableError = new ResolvableError<bool>
             {
@@ -182,7 +182,7 @@ public class UserActionScopeTests
             var original = Substitute.For<IUserAction>();
             var alternative = Substitute.For<IUserAction>();
             var alternativeInverse = Substitute.For<IUserAction>();
-            var alternativeResult = IUserActionResult.Success(alternativeInverse);
+            var alternativeResult = IUserActionExecutionOutcome.Success(alternativeInverse);
             var resolver = Substitute.For<IUserActionErrorResolver>();
             var resolvableError = new ResolvableError<bool>
             {
@@ -213,7 +213,7 @@ public class UserActionScopeTests
                 Resolve = _ => new AlternativeActionFound(alternative),
             };
             original.Execute().Returns(resolvableError);
-            resolver.TryResolve(Arg.Any<IUserActionResult>()).Returns(new AlternativeActionFound(alternative));
+            resolver.TryResolve(Arg.Any<IUserActionExecutionOutcome>()).Returns(new AlternativeActionFound(alternative));
 
             var sut = CreateScope(errorResolvers: [resolver]);
             var result = await sut.ResolveExecutionAsync(original);
@@ -226,7 +226,7 @@ public class UserActionScopeTests
         {
             var exception = new InvalidOperationException();
             var action = Substitute.For<IUserAction>();
-            action.Execute().Returns(IUserActionResult.Error(exception));
+            action.Execute().Returns(IUserActionExecutionOutcome.Error(exception));
             var exceptionHandler = Substitute.For<IExceptionHandler>();
             var sut = CreateScope(exceptionHandler: exceptionHandler);
 
@@ -295,6 +295,7 @@ public class UserActionScopeTests
             errorResolvers ?? [],
             exceptionHandler ?? Substitute.For<IExceptionHandler>(),
             chainSimplifier ?? Substitute.For<IUserActionChainSimplifier>(),
+            Substitute.For<IServiceProvider>(),
             Substitute.For<ILogger<UserActionScope>>());
     }
 }

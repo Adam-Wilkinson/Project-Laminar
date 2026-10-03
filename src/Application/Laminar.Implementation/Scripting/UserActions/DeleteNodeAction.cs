@@ -9,9 +9,9 @@ internal readonly struct DeleteNodeAction(INodeContainer nodeContainer, INodeCol
 {
     public INodeContainer NodeContainer { get; } = nodeContainer;
     
-    public Task<IUserActionResult> Execute() => Task.FromResult(nodes.DeleteNode(NodeContainer)
-        ? IUserActionResult.Success(new AddNodeAction(NodeContainer, nodes))
-        : IUserActionResult.Error(new NodeTreeDoesNotContainNodeException(NodeContainer)));
+    public Task<IUserActionExecutionOutcome> Execute() => Task.FromResult(nodes.DeleteNode(NodeContainer)
+        ? IUserActionExecutionOutcome.Success(new AddNodeAction(NodeContainer, nodes))
+        : IUserActionExecutionOutcome.Error(new NodeTreeDoesNotContainNodeException(NodeContainer)));
 
     public override string ToString() => $"Delete Node: {NodeContainer}";
 }

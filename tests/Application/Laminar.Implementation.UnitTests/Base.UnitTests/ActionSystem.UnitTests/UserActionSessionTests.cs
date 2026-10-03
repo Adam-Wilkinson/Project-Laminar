@@ -13,7 +13,7 @@ public class UserActionSessionTests
             var owner = Substitute.For<IUserActionSessionHost>();
             var action = Substitute.For<IUserAction>();
             var session = new UserActionSession(owner);
-            owner.ResolveExecutionAsync(action).Returns(IUserActionResult.Success(Substitute.For<IUserAction>()));
+            owner.ResolveExecutionAsync(action).Returns(IUserActionExecutionOutcome.Success(Substitute.For<IUserAction>()));
             
             await session.ExecuteAction(action);
 
@@ -26,7 +26,7 @@ public class UserActionSessionTests
             var owner = Substitute.For<IUserActionSessionHost>();
             var inverse = Substitute.For<IUserAction>();
             var action = Substitute.For<IUserAction>();
-            var success = IUserActionResult.Success(inverse);
+            var success = IUserActionExecutionOutcome.Success(inverse);
 
             owner.ResolveExecutionAsync(action).Returns(success);
 
@@ -43,7 +43,7 @@ public class UserActionSessionTests
         {
             var owner = Substitute.For<IUserActionSessionHost>();
             var action = Substitute.For<IUserAction>();
-            owner.ResolveExecutionAsync(action).Returns(IUserActionResult.Ineffectual());
+            owner.ResolveExecutionAsync(action).Returns(IUserActionExecutionOutcome.Ineffectual());
             var session = new UserActionSession(owner);
 
             await session.ExecuteAction(action);
@@ -63,9 +63,9 @@ public class UserActionSessionTests
             var undo2 = Substitute.For<IUserAction>();
             var session = new UserActionSession(owner);
 
-            owner.ResolveExecutionAsync(Arg.Any<IUserAction>()).Returns(IUserActionResult.Success(undo1));
+            owner.ResolveExecutionAsync(Arg.Any<IUserAction>()).Returns(IUserActionExecutionOutcome.Success(undo1));
             await session.ExecuteAction(Substitute.For<IUserAction>());
-            owner.ResolveExecutionAsync(Arg.Any<IUserAction>()).Returns(IUserActionResult.Success(undo2));
+            owner.ResolveExecutionAsync(Arg.Any<IUserAction>()).Returns(IUserActionExecutionOutcome.Success(undo2));
             await session.ExecuteAction(Substitute.For<IUserAction>());
 
             await session.Reset();
@@ -99,9 +99,9 @@ public class UserActionSessionTests
             var action2 = Substitute.For<IUserAction>();
             var session = new UserActionSession(owner);
 
-            owner.ResolveExecutionAsync(Arg.Any<IUserAction>()).Returns(IUserActionResult.Success(action1));
+            owner.ResolveExecutionAsync(Arg.Any<IUserAction>()).Returns(IUserActionExecutionOutcome.Success(action1));
             await session.ExecuteAction(Substitute.For<IUserAction>());
-            owner.ResolveExecutionAsync(Arg.Any<IUserAction>()).Returns(IUserActionResult.Success(action2));
+            owner.ResolveExecutionAsync(Arg.Any<IUserAction>()).Returns(IUserActionExecutionOutcome.Success(action2));
             await session.ExecuteAction(Substitute.For<IUserAction>());
 
             session.Dispose();
@@ -128,7 +128,7 @@ public class UserActionSessionTests
             var action = Substitute.For<IUserAction>();
             var session = new UserActionSession(owner);
 
-            owner.ResolveExecutionAsync(action).Returns(IUserActionResult.Success(Substitute.For<IUserAction>()));
+            owner.ResolveExecutionAsync(action).Returns(IUserActionExecutionOutcome.Success(Substitute.For<IUserAction>()));
 
             await session.ExecuteAction(action);
 
