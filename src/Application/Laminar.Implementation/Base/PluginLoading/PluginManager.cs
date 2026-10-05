@@ -1,11 +1,8 @@
-using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
-using CommunityToolkit.Mvvm.Collections;
 using Laminar.Contracts.Base;
 using Laminar.Contracts.Base.PluginLoading;
 using Laminar.Domain.Exceptions;
 using Laminar.Domain.Observables.Collections;
-using Laminar.Domain.Observables.Value;
 using Laminar.Domain.ValueObjects;
 using Laminar.Implementation.Extensions;
 using Laminar.PluginFramework.Registration;
@@ -22,11 +19,8 @@ internal sealed partial class PluginManager(
     : IPluginManager
 {
     private readonly ObservableDictionary<VersionedPluginId, IInstalledPlugin> _userInstalledPluginsById = [];
-    private readonly ObservableDictionary<VersionedPluginId, IInstalledPlugin> _referencedPluginsById = [];
 
     public IReadOnlyObservableBag<IInstalledPlugin> UserInstalledPlugins => _userInstalledPluginsById.Values;
-
-    public IReadOnlyObservableBag<IInstalledPlugin> ReferencedPlugins => _referencedPluginsById.Values; 
     
     public Task<IInstalledPlugin?> EnsurePluginInstalled(VersionedPluginId pluginId)
         => EnsurePluginInstalled(pluginId, true);
@@ -36,17 +30,6 @@ internal sealed partial class PluginManager(
         if (_userInstalledPluginsById.TryGetValue(pluginId, out var plugin))
         {
             return plugin;
-        }
-
-        if (_referencedPluginsById.TryGetValue(pluginId, out var referencedPlugin))
-        {
-            if (userInstalled)
-            {
-                _referencedPluginsById.Remove(pluginId);
-                _userInstalledPluginsById.Remove(pluginId);
-            }
-            
-            return referencedPlugin;
         }
 
         if (await library.GetPluginSourceOrNull(pluginId) is not { } pluginSource)

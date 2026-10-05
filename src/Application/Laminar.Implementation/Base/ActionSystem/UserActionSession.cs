@@ -38,6 +38,12 @@ internal class UserActionSession(IUserActionSessionHost owner, IUserActionResolv
         var undoList = _undoStack.ToList();
         owner.Simplify(undoList);
         if (undoList.Count == 0) return;
+        if (undoList.Count == 1)
+        {
+            owner.RegisterUndoAction(undoList[0]);
+            return;
+        }
+        
         owner.RegisterUndoAction(new CompoundAction(undoList));
     }
 }

@@ -8,11 +8,7 @@ public interface IInstalledPlugin
 {
     VersionedPluginId PluginId { get; }
 
-    public IRuntimeHost Host { get; }
-
-    public int DependantPluginCount { get; }
-    
-    public bool UserInstalled { get; } 
+    public IRuntimeHost Host { get; } 
     
     public bool TryGetNodeInfo(string nodeName, [NotNullWhen(true)] out ILoadedNodeInfo? nodeInfo);
 }

@@ -8,7 +8,7 @@ namespace Laminar.Implementation.Base.PluginLoading;
 
 public class InstalledPlugin : IInstalledPlugin
 {
-    private readonly IPluginHost _pluginHost;
+    private readonly IReleasablePluginHost _pluginHost;
     private readonly List<IPlugin> _implementingTypes = [];
     private readonly Dictionary<string, ILoadedNodeInfo> _loadedNodeInfos = [];
     
@@ -33,10 +33,6 @@ public class InstalledPlugin : IInstalledPlugin
     public VersionedPluginId PluginId { get; }
     
     public IRuntimeHost Host { get; }
-    
-    public int DependantPluginCount { get; }
-    
-    public bool UserInstalled { get; }
 
     public bool TryGetNodeInfo(string nodeName, [NotNullWhen(true)] out ILoadedNodeInfo? nodeInfo) 
         => _loadedNodeInfos.TryGetValue(nodeName, out nodeInfo);

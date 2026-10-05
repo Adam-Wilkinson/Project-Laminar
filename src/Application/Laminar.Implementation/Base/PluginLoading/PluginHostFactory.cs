@@ -13,7 +13,7 @@ internal sealed class PluginHostFactory(
     ISerializer serializer)
     : IPluginHostFactory
 {
-    public IPluginHost GetPluginHost(IInstalledPlugin plugin, ILoadedNodeManager loadedNodeManager)
+    public IReleasablePluginHost GetPluginHost(IInstalledPlugin plugin, ILoadedNodeManager loadedNodeManager)
     {
         return new PluginHost((InstalledPlugin)plugin, loadedNodeManager, typeInfoStore, dataInterfaceFactory, serializer);
     }

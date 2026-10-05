@@ -8,8 +8,6 @@ public interface IPluginManager
 {
     public IReadOnlyObservableBag<IInstalledPlugin> UserInstalledPlugins { get; }
     
-    public IReadOnlyObservableBag<IInstalledPlugin> ReferencedPlugins { get; }
-
     public Task<IInstalledPlugin?> EnsurePluginInstalled(VersionedPluginId pluginId);
 
     public bool TryGetInstalledPlugin(VersionedPluginId pluginId, [NotNullWhen(true)] out IInstalledPlugin? plugin);

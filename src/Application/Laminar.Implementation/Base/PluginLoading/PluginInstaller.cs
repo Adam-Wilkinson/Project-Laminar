@@ -37,13 +37,13 @@ public class PluginInstaller(
 
             if (type.GetConstructor(BindingFlags.Public | BindingFlags.Instance, []) is null)
             {
-                logger.LogWarning("The type {type} implements IPlugin but has no public parameterless constructor, so cannot be instantiated", type);
+                logger.LogWarning("The type {Type} implements IPlugin but has no public parameterless constructor, so cannot be instantiated", type);
                 continue;
             }
 
             if (Activator.CreateInstance(type) is not IPlugin implementation)
             {
-                logger.LogWarning("Unknown error creating type {type}", type);
+                logger.LogWarning("Unknown error creating type {Type}", type);
                 continue;
             }
             
