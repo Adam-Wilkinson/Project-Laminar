@@ -1,12 +1,6 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.Converters;
 using Avalonia.Controls.Documents;
 using Avalonia.Data;
 using Avalonia.Data.Converters;
@@ -27,7 +21,6 @@ public partial class EditableLabel : UserControl
     public static readonly StyledProperty<string?> DisplayStringFormatProperty = AvaloniaProperty.Register<EditableLabel, string?>(nameof(DisplayStringFormat));
     
     private static readonly TimeSpan InvalidCharHintDuration = new(0, 0, 5);
-    private static readonly TimeSpan EditingStartedCooldown = new(0, 0, 0, 0, 100);
 
     private readonly StackPanel _invalidCharHint = new()
     {
@@ -37,20 +30,19 @@ public partial class EditableLabel : UserControl
     private readonly Flyout _invalidCharHintFlyout;
 
     private DateTime _furthestCharHintFlyoutCloseTime = DateTime.Now;
-    private DateTime _editingStartedTime = DateTime.Now;
-    
+
     static EditableLabel()
     {
         IsBeingEditedProperty.Changed.AddClassHandler<EditableLabel>((label, args) => label.IsBeingEditedChanged(args));
-        DisallowedCharsProperty.Changed.AddClassHandler<EditableLabel>((label, args) => label.DisallowedCharsChanged());
-        DisplayStringFormatProperty.Changed.AddClassHandler<EditableLabel>((label, args) => label.DisplayStringFormatChanged());
+        DisallowedCharsProperty.Changed.AddClassHandler<EditableLabel>((label, _) => label.DisallowedCharsChanged());
+        DisplayStringFormatProperty.Changed.AddClassHandler<EditableLabel>((label, _) => label.DisplayStringFormatChanged());
     }
     
     public EditableLabel()
     {
         InitializeComponent();
 
-        _invalidCharHintFlyout = new()
+        _invalidCharHintFlyout = new Flyout
         {
             Content = new Panel
             {
@@ -79,12 +71,6 @@ public partial class EditableLabel : UserControl
 
         Editor.LostFocus += (_, _) =>
         {
-            // if (DateTime.Now - _editingStartedTime < EditingStartedCooldown)
-            // {
-            //     Editor.SelectAll();
-            //     Editor.Focus();
-            //     return;
-            // }
             IsBeingEdited = false;
         };
     }
@@ -125,7 +111,6 @@ public partial class EditableLabel : UserControl
     {
         if (args.GetNewValue<bool>())
         {
-            _editingStartedTime = DateTime.Now;
             Editor.Text = Text;
             Display.IsHitTestVisible = false;
             Display.Opacity = 0;
@@ -186,11 +171,10 @@ public partial class EditableLabel : UserControl
     
     private void Editor_TextInput(object? sender, TextInputEventArgs e)
     {
-        if (e.Text.ContainsAny(DisallowedChars))
-        {
-            Dispatcher.UIThread.InvokeAsync(OnInvalidTextEntry);
-            e.Handled = true;
-        }
+        if (!e.Text.ContainsAny(DisallowedChars)) return;
+        
+        Dispatcher.UIThread.InvokeAsync(OnInvalidTextEntry);
+        e.Handled = true;
     }
 
     private async Task OnInvalidTextEntry()
@@ -221,14 +205,10 @@ public partial class EditableLabel : UserControl
     
     private void DisallowedCharsChanged()
     {
-        IEnumerable<Run> disallowedCharsInline = DisallowedChars
+        var disallowedCharsInline = DisallowedChars
             .Where(IsUserFriendlyChar)
-            .Select(ch =>
-            {
-                var output = new Run(ch.ToString());
-                output.Classes.Add("Emphasis");
-                return output;
-            }).InsertInBetween(new Run("', '"));
+            .Select(ch => new Run(ch.ToString()) { Classes = { "Emphasis" }})
+            .InsertInBetween(new Run("', '"));
 
         _invalidCharHint.Children.Clear();
         _invalidCharHint.Children.Add(new TextBlock 
@@ -237,14 +217,18 @@ public partial class EditableLabel : UserControl
             HorizontalAlignment = HorizontalAlignment.Center,
         });
 
-        InlineCollection secondLineInlines = [new Run("Invalid characters are '")];
-        secondLineInlines.AddRange(disallowedCharsInline);
-        secondLineInlines.Add(new Run("'."));
+        InlineCollection secondLineInlines =
+        [
+            new Run("Invalid characters are '"),
+            .. disallowedCharsInline,
+            new Run("'.")
+        ];
 
         var secondLine = new TextBlock
         {
             Inlines = secondLineInlines
         };
+        
         secondLine.Classes.Add("b2");
         _invalidCharHint.Children.Add(secondLine);
     }
