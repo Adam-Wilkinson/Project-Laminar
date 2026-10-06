@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using Laminar.Contracts.Base;
 using Laminar.Contracts.Base.PluginLoading;
 using Laminar.Domain.Exceptions;
@@ -18,20 +17,17 @@ internal sealed partial class PluginManager(
     ILogger<PluginManager> logger) 
     : IPluginManager
 {
-    private readonly ObservableList<VersionedPluginId> _userInstalledPluginsById = [];
+    private readonly ObservableDictionary<VersionedPluginId, IPluginInstallation> _userInstalledPluginsById = [];
 
-    public IReadOnlyObservableBag<VersionedPluginId> UserInstalledPlugins => _userInstalledPluginsById;
+    public IReadOnlyObservableBag<VersionedPluginId> UserInstalledPlugins => _userInstalledPluginsById.Keys;
 
     public IRuntimeHost Host => host;
 
-    public Task<bool> EnsurePluginInstalled(VersionedPluginId pluginId)
-        => EnsurePluginInstalled(pluginId, true);
-
-    public bool PluginInstalled(VersionedPluginId pluginId) => _userInstalledPluginsById.Contains(pluginId);
-
-    private async Task<bool> EnsurePluginInstalled(VersionedPluginId pluginId, bool userInstalled)
+    public bool PluginInstalled(VersionedPluginId pluginId) => _userInstalledPluginsById.ContainsKey(pluginId);
+    
+    public async Task<bool> EnsurePluginInstalled(VersionedPluginId pluginId)
     {
-        if (_userInstalledPluginsById.Contains(pluginId))
+        if (PluginInstalled(pluginId))
         {
             return true;
         }
@@ -51,7 +47,7 @@ internal sealed partial class PluginManager(
                 continue;
             }
 
-            if (!await EnsurePluginInstalled(dependencyId, false))
+            if (!await EnsurePluginInstalled(dependencyId))
             {
                 while (installedDependencies.Count > 0)
                 {
@@ -71,13 +67,19 @@ internal sealed partial class PluginManager(
             return false;
         }
         
-        _userInstalledPluginsById.Add(pluginId);
-        return newPlugin;
+        _userInstalledPluginsById.Add(pluginId, newPlugin);
+        return true;
     }
 
     public void UninstallPlugin(VersionedPluginId pluginId)
     {
-        throw new NotImplementedException();
+        if (!_userInstalledPluginsById.TryGetValue(pluginId, out var plugin))
+        {
+            return;
+        }
+        
+        plugin.Uninstall();
+        _userInstalledPluginsById.Remove(pluginId);
     }
 
     [LoggerMessage(LogLevel.Trace, "Skipping dependency {DependencyId} since its frontend dependency {Frontend} is not present")]

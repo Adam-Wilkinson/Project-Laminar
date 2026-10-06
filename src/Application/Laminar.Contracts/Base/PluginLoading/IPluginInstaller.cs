@@ -5,12 +5,12 @@ namespace Laminar.Contracts.Base.PluginLoading;
 
 public interface IPluginInstaller
 {
-    public Task<MayError<bool>> InstallFromArchive(
+    public Task<MayError<IPluginInstallation>> InstallFromArchive(
         Stream archiveStream, 
         VersionedPluginId pluginId,
         IRuntimeHost runtimeHost);
     
-    public Task<MayError<bool>> InstallFromFolder(
+    public Task<MayError<IPluginInstallation>> InstallFromFolder(
         FileSystemPath directory, 
         VersionedPluginId pluginId,
         IRuntimeHost runtimeHost);

@@ -3,7 +3,6 @@ using Laminar.Contracts.Base.PluginLoading;
 using Laminar.Contracts.Base.UserInterface;
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Domain.ValueObjects;
-using Laminar.PluginFramework.Registration;
 using Laminar.PluginFramework.Serialization;
 
 namespace Laminar.Implementation.Base.PluginLoading;
@@ -14,7 +13,7 @@ internal sealed class PluginHostFactory(
     ISerializer serializer)
     : IPluginHostFactory
 {
-    public IUninstallablePluginHost GetPluginHost(VersionedPluginId pluginId, ILoadedNodeManager loadedNodeManager)
+    public IPluginInstallation GetPluginHost(VersionedPluginId pluginId, ILoadedNodeManager loadedNodeManager)
     {
         return new PluginHost(pluginId, loadedNodeManager, typeInfoStore, dataInterfaceFactory, serializer);
     }

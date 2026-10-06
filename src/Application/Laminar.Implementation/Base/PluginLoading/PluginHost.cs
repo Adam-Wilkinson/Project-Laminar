@@ -6,6 +6,7 @@ using Laminar.Domain;
 using Laminar.Domain.ValueObjects;
 using Laminar.Implementation.Scripting.NodeWrapping;
 using Laminar.PluginFramework.NodeSystem;
+using Laminar.PluginFramework.Registration;
 using Laminar.PluginFramework.Serialization;
 using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
@@ -17,11 +18,13 @@ internal sealed class PluginHost(
     ITypeInfoStore typeInfoStore,
     IDataInterfaceFactory dataInterfaceFactory,
     ISerializer serializer)
-    : IUninstallablePluginHost
+    : IPluginHost, IPluginInstallation
 {
     private readonly List<(ILoadedNodeInfo nodeInfo, string categoryPath)> _installedNodes = [];
     private readonly List<Type> _loadedTypeInfos = [];
     private readonly CompositeDisposable _disposables = new();
+
+    public VersionedPluginId PluginId => pluginId;
     
     public void AddNodeToMenu<TNode>(string menuItemName, string? subItemName = null) where TNode : INode, new()
     {
@@ -58,7 +61,7 @@ internal sealed class PluginHost(
 
     public bool TryAddTypeConverter<TInput, TOutput, TConverter>() where TConverter : INode => throw new NotImplementedException();
     
-    public void UnregisterAll()
+    public void Uninstall()
     {
         foreach (var (node, path) in _installedNodes)
         {

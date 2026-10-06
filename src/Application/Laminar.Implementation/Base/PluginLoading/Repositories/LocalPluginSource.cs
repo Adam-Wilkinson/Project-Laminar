@@ -44,7 +44,7 @@ public class LocalPluginSource(
 
     public bool HasPlugin(VersionedPluginId plugin) => _pluginDetails.ContainsKey(plugin);
 
-    public Task<MayError<bool>> InstallPlugin(
+    public Task<MayError<IPluginInstallation>> InstallPlugin(
         VersionedPluginId pluginId,
         IRuntimeHost runtimeHost,
         CancellationToken cancellationToken = default)

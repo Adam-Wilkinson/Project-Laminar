@@ -14,7 +14,7 @@ public interface IPluginSource
     
     public bool HasPlugin(VersionedPluginId plugin);
     
-    public Task<MayError<bool>> InstallPlugin(VersionedPluginId pluginId, IRuntimeHost runtimeHost, CancellationToken cancellationToken = default);
+    public Task<MayError<IPluginInstallation>> InstallPlugin(VersionedPluginId pluginId, IRuntimeHost runtimeHost, CancellationToken cancellationToken = default);
     
     public Task<ManifestData> GetManifest(VersionedPluginId plugin, CancellationToken cancellationToken = default);
 }
