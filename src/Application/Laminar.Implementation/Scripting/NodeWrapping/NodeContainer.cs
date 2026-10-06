@@ -38,23 +38,21 @@ internal sealed class NodeContainer : INodeContainer
         Location = persistentDictionary[nameof(Location)].GetValueOrInitialize(new Point { X = 0, Y = 0 });
         NameRow = nameRow;
 
-        if (!pluginManager.TryGetInstalledPlugin(Descriptor.Plugin, out var plugin))
+        if (pluginManager.Host.NodeManager.GetInfoFrom(descriptor) is not { } nodeInfo)
         {
-            Notifications.AddNotification(notificationFactory.PluginNotInstalled(Descriptor.Plugin, this, pluginManager));
-
             _rows.BindTo(new ObservableList<INodeRow>(persistentDictionary[nameof(Rows)]
                 .GetOrCreateCollection<IPersistentList>()
                 .Select(_ => new StubNodeRow())));
-            return;
-        }
 
-        if (!plugin.TryGetNodeInfo(Descriptor.NodeName, out var nodeInfo))
-        {
-            Notifications.AddNotification(notificationFactory.PluginDoesNotContainNode(Descriptor.Plugin, this));
+            if (pluginManager.PluginInstalled(Descriptor.Plugin))
+            {
+                Notifications.AddNotification(notificationFactory.PluginDoesNotContainNode(Descriptor.Plugin, this));
+            }
+            else
+            {
+                Notifications.AddNotification(notificationFactory.PluginNotInstalled(Descriptor.Plugin, this, pluginManager));
+            }
 
-            _rows.BindTo(new ObservableList<INodeRow>(persistentDictionary[nameof(Rows)]
-                .GetOrCreateCollection<IPersistentList>()
-                .Select(_ => new StubNodeRow())));
             return;
         }
 

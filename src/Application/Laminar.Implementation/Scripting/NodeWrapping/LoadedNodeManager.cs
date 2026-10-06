@@ -20,6 +20,12 @@ public class LoadedNodeManager(IRuntimeHost host, INodeFactory nodeFactory) : IL
         _writableLoadedNodes.AddItem(newNodeInfo.NodeDescriptor, categoryPath);
     }
 
+    public void RemoveNodeFromCategory(string categoryPath, ILoadedNodeInfo newNodeInfo)
+    {
+        _loadedNodeInfos.Remove(newNodeInfo.NodeDescriptor);
+        _writableLoadedNodes.RemoveItem(newNodeInfo.NodeDescriptor, categoryPath);
+    }
+
     public INodeContainer CreateNode(IPersistentDictionary persistentDictionary)
         => nodeFactory.FromPersistentData(persistentDictionary, host);
 

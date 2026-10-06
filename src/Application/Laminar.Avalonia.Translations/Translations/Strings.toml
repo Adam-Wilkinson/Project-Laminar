@@ -46,6 +46,7 @@ SetSetting = "Set setting value"
 ToggleNodeExpanded = "Toggle expanded"
 
 PluginVersion = "{0} (v{1})"
+InstalledPluginInfo = "{0} (Version {1}): Installed In {2}"
 
 MissingPlugin = "Missing Plugin: {0}"
 PluginDoesNotContainNode = "The plugin {0} does not contain a node of this type"

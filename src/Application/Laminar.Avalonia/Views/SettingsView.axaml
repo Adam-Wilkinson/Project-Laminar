@@ -8,6 +8,8 @@
              xmlns:c="using:Laminar.Avalonia.Controls"
              xmlns:s="using:Laminar.Avalonia.Settings"
              xmlns:p="using:Laminar.Contracts.Base.PluginLoading"
+             xmlns:lang="using:Laminar.Avalonia.Translations"
+             xmlns:e="using:Echoes"
              mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="450" d:DataContext="{x:Static dvm:DesignViewModel.Settings}"
              x:Class="Laminar.Avalonia.Views.SettingsView"	
              x:DataType="vm:SettingsViewModel"
@@ -121,19 +123,26 @@
 				
 					<GroupBox Header="Installed">
 						<ItemsControl ItemsSource="{Binding InstalledPlugins}">
-							<ItemsControl.ItemTemplate>
-								<DataTemplate DataType="p:IInstalledPlugin">
-									<TextBlock>
-										<TextBlock.Text>
-											<MultiBinding StringFormat="{}{0} (Version {1}): Installed in {2}">
-												<Binding Path="PluginId.Name"/>
-												<Binding Path="PluginId.Version"/>
-												<Binding Path="Host.Name"/>
-											</MultiBinding>
-										</TextBlock.Text>
-									</TextBlock>
-								</DataTemplate>
-							</ItemsControl.ItemTemplate>
+							<!-- <ItemsControl.ItemTemplate> -->
+							<!-- 	<DataTemplate DataType="p:IInstalledPlugin"> -->
+							<!-- 		<DockPanel> -->
+							<!-- 			<Button DockPanel.Dock="Right"  -->
+							<!-- 			        Command="{Binding Uninstall}"> -->
+							<!-- 				<PathIcon Data="{StaticResource Icon.Cross}"/> -->
+							<!-- 			</Button> -->
+							<!-- 			<TextBlock> -->
+							<!-- 				<TextBlock.Text> -->
+							<!-- 					<MultiBinding Converter="{StaticResource FormatStringConverter}"> -->
+							<!-- 						<Binding Path="Value^" Source="{x:Static lang:Strings.InstalledPluginInfo}"/> -->
+							<!-- 						<Binding Path="PluginId.Name"/> -->
+							<!-- 						<Binding Path="PluginId.Version"/> -->
+							<!-- 						<Binding Path="Host.Name"/> -->
+							<!-- 					</MultiBinding> -->
+							<!-- 				</TextBlock.Text> -->
+							<!-- 			</TextBlock> -->
+							<!-- 		</DockPanel> -->
+							<!-- 	</DataTemplate> -->
+							<!-- </ItemsControl.ItemTemplate> -->
 						</ItemsControl>
 					</GroupBox>
 					

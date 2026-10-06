@@ -1,5 +1,6 @@
 using Laminar.Contracts.Base;
 using Laminar.Contracts.Base.UserInterface;
+using Laminar.Domain.ValueObjects;
 using Laminar.PluginFramework.UserInterface;
 using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 using Microsoft.Extensions.Logging;
@@ -16,7 +17,7 @@ public partial class DataInterfaceFactory(ITypeInfoStore typeInfoStore, ILogger<
     
     private RegistrationScope? _registrationScope;
     
-    public void RegisterInterfaceFactory<TInterfaceDefinition, TValue, TInterface>(Func<TInterface> factory)
+    public IDisposable RegisterInterfaceFactory<TInterfaceDefinition, TValue, TInterface>(Func<TInterface> factory)
         where TInterfaceDefinition : IUserInterfaceDefinition, new()
         where TValue : notnull
         where TInterface : class
@@ -31,20 +32,18 @@ public partial class DataInterfaceFactory(ITypeInfoStore typeInfoStore, ILogger<
         {
             _frontendImplementations.Add(typeof(TInterfaceDefinition), []);
         }
-        
-        _frontendImplementations[typeof(TInterfaceDefinition)].Add(new FrontendInfo(typeof(TInterface), factory));
 
-        if (_registrationScope is { Depth: 0 })
+        var newFrontendInfo = new FrontendInfo(typeof(TInterface), factory);
+        _frontendImplementations[typeof(TInterfaceDefinition)].Add(newFrontendInfo);
+
+        RefreshIfNoScopesActive();
+
+        return new FuncDisposable(() =>
         {
-            RefreshInterfaces();
-        }
+            _frontendImplementations[typeof(TInterfaceDefinition)].Remove(newFrontendInfo);
+            RefreshIfNoScopesActive();
+        });
     }
-    
-    public void RegisterInterface<TInterfaceDefinition, TValue, TInterface>()
-        where TInterfaceDefinition : IUserInterfaceDefinition, new()
-        where TInterface : class, new()
-        where TValue : notnull 
-        => RegisterInterfaceFactory<TInterfaceDefinition, TValue, TInterface>(() => new TInterface());
 
     public IDataInterface<TFrontend> GetDataInterface<TFrontend>(IInterfaceData interfaceData)
         where TFrontend : class, new()
@@ -158,6 +157,12 @@ public partial class DataInterfaceFactory(ITypeInfoStore typeInfoStore, ILogger<
             _ => null,
         };
 
+    private void RefreshIfNoScopesActive()
+    {
+        if (_registrationScope is { Depth: > 0 }) return;
+        RefreshInterfaces();
+    }
+    
     private void RefreshInterfaces()
     {
         foreach (var instance in _interfaceInstances)
@@ -166,10 +171,10 @@ public partial class DataInterfaceFactory(ITypeInfoStore typeInfoStore, ILogger<
         }
     }
     
-    [LoggerMessage(LogLevel.Error, "The requested data interface {definitionType} has implementations, but none of them are for the correct frontend type {frontendType}. System will fall back along default interfaces")]
+    [LoggerMessage(LogLevel.Error, "The requested data interface {DefinitionType} has implementations, but none of them are for the correct frontend type {FrontendType}. System will fall back along default interfaces")]
     static partial void LogRequestedDataInterfaceNoFrontend(ILogger<DataInterfaceFactory> logger, Type definitionType, Type frontendType);
 
-    [LoggerMessage(LogLevel.Error, "The requested data interface type {definitionType} has no implementations. System will fall back along default interfaces")]
+    [LoggerMessage(LogLevel.Error, "The requested data interface type {DefinitionType} has no implementations. System will fall back along default interfaces")]
     static partial void LogRequestedDataInterfaceNoImplementations(ILogger<DataInterfaceFactory> logger, Type definitionType);
     
     private record struct FrontendInfo(Type FrontendType, Func<object> Factory);

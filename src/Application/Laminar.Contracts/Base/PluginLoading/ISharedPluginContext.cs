@@ -15,8 +15,4 @@ public interface ISharedPluginContext
     public FileSystemPath OfflineCacheLocation { get; }
 
     public void Configure(FrontendDependency frontendDependency, Platforms currentPlatform, AssemblyLoadContext? assemblyLoadContext);
-    
-    public IReadOnlyList<IInstalledPlugin> GetInstallations(string pluginId);
-    
-    public void RegisterInstallation(IInstalledPlugin installedPlugin); 
 }

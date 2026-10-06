@@ -12,6 +12,8 @@ public interface ILoadedNodeManager
 
     public void AddNodeToCategory(string categoryPath, ILoadedNodeInfo newNodeInfo);
     
+    public void RemoveNodeFromCategory(string categoryPath, ILoadedNodeInfo newNodeInfo);
+    
     public INodeContainer CreateNode(IPersistentDictionary persistentDictionary);
     
     public INodeContainer CreateNode(NodeDescriptor nodeDescriptor);

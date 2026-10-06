@@ -13,6 +13,13 @@ public class FormatStringConverter : IMultiValueConverter
             return new BindingNotification(new InvalidCastException(), BindingErrorType.Error);
         }
 
-        return string.Format(culture, formatString, values.Skip(1));
+        return values.Count switch
+        {
+            1 => string.Format(culture, formatString),
+            2 => string.Format(culture, formatString, values[1]),
+            3 => string.Format(culture, formatString, values[1], values[2]),
+            4 => string.Format(culture, formatString, values[1], values[2], values[3]),
+            _ => string.Format(culture, formatString, values.Skip(1).ToArray()) 
+        };
     }
 }

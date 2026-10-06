@@ -9,4 +9,6 @@ public interface ITypeInfoStore
     public bool TryGetTypeInfo(Type type, out TypeInfo info);
 
     public bool RegisterType(Type type, TypeInfo typeInfo);
+
+    public bool UnregisterType(Type type);
 }

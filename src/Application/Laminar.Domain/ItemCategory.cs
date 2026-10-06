@@ -22,22 +22,34 @@ public class ItemCategory<T>(string categoryName) : IReadOnlyItemCategory<T>
 
     public void AddItem(T item, string? subCategoryPath)
     {
-        if (subCategoryPath is null or "")
+        if (string.IsNullOrWhiteSpace(subCategoryPath))
         {
             _items.Add(item);
+            return;
+        }
+
+        var splitIndex = subCategoryPath.IndexOf(SeparationChar);
+        if (splitIndex > -1)
+        {
+            AddToSubCategory(subCategoryPath[..splitIndex], subCategoryPath[(splitIndex + 1)..], item);
         }
         else
         {
-            var splitIndex = subCategoryPath.IndexOf(SeparationChar);
-            if (splitIndex > -1)
-            {
-                AddToSubCategory(subCategoryPath[..splitIndex], subCategoryPath[(splitIndex + 1)..], item);
-            }
-            else
-            {
-                AddToSubCategory(subCategoryPath, null, item);
-            }
+            AddToSubCategory(subCategoryPath, null, item);
         }
+    }
+
+    public bool RemoveItem(T item, string? subCategoryPath)
+    {
+        if (string.IsNullOrWhiteSpace(subCategoryPath))
+        {
+            return _items.Remove(item);
+        }
+        
+        var splitIndex = subCategoryPath.IndexOf(SeparationChar);
+        return splitIndex > -1
+            ? RemoveFromSubCategory(subCategoryPath[..splitIndex], subCategoryPath[(splitIndex + 1)..], item)
+            : RemoveFromSubCategory(subCategoryPath, null, item);
     }
 
     private void AddToSubCategory(string subCategoryKey, string? pathInSubCategory, T item)
@@ -52,5 +64,11 @@ public class ItemCategory<T>(string categoryName) : IReadOnlyItemCategory<T>
         }
 
         _subCategories[index].AddItem(item, pathInSubCategory);
+    }
+
+    private bool RemoveFromSubCategory(string subCategoryKey, string? pathInSubCategory, T item)
+    {
+        var index = _subCategoryNames.BinarySearch(subCategoryKey);
+        return index >= 0 && _subCategories[index].RemoveItem(item, pathInSubCategory);
     }
 }

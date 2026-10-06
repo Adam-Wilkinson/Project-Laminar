@@ -35,8 +35,7 @@ internal sealed class Script : IScript
         Runtime = runtime;
         Data = persistentData;
         ActionScope = runtime.ActionScope.CreateChild(new ScriptActionSimplifier());
-        ReloadContext();
-        if (_context is null) throw new InvalidOperationException("NodeTree should not be null here");
+        _context = CreateContext();
         
         Pan = persistentData[nameof(Pan)].GetValueOrInitialize(new Point { X = 0, Y = 0 });
         Zoom = persistentData[nameof(Zoom)].GetValueOrInitialize(1.0);
@@ -67,26 +66,32 @@ internal sealed class Script : IScript
         Runtime.PluginManager.UserInstalledPlugins.ItemRemoved -= OnPluginsChanged;
     }
     
-    private void OnPluginsChanged(object? sender, IInstalledPlugin? _) => ReloadContext();
+    private void OnPluginsChanged(object? sender, VersionedPluginId _) => ReloadContext();
     
     private void ReloadContext()
     {
-        _context?.Dispose();
+        _context.Dispose();
+        _context = CreateContext();
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(NodeGraph)));
+    }
+
+    private ScriptingContext CreateContext()
+    {
         try
         {
-            var nodeGraph = (IWritableNodeGraph)_scriptingFactory.NodeTreeFromPersistentData(Data[NodeTreeKey]
-                .GetOrCreateCollection<IPersistentDictionary>());
+            var nodeGraph = (IWritableNodeGraph)_scriptingFactory.NodeTreeFromPersistentData(
+                Data[NodeTreeKey].GetOrCreateCollection<IPersistentDictionary>());
             
-            _context = new ScriptingContext(nodeGraph, _executionManager)
+            return new ScriptingContext(nodeGraph, _executionManager)
             {
                 HostScript = this
             };
             
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(NodeGraph)));
         }
         catch (Exception ex)
         {
             _exceptionHandler.OnException(ex);
+            return _context;
         }
     }
 }

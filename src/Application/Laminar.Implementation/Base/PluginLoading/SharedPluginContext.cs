@@ -8,8 +8,6 @@ namespace Laminar.Implementation.Base.PluginLoading;
 
 public class SharedPluginContext : ISharedPluginContext
 {
-    private readonly Dictionary<string, List<IInstalledPlugin>> _installedPlugins = [];
-    
     private bool _configured;
     private AssemblyLoadContext? _assemblyLoadContext;
     private FrontendDependency? _frontendDependency;
@@ -33,19 +31,5 @@ public class SharedPluginContext : ISharedPluginContext
         _platforms = currentPlatform;
         
         _configured = true;
-    }
-
-    public IReadOnlyList<IInstalledPlugin> GetInstallations(string pluginId)
-        =>  _installedPlugins.TryGetValue(pluginId, out var list) ? list : Array.Empty<IInstalledPlugin>();
-
-    public void RegisterInstallation(IInstalledPlugin installedPlugin)
-    {
-        if (_installedPlugins.TryGetValue(installedPlugin.PluginId.Name, out var installation))
-        {
-            installation.Add(installedPlugin);
-        }
-        
-        installation = [installedPlugin];
-        _installedPlugins[installedPlugin.PluginId.Name] = installation;
     }
 }

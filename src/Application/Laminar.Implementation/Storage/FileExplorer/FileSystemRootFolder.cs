@@ -104,13 +104,13 @@ internal class FileSystemRootFolder : FileSystemFolder, IMutableFileSystemRootFo
         var pluginId = pluginInfo["id"].GetValue<string>().Value;
         var version = pluginInfo["version"].GetValue<SemanticVersion>().Value;
         var versionedPluginId = new VersionedPluginId(pluginId, version); 
-        IInstalledPlugin? loadedPlugin;
+        bool loadedPlugin;
         using (var _ = NotificationManager.AddNotification(new LoadingRequiredPluginNotification(versionedPluginId)))
         {
             loadedPlugin = await RuntimeHost.PluginManager.EnsurePluginInstalled(versionedPluginId);
         }
         
-        if (loadedPlugin is null)
+        if (!loadedPlugin)
         {
             NotificationManager.AddNotification(new PluginNotFoundNotification(versionedPluginId));
         }

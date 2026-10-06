@@ -9,12 +9,14 @@ namespace Laminar.Avalonia.ViewModels;
 public class SettingsViewModel : ViewModelBase
 {
     private readonly IRuntimeHostManager _runtimeHostManager;
-
+    private readonly IPluginLibrary _pluginLibrary;
+    
     public SettingsViewModel(IPluginLibrary pluginLibrary,
         IRuntimeHostManager runtimeHostManager,
         IExceptionHandler exceptionHandler)
     {
         _runtimeHostManager = runtimeHostManager;
+        _pluginLibrary = pluginLibrary;
         AvailablePlugins = pluginLibrary.LoadedPlugins
             .ObservableMap(plugin => new PluginInfoViewModel(plugin, exceptionHandler, runtimeHostManager));
         PluginSources = pluginLibrary.Sources;
@@ -35,8 +37,7 @@ public class SettingsViewModel : ViewModelBase
 
     public IReadOnlyCollection<IRuntimeHost> Runtimes { get; }
 
-    public IEnumerable<IInstalledPlugin> InstalledPlugins =>
-        _runtimeHostManager.AllHosts.SelectMany(x => x.PluginManager.UserInstalledPlugins);
+    public IEnumerable<PluginInfoViewModel> InstalledPlugins => [];
 
     protected override void OnDisposed()
     {

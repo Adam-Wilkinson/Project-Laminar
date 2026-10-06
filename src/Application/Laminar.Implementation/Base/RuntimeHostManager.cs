@@ -1,6 +1,7 @@
 using Laminar.Contracts.Base;
 using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.Base.PluginLoading;
+using Laminar.Domain.ValueObjects;
 
 namespace Laminar.Implementation.Base;
 
@@ -22,7 +23,7 @@ public class RuntimeHostManager(IServiceProvider serviceProvider, IUserActionMan
         newHost.PluginManager.UserInstalledPlugins.ItemRemoved += HostPluginChanged;
         return newHost;
 
-        void HostPluginChanged(object? sender, IInstalledPlugin plugin)
+        void HostPluginChanged(object? sender, VersionedPluginId plugin)
         {
             PluginsChanged?.Invoke(this, new PluginsChangedEventArgs
             {

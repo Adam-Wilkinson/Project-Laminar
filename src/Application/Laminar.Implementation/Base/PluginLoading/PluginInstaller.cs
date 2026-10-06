@@ -16,7 +16,7 @@ public class PluginInstaller(
     IPluginHostFactory pluginHostFactory,
     ILogger<PluginInstaller> logger) : IPluginInstaller
 {
-    public async Task<MayError<IInstalledPlugin>> InstallFromFolder(
+    public async Task<MayError<bool>> InstallFromFolder(
         FileSystemPath pluginPath, 
         VersionedPluginId pluginId,
         IRuntimeHost host)
@@ -29,8 +29,10 @@ public class PluginInstaller(
         var pluginLoadContext = new PluginLoadContext(entrypointPath, context.DefaultLoadContext);
         var pluginAssembly = pluginLoadContext.LoadFromAssemblyPath(entrypointPath);
 
-        var newPlugin = new InstalledPlugin(pluginHostFactory, host, pluginId);
+        // var newPlugin = new InstalledPlugin(pluginHostFactory, host, pluginId);
         using var _ = pluginHostFactory.CreatePluginRegistrationScope();
+        var pluginHost = pluginHostFactory.GetPluginHost(pluginId, host.NodeManager);
+        var implementations = 0;
         foreach (var type in pluginAssembly.GetTypes())
         {
             if (!typeof(IPlugin).IsAssignableFrom(type) || type.IsInterface) continue;
@@ -46,20 +48,28 @@ public class PluginInstaller(
                 logger.LogWarning("Unknown error creating type {Type}", type);
                 continue;
             }
-            
-            newPlugin.AddPluginImplementation(implementation);
-        }
 
-        if (newPlugin.ImplementingTypes.Count == 0)
+            try
+            {
+                implementation.Register(pluginHost);
+                implementations++;
+            }
+            catch (Exception ex)
+            {
+                return new MayError<bool>(ex);
+            }
+        }
+        
+        if (implementations == 0)
         {
-            return new MayError<IInstalledPlugin>(
+            return new MayError<bool>(
                 new InvalidOperationException($"The plugin at path '{pluginPath}' has no implementation"));
         }
 
-        return new MayError<IInstalledPlugin>(newPlugin);
+        return new MayError<bool>(true);
     }
 
-    public async Task<MayError<IInstalledPlugin>> InstallFromArchive(
+    public async Task<MayError<bool>> InstallFromArchive(
         Stream archiveStream, 
         VersionedPluginId pluginId,
         IRuntimeHost runtimeHost)

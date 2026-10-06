@@ -3,31 +3,34 @@ using Laminar.Contracts.Base.PluginLoading;
 using Laminar.Contracts.Base.UserInterface;
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Domain;
+using Laminar.Domain.ValueObjects;
 using Laminar.Implementation.Scripting.NodeWrapping;
 using Laminar.PluginFramework.NodeSystem;
-using Laminar.PluginFramework.Registration;
 using Laminar.PluginFramework.Serialization;
 using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
 namespace Laminar.Implementation.Base.PluginLoading;
 
 internal sealed class PluginHost(
-    InstalledPlugin plugin,
+    VersionedPluginId pluginId,
     ILoadedNodeManager loadedNodeManager,
     ITypeInfoStore typeInfoStore,
     IDataInterfaceFactory dataInterfaceFactory,
     ISerializer serializer)
-    : IReleasablePluginHost
+    : IUninstallablePluginHost
 {
+    private readonly List<(ILoadedNodeInfo nodeInfo, string categoryPath)> _installedNodes = [];
+    private readonly List<Type> _loadedTypeInfos = [];
+    private readonly CompositeDisposable _disposables = new();
+    
     public void AddNodeToMenu<TNode>(string menuItemName, string? subItemName = null) where TNode : INode, new()
     {
-        LoadedNodeInfo<TNode> newNodeInfo = new(plugin);
-        plugin.AddNode(newNodeInfo.NodeDescriptor.NodeName, newNodeInfo);
-        loadedNodeManager.AddNodeToCategory(
-            subItemName is null
-                ? menuItemName
-                : $"{menuItemName}{ItemCategory<INodeContainer>.SeparationChar}{subItemName}", 
-            newNodeInfo);
+        LoadedNodeInfo<TNode> newNodeInfo = new(pluginId);
+        var path = subItemName is null
+            ? menuItemName
+            : $"{menuItemName}{ItemCategory<INodeContainer>.SeparationChar}{subItemName}"; 
+        loadedNodeManager.AddNodeToCategory(path, newNodeInfo);
+        _installedNodes.Add((newNodeInfo, path));
     }
 
     public bool RegisterDataInterfaceFactory<TInterfaceDefinition, TData, TInterface>(Func<TInterface> factory)
@@ -35,7 +38,8 @@ internal sealed class PluginHost(
         where TData : notnull
         where TInterface : class
     {
-        dataInterfaceFactory.RegisterInterfaceFactory<TInterfaceDefinition, TData, TInterface>(factory);
+        _disposables.Add(dataInterfaceFactory
+            .RegisterInterfaceFactory<TInterfaceDefinition, TData, TInterface>(factory));
         return true;
     }
 
@@ -47,15 +51,25 @@ internal sealed class PluginHost(
             serializer.RegisterSerializer(typeSerializer);
         }
 
-        typeInfoStore.RegisterType(typeof(T), new TypeInfo(userFriendlyName, defaultEditor, defaultDisplay, hexColour, defaultValue!));
+        typeInfoStore.RegisterType(typeof(T), new TypeInfo(userFriendlyName, defaultEditor, defaultDisplay, hexColour, defaultValue));
+        _loadedTypeInfos.Add(typeof(T));
         return true;
     }
 
-    public bool TryAddTypeConverter<TInput, TOutput, TConverter>() where TConverter : INode
-        => throw new NotImplementedException();
+    public bool TryAddTypeConverter<TInput, TOutput, TConverter>() where TConverter : INode => throw new NotImplementedException();
     
     public void UnregisterAll()
     {
-        throw new NotImplementedException();
+        foreach (var (node, path) in _installedNodes)
+        {
+            loadedNodeManager.RemoveNodeFromCategory(path, node);
+        }
+
+        foreach (var type in _loadedTypeInfos)
+        {
+            typeInfoStore.UnregisterType(type);
+        }
+        
+        _disposables.Dispose();
     }
 }

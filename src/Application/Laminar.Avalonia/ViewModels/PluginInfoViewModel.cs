@@ -110,6 +110,7 @@ public partial class PluginInfoViewModel : ViewModelBase
             Name = ExtractStringFrom(newVersionMetadata.UserFriendlyName) ?? _pluginInfo.Id;
             Description = ExtractStringFrom(newVersionMetadata.Description) ?? "";
         }
+        
         catch (Exception ex)
         {
             await _exceptionHandler.OnExceptionAsync(ex);
