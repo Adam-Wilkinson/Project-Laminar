@@ -3,7 +3,7 @@ using System.Collections.Specialized;
 
 namespace Laminar.Domain.Observables.Collections;
 
-public static class SubscribeForEachExtensions
+public static class ListSubscribeForEachExtensions
 {
     public static IDisposable SubscribeForEach<T>(this IReadOnlyObservableList<T> list,
         Action<T>? onAdded = null,

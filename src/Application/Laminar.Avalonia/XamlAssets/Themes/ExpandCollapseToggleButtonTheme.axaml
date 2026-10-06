@@ -1,0 +1,36 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:c="using:Laminar.Avalonia.Controls">
+    <Design.PreviewWith>
+        <ToggleButton Theme="{StaticResource Themes.ExpandCollapseToggleButton}" Width="500">Expand section</ToggleButton>
+    </Design.PreviewWith>
+    
+    <ControlTheme TargetType="ToggleButton" x:Key="Themes.ExpandCollapseToggleButton">
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid Name="RootGrid" ColumnDefinitions="30,*" Background="{TemplateBinding Background}">
+                    <Border Grid.Column="0" Name="NormalRectangle"
+                          UseLayoutRounding="False"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Center"
+                          Height="30"
+                          Width="30">
+                        <c:ExpandCollapseChevron VerticalAlignment="Center" HorizontalAlignment="Center" Height="30" IsExpanded="{TemplateBinding IsChecked}"/>
+                    </Border>
+                    <ContentPresenter Name="PART_ContentPresenter"
+                                    ContentTemplate="{TemplateBinding ContentTemplate}"
+                                    Content="{TemplateBinding Content}"
+                                    Margin="{TemplateBinding Padding}"
+                                    HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                    VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                    TextWrapping="Wrap"
+                                    Grid.Column="1" />
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+        
+        <Style Selector="^:pointerover /template/ Border#NormalRectangle">
+            <Setter Property="Background" Value="{DynamicResource UiLayer}"/>
+        </Style>
+    </ControlTheme>
+</ResourceDictionary>

@@ -1,33 +1,72 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:c="using:Laminar.Avalonia.Controls"
+                    xmlns:s="using:Laminar.Avalonia.Settings"
                     xmlns:vm="using:Laminar.Avalonia.ViewModels">
     <DataTemplate x:Key="PluginInfoDataTemplate" DataType="vm:PluginInfoViewModel">
-        <Border Classes="UiLayer"
-                Padding="10,5">
-            <Grid RowDefinitions="Auto,Auto"
-                  ColumnDefinitions="*,*,Auto"
-                  HorizontalAlignment="Stretch">
-												
-                <TextBlock Grid.Row="0" Grid.Column="0" 
-                           Text="{Binding Name}"
-                           VerticalAlignment="Center"
-                           Classes="h2"/>
-												
-                <ComboBox Grid.Row="0" Grid.Column="1" 
-                          ItemsSource="{Binding AvailableVersions}"
-                          SelectedItem="{Binding SelectedVersion, Mode=TwoWay}"
-                          HorizontalAlignment="Stretch"/>
-												
-                <Button Grid.Row="0" Grid.Column="2" Theme="{StaticResource ToolButton}"
-                        DataContext="{Binding 
-                        Converter={StaticResource ToolInstancer},
-                        ConverterParameter={StaticResource Tools.Settings.PluginTools.InstallAll}}"/>
+        <Border Classes="UiLayer">
+            <StackPanel>
+                <Grid RowDefinitions="Auto"
+                      ColumnDefinitions="*,*,Auto"
+                      ColumnSpacing="3"
+                      HorizontalAlignment="Stretch">
+                    
+                    <ToggleButton Name="ExpandToggle" Grid.Column="0" Grid.Row="0" Theme="{StaticResource Themes.ExpandCollapseToggleButton}"
+                            Background="Transparent"
+                            HorizontalAlignment="Stretch"
+                            Padding="2">
+                        <TextBlock Text="{Binding Name}"
+                                   VerticalAlignment="Center"
+                                   Classes="h2"/>
+                    </ToggleButton>
+                    
+                    <ComboBox Grid.Row="0" Grid.Column="1" 
+                              ItemsSource="{Binding AvailableVersions}"
+                              SelectedItem="{Binding SelectedVersion, Mode=TwoWay}"
+                              VerticalAlignment="Center"
+                              HorizontalAlignment="Stretch"/>
+												    
+                    <Button Grid.Row="0" Grid.Column="2" Theme="{StaticResource ToolButton}"
+                            DataContext="{Binding 
+                            Converter={StaticResource ToolInstancer},
+                            ConverterParameter={StaticResource Tools.Settings.PluginTools.InstallAll}}"/>
+                    
+                </Grid>
                 
-                <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3"
-                           Margin="4,4,0,0"
+                <LayoutTransformControl Name="InstallationsContainer" Classes.ZeroHeight="{Binding !#ExpandToggle.IsChecked}">
+                    <LayoutTransformControl.Transitions>
+                        <Transitions>
+                            <TransformOperationsTransition Property="LayoutTransform" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
+                        </Transitions>
+                    </LayoutTransformControl.Transitions>
+                    <ItemsControl ItemsSource="{Binding Installations}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid RowDefinitions="Auto" ColumnDefinitions="*,Auto">
+                                    <TextBlock Grid.Column="0" Text="{Binding Name}"/>
+                                    <Button Grid.Column="1" Command="{Binding $parent[ItemsControl].((vm:PluginInfoViewModel)DataContext).UninstallCommand}" CommandParameter="{Binding}">
+                                        <PathIcon Data="{StaticResource Icon.Cross}"/>
+                                    </Button>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </LayoutTransformControl>
+                
+                <TextBlock Margin="4,4,0,0"
                            Text="{Binding Description}"
                            Classes="b2"/>
-            </Grid>
+            </StackPanel>
+            
+            <Border.Styles>
+                <Style Selector="LayoutTransformControl#InstallationsContainer.ZeroHeight">
+                    <Setter Property="LayoutTransform" Value="scaley(0)"/>
+                </Style>
+                
+                <Style Selector="LayoutTransformControl#InstallationsContainer">
+                    <Setter Property="LayoutTransform" Value="scaley(1)"/>
+                </Style>
+            </Border.Styles>
         </Border>
     </DataTemplate>
 </ResourceDictionary>

@@ -12,4 +12,9 @@ public class ExpandCollapseChevron : TemplatedControl
         get => GetValue(IsExpandedProperty);
         set => SetValue(IsExpandedProperty, value);
     }
+
+    public void Toggle()
+    {
+        IsExpanded = !IsExpanded;
+    }
 }

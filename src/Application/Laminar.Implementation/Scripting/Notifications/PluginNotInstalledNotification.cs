@@ -48,9 +48,9 @@ internal class PluginNotInstalledNotification : ResolvableNotification<Versioned
         _pluginManager.UserInstalledPlugins.ItemAdded -= OnPluginAdded;
     }
 
-    private void OnPluginAdded(object? sender, VersionedPluginId plugin)
+    private void OnPluginAdded(object? sender, string plugin)
     {
-        if (plugin == Data)
+        if (_pluginManager.GetInstalledPluginVersion(Data.Name) == Data.Version)
         {
             DismissInternal();
         }

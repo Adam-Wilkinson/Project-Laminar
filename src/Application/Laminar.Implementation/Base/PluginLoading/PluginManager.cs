@@ -17,23 +17,29 @@ internal sealed partial class PluginManager(
     ILogger<PluginManager> logger) 
     : IPluginManager
 {
-    private readonly ObservableDictionary<VersionedPluginId, IPluginInstallation> _userInstalledPluginsById = [];
-
-    public IReadOnlyObservableBag<VersionedPluginId> UserInstalledPlugins => _userInstalledPluginsById.Keys;
+    private readonly ObservableDictionary<string, IPluginInstallation> _userInstalledPluginsById = [];
+    
+    public IReadOnlyObservableBag<string> UserInstalledPlugins => _userInstalledPluginsById.Keys;
 
     public IRuntimeHost Host => host;
 
-    public bool PluginInstalled(VersionedPluginId pluginId) => _userInstalledPluginsById.ContainsKey(pluginId);
+    public SemanticVersion? GetInstalledPluginVersion(string pluginId) 
+        => _userInstalledPluginsById.TryGetValue(pluginId, out var plugin) ? plugin.PluginId.Version : null;
     
     public async Task<bool> EnsurePluginInstalled(VersionedPluginId pluginId)
     {
-        if (PluginInstalled(pluginId))
+        if (GetInstalledPluginVersion(pluginId.Name) is { } installedPluginVersion)
         {
-            return true;
+            if (installedPluginVersion == pluginId.Version) return true;
+            
+            await exceptionHandler.OnExceptionAsync(new InvalidOperationException($"Cannot install plugin {pluginId.Name} version {pluginId.Version} because version {installedPluginVersion} is already installed"));
+            return false;
+
         }
 
         if (await library.GetPluginSourceOrNull(pluginId) is not { } pluginSource)
         {
+            logger.LogError("Plugin library could not find plugin {PluginId}", pluginId);
             return false;
         }
 
@@ -51,7 +57,7 @@ internal sealed partial class PluginManager(
             {
                 while (installedDependencies.Count > 0)
                 {
-                    UninstallPlugin(installedDependencies.First());
+                    UninstallPlugin(installedDependencies.First().Name);
                 }
                 
                 await exceptionHandler.OnExceptionAsync(new DependentPluginNotFoundException(pluginId, dependencyId));
@@ -67,11 +73,11 @@ internal sealed partial class PluginManager(
             return false;
         }
         
-        _userInstalledPluginsById.Add(pluginId, newPlugin);
+        _userInstalledPluginsById.Add(pluginId.Name, newPlugin);
         return true;
     }
 
-    public void UninstallPlugin(VersionedPluginId pluginId)
+    public void UninstallPlugin(string pluginId)
     {
         if (!_userInstalledPluginsById.TryGetValue(pluginId, out var plugin))
         {

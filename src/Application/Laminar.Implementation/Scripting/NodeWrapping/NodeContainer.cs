@@ -44,7 +44,7 @@ internal sealed class NodeContainer : INodeContainer
                 .GetOrCreateCollection<IPersistentList>()
                 .Select(_ => new StubNodeRow())));
 
-            if (pluginManager.PluginInstalled(Descriptor.Plugin))
+            if (pluginManager.GetInstalledPluginVersion(Descriptor.Plugin.Name) == Descriptor.Plugin.Version)
             {
                 Notifications.AddNotification(notificationFactory.PluginDoesNotContainNode(Descriptor.Plugin, this));
             }

@@ -194,15 +194,9 @@ public partial class EditableLabel : UserControl
         }
     }
 
-    private static bool IsUserFriendlyChar(char c)
-    {
-        return char.GetUnicodeCategory(c) != UnicodeCategory.Control &&
-               char.GetUnicodeCategory(c) != UnicodeCategory.OtherNotAssigned && 
-               char.GetUnicodeCategory(c) != UnicodeCategory.Format &&
-               char.GetUnicodeCategory(c) != UnicodeCategory.PrivateUse &&
-               char.GetUnicodeCategory(c) != UnicodeCategory.Surrogate;
-    }
-    
+    private static bool IsUserFriendlyChar(char c) => char.GetUnicodeCategory(c) is not 
+        (UnicodeCategory.Control or UnicodeCategory.OtherNotAssigned or UnicodeCategory.Format or UnicodeCategory.PrivateUse or UnicodeCategory.Surrogate);
+
     private void DisallowedCharsChanged()
     {
         _invalidCharHint.Children.Clear();

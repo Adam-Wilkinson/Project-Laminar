@@ -17,7 +17,7 @@ public partial class PluginInfoViewModel : ViewModelBase
     private readonly IPluginInfo _pluginInfo;
     private readonly IExceptionHandler _exceptionHandler;
     private readonly IRuntimeHostManager _runtimeHostManager;
-
+    
     public PluginInfoViewModel(
         IPluginInfo info, 
         IExceptionHandler exceptionHandler,
@@ -38,16 +38,10 @@ public partial class PluginInfoViewModel : ViewModelBase
         _pluginInfo.LatestVersion.OnChanged += OnLatestVersionChanged;
     }
 
-    private void OnLatestVersionChanged(object? sender, ObservableValueChangedEventArgs<SemanticVersion?> changedArgs)
-    {
-        if (Equals(changedArgs.OldValue, SelectedVersion))
-        {
-            SelectedVersion = changedArgs.NewValue;
-        }
-    }
-
     public IReadOnlyObservableList<SemanticVersion> AvailableVersions { get; }
-    
+
+    public ObservableList<IRuntimeHost> Installations { get; } = [];
+
     [ObservableProperty] public partial SemanticVersion? SelectedVersion { get; set; }
 
     [ObservableProperty] public partial string Name { get; set; }
@@ -85,6 +79,12 @@ public partial class PluginInfoViewModel : ViewModelBase
             await _exceptionHandler.OnExceptionAsync(ex);
             
         }
+    }
+
+    [RelayCommand]
+    private void Uninstall(IRuntimeHost host)
+    {
+        host.PluginManager.UninstallPlugin(_pluginInfo.Id);
     }
 
     [RelayCommand]
@@ -136,5 +136,13 @@ public partial class PluginInfoViewModel : ViewModelBase
         }
 
         return null;
+    }
+
+    private void OnLatestVersionChanged(object? sender, ObservableValueChangedEventArgs<SemanticVersion?> changedArgs)
+    {
+        if (Equals(changedArgs.OldValue, SelectedVersion))
+        {
+            SelectedVersion = changedArgs.NewValue;
+        }
     }
 }
