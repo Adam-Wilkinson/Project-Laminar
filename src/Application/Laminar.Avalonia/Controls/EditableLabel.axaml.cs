@@ -205,11 +205,6 @@ public partial class EditableLabel : UserControl
     
     private void DisallowedCharsChanged()
     {
-        var disallowedCharsInline = DisallowedChars
-            .Where(IsUserFriendlyChar)
-            .Select(ch => new Run(ch.ToString()) { Classes = { "Emphasis" }})
-            .InsertInBetween(new Run("', '"));
-
         _invalidCharHint.Children.Clear();
         _invalidCharHint.Children.Add(new TextBlock 
         { 
@@ -217,19 +212,17 @@ public partial class EditableLabel : UserControl
             HorizontalAlignment = HorizontalAlignment.Center,
         });
 
-        InlineCollection secondLineInlines =
-        [
-            new Run("Invalid characters are '"),
-            .. disallowedCharsInline,
-            new Run("'.")
-        ];
-
-        var secondLine = new TextBlock
+        _invalidCharHint.Children.Add(new TextBlock
         {
-            Inlines = secondLineInlines
-        };
-        
-        secondLine.Classes.Add("b2");
-        _invalidCharHint.Children.Add(secondLine);
+            Inlines = 
+            [
+                new Run("Invalid characters are '"),
+                .. DisallowedChars.Where(IsUserFriendlyChar)
+                    .Select(c => new Run(c.ToString()) { Classes = { "Emphasis" } } )
+                    .InsertInBetween(new Run("', '")),
+                new Run("'.")
+            ],
+            Classes = { "b2" }
+        });
     }
 }

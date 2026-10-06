@@ -31,7 +31,7 @@ public partial class FileNavigatorItemViewModel(
     
     public IOpenFileService? OpenFileService { get; set; }
 
-    public bool CanChangeIsEnabled => CoreItem?.ParentFolder is { IsEffectivelyEnabled: true };
+    public bool CanChangeIsEnabled => CoreItem?.ParentFolder is null or { IsEffectivelyEnabled: true };
 
     public bool IsEffectivelyEnabled => CoreItem?.IsEffectivelyEnabled ?? false;
     
