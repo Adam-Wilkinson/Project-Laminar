@@ -2,7 +2,8 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:c="using:Laminar.Avalonia.Controls"
                     xmlns:s="using:Laminar.Avalonia.Settings"
-                    xmlns:vm="using:Laminar.Avalonia.ViewModels">
+                    xmlns:vm="using:Laminar.Avalonia.ViewModels"
+                    xmlns:lang="using:Laminar.Avalonia.Translations">
     <DataTemplate x:Key="PluginInfoDataTemplate" DataType="vm:PluginInfoViewModel">
         <Border Classes="UiLayer">
             <StackPanel>
@@ -11,10 +12,12 @@
                       ColumnSpacing="3"
                       HorizontalAlignment="Stretch">
                     
-                    <ToggleButton Name="ExpandToggle" Grid.Column="0" Grid.Row="0" Theme="{StaticResource Themes.ExpandCollapseToggleButton}"
-                            Background="Transparent"
-                            HorizontalAlignment="Stretch"
-                            Padding="2">
+                    <ToggleButton Name="ExpandToggle" Grid.Column="0" Grid.Row="0" 
+                                  Theme="{StaticResource Themes.ExpandCollapseToggleButton}"
+                                  Background="Transparent"
+                                  HorizontalAlignment="Stretch"
+                                  Padding="2"
+                                  IsChecked="{Binding IsExpanded, Mode=TwoWay}">
                         <TextBlock Text="{Binding Name}"
                                    VerticalAlignment="Center"
                                    Classes="h2"/>
@@ -33,38 +36,53 @@
                     
                 </Grid>
                 
-                <LayoutTransformControl Name="InstallationsContainer" Classes.ZeroHeight="{Binding !#ExpandToggle.IsChecked}">
+                <LayoutTransformControl Name="InstallationsContainer" 
+                                        Classes.ZeroHeight="{Binding !IsExpanded}">
                     <LayoutTransformControl.Transitions>
                         <Transitions>
                             <TransformOperationsTransition Property="LayoutTransform" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
+                            <DoubleTransition Property="Opacity" Duration="{s:Setting InterfaceSettings.AnimationDuration}"></DoubleTransition>
                         </Transitions>
                     </LayoutTransformControl.Transitions>
-                    <ItemsControl ItemsSource="{Binding Installations}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Grid RowDefinitions="Auto" ColumnDefinitions="*,Auto">
-                                    <TextBlock Grid.Column="0" Text="{Binding Name}"/>
-                                    <Button Grid.Column="1" Command="{Binding $parent[ItemsControl].((vm:PluginInfoViewModel)DataContext).UninstallCommand}" CommandParameter="{Binding}">
-                                        <PathIcon Data="{StaticResource Icon.Cross}"/>
-                                    </Button>
-                                </Grid>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
+                    <StackPanel Spacing="6" Margin="8,4,0,0">
+                        <TextBlock Text="{Binding Description}"
+                                   Margin="0,0,0,5"
+                                   Classes="b2"/>
+                        <TextBlock>
+                            <TextBlock.Text>
+                                <MultiBinding Converter="{StaticResource SwitchConverter}">
+                                    <Binding Path="HasInstallations"/>
+                                    <Binding Path="Value^" Source="{x:Static lang:Strings.Installations}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:True}"/>
+                                    <Binding Path="Value^" Source="{x:Static lang:Strings.NoInstallations}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:False}"/>
+                                </MultiBinding>
+                            </TextBlock.Text>
+                        </TextBlock>
+                        <ItemsControl ItemsSource="{Binding Installations}"
+                                      Margin="10,0">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid RowDefinitions="Auto" ColumnDefinitions="*,Auto">
+                                        <TextBlock Grid.Column="0" Text="{Binding Name}"/>
+                                        <Button Grid.Column="1" Command="{Binding $parent[ItemsControl].((vm:PluginInfoViewModel)DataContext)?.UninstallCommand}" CommandParameter="{Binding}">
+                                            <PathIcon Data="{StaticResource Icon.Cross}"/>
+                                        </Button>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
                 </LayoutTransformControl>
-                
-                <TextBlock Margin="4,4,0,0"
-                           Text="{Binding Description}"
-                           Classes="b2"/>
             </StackPanel>
             
             <Border.Styles>
                 <Style Selector="LayoutTransformControl#InstallationsContainer.ZeroHeight">
                     <Setter Property="LayoutTransform" Value="scaley(0)"/>
+                    <Setter Property="Opacity" Value="0"/>
                 </Style>
                 
                 <Style Selector="LayoutTransformControl#InstallationsContainer">
                     <Setter Property="LayoutTransform" Value="scaley(1)"/>
+                    <Setter Property="Opacity" Value="1"/>
                 </Style>
             </Border.Styles>
         </Border>

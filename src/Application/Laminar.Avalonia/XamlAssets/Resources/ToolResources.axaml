@@ -396,7 +396,7 @@
     <t:CommandTool NameKey="Install all" x:Key="Tools.Settings.PluginTools.InstallAll" x:DataType="vm:PluginInfoViewModel"
                    UserFriendlyName="{e:Translate {x:Static lang:Strings.InstallAllPlugins}}"
                    CommandBinding="{Binding InstallToAllCommand}"
-                   DefaultIconGeometry="{StaticResource Icon.ExclamationMark}">
+                   DefaultIconGeometry="{StaticResource Icon.Download}">
 	    <t:CommandTool.DescriptionBinding>
 		    <MultiBinding Converter="{StaticResource FormatStringConverter}">
 			    <Binding Path="Value^" Source="{x:Static lang:Strings.InstallAllPluginsDescription}"/>

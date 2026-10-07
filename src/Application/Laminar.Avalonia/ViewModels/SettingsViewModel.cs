@@ -37,10 +37,10 @@ public class SettingsViewModel : ViewModelBase
         switch (e.ChangeType)
         {
             case PluginChangedType.Added:
-                changedPlugin.Installations.Add(e.ChangedRuntime);
+                changedPlugin.RegisterInstallation(e.ChangedRuntime);
                 break;
             case PluginChangedType.Removed:
-                changedPlugin.Installations.Remove(e.ChangedRuntime);
+                changedPlugin.UnregisterInstallation(e.ChangedRuntime);
                 break;
             default:
                 throw new ArgumentOutOfRangeException();

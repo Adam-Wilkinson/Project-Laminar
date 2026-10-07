@@ -124,11 +124,17 @@
 					<GroupBox Header="Installed">
 						<ItemsControl ItemsSource="{Binding InstalledPlugins}" 
 						              ItemTemplate="{StaticResource PluginInfoDataTemplate}">
+							<ItemsControl.ItemsPanel>
+								<ItemsPanelTemplate>
+									<StackPanel Spacing="4"/>
+								</ItemsPanelTemplate>
+							</ItemsControl.ItemsPanel>
 						</ItemsControl>
 					</GroupBox>
 					
 					<GroupBox Header="Available" VerticalAlignment="Top">
-							<ItemsControl ItemsSource="{Binding AvailablePlugins}"
+							<ItemsControl Name="AvailablePlugins" 
+							              ItemsSource="{Binding AvailablePlugins}"
 							              Grid.IsSharedSizeScope="True"
 							              ItemTemplate="{StaticResource PluginInfoDataTemplate}">
 								
@@ -137,6 +143,12 @@
 										<StackPanel Spacing="4"/>
 									</ItemsPanelTemplate>
 								</ItemsControl.ItemsPanel>
+								
+								<ItemsControl.Styles>
+									<Style Selector="ItemsControl#AvailablePlugins > ContentPresenter" x:DataType="vm:PluginInfoViewModel">
+										<Setter Property="IsVisible" Value="{Binding !HasInstallations}"/>
+									</Style>
+								</ItemsControl.Styles>
 							</ItemsControl>
 					</GroupBox>
 				</StackPanel>

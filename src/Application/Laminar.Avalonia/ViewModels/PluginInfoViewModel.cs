@@ -17,6 +17,7 @@ public partial class PluginInfoViewModel : ViewModelBase
     private readonly IPluginInfo _pluginInfo;
     private readonly IExceptionHandler _exceptionHandler;
     private readonly IRuntimeHostManager _runtimeHostManager;
+    private readonly ObservableList<IRuntimeHost> _installations = [];
     
     public PluginInfoViewModel(
         IPluginInfo info, 
@@ -40,14 +41,30 @@ public partial class PluginInfoViewModel : ViewModelBase
 
     public IReadOnlyObservableList<SemanticVersion> AvailableVersions { get; }
 
-    public ObservableList<IRuntimeHost> Installations { get; } = [];
-
+    public IReadOnlyObservableList<IRuntimeHost> Installations => _installations;
+    
     [ObservableProperty] public partial SemanticVersion? SelectedVersion { get; set; }
 
     [ObservableProperty] public partial string Name { get; set; }
 
     [ObservableProperty] public partial string Description { get; set; } = "";
 
+    [ObservableProperty] public partial bool HasInstallations { get; set; }
+
+    [ObservableProperty] public partial bool IsExpanded { get; set; }
+
+    internal void RegisterInstallation(IRuntimeHost runtimeHost)
+    {
+        _installations.Add(runtimeHost);
+        HasInstallations = Installations.Count > 0;
+    }
+
+    internal void UnregisterInstallation(IRuntimeHost runtimeHost)
+    {
+        _installations.Remove(runtimeHost);
+        HasInstallations = Installations.Count > 0;
+    }
+    
     partial void OnSelectedVersionChanged(SemanticVersion? value)
     {
         if (value is not { } newVersion) return;
