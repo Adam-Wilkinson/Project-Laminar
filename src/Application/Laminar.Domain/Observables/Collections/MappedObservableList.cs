@@ -31,7 +31,7 @@ public class MappedObservableList<TIn, TOut> : ReadOnlyObservableListBase<TOut>
     {
     }
     
-    private MappedObservableList(INotifyCollectionChanged collection, Func<TIn, TOut> map)
+    public MappedObservableList(INotifyCollectionChanged collection, Func<TIn, TOut> map)
     {
         if (collection is not IEnumerable<TIn> inputEnumerable)
         {

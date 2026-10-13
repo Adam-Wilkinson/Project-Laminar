@@ -59,7 +59,7 @@ public class FileViewModelFactory
     private readonly IFileSystemGraph _fileSystemGraph;
     private readonly IServiceProvider _serviceProvider;
     
-    private delegate OpenFile OpenFileFactory(IFileSystemFile file, IServiceProvider serviceProvider);
+    private delegate Task<OpenFile?> OpenFileFactory(IFileSystemFile file, IServiceProvider serviceProvider);
     
     public FileViewModelFactory(
         IFileSystem fileSystem,
@@ -73,11 +73,17 @@ public class FileViewModelFactory
         _serviceProvider = serviceProvider;
         _allFactories = new Dictionary<string, OpenFileFactory>
         {
-            [FileSystemItemType.Script.Extension] = (file, sp) =>
+            [FileSystemItemType.Script.Extension] = async (file, sp) =>
             {
                 var scriptingFactory = file.GetRootFolder().RuntimeHost.ScriptingFactory;
                 var transcoder = new JsonPersistentDataTranscoder(null!);
-                var scriptResource = file.GetContentsAsResource(transcoder, scriptingFactory);
+                if (!file.GetContentsAsResource(transcoder, scriptingFactory)
+                        .TryGetResult(out var scriptResource, out var error))
+                {
+                    await _exceptionHandler.OnExceptionAsync(error, CancellationToken.None);
+                    return null;
+                }
+                
                 var scope = new ScopedViewModel<ScriptEditorViewModel>(sp,
                     scopedSp => ActivatorUtilities.CreateInstance<ScriptEditorViewModel>(scopedSp, scriptResource.Value));
                 var viewModel = scope.ViewModel;
@@ -114,6 +120,14 @@ public class FileViewModelFactory
             return null;
         }
 
-        return openFileFactory(fileSystemFile, _serviceProvider);
+        try
+        {
+            return await openFileFactory(fileSystemFile, _serviceProvider);
+        }
+        catch (Exception exception)
+        {
+            await _exceptionHandler.OnExceptionAsync(exception, cancellationToken);
+            return null;
+        }
     }
 }

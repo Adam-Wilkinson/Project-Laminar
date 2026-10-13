@@ -17,6 +17,7 @@ public static class FileSystemServicesExtension
         public IServiceCollection AddFileSystemServices() => serviceCollection
             .AddSingleton<IFileSystem, FileSystem>()
             .AddSingleton<IFileSystemItemFactory, FileSystemItemFactory>()
+            .AddSingleton<IFileResourceFactory, FileResourceFactory>()
             
             .AddSingleton<IFileSystemCommandService, FileSystemCommandService>()
             .AddSingleton<IFileSystemGraph, FileSystemGraph>()

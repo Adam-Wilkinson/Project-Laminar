@@ -21,9 +21,9 @@ public class PluginSourceFactory(
 
     public IPluginSource FromPersistentData(IPersistentDictionary persistentDictionary)
     {
-        var id = persistentDictionary[IdKey].GetValue<string>().Value;
-        var path = persistentDictionary[PathKey].GetValue<FileSystemPath>().Value;
-        return persistentDictionary[ProviderKey].GetValue<string>().Value switch
+        var id = persistentDictionary.GetValueOrThrow<string>(IdKey);
+        var path = persistentDictionary.GetValueOrThrow<FileSystemPath>(PathKey);
+        return persistentDictionary.GetValueOrThrow<string>(ProviderKey) switch
         {
             "filesystem" or "local" => new LocalPluginSource(id, path, fileSystem, exceptionHandler, pluginInstaller),
             var unknown => throw new InvalidOperationException($"Cannot create plugin repository for type {unknown}")

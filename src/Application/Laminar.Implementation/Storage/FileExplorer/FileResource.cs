@@ -21,7 +21,7 @@ internal sealed class FileResource<TValue, TData> : IFileResource<TValue>
     private IFileWaiter? _fileCreationWaiter;
     
     public FileResource(
-        FileSystemFile file,
+        IFileSystemFile file,
         IPersistentDataTranscoder transcoder, 
         IDecodingFactory<TValue, TData> factory, 
         IPersistentDataManager dataManager, 

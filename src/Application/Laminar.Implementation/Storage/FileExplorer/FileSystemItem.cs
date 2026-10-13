@@ -14,7 +14,6 @@ internal abstract class FileSystemItem : IMutableFileSystemItem, IDisposable
 {
     private readonly IFileSystem _fileSystem;
     private readonly IFileSystemGraph _graph;
-    private readonly IPersistentValue<string> _name;
     private readonly IPersistentValue<bool> _isEnabled;
     
     protected FileSystemItem(IPersistentDictionary persistentData, IFileSystem fileSystem, IFileSystemGraph graph)
@@ -23,11 +22,16 @@ internal abstract class FileSystemItem : IMutableFileSystemItem, IDisposable
         _graph = graph;
         PersistentStorage = persistentData;
 
-        _name = PersistentStorage[IFileSystemItemFactory.PersistenceNameKey].GetValue<string>();
+        Name = PersistentStorage[IFileSystemItemFactory.PersistenceNameKey].GetValue<string>()
+            .TryGetResult(out var result, out var error)
+            ? result
+            : throw new InvalidOperationException("Unable to get name of storage item", error);
         _isEnabled = PersistentStorage[nameof(IsEnabled)].GetValueOrInitialize(true);
     }
 
     internal IPersistentDictionary PersistentStorage { get; }
+    
+    protected IPersistentValue<string> Name { get; }
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -80,8 +84,8 @@ internal abstract class FileSystemItem : IMutableFileSystemItem, IDisposable
     
     public virtual void SetNameInternal(FileSystemGraph.MutationToken _, string newNameWithExtension)
     {
-        if (newNameWithExtension == _name.Value) return;
-        _name.Value = newNameWithExtension;
+        if (newNameWithExtension == Name.Value) return;
+        Name.Value = newNameWithExtension;
         OnPropertyChanged(nameof(Path));
     }
 
@@ -108,7 +112,7 @@ internal abstract class FileSystemItem : IMutableFileSystemItem, IDisposable
         OnPropertyChanged(nameof(Path));
     }
     
-    protected FileSystemPath ComputePathFromParent(IFileSystemFolder parent) => parent.Path.ChildPath(_name.Value);
+    protected FileSystemPath ComputePathFromParent(IFileSystemFolder parent) => parent.Path.ChildPath(Name.Value);
 
     protected virtual void RefreshOverride()
     {

@@ -65,7 +65,11 @@ internal sealed class FileSystemGraph(
 
     public IFileSystemItem AddFromPersistentData(IFileSystemFolder parent, IPersistentDictionary persistentDictionary)
     {
-        var childName = persistentDictionary[IFileSystemItemFactory.PersistenceNameKey].GetValue<string>().Value;
+        var childName = persistentDictionary[IFileSystemItemFactory.PersistenceNameKey].GetValue<string>()
+            .TryGetResult(out var result, out var error)
+            ? result.Value
+            : throw new InvalidOperationException("Unable to get name of storage item", error);
+        
         if (repository.TryGetItem(parent.Path.ChildPath(childName), out _))
         {
             throw new InvalidOperationException("An item already exists at this path. This is likely an internal bug");

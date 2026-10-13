@@ -1,4 +1,5 @@
 using Laminar.Contracts.Storage.PersistentData;
+using Laminar.Domain;
 
 namespace Laminar.Implementation.Storage.PersistentData;
 
@@ -42,16 +43,17 @@ internal class PersistentDataPoint(IEncodableDataFactory valueFactory) : IPersis
         return newCollection;
     }
 
-    public IPersistentValue<T> GetValue<T>(Type? serializationKeyOverride = null, object? deserializationContext = null) where T : notnull
+    public MayError<IPersistentValue<T>> GetValue<T>(Type? serializationKeyOverride = null, object? deserializationContext = null) where T : notnull
     {
         if (MaterializedValue is not null)
         {
-            return (IPersistentValue<T>)MaterializedValue ?? throw new InvalidOperationException("This persistent data point is of a different type");
+            return (MaterializedValue as IPersistentValue<T>)
+                .ErrorIfNull(new InvalidOperationException("This persistent data point is of a different type"));
         }
 
         if (_lastTranscoder is null || _encodedValue is null)
         {
-            throw new InvalidOperationException("In order to get an uninitialized value, this data point needs both a transcoder and encoded value");
+            return new MayError<IPersistentValue<T>>(new InvalidOperationException("This value needs a transcoder and encoded value to decode"));
         }
 
         var newValue = valueFactory.GetValueFromEncoded<T>(_encodedValue, _lastTranscoder, serializationKeyOverride,
@@ -59,7 +61,7 @@ internal class PersistentDataPoint(IEncodableDataFactory valueFactory) : IPersis
         newValue.Invalidated += ChildInvalidated;
         MaterializedValue = newValue;
         Invalidated?.Invoke(this, EventArgs.Empty);
-        return newValue;
+        return newValue.AsSuccess();
     }
 
     public IPersistentValue<T> GetValueOrInitialize<T>(T defaultValue, Type? serializationKeyOverride = null, 

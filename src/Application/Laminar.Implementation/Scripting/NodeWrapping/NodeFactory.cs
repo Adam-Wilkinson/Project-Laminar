@@ -20,9 +20,9 @@ public class NodeFactory(IEncodableDataFactory dataFactory, IExceptionHandler ex
     
     public INodeContainer FromPersistentData(IPersistentDictionary persistentDictionary, IRuntimeHost host)
     {
-        var pluginName = persistentDictionary[PluginKey].GetValue<string>().Value;
-        var pluginVersion = persistentDictionary[PluginVersionKey].GetValue<SemanticVersion>().Value;
-        var nodeName = persistentDictionary[NodeNameKey].GetValue<string>().Value;
+        var pluginName = persistentDictionary.GetValueOrThrow<string>(PluginKey);
+        var pluginVersion = persistentDictionary.GetValueOrThrow<SemanticVersion>(PluginVersionKey);
+        var nodeName = persistentDictionary.GetValueOrThrow<string>(NodeNameKey);
         var nodeDescriptor = new NodeDescriptor(new VersionedPluginId(pluginName, pluginVersion), nodeName);
         
         var nameRow = LaminarFactory.Component.CreateSingleRow(null, new ObservableValueInterfaceData<EditableLabel, string>(persistentDictionary["Name"].GetValueOrInitialize(""))

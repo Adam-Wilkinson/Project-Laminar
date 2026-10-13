@@ -2,13 +2,14 @@ using Laminar.Contracts.Storage.FileExplorer;
 using Laminar.Contracts.Storage.FileExplorer.Graph;
 using Laminar.Contracts.Storage.IO;
 using Laminar.Contracts.Storage.PersistentData;
+using Laminar.Domain;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Laminar.Implementation.Storage.FileExplorer;
 
 internal class FileSystemFile : FileSystemItem, IFileSystemFile
 {
-    private readonly IServiceProvider _serviceProvider;
+    private readonly IFileResourceFactory _resourceFactory;
     private readonly IFileSystem _fileSystem;
     
     public FileSystemFile(
@@ -16,10 +17,10 @@ internal class FileSystemFile : FileSystemItem, IFileSystemFile
         IPersistentDictionary persistentData,
         IFileSystem fileSystem,
         IFileSystemGraph graph,
-        IServiceProvider serviceProvider)
+        IFileResourceFactory resourceFactory)
         : base(persistentData, fileSystem, graph)
     {
-        _serviceProvider = serviceProvider;
+        _resourceFactory = resourceFactory;
         _fileSystem = fileSystem;
         SetParent(parent);
         Info = FileSystemItemType.FromExtension(fileSystem.GetExtension(ComputePathFromParent(parent)));
@@ -28,11 +29,11 @@ internal class FileSystemFile : FileSystemItem, IFileSystemFile
 
     public long SizeOnDisk { get; private set; }
 
-    public IFileResource<TValue> GetContentsAsResource<TValue, TData>(IPersistentDataTranscoder transcoder,
+    public MayError<IFileResource<TValue>> GetContentsAsResource<TValue, TData>(IPersistentDataTranscoder transcoder,
         IDecodingFactory<TValue, TData> factory)
         where TValue : class, IEncodableDataOwner<TData>, IEncodableDataOwner<IEncodableData>
         where TData : class, IEncodableData
-        => ActivatorUtilities.CreateInstance<FileResource<TValue, TData>>(_serviceProvider, this, transcoder, factory);
+        => _resourceFactory.TryGetResource(this, transcoder, factory);
 
     public override FileSystemItemType Info { get; }
 

@@ -18,10 +18,18 @@ internal sealed class FileSystemItemFactory(IServiceProvider provider, IEncodabl
     public IFileSystemRootFolder CreateRootFolder(FileSystemPath path) 
         => ActivatorUtilities.CreateInstance<FileSystemRootFolder>(provider, path, CreatePersistentData(path.NameAndExtension, true));
     
-    public IFileSystemItem CreateFromPersistentData(IFileSystemFolder parent, IPersistentDictionary persistentDictionary) 
-        => persistentDictionary[IFileSystemItemFactory.PersistenceIsFolderKey].GetValue<bool>().Value
+    public IFileSystemItem CreateFromPersistentData(IFileSystemFolder parent, IPersistentDictionary persistentDictionary)
+    {
+        if (!persistentDictionary[IFileSystemItemFactory.PersistenceIsFolderKey].GetValue<bool>()
+                .TryGetResult(out var result, out var error))
+        {
+            throw new InvalidOperationException("This storage item has not stored if it is a folder", error);
+        }
+
+        return result.Value
             ? CreateFolderInternal(parent, persistentDictionary)
             : CreateFileInternal(parent, persistentDictionary);
+    }
 
     private IPersistentDictionary CreatePersistentData(string nameAndExtension, bool isFolder)
     {

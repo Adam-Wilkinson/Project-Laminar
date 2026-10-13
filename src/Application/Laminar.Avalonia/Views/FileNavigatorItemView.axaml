@@ -70,6 +70,6 @@
                          DisallowedChars="{x:Static vm:FileNavigatorItemViewModel.InvalidFileNameChars}"
                          IsBeingEdited="{Binding NameBeingSet, Mode=TwoWay}"
                          Padding="3"/>
-        <c:NotificationDisplay HorizontalAlignment="Left" Padding="2" Manager="{Binding CoreItem?.NotificationManager}"/>
+        <c:NotificationDisplay HorizontalAlignment="Left" Padding="2" DisplayedSeverity="{Binding CoreItem?.NotificationManager}"/>
     </DockPanel>
 </UserControl>

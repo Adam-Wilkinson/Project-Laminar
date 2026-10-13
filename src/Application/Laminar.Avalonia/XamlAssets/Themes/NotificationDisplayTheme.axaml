@@ -3,6 +3,12 @@
                     xmlns:c="using:Laminar.Avalonia.Controls"
                     xmlns:n="using:Laminar.Domain.Notifications"
                     xmlns:init="using:Laminar.Avalonia.InitializationTargets">
+    <Design.PreviewWith>
+        <StackPanel Margin="5">
+            <c:NotificationDisplay DisplayedSeverity="Warning"></c:NotificationDisplay>
+        </StackPanel>
+    </Design.PreviewWith>
+    
     <ControlTheme TargetType="PathIcon" 
                   BasedOn="{StaticResource {x:Type PathIcon}}" 
                   x:Key="SeverityDisplay"
@@ -56,9 +62,9 @@
                         Padding="{TemplateBinding Padding}"
                         Cursor="Hand"
                         Command="{Binding AutoResolveAll, RelativeSource={RelativeSource TemplatedParent}}"
-                        IsEnabled="{Binding Manager?.MaximumSeverity, RelativeSource={RelativeSource TemplatedParent}, Converter={x:Static ObjectConverters.IsNotNull}, ConverterParameter={x:Static n:NotificationSeverity.None}}">
+                        IsEnabled="{Binding DisplayedSeverity, RelativeSource={RelativeSource TemplatedParent}, Converter={x:Static ObjectConverters.IsNotNull}, ConverterParameter={x:Static n:NotificationSeverity.None}}">
                     <PathIcon Theme="{StaticResource SeverityDisplay}" 
-                              DataContext="{Binding Manager?.MaximumSeverity, RelativeSource={RelativeSource TemplatedParent}}"/>
+                              DataContext="{Binding DisplayedSeverity, RelativeSource={RelativeSource TemplatedParent}}"/>
                     
                     <Button.Flyout>
                         <Flyout ShowMode="Standard" OverlayInputPassThroughElement="{Binding #MainButton}">

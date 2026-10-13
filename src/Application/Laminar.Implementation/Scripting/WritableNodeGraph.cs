@@ -59,7 +59,7 @@ internal class WritableNodeGraph : IWritableNodeGraph
         {
             try
             {
-                var connectionData = _persistentConnections[i].GetValue<ConnectionData>().Value;
+                var connectionData = _persistentConnections.GetValueOrThrow<ConnectionData>(i);
                 if (!Connection.TryCreateFromData(connectionData, this, out var connection))
                 {
                     throw new DeserializationError(new InvalidOperationException("Unable to create connection"), typeof(Connection));

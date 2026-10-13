@@ -13,6 +13,7 @@ internal class FileSystemFolder : FileSystemItem, IMutableFileSystemFolder
     private readonly IFileSystemGraph _graph;
     private readonly IFileSystem _fileSystem;
     private readonly Lock _loadContentsLock = new();
+    private readonly IPersistentValue<bool> _isExpanded;
     
     private ObservableList<IFileSystemItem>? _contentsInternal;
     private Task<IReadOnlyObservableList<IFileSystemItem>>? _loadContentsTask;
@@ -26,7 +27,8 @@ internal class FileSystemFolder : FileSystemItem, IMutableFileSystemFolder
     {
         _fileSystem = fileSystem;
         _graph = graph;
-        IsExpanded = PersistentStorage[nameof(IsExpanded)].GetValueOrInitialize(false).Value;
+        _isExpanded = PersistentStorage[nameof(IsExpanded)].GetValueOrInitialize(false);
+        IsExpanded = _isExpanded.Value;
     }
     
     public FileSystemFolder(
@@ -48,7 +50,7 @@ internal class FileSystemFolder : FileSystemItem, IMutableFileSystemFolder
         set
         {
             if (!SetField(ref field, value)) return;
-            PersistentStorage[nameof(IsExpanded)].GetValue<bool>().Value = value;
+            _isExpanded.Value = value;
         }
     }
     

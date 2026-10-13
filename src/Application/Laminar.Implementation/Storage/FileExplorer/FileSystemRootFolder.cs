@@ -59,7 +59,7 @@ internal class FileSystemRootFolder : FileSystemFolder, IMutableFileSystemRootFo
             throw new InvalidOperationException();
 
         _path = parentPath.ChildPath(newNameWithExtension);
-        PersistentStorage[IFileSystemItemFactory.PersistenceNameKey].GetValue<string>().Value = newNameWithExtension;
+        Name.Value = newNameWithExtension;
 
         _persistentDataOnDisk.Location = _path.ChildPath(InfoFileName);
         _currentMonitor.Dispose();
@@ -101,9 +101,19 @@ internal class FileSystemRootFolder : FileSystemFolder, IMutableFileSystemRootFo
     private async Task InstallPluginFromData(IPersistentDataPoint requiredPlugin)
     {
         var pluginInfo = requiredPlugin.GetOrCreateCollection<IPersistentDictionary>();
-        var pluginId = pluginInfo["id"].GetValue<string>().Value;
-        var version = pluginInfo["version"].GetValue<SemanticVersion>().Value;
-        var versionedPluginId = new VersionedPluginId(pluginId, version); 
+        if (!pluginInfo["id"].GetValue<string>().TryGetResult(out var pluginId, out var idError))
+        {
+            await _exceptionHandler.OnExceptionAsync(new Exception("Unable to get plugin id", idError));
+            return;
+        }
+        
+        if (!pluginInfo["version"].GetValue<SemanticVersion>().TryGetResult(out var version, out var versionError))
+        {
+            await _exceptionHandler.OnExceptionAsync(new Exception("Unable to get plugin version", versionError));
+            return;
+        }
+        
+        var versionedPluginId = new VersionedPluginId(pluginId.Value, version.Value); 
         bool loadedPlugin;
         using (var _ = NotificationManager.AddNotification(new LoadingRequiredPluginNotification(versionedPluginId)))
         {

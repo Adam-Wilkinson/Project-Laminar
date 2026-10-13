@@ -37,7 +37,7 @@ internal sealed class Script : IScript
         Runtime = runtime;
         Data = persistentData;
         ActionScope = runtime.ActionScope.CreateChild(new ScriptActionSimplifier());
-        _context = CreateContext();
+        _context = CreateContext() ?? throw new InvalidOperationException();
         
         Pan = persistentData[nameof(Pan)].GetValueOrInitialize(new Point { X = 0, Y = 0 });
         Zoom = persistentData[nameof(Zoom)].GetValueOrInitialize(1.0);

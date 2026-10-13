@@ -1,55 +1,39 @@
 using System.Collections.Specialized;
-using System.ComponentModel;
 using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Primitives;
 using CommunityToolkit.Mvvm.Input;
-using Laminar.Avalonia.Localizers;
 using Laminar.Domain.Notifications;
-using Laminar.Domain.Observables.Collections;
 
 namespace Laminar.Avalonia.Controls;
 
-[PseudoClasses(IsError, IsWarning, IsInfo), TemplatePart("MainButton", typeof(Button))]
+[TemplatePart("MainButton", typeof(Button))]
 public class NotificationDisplay : TemplatedControl
 {
-    private const string IsError = ":error";
-    private const string IsWarning = ":warning";
-    private const string IsInfo = ":info";
+    public static readonly StyledProperty<NotificationSeverity> DisplayedSeverityProperty = AvaloniaProperty.Register<NotificationDisplay, NotificationSeverity>(nameof(DisplayedSeverity));
     
-    private readonly BoundObservableList<NotificationDisplayItem> _notifications = [];
-    
-    public static readonly StyledProperty<NotificationManager?> ManagerProperty = AvaloniaProperty.Register<NotificationDisplay, NotificationManager?>(nameof(Manager));
-    
-    static NotificationDisplay()
-    {
-        ManagerProperty.Changed.AddClassHandler<NotificationDisplay>((display, args) => display.OnManagerChanged(args));
-    }
+    public static readonly StyledProperty<IReadOnlyList<NotificationDisplayItem>> NotificationsProperty = AvaloniaProperty.Register<NotificationDisplay, IReadOnlyList<NotificationDisplayItem>>(nameof(Notifications));
 
     private Button? _mainButton;
 
-    public NotificationDisplay()
+    static NotificationDisplay()
     {
-        _notifications.CollectionChanged += NotificationsOnCollectionChanged;
+        NotificationsProperty.Changed.AddClassHandler<NotificationDisplay>((n, args) => n.NotificationsChanged(args));
     }
 
-    private void NotificationsOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    public NotificationSeverity DisplayedSeverity
     {
-        if (_notifications.Count == 0 && _mainButton?.Flyout?.IsOpen is true)
-        {
-            _mainButton.Flyout.IsOpen = false;
-        }
+        get => GetValue(DisplayedSeverityProperty);
+        set => SetValue(DisplayedSeverityProperty, value);
     }
 
-    public NotificationManager? Manager
+    public IReadOnlyList<NotificationDisplayItem> Notifications
     {
-        get => GetValue(ManagerProperty);
-        set => SetValue(ManagerProperty, value);
+        get => GetValue(NotificationsProperty);
+        set => SetValue(NotificationsProperty, value);
     }
-
-    public IReadOnlyObservableList<NotificationDisplayItem> Notifications => _notifications;
 
     public void AutoResolveAll()
     {
@@ -57,7 +41,7 @@ public class NotificationDisplay : TemplatedControl
         
         while (Notifications.Count > 0)
         {
-            Notifications[0].Resolutions[Notifications[0].AutoResolveIndex].Resolution();
+            Notifications[0].Resolutions[Notifications[0].AutoResolveIndex].Resolve();
         }
     }
 
@@ -66,54 +50,34 @@ public class NotificationDisplay : TemplatedControl
         _mainButton = e.NameScope.Find<Button>("MainButton");
         base.OnApplyTemplate(e);
     }
-
-    private void OnManagerChanged(AvaloniaPropertyChangedEventArgs args)
+    
+    private void NotificationsChanged(AvaloniaPropertyChangedEventArgs args)
     {
-        var (oldVal, newVal) = args.GetOldAndNewValue<NotificationManager?>();
-        
-        _notifications.BindTo(newVal?
-            .AllNotifications
-            .ObservableMap(NotificationLocalizer.Localize));
-        
-        oldVal?.PropertyChanged -= OnManagerPropertyChanged;
-        newVal?.PropertyChanged += OnManagerPropertyChanged;
-        UpdatePseudoClasses();
-    }
+        var (oldVal, newVal) = args.GetOldAndNewValue<IReadOnlyList<NotificationDisplayItem>>();
 
-    private void OnManagerPropertyChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        if (e.PropertyName is not nameof(NotificationManager.MaximumSeverity)) return;
-
-        UpdatePseudoClasses();
-    }
-
-    private void UpdatePseudoClasses()
-    {
-        switch (Manager?.MaximumSeverity)
+        if (oldVal is INotifyCollectionChanged oldCollection)
         {
-            case NotificationSeverity.Error:
-                PseudoClasses.Add(IsError);
-                PseudoClasses.Remove(IsWarning);
-                PseudoClasses.Remove(IsInfo);
-                break;
-            case NotificationSeverity.Warning:
-                PseudoClasses.Remove(IsError);
-                PseudoClasses.Add(IsWarning);
-                PseudoClasses.Remove(IsInfo);
-                break;
-            case NotificationSeverity.Information:
-                PseudoClasses.Remove(IsError);
-                PseudoClasses.Remove(IsWarning);
-                PseudoClasses.Add(IsInfo);
-                break;
-            case null:
-            case NotificationSeverity.None:
-            case NotificationSeverity.Loading:
-            default:
-                PseudoClasses.Remove(IsError);
-                PseudoClasses.Remove(IsWarning);
-                PseudoClasses.Remove(IsInfo);
-                break;
+            oldCollection.CollectionChanged -= NotificationsOnCollectionChanged;
+        }
+
+        if (newVal is INotifyCollectionChanged newCollection)
+        {
+            newCollection.CollectionChanged += NotificationsOnCollectionChanged;
+        }
+        
+        CloseFlyoutIfOpenAndEmpty();
+    }
+
+    private void NotificationsOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        CloseFlyoutIfOpenAndEmpty();
+    }
+
+    private void CloseFlyoutIfOpenAndEmpty()
+    {
+        if (Notifications.Count == 0 && _mainButton?.Flyout?.IsOpen is true)
+        {
+            _mainButton.Flyout.IsOpen = false;
         }
     }
 }
