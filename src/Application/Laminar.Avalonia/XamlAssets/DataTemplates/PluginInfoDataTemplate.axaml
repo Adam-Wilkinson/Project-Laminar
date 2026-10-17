@@ -29,9 +29,13 @@
                               VerticalAlignment="Center"
                               HorizontalAlignment="Stretch"/>
 
-                    <Button Grid.Row="0" Grid.Column="2" Theme="{StaticResource ToolButton}"
-                            DataContext="{Binding Converter={StaticResource ToolInstancer},
-                            ConverterParameter={StaticResource Tools.Settings.PluginTools.SetVersion}}"/>
+                    <Border Grid.Row="0" Grid.Column="2"
+                            Background="Transparent"
+                            ToolTip.Tip="{e:Translate {x:Static lang:Strings.PluginVersionCorrect}}">
+                        <Button Theme="{StaticResource ToolButton}"
+                                DataContext="{Binding Converter={StaticResource ToolInstancer},
+                                ConverterParameter={StaticResource Tools.Settings.PluginTools.SetVersion}}"/>
+                    </Border>
                     
                     <Button Grid.Row="0" Grid.Column="3" Theme="{StaticResource ToolButton}"
                             IsVisible="{Binding $parent.((vm:PluginInfoViewModel)DataContext)?.IsInstalled, FallbackValue={x:False}}"

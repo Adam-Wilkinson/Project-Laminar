@@ -59,11 +59,14 @@ public partial class PluginInfoViewModel : ViewModelBase, IVersioningHost, IChan
     [ObservableProperty] public partial bool IsExpanded { get; set; }
 
     [ObservableProperty] public partial bool IsInstalled { get; set; }
+
+    public bool CanSetVersion => SetVersionType != RelativeVersionState.Equal;
     
     public void OnInstalledVersionsChanged()
     {
         EnsureWorkspaceInfosLoaded();
         IsInstalled = _workspacePluginInfos.Values.Any(x => x.InstalledVersion is not null);
+        SetVersionType = ComputeChangeVersionType();
     }
     
     partial void OnTargetVersionChanged(SemanticVersion? value)
@@ -72,6 +75,8 @@ public partial class PluginInfoViewModel : ViewModelBase, IVersioningHost, IChan
 
         _ = SetTargetVersion(newVersion); 
     }
+
+    partial void OnSetVersionTypeChanged(RelativeVersionState value) => SetVersionCommand.NotifyCanExecuteChanged();
 
     partial void OnIsExpandedChanged(bool value)
     {
@@ -83,7 +88,7 @@ public partial class PluginInfoViewModel : ViewModelBase, IVersioningHost, IChan
         _pluginInfo.LatestVersion.Changed -= LatestVersionChanged;
     }
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanSetVersion))]
     private async Task SetVersion()
     {
         EnsureWorkspaceInfosLoaded();
