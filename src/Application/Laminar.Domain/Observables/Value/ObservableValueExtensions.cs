@@ -13,7 +13,7 @@ public static class ObservableValueExtensions
 
             ObservableValue<TOut> output = new(typedValue);
 
-            readOnlyObservableValue.OnChanged += (_, e) =>
+            readOnlyObservableValue.Changed += (_, e) =>
             {
                 if (e.NewValue is not TOut newTypedValue)
                 {
@@ -30,7 +30,7 @@ public static class ObservableValueExtensions
         {
             ObservableValue<TOut> output = new(func(readOnlyObservableValue.Value));
             
-            readOnlyObservableValue.OnChanged += (_, e) => output.Value = func(e.NewValue);
+            readOnlyObservableValue.Changed += (_, e) => output.Value = func(e.NewValue);
 
             return output;
         }

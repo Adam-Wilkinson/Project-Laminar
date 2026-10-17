@@ -5,7 +5,7 @@ namespace Laminar.Contracts.Scripting.NodeWrapping;
 
 public interface INodeFactory
 {
-    INodeContainer FromPersistentData(IPersistentDictionary persistentDictionary, IRuntimeHost host);
+    INodeContainer FromPersistentData(IPersistentDictionary persistentDictionary, IWorkspace host);
 
-    INodeContainer FromDescriptor(NodeDescriptor nodeInfo, IRuntimeHost host);
+    INodeContainer FromDescriptor(NodeDescriptor nodeInfo, IWorkspace host);
 }

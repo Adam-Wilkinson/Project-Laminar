@@ -13,7 +13,7 @@ public abstract class ObservableValueBase<T> : IObservableValue<T>
     
     public abstract T Value { get; set; }
 
-    public event EventHandler<ObservableValueChangedEventArgs<T>>? OnChanged;
+    public event EventHandler<ObservableValueChangedEventArgs<T>>? Changed;
     public event EventHandler? CovariantOnChanged;
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -32,7 +32,7 @@ public abstract class ObservableValueBase<T> : IObservableValue<T>
         
         AfterValueChanged();
         
-        OnChanged?.Invoke(this, new ObservableValueChangedEventArgs<T>(oldValue, newValue));
+        Changed?.Invoke(this, new ObservableValueChangedEventArgs<T>(oldValue, newValue));
         CovariantOnChanged?.Invoke(this, EventArgs.Empty);
         PropertyChanged?.Invoke(this, IObservableValueBase.ValueChangedEventArgs);
         return true;

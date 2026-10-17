@@ -5,7 +5,7 @@ using Laminar.Domain;
 
 namespace Laminar.Implementation.Scripting.NodeWrapping;
 
-public class LoadedNodeManager(IRuntimeHost host, INodeFactory nodeFactory) : ILoadedNodeManager
+public class LoadedNodeManager(IWorkspace host, INodeFactory nodeFactory) : ILoadedNodeManager
 {
     private readonly ItemCategory<NodeDescriptor> _writableLoadedNodes = new ("root");
     private readonly Dictionary<NodeDescriptor, ILoadedNodeInfo> _loadedNodeInfos = [];

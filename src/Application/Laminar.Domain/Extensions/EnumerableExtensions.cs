@@ -21,7 +21,7 @@ public static class EnumerableExtensions
             return enumerable.SelectMany(c => selector(c).Flatten(selector)).Concat(enumerable);
         }
 
-        public IEnumerable<T> InsertInBetween(T newElement)
+        public IEnumerable<T> Weave(T newElement)
         {
             var enumerator = enumerable.GetEnumerator();
             enumerator.MoveNext();

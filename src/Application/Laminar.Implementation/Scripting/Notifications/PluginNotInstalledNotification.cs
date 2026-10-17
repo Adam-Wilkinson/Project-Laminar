@@ -36,7 +36,7 @@ internal class PluginNotInstalledNotification : ResolvableNotification<Versioned
                 context.HostScript.ActionScope.ExecuteAction(new DeleteNodeAction(_nodeContainer, context.Nodes));
                 break;
             case NodePluginNotInstalledResolution.InstallPlugin:
-                context.HostScript.Runtime.PluginManager.EnsurePluginInstalled(Data);
+                context.HostScript.Host.PluginManager.EnsurePluginInstalled(Data);
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(parameter), parameter, null);
@@ -50,7 +50,7 @@ internal class PluginNotInstalledNotification : ResolvableNotification<Versioned
 
     private void OnPluginAdded(object? sender, string plugin)
     {
-        if (_pluginManager.GetInstalledPluginVersion(Data.Name) == Data.Version)
+        if (_pluginManager.GetPluginVersion(Data.Name) == Data.Version)
         {
             DismissInternal();
         }

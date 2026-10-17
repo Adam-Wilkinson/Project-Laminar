@@ -37,7 +37,7 @@ public static class LaminarServices
             .AddSingleton<IPluginLibrary, PluginLibrary>()
             .AddSingleton<IPluginSourceFactory, PluginSourceFactory>()
             .AddSingleton<IPluginInstaller, PluginInstaller>()
-            .AddSingleton<IRuntimeHostManager, RuntimeHostManager>()
+            .AddSingleton<IWorkspaceManager, WorkspaceManager>()
         
             .AddSingleton<IExceptionHandler, ExceptionHandler>()
             

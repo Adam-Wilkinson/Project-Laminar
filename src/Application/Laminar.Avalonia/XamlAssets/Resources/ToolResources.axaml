@@ -393,20 +393,54 @@
     <!-- SETTINGS TOOLS -->
     <!-- ============== -->
     
-    <t:CommandTool NameKey="Install all" x:Key="Tools.Settings.PluginTools.InstallAll" x:DataType="vm:PluginInfoViewModel"
-                   UserFriendlyName="{e:Translate {x:Static lang:Strings.InstallAllPlugins}}"
-                   CommandBinding="{Binding InstallToAllCommand}"
-                   DefaultIconGeometry="{StaticResource Icon.Download}">
-	    <t:CommandTool.DescriptionBinding>
+    <!-- <t:CommandTool NameKey="InstallAll" x:Key="Tools.Settings.PluginTools.InstallAll" x:DataType="vm:PluginInfoViewModel" -->
+    <!--                UserFriendlyName="{e:Translate {x:Static lang:Strings.InstallAllPlugins}}" -->
+    <!--                CommandBinding="{Binding InstallToAllCommand}" -->
+    <!--                DefaultIconGeometry="{StaticResource Icon.Download}"> -->
+	   <!--  <t:CommandTool.DescriptionBinding> -->
+		  <!--   <MultiBinding Converter="{StaticResource FormatStringConverter}"> -->
+			 <!--    <Binding Path="Value^" Source="{x:Static lang:Strings.InstallAllPluginsDescription}"/> -->
+			 <!--    <Binding Path="TargetVersionName"/> -->
+		  <!--   </MultiBinding> -->
+	   <!--  </t:CommandTool.DescriptionBinding> -->
+    <!-- </t:CommandTool> -->
+    
+    <t:CommandTool NameKey="SetVersion" x:Key="Tools.Settings.PluginTools.SetVersion" x:DataType="contracts:IChangeVersion"
+                   UserFriendlyName="{e:Translate {x:Static lang:Strings.SetPluginVersion}}"
+                   CommandBinding="{Binding SetVersionCommand}">
+	    <t:Tool.DescriptionBinding>
 		    <MultiBinding Converter="{StaticResource FormatStringConverter}">
-			    <Binding Path="Value^" Source="{x:Static lang:Strings.InstallAllPluginsDescription}"/>
-			    <Binding Path="Name"/>
+			    <Binding Path="Value^" Source="{x:Static lang:Strings.SetPluginVersionDescription}"/>
+			    <Binding Path="TargetVersionName"/>
+			    <Binding Path="TargetVersion"/>
 		    </MultiBinding>
-	    </t:CommandTool.DescriptionBinding>
+	    </t:Tool.DescriptionBinding>
+	    <t:Tool.IconTemplate>
+		    <DataTemplate x:DataType="contracts:IChangeVersion">
+			    <t:GeometryIcon>
+				    <t:GeometryIcon.Data>
+					    <MultiBinding Converter="{StaticResource SwitchConverter}">
+						    <Binding Path="SetVersionType"/>
+						    <Binding Source="{StaticResource Icon.Upgrade}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static contracts:RelativeVersionState.Upgrade}"/>
+						    <Binding Source="{StaticResource Icon.Downgrade}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static contracts:RelativeVersionState.Downgrade}"/>
+						    <Binding Source="{StaticResource Icon.SetGrade}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static contracts:RelativeVersionState.SetVersion}"/>
+						    <Binding Source="{StaticResource Icon.Download}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static contracts:RelativeVersionState.Install}"/>
+						    <Binding Source="{StaticResource Icon.CheckUnderlined}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static contracts:RelativeVersionState.Equal}"/>
+					    </MultiBinding>
+				    </t:GeometryIcon.Data>
+			    </t:GeometryIcon>
+		    </DataTemplate>
+	    </t:Tool.IconTemplate>
     </t:CommandTool>
     
+    <t:CommandTool NameKey="UninstallPlugin" x:Key="Tools.Settings.PluginTools.Uninstall" x:DataType="contracts:IChangeVersion"
+                   UserFriendlyName="{e:Translate {x:Static lang:Strings.Uninstall}}"
+                   CommandBinding="{Binding UninstallCommand}"
+                   DefaultIconGeometry="{StaticResource Icon.Delete}"/>
+    
     <t:Toolbox x:Key="Tools.Settings.PluginTools">
-	    <StaticResource ResourceKey="Tools.Settings.PluginTools.InstallAll"/>
+	    <StaticResource ResourceKey="Tools.Settings.PluginTools.SetVersion"/>
+	    <StaticResource ResourceKey="Tools.Settings.PluginTools.Uninstall"/>
     </t:Toolbox>
     
     <t:CommandTool NameKey="ResetSetting" x:Key="Tools.Settings.ResetSettingTool" x:DataType="s:Setting"

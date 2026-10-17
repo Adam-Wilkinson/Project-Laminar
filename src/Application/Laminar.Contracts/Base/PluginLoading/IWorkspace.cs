@@ -4,7 +4,7 @@ using Laminar.Contracts.Scripting.NodeWrapping;
 
 namespace Laminar.Contracts.Base.PluginLoading;
 
-public interface IRuntimeHost
+public interface IWorkspace
 {
     public string Name { get; set; }
 

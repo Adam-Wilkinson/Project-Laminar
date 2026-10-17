@@ -160,7 +160,7 @@ public class FileSystemItemFactoryTests
             .AddSingleton(Substitute.For<IFileSystemGraph>())
             .AddSingleton(Substitute.For<IPersistentDataManager>())
             .AddSingleton(Substitute.For<IFileSystemMonitor>())
-            .AddSingleton(Substitute.For<IRuntimeHostManager>())
+            .AddSingleton(Substitute.For<IWorkspaceManager>())
             .AddSingleton(Substitute.For<IExceptionHandler>())
             .BuildServiceProvider();
 

@@ -1,3 +1,5 @@
+using System.Globalization;
+using System.Text.Json;
 using Corvus.Json;
 
 namespace Laminar.PluginFramework.Json;
@@ -14,4 +16,28 @@ public readonly partial struct ManifestData
             userFriendlyName: LangSupportedString.FromJson(data.UserFriendlyName.AsJsonElement),
             supportedPlatforms: SupportedPlatformsArray.FromJson(data.SupportedPlatforms.AsJsonElement)
         );
+}
+
+public static class LangSupportedStringExtensions
+{
+    public static string? Localize(this ManifestData.LangSupportedString langSupportedString, CultureInfo cultureInfo)
+    {
+        if (langSupportedString.ValueKind == JsonValueKind.Undefined)
+        {
+            return null;
+        }
+        
+        if (langSupportedString.TryGetProperty(cultureInfo.TwoLetterISOLanguageName, out var lang)
+            && lang.ValueKind == JsonValueKind.String)
+        {
+            return (string)lang.AsString;
+        }
+        
+        if (langSupportedString.TryGetString(out var str))
+        {
+            return str;
+        }
+
+        return null;
+    }
 }

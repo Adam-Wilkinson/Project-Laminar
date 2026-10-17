@@ -50,11 +50,11 @@ public class OfflineCacheSource(
 
     public bool HasPlugin(VersionedPluginId plugin) => _plugins.Contains(plugin);
 
-    public Task<MayError<IPluginInstallation>> InstallPlugin(VersionedPluginId pluginId, IRuntimeHost runtimeHost,
+    public Task<MayError<IPluginInstallation>> InstallPlugin(VersionedPluginId pluginId, IWorkspace workspace,
         CancellationToken cancellationToken = default)
     {
         var pluginPath = context.OfflineCacheLocation.ChildPath(pluginId.Name).ChildPath(pluginId.Version.ToString());
-        return pluginInstaller.InstallFromFolder(pluginPath, pluginId, runtimeHost);
+        return pluginInstaller.InstallFromFolder(pluginPath, pluginId, workspace);
     }
 
     public async Task<ManifestData> GetManifest(VersionedPluginId plugin, CancellationToken cancellationToken = default)

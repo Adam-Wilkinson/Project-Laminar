@@ -47,7 +47,7 @@
             
             <TreeView.Styles>
                 <Style Selector="TreeViewItem" x:DataType="vm:FileNavigatorItemViewModel">
-                    <Setter Property="vms:FocusedRuntimeManager.FocusRuntime" Value="{Binding RuntimeHost}"/>
+                    <Setter Property="vms:FocusedWorkspaceManager.FocusWorkspace" Value="{Binding Workspace}"/>
                     
                     <Style Selector="^:empty /template/ Button#PART_ExpandCollapseChevron">
                         <Setter Property="Opacity" Value="1"/>

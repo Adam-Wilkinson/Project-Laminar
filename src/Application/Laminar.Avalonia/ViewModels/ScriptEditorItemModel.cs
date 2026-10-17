@@ -24,7 +24,7 @@ public partial class ScriptEditorItemModel : ObservableObject
         Left = nodeContainerModel.Location.Value.X;
         Top = nodeContainerModel.Location.Value.Y;
         
-        nodeContainerModel.Location.OnChanged += (_, changedArgs) =>
+        nodeContainerModel.Location.Changed += (_, changedArgs) =>
         {
             Left = changedArgs.NewValue.X;
             Top = changedArgs.NewValue.Y;

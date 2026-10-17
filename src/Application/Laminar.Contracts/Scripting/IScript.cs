@@ -9,7 +9,7 @@ namespace Laminar.Contracts.Scripting;
 
 public interface IScript : IEncodableDataOwner<IPersistentDictionary>, INotifyPropertyChanged
 {
-    public IRuntimeHost Runtime { get; }
+    public IWorkspace Host { get; }
     
     public IUserActionScope ActionScope { get; }
     

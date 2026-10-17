@@ -75,7 +75,7 @@ public class FileViewModelFactory
         {
             [FileSystemItemType.Script.Extension] = async (file, sp) =>
             {
-                var scriptingFactory = file.GetRootFolder().RuntimeHost.ScriptingFactory;
+                var scriptingFactory = file.GetRootFolder().Workspace.ScriptingFactory;
                 var transcoder = new JsonPersistentDataTranscoder(null!);
                 if (!file.GetContentsAsResource(transcoder, scriptingFactory)
                         .TryGetResult(out var scriptResource, out var error))

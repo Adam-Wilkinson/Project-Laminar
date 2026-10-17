@@ -13,7 +13,7 @@ using Microsoft.Extensions.Logging;
 namespace Laminar.Implementation.Scripting;
 
 internal class ScriptingFactory(
-    IRuntimeHost host,
+    IWorkspace host,
     IExecutionManager executionManager,
     IEncodableDataFactory dataFactory,
     IExceptionHandler exceptionHandler,

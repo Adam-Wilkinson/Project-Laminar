@@ -11,9 +11,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Laminar.Implementation.Base;
 
-public class RuntimeHost : IRuntimeHost, INotifyPropertyChanged
+public class Workspace : IWorkspace, INotifyPropertyChanged
 {
-    public RuntimeHost(IServiceProvider serviceProvider, IUserActionManager actionManager)
+    public Workspace(IServiceProvider serviceProvider, IUserActionManager actionManager)
     {
         NodeManager = ActivatorUtilities.CreateInstance<LoadedNodeManager>(serviceProvider, this);
         PluginManager = ActivatorUtilities.CreateInstance<PluginManager>(serviceProvider, this);

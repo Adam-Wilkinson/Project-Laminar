@@ -73,7 +73,7 @@ public partial class App : Application
                 .AddSingleton<Contracts.Base.IDispatcher, AvaloniaDispatcher>()
                 .BuildServiceProvider();
 
-            MainWindow.Resources[FocusedRuntimeManager.ResourceKey] = services.GetRequiredService<FocusedRuntimeManager>();
+            MainWindow.Resources[FocusedWorkspaceManager.ResourceKey] = services.GetRequiredService<FocusedWorkspaceManager>();
             services.InitializeLaminar<App>(FrontendDependency.Avalonia, DefaultLoadContext);
             services.GetServices<IBeforeApplicationBuiltTarget>().Initialize();
             desktop.MainWindow.DataContext = services.GetRequiredService<MainWindowViewModel>();

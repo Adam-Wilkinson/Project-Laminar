@@ -1,20 +1,20 @@
 using Laminar.Contracts.Base.PluginLoading;
-using Laminar.Domain.ValueObjects;
+using Laminar.Domain.Observables.Collections;
 
 namespace Laminar.Contracts.Base;
 
-public interface IRuntimeHostManager
+public interface IWorkspaceManager
 {
-    public IReadOnlyCollection<IRuntimeHost> AllHosts { get; }
+    public IReadOnlyObservableList<IWorkspace> Workspaces { get; }
     
-    public IRuntimeHost CreateRuntimeHost(string name);
+    public IWorkspace CreateWorkspace(string name);
 
     public event EventHandler<PluginsChangedEventArgs>? PluginsChanged;
 }
 
 public class PluginsChangedEventArgs : EventArgs
 {
-    public required IRuntimeHost ChangedRuntime { get; init; }
+    public required IWorkspace ChangedWorkspace { get; init; }
     
     public required string PluginId { get; init; }
     

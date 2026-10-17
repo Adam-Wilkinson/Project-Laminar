@@ -8,10 +8,10 @@ public interface IPluginInstaller
     public Task<MayError<IPluginInstallation>> InstallFromArchive(
         Stream archiveStream, 
         VersionedPluginId pluginId,
-        IRuntimeHost runtimeHost);
+        IWorkspace workspace);
     
     public Task<MayError<IPluginInstallation>> InstallFromFolder(
         FileSystemPath directory, 
         VersionedPluginId pluginId,
-        IRuntimeHost runtimeHost);
+        IWorkspace workspace);
 }

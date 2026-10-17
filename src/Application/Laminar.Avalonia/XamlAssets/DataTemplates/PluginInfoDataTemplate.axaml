@@ -1,14 +1,14 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:c="using:Laminar.Avalonia.Controls"
                     xmlns:s="using:Laminar.Avalonia.Settings"
                     xmlns:vm="using:Laminar.Avalonia.ViewModels"
+                    xmlns:e="using:Echoes"
                     xmlns:lang="using:Laminar.Avalonia.Translations">
     <DataTemplate x:Key="PluginInfoDataTemplate" DataType="vm:PluginInfoViewModel">
-        <Border Classes="UiLayer">
+        <Border Classes="UiLayer" Padding="3">
             <StackPanel>
                 <Grid RowDefinitions="Auto"
-                      ColumnDefinitions="*,*,Auto"
+                      ColumnDefinitions="*,*,Auto,Auto"
                       ColumnSpacing="3"
                       HorizontalAlignment="Stretch">
                     
@@ -18,21 +18,25 @@
                                   HorizontalAlignment="Stretch"
                                   Padding="2"
                                   IsChecked="{Binding IsExpanded, Mode=TwoWay}">
-                        <TextBlock Text="{Binding Name}"
+                        <TextBlock Text="{Binding TargetVersionName}"
                                    VerticalAlignment="Center"
                                    Classes="h2"/>
                     </ToggleButton>
                     
                     <ComboBox Grid.Row="0" Grid.Column="1" 
                               ItemsSource="{Binding AvailableVersions}"
-                              SelectedItem="{Binding SelectedVersion, Mode=TwoWay}"
+                              SelectedItem="{Binding TargetVersion, Mode=TwoWay}"
                               VerticalAlignment="Center"
                               HorizontalAlignment="Stretch"/>
-												    
+
                     <Button Grid.Row="0" Grid.Column="2" Theme="{StaticResource ToolButton}"
-                            DataContext="{Binding 
-                            Converter={StaticResource ToolInstancer},
-                            ConverterParameter={StaticResource Tools.Settings.PluginTools.InstallAll}}"/>
+                            DataContext="{Binding Converter={StaticResource ToolInstancer},
+                            ConverterParameter={StaticResource Tools.Settings.PluginTools.SetVersion}}"/>
+                    
+                    <Button Grid.Row="0" Grid.Column="3" Theme="{StaticResource ToolButton}"
+                            IsVisible="{Binding $parent.((vm:PluginInfoViewModel)DataContext)?.IsInstalled, FallbackValue={x:False}}"
+                            DataContext="{Binding Converter={StaticResource ToolInstancer},
+                            ConverterParameter={StaticResource Tools.Settings.PluginTools.Uninstall}}"/>
                     
                 </Grid>
                 
@@ -48,24 +52,24 @@
                         <TextBlock Text="{Binding Description}"
                                    Margin="0,0,0,5"
                                    Classes="b2"/>
-                        <TextBlock>
-                            <TextBlock.Text>
-                                <MultiBinding Converter="{StaticResource SwitchConverter}">
-                                    <Binding Path="HasInstallations"/>
-                                    <Binding Path="Value^" Source="{x:Static lang:Strings.Installations}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:True}"/>
-                                    <Binding Path="Value^" Source="{x:Static lang:Strings.NoInstallations}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:False}"/>
-                                </MultiBinding>
-                            </TextBlock.Text>
-                        </TextBlock>
-                        <ItemsControl ItemsSource="{Binding Installations}"
+                        <TextBlock Text="{e:Translate {x:Static lang:Strings.WorkspaceInfos}}"/>
+                        <ItemsControl ItemsSource="{Binding Workspaces}"
                                       Margin="10,0">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Grid RowDefinitions="Auto" ColumnDefinitions="*,Auto">
-                                        <TextBlock Grid.Column="0" Text="{Binding Name}"/>
-                                        <Button Grid.Column="1" Command="{Binding $parent[ItemsControl].((vm:PluginInfoViewModel)DataContext)?.UninstallCommand}" CommandParameter="{Binding}">
-                                            <PathIcon Data="{StaticResource Icon.Cross}"/>
-                                        </Button>
+                                    <Grid RowDefinitions="Auto" ColumnDefinitions="*,*,Auto,Auto">
+                                        <TextBlock Grid.Column="0" Text="{Binding HostName}"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding InstalledVersion}"/>
+                                        <Border Grid.Column="2"
+                                                Background="Transparent"
+                                                ToolTip.Tip="{e:Translate {x:Static lang:Strings.PluginVersionCorrect}}">
+                                            <Button Theme="{StaticResource ToolButton}"
+                                                    DataContext="{Binding Converter={StaticResource ToolInstancer}, 
+                                                    ConverterParameter={StaticResource Tools.Settings.PluginTools.SetVersion}}"/>
+                                        </Border>
+                                        <Button Grid.Column="3" Theme="{StaticResource ToolButton}"
+                                                DataContext="{Binding Converter={StaticResource ToolInstancer},
+                                                ConverterParameter={StaticResource Tools.Settings.PluginTools.Uninstall}}"/>
                                     </Grid>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>

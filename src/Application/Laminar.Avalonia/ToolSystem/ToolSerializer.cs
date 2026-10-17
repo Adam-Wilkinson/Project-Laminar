@@ -80,7 +80,7 @@ public class ToolSerializer(TopLevel topLevel, IPersistentDataManager persistent
 
         persistentQuickAccess.Value.PropertyChanged += PersistentQuickAccessOnPropertyChanged;
 
-        persistentQuickAccess.OnChanged += (_, e) =>
+        persistentQuickAccess.Changed += (_, e) =>
         {
             e.OldValue.PropertyChanged -= PersistentQuickAccessOnPropertyChanged;
             e.NewValue.PropertyChanged += PersistentQuickAccessOnPropertyChanged;

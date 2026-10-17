@@ -29,7 +29,7 @@ internal class WritableNodeGraph : IWritableNodeGraph
     
     public WritableNodeGraph(
         IPersistentDictionary persistentDictionary, 
-        IRuntimeHost runtime,
+        IWorkspace workspace,
         ILogger<WritableNodeGraph> logger,
         IExceptionHandler exceptionHandler,
         IEnumerable<INodeContainer>? nodes = null, 
@@ -41,7 +41,7 @@ internal class WritableNodeGraph : IWritableNodeGraph
         _persistentNodes = persistentDictionary["Nodes"].GetOrCreateCollection<IPersistentDictionary>();
         foreach (var (key, dataPoint) in _persistentNodes)
         {
-            AddNode(runtime.NodeManager.CreateNode(dataPoint.GetOrCreateCollection<IPersistentDictionary>()), key);
+            AddNode(workspace.NodeManager.CreateNode(dataPoint.GetOrCreateCollection<IPersistentDictionary>()), key);
         }
 
         if (nodes is not null)

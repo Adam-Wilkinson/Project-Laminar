@@ -6,17 +6,17 @@ using Laminar.Domain.ValueObjects;
 
 namespace Laminar.Implementation.Base;
 
-internal sealed class RuntimeHostManager(IServiceProvider serviceProvider, IUserActionManager actionManager) 
-    : IRuntimeHostManager, IDisposable
+internal sealed class WorkspaceManager(IServiceProvider serviceProvider, IUserActionManager actionManager) 
+    : IWorkspaceManager, IDisposable
 {
-    private readonly List<IRuntimeHost> _hosts = [];
+    private readonly ObservableList<IWorkspace> _hosts = [];
     private readonly CompositeDisposable _disposables = new();
 
-    public IReadOnlyCollection<IRuntimeHost> AllHosts => _hosts;
+    public IReadOnlyObservableList<IWorkspace> Workspaces => _hosts;
 
-    public IRuntimeHost CreateRuntimeHost(string name)
+    public IWorkspace CreateWorkspace(string name)
     {
-        var newHost = new RuntimeHost(serviceProvider, actionManager)
+        var newHost = new Workspace(serviceProvider, actionManager)
         {
             Name = name
         };
@@ -30,7 +30,7 @@ internal sealed class RuntimeHostManager(IServiceProvider serviceProvider, IUser
         {
             PluginsChanged?.Invoke(this, new PluginsChangedEventArgs
             {
-                ChangedRuntime = newHost,
+                ChangedWorkspace = newHost,
                 PluginId = plugin,
                 ChangeType = PluginChangedType.Added
             });
@@ -40,7 +40,7 @@ internal sealed class RuntimeHostManager(IServiceProvider serviceProvider, IUser
         {
             PluginsChanged?.Invoke(this, new PluginsChangedEventArgs
             {
-                ChangedRuntime = newHost,
+                ChangedWorkspace = newHost,
                 PluginId = plugin,
                 ChangeType = PluginChangedType.Removed
             });

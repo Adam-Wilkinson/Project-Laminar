@@ -114,7 +114,7 @@ public interface ISerializedPropertyInfo
                 throw new ArgumentException("Target is not of type " + typeof(TTarget).FullName);
 
             var newValue = dataStore[ValueKey(prefix)].GetValueOrInitialize(DefaultValue);
-            newValue.OnChanged += (_, e) => typedThis.Setter(typedTarget, e.NewValue);
+            newValue.Changed += (_, e) => typedThis.Setter(typedTarget, e.NewValue);
             Setter(typedTarget, newValue.Value);
         }
 

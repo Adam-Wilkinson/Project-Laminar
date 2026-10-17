@@ -46,10 +46,10 @@ public class LocalPluginSource(
 
     public Task<MayError<IPluginInstallation>> InstallPlugin(
         VersionedPluginId pluginId,
-        IRuntimeHost runtimeHost,
+        IWorkspace workspace,
         CancellationToken cancellationToken = default)
     {
-        return installer.InstallFromArchive(File.OpenRead(_pluginDetails[pluginId].PackagePath), pluginId, runtimeHost);
+        return installer.InstallFromArchive(File.OpenRead(_pluginDetails[pluginId].PackagePath), pluginId, workspace);
     }
 
     public Task<ManifestData> GetManifest(VersionedPluginId plugin, CancellationToken cancellationToken = default)

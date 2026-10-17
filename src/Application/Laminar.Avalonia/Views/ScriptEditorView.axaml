@@ -13,7 +13,7 @@
              x:DataType="vm:ScriptEditorViewModel"
              Background="Transparent"
              m:ConnectorRegistry.ConnectionInteractionHandler="{Binding}"
-             vms:FocusedRuntimeManager.FocusRuntime="{Binding RuntimeHost}"
+             vms:FocusedWorkspaceManager.FocusWorkspace="{Binding Workspace}"
              IsHitTestVisible="True">
     <UserControl.Resources>
         <m:ConnectorRegistry x:Key="{x:Static m:ConnectorRegistry.Key}"/>

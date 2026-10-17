@@ -19,7 +19,7 @@ public class PluginInstaller(
     public async Task<MayError<IPluginInstallation>> InstallFromFolder(
         FileSystemPath pluginPath, 
         VersionedPluginId pluginId,
-        IRuntimeHost host)
+        IWorkspace host)
     {
         var manifestPath = pluginPath.ChildPath("manifest.json");
         if (!fileSystem.Exists(manifestPath)) throw new InvalidOperationException("Could not find plugin manifest");
@@ -71,10 +71,10 @@ public class PluginInstaller(
     public async Task<MayError<IPluginInstallation>> InstallFromArchive(
         Stream archiveStream, 
         VersionedPluginId pluginId,
-        IRuntimeHost runtimeHost)
+        IWorkspace workspace)
     {
         var pluginPath = context.OfflineCacheLocation.ChildPath(pluginId.Name).ChildPath(pluginId.Version.ToString());
         await ZipFile.ExtractToDirectoryAsync(archiveStream, pluginPath);
-        return await InstallFromFolder(pluginPath, pluginId, runtimeHost);
+        return await InstallFromFolder(pluginPath, pluginId, workspace);
     }
 }

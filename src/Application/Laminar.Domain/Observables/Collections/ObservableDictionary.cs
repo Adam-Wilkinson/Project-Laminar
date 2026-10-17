@@ -27,6 +27,7 @@ public class ObservableDictionary<TKey, TValue> : IDictionary<TKey, TValue> wher
     }
 
     public int Count => _internal.Count;
+    
     public void Add(TKey key, TValue value)
     {
         _internal.Add(key, value);
@@ -80,6 +81,7 @@ public class ObservableDictionary<TKey, TValue> : IDictionary<TKey, TValue> wher
         public int Count => collection.Count;
         
         public event EventHandler<T>? ItemAdded;
+        
         public event EventHandler<T>? ItemRemoved;
         
         public IEnumerator<T> GetEnumerator() => collection.GetEnumerator();

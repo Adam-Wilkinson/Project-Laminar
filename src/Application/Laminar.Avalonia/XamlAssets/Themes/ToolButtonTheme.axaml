@@ -99,12 +99,15 @@
                 </Transitions>
             </Setter.Value>
         </Setter>
+        
         <Style Selector="^.Highlight">
             <Setter Property="Background" Value="{DynamicResource {x:Static init:ColorInitialization.LaminarAccentKey}}"/>
         </Style>
+        
         <Style Selector="^.Highlight:pointerover">
             <Setter Property="Background" Value="{DynamicResource {x:Static init:ColorInitialization.LaminarAccentKey}}"/>
         </Style>
+        
         <Style Selector="^:disabled">
             <Setter Property="Opacity" Value="{StaticResource ThemeDisabledOpacity}" />
         </Style>

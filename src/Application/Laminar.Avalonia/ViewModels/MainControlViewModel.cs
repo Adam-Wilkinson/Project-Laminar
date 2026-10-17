@@ -13,30 +13,30 @@ namespace Laminar.Avalonia.ViewModels;
 public partial class MainControlViewModel : ViewModelBase, IOpenFileService
 {
     private readonly ScopedViewModel<FileNavigatorViewModel> _scopedFileNavigator;
-    private readonly FocusedRuntimeManager _focusedRuntimeManager;
-    private readonly IRuntimeHostManager _runtimeHostManager; 
+    private readonly FocusedWorkspaceManager _focusedWorkspaceManager;
+    private readonly IWorkspaceManager _workspaceManager; 
     
     public MainControlViewModel(
         IServiceProvider serviceProvider,
-        IRuntimeHostManager runtimeHostManager,
-        FocusedRuntimeManager focusedRuntimeManager,
+        IWorkspaceManager workspaceManager,
+        FocusedWorkspaceManager focusedWorkspaceManager,
         FileViewModel centralFileEditor)
     {
-        _runtimeHostManager = runtimeHostManager;
+        _workspaceManager = workspaceManager;
         _scopedFileNavigator = RegisterSubscription(new ScopedViewModel<FileNavigatorViewModel>(serviceProvider, this));
         CentralFileEditor = RegisterSubscription(centralFileEditor);
-        _focusedRuntimeManager = focusedRuntimeManager;
+        _focusedWorkspaceManager = focusedWorkspaceManager;
         
         CentralFileEditor.PropertyChanged += CentralFileEditorOnPropertyChanged;
-        _focusedRuntimeManager.FocusedRuntimeChanged += OnFocusedRuntimeChanged;
-        _runtimeHostManager.PluginsChanged += OnPluginsChanged;
+        _focusedWorkspaceManager.FocusedWorkspaceChanged += OnFocusedWorkspaceChanged;
+        _workspaceManager.PluginsChanged += OnPluginsChanged;
         
         OnExpandedSidebarWidthChanged(ExpandedSidebarWidth);
     }
 
     private void RefreshLoadedNodes()
     {
-        if (_focusedRuntimeManager.FocusedRuntime?.NodeManager is not { } nodeManager)
+        if (_focusedWorkspaceManager.FocusedWorkspace?.NodeManager is not { } nodeManager)
         {
             LoadedNodes = null;
             return;
@@ -82,8 +82,8 @@ public partial class MainControlViewModel : ViewModelBase, IOpenFileService
     protected override void OnDisposed()
     {
         CentralFileEditor.PropertyChanged -= CentralFileEditorOnPropertyChanged;
-        _runtimeHostManager.PluginsChanged -= OnPluginsChanged;
-        _focusedRuntimeManager.FocusedRuntimeChanged -= OnFocusedRuntimeChanged;
+        _workspaceManager.PluginsChanged -= OnPluginsChanged;
+        _focusedWorkspaceManager.FocusedWorkspaceChanged -= OnFocusedWorkspaceChanged;
     }
 
     public Task RequestOpenFile(IFileSystemFile newFile)
@@ -107,7 +107,7 @@ public partial class MainControlViewModel : ViewModelBase, IOpenFileService
         }
     }
 
-    private void OnFocusedRuntimeChanged(object? sender, EventArgs e) => RefreshLoadedNodes();
+    private void OnFocusedWorkspaceChanged(object? sender, EventArgs e) => RefreshLoadedNodes();
 
     private void OnPluginsChanged(object? sender, PluginsChangedEventArgs e) => RefreshLoadedNodes();
 }

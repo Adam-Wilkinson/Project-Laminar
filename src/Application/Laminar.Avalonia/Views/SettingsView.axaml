@@ -95,7 +95,7 @@
 		<TabItem Header="Plugins">
 			<ScrollViewer>
 				<StackPanel Spacing="10">
-					<GroupBox Header="Plugin Sources">
+					<GroupBox Header="{e:Translate {x:Static lang:Strings.PluginSources}}">
 						<ItemsControl ItemsSource="{Binding PluginSources}">
 							<ItemsControl.ItemTemplate>
 								<DataTemplate DataType="p:IPluginSource">
@@ -108,10 +108,10 @@
 						</ItemsControl>
 					</GroupBox>
 					
-					<GroupBox Header="Runtime Host Folders">
-						<ItemsControl ItemsSource="{Binding Runtimes}">
+					<GroupBox Header="{e:Translate {x:Static lang:Strings.Workspaces}}">
+						<ItemsControl ItemsSource="{Binding Workspaces}">
 							<ItemsControl.ItemTemplate>
-								<DataTemplate DataType="p:IRuntimeHost">
+								<DataTemplate DataType="p:IWorkspace">
 									<TextBlock Text="{Binding Name}"
 									           Background="{DynamicResource UiLayer}"
 									           Margin="5"
@@ -121,7 +121,7 @@
 						</ItemsControl>
 					</GroupBox>
 				
-					<GroupBox Header="Installed">
+					<GroupBox Header="{e:Translate {x:Static lang:Strings.Installed}}">
 						<ItemsControl ItemsSource="{Binding InstalledPlugins}" 
 						              ItemTemplate="{StaticResource PluginInfoDataTemplate}">
 							<ItemsControl.ItemsPanel>
@@ -132,7 +132,7 @@
 						</ItemsControl>
 					</GroupBox>
 					
-					<GroupBox Header="Available" VerticalAlignment="Top">
+					<GroupBox Header="{e:Translate {x:Static lang:Strings.Available}}" VerticalAlignment="Top">
 							<ItemsControl Name="AvailablePlugins" 
 							              ItemsSource="{Binding AvailablePlugins}"
 							              Grid.IsSharedSizeScope="True"
@@ -146,9 +146,10 @@
 								
 								<ItemsControl.Styles>
 									<Style Selector="ItemsControl#AvailablePlugins > ContentPresenter" x:DataType="vm:PluginInfoViewModel">
-										<Setter Property="IsVisible" Value="{Binding !HasInstallations}"/>
+										<Setter Property="IsVisible" Value="{Binding !IsInstalled}"/>
 									</Style>
 								</ItemsControl.Styles>
+								
 							</ItemsControl>
 					</GroupBox>
 				</StackPanel>

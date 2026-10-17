@@ -18,7 +18,7 @@ public class NodeFactory(IEncodableDataFactory dataFactory, IExceptionHandler ex
     
     private readonly NodeNotificationFactory _notificationFactory = new();
     
-    public INodeContainer FromPersistentData(IPersistentDictionary persistentDictionary, IRuntimeHost host)
+    public INodeContainer FromPersistentData(IPersistentDictionary persistentDictionary, IWorkspace host)
     {
         var pluginName = persistentDictionary.GetValueOrThrow<string>(PluginKey);
         var pluginVersion = persistentDictionary.GetValueOrThrow<SemanticVersion>(PluginVersionKey);
@@ -34,7 +34,7 @@ public class NodeFactory(IEncodableDataFactory dataFactory, IExceptionHandler ex
         return new NodeContainer(nodeDescriptor, nameRow, persistentDictionary, _notificationFactory, host.PluginManager, exceptionHandler);
     }
 
-    public INodeContainer FromDescriptor(NodeDescriptor descriptor, IRuntimeHost host)
+    public INodeContainer FromDescriptor(NodeDescriptor descriptor, IWorkspace host)
     {
         var persistentDictionary = dataFactory.GetEncodableData<IPersistentDictionary>();
         persistentDictionary[PluginKey].GetValueOrInitialize(descriptor.Plugin.Name);

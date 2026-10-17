@@ -20,7 +20,7 @@ public static class ServiceCollectionExtensions
             .AddSingleton<IViewLocator, ViewLocator>()
             .AddSingleton<FileExplorerLoadingQueue>()
             .AddSingleton<DialogService>()
-            .AddSingleton<FocusedRuntimeManager>()
+            .AddSingleton<FocusedWorkspaceManager>()
             .AddSingleton<FileViewModelFactory>();
     }
 }

@@ -30,7 +30,7 @@ internal class FileSystemRootFolder : FileSystemFolder, IMutableFileSystemRootFo
         IFileSystem fileSystem,
         IPersistentDataManager persistentDataManager,
         IFileSystemMonitor monitor,
-        IRuntimeHostManager runtimeHostManager,
+        IWorkspaceManager workspaceManager,
         IExceptionHandler exceptionHandler,
         IFileSystemGraph graph) 
         : base(persistentData, fileSystem, graph)
@@ -41,7 +41,7 @@ internal class FileSystemRootFolder : FileSystemFolder, IMutableFileSystemRootFo
         _persistentDataOnDisk = persistentDataManager.GetDataOnDisk(path.ChildPath(InfoFileName), new JsonPersistentDataTranscoder(null!), persistentData);
         _currentMonitor = monitor.StartMonitoring(this, [ _persistentDataOnDisk.Location ]);
         _exceptionHandler = exceptionHandler;
-        RuntimeHost = runtimeHostManager.CreateRuntimeHost(UserFriendlyName);
+        Workspace = workspaceManager.CreateWorkspace(UserFriendlyName);
         _ = RunBackgroundStartup();
         
         Refresh();
@@ -49,7 +49,7 @@ internal class FileSystemRootFolder : FileSystemFolder, IMutableFileSystemRootFo
 
     public override FileSystemPath Path => _path;
 
-    public IRuntimeHost RuntimeHost { get; }
+    public IWorkspace Workspace { get; }
 
     public override void SetNameInternal(FileSystemGraph.MutationToken _, string newNameWithExtension)
     {
@@ -64,7 +64,7 @@ internal class FileSystemRootFolder : FileSystemFolder, IMutableFileSystemRootFo
         _persistentDataOnDisk.Location = _path.ChildPath(InfoFileName);
         _currentMonitor.Dispose();
         _currentMonitor = _fileSystemMonitor.StartMonitoring(this, [ _persistentDataOnDisk.Location ]);
-        RuntimeHost.Name = UserFriendlyName;
+        Workspace.Name = UserFriendlyName;
         OnPropertyChanged(nameof(Path));
     }
 
@@ -117,7 +117,7 @@ internal class FileSystemRootFolder : FileSystemFolder, IMutableFileSystemRootFo
         bool loadedPlugin;
         using (var _ = NotificationManager.AddNotification(new LoadingRequiredPluginNotification(versionedPluginId)))
         {
-            loadedPlugin = await RuntimeHost.PluginManager.EnsurePluginInstalled(versionedPluginId);
+            loadedPlugin = await Workspace.PluginManager.EnsurePluginInstalled(versionedPluginId);
         }
         
         if (!loadedPlugin)

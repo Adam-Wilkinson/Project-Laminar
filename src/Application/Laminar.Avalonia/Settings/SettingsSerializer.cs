@@ -64,7 +64,7 @@ public class SettingsSerializer(TopLevel topLevel, IPersistentDataManager persis
         public ResetSettingCommand(IPersistentValue<object> settingPersistent)
         {
             _settingPersistent = settingPersistent;
-            _settingPersistent.OnChanged += (_, _) =>
+            _settingPersistent.Changed += (_, _) =>
             {
                 bool canNowExecute = !Equals(_settingPersistent.Value, _settingPersistent.DefaultValue);
                 if (_canExecute != canNowExecute)

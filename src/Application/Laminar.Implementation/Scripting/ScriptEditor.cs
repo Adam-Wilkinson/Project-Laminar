@@ -13,7 +13,7 @@ internal class ScriptEditor(IEnumerable<IConnectionBridger> connectionBridgers) 
 {
     public IUserAction AddMatchingNodeAction(IScript script, INodeContainer nodeContainer, Point location)
     {
-        var newNode = script.Runtime.NodeManager.CreateNode(nodeContainer.Descriptor);
+        var newNode = script.Host.NodeManager.CreateNode(nodeContainer.Descriptor);
         newNode.Location.Value = location;
         return new AddNodeAction(newNode, (IWritableNodeGraph)script.NodeGraph);
     }

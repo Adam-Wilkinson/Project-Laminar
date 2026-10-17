@@ -24,7 +24,7 @@ internal sealed class Script : IScript
     private ScriptingContext _context;
     
     public Script(
-        IRuntimeHost runtime,
+        IWorkspace runtime,
         IPersistentDictionary persistentData,
         IExecutionManager executionManager, 
         IExceptionHandler exceptionHandler,
@@ -34,7 +34,7 @@ internal sealed class Script : IScript
         _exceptionHandler = exceptionHandler;
         _executionManager = executionManager;
         
-        Runtime = runtime;
+        Host = runtime;
         Data = persistentData;
         ActionScope = runtime.ActionScope.CreateChild(new ScriptActionSimplifier());
         _context = CreateContext() ?? throw new InvalidOperationException();
@@ -43,10 +43,10 @@ internal sealed class Script : IScript
         Zoom = persistentData[nameof(Zoom)].GetValueOrInitialize(1.0);
 
         _pluginsChangedSubscription =
-            Runtime.PluginManager.UserInstalledPlugins.SubscribeForEach(OnPluginsChanged, OnPluginsChanged);
+            Host.PluginManager.UserInstalledPlugins.SubscribeForEach(OnPluginsChanged, OnPluginsChanged);
     }
     
-    public IRuntimeHost Runtime { get; }
+    public IWorkspace Host { get; }
     
     public IUserActionScope ActionScope { get; }
 

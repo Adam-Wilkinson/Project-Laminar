@@ -51,7 +51,7 @@ public partial class ScriptEditorViewModel(
     
     public IObservableValue<double> Zoom { get; } = script.Zoom;
 
-    public IRuntimeHost RuntimeHost => script.Runtime;
+    public IWorkspace Workspace => script.Host;
 
     public UndoRedoHandler UndoRedo { get; } = new(script.ActionScope);
     
@@ -205,7 +205,7 @@ public partial class ScriptEditorViewModel(
             }
         }
         
-        var encodedNodeTree = script.Runtime.ScriptingFactory
+        var encodedNodeTree = script.Host.ScriptingFactory
             .CreateNodeTree(selectedNodes, selectedConnections)
             .PersistentData
             .Encode(DefaultClipboardTranscoder);
@@ -240,7 +240,7 @@ public partial class ScriptEditorViewModel(
             if (string.IsNullOrWhiteSpace(stringResult)) continue;
             var dictionary = dataFactory.GetEncodableData<IPersistentDictionary>();
             dictionary.Decode(DefaultClipboardTranscoder, DefaultClipboardTranscoder.BytesToElement(Encoding.UTF8.GetBytes(stringResult))!);
-            var deserializedNodeTree = script.Runtime.ScriptingFactory.NodeTreeFromPersistentData(dictionary);
+            var deserializedNodeTree = script.Host.ScriptingFactory.NodeTreeFromPersistentData(dictionary);
             var pasteAction = editor.AddSubTree(script, deserializedNodeTree);
             await script.ActionScope.ExecuteAction(pasteAction);
         }

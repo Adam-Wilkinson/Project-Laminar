@@ -12,7 +12,7 @@
              x:DataType="vm:FileNavigatorItemViewModel"
              t:ToolMenu.QuickAccessKey="{Binding Type.ItemTypeName, 
              Converter={StaticResource ToStringConverter}}"
-             vms:FocusedRuntimeManager.FocusRuntime="{Binding RuntimeHost}">
+             vms:FocusedWorkspaceManager.FocusWorkspace="{Binding Workspace}">
     
     <UserControl.Resources>
         <ResourceDictionary>

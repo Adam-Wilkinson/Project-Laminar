@@ -1,11 +1,12 @@
 using Laminar.Domain.Observables.Collections;
+using Laminar.Domain.Observables.Value;
 using Laminar.Domain.ValueObjects;
 
 namespace Laminar.Contracts.Base.PluginLoading;
 
 public interface IPluginManager
 {
-    public IRuntimeHost Host { get; }
+    public IWorkspace Host { get; }
     
     public IReadOnlyObservableBag<string> UserInstalledPlugins { get; }
     
@@ -13,5 +14,7 @@ public interface IPluginManager
     
     public void UninstallPlugin(string pluginId);
     
-    public SemanticVersion? GetInstalledPluginVersion(string pluginId);
+    public SemanticVersion? GetPluginVersion(string pluginId);
+
+    public IReadOnlyObservableValue<SemanticVersion?> GetPluginVersionObservable(string pluginId);
 }

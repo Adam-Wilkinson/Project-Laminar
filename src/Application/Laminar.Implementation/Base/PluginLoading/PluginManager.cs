@@ -2,6 +2,7 @@ using Laminar.Contracts.Base;
 using Laminar.Contracts.Base.PluginLoading;
 using Laminar.Domain.Exceptions;
 using Laminar.Domain.Observables.Collections;
+using Laminar.Domain.Observables.Value;
 using Laminar.Domain.ValueObjects;
 using Laminar.Implementation.Extensions;
 using Laminar.PluginFramework.Registration;
@@ -10,7 +11,7 @@ using Microsoft.Extensions.Logging;
 namespace Laminar.Implementation.Base.PluginLoading;
 
 internal sealed partial class PluginManager(
-    IRuntimeHost host, 
+    IWorkspace host, 
     ISharedPluginContext context,
     IPluginLibrary library,
     IExceptionHandler exceptionHandler,
@@ -18,17 +19,30 @@ internal sealed partial class PluginManager(
     : IPluginManager
 {
     private readonly ObservableDictionary<string, IPluginInstallation> _userInstalledPluginsById = [];
+    private readonly Dictionary<string, IObservableValue<SemanticVersion?>> _pluginVersionObservables = [];
     
     public IReadOnlyObservableBag<string> UserInstalledPlugins => _userInstalledPluginsById.Keys;
 
-    public IRuntimeHost Host => host;
+    public IWorkspace Host => host;
 
-    public SemanticVersion? GetInstalledPluginVersion(string pluginId) 
+    public SemanticVersion? GetPluginVersion(string pluginId) 
         => _userInstalledPluginsById.TryGetValue(pluginId, out var plugin) ? plugin.PluginId.Version : null;
-    
+
+    public IReadOnlyObservableValue<SemanticVersion?> GetPluginVersionObservable(string pluginId)
+    {
+        if (_pluginVersionObservables.TryGetValue(pluginId, out var versionObservable))
+        {
+            return versionObservable;
+        }
+        
+        var newValue = new ObservableValue<SemanticVersion?>(GetPluginVersion(pluginId));
+        _pluginVersionObservables.Add(pluginId, newValue);
+        return newValue;
+    }
+
     public async Task<bool> EnsurePluginInstalled(VersionedPluginId pluginId)
     {
-        if (GetInstalledPluginVersion(pluginId.Name) is { } installedPluginVersion)
+        if (GetPluginVersion(pluginId.Name) is { } installedPluginVersion)
         {
             if (installedPluginVersion == pluginId.Version) return true;
             
@@ -74,6 +88,7 @@ internal sealed partial class PluginManager(
         }
         
         _userInstalledPluginsById.Add(pluginId.Name, newPlugin);
+        NotifyPluginVersionChange(pluginId.Name, pluginId.Version);
         return true;
     }
 
@@ -86,6 +101,15 @@ internal sealed partial class PluginManager(
         
         plugin.Uninstall();
         _userInstalledPluginsById.Remove(pluginId);
+        NotifyPluginVersionChange(pluginId, null);
+    }
+
+    private void NotifyPluginVersionChange(string pluginId, SemanticVersion? version)
+    {
+        if (_pluginVersionObservables.TryGetValue(pluginId, out var observable))
+        {
+            observable.Value = version;
+        }
     }
 
     [LoggerMessage(LogLevel.Trace, "Skipping dependency {DependencyId} since its frontend dependency {Frontend} is not present")]

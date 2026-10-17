@@ -1,3 +1,4 @@
+using CommunityToolkit.Mvvm.Input;
 using Laminar.Avalonia.ViewModels.Primitives;
 using Laminar.Contracts.Base;
 using Laminar.Contracts.Base.PluginLoading;
@@ -8,51 +9,40 @@ namespace Laminar.Avalonia.ViewModels;
 
 public class SettingsViewModel : ViewModelBase
 {
-    private readonly IRuntimeHostManager _runtimeHostManager;
+    private readonly IWorkspaceManager _workspaceManager;
     private readonly Dictionary<string, PluginInfoViewModel> _availablePlugins = [];
     private readonly IPluginLibrary _pluginLibrary;
     
     public SettingsViewModel(IPluginLibrary pluginLibrary,
-        IRuntimeHostManager runtimeHostManager,
+        IWorkspaceManager workspaceManager,
         IExceptionHandler exceptionHandler)
     {
-        _runtimeHostManager = runtimeHostManager;
+        _workspaceManager = workspaceManager;
         _pluginLibrary = pluginLibrary;
         AvailablePlugins = pluginLibrary.LoadedPlugins
             .ObservableMap(plugin =>
             {
-                var newPlugin = new PluginInfoViewModel(plugin, exceptionHandler, runtimeHostManager);
+                var newPlugin = new PluginInfoViewModel(plugin, exceptionHandler, workspaceManager);
                 _availablePlugins.Add(plugin.Id, newPlugin);
                 return newPlugin;
             });
         PluginSources = pluginLibrary.Sources;
-        Runtimes = runtimeHostManager.AllHosts;
-        runtimeHostManager.PluginsChanged += OnPluginsChanged;
+        Workspaces = workspaceManager.Workspaces;
+        workspaceManager.PluginsChanged += OnPluginsChanged;
     }
 
     private void OnPluginsChanged(object? sender, PluginsChangedEventArgs e)
     {
         var changedPlugin = _availablePlugins[e.PluginId];
-        
-        switch (e.ChangeType)
+        changedPlugin.EnsureWorkspaceInfosLoaded();
+        var installedPluginsContains = InstalledPlugins.Contains(changedPlugin);
+        switch (changedPlugin.IsInstalled)
         {
-            case PluginChangedType.Added:
-                changedPlugin.RegisterInstallation(e.ChangedRuntime);
-                break;
-            case PluginChangedType.Removed:
-                changedPlugin.UnregisterInstallation(e.ChangedRuntime);
-                break;
-            default:
-                throw new ArgumentOutOfRangeException();
-        }
-
-        switch (changedPlugin.Installations.Count)
-        {
-            case > 0 when !InstalledPlugins.Contains(changedPlugin):
-                InstalledPlugins.Add(changedPlugin);
-                break;
-            case 0 when InstalledPlugins.Contains(changedPlugin):
+            case true when installedPluginsContains:
                 InstalledPlugins.Remove(changedPlugin);
+                break;
+            case false when !installedPluginsContains:
+                InstalledPlugins.Add(changedPlugin);
                 break;
         }
     }
@@ -63,12 +53,12 @@ public class SettingsViewModel : ViewModelBase
 
     public IReadOnlyList<IPluginSource> PluginSources { get; }
 
-    public IReadOnlyCollection<IRuntimeHost> Runtimes { get; }
+    public IReadOnlyCollection<IWorkspace> Workspaces { get; }
 
     public ObservableList<PluginInfoViewModel> InstalledPlugins { get; } = [];
 
     protected override void OnDisposed()
     {
-        _runtimeHostManager.PluginsChanged -= OnPluginsChanged;
+        _workspaceManager.PluginsChanged -= OnPluginsChanged;
     }
 }

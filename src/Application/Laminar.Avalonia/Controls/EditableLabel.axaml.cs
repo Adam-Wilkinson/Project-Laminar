@@ -213,7 +213,7 @@ public partial class EditableLabel : UserControl
                 new Run("Invalid characters are '"),
                 .. DisallowedChars.Where(IsUserFriendlyChar)
                     .Select(c => new Run(c.ToString()) { Classes = { "Emphasis" } } )
-                    .InsertInBetween(new Run("', '")),
+                    .Weave(new Run("', '")),
                 new Run("'.")
             ],
             Classes = { "b2" }
