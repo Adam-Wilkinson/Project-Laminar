@@ -44,4 +44,6 @@ public static class MayErrorExtensions
         => mayBeNull != null ? new MayError<T>(mayBeNull) : new MayError<T>(isNullError);
     
     public static MayError<T> AsSuccess<T>(this T success) where T : notnull => new(success);
+    
+    public static T? ResultOrNull<T>(this MayError<T> mayError) where T : notnull => mayError.HasError ? default : mayError.Result;
 }

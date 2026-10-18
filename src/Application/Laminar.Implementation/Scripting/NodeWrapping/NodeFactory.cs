@@ -13,7 +13,7 @@ namespace Laminar.Implementation.Scripting.NodeWrapping;
 internal class NodeFactory(IEncodableDataFactory dataFactory, IExceptionHandler exceptionHandler) : INodeFactory
 {
     public const string PluginVersionKey = "plugin-version";
-    private const string PluginKey = "plugin";
+    public const string PluginKey = "plugin";
     private const string NodeNameKey = "type";
     
     private readonly NodeNotificationFactory _notificationFactory = new();

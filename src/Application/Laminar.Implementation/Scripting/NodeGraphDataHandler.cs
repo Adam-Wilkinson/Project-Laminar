@@ -4,6 +4,7 @@ using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Scripting.Connection;
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Contracts.Storage.PersistentData;
+using Laminar.Domain;
 using Laminar.Domain.ValueObjects;
 using Laminar.Implementation.Scripting.NodeWrapping;
 using Microsoft.Extensions.Logging;
@@ -35,8 +36,11 @@ internal class NodeGraphDataHandler(
         var nodes = nodeTreeData[WritableNodeGraph.NodeKey].GetOrCreateCollection<IPersistentDictionary>();
         foreach (var dataPoint in nodes.Values)
         {
-            if (!dataPoint.GetOrCreateCollection<IPersistentDictionary>()[NodeFactory.PluginVersionKey]
-                    .GetValue<SemanticVersion>().TryGetResult(out var versionValue, out _))
+            var nodeDictionary = dataPoint.GetOrCreateCollection<IPersistentDictionary>();
+            if (nodeDictionary[NodeFactory.PluginKey].GetValue<string>().ResultOrNull()?.Value != pluginId)
+                continue;
+            
+            if (!nodeDictionary[NodeFactory.PluginVersionKey].GetValue<SemanticVersion>().TryGetResult(out var versionValue, out _))
                 continue;
 
             versionValue.Value = newVersion;
