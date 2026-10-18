@@ -16,10 +16,10 @@ internal sealed class Script : IScript
 {
     private const string NodeTreeKey = "NodeTree";
     
-    private readonly IScriptingFactory _scriptingFactory;
+    private readonly INodeGraphDataHandler _nodeGraphDataHandler;
     private readonly IExceptionHandler _exceptionHandler;
     private readonly IExecutionManager _executionManager;
-    private readonly IDisposable _pluginsChangedSubscription;
+    private readonly IPersistentDictionary _nodeTreeData;
     
     private ScriptingContext _context;
     
@@ -28,24 +28,24 @@ internal sealed class Script : IScript
         IPersistentDictionary persistentData,
         IExecutionManager executionManager, 
         IExceptionHandler exceptionHandler,
-        IScriptingFactory scriptingFactory)
+        INodeGraphDataHandler nodeGraphDataHandler)
     {
-        _scriptingFactory = scriptingFactory;
+        _nodeGraphDataHandler = nodeGraphDataHandler;
         _exceptionHandler = exceptionHandler;
         _executionManager = executionManager;
         
         Host = runtime;
         Data = persistentData;
+        _nodeTreeData = Data[NodeTreeKey].GetOrCreateCollection<IPersistentDictionary>();
         ActionScope = runtime.ActionScope.CreateChild(new ScriptActionSimplifier());
         _context = CreateContext() ?? throw new InvalidOperationException();
         
         Pan = persistentData[nameof(Pan)].GetValueOrInitialize(new Point { X = 0, Y = 0 });
         Zoom = persistentData[nameof(Zoom)].GetValueOrInitialize(1.0);
 
-        _pluginsChangedSubscription =
-            Host.PluginManager.UserInstalledPlugins.SubscribeForEach(OnPluginsChanged, OnPluginsChanged);
+        Host.PluginManager.PluginChanged += OnPluginChanged;
     }
-    
+
     public IWorkspace Host { get; }
     
     public IUserActionScope ActionScope { get; }
@@ -64,24 +64,30 @@ internal sealed class Script : IScript
     {
         NodeGraph.Dispose();
         _context.Dispose();
-        _pluginsChangedSubscription.Dispose();
+        Host.PluginManager.PluginChanged -= OnPluginChanged;
     }
     
-    private void OnPluginsChanged(string _) => ReloadContext();
-    
-    private void ReloadContext()
+    private void OnPluginChanged(object? sender, PluginChangedEventArgs e)
     {
         _context.Dispose();
+
+        if (e.ChangeType == PluginChangedType.VersionChanged)
+        {
+            var pluginVersion = Host.PluginManager.GetPluginVersion(e.PluginId)
+                ?? throw new InvalidOperationException("Plugin version changed event fired, but it does not have a new version");
+            
+            _nodeGraphDataHandler.SetPluginVersion(_nodeTreeData, e.PluginId, pluginVersion);
+        }
+        
         _context = CreateContext();
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(NodeGraph)));
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(NodeGraph)));   
     }
 
     private ScriptingContext CreateContext()
     {
         try
         {
-            var nodeGraph = (IWritableNodeGraph)_scriptingFactory.NodeTreeFromPersistentData(
-                Data[NodeTreeKey].GetOrCreateCollection<IPersistentDictionary>());
+            var nodeGraph = (IWritableNodeGraph)_nodeGraphDataHandler.NodeTreeFromPersistentData(Host, _nodeTreeData);
             
             return new ScriptingContext(nodeGraph, _executionManager)
             {

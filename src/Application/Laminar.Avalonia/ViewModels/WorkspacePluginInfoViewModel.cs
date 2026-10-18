@@ -72,12 +72,11 @@ public partial class WorkspacePluginInfoViewModel : ViewModelBase, IChangeVersio
             return;
         }
 
-        if (InstalledVersion is not null)
+        if (TargetVersion is null)
         {
             _host.PluginManager.UninstallPlugin(_pluginId);
         }
-
-        if (TargetVersion is not null)
+        else
         {
             await _host.PluginManager.EnsurePluginInstalled(new VersionedPluginId(_pluginId, TargetVersion.Value));
         }

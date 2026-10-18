@@ -1,16 +1,8 @@
-﻿using Laminar.Contracts.Scripting.Connection;
-using Laminar.Contracts.Scripting.NodeWrapping;
-using Laminar.Contracts.Storage.PersistentData;
-using Laminar.Domain.Observables;
-using Laminar.PluginFramework.NodeSystem;
+﻿using Laminar.Contracts.Storage.PersistentData;
 
 namespace Laminar.Contracts.Scripting;
 
 public interface IScriptingFactory : IDecodingFactory<IScript, IPersistentDictionary>
 {
     IScript CreateScript();
-
-    INodeGraph CreateNodeTree(IEnumerable<INodeContainer> nodes, IEnumerable<IConnection> connections, INotificationClient<LaminarExecutionContext>? userChangedValueClient = null);
-        
-    INodeGraph NodeTreeFromPersistentData(IPersistentDictionary persistentDictionary, INotificationClient<LaminarExecutionContext>? userChangedValueClient = null);
 }

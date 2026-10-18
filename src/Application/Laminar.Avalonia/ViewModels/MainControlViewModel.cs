@@ -4,6 +4,7 @@ using Laminar.Avalonia.ViewModels.Contracts;
 using Laminar.Avalonia.ViewModels.Primitives;
 using Laminar.Avalonia.ViewModels.Services;
 using Laminar.Contracts.Base;
+using Laminar.Contracts.Base.PluginLoading;
 using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Storage.FileExplorer;
 using Laminar.Domain;
@@ -29,7 +30,7 @@ public partial class MainControlViewModel : ViewModelBase, IOpenFileService
         
         CentralFileEditor.PropertyChanged += CentralFileEditorOnPropertyChanged;
         _focusedWorkspaceManager.FocusedWorkspaceChanged += OnFocusedWorkspaceChanged;
-        _workspaceManager.PluginsChanged += OnPluginsChanged;
+        _workspaceManager.PluginChanged += OnPluginChanged;
         
         OnExpandedSidebarWidthChanged(ExpandedSidebarWidth);
     }
@@ -82,7 +83,7 @@ public partial class MainControlViewModel : ViewModelBase, IOpenFileService
     protected override void OnDisposed()
     {
         CentralFileEditor.PropertyChanged -= CentralFileEditorOnPropertyChanged;
-        _workspaceManager.PluginsChanged -= OnPluginsChanged;
+        _workspaceManager.PluginChanged -= OnPluginChanged;
         _focusedWorkspaceManager.FocusedWorkspaceChanged -= OnFocusedWorkspaceChanged;
     }
 
@@ -109,5 +110,5 @@ public partial class MainControlViewModel : ViewModelBase, IOpenFileService
 
     private void OnFocusedWorkspaceChanged(object? sender, EventArgs e) => RefreshLoadedNodes();
 
-    private void OnPluginsChanged(object? sender, PluginsChangedEventArgs e) => RefreshLoadedNodes();
+    private void OnPluginChanged(object? sender, PluginChangedEventArgs e) => RefreshLoadedNodes();
 }

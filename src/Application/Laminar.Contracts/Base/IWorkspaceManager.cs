@@ -9,20 +9,5 @@ public interface IWorkspaceManager
     
     public IWorkspace CreateWorkspace(string name);
 
-    public event EventHandler<PluginsChangedEventArgs>? PluginsChanged;
-}
-
-public class PluginsChangedEventArgs : EventArgs
-{
-    public required IWorkspace ChangedWorkspace { get; init; }
-    
-    public required string PluginId { get; init; }
-    
-    public required PluginChangedType ChangeType { get; init; } 
-}
-
-public enum PluginChangedType
-{
-    Added,
-    Removed
+    public event PluginChangedEventHandler? PluginChanged;
 }

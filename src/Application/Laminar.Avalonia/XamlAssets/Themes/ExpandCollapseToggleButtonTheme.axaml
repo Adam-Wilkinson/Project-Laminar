@@ -15,7 +15,7 @@
                           VerticalAlignment="Center"
                           Height="30"
                           Width="30">
-                        <c:ExpandCollapseChevron VerticalAlignment="Center" HorizontalAlignment="Center" Height="30" IsExpanded="{TemplateBinding IsChecked}"/>
+                        <c:ExpandCollapseChevron VerticalAlignment="Center" HorizontalAlignment="Center" Height="20" IsExpanded="{TemplateBinding IsChecked}"/>
                     </Border>
                     <ContentPresenter Name="PART_ContentPresenter"
                                     ContentTemplate="{TemplateBinding ContentTemplate}"

@@ -1,21 +1,15 @@
 using Laminar.Contracts.Base;
 using Laminar.Contracts.Base.PluginLoading;
-using Laminar.Domain.Exceptions;
 using Laminar.Domain.Observables.Collections;
 using Laminar.Domain.Observables.Value;
 using Laminar.Domain.ValueObjects;
-using Laminar.Implementation.Extensions;
-using Laminar.PluginFramework.Registration;
-using Microsoft.Extensions.Logging;
 
 namespace Laminar.Implementation.Base.PluginLoading;
 
-internal sealed partial class PluginManager(
+internal sealed class PluginManager(
     IWorkspace host, 
-    ISharedPluginContext context,
     IPluginLibrary library,
-    IExceptionHandler exceptionHandler,
-    ILogger<PluginManager> logger) 
+    IExceptionHandler exceptionHandler) 
     : IPluginManager
 {
     private readonly ObservableDictionary<string, IPluginInstallation> _userInstalledPluginsById = [];
@@ -25,6 +19,8 @@ internal sealed partial class PluginManager(
 
     public IWorkspace Host => host;
 
+    public event PluginChangedEventHandler? PluginChanged;
+    
     public SemanticVersion? GetPluginVersion(string pluginId) 
         => _userInstalledPluginsById.TryGetValue(pluginId, out var plugin) ? plugin.PluginId.Version : null;
 
@@ -42,53 +38,38 @@ internal sealed partial class PluginManager(
 
     public async Task<bool> EnsurePluginInstalled(VersionedPluginId pluginId)
     {
-        if (GetPluginVersion(pluginId.Name) is { } installedPluginVersion)
+        var oldVersion = GetPluginVersion(pluginId.Name);
+        if (oldVersion is { } installedPluginVersion && installedPluginVersion == pluginId.Version)
         {
-            if (installedPluginVersion == pluginId.Version) return true;
-            
-            await exceptionHandler.OnExceptionAsync(new InvalidOperationException($"Cannot install plugin {pluginId.Name} version {pluginId.Version} because version {installedPluginVersion} is already installed"));
-            return false;
-
+            return true;
         }
 
         if (await library.GetPluginSourceOrNull(pluginId) is not { } pluginSource)
         {
-            logger.LogError("Plugin library could not find plugin {PluginId}", pluginId);
+            await exceptionHandler.OnExceptionAsync(new Exception($"Plugin library could not find plugin {pluginId}"));
             return false;
         }
 
-        var manifest = await pluginSource.GetManifest(pluginId);
-        List<VersionedPluginId> installedDependencies = [];
-        foreach (var (dependencyId, frontend) in manifest.GetDependencies())
+        if (oldVersion.HasValue)
         {
-            if (frontend is not FrontendDependency.None && context.FrontendDependency != frontend)
-            {
-                LogSkippingDependency(dependencyId, frontend);
-                continue;
-            }
-
-            if (!await EnsurePluginInstalled(dependencyId))
-            {
-                while (installedDependencies.Count > 0)
-                {
-                    UninstallPlugin(installedDependencies.First().Name);
-                }
-                
-                await exceptionHandler.OnExceptionAsync(new DependentPluginNotFoundException(pluginId, dependencyId));
-                return false;
-            }
-            
-            installedDependencies.Add(dependencyId);
+            UninstallPlugin(pluginId.Name);
         }
         
         if (!(await pluginSource.InstallPlugin(pluginId, Host)).TryGetResult(out var newPlugin, out var ex))
         {
+            if (oldVersion.HasValue && !await EnsurePluginInstalled(pluginId with { Version = oldVersion.Value }))
+            {
+                await exceptionHandler.OnExceptionAsync(
+                    new Exception("Unable to install new plugin version or roll back to old version", ex));
+                return false;
+            }
+            
             await exceptionHandler.OnExceptionAsync(ex);
             return false;
         }
         
         _userInstalledPluginsById.Add(pluginId.Name, newPlugin);
-        NotifyPluginVersionChange(pluginId.Name, pluginId.Version);
+        NotifyPluginVersionChange(pluginId.Name, oldVersion, pluginId.Version);
         return true;
     }
 
@@ -101,17 +82,26 @@ internal sealed partial class PluginManager(
         
         plugin.Uninstall();
         _userInstalledPluginsById.Remove(pluginId);
-        NotifyPluginVersionChange(pluginId, null);
+        NotifyPluginVersionChange(pluginId, plugin.PluginId.Version, null);
     }
 
-    private void NotifyPluginVersionChange(string pluginId, SemanticVersion? version)
+    private void NotifyPluginVersionChange(string pluginId, SemanticVersion? oldVersion, SemanticVersion? newVersion)
     {
+        PluginChanged?.Invoke(this, new PluginChangedEventArgs
+        {
+            ChangedWorkspace = Host,
+            PluginId = pluginId,
+            ChangeType = (oldVersion, newVersion) switch
+            {
+                (null, _) => PluginChangedType.Added,
+                (_, null) => PluginChangedType.Removed,
+                (_, _) => PluginChangedType.VersionChanged,
+            }
+        });
+        
         if (_pluginVersionObservables.TryGetValue(pluginId, out var observable))
         {
-            observable.Value = version;
+            observable.Value = newVersion;
         }
     }
-
-    [LoggerMessage(LogLevel.Trace, "Skipping dependency {DependencyId} since its frontend dependency {Frontend} is not present")]
-    partial void LogSkippingDependency(VersionedPluginId dependencyId, FrontendDependency frontend);
 }

@@ -10,7 +10,6 @@ internal sealed class WorkspaceManager(IServiceProvider serviceProvider, IUserAc
     : IWorkspaceManager, IDisposable
 {
     private readonly ObservableList<IWorkspace> _hosts = [];
-    private readonly CompositeDisposable _disposables = new();
 
     public IReadOnlyObservableList<IWorkspace> Workspaces => _hosts;
 
@@ -22,35 +21,20 @@ internal sealed class WorkspaceManager(IServiceProvider serviceProvider, IUserAc
         };
         
         _hosts.Add(newHost);
-        _disposables.Add(newHost.PluginManager.UserInstalledPlugins.SubscribeForEach(HostPluginAdded, HostPluginRemoved));
-
+        newHost.PluginManager.PluginChanged += PluginManagerOnPluginChanged;
         return newHost;
-
-        void HostPluginAdded(string plugin)
-        {
-            PluginsChanged?.Invoke(this, new PluginsChangedEventArgs
-            {
-                ChangedWorkspace = newHost,
-                PluginId = plugin,
-                ChangeType = PluginChangedType.Added
-            });
-        }
-        
-        void HostPluginRemoved(string plugin)
-        {
-            PluginsChanged?.Invoke(this, new PluginsChangedEventArgs
-            {
-                ChangedWorkspace = newHost,
-                PluginId = plugin,
-                ChangeType = PluginChangedType.Removed
-            });
-        }
     }
 
-    public event EventHandler<PluginsChangedEventArgs>? PluginsChanged;
+    private void PluginManagerOnPluginChanged(object? sender, PluginChangedEventArgs e)
+    {
+        PluginChanged?.Invoke(sender, e);
+    }
+
+    public event PluginChangedEventHandler? PluginChanged;
 
     public void Dispose()
     {
-        _disposables.Dispose();
+        foreach (var  host in _hosts)
+            host.PluginManager.PluginChanged -= PluginManagerOnPluginChanged;
     }
 }

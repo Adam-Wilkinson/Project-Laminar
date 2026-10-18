@@ -10,10 +10,10 @@ using Laminar.PluginFramework.UserInterface.UserInterfaceDefinitions;
 
 namespace Laminar.Implementation.Scripting.NodeWrapping;
 
-public class NodeFactory(IEncodableDataFactory dataFactory, IExceptionHandler exceptionHandler) : INodeFactory
+internal class NodeFactory(IEncodableDataFactory dataFactory, IExceptionHandler exceptionHandler) : INodeFactory
 {
+    public const string PluginVersionKey = "plugin-version";
     private const string PluginKey = "plugin";
-    private const string PluginVersionKey = "plugin-version";
     private const string NodeNameKey = "type";
     
     private readonly NodeNotificationFactory _notificationFactory = new();

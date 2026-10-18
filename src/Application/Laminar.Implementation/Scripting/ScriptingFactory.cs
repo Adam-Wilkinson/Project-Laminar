@@ -16,23 +16,13 @@ internal class ScriptingFactory(
     IWorkspace host,
     IExecutionManager executionManager,
     IEncodableDataFactory dataFactory,
-    IExceptionHandler exceptionHandler,
-    ILogger<WritableNodeGraph> logger)
+    INodeGraphDataHandler nodeGraphDataHandler,
+    IExceptionHandler exceptionHandler)
     : IScriptingFactory
 {
     public IScript CreateScript() 
-        => new Script(host, dataFactory.GetEncodableData<IPersistentDictionary>(), executionManager, exceptionHandler, this);
+        => new Script(host, dataFactory.GetEncodableData<IPersistentDictionary>(), executionManager, exceptionHandler, nodeGraphDataHandler);
 
     public IScript FromPersistentData(IPersistentDictionary persistentDictionary) 
-        => new Script(host, persistentDictionary, executionManager, exceptionHandler, this);
-
-    public INodeGraph CreateNodeTree(IEnumerable<INodeContainer> nodes, IEnumerable<IConnection> connections,
-        INotificationClient<LaminarExecutionContext>? userChangedValueClient = null)
-        => new WritableNodeGraph(dataFactory.GetEncodableData<IPersistentDictionary>(), host, logger,
-            exceptionHandler, nodes, connections);
-
-    public INodeGraph NodeTreeFromPersistentData(
-        IPersistentDictionary persistentDictionary,
-        INotificationClient<LaminarExecutionContext>? userChangedValueClient = null) 
-        => new WritableNodeGraph(persistentDictionary, host, logger, exceptionHandler);
+        => new Script(host, persistentDictionary, executionManager, exceptionHandler, nodeGraphDataHandler);
 }

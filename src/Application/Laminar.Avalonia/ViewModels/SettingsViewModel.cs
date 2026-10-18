@@ -28,10 +28,10 @@ public class SettingsViewModel : ViewModelBase
             });
         PluginSources = pluginLibrary.Sources;
         Workspaces = workspaceManager.Workspaces;
-        workspaceManager.PluginsChanged += OnPluginsChanged;
+        workspaceManager.PluginChanged += OnPluginChanged;
     }
 
-    private void OnPluginsChanged(object? sender, PluginsChangedEventArgs e)
+    private void OnPluginChanged(object? sender, PluginChangedEventArgs e)
     {
         var changedPlugin = _availablePlugins[e.PluginId];
         changedPlugin.EnsureWorkspaceInfosLoaded();
@@ -59,6 +59,6 @@ public class SettingsViewModel : ViewModelBase
 
     protected override void OnDisposed()
     {
-        _workspaceManager.PluginsChanged -= OnPluginsChanged;
+        _workspaceManager.PluginChanged -= OnPluginChanged;
     }
 }

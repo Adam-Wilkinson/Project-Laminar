@@ -16,18 +16,15 @@ namespace Laminar.Implementation.Extensions.ServiceInitializers;
 
 internal static class ScriptingServices
 {
-    public static IServiceCollection AddScriptingServices(this IServiceCollection serviceCollection)
-    {
-        serviceCollection.AddSingleton<INodeFactory, NodeFactory>();
-        serviceCollection.AddSingleton<INodeComponentFactory, NodeComponentFactory>();
-        serviceCollection.AddSingleton<INodeIOFactory, NodeIOFactory>();
+    public static IServiceCollection AddScriptingServices(this IServiceCollection serviceCollection) => serviceCollection
+        .AddSingleton<INodeFactory, NodeFactory>()
+        .AddSingleton<INodeComponentFactory, NodeComponentFactory>()
+        .AddSingleton<INodeIOFactory, NodeIOFactory>()
+        .AddSingleton<INodeGraphDataHandler, NodeGraphDataHandler>()
+            
+        .AddSingleton<IScriptEditor, ScriptEditor>()
+        .AddSingleton<IExecutionManager, ExecutionManager>()
+        .AddSingleton<IExecutionOrderFinder, ExecutionOrderFinder>()
 
-        serviceCollection.AddScoped<IScriptEditor, ScriptEditor>();
-        serviceCollection.AddSingleton<IExecutionManager, ExecutionManager>();
-        serviceCollection.AddSingleton<IExecutionOrderFinder, ExecutionOrderFinder>();
-
-        serviceCollection.AddSingleton<IConnectionBridger, DefaultConnectionBridger>();
-        
-        return serviceCollection;
-    }
+        .AddSingleton<IConnectionBridger, DefaultConnectionBridger>();
 }

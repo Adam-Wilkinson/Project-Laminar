@@ -161,17 +161,24 @@ public partial class PluginInfoViewModel : ViewModelBase, IVersioningHost, IChan
         var hasInstallations = false;
         var hasUpgrades = false;
         var hasDowngrades = false;
+        if (!IsInstalled) return RelativeVersionState.Install;
+        
         foreach (var workspacePluginInfo in Workspaces)
         {
             if (workspacePluginInfo.InstalledVersion is not { } installedVersion)
                 continue;
             
             hasInstallations = true;
-            hasUpgrades &= installedVersion < TargetVersion;
-            hasDowngrades &= installedVersion > TargetVersion;
+            hasUpgrades |= installedVersion < TargetVersion;
+            hasDowngrades |= installedVersion > TargetVersion;
         }
 
-        if (!hasInstallations) return RelativeVersionState.Install;
+        if (!hasInstallations)
+        {
+            IsInstalled = false;
+            return RelativeVersionState.Install;
+        }
+        
         return (hasUpgrades, hasDowngrades) switch
         {
             (false, false) => RelativeVersionState.Equal,

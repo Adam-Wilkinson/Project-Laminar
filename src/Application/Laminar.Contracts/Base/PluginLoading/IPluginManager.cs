@@ -10,6 +10,8 @@ public interface IPluginManager
     
     public IReadOnlyObservableBag<string> UserInstalledPlugins { get; }
     
+    public event PluginChangedEventHandler? PluginChanged;
+    
     public Task<bool> EnsurePluginInstalled(VersionedPluginId pluginId);
     
     public void UninstallPlugin(string pluginId);

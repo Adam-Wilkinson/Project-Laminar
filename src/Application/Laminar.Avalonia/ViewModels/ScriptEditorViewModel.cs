@@ -9,7 +9,6 @@ using Laminar.Avalonia.DragDrop;
 using Laminar.Avalonia.SelectAndMove;
 using Laminar.Avalonia.ViewModels.Contracts;
 using Laminar.Avalonia.ViewModels.Primitives;
-using Laminar.Avalonia.ViewModels.Services;
 using Laminar.Contracts.Base.ActionSystem;
 using Laminar.Contracts.Base.PluginLoading;
 using Laminar.Contracts.Scripting;
@@ -23,7 +22,6 @@ using Laminar.Implementation.Storage.PersistentData;
 using Laminar.PluginFramework.NodeSystem.Connectors;
 using LaminarPoint = Laminar.Domain.ValueObjects.Point;
 using AvaloniaPoint = Avalonia.Point;
-using UndoRedoHandler = Laminar.Avalonia.ViewModels.Contracts.UndoRedoHandler;
 
 namespace Laminar.Avalonia.ViewModels;
 
@@ -31,6 +29,7 @@ public partial class ScriptEditorViewModel(
     IScript script, 
     IScriptEditor editor,
     IEncodableDataFactory dataFactory,
+    INodeGraphDataHandler nodeGraphDataHandler,
     Option<IClipboard> optionalClipboard)
     : ViewModelBase(script), IDropTarget, IUndoRedoScope, IConnectionInteractionHandler, IClipboardProvider
 {
@@ -205,8 +204,8 @@ public partial class ScriptEditorViewModel(
             }
         }
         
-        var encodedNodeTree = script.Host.ScriptingFactory
-            .CreateNodeTree(selectedNodes, selectedConnections)
+        var encodedNodeTree = nodeGraphDataHandler
+            .CreateNodeTree(script.Host, selectedNodes, selectedConnections)
             .PersistentData
             .Encode(DefaultClipboardTranscoder);
         
@@ -240,7 +239,7 @@ public partial class ScriptEditorViewModel(
             if (string.IsNullOrWhiteSpace(stringResult)) continue;
             var dictionary = dataFactory.GetEncodableData<IPersistentDictionary>();
             dictionary.Decode(DefaultClipboardTranscoder, DefaultClipboardTranscoder.BytesToElement(Encoding.UTF8.GetBytes(stringResult))!);
-            var deserializedNodeTree = script.Host.ScriptingFactory.NodeTreeFromPersistentData(dictionary);
+            var deserializedNodeTree = nodeGraphDataHandler.NodeTreeFromPersistentData(script.Host, dictionary);
             var pasteAction = editor.AddSubTree(script, deserializedNodeTree);
             await script.ActionScope.ExecuteAction(pasteAction);
         }
