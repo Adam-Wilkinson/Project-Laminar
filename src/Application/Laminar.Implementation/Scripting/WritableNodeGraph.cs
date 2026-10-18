@@ -17,7 +17,7 @@ namespace Laminar.Implementation.Scripting;
 
 internal class WritableNodeGraph : IWritableNodeGraph
 {
-    public const string NodeKey = "Nodes";
+    public const string NodeCollectionKey = "Nodes";
     
     private readonly ILogger<WritableNodeGraph> _logger;
     
@@ -40,7 +40,7 @@ internal class WritableNodeGraph : IWritableNodeGraph
         PersistentData = persistentDictionary;
         _logger = logger;
 
-        _persistentNodes = persistentDictionary[NodeKey].GetOrCreateCollection<IPersistentDictionary>();
+        _persistentNodes = persistentDictionary[NodeCollectionKey].GetOrCreateCollection<IPersistentDictionary>();
         foreach (var (key, dataPoint) in _persistentNodes)
         {
             AddNode(workspace.NodeManager.CreateNode(dataPoint.GetOrCreateCollection<IPersistentDictionary>()), key);

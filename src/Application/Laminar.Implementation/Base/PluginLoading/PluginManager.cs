@@ -50,9 +50,10 @@ internal sealed class PluginManager(
             return false;
         }
 
-        if (oldVersion.HasValue)
+        if (_userInstalledPluginsById.TryGetValue(pluginId.Name, out var plugin))
         {
-            UninstallPlugin(pluginId.Name);
+            plugin.Uninstall();
+            _userInstalledPluginsById.Remove(pluginId.Name);
         }
         
         if (!(await pluginSource.InstallPlugin(pluginId, Host)).TryGetResult(out var newPlugin, out var ex))
@@ -68,7 +69,7 @@ internal sealed class PluginManager(
             return false;
         }
         
-        _userInstalledPluginsById.Add(pluginId.Name, newPlugin);
+        _userInstalledPluginsById[pluginId.Name] = newPlugin;
         NotifyPluginVersionChange(pluginId.Name, oldVersion, pluginId.Version);
         return true;
     }

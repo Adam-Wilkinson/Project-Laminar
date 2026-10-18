@@ -33,7 +33,7 @@ internal class NodeGraphDataHandler(
         string pluginId,
         SemanticVersion newVersion)
     {
-        var nodes = nodeTreeData[WritableNodeGraph.NodeKey].GetOrCreateCollection<IPersistentDictionary>();
+        var nodes = nodeTreeData[WritableNodeGraph.NodeCollectionKey].GetOrCreateCollection<IPersistentDictionary>();
         foreach (var dataPoint in nodes.Values)
         {
             var nodeDictionary = dataPoint.GetOrCreateCollection<IPersistentDictionary>();
