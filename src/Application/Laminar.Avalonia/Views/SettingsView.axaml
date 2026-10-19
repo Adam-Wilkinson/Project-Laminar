@@ -93,7 +93,7 @@
 		</TabItem>
 		
 		<TabItem Header="Plugins">
-			<ScrollViewer>
+			<ScrollViewer Grid.IsSharedSizeScope="True">
 				<StackPanel Spacing="10">
 					<GroupBox Header="{e:Translate {x:Static lang:Strings.PluginSources}}">
 						<ItemsControl ItemsSource="{Binding PluginSources}">

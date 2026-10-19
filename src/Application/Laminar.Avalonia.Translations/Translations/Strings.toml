@@ -65,6 +65,7 @@ PluginDoesNotContainNode = "The plugin {0} does not contain a node of this type"
 ErrorCreatingNode = "Unknown error creating node {0}"
 DeleteNode = "Delete"
 
+IsMinimumVersion = "Minimum installed version. Expand for details"
 
 RuntimeLoadingPlugin = "Loading plugin {0}"
 RuntimePluginNotFound = "Plugin not found: {0}"

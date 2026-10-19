@@ -52,6 +52,8 @@ public partial class PluginInfoViewModel : ViewModelBase, IVersioningHost, IChan
 
     [ObservableProperty] public partial SemanticVersion? TargetVersion { get; set; }
 
+    [ObservableProperty] public partial SemanticVersion? MinimumInstalledVersion { get; private set; }
+
     [ObservableProperty] public partial string TargetVersionName { get; set; }
 
     [ObservableProperty] public partial string Description { get; set; } = "";
@@ -65,7 +67,20 @@ public partial class PluginInfoViewModel : ViewModelBase, IVersioningHost, IChan
     public void OnInstalledVersionsChanged()
     {
         EnsureWorkspaceInfosLoaded();
-        IsInstalled = _workspacePluginInfos.Values.Any(x => x.InstalledVersion is not null);
+        SemanticVersion? minimumVersion = null;
+        foreach (var workspacePluginInfo in _workspacePluginInfos.Values)
+        {
+            if (workspacePluginInfo.InstalledVersion is not { } installed)
+                continue;
+
+            if (minimumVersion is null || installed < minimumVersion.Value)
+            {
+                minimumVersion = installed;
+            }
+        }
+
+        MinimumInstalledVersion = minimumVersion;
+        IsInstalled = minimumVersion is not null;
         SetVersionType = ComputeChangeVersionType();
     }
     

@@ -8,9 +8,14 @@
         <Border Classes="UiLayer" Padding="3">
             <StackPanel>
                 <Grid RowDefinitions="Auto"
-                      ColumnDefinitions="*,*,Auto,Auto"
                       ColumnSpacing="3"
                       HorizontalAlignment="Stretch">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto" SharedSizeGroup="InstallButton"/>
+                        <ColumnDefinition Width="Auto" SharedSizeGroup="RemoveButton"/>
+                    </Grid.ColumnDefinitions>
                     
                     <ToggleButton Name="ExpandToggle" Grid.Column="0" Grid.Row="0" 
                                   Theme="{StaticResource Themes.ExpandCollapseToggleButton}"
@@ -18,9 +23,16 @@
                                   HorizontalAlignment="Stretch"
                                   Padding="2"
                                   IsChecked="{Binding IsExpanded, Mode=TwoWay}">
-                        <TextBlock Text="{Binding TargetVersionName}"
-                                   VerticalAlignment="Center"
-                                   Classes="h2"/>
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <TextBlock Text="{Binding TargetVersionName}"
+                                       VerticalAlignment="Center"
+                                       Classes="h2"/>
+                            <TextBlock Text="{Binding MinimumInstalledVersion, StringFormat='({0})'}"
+                                       Classes="h2"
+                                       VerticalAlignment="Center"
+                                       IsVisible="{Binding MinimumInstalledVersion, Converter={StaticResource HasValueConverter}}"
+                                       ToolTip.Tip="{e:Translate {x:Static lang:Strings.IsMinimumVersion}}"/>
+                        </StackPanel>
                     </ToggleButton>
                     
                     <ComboBox Grid.Row="0" Grid.Column="1" 
@@ -63,7 +75,7 @@
                                       Margin="10,0">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Grid RowDefinitions="Auto" ColumnDefinitions="*,*,Auto,Auto">
+                                    <Grid RowDefinitions="Auto" ColumnDefinitions="2*,*,Auto,Auto">
                                         <TextBlock Grid.Column="0" Text="{Binding HostName}"/>
                                         <TextBlock Grid.Column="1" Text="{Binding InstalledVersion}"/>
                                         <Border Grid.Column="2"
