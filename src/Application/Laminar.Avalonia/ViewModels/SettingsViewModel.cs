@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Laminar.Avalonia.ViewModels.Primitives;
 using Laminar.Contracts.Base;
@@ -10,6 +11,7 @@ namespace Laminar.Avalonia.ViewModels;
 public class SettingsViewModel : ViewModelBase
 {
     private readonly IWorkspaceManager _workspaceManager;
+    private readonly IExceptionHandler _exceptionHandler;
     private readonly Dictionary<string, PluginInfoViewModel> _availablePlugins = [];
     private readonly IPluginLibrary _pluginLibrary;
     
@@ -18,33 +20,12 @@ public class SettingsViewModel : ViewModelBase
         IExceptionHandler exceptionHandler)
     {
         _workspaceManager = workspaceManager;
+        _exceptionHandler = exceptionHandler;
         _pluginLibrary = pluginLibrary;
-        AvailablePlugins = pluginLibrary.LoadedPlugins
-            .ObservableMap(plugin =>
-            {
-                var newPlugin = new PluginInfoViewModel(plugin, exceptionHandler, workspaceManager);
-                _availablePlugins.Add(plugin.Id, newPlugin);
-                return newPlugin;
-            });
+        AvailablePlugins = pluginLibrary.LoadedPlugins.ObservableMap(PluginInfoFactory);
         PluginSources = pluginLibrary.Sources;
         Workspaces = workspaceManager.Workspaces;
         workspaceManager.PluginChanged += OnPluginChanged;
-    }
-
-    private void OnPluginChanged(object? sender, PluginChangedEventArgs e)
-    {
-        var changedPlugin = _availablePlugins[e.PluginId];
-        changedPlugin.EnsureWorkspaceInfosLoaded();
-        var installedPluginsContains = InstalledPlugins.Contains(changedPlugin);
-        switch (changedPlugin.IsInstalled)
-        {
-            case true when installedPluginsContains:
-                InstalledPlugins.Remove(changedPlugin);
-                break;
-            case false when !installedPluginsContains:
-                InstalledPlugins.Add(changedPlugin);
-                break;
-        }
     }
 
     public string PluginFrameworkVersion => PluginFrameworkInfo.Version;
@@ -61,4 +42,36 @@ public class SettingsViewModel : ViewModelBase
     {
         _workspaceManager.PluginChanged -= OnPluginChanged;
     }
+    
+    private PluginInfoViewModel PluginInfoFactory(IPluginInfo plugin)
+    {
+        var newPlugin = new PluginInfoViewModel(plugin, _exceptionHandler, _workspaceManager);
+        newPlugin.PropertyChanged += OnPluginPropertyChanged;
+        if (newPlugin.IsInstalled)
+        {
+            InstalledPlugins.Add(newPlugin);
+        }
+
+        _availablePlugins.Add(plugin.Id, newPlugin);
+        return newPlugin;
+    }
+
+    private void OnPluginPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (sender is not PluginInfoViewModel changedPlugin 
+            || e.PropertyName != nameof(PluginInfoViewModel.IsInstalled)) return;
+        
+        switch (changedPlugin.IsInstalled)
+        {
+            case true when !InstalledPlugins.Contains(changedPlugin):
+                InstalledPlugins.Add(changedPlugin);
+                break;
+            case false when InstalledPlugins.Contains(changedPlugin):
+                InstalledPlugins.Remove(changedPlugin);
+                break;
+        }
+    }
+
+    private void OnPluginChanged(object? sender, PluginChangedEventArgs e) 
+        => _availablePlugins[e.PluginId].OnInstalledVersionsChanged();
 }

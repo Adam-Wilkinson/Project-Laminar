@@ -10,8 +10,7 @@ public class MapListConverter : IValueConverter
 {
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        if (value is not IEnumerable<object> inputEnumerable ||
-            parameter is not IValueConverter itemConverter)
+        if (value is not IEnumerable<object> inputEnumerable || parameter is not IValueConverter itemConverter)
         {
             return new BindingNotification(new InvalidCastException(), BindingErrorType.Error);
         }

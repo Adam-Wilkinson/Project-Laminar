@@ -61,7 +61,7 @@ internal sealed class PluginManager(
             if (oldVersion.HasValue && !await EnsurePluginInstalled(pluginId with { Version = oldVersion.Value }))
             {
                 await exceptionHandler.OnExceptionAsync(
-                    new Exception("Unable to install new plugin version or roll back to old version", ex));
+                    new Exception($"Unable to install new plugin '{pluginId.Name}' version {pluginId.Version} or roll back to old version {oldVersion}. It has been uninstalled.", ex));
                 return false;
             }
             

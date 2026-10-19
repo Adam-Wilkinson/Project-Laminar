@@ -14,7 +14,7 @@ public class NotificationDisplay : TemplatedControl
 {
     public static readonly StyledProperty<NotificationSeverity> DisplayedSeverityProperty = AvaloniaProperty.Register<NotificationDisplay, NotificationSeverity>(nameof(DisplayedSeverity));
     
-    public static readonly StyledProperty<IReadOnlyList<NotificationDisplayItem>> NotificationsProperty = AvaloniaProperty.Register<NotificationDisplay, IReadOnlyList<NotificationDisplayItem>>(nameof(Notifications));
+    public static readonly StyledProperty<IReadOnlyList<object>> NotificationsProperty = AvaloniaProperty.Register<NotificationDisplay, IReadOnlyList<object>>(nameof(Notifications), []);
 
     private Button? _mainButton;
 
@@ -29,7 +29,7 @@ public class NotificationDisplay : TemplatedControl
         set => SetValue(DisplayedSeverityProperty, value);
     }
 
-    public IReadOnlyList<NotificationDisplayItem> Notifications
+    public IReadOnlyList<object> Notifications
     {
         get => GetValue(NotificationsProperty);
         set => SetValue(NotificationsProperty, value);
@@ -38,10 +38,15 @@ public class NotificationDisplay : TemplatedControl
     public void AutoResolveAll()
     {
         if (_mainButton?.Flyout?.IsOpen is true) return;
-        
-        while (Notifications.Count > 0)
+
+        int skipped = 0;
+        while (Notifications.Count > skipped)
         {
-            Notifications[0].Resolutions[Notifications[0].AutoResolveIndex].Resolve();
+            if (Notifications[skipped] is not NotificationDisplayItem item
+                || !item.Resolutions[item.AutoResolveIndex].Resolve())
+            {
+                skipped++;
+            }
         }
     }
 
@@ -53,7 +58,7 @@ public class NotificationDisplay : TemplatedControl
     
     private void NotificationsChanged(AvaloniaPropertyChangedEventArgs args)
     {
-        var (oldVal, newVal) = args.GetOldAndNewValue<IReadOnlyList<NotificationDisplayItem>>();
+        var (oldVal, newVal) = args.GetOldAndNewValue<IReadOnlyList<object>>();
 
         if (oldVal is INotifyCollectionChanged oldCollection)
         {
@@ -108,9 +113,14 @@ public record NotificationDisplayItem
     public ICommand? Dismiss { get; init; }
 }
 
-public record NotificationResolution(string Message, Action Resolution)
+public record NotificationResolution(string Message, Action? Resolution)
 {
-    public void Resolve() => Resolution();
+    public bool Resolve()
+    {
+        if (Resolution is null) return false;
+        Resolution.Invoke();
+        return true;
+    }
 
     public bool IsHovered { get; set; } = false;
 }
