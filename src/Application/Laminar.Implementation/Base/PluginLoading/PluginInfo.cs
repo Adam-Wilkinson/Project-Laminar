@@ -8,7 +8,10 @@ namespace Laminar.Implementation.Base.PluginLoading;
 
 internal class PluginInfo(string id) : IPluginInfo
 {
-    private readonly SortedList<SemanticVersion, IList<IPluginSource>> _versions = [];
+    private static readonly Comparer<SemanticVersion> ReverseDirectionComparer =
+        Comparer<SemanticVersion>.Create((x, y) => y.CompareTo(x)); 
+    
+    private readonly SortedList<SemanticVersion, IList<IPluginSource>> _versions = new(ReverseDirectionComparer);
     private readonly ObservableList<SemanticVersion> _allVersions = [];
     private readonly ObservableValue<SemanticVersion?> _latestVersion = new(null);
     
@@ -21,9 +24,6 @@ internal class PluginInfo(string id) : IPluginInfo
     public bool HasVersion(SemanticVersion version, [NotNullWhen(true)] out IList<IPluginSource>? sources) 
         => _versions.TryGetValue(version, out sources);
 
-    public Task InstallVersion(SemanticVersion version, IWorkspace host) 
-        => host.PluginManager.EnsurePluginInstalled(new VersionedPluginId(Id, version));
-
     public void AddVersion(SemanticVersion version, IPluginSource source)
     {
         if (_versions.TryGetValue(version, out var sources))
@@ -34,7 +34,7 @@ internal class PluginInfo(string id) : IPluginInfo
 
         _versions.Add(version, [source]);
         _allVersions.Insert(_versions.IndexOfKey(version), version);
-        _latestVersion.Value = _versions.GetKeyAtIndex(_versions.Count - 1);
+        _latestVersion.Value = _versions.GetKeyAtIndex(0);
     }
 
     public void RemoveVersion(SemanticVersion version, IPluginSource sourceSource)
@@ -50,6 +50,6 @@ internal class PluginInfo(string id) : IPluginInfo
         var versionIndex = _versions.IndexOfKey(version);
         _versions.Remove(version);
         _allVersions.RemoveAt(versionIndex);
-        _latestVersion.Value = _versions.GetKeyAtIndex(_versions.Count - 1);
+        _latestVersion.Value = _versions.GetKeyAtIndex(0);
     }
 }

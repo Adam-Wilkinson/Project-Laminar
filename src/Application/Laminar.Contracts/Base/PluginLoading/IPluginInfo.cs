@@ -14,6 +14,4 @@ public interface IPluginInfo
     public IReadOnlyObservableValue<SemanticVersion?> LatestVersion { get; }
 
     public bool HasVersion(SemanticVersion version, [NotNullWhen(true)] out IList<IPluginSource>? sources);
-    
-    public Task InstallVersion(SemanticVersion version, IWorkspace host);
 }
