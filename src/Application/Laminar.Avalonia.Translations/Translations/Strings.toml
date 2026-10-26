@@ -71,4 +71,10 @@ RuntimeLoadingPlugin = "Loading plugin {0}"
 RuntimePluginNotFound = "Plugin not found: {0}"
 LoadingFolderContents = "Loading folder contents..."
 
+UpgradeAllPlugins = "Upgrade all plugins"
+SetAllPlugins = "Set all plugins to selected versions"
+AllPluginsUpToDate = "All plugins are up to date"
+ShowPluginSources = "Show plugin sources"
+HidePluginSources = "Hide plugin sources"
+
 DismissNotification = "Dismiss"

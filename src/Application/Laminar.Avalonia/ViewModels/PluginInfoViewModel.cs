@@ -1,6 +1,9 @@
+using System.ComponentModel;
 using System.Globalization;
+using System.Reactive.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Laminar.Avalonia.Translations;
 using Laminar.Avalonia.ViewModels.Contracts;
 using Laminar.Avalonia.ViewModels.Primitives;
 using Laminar.Contracts.Base;
@@ -12,12 +15,18 @@ using Laminar.PluginFramework.Json;
 
 namespace Laminar.Avalonia.ViewModels;
 
-public partial class PluginInfoViewModel : ViewModelBase, IVersioningHost, IChangeVersion
+public partial class PluginInfoViewModel : ViewModelBase, IVersioningHost, ISetVersion, IUninstallable
 {
+    private static readonly IComparer<WorkspacePluginInfoViewModel> WorkspaceComparer =
+        Comparer<WorkspacePluginInfoViewModel>.Create((a, b)
+            => string.Compare(a.HostName, b.HostName, StringComparison.Ordinal));
+    
     private readonly IPluginInfo _pluginInfo;
     private readonly IExceptionHandler _exceptionHandler;
     private readonly IWorkspaceManager _workspaceManager;
     private readonly ObservableDictionary<IWorkspace, WorkspacePluginInfoViewModel> _workspacePluginInfos = [];
+    private readonly ObservableValue<string> _targetVersionName;
+    private readonly ObservableValue<SemanticVersion?> _targetVersion;
     
     private bool _workspaceInfosLoaded = false;
     
@@ -31,12 +40,13 @@ public partial class PluginInfoViewModel : ViewModelBase, IVersioningHost, IChan
         _workspaceManager = workspaceManager;
 
         AvailableVersions = info.AllVersions;
-        TargetVersionName = info.Id;
-        TargetVersion = info.LatestVersion.Value;
-        if (TargetVersion is not null)
+        _targetVersionName = new(info.Id);
+        _targetVersion = new(info.LatestVersion.Value);
+        RegisterSubscription(_targetVersion.Subscribe(x =>
         {
-            _ = SetTargetVersion(TargetVersion.Value);
-        }
+            if (x is not { } newVersion) return;
+            _ = SetTargetVersion(newVersion);
+        }));
 
         _pluginInfo.LatestVersion.Changed += LatestVersionChanged;
         SetVersionType = ComputeChangeVersionType();
@@ -45,23 +55,24 @@ public partial class PluginInfoViewModel : ViewModelBase, IVersioningHost, IChan
     public IReadOnlyObservableList<SemanticVersion> AvailableVersions { get; }
 
     public IReadOnlyObservableBag<WorkspacePluginInfoViewModel> Workspaces => 
-        field ??= _workspacePluginInfos.Values.ToObservableList(Comparer<WorkspacePluginInfoViewModel>
-            .Create((a, b) => string.Compare(a.HostName, b.HostName, StringComparison.Ordinal)));
-    
+        field ??= _workspacePluginInfos.Values.ToObservableList(WorkspaceComparer);
+
+    public IObservable<string> SetVersionDescription => 
+        field ??= Strings.SetPluginVersion.Value.CombineLatest(_targetVersionName, _targetVersion)
+        .Select(values => string.Format(values.First, values.Second, values.Third));
+
     [ObservableProperty] public partial RelativeVersionState SetVersionType { get; private set; }
 
-    [ObservableProperty] public partial SemanticVersion? TargetVersion { get; set; }
+    public IObservableValue<SemanticVersion?> TargetVersion => _targetVersion;
+
+    public IReadOnlyObservableValue<string> TargetVersionName => _targetVersionName;
 
     [ObservableProperty] public partial SemanticVersion? MinimumInstalledVersion { get; private set; }
-
-    [ObservableProperty] public partial string TargetVersionName { get; set; }
 
     [ObservableProperty] public partial string Description { get; set; } = "";
     
     [ObservableProperty] public partial bool IsExpanded { get; set; }
-
-    [ObservableProperty] public partial bool IsInstalled { get; set; }
-
+    
     public bool CanSetVersion => SetVersionType != RelativeVersionState.Equal;
     
     public void OnInstalledVersionsChanged()
@@ -80,15 +91,7 @@ public partial class PluginInfoViewModel : ViewModelBase, IVersioningHost, IChan
         }
 
         MinimumInstalledVersion = minimumVersion;
-        IsInstalled = minimumVersion is not null;
         SetVersionType = ComputeChangeVersionType();
-    }
-    
-    partial void OnTargetVersionChanged(SemanticVersion? value)
-    {
-        if (value is not { } newVersion) return;
-
-        _ = SetTargetVersion(newVersion); 
     }
 
     partial void OnSetVersionTypeChanged(RelativeVersionState value) => SetVersionCommand.NotifyCanExecuteChanged();
@@ -136,9 +139,8 @@ public partial class PluginInfoViewModel : ViewModelBase, IVersioningHost, IChan
             }
             
             var newVersionMetadata = await sources[0].GetManifest(new VersionedPluginId(_pluginInfo.Id, newVersion));
-            TargetVersionName = newVersionMetadata.UserFriendlyName.Localize(CultureInfo.CurrentUICulture) ?? _pluginInfo.Id;
+            _targetVersionName.Value = newVersionMetadata.UserFriendlyName.Localize(CultureInfo.CurrentUICulture) ?? _pluginInfo.Id;
             Description = newVersionMetadata.Description.Localize(CultureInfo.CurrentUICulture) ?? "";
-            SetVersionType = ComputeChangeVersionType();
         }
         
         catch (Exception ex)
@@ -147,15 +149,10 @@ public partial class PluginInfoViewModel : ViewModelBase, IVersioningHost, IChan
         }
     }
 
-    private void LatestVersionChanged(object? sender, ObservableValueChangedEventArgs<SemanticVersion?> changedArgs)
-    {
-        if (Equals(changedArgs.OldValue, TargetVersion))
-        {
-            TargetVersion = changedArgs.NewValue;
-        }
-    }
+    private void LatestVersionChanged(object? sender, ObservableValueChangedEventArgs<SemanticVersion?> changedArgs) 
+        => TargetVersion.Value = changedArgs.NewValue;
 
-    public void EnsureWorkspaceInfosLoaded()
+    private void EnsureWorkspaceInfosLoaded()
     {
         if (_workspaceInfosLoaded) return;
         _workspaceInfosLoaded = true;
@@ -163,43 +160,28 @@ public partial class PluginInfoViewModel : ViewModelBase, IVersioningHost, IChan
         RegisterSubscription(_workspaceManager.Workspaces.SubscribeForEach(
             workspace =>
             {
-                _workspacePluginInfos.Add(workspace, new WorkspacePluginInfoViewModel(_pluginInfo.Id, this, workspace));
+                var newWorkspaceInfo = new WorkspacePluginInfoViewModel(_pluginInfo.Id, this, workspace);
+                _workspacePluginInfos.Add(workspace, newWorkspaceInfo);
+                newWorkspaceInfo.PropertyChanged += OnWorkspacePropertyChanged;
             },
             workspace =>
             {
-                _workspacePluginInfos.Remove(workspace);
+                if (_workspacePluginInfos.Remove(workspace, out var workspaceInfo))
+                {
+                    workspaceInfo.PropertyChanged -= OnWorkspacePropertyChanged;
+                }
             }));
     }
 
-    private RelativeVersionState ComputeChangeVersionType()
+    private void OnWorkspacePropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        var hasInstallations = false;
-        var hasUpgrades = false;
-        var hasDowngrades = false;
-        if (!IsInstalled) return RelativeVersionState.Install;
-        
-        foreach (var workspacePluginInfo in Workspaces)
+        if (e.PropertyName == nameof(WorkspacePluginInfoViewModel.SetVersionType))
         {
-            if (workspacePluginInfo.InstalledVersion is not { } installedVersion)
-                continue;
-            
-            hasInstallations = true;
-            hasUpgrades |= installedVersion < TargetVersion;
-            hasDowngrades |= installedVersion > TargetVersion;
+            SetVersionType = ComputeChangeVersionType();
         }
-
-        if (!hasInstallations)
-        {
-            IsInstalled = false;
-            return RelativeVersionState.Install;
-        }
-        
-        return (hasUpgrades, hasDowngrades) switch
-        {
-            (false, false) => RelativeVersionState.Equal,
-            (true, false) => RelativeVersionState.Upgrade,
-            (false, true) => RelativeVersionState.Downgrade,
-            (true, true) => RelativeVersionState.SetVersion
-        };
     }
+
+    private RelativeVersionState ComputeChangeVersionType() => MinimumInstalledVersion is null
+        ? RelativeVersionState.Install
+        : Workspaces.Select(x => x.SetVersionType).Aggregate();
 }

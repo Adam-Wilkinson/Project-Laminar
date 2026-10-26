@@ -1,6 +1,7 @@
-using System.ComponentModel;
+using System.Reactive.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Laminar.Avalonia.Translations;
 using Laminar.Avalonia.ViewModels.Contracts;
 using Laminar.Avalonia.ViewModels.Primitives;
 using Laminar.Contracts.Base.PluginLoading;
@@ -9,10 +10,9 @@ using Laminar.Domain.ValueObjects;
 
 namespace Laminar.Avalonia.ViewModels;
 
-public partial class WorkspacePluginInfoViewModel : ViewModelBase, IChangeVersion
+public partial class WorkspacePluginInfoViewModel : ViewModelBase, IUninstallable, ISetVersion
 {
-    private readonly IReadOnlyObservableValue<SemanticVersion?> _versionObservable;
-
+    private readonly IReadOnlyObservableValue<SemanticVersion?> _installedVersionObservable;
     private readonly string _pluginId;
     private readonly IVersioningHost _versioningHost;
     private readonly IWorkspace _host;
@@ -20,65 +20,53 @@ public partial class WorkspacePluginInfoViewModel : ViewModelBase, IChangeVersio
     public WorkspacePluginInfoViewModel(
         string pluginId, 
         IVersioningHost versioningHost,
-        IWorkspace host) : base(versioningHost)
+        IWorkspace host)
     {
         _pluginId = pluginId;
         _versioningHost = versioningHost;
         _host = host;
-        _versionObservable = host.PluginManager.GetPluginVersionObservable(pluginId);
-        RegisterSubscription(_versionObservable.Subscribe(_ =>
+        _installedVersionObservable = host.PluginManager.GetPluginVersionObservable(pluginId);
+        
+        RegisterSubscription(_installedVersionObservable.Subscribe(_ =>
         {
             OnPropertyChanged(nameof(InstalledVersion));
-            SetVersionType = InstalledVersion.RelativeChangeTo(TargetVersion);
-            SetVersionCommand.NotifyCanExecuteChanged();
+            SetVersionType = InstalledVersion.RelativeChangeTo(_versioningHost.TargetVersion.Value);
             _versioningHost.OnInstalledVersionsChanged();
-        })); 
+        }));
+
+        RegisterSubscription(_versioningHost.TargetVersion.Subscribe(
+            x => SetVersionType = _installedVersionObservable.Value.RelativeChangeTo(x)));
         
         HostName = host.Name;
-        TargetVersionName = versioningHost.TargetVersionName;
-        TargetVersion = versioningHost.TargetVersion;
+        SetVersionDescription = Strings.SetPluginVersion.Value.CombineLatest(_versioningHost.TargetVersionName, _versioningHost.TargetVersion)
+            .Select(values => string.Format(values.First, values.Second, values.Third));
     }
 
     public string HostName { get; }
 
-    [ObservableProperty] public partial string TargetVersionName { get; private set; }
-    
     [ObservableProperty] public partial RelativeVersionState SetVersionType { get; private set; }
 
-    [ObservableProperty] public partial SemanticVersion? TargetVersion { get; private set; }
+    public bool CanSetVersion => SetVersionType is not RelativeVersionState.Equal;
 
-    public bool CanSetVersion => TargetVersion is not null && !Equals(TargetVersion, InstalledVersion);
+    public SemanticVersion? InstalledVersion => _installedVersionObservable.Value;
 
-    public SemanticVersion? InstalledVersion => _versionObservable.Value;
+    public IObservable<string> SetVersionDescription { get; }
 
-    protected override void OnTargetPropertyChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        TargetVersionName = _versioningHost.TargetVersionName;
-        TargetVersion = _versioningHost.TargetVersion;
-    }
+    partial void OnSetVersionTypeChanged(RelativeVersionState value) => SetVersionCommand.NotifyCanExecuteChanged();
 
-    partial void OnTargetVersionChanged(SemanticVersion? value)
-    {
-        if (value is null) return;
-        SetVersionType = InstalledVersion.RelativeChangeTo(value);
-        SetVersionCommand.NotifyCanExecuteChanged();
-    }
-    
     [RelayCommand(CanExecute = nameof(CanSetVersion))]
     public async Task SetVersion()
     {
-        if (Equals(InstalledVersion, TargetVersion))
-        {
+        if (Equals(InstalledVersion, _versioningHost.TargetVersion.Value))
             return;
-        }
 
-        if (TargetVersion is null)
+        if (_versioningHost.TargetVersion.Value is not { } targetVersion)
         {
             _host.PluginManager.UninstallPlugin(_pluginId);
         }
         else
         {
-            await _host.PluginManager.EnsurePluginInstalled(new VersionedPluginId(_pluginId, TargetVersion.Value));
+            await _host.PluginManager.EnsurePluginInstalled(new VersionedPluginId(_pluginId, targetVersion));
         }
         
         SetVersionCommand.NotifyCanExecuteChanged();

@@ -1,0 +1,25 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:s="using:Laminar.Avalonia.Settings">
+    <Design.PreviewWith>
+        <Border Padding="20">
+            <!-- Add Controls for Previewer Here -->
+        </Border>
+    </Design.PreviewWith>
+    
+    <Style Selector="LayoutTransformControl.ExpandCollapseRegion">
+        <Setter Property="LayoutTransform" Value="scaley(1)"/>
+        <Setter Property="Opacity" Value="1"/>
+        <Setter Property="Transitions">
+            <Transitions>
+                <TransformOperationsTransition Property="LayoutTransform" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
+                <DoubleTransition Property="Opacity" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
+            </Transitions>
+        </Setter>
+    </Style>
+    
+    <Style Selector="LayoutTransformControl.ExpandCollapseRegion.ZeroHeight">
+        <Setter Property="LayoutTransform" Value="scaley(0)"/>
+        <Setter Property="Opacity" Value="0"/>
+    </Style>
+</Styles>

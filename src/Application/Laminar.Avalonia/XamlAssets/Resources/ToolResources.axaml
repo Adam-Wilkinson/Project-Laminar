@@ -297,7 +297,7 @@
 					<c:SettingsCog Classes="SettingsCog" Width="19" Height="19" 
 					                    SpokeDepth="4.5" SpokeCount="8" 
 					                    Stroke="{DynamicResource {x:Static init:ColorInitialization.LaminarForegroundKey}}" StrokeThickness="1.5"/>
-					<Border Classes="SettingsArrowRotater">
+					<Border Classes="SettingsArrowRotater">	
 						<Path Classes="SettingsArrow" Data="M 0 0 L 3 1 L 6 0" Height="20" Width="17"
 						      Stroke="{DynamicResource {x:Static init:ColorInitialization.LaminarForegroundKey}}" VerticalAlignment="Stretch" 
 						      ClipToBounds="False" HorizontalAlignment="Stretch" StrokeThickness="1.5"/>
@@ -393,39 +393,41 @@
     <!-- SETTINGS TOOLS -->
     <!-- ============== -->
     
-    <!-- <t:CommandTool NameKey="InstallAll" x:Key="Tools.Settings.PluginTools.InstallAll" x:DataType="vm:PluginInfoViewModel" -->
-    <!--                UserFriendlyName="{e:Translate {x:Static lang:Strings.InstallAllPlugins}}" -->
-    <!--                CommandBinding="{Binding InstallToAllCommand}" -->
-    <!--                DefaultIconGeometry="{StaticResource Icon.Download}"> -->
-	   <!--  <t:CommandTool.DescriptionBinding> -->
-		  <!--   <MultiBinding Converter="{StaticResource FormatStringConverter}"> -->
-			 <!--    <Binding Path="Value^" Source="{x:Static lang:Strings.InstallAllPluginsDescription}"/> -->
-			 <!--    <Binding Path="TargetVersionName"/> -->
-		  <!--   </MultiBinding> -->
-	   <!--  </t:CommandTool.DescriptionBinding> -->
-    <!-- </t:CommandTool> -->
+    <t:CommandTool NameKey="RefreshPlugins" x:Key="Tools.Settings.PluginTools.RefreshPlugins" x:DataType="vm:PluginPageViewModel"
+                   UserFriendlyName="{e:Translate {x:Static lang:Strings.Refresh}}"
+                   CommandBinding="{Binding  RefreshCommand}"
+                   Gesture="F5"
+                   DefaultIconGeometry="{StaticResource Icon.Refresh}"/>
     
-    <t:CommandTool NameKey="SetVersion" x:Key="Tools.Settings.PluginTools.SetVersion" x:DataType="contracts:IChangeVersion"
-                   UserFriendlyName="{e:Translate {x:Static lang:Strings.SetPluginVersion}}"
-                   CommandBinding="{Binding SetVersionCommand}">
-	    <t:Tool.DescriptionBinding>
-		    <MultiBinding Converter="{StaticResource FormatStringConverter}">
-			    <Binding Path="Value^" Source="{x:Static lang:Strings.SetPluginVersionDescription}"/>
-			    <Binding Path="TargetVersionName"/>
-			    <Binding Path="TargetVersion"/>
+    <t:PropertySetterTool NameKey="ShowPluginSources" x:Key="Tools.Settings.PluginTools.ShowPluginSources" x:DataType="vm:PluginPageViewModel"
+                          UserFriendlyName="{e:Translate {x:Static lang:Strings.ShowPluginSources}}"
+                          PropertyBinding="{Binding SourcesShown}"
+                          Gesture="Alt+s"
+                          DefaultIconGeometry="{StaticResource Icon.Library}">
+	    <t:PropertySetterTool.DescriptionBinding>
+		    <MultiBinding Converter="{StaticResource SwitchConverter}">
+			    <Binding Path="SourcesShown"/>
+			    <conv:SwitchItemBinding SwitchKey="{x:True}" Path="Value^" Source="{x:Static lang:Strings.HidePluginSources}"/>
+			    <conv:SwitchItemBinding SwitchKey="{x:False}" Path="Value^" Source="{x:Static lang:Strings.ShowPluginSources}"/>
 		    </MultiBinding>
-	    </t:Tool.DescriptionBinding>
+	    </t:PropertySetterTool.DescriptionBinding>
+    </t:PropertySetterTool>
+    
+    <t:CommandTool NameKey="SetVersion" x:Key="Tools.Settings.PluginTools.SetVersion" x:DataType="contracts:ISetVersion"
+                   UserFriendlyName="{e:Translate {x:Static lang:Strings.SetPluginVersion}}"
+                   CommandBinding="{Binding SetVersionCommand}"
+                   DescriptionBinding="{Binding SetVersionDescription^}">
 	    <t:Tool.IconTemplate>
-		    <DataTemplate x:DataType="contracts:IChangeVersion">
+		    <DataTemplate x:DataType="contracts:ISetVersion">
 			    <t:GeometryIcon>
 				    <t:GeometryIcon.Data>
 					    <MultiBinding Converter="{StaticResource SwitchConverter}">
 						    <Binding Path="SetVersionType"/>
-						    <Binding Source="{StaticResource Icon.Upgrade}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static contracts:RelativeVersionState.Upgrade}"/>
-						    <Binding Source="{StaticResource Icon.Downgrade}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static contracts:RelativeVersionState.Downgrade}"/>
-						    <Binding Source="{StaticResource Icon.SetGrade}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static contracts:RelativeVersionState.SetVersion}"/>
-						    <Binding Source="{StaticResource Icon.Download}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static contracts:RelativeVersionState.Install}"/>
-						    <Binding Source="{StaticResource Icon.CheckUnderlined}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static contracts:RelativeVersionState.Equal}"/>
+						    <Binding Source="{StaticResource Icon.Upgrade}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static primitives:RelativeVersionState.Upgrade}"/>
+						    <Binding Source="{StaticResource Icon.Downgrade}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static primitives:RelativeVersionState.Downgrade}"/>
+						    <Binding Source="{StaticResource Icon.SetGrade}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static primitives:RelativeVersionState.SetVersion}"/>
+						    <Binding Source="{StaticResource Icon.Download}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static primitives:RelativeVersionState.Install}"/>
+						    <Binding Source="{StaticResource Icon.CheckUnderlined}" Converter="{StaticResource SwitchItemConverter}" ConverterParameter="{x:Static primitives:RelativeVersionState.Equal}"/>
 					    </MultiBinding>
 				    </t:GeometryIcon.Data>
 			    </t:GeometryIcon>
@@ -433,12 +435,14 @@
 	    </t:Tool.IconTemplate>
     </t:CommandTool>
     
-    <t:CommandTool NameKey="UninstallPlugin" x:Key="Tools.Settings.PluginTools.Uninstall" x:DataType="contracts:IChangeVersion"
+    <t:CommandTool NameKey="UninstallPlugin" x:Key="Tools.Settings.PluginTools.Uninstall" x:DataType="contracts:IUninstallable"
                    UserFriendlyName="{e:Translate {x:Static lang:Strings.Uninstall}}"
                    CommandBinding="{Binding UninstallCommand}"
                    DefaultIconGeometry="{StaticResource Icon.Delete}"/>
     
     <t:Toolbox x:Key="Tools.Settings.PluginTools">
+	    <StaticResource ResourceKey="Tools.Settings.PluginTools.RefreshPlugins"/>
+	    <StaticResource ResourceKey="Tools.Settings.PluginTools.ShowPluginSources"/>
 	    <StaticResource ResourceKey="Tools.Settings.PluginTools.SetVersion"/>
 	    <StaticResource ResourceKey="Tools.Settings.PluginTools.Uninstall"/>
     </t:Toolbox>

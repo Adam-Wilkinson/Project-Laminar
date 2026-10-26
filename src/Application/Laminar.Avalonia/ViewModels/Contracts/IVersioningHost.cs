@@ -1,13 +1,14 @@
 using System.ComponentModel;
+using Laminar.Domain.Observables.Value;
 using Laminar.Domain.ValueObjects;
 
 namespace Laminar.Avalonia.ViewModels.Contracts;
 
-public interface IVersioningHost : INotifyPropertyChanged
+public interface IVersioningHost
 {
-    public SemanticVersion? TargetVersion { get; }
+    public IObservableValue<SemanticVersion?> TargetVersion { get; }
 
-    public string TargetVersionName { get; }
+    public IReadOnlyObservableValue<string> TargetVersionName { get; }
 
     public void OnInstalledVersionsChanged();
 }

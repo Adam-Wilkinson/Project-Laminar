@@ -28,11 +28,6 @@ public abstract class ViewModelBase : ObservableObject, IDisposable
     protected virtual void OnDisposed()
     {
     }
-
-    protected void SubscribeToPropertyChanged(INotifyPropertyChanged target, string propertyName)
-    {
-        
-    }
     
     protected T RegisterSubscription<T>(T disposable) where T : class, IDisposable
     {

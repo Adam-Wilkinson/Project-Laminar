@@ -24,7 +24,7 @@
                                   Padding="2"
                                   IsChecked="{Binding IsExpanded, Mode=TwoWay}">
                         <StackPanel Orientation="Horizontal" Spacing="10">
-                            <TextBlock Text="{Binding TargetVersionName}"
+                            <TextBlock Text="{Binding TargetVersionName^}"
                                        VerticalAlignment="Center"
                                        Classes="h2"/>
                             <TextBlock Text="{Binding MinimumInstalledVersion, StringFormat='({0})'}"
@@ -37,7 +37,7 @@
                     
                     <ComboBox Grid.Row="0" Grid.Column="1" 
                               ItemsSource="{Binding AvailableVersions}"
-                              SelectedItem="{Binding TargetVersion, Mode=TwoWay}"
+                              SelectedItem="{Binding TargetVersion.Value, Mode=TwoWay}"
                               VerticalAlignment="Center"
                               HorizontalAlignment="Stretch"/>
 
@@ -52,20 +52,16 @@
                     
                     <Button Grid.Row="0" Grid.Column="3" Theme="{StaticResource ToolButton}"
                             Width="30"
-                            IsVisible="{Binding $parent.((vm:PluginInfoViewModel)DataContext)?.IsInstalled, FallbackValue={x:False}}"
+                            IsVisible="{Binding $parent.((vm:PluginInfoViewModel)DataContext)?.MinimumInstalledVersion, 
+                            Converter={StaticResource HasValueConverter}, 
+                            FallbackValue={x:False}}"
                             DataContext="{Binding Converter={StaticResource ToolInstancer},
                             ConverterParameter={StaticResource Tools.Settings.PluginTools.Uninstall}}"/>
                     
                 </Grid>
                 
-                <LayoutTransformControl Name="InstallationsContainer" 
+                <LayoutTransformControl Classes="ExpandCollapseRegion"
                                         Classes.ZeroHeight="{Binding !IsExpanded}">
-                    <LayoutTransformControl.Transitions>
-                        <Transitions>
-                            <TransformOperationsTransition Property="LayoutTransform" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
-                            <DoubleTransition Property="Opacity" Duration="{s:Setting InterfaceSettings.AnimationDuration}"></DoubleTransition>
-                        </Transitions>
-                    </LayoutTransformControl.Transitions>
                     <StackPanel Spacing="6" Margin="8,4,0,0">
                         <TextBlock Text="{Binding Description}"
                                    Margin="0,0,0,5"
@@ -95,18 +91,6 @@
                     </StackPanel>
                 </LayoutTransformControl>
             </StackPanel>
-            
-            <Border.Styles>
-                <Style Selector="LayoutTransformControl#InstallationsContainer.ZeroHeight">
-                    <Setter Property="LayoutTransform" Value="scaley(0)"/>
-                    <Setter Property="Opacity" Value="0"/>
-                </Style>
-                
-                <Style Selector="LayoutTransformControl#InstallationsContainer">
-                    <Setter Property="LayoutTransform" Value="scaley(1)"/>
-                    <Setter Property="Opacity" Value="1"/>
-                </Style>
-            </Border.Styles>
         </Border>
     </DataTemplate>
 </ResourceDictionary>

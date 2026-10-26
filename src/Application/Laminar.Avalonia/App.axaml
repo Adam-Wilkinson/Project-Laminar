@@ -75,6 +75,7 @@
 		<StyleInclude Source="XamlAssets/Styles/FontStyles.axaml"/>
 		<StyleInclude Source="XamlAssets/Styles/NoBorderFlyoutStyles.axaml"/>
 		<StyleInclude Source="XamlAssets/Styles/UiLayerStyles.axaml"/>
+		<StyleInclude Source="XamlAssets/Styles/CollapseExpandLayoutTransformStyles.axaml"/>
 	</Application.Styles>
 
 	<Application.DataTemplates>
