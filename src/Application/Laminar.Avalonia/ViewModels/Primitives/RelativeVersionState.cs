@@ -26,17 +26,24 @@ public static class RelativeVersionExtensions
 
     public static RelativeVersionState Aggregate(this IEnumerable<RelativeVersionState> currentVersionStates)
     {
+        var isEmpty = true;
         var hasInstallations = false;
         var hasUpgrades = false;
         var hasDowngrades = false;
         
         foreach (var versionState in currentVersionStates)
         {
+            isEmpty = false;
             hasInstallations |= versionState is not RelativeVersionState.Install;
             hasUpgrades |= versionState is RelativeVersionState.Upgrade or RelativeVersionState.SetVersion;
             hasDowngrades |= versionState is RelativeVersionState.Downgrade or RelativeVersionState.SetVersion;
         }
 
+        if (isEmpty)
+        {
+            return RelativeVersionState.Equal;
+        }
+        
         if (!hasInstallations)
         {
             return RelativeVersionState.Install;

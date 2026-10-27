@@ -30,8 +30,8 @@ public partial class WorkspacePluginInfoViewModel : ViewModelBase, IUninstallabl
         RegisterSubscription(_installedVersionObservable.Subscribe(_ =>
         {
             OnPropertyChanged(nameof(InstalledVersion));
-            SetVersionType = InstalledVersion.RelativeChangeTo(_versioningHost.TargetVersion.Value);
             _versioningHost.OnInstalledVersionsChanged();
+            SetVersionType = InstalledVersion.RelativeChangeTo(_versioningHost.TargetVersion.Value);
         }));
 
         RegisterSubscription(_versioningHost.TargetVersion.Subscribe(
