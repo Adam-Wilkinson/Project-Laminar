@@ -5,60 +5,77 @@
                     xmlns:e="using:Echoes"
                     xmlns:lang="using:Laminar.Avalonia.Translations">
     <DataTemplate x:Key="PluginInfoDataTemplate" DataType="vm:PluginInfoViewModel">
-        <Border Classes="UiLayer" Padding="3">
+        <Border Name="PluginInfoBorder" 
+                ClipToBounds="True"
+                Classes="UiLayer"
+                Classes.IsExpanded="{Binding IsExpanded}">
             <StackPanel>
-                <Grid RowDefinitions="Auto"
-                      ColumnSpacing="3"
-                      HorizontalAlignment="Stretch">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="2*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto" SharedSizeGroup="InstallButton"/>
-                        <ColumnDefinition Width="Auto" SharedSizeGroup="RemoveButton"/>
-                    </Grid.ColumnDefinitions>
+                <Panel>
+                    <Rectangle Name="HeaderHighlight" 
+                               HorizontalAlignment="Stretch" 
+                               VerticalAlignment="Stretch" 
+                               Fill="{DynamicResource UiLayer}"
+                               IsHitTestVisible="False">
+                        <Rectangle.Transitions>
+                            <Transitions>
+                                <DoubleTransition Property="Opacity" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
+                            </Transitions>
+                        </Rectangle.Transitions>
+                    </Rectangle>
                     
-                    <ToggleButton Name="ExpandToggle" Grid.Column="0" Grid.Row="0" 
-                                  Theme="{StaticResource Themes.ExpandCollapseToggleButton}"
-                                  Background="Transparent"
-                                  HorizontalAlignment="Stretch"
-                                  Padding="2"
-                                  IsChecked="{Binding IsExpanded, Mode=TwoWay}">
-                        <StackPanel Orientation="Horizontal" Spacing="10">
-                            <TextBlock Text="{Binding TargetVersionName^}"
-                                       VerticalAlignment="Center"
-                                       Classes="h2"/>
-                            <TextBlock Text="{Binding MinimumInstalledVersion, StringFormat='({0})'}"
-                                       Classes="h2"
-                                       VerticalAlignment="Center"
-                                       IsVisible="{Binding MinimumInstalledVersion, Converter={StaticResource HasValueConverter}}"
-                                       ToolTip.Tip="{e:Translate {x:Static lang:Strings.IsMinimumVersion}}"/>
-                        </StackPanel>
-                    </ToggleButton>
-                    
-                    <ComboBox Grid.Row="0" Grid.Column="1" 
-                              ItemsSource="{Binding AvailableVersions}"
-                              SelectedItem="{Binding TargetVersion.Value, Mode=TwoWay}"
-                              VerticalAlignment="Center"
-                              HorizontalAlignment="Stretch"/>
+                    <Grid RowDefinitions="Auto"
+                          ColumnSpacing="3"
+                          HorizontalAlignment="Stretch">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto" SharedSizeGroup="InstallButton"/>
+                            <ColumnDefinition Width="Auto" SharedSizeGroup="RemoveButton"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <ToggleButton Name="ExpandToggle" Grid.Column="0" Grid.Row="0" 
+                                      Theme="{StaticResource Themes.ExpandCollapseToggleButton}"
+                                      Background="Transparent"
+                                      HorizontalAlignment="Stretch"
+                                      Padding="2"
+                                      Classes="HideChevronHighlight"
+                                      IsChecked="{Binding IsExpanded, Mode=TwoWay}">
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <TextBlock Text="{Binding TargetVersionName^}"
+                                           VerticalAlignment="Center"
+                                           Classes="h2"/>
+                                <TextBlock Text="{Binding MinimumInstalledVersion, StringFormat='({0})'}"
+                                           Classes="h2"
+                                           VerticalAlignment="Center"
+                                           IsVisible="{Binding MinimumInstalledVersion, Converter={StaticResource HasValueConverter}}"
+                                           ToolTip.Tip="{e:Translate {x:Static lang:Strings.IsMinimumVersion}}"/>
+                            </StackPanel>
+                        </ToggleButton>
+                        
+                        <ComboBox Grid.Row="0" Grid.Column="1" 
+                                  ItemsSource="{Binding AvailableVersions}"
+                                  SelectedItem="{Binding TargetVersion.Value, Mode=TwoWay}"
+                                  VerticalAlignment="Center"
+                                  HorizontalAlignment="Stretch"/>
 
-                    <Border Grid.Row="0" Grid.Column="2"
-                            Background="Transparent"
-                            Width="30"
-                            ToolTip.Tip="{e:Translate {x:Static lang:Strings.PluginVersionCorrect}}">
-                        <Button Theme="{StaticResource ToolButton}"
+                        <Border Grid.Row="0" Grid.Column="2"
+                                Background="Transparent"
+                                Width="30"
+                                ToolTip.Tip="{e:Translate {x:Static lang:Strings.PluginVersionCorrect}}">
+                            <Button Theme="{StaticResource ToolButton}"
+                                    DataContext="{Binding Converter={StaticResource ToolInstancer},
+                                    ConverterParameter={StaticResource Tools.Settings.PluginTools.SetVersion}}"/>
+                        </Border>
+                        
+                        <Button Grid.Row="0" Grid.Column="3" Theme="{StaticResource ToolButton}"
+                                Width="30"
+                                IsVisible="{Binding $parent.((vm:PluginInfoViewModel)DataContext)?.MinimumInstalledVersion, 
+                                Converter={StaticResource HasValueConverter}, 
+                                FallbackValue={x:False}}"
                                 DataContext="{Binding Converter={StaticResource ToolInstancer},
-                                ConverterParameter={StaticResource Tools.Settings.PluginTools.SetVersion}}"/>
-                    </Border>
-                    
-                    <Button Grid.Row="0" Grid.Column="3" Theme="{StaticResource ToolButton}"
-                            Width="30"
-                            IsVisible="{Binding $parent.((vm:PluginInfoViewModel)DataContext)?.MinimumInstalledVersion, 
-                            Converter={StaticResource HasValueConverter}, 
-                            FallbackValue={x:False}}"
-                            DataContext="{Binding Converter={StaticResource ToolInstancer},
-                            ConverterParameter={StaticResource Tools.Settings.PluginTools.Uninstall}}"/>
-                    
-                </Grid>
+                                ConverterParameter={StaticResource Tools.Settings.PluginTools.Uninstall}}"/>
+                    </Grid>
+                </Panel>
                 
                 <LayoutTransformControl Classes="ExpandCollapseRegion"
                                         Classes.ZeroHeight="{Binding !IsExpanded}">
@@ -91,6 +108,16 @@
                     </StackPanel>
                 </LayoutTransformControl>
             </StackPanel>
+            
+            <Border.Styles>
+                <Style Selector="Border#PluginInfoBorder Rectangle#HeaderHighlight">
+                    <Setter Property="Opacity" Value="0"/>
+                </Style>
+                
+                <Style Selector="Border#PluginInfoBorder:pointerover Rectangle#HeaderHighlight, Border#PluginInfoBorder.IsExpanded Rectangle#HeaderHighlight">
+                    <Setter Property="Opacity" Value="1"/>
+                </Style>
+            </Border.Styles>
         </Border>
     </DataTemplate>
 </ResourceDictionary>

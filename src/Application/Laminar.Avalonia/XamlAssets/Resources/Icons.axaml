@@ -17,6 +17,7 @@
             <PathIcon Data="{StaticResource Icon.Script}"/>
             <PathIcon Data="{StaticResource Icon.Reset}"/>
             <PathIcon Data="{StaticResource Icon.CrossWithCircle}"/>
+            <PathIcon Data="{StaticResource Icon.CheckWithCircle}"/>
             <PathIcon Data="{StaticResource Icon.Cross}"/>
             <PathIcon Data="{StaticResource Icon.Backspace}"/>
             <PathIcon Data="{StaticResource Icon.Rename}"/>
@@ -71,6 +72,7 @@
     <StreamGeometry x:Key="Icon.Download">m12,16  l-5,-5  l1.4,-1.45  l2.6,2.6  V4  h2  v8.15  l2.6,-2.6  L17  11  z  m-6,4  q-0.825,0 -1.412,-0.587  T4,18  v-3  h2  v3  h12  v-3  h2  v3  q0,0.825 -0.587,1.413  T18 20z</StreamGeometry>
     <StreamGeometry x:Key="Icon.Upgrade">M6.7 18.29c.39.39 1.02.39 1.41 0L12 14.42l3.88 3.88a.996.996 0 1 0 1.41-1.41L12.7 12.3a.996.996 0 0 0-1.41 0L6.7 16.88a.996.996 0 0 0 0 1.41 Z M6.7 11.7c.39.39 1.02.39 1.41 0L12 7.83l3.88 3.88a.996.996 0 1 0 1.41-1.41L12.7 5.71a.996.996 0 0 0-1.41 0L6.7 10.29a.996.996 0 0 0 0 1.41 Z</StreamGeometry>
     <StreamGeometry x:Key="Icon.Downgrade">M17.29 5.71a.996.996 0 0 0-1.41 0L12 9.58L8.11 5.7A.996.996 0 1 0 6.7 7.11l4.59 4.59c.39.39 1.02.39 1.41 0l4.59-4.59a.984.984 0 0 0 0-1.4 Z M17.29 12.3a.996.996 0 0 0-1.41 0L12 16.17l-3.88-3.88a.996.996 0 1 0-1.41 1.41l4.59 4.59c.39.39 1.02.39 1.41 0l4.59-4.59a.993.993 0 0 0-.01-1.4 Z</StreamGeometry>
-    <StreamGeometry x:Key="Icon.SetGrade">M6.7 22.29c.39.39 1.02.39 1.41 0L12 18.42l3.88 3.88a.996.996 0 1 0 1.41-1.41L12.7 16.3a.996.996 0 0 0-1.41 0L6.7 20.88a.996.996 0 0 0 0 1.41 Z  M17.29 5.71a.996.996 0 0 0-1.41 0L12 9.58L8.11 5.7A.996.996 0 1 0 6.7 7.11l4.59 4.59c.39.39 1.02.39 1.41 0l4.59-4.59a.984.984 0 0 0 0-1.4 Z  </StreamGeometry>
+    <StreamGeometry x:Key="Icon.SetGrade">M6.7 22.29c.39.39 1.02.39 1.41 0L12 18.42l3.88 3.88a.996.996 0 1 0 1.41-1.41L12.7 16.3a.996.996 0 0 0-1.41 0L6.7 20.88a.996.996 0 0 0 0 1.41 Z  M17.29 5.71a.996.996 0 0 0-1.41 0L12 9.58L8.11 5.7A.996.996 0 1 0 6.7 7.11l4.59 4.59c.39.39 1.02.39 1.41 0l4.59-4.59a.984.984 0 0 0 0-1.4 Z</StreamGeometry>
+    <StreamGeometry x:Key="Icon.CheckWithCircle">M12 0C5.383 0 0 5.383 0 12s5.383 12 12 12s12-5.383 12-12h-2.7c0 5.128-4.172 9.3-9.3 9.3S2.7 17.128 2.7 12S6.872 2.7 12 2.7zm7.4 2.583l-7.505 9.371L8.388 9.08l-2.002 2.436l4.741 3.888a1.573 1.573 0 0 0 2.231-.233l8.504-10.617z</StreamGeometry>
     <StreamGeometry x:Key="Icon.CheckUnderlined">M21,5L9,17L3.5,11.5L4.91,10.09L9,14.17L19.59,3.59L21,5M3,21V19H21V21H3Z</StreamGeometry>
 </ResourceDictionary>

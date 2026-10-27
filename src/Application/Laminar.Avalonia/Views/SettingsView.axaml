@@ -14,7 +14,7 @@
              x:Class="Laminar.Avalonia.Views.SettingsView"	
              x:DataType="vm:SettingsViewModel"
              HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-	<TabControl MaxWidth="1500" Margin="100, 0" TabStripPlacement="Top">
+	<TabControl MaxWidth="1500" TabStripPlacement="Top">
 		<TabItem Header="Settings">
 			<DockPanel VerticalAlignment="Stretch">
 				<TextBlock DockPanel.Dock="Bottom" 
@@ -94,8 +94,11 @@
 		
 		<TabItem Header="Plugins" DataContext="{Binding PluginPage}">
 			<DockPanel HorizontalAlignment="Stretch">
-				<StackPanel DockPanel.Dock="Top">
+				<StackPanel Name="PluginPageHeader"
+				            Margin="0,0,0,5"
+				            DockPanel.Dock="Top">
 					<Grid ColumnDefinitions="*,Auto,Auto,Auto"
+					      ColumnSpacing="6"
 					      HorizontalAlignment="Stretch">
 						<TextBox Grid.Column="0"
 						         HorizontalAlignment="Stretch" 
@@ -110,39 +113,46 @@
 						        Width="30"
 						        DataContext="{Binding Converter={StaticResource ToolInstancer}, 
 						        ConverterParameter={StaticResource Tools.Settings.PluginTools.SetVersion}}"/>
-						<Border Grid.Column="3"
-						        VerticalAlignment="Stretch"
-						        Classes.WhenPluginsShown="{Binding $parent.((vm:PluginPageViewModel)DataContext)?.SourcesShown}"
-						        CornerRadius="6,6,0,0">
-							<Border.Transitions>
-								<Transitions>
-									<BrushTransition Property="Background" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
-								</Transitions>
-							</Border.Transitions>
+						<Panel Grid.Column="3">
+							<Border Name="PluginShownHighlight"
+							        VerticalAlignment="Stretch"
+							        HorizontalAlignment="Stretch"
+							        Background="{DynamicResource UiLayer}"
+							        CornerRadius="10,10,0,0"
+							        Classes.WhenPluginsShown="{Binding $parent.((vm:PluginPageViewModel)DataContext)?.SourcesShown}">
+								<Border.Transitions>
+									<Transitions>
+										<DoubleTransition Property="Opacity" Duration="{s:Setting InterfaceSettings.AnimationDuration}"/>
+									</Transitions>
+								</Border.Transitions>
+								<Border.Styles>
+									<Style Selector="Border">
+										<Setter Property="Opacity" Value="0"/>
+									</Style>
+								
+									<Style Selector="Border.WhenPluginsShown">
+										<Setter Property="Opacity" Value="1"/>
+									</Style>
+								</Border.Styles>
+							</Border>
+							
 							<Button Theme="{StaticResource ToolButton}"
 							        Width="30"
 							        VerticalAlignment="Stretch"
+							        CornerRadius="10,10,0,0"
 							        DataContext="{Binding Converter={StaticResource ToolInstancer},
-						        ConverterParameter={StaticResource Tools.Settings.PluginTools.ShowPluginSources}}"/>
-							
-							<Border.Styles>
-								<Style Selector="Border">
-									<Setter Property="Background" Value="Transparent"/>
-								</Style>
-								
-								<Style Selector="Border.WhenPluginsShown">
-									<Setter Property="Background" Value="{DynamicResource UiLayer}"/>
-								</Style>
-							</Border.Styles>
-						</Border>
+							        ConverterParameter={StaticResource Tools.Settings.PluginTools.ShowPluginSources}}"/>
+						</Panel>
 					</Grid>
 					<LayoutTransformControl Classes="ExpandCollapseRegion"
 					                        Classes.ZeroHeight="{Binding !SourcesShown}">
 						<ItemsControl ItemsSource="{Binding PluginSources}"
-						              Background="{DynamicResource UiLayer}">
+						              Background="{DynamicResource UiLayer}"
+						              Padding="5"
+						              CornerRadius="0,0,10,10">
 							<ItemsControl.ItemTemplate>
 								<DataTemplate DataType="p:IPluginSource">
-									<TextBlock Text="{Binding Name}"/>
+									<TextBlock Text="{Binding Name}" Margin="3,3"/>
 								</DataTemplate>
 							</ItemsControl.ItemTemplate>
 						</ItemsControl>

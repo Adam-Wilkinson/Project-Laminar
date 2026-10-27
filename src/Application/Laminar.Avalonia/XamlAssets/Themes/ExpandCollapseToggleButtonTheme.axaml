@@ -2,14 +2,17 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:c="using:Laminar.Avalonia.Controls">
     <Design.PreviewWith>
-        <ToggleButton Theme="{StaticResource Themes.ExpandCollapseToggleButton}" Width="500">Expand section</ToggleButton>
+        <StackPanel Spacing="5" Margin="4">
+            <ToggleButton Theme="{StaticResource Themes.ExpandCollapseToggleButton}" Width="500" VerticalContentAlignment="Center">Expand section</ToggleButton>
+            <ToggleButton Theme="{StaticResource Themes.ExpandCollapseToggleButton}" Width="500" VerticalContentAlignment="Center" Classes="HideChevronHighlight">I don't highlight the chevron</ToggleButton>
+        </StackPanel>
     </Design.PreviewWith>
     
     <ControlTheme TargetType="ToggleButton" x:Key="Themes.ExpandCollapseToggleButton">
         <Setter Property="Template">
             <ControlTemplate>
                 <Grid Name="RootGrid" ColumnDefinitions="30,*" Background="{TemplateBinding Background}">
-                    <Border Grid.Column="0" Name="NormalRectangle"
+                    <Border Grid.Column="0" Name="PART_ChevronBorder"
                           UseLayoutRounding="False"
                           HorizontalAlignment="Center"
                           VerticalAlignment="Center"
@@ -31,8 +34,13 @@
             </ControlTemplate>
         </Setter>
         
-        <Style Selector="^:pointerover /template/ Border#NormalRectangle">
+        <Style Selector="^:pointerover /template/ Border#PART_ChevronBorder">
             <Setter Property="Background" Value="{DynamicResource UiLayer}"/>
         </Style>
+        
+        <Style Selector="^.HideChevronHighlight:pointerover /template/ Border#PART_ChevronBorder">
+            <Setter Property="Background" Value="{x:Null}"/>
+        </Style>
+        
     </ControlTheme>
 </ResourceDictionary>
