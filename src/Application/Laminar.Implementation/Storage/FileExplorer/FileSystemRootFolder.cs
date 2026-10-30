@@ -1,10 +1,9 @@
 using Laminar.Contracts.Base;
-using Laminar.Contracts.Base.PluginLoading;
 using Laminar.Contracts.Storage.FileExplorer.Graph;
 using Laminar.Contracts.Storage.FileExplorer.Synchronization;
 using Laminar.Contracts.Storage.IO;
 using Laminar.Contracts.Storage.PersistentData;
-using Laminar.Domain.Notifications;
+using Laminar.Contracts.Workspaces;
 using Laminar.Domain.ValueObjects;
 using Laminar.Implementation.Storage.FileExplorer.Graph;
 using Laminar.Implementation.Storage.FileExplorer.Notifications;

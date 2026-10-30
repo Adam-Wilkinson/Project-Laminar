@@ -1,4 +1,4 @@
-using Laminar.Contracts.Base.PluginLoading;
+using Laminar.Contracts.Workspaces.PluginLoading;
 using Laminar.Domain.Notifications;
 using Laminar.Domain.Notifications.Resolutions;
 using Laminar.Domain.Observables.Collections;

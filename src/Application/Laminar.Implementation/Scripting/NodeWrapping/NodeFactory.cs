@@ -1,7 +1,7 @@
 ﻿using Laminar.Contracts.Base;
-using Laminar.Contracts.Base.PluginLoading;
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Contracts.Storage.PersistentData;
+using Laminar.Contracts.Workspaces;
 using Laminar.Domain.ValueObjects;
 using Laminar.Implementation.Base.UserInterface;
 using Laminar.Implementation.Scripting.Notifications;

@@ -3,6 +3,7 @@ using Laminar.Contracts.Storage.FileExplorer.Graph;
 using Laminar.Contracts.Storage.FileExplorer.Synchronization;
 using Laminar.Contracts.Storage.IO;
 using Laminar.Contracts.Storage.PersistentData;
+using Laminar.Contracts.Workspaces;
 using Laminar.Implementation.Storage.FileExplorer;
 using Laminar.Implementation.Storage.FileExplorer.Graph;
 using Microsoft.Extensions.DependencyInjection;

@@ -2,11 +2,11 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Laminar.Contracts.Base;
-using Laminar.Contracts.Base.PluginLoading;
 using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Scripting.Connection;
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Contracts.Storage.PersistentData;
+using Laminar.Contracts.Workspaces;
 using Laminar.Domain.Exceptions;
 using Laminar.Domain.Observables.Collections;
 using Laminar.Implementation.Scripting.Connections;

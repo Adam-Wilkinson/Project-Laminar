@@ -4,5 +4,7 @@ public interface IExceptionHandler
 {
     public void OnException(Exception exception);
     
-    Task OnExceptionAsync(Exception exception, CancellationToken cancellationToken = default);
+    public Task OnExceptionAsync(Exception exception, CancellationToken cancellationToken = default);
+    
+    public Task OnExceptionsAsync(IEnumerable<Exception> exceptions, CancellationToken cancellationToken = default);
 }

@@ -1,5 +1,5 @@
-﻿using Laminar.Contracts.Base.PluginLoading;
-using Laminar.Contracts.Storage.PersistentData;
+﻿using Laminar.Contracts.Storage.PersistentData;
+using Laminar.Contracts.Workspaces;
 
 namespace Laminar.Contracts.Scripting.NodeWrapping;
 

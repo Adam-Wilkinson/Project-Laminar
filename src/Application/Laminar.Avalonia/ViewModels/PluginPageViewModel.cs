@@ -1,5 +1,4 @@
 using System.ComponentModel;
-using System.Security;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Laminar.Avalonia.Translations;
@@ -7,7 +6,8 @@ using Laminar.Avalonia.ViewModels.Contracts;
 using Laminar.Avalonia.ViewModels.Primitives;
 using Laminar.Avalonia.ViewModels.Services;
 using Laminar.Contracts.Base;
-using Laminar.Contracts.Base.PluginLoading;
+using Laminar.Contracts.Workspaces;
+using Laminar.Contracts.Workspaces.PluginLoading;
 using Laminar.Domain.Observables.Collections;
 using Laminar.Domain.Observables.Value;
 

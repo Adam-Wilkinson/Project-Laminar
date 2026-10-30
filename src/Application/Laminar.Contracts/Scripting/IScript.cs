@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using Laminar.Contracts.Base.ActionSystem;
-using Laminar.Contracts.Base.PluginLoading;
 using Laminar.Contracts.Storage.PersistentData;
+using Laminar.Contracts.Workspaces;
 using Laminar.Domain.Observables.Value;
 using Point = Laminar.Domain.ValueObjects.Point;
 

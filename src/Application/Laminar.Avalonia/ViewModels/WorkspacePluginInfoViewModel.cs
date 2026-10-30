@@ -4,7 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using Laminar.Avalonia.Translations;
 using Laminar.Avalonia.ViewModels.Contracts;
 using Laminar.Avalonia.ViewModels.Primitives;
-using Laminar.Contracts.Base.PluginLoading;
+using Laminar.Contracts.Workspaces;
 using Laminar.Domain.Observables.Value;
 using Laminar.Domain.ValueObjects;
 
@@ -62,7 +62,7 @@ public partial class WorkspacePluginInfoViewModel : ViewModelBase, IUninstallabl
 
         if (_versioningHost.TargetVersion.Value is not { } targetVersion)
         {
-            _host.PluginManager.UninstallPlugin(_pluginId);
+            await _host.PluginManager.UninstallPlugin(_pluginId);
         }
         else
         {
@@ -74,9 +74,9 @@ public partial class WorkspacePluginInfoViewModel : ViewModelBase, IUninstallabl
     }
 
     [RelayCommand]
-    public void Uninstall()
+    public async Task Uninstall()
     {
-        _host.PluginManager.UninstallPlugin(_pluginId);
+        await _host.PluginManager.UninstallPlugin(_pluginId);
         SetVersionCommand.NotifyCanExecuteChanged();
     }
 }

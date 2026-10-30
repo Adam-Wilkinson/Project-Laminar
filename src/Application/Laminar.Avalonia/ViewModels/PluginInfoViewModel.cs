@@ -7,7 +7,8 @@ using Laminar.Avalonia.Translations;
 using Laminar.Avalonia.ViewModels.Contracts;
 using Laminar.Avalonia.ViewModels.Primitives;
 using Laminar.Contracts.Base;
-using Laminar.Contracts.Base.PluginLoading;
+using Laminar.Contracts.Workspaces;
+using Laminar.Contracts.Workspaces.PluginLoading;
 using Laminar.Domain.Observables.Collections;
 using Laminar.Domain.Observables.Value;
 using Laminar.Domain.ValueObjects;
@@ -120,11 +121,11 @@ public partial class PluginInfoViewModel : ViewModelBase, IVersioningHost, ISetV
     }
     
     [RelayCommand]
-    private void Uninstall()
+    private async Task Uninstall()
     {
         foreach (var workspacePluginInfo in _workspacePluginInfos.Values)
         {
-            workspacePluginInfo.Uninstall();
+            await workspacePluginInfo.Uninstall();
         }
     }
 

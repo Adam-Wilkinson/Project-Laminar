@@ -1,4 +1,4 @@
-using Laminar.Contracts.Base.PluginLoading;
+using Laminar.Contracts.Workspaces.PluginLoading;
 using Laminar.Domain.ValueObjects;
 using Laminar.Implementation.Scripting.NodeWrapping;
 

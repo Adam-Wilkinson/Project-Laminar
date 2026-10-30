@@ -1,7 +1,7 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
-using Laminar.Contracts.Base.PluginLoading;
+using Laminar.Contracts.Workspaces;
 
 namespace Laminar.Avalonia.ViewModels.Services;
 

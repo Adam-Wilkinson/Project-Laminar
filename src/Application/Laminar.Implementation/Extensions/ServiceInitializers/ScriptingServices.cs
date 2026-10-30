@@ -16,7 +16,7 @@ namespace Laminar.Implementation.Extensions.ServiceInitializers;
 
 internal static class ScriptingServices
 {
-    public static IServiceCollection AddScriptingServices(this IServiceCollection serviceCollection) => serviceCollection
+    public static IServiceCollection AddScriptingServices(this IServiceCollection services) => services
         .AddSingleton<INodeFactory, NodeFactory>()
         .AddSingleton<INodeComponentFactory, NodeComponentFactory>()
         .AddSingleton<INodeIOFactory, NodeIOFactory>()

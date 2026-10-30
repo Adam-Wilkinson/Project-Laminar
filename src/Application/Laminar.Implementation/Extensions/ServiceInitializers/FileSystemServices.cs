@@ -12,26 +12,23 @@ namespace Laminar.Implementation.Extensions.ServiceInitializers;
 
 public static class FileSystemServicesExtension
 {
-    extension(IServiceCollection serviceCollection)
-    {
-        public IServiceCollection AddFileSystemServices() => serviceCollection
-            .AddSingleton<IFileSystem, FileSystem>()
-            .AddSingleton<IFileSystemItemFactory, FileSystemItemFactory>()
-            .AddSingleton<IFileResourceFactory, FileResourceFactory>()
+    public static IServiceCollection AddFileSystemServices(this IServiceCollection services) => services
+        .AddSingleton<IFileSystem, FileSystem>()
+        .AddSingleton<IFileSystemItemFactory, FileSystemItemFactory>()
+        .AddSingleton<IFileResourceFactory, FileResourceFactory>()
             
-            .AddSingleton<IFileSystemCommandService, FileSystemCommandService>()
-            .AddSingleton<IFileSystemGraph, FileSystemGraph>()
-            .AddSingleton<IGraphMutationApplier, GraphMutationApplier>()
+        .AddSingleton<IFileSystemCommandService, FileSystemCommandService>()
+        .AddSingleton<IFileSystemGraph, FileSystemGraph>()
+        .AddSingleton<IGraphMutationApplier, GraphMutationApplier>()
             
-            .AddSingleton<IFileSystemMonitor, FileSystemMonitor>()
-            .AddSingleton<IFileSystemMutationComputer, FileSystemMutationComputer>()
-            .AddSingleton<IFileSystemItemHasher, FileSystemItemHasher>()
-            .AddSingleton<IFileSystemSynchronizer, FileSystemSynchronizer>()
-            .AddSingleton<IMutableFileSystemItemRepository, FileSystemItemRepository>()
-            .AddSingleton<IFileSystemItemRepository>(provider => provider.GetRequiredService<IMutableFileSystemItemRepository>())
-            .AddFactory<IOutdatedItemsBuffer?, IFileSystemEventHashBucket, FileSystemEventHashBucket>()
-            .AddSingleton<IFileSystemDiscrepancyComputer, FileSystemDiscrepancyComputer>()
+        .AddSingleton<IFileSystemMonitor, FileSystemMonitor>()
+        .AddSingleton<IFileSystemMutationComputer, FileSystemMutationComputer>()
+        .AddSingleton<IFileSystemItemHasher, FileSystemItemHasher>()
+        .AddSingleton<IFileSystemSynchronizer, FileSystemSynchronizer>()
+        .AddSingleton<IMutableFileSystemItemRepository, FileSystemItemRepository>()
+        .AddSingleton<IFileSystemItemRepository>(provider => provider.GetRequiredService<IMutableFileSystemItemRepository>())
+        .AddFactory<IOutdatedItemsBuffer?, IFileSystemEventHashBucket, FileSystemEventHashBucket>()
+        .AddSingleton<IFileSystemDiscrepancyComputer, FileSystemDiscrepancyComputer>()
             
-            .AddScoped<IFileBrowser, FileBrowser>();
-    }
+        .AddScoped<IFileBrowser, FileBrowser>();
 }

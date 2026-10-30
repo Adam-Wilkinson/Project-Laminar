@@ -7,9 +7,9 @@
              xmlns:toolSystem="clr-namespace:Laminar.Avalonia.ToolSystem"
              xmlns:c="using:Laminar.Avalonia.Controls"
              xmlns:s="using:Laminar.Avalonia.Settings"
-             xmlns:p="using:Laminar.Contracts.Base.PluginLoading"
              xmlns:lang="using:Laminar.Avalonia.Translations"
              xmlns:e="using:Echoes"
+             xmlns:pluginLoading="clr-namespace:Laminar.Contracts.Workspaces.PluginLoading;assembly=Laminar.Contracts"
              mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="450" d:DataContext="{x:Static dvm:DesignViewModel.Settings}"
              x:Class="Laminar.Avalonia.Views.SettingsView"	
              x:DataType="vm:SettingsViewModel"
@@ -151,7 +151,7 @@
 						              Padding="5"
 						              CornerRadius="0,0,10,10">
 							<ItemsControl.ItemTemplate>
-								<DataTemplate DataType="p:IPluginSource">
+								<DataTemplate DataType="pluginLoading:IPluginSource">
 									<TextBlock Text="{Binding Name}" Margin="3,3"/>
 								</DataTemplate>
 							</ItemsControl.ItemTemplate>

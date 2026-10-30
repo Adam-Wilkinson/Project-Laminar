@@ -4,9 +4,10 @@ using Laminar.Avalonia.ViewModels.Contracts;
 using Laminar.Avalonia.ViewModels.Primitives;
 using Laminar.Avalonia.ViewModels.Services;
 using Laminar.Contracts.Base;
-using Laminar.Contracts.Base.PluginLoading;
 using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Storage.FileExplorer;
+using Laminar.Contracts.Workspaces;
+using Laminar.Contracts.Workspaces.PluginLoading;
 using Laminar.Domain;
 
 namespace Laminar.Avalonia.ViewModels;

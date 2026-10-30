@@ -1,8 +1,8 @@
 ﻿using Laminar.Contracts.Base;
-using Laminar.Contracts.Base.PluginLoading;
 using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Scripting.NodeWrapping;
 using Laminar.Contracts.Storage.PersistentData;
+using Laminar.Contracts.Workspaces.PluginLoading;
 using Laminar.Domain.Exceptions;
 using Laminar.Domain.Notifications;
 using Laminar.Domain.Observables.Collections;

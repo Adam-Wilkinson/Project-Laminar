@@ -1,10 +1,11 @@
 ﻿using System.ComponentModel;
 using Laminar.Contracts.Base;
 using Laminar.Contracts.Base.ActionSystem;
-using Laminar.Contracts.Base.PluginLoading;
 using Laminar.Contracts.Scripting;
 using Laminar.Contracts.Scripting.Execution;
 using Laminar.Contracts.Storage.PersistentData;
+using Laminar.Contracts.Workspaces;
+using Laminar.Contracts.Workspaces.PluginLoading;
 using Laminar.Domain.Observables.Collections;
 using Laminar.Domain.Observables.Value;
 using Laminar.Domain.ValueObjects;

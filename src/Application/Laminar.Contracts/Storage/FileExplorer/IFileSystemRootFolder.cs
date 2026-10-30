@@ -1,4 +1,4 @@
-using Laminar.Contracts.Base.PluginLoading;
+using Laminar.Contracts.Workspaces;
 
 namespace Laminar.Contracts.Storage.FileExplorer;
 

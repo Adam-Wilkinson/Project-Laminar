@@ -6,8 +6,8 @@ using Laminar.Avalonia.ViewModels.Contracts;
 using Laminar.Avalonia.ViewModels.Primitives;
 using Laminar.Avalonia.ViewModels.Services;
 using Laminar.Contracts.Base.ActionSystem;
-using Laminar.Contracts.Base.PluginLoading;
 using Laminar.Contracts.Storage.FileExplorer;
+using Laminar.Contracts.Workspaces;
 using Laminar.Domain.Observables.Collections;
 using Laminar.Implementation.Storage.FileExplorer;
 
