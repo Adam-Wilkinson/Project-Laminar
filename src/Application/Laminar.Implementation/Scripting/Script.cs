@@ -44,7 +44,7 @@ internal sealed class Script : IScript
         Pan = persistentData[nameof(Pan)].GetValueOrInitialize(new Point { X = 0, Y = 0 });
         Zoom = persistentData[nameof(Zoom)].GetValueOrInitialize(1.0);
 
-        Host.PluginManager.PluginChanged += OnPluginChanged;
+        Host.PluginManager.InstalledPlugins.Changed += OnPluginChanged;
     }
 
     public IWorkspace Host { get; }
@@ -65,16 +65,16 @@ internal sealed class Script : IScript
     {
         NodeGraph.Dispose();
         _context.Dispose();
-        Host.PluginManager.PluginChanged -= OnPluginChanged;
+        Host.PluginManager.InstalledPlugins.Changed -= OnPluginChanged;
     }
     
     private void OnPluginChanged(object? sender, PluginChangedEventArgs e)
     {
         _context.Dispose();
 
-        if (e.ChangeType == PluginChangedType.VersionChanged)
+        if (e.ChangeType == PluginChangedType.Changed)
         {
-            var pluginVersion = Host.PluginManager.GetPluginVersion(e.PluginId)
+            var pluginVersion = Host.PluginManager.InstalledPlugins.GetPluginVersion(e.PluginId)
                 ?? throw new InvalidOperationException("Plugin version changed event fired, but it does not have a new version");
             
             _nodeGraphDataHandler.SetPluginVersion(_nodeTreeData, e.PluginId, pluginVersion);

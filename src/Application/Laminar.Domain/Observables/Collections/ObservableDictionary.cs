@@ -48,7 +48,7 @@ public class ObservableDictionary<TKey, TValue> : IDictionary<TKey, TValue> wher
         NotifyingValues.NotifyItemRemoved(removedValue);
         return true;
     }
-
+    
     public bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value) => _internal.TryGetValue(key, out value);
 
     public TValue this[TKey key]

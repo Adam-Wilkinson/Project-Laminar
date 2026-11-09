@@ -25,7 +25,7 @@ public partial class WorkspacePluginInfoViewModel : ViewModelBase, IUninstallabl
         _pluginId = pluginId;
         _versioningHost = versioningHost;
         _host = host;
-        _installedVersionObservable = host.PluginManager.GetPluginVersionObservable(pluginId);
+        _installedVersionObservable = host.PluginManager.InstalledPlugins.GetPluginVersionObservable(pluginId);
         
         RegisterSubscription(_installedVersionObservable.Subscribe(_ =>
         {

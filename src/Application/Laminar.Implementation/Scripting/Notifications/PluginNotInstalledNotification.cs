@@ -18,7 +18,7 @@ internal class PluginNotInstalledNotification : ResolvableNotification<Versioned
         _nodeContainer = nodeContainer;
         Data = plugin;
         _pluginManager = pluginManager;
-        _pluginManager.UserInstalledPlugins.ItemAdded += OnPluginAdded;
+        _pluginManager.InstalledPlugins.ItemAdded += OnPluginAdded;
     }
 
     public override NotificationSeverity Severity => NotificationSeverity.Error;
@@ -45,12 +45,12 @@ internal class PluginNotInstalledNotification : ResolvableNotification<Versioned
 
     protected override void OnDismissed()
     {
-        _pluginManager.UserInstalledPlugins.ItemAdded -= OnPluginAdded;
+        _pluginManager.InstalledPlugins.ItemAdded -= OnPluginAdded;
     }
 
     private void OnPluginAdded(object? sender, string plugin)
     {
-        if (_pluginManager.GetPluginVersion(Data.Name) == Data.Version)
+        if (_pluginManager.InstalledPlugins.GetPluginVersion(Data.Name) == Data.Version)
         {
             DismissInternal();
         }

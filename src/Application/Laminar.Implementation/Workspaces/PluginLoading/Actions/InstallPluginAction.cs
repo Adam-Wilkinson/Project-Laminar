@@ -8,7 +8,8 @@ internal readonly struct InstallPluginAction(VersionedPluginId pluginId, PluginA
 {
     public async Task<IUserActionExecutionOutcome> Execute()
     {
-        var currentVersion = context.Workspace.PluginManager.GetPluginVersion(pluginId.Name);
+        using var _ = context.UserInstalledPluginsById.CreateModificationScope();
+        var currentVersion = context.Workspace.PluginManager.InstalledPlugins.GetPluginVersion(pluginId.Name);
         if (currentVersion is { } installedPluginVersion && installedPluginVersion == pluginId.Version)
         {
             return IUserActionExecutionOutcome.Ineffectual();
@@ -28,8 +29,8 @@ internal readonly struct InstallPluginAction(VersionedPluginId pluginId, PluginA
         {
             return IUserActionExecutionOutcome.Error(ex);
         }
-        
-        context.UserInstalledPluginsById[pluginId.Name] = newPlugin;
+
+        context.UserInstalledPluginsById.Add(pluginId.Name, newPlugin);
         return IUserActionExecutionOutcome.Success(new UninstallPluginAction(pluginId.Name, context));
     }
 }

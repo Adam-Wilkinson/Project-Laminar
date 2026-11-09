@@ -12,7 +12,15 @@ public class ExceptionHandler(IDispatcher dispatcher, IEnumerable<IExceptionSink
             await sink.OnException(exception, cancellationToken);
         }
     }
-    
+
+    public async Task OnExceptionsAsync(IReadOnlyCollection<Exception> exceptions, CancellationToken cancellationToken = default)
+    {
+        foreach (var sink in sinks)
+        {
+            await sink.OnExceptions(exceptions, cancellationToken);
+        }
+    }
+
     public void OnException(Exception exception)
     {
         dispatcher.InvokeAsync(async void () =>

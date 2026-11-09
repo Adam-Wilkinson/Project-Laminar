@@ -21,7 +21,7 @@ internal sealed class WorkspaceManager(IServiceProvider serviceProvider, IUserAc
         };
         
         _hosts.Add(newHost);
-        newHost.PluginManager.PluginChanged += PluginManagerOnPluginChanged;
+        newHost.PluginManager.InstalledPlugins.Changed += PluginManagerOnPluginChanged;
         return newHost;
     }
 
@@ -35,6 +35,6 @@ internal sealed class WorkspaceManager(IServiceProvider serviceProvider, IUserAc
     public void Dispose()
     {
         foreach (var  host in _hosts)
-            host.PluginManager.PluginChanged -= PluginManagerOnPluginChanged;
+            host.PluginManager.InstalledPlugins.Changed -= PluginManagerOnPluginChanged;
     }
 }

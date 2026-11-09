@@ -15,5 +15,5 @@ public enum PluginChangedType
 {
     Added,
     Removed,
-    VersionChanged,
+    Changed,
 }

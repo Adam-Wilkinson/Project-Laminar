@@ -24,4 +24,14 @@ internal class UserPromptExceptionSink(DialogService dialogService) : IException
 
         return dialogService.PromptError(errorTitle, errorMessage, cancellationToken); 
     }
+
+    // TODO: If multiple exceptions are thrown from one operation, we probably want a single popup with details. This temporary fix just shows several popups
+    public async Task OnExceptions(IReadOnlyCollection<Exception> exceptions, CancellationToken cancellationToken)
+    {
+        foreach (var exception in exceptions)
+        {
+            await OnException(exception, cancellationToken);
+            if (cancellationToken.IsCancellationRequested) break;
+        }
+    }
 }

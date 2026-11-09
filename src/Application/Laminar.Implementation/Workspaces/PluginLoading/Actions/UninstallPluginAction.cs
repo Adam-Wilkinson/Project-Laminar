@@ -6,6 +6,7 @@ internal readonly struct UninstallPluginAction(string pluginId, PluginActionCont
 {
     public Task<IUserActionExecutionOutcome> Execute()
     {
+        using var _ = context.UserInstalledPluginsById.CreateModificationScope();
         if (!context.UserInstalledPluginsById.Remove(pluginId, out var plugin))
         {
             return Task.FromResult(IUserActionExecutionOutcome.Ineffectual());
