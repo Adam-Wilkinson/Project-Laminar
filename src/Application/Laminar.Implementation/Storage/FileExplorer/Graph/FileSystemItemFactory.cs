@@ -15,8 +15,8 @@ internal sealed class FileSystemItemFactory(IServiceProvider provider, IEncodabl
     public IFileSystemFolder CreateFolder(IFileSystemFolder parent, string name) 
         => CreateFolderInternal(parent, CreatePersistentData(name, true));
     
-    public IFileSystemRootFolder CreateRootFolder(FileSystemPath path) 
-        => ActivatorUtilities.CreateInstance<FileSystemRootFolder>(provider, path, CreatePersistentData(path.NameAndExtension, true));
+    public IFileSystemRootFolder CreateRootFolder(FileSystemPath path, IPersistentDictionary data) 
+        => ActivatorUtilities.CreateInstance<FileSystemRootFolder>(provider, path, CreatePersistentData(path.NameAndExtension, true, data));
     
     public IFileSystemItem CreateFromPersistentData(IFileSystemFolder parent, IPersistentDictionary persistentDictionary)
     {
@@ -31,12 +31,12 @@ internal sealed class FileSystemItemFactory(IServiceProvider provider, IEncodabl
             : CreateFileInternal(parent, persistentDictionary);
     }
 
-    private IPersistentDictionary CreatePersistentData(string nameAndExtension, bool isFolder)
+    private IPersistentDictionary CreatePersistentData(string nameAndExtension, bool isFolder, IPersistentDictionary? existingData = null)
     {
-        var newPersistentData = dataFactory.GetEncodableData<IPersistentDictionary>();
-        newPersistentData[IFileSystemItemFactory.PersistenceNameKey].GetValueOrInitialize(nameAndExtension);
-        newPersistentData[IFileSystemItemFactory.PersistenceIsFolderKey].GetValueOrInitialize(isFolder);
-        return newPersistentData;
+        existingData ??= dataFactory.GetEncodableData<IPersistentDictionary>();
+        existingData[IFileSystemItemFactory.PersistenceNameKey].GetValueOrInitialize(nameAndExtension);
+        existingData[IFileSystemItemFactory.PersistenceIsFolderKey].GetValueOrInitialize(isFolder);
+        return existingData;
     }
     
     private FileSystemFolder CreateFolderInternal(IFileSystemFolder parent, IPersistentDictionary persistentDictionary)

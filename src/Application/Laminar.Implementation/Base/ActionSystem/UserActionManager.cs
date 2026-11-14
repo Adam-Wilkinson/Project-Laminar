@@ -8,6 +8,26 @@ namespace Laminar.Implementation.Base.ActionSystem;
 
 internal class UserActionManager(IServiceProvider serviceProvider) : IUserActionManager
 {
-    public IUserActionScope CreateScope(params IUserActionSimplifier[] simplifiers)
-        => ActivatorUtilities.CreateInstance<UserActionScope>(serviceProvider, (object)simplifiers);
+    private readonly Dictionary<string, IUserActionScope> _scopes = [];
+    
+    public IUserActionScope GetScope(string key, IUserActionSimplifier[] simplifiers)
+    {
+        if (_scopes.TryGetValue(key, out var existingScope))
+        {
+            foreach (var simplifier in simplifiers)
+            {
+                existingScope.AddSimplifier(simplifier);
+            }
+
+            return existingScope;
+        }
+
+        var newScope = ActivatorUtilities.CreateInstance<UserActionScope>(serviceProvider);
+        foreach (var simplifier in simplifiers)
+        {
+            newScope.AddSimplifier(simplifier);
+        }
+        _scopes[key] = newScope;
+        return newScope;
+    }
 }

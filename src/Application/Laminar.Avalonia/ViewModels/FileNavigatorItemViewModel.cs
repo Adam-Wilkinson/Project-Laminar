@@ -50,7 +50,7 @@ public partial class FileNavigatorItemViewModel(
     public partial IObservableList<FileNavigatorItemViewModel>? Children { get; private set; }
 
     [ObservableProperty] 
-    public partial IWorkspace? Workspace { get; private set; }
+    public partial IWorkspace? Workspace { get; set; }
 
     [ObservableProperty] 
     [NotifyCanExecuteChangedFor(nameof(OpenCommand))]
@@ -133,8 +133,6 @@ public partial class FileNavigatorItemViewModel(
             {
                 EnsureChildrenLoaded();
             }
-
-            Workspace = field.GetRootFolder().Workspace;
         }
     }
 

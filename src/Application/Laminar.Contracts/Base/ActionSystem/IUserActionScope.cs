@@ -5,6 +5,8 @@ public interface IUserActionScope
     public IUserActionSession BeginSession();
 
     public IUserActionScope CreateChild(params IUserActionSimplifier[] simplifiers);
+
+    public void AddSimplifier(IUserActionSimplifier simplifier);
     
     public Task<UserActionResult> ExecuteAction(IUserAction action);
     

@@ -1,8 +1,10 @@
 using System.Collections;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Diagnostics.CodeAnalysis;
 using Laminar.Contracts.Storage.FileExplorer;
 using Laminar.Contracts.Storage.FileExplorer.Graph;
+using Laminar.Contracts.Storage.PersistentData;
 using Laminar.Domain.ValueObjects;
 
 namespace Laminar.Implementation.Storage.FileExplorer.Graph;
@@ -20,12 +22,27 @@ internal sealed class FileSystemRoots(
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public int Count => _internal.Count;
-    
-    public IFileSystemRootFolder EnsureRootRegistered(FileSystemPath path)
+
+    public bool TryGetRootFolder(FileSystemPath path, [MaybeNullWhen(false)] out IFileSystemRootFolder folder)
     {
-        if (_internal.FirstOrDefault(x => x.Path == path) is { } folder) return folder;
+        if (_internal.FirstOrDefault(x => x.Path == path) is { } match)
+        {
+            folder = match;
+            return true;
+        }
+
+        folder = null;
+        return false;
+    }
+
+    public IFileSystemRootFolder CreateRootFolder(FileSystemPath path, IPersistentDictionary data)
+    {
+        if (_internal.Any(x => x.Path == path))
+        {
+            throw new InvalidOperationException("Root folder already registered");
+        }
         
-        var newRoot = CreateDetachedRoot(path);
+        var newRoot = CreateDetachedRoot(path, data);
         _internal.Add(newRoot);
         ItemAdded?.Invoke(this, newRoot);
         return newRoot;
@@ -71,9 +88,9 @@ internal sealed class FileSystemRoots(
 
     public int IndexOf(IFileSystemRootFolder value) => _internal.IndexOf(value);
 
-    internal IFileSystemRootFolder CreateDetachedRoot(FileSystemPath path)
+    internal IFileSystemRootFolder CreateDetachedRoot(FileSystemPath path, IPersistentDictionary data)
     {
-        var newFolder = itemFactory.CreateRootFolder(path);
+        var newFolder = itemFactory.CreateRootFolder(path, data);
         repository.Add(token, newFolder);
         return newFolder;   
     }

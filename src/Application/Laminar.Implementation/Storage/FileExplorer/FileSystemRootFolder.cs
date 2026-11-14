@@ -3,7 +3,6 @@ using Laminar.Contracts.Storage.FileExplorer.Graph;
 using Laminar.Contracts.Storage.FileExplorer.Synchronization;
 using Laminar.Contracts.Storage.IO;
 using Laminar.Contracts.Storage.PersistentData;
-using Laminar.Contracts.Workspaces;
 using Laminar.Domain.ValueObjects;
 using Laminar.Implementation.Storage.FileExplorer.Graph;
 using Laminar.Implementation.Storage.FileExplorer.Notifications;
@@ -29,7 +28,6 @@ internal class FileSystemRootFolder : FileSystemFolder, IMutableFileSystemRootFo
         IFileSystem fileSystem,
         IPersistentDataManager persistentDataManager,
         IFileSystemMonitor monitor,
-        IWorkspaceManager workspaceManager,
         IExceptionHandler exceptionHandler,
         IFileSystemGraph graph) 
         : base(persistentData, fileSystem, graph)
@@ -40,16 +38,13 @@ internal class FileSystemRootFolder : FileSystemFolder, IMutableFileSystemRootFo
         _persistentDataOnDisk = persistentDataManager.GetDataOnDisk(path.ChildPath(InfoFileName), new JsonPersistentDataTranscoder(null!), persistentData);
         _currentMonitor = monitor.StartMonitoring(this, [ _persistentDataOnDisk.Location ]);
         _exceptionHandler = exceptionHandler;
-        Workspace = workspaceManager.CreateWorkspace(UserFriendlyName);
         _ = RunBackgroundStartup();
         
         Refresh();
     }
 
     public override FileSystemPath Path => _path;
-
-    public IWorkspace Workspace { get; }
-
+    
     public override void SetNameInternal(FileSystemGraph.MutationToken _, string newNameWithExtension)
     {
         if (Path.NameAndExtension == newNameWithExtension) return;
@@ -63,7 +58,6 @@ internal class FileSystemRootFolder : FileSystemFolder, IMutableFileSystemRootFo
         _persistentDataOnDisk.Location = _path.ChildPath(InfoFileName);
         _currentMonitor.Dispose();
         _currentMonitor = _fileSystemMonitor.StartMonitoring(this, [ _persistentDataOnDisk.Location ]);
-        Workspace.Name = UserFriendlyName;
         OnPropertyChanged(nameof(Path));
     }
 

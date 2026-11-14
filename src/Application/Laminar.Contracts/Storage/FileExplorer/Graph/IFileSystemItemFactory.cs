@@ -12,7 +12,7 @@ public interface IFileSystemItemFactory
     
     public IFileSystemFolder CreateFolder(IFileSystemFolder parent, string name);
     
-    public IFileSystemRootFolder CreateRootFolder(FileSystemPath path);
+    public IFileSystemRootFolder CreateRootFolder(FileSystemPath path, IPersistentDictionary data);
     
     public IFileSystemItem CreateFromPersistentData(IFileSystemFolder parent, IPersistentDictionary persistentDictionary);
 }

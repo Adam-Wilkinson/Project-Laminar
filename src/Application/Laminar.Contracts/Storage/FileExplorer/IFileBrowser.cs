@@ -1,6 +1,4 @@
 using Laminar.Contracts.Base.ActionSystem;
-using Laminar.Domain.Observables.Collections;
-using Laminar.Domain.ValueObjects;
 
 namespace Laminar.Contracts.Storage.FileExplorer;
 
@@ -10,8 +8,10 @@ namespace Laminar.Contracts.Storage.FileExplorer;
 /// </summary>
 public interface IFileBrowser
 {
-    public IReadOnlyObservableList<IFileSystemRootFolder> RootFolders { get; }
+    // public IReadOnlyObservableList<IFileSystemRootFolder> RootFolders { get; }
 
+    public const string ActionScopeKey = "FileBrowser";
+    
     public IUserActionScope ActionScope { get; }
 
     public Task<UserActionResult> Add(string itemName, IFileSystemFolder parent, int indexInParent, FileSystemItemType type);
@@ -24,7 +24,7 @@ public interface IFileBrowser
     
     public bool OpenInSystemFileBrowser(IFileSystemItem item);
     
-    Task<UserActionResult> RemoveRootFolder(FileSystemPath rootFolderPath);
+    // Task<UserActionResult> RemoveRootFolder(FileSystemPath rootFolderPath);
     
-    Task<UserActionResult> AddRootFolder(FileSystemPath newRootFolderPath);
+    // Task<UserActionResult> AddRootFolder(FileSystemPath newRootFolderPath);
 }

@@ -57,7 +57,7 @@ internal class FileBrowser : IFileBrowser, IDisposable
             CommandService = commandService,
         };
         
-        ActionScope = actionManager.CreateScope(new StorageActionSimplifier(_actionDependencies));
+        ActionScope = actionManager.GetScope(IFileBrowser.ActionScopeKey, new StorageActionSimplifier(_actionDependencies));
     }
 
     public IReadOnlyObservableList<IFileSystemRootFolder> RootFolders { get; }
@@ -86,7 +86,7 @@ internal class FileBrowser : IFileBrowser, IDisposable
     
     private void OnRootsChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
-        _rootFolderPaths.Value = RootFolders.Select(x => x.Path).ToList();
+        _rootFolderPaths.Value = [.. RootFolders.Select(x => x.Path)];
     }
     
     public void Dispose()

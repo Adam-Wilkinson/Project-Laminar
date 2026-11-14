@@ -2,5 +2,5 @@
 
 public interface IUserActionManager
 {
-    public IUserActionScope CreateScope(params IUserActionSimplifier[] simplifiers);
+    public IUserActionScope GetScope(string key, params IUserActionSimplifier[] simplifiers);
 }

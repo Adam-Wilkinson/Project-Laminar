@@ -4,6 +4,7 @@ using Laminar.Contracts.Storage.FileExplorer;
 using Laminar.Contracts.Storage.FileExplorer.Graph;
 using Laminar.Contracts.Storage.IO;
 using Laminar.Contracts.Storage.PersistentData;
+using Laminar.Contracts.Workspaces;
 using Laminar.Domain.ValueObjects;
 using Laminar.Implementation.Storage.FileExplorer;
 using Laminar.Implementation.Storage.PersistentData;
@@ -65,6 +66,7 @@ public class FileViewModelFactory
         IFileSystem fileSystem,
         IExceptionHandler exceptionHandler,
         IFileSystemGraph fileSystemGraph,
+        IWorkspaceManager workspaceManager,
         IServiceProvider serviceProvider)
     {
         _fileSystem = fileSystem;
@@ -75,7 +77,8 @@ public class FileViewModelFactory
         {
             [FileSystemItemType.Script.Extension] = async (file, sp) =>
             {
-                var scriptingFactory = file.GetRootFolder().Workspace.ScriptingFactory;
+                var scriptingFactory =
+                    workspaceManager.Workspaces.First(x => x.RootFolder.Path.IsAncestorOf(file.Path)).ScriptingFactory;
                 var transcoder = new JsonPersistentDataTranscoder(null!);
                 if (!file.GetContentsAsResource(transcoder, scriptingFactory)
                         .TryGetResult(out var scriptResource, out var error))

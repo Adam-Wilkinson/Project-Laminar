@@ -16,7 +16,7 @@
     <UserControl.Resources>
         <t:Toolbox x:Key="FileNavigatorRightClick" NameKey="File Explorer" DataType="vm:FileNavigatorViewModel">
             <StaticResource ResourceKey="Tools.FileSystem.Browser.Refresh"/>
-            <StaticResource ResourceKey="Tools.FileSystem.Browser.AddRootFolder"/>
+            <StaticResource ResourceKey="AddWorkspace"/>
         </t:Toolbox>
     </UserControl.Resources>
     

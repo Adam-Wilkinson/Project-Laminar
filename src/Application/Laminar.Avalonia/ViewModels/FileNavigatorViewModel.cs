@@ -6,6 +6,7 @@ using Laminar.Avalonia.ViewModels.Contracts;
 using Laminar.Avalonia.ViewModels.Primitives;
 using Laminar.Avalonia.ViewModels.Services;
 using Laminar.Contracts.Storage.FileExplorer;
+using Laminar.Contracts.Workspaces;
 using Laminar.Domain.Observables.Collections;
 using Laminar.Domain.ValueObjects;
 using Point = Avalonia.Point;
@@ -15,6 +16,7 @@ namespace Laminar.Avalonia.ViewModels;
 
 public partial class FileNavigatorViewModel(
     IOpenFileService openFileService,
+    IWorkspaceManager workspaceManager,
     IFileBrowser fileBrowser,
     DialogService dialogService,
     Func<FileSystemItemType, FileNavigatorItemViewModel> fileNavigatorItemViewModelFactory)
@@ -26,10 +28,11 @@ public partial class FileNavigatorViewModel(
     private (FileNavigatorItemViewModel moveItem, int moveIndex)? _currentHoverMove;
 
     public IReadOnlyObservableList<FileNavigatorItemViewModel> RootFiles { get; set; } = 
-        fileBrowser.RootFolders.ObservableMap(x =>
+        workspaceManager.Workspaces.ObservableMap(x =>
         {
             var result = fileNavigatorItemViewModelFactory(FileSystemItemType.Folder);
-            result.CoreItem = x;
+            result.Workspace = x;
+            result.CoreItem = x.RootFolder;
             result.OpenFileService = openFileService;
             result.IsExpanded = true;
             return result;
@@ -47,11 +50,11 @@ public partial class FileNavigatorViewModel(
     }
 
     [RelayCommand]
-    private async Task AddRootFolder()
+    private async Task AddWorkspace()
     {
         FileSystemPath? possibleFolder = await dialogService.PromptForFolder(WellKnownFolder.Documents);
         if (possibleFolder is not { } selectedFolder) return;
-        await fileBrowser.AddRootFolder(selectedFolder);
+        await workspaceManager.AddWorkspace(selectedFolder);
     }
 
     public bool HoverEnter(object? payload, Point location, object? receptacleTag)

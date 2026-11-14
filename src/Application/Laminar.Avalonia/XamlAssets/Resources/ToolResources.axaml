@@ -175,16 +175,16 @@
                    CommandBinding="{Binding RefreshCommand}"
                    DefaultIconGeometry="{StaticResource Icon.Refresh}"/>
     
-    <t:CommandTool NameKey="AddRootFolder" x:Key="Tools.FileSystem.Browser.AddRootFolder" x:DataType="vm:FileNavigatorViewModel" 
+    <t:CommandTool NameKey="AddWorkspace" x:Key="AddWorkspace" x:DataType="vm:FileNavigatorViewModel" 
                    UserFriendlyName="{e:Translate {x:Static lang:Strings.AddRootFolder}}"
-                   CommandBinding="{Binding AddRootFolderCommand}"
+                   CommandBinding="{Binding AddWorkspaceCommand}"
                    DefaultIconGeometry="{StaticResource Icon.Add}"/>
     
     <t:Toolbox NameKey="Browser" x:Key="Tools.FileSystem.Browser" x:DataType="vm:FileNavigatorViewModel"
                UserFriendlyName="{e:Translate {x:Static lang:Strings.BrowserTools}}"
                DefaultIconGeometry="{StaticResource Icon.FileNavigator}">
 	    <StaticResource ResourceKey="Tools.FileSystem.Browser.Refresh"/>
-	    <StaticResource ResourceKey="Tools.FileSystem.Browser.AddRootFolder"/>
+	    <StaticResource ResourceKey="AddWorkspace"/>
     </t:Toolbox>
     
     <t:Toolbox NameKey="FileNavigator" x:Key="Tools.FileSystem"

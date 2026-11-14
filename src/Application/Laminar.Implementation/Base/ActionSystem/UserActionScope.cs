@@ -5,7 +5,6 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Laminar.Implementation.Base.ActionSystem;
 
 internal class UserActionScope(
-    IUserActionSimplifier[] simplifiers,
     IUserActionResolver resolver,
     IUserActionChainSimplifier chainSimplifier,
     IExceptionHandler exceptionHandler,
@@ -13,6 +12,7 @@ internal class UserActionScope(
     : IUserActionScope, IUserActionSessionHost
 {
     private readonly ActionHistory _history = new(resolver);
+    private readonly List<IUserActionSimplifier> _simplifiers = [];
     private readonly List<ActionHistory> _children = [];
 
     public IUserActionScope CreateChild(params IUserActionSimplifier[] childSimplifiers)
@@ -21,6 +21,8 @@ internal class UserActionScope(
          _children.Add(newChild._history);
          return newChild;
     }
+
+    public void AddSimplifier(IUserActionSimplifier simplifier) => _simplifiers.Add(simplifier);
 
     public Task<UserActionResult> ExecuteAction(IUserAction action)
     {
@@ -36,7 +38,7 @@ internal class UserActionScope(
 
     public IUserActionSession BeginSession() => new UserActionSession(this, resolver);
 
-    public void Simplify(List<IUserAction> actions) => chainSimplifier.Simplify(actions, simplifiers);
+    public void Simplify(List<IUserAction> actions) => chainSimplifier.Simplify(actions, _simplifiers);
     
     public void RegisterUndoAction(IUserAction action)
         => _history.RegisterCompletedEvent(new ActionHistoryEvent(action, ActionHistoryTraversalType.Undo, _children));
@@ -44,9 +46,9 @@ internal class UserActionScope(
     private async Task<UserActionResult> NotifyIfError(Task<UserActionResult> resultTask)
     {
         var result = await resultTask;
-        foreach (var exception in result.Exceptions)
+        if (!result.Succeeded)
         {
-            await exceptionHandler.OnExceptionAsync(exception);
+            await exceptionHandler.OnExceptionsAsync(result.Exceptions);
         }
         
         return result;

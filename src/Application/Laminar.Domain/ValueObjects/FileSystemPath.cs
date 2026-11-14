@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using System.Transactions;
 
 namespace Laminar.Domain.ValueObjects;
 
@@ -19,6 +20,8 @@ public readonly struct FileSystemPath(string absolutePath) : IEquatable<FileSyst
     private readonly string _path = (string.IsNullOrEmpty(Path.GetFileName(absolutePath))
         ? Path.GetDirectoryName(absolutePath)
         : absolutePath) ?? throw new ArgumentNullException(nameof(absolutePath));
+
+    public bool IsAncestorOf(FileSystemPath other) => other._path.StartsWith(_path, RuntimeStringComparison);
     
     public FileSystemPath ChildPath(string childName) => new(Path.Join(_path, childName));
 

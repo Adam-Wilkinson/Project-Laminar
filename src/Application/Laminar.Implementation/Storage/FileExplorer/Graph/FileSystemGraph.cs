@@ -9,14 +9,17 @@ namespace Laminar.Implementation.Storage.FileExplorer.Graph;
 
 internal sealed class FileSystemGraph(
     IMutableFileSystemItemRepository repository,
-    IFileSystemItemFactory itemFactory) : IFileSystemGraph, IDisposable
+    IFileSystemItemFactory itemFactory,
+    IEncodableDataFactory dataFactory) : IFileSystemGraph, IDisposable
 {
     private static MutationToken _token = null!;
     private readonly FileSystemRoots _roots = new(_token, repository, itemFactory);
 
     public IFileSystemRoots Roots => _roots;
 
-    public IFileSystemRootFolder RecyclingBin => field ??= _roots.CreateDetachedRoot(DataLocations.LocalDataFolder.ChildPath("Recycling Bin"));
+    public IFileSystemRootFolder RecyclingBin => field ??= 
+        _roots.CreateDetachedRoot(DataLocations.LocalDataFolder.ChildPath("Recycling Bin"), 
+            dataFactory.GetEncodableData<IPersistentDictionary>());
 
     public void Move(IFileSystemItem item, IFileSystemFolder newParent, int newIndex)
     {
